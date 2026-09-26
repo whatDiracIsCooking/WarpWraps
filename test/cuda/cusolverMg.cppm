@@ -70,6 +70,14 @@ static_assert(std::is_pointer_v<cusolverMgHandle_t>);
 static_assert(std::is_pointer_v<cudaLibMgGrid_t>);
 static_assert(std::is_pointer_v<cudaLibMgMatrixDesc_t>);
 
+// CUDA 13 deprecated the whole cusolverMg API (every function below carries
+// CUSOLVERMG_DEPRECATED). These checks only prove the symbols still link, not
+// that anyone should call them, so silence the deprecation here -- the module's
+// re-exports keep the [[deprecated]] attribute, so real consumers are still
+// warned.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 // ────────────────────────────────────────────────────────────────────────
 // GPUMOD_LINK_CHECK: handle management
 // ────────────────────────────────────────────────────────────────────────
@@ -138,5 +146,7 @@ GPUMOD_LINK_CHECK(cusolverMgPotrs)
 
 GPUMOD_LINK_CHECK(cusolverMgPotri_bufferSize)
 GPUMOD_LINK_CHECK(cusolverMgPotri)
+
+#pragma clang diagnostic pop
 
 } // namespace gpumod::cuda::test

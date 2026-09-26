@@ -16,6 +16,14 @@ export module gpumod.extension.common:device_scope;
 import :gpu_check;
 import :error_policy;
 import :default_error_policy;
+// The default policy DefaultErrorPolicy<gpuError_t> is concept-checked on this
+// template's default argument, which instantiates its vtable and thus its
+// virtual handle_error -- and that odr-uses success_code<gpuError_t>(). That
+// specialization lives in :gpu_error; without it reachable here the compiler
+// falls back to the inline-but-undefined primary template (-Wundefined-inline,
+// and an ill-formed implicit instantiation). Acyclic: :gpu_error imports none
+// of :device_scope's chain.
+import :gpu_error;
 import gpumod.runtime_api;
 import std;
 
