@@ -22,9 +22,10 @@
 add_library(gpumod.extension.parallel_for INTERFACE)
 
 # The include root is src/ itself, not this directory: parallel_for.cuh is
-# reached as "extension/parallel_for/parallel_for.cuh" and pulls in the src/-root
-# header "runtime.cuh" alongside it. The installed tree mirrors src/ under
-# include/gpumod/ for exactly that reason, so the spelling resolves unchanged
+# reached as "extension/parallel_for/parallel_for.cuh" and pulls in the
+# src/-root header "runtime.cuh" alongside it. The installed tree mirrors src/
+# under include/gpumod/ for exactly that reason, so the spelling resolves
+# unchanged
 # after install.
 target_include_directories(
   gpumod.extension.parallel_for

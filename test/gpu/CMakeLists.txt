@@ -2,8 +2,8 @@
 #
 # One module per gpu* module, checking that every exported gpu* name is
 # exactly the backend entity it stands for: same type, same constant, same
-# function (plus GPUMOD_LINK_CHECK). Same shape as test/cuda -- see that file's header
-# comment for the GPUMOD_LINK_CHECK/WHOLE_ARCHIVE rationale.
+# function (plus GPUMOD_LINK_CHECK). Same shape as test/cuda -- see that file's
+# header comment for the GPUMOD_LINK_CHECK/WHOLE_ARCHIVE rationale.
 #
 # Like the gpu* layer, unlike everything else above it, these tests name both
 # backends, so they link gpumod_backend PRIVATE for the backend
@@ -109,10 +109,10 @@ add_dependencies(
 # complex.cuh, fp16.cuh and bf16.cuh are the same shape of test for the same
 # reason: their __device__ functions over cuComplex/hipComplex and __half /
 # bfloat16 can only be named by a device pass, and the claim each can break --
-# every gpuC* / conversion resolving on both backends through one include switch,
-# plus (for complex) the §3 aggregate vs class divergence the header is built
-# around -- is a device-compile claim. Building them is the assertion; no ctest
-# entry, no launch. Reached through gpumod.device, the same include path a
+# every gpuC* / conversion resolving on both backends through one include
+# switch, plus (for complex) the §3 aggregate vs class divergence the header is
+# built around -- is a device-compile claim. Building them is the assertion; no
+# ctest entry, no launch. Reached through gpumod.device, the same include path a
 # real device consumer uses.
 gpumod_add_gpu_device_library(
   NAME
@@ -210,14 +210,19 @@ add_custom_command(
   COMMENT "Checking gpu* alias coverage"
   VERBATIM
 )
-add_custom_target(gpu_alias_coverage ALL DEPENDS "${_alias_stamp}")
+add_custom_target(
+  gpu_alias_coverage ALL
+  DEPENDS "${_alias_stamp}"
+  COMMENT "gpu* alias coverage check"
+)
 add_dependencies(compile_time_tests gpu_alias_coverage)
 
 # The one runtime test under test/gpu. The fp16 / bf16 host conversion wrappers
 # (unlike every other gpu* name here) run on the CPU, so they can be exercised
 # for real with no device -- the .cppm tests above prove they link, this proves
-# they compute. GoogleTest is not fetched under GPUMOD_COMPILE_TIME_ONLY, so this
-# target is skipped there, exactly like test/cuda and test/hip one level up.
+# they compute. GoogleTest is not fetched under GPUMOD_COMPILE_TIME_ONLY, so
+# this target is skipped there, exactly like test/cuda and test/hip one level
+# up.
 if(NOT GPUMOD_COMPILE_TIME_ONLY)
   gpumod_add_gtest_executable(
     NAME

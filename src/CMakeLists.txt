@@ -18,10 +18,10 @@ endif()
 # The backend define (GPUMOD_GPU_BACKEND_*) and the src/-root include path for
 # the gpu* layer's headers (selected_backend.h, gpu_backend.h, runtime.cuh,
 # device_guard.h). Linked PRIVATE by every module below, and by test/gpu and the
-# bridge-using modules (init_state, random_normal), which read selected_backend.h
-# from a host compile with no __CUDACC__/__HIP__ to switch on. Linking it does NOT
-# license a backend #if in the consumer -- the #if lives only in the gpu* layer's
-# headers.
+# bridge-using modules (init_state, random_normal), which read
+# selected_backend.h from a host compile with no __CUDACC__/__HIP__ to switch
+# on. Linking it does NOT license a backend #if in the consumer -- the #if lives
+# only in the gpu* layer's headers.
 add_library(gpumod_backend INTERFACE)
 target_compile_definitions(
   gpumod_backend INTERFACE GPUMOD_GPU_BACKEND_${GPUMOD_GPU_BACKEND}
@@ -32,22 +32,23 @@ target_include_directories(
             $<INSTALL_INTERFACE:${GPUMOD_INSTALL_INCLUDEDIR}>
 )
 
-# The include path, runtime libs and GPUMOD_WARP_SIZE for the device-side headers
-# (runtime.cuh, complex.cuh, fp16.cuh, cooperative_groups.cuh, wmma.cuh) -- the
-# counterpart to gpumod_backend for code reached by #include, not import (a kernel
-# TU imports no modules). Carries NO GPUMOD_GPU_BACKEND define: these headers pick
-# their backend from __CUDACC__/__HIP__, so this is safe to link from outside the
-# gpu* layer (gpumod.extension.parallel_for is the intended consumer). Never
-# hip::device here -- see src/hip/README.md, "Link hip::host, never hip::device",
-# and cmake/gpumod_add_gpu_device_library.cmake for the per-kernel target that does.
+# The include path, runtime libs and GPUMOD_WARP_SIZE for the device-side
+# headers (runtime.cuh, complex.cuh, fp16.cuh, cooperative_groups.cuh, wmma.cuh)
+# -- the counterpart to gpumod_backend for code reached by #include, not import
+# (a kernel TU imports no modules). Carries NO GPUMOD_GPU_BACKEND define: these
+# headers pick their backend from __CUDACC__/__HIP__, so this is safe to link
+# from outside the gpu* layer (gpumod.extension.parallel_for is the intended
+# consumer). Never hip::device here -- see src/hip/README.md, "Link hip::host,
+# never hip::device", and cmake/gpumod_add_gpu_device_library.cmake for the
+# per-kernel target that does.
 #
 # GPUMOD_WARP_SIZE is a configure-time constant, not a backend switch.
 # cooperative_groups.cuh and wmma.cuh need no target of their own:
-# both vendors ship them header-only on the include path CUDA::cudart / hip::host
-# already bring (docs/architecture.md §2, §16 -- and do NOT add
-# find_package(rocwmma), which drags in hip::device; see §17). The common atomics
-# need no header either -- runtime.cuh's vendor runtime declares them (§15,
-# test/gpu/atomics.cu).
+# both vendors ship them header-only on the include path CUDA::cudart /
+# hip::host already bring (docs/architecture.md §2, §16 -- and do NOT add
+# find_package(rocwmma), which drags in hip::device; see §17). The common
+# atomics need no header either -- runtime.cuh's vendor runtime declares them
+# (§15, test/gpu/atomics.cu).
 add_library(gpumod.device INTERFACE)
 target_include_directories(
   gpumod.device
@@ -65,10 +66,10 @@ else()
 endif()
 
 # rand.cuh's include path and RNG library, for a device TU calling the
-# cuRAND/hipRAND device API -- the #include counterpart to gpumod.rand. Separate
-# from gpumod.device because the two headers are independent and a kernel needing
-# no RNG should not link one. Carries no GPUMOD_GPU_BACKEND define and never
-# hip::device, for the reasons on gpumod.device above.
+# cuRAND/hipRAND device API -- the #include counterpart to gpumod.rand.
+# Separate from gpumod.device because the two headers are independent and a
+# kernel needing no RNG should not link one. Carries no GPUMOD_GPU_BACKEND
+# define and never hip::device, for the reasons on gpumod.device above.
 add_library(gpumod.rand.device INTERFACE)
 target_include_directories(
   gpumod.rand.device
@@ -220,13 +221,14 @@ gpumod_add_cxx_module_library(
 )
 
 # Installed consumers compile these module units themselves (a C++23 module
-# package ships interface SOURCES, not BMIs), so every unit's compile requirements
-# must be exported. gpumod_backend is linked PRIVATE above, and PRIVATE
-# requirements are not exported -- so its include path and define would be missing
-# when an installed consumer compiles a .cppm, hitting gpu_backend.h's #error case.
-# Re-add it under $<INSTALL_INTERFACE:> only: BUILD and INSTALL interfaces are
-# exclusive, so the in-tree build is unchanged (and the no-backend-#if rule stays
-# enforced where it matters). See cmake/README.md, "Install and the CMake package".
+# package ships interface SOURCES, not BMIs), so every unit's compile
+# requirements must be exported. gpumod_backend is linked PRIVATE above, and
+# PRIVATE requirements are not exported -- so its include path and define would
+# be missing when an installed consumer compiles a .cppm, hitting
+# gpu_backend.h's #error case. Re-add it under $<INSTALL_INTERFACE:> only: BUILD
+# and INSTALL interfaces are exclusive, so the in-tree build is unchanged (and
+# the no-backend-#if rule stays enforced where it matters). See cmake/README.md,
+# "Install and the CMake package".
 #
 # Derived from BUILDSYSTEM_TARGETS so a module added above cannot be forgotten;
 # the INTERFACE libraries here have no units to compile and are skipped.

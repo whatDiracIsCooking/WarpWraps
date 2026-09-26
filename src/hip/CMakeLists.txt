@@ -4,8 +4,8 @@
 #
 # hip_runtime_api.h covers both driver and runtime (CUDA splits them into cuda.h
 # vs cuda_runtime_api.h), so this one module covers what gpumod.cuda.cuda_h and
-# gpumod.cuda.cuda_runtime_api cover together. Links hip::host, never hip::device
-# -- see src/hip/README.md, "Link hip::host, never hip::device".
+# gpumod.cuda.cuda_runtime_api cover together. Links hip::host, never
+# hip::device -- see src/hip/README.md, "Link hip::host, never hip::device".
 gpumod_add_cxx_module_library(
   NAME
   gpumod.hip.hip_runtime_api
@@ -21,7 +21,8 @@ gpumod_add_cxx_module_library(
 # nvml's HIP counterpart is two independent modules: rocm_smi (this one) and
 # amd_smi (below) -- see src/hip/README.md, "Why nvml became two modules". The
 # imported target is the unnamespaced rocm_smi64 (from rocm_smiTargets.cmake);
-# link that, not hip::host, since this library is independent of the HIP runtime.
+# link that, not hip::host, since this library is independent of the HIP
+# runtime.
 gpumod_add_cxx_module_library(
   NAME
   gpumod.hip.rocm_smi
@@ -36,7 +37,8 @@ gpumod_add_cxx_module_library(
 #
 # The newer of the two nvml counterparts -- see the rocm_smi comment above. The
 # imported target is the unnamespaced amd_smi (from amd_smiTargets.cmake); link
-# that, not hip::host, since this library is also independent of the HIP runtime.
+# that, not hip::host, since this library is also independent of the HIP
+# runtime.
 gpumod_add_cxx_module_library(
   NAME
   gpumod.hip.amd_smi

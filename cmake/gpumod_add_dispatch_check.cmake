@@ -9,8 +9,8 @@
 # maps the relocations back through the GPUMOD_FUNCTION table in the matching
 # gpu* module. It catches what the type system lets through -- an int widened
 # into a _64 entry point, iamax dispatching to amin, potrf to potri. Like
-# GPUMOD_LINK_CHECK, a failure fails the build. See the script's docstring for the
-# details, and each table's header for the module's own naming rule.
+# GPUMOD_LINK_CHECK, a failure fails the build. See the script's docstring for
+# the details, and each table's header for the module's own naming rule.
 #
 #   gpumod_add_dispatch_check(
 #     NAME       gpumod.test.wrappers.blas_dispatch  # the custom target

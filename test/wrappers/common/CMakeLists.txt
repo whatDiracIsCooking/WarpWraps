@@ -4,10 +4,10 @@
 # Build-time only. common is the fp/int concepts and the real/complex/half type
 # maps -- no compiled body, so there is nothing to disassemble and nothing to
 # run: a failing static_assert in type_traits.cppm fails the build, which is the
-# test. The checks import gpumod.wrappers.common directly rather than riding on a
-# downstream extension's incidental use of a given name. type_traits.cppm also
-# pins int_type to the two index widths the BLAS *_DISPATCH_64 macros handle; #58
-# is what a wider domain costs. (See src/wrappers/common/README.md for the
+# test. The checks import gpumod.wrappers.common directly rather than riding on
+# a downstream extension's incidental use of a given name. type_traits.cppm also
+# pins int_type to the two index widths the BLAS *_DISPATCH_64 macros handle;
+# #58 is what a wider domain costs. (See src/wrappers/common/README.md for the
 # error-policy / RAII-handle design.)
 
 gpumod_add_cxx_module_library(

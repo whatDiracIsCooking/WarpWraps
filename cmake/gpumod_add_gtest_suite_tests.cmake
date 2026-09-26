@@ -71,8 +71,8 @@ function(gpumod_add_gtest_suite_tests)
   endforeach()
 
   # Drift guard: suite names accumulate on a global property and the guard is
-  # deferred to end-of-directory-scope, so a target split across several calls is
-  # checked against the union (cmake/README.md, "Tests").
+  # deferred to end-of-directory-scope, so a target split across several calls
+  # is checked against the union (cmake/README.md, "Tests").
   set_property(
     GLOBAL APPEND PROPERTY _gpumod_gtest_suites_${_GST_TARGET} ${_GST_SUITES}
                            ${_GST_TYPED_SUITES}

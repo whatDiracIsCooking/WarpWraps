@@ -74,9 +74,10 @@ unset(_wa_install)
 
 # interface.cppm's two compile requirements (the src/ include root for
 # init_state_bridge.h, and gpumod_backend for the GPUMOD_GPU_BACKEND_* define
-# behind the bridges), granted to installed consumers under $<INSTALL_INTERFACE:>
-# because they are the ones compiling it -- see the comment at the end of
-# src/CMakeLists.txt. PRIVATE for the in-tree build, unchanged.
+# behind the bridges), granted to installed consumers under
+# $<INSTALL_INTERFACE:> because they are the ones compiling it -- see the
+# comment at the end of src/CMakeLists.txt. PRIVATE for the in-tree build,
+# unchanged.
 target_include_directories(
   gpumod.extension.init_state
   PUBLIC $<INSTALL_INTERFACE:${GPUMOD_INSTALL_INCLUDEDIR}>

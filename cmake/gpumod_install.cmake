@@ -233,9 +233,10 @@ function(gpumod_install_package)
   # installed package -- the target sweep above collects only the backend dir,
   # the gpu* layer and src/wrappers. Its src/extension/bridge/ headers are
   # #included solely by extension module units (gpumod.extension.init_state,
-  # gpumod.extension.random_normal) and by parallel_for.cuh, so with no extension
-  # target exported nothing in the package includes them and there is nothing to
-  # install. When the layer is made installable (a GPUMOD_BUILD_EXTENSION
+  # gpumod.extension.random_normal) and by parallel_for.cuh, so with no
+  # extension target exported nothing in the package includes them and there is
+  # nothing to install. When the layer is made installable (a
+  # GPUMOD_BUILD_EXTENSION
   # opt-in), the rule that installs these headers belongs there, next to the
   # sweep that adds the targets that need them -- so install-check can actually
   # verify it.

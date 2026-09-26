@@ -143,8 +143,8 @@ message(STATUS "GPU backend: ${GPUMOD_GPU_BACKEND}")
 # ========================================================================
 # Warp / wavefront size
 # ========================================================================
-# GPUMOD_WARP_SIZE (src/runtime.cuh) is a configure-time constant because neither
-# backend offers a compile-time spelling that is correct in every pass.
+# GPUMOD_WARP_SIZE (src/runtime.cuh) is a configure-time constant because
+# neither backend offers a compile-time spelling that is correct in every pass.
 # 32 is right for every NVIDIA arch and for RDNA (gfx10xx-gfx12xx);
 # set 64 for CDNA (gfx90a, gfx942). Nothing validates it against a real device.
 set(GPUMOD_WARP_SIZE
@@ -188,13 +188,13 @@ else()
   # Seed GPU_TARGETS from the environment before find_package(hip).
   #
   # hip-config-amd.cmake reads the CMake variable GPU_TARGETS; the HIP images
-  # export an env var of the same name (default gfx1200), but an env var is not a
-  # CMake variable, so it must be copied in. Left unset, hip-config runs
+  # export an env var of the same name (default gfx1200), but an env var is not
+  # a CMake variable, so it must be copied in. Left unset, hip-config runs
   # `amdgpu-arch` and on a box with no AMD GPU silently falls back to gfx906 --
   # wave64, which also disagrees with GPUMOD_WARP_SIZE's default 32.
-  # Precedence: an explicit -DGPU_TARGETS (already cached) beats $ENV{GPU_TARGETS}
-  # beats ROCm's own detection. AMDGPU_TARGETS is left unset -- hip-config warns it
-  # is deprecated and copies it into GPU_TARGETS anyway.
+  # Precedence: an explicit -DGPU_TARGETS (already cached) beats
+  # $ENV{GPU_TARGETS} beats ROCm's own detection. AMDGPU_TARGETS is left unset
+  # -- hip-config warns it is deprecated and copies it into GPU_TARGETS anyway.
   if(NOT DEFINED GPU_TARGETS AND DEFINED ENV{GPU_TARGETS})
     set(GPU_TARGETS
         "$ENV{GPU_TARGETS}"
@@ -275,9 +275,9 @@ include(cmake/gpumod_install.cmake)
 # Common module compilation flags. Empty on purpose, and NOT removable:
 # src/cuda/CMakeLists.txt links it from three targets, so deleting it fails the
 # link with `cannot find -lgpumod_module_flags`. Do not add -fmodules /
-# -fimplicit-module-maps / -fbuiltin-module-map here: with clang 20+ they collide
-# with std module-map resolution when a CUDA header (e.g. cublas_v2.h) pulls a
-# standard header into its global module fragment.
+# -fimplicit-module-maps / -fbuiltin-module-map here: with clang 20+ they
+# collide with std module-map resolution when a CUDA header (e.g. cublas_v2.h)
+# pulls a standard header into its global module fragment.
 add_library(gpumod_module_flags INTERFACE)
 
 # ========================================================================
