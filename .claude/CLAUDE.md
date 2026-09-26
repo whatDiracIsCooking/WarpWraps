@@ -617,7 +617,7 @@ targets use this machinery today: `test/gpu/conversions` (`HalfConversion`,
 > above pass it, and `test/gpu/conversions` deliberately does not. So:
 >
 > ```
-> ctest --preset default    42 entries — everything, needs a card
+> ctest --preset default    43 entries — everything, needs a card
 > ctest --preset ci-cuda    12 entries — `-LE gpu`, needs nothing
 > ctest --preset ci-hip     12 entries — same, the other backend
 > ```
@@ -641,7 +641,7 @@ targets use this machinery today: `test/gpu/conversions` (`HalfConversion`,
 > a GPU-less runner and keep the hand-written suite lists honest there.
 >
 > None of this changes what a box with a card runs: no preset other than
-> `ci-cuda` filters on `gpu`, so `devtools/cpp-tier.sh` still runs all 42.
+> `ci-cuda` filters on `gpu`, so `devtools/cpp-tier.sh` still runs all 43.
 
 ### A green CUDA build does not mean the code is portable
 
