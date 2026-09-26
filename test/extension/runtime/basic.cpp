@@ -13,6 +13,7 @@
 
 import std;
 import gpumod.runtime_api;
+import gpumod.extension.common;
 import gpumod.extension.runtime;
 
 namespace gpumod::extension::test {
@@ -415,6 +416,69 @@ TEST(StreamEventPairTests, MoveAssignment) {
   EXPECT_EQ(pair2.event_raw(), event);
   EXPECT_EQ(pair1.stream_raw(), nullptr);
   EXPECT_EQ(pair1.event_raw(), nullptr);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DeviceScope Tests
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// DeviceScope (gpumod.extension.common) makes a device current for its lifetime
+// and restores the previously-current device on destruction. These check the
+// three parts of that contract: the original device is recorded, the target
+// becomes current, and the original is restored. Device 0 always exists, so the
+// tests target it; on a single-GPU box target and original coincide, which
+// still exercises record and restore but does not distinguish a cross-device
+// switch -- that distinction only shows on multi-GPU hardware.
+
+TEST(DeviceScopeTests, RecordsOriginalDevice) {
+  int before = -1;
+  ASSERT_EQ(gpuGetDevice(&before), gpuSuccess);
+
+  DeviceScope scope(before);
+  EXPECT_EQ(scope.original_idx, before);
+}
+
+TEST(DeviceScopeTests, MakesTargetCurrent) {
+  DeviceScope scope(0);
+
+  int current = -1;
+  ASSERT_EQ(gpuGetDevice(&current), gpuSuccess);
+  EXPECT_EQ(current, 0);
+}
+
+TEST(DeviceScopeTests, RestoresPreviousDeviceOnDestruction) {
+  int before = -1;
+  ASSERT_EQ(gpuGetDevice(&before), gpuSuccess);
+
+  {
+    DeviceScope scope(before);
+  }
+
+  int after = -1;
+  ASSERT_EQ(gpuGetDevice(&after), gpuSuccess);
+  EXPECT_EQ(after, before);
+}
+
+TEST(DeviceScopeTests, NestedScopesRestore) {
+  int before = -1;
+  ASSERT_EQ(gpuGetDevice(&before), gpuSuccess);
+
+  {
+    DeviceScope outer(before);
+    {
+      DeviceScope inner(before);
+      int inside = -1;
+      ASSERT_EQ(gpuGetDevice(&inside), gpuSuccess);
+      EXPECT_EQ(inside, before);
+    }
+    int after_inner = -1;
+    ASSERT_EQ(gpuGetDevice(&after_inner), gpuSuccess);
+    EXPECT_EQ(after_inner, before);
+  }
+
+  int after_outer = -1;
+  ASSERT_EQ(gpuGetDevice(&after_outer), gpuSuccess);
+  EXPECT_EQ(after_outer, before);
 }
 
 } // namespace gpumod::extension::test

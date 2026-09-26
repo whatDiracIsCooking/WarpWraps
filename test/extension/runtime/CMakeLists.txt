@@ -1,7 +1,8 @@
 # GPU runtime wrapper tests (backend-neutral: built and run for either
 # GPUMOD_GPU_BACKEND)
 # RAII contract of GpuStream, GpuEvent, GpuGraph(Exec), GpuMemPool and the
-# StreamEventPair bundle
+# StreamEventPair bundle, plus DeviceScope (from gpumod.extension.common), the
+# device-current guard that restores the previous device on destruction
 #
 # Same shape as test/extension/memory_buffer: one plain .cpp compiled straight
 # into the executable, no module library, no WHOLE_ARCHIVE, one ctest entry per
@@ -14,6 +15,7 @@ gpumod_add_gtest_executable(
   basic.cpp
   LINK
   gpumod.runtime_api
+  gpumod.extension.common
   gpumod.extension.runtime
 )
 
@@ -29,6 +31,7 @@ gpumod_add_gtest_suite_tests(
   GpuGraphExecTests
   GpuMemPoolTests
   StreamEventPairTests
+  DeviceScopeTests
   TIMEOUT
   30
   REQUIRES_GPU
