@@ -700,9 +700,18 @@ change verified.
   `.pre-commit-config.yaml`, not anything inside the script.
 - **CI runs on every push to `main` and every PR**, all of it on
   GitHub-hosted runners (`workflow_dispatch` also keeps the manual trigger).
-  `.github/workflows/ci.yml` has five jobs: `lint` (ruff + cmake-lint),
-  `test` (the pytest tier on 3.11 and 3.13), `cpp` (a two-leg matrix, below),
-  `install-check`, and `ci-ok`.
+  `.github/workflows/ci.yml` has six jobs: `changes` (a cheap docs-only
+  detector), `lint` (ruff + cmake-lint), `test` (the pytest tier on 3.11 and
+  3.13), `cpp` (a two-leg matrix, below), `install-check`, and `ci-ok`.
+- **A docs-only change skips the two heavy jobs.** The `changes` job diffs the
+  push/PR and outputs `code`, which is `false` only when *every* changed file
+  is on a tight allowlist (`.md`, `docs/`, `.github/ISSUE_TEMPLATE/`,
+  `LICENSE`) — anything else, a new extension included, makes it `true` and
+  builds. `cpp` and `install-check` carry `if: needs.changes.outputs.code ==
+  'true'`, so a `.md`-only PR goes green on `lint` + `test` in about a minute
+  instead of waiting on two module builds. `paths-ignore` at the workflow level
+  would do this too and is the trap: it would make required `ci-ok` never
+  report and block the PR forever — the exact failure `ci-ok` exists to avoid.
 - **`ci-ok` is an aggregate, and it is the ONLY check name worth requiring in a
   branch ruleset.** Every other name here is generated and therefore moves:
   `test (3.11)` carries a Python version, and a matrix job's default name is
@@ -710,9 +719,13 @@ change verified.
   `cpp (cuda, cuda-ci, ci-cuda)`. A ruleset matches a required check by name,
   and a required name nothing reports blocks the PR indefinitely behind
   "Expected — waiting for status to be reported". So `ci-ok` `needs:` every
-  other job and fails unless all of them succeeded, `skipped` included. **The
-  invariant: a job added to `ci.yml` must be added to `ci-ok`'s `needs:`, or
-  nothing gates it.**
+  other job and fails unless each either succeeded or — for `cpp` and
+  `install-check` on a docs-only change — was `skipped`. A `failure` or
+  `cancelled` never passes, and a skip is tolerated *only* when `changes` said
+  `code=false`, so the silent-skip a real code change must never produce is
+  still caught. **Two invariants: a job added to `ci.yml` must be added to
+  `ci-ok`'s `needs:`, or nothing gates it; and a job allowed to skip must be in
+  `ci-ok`'s gated set, or its skip fails the gate.**
 - **The C++ tree IS built on the server now, both backends, same shape.** The
   `cpp` job declares a `container:` rather than building one; each leg builds
   the whole tree for its backend and runs `ctest -LE gpu`. Neither needs a

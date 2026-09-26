@@ -7,6 +7,10 @@
 # Every runner is GitHub-hosted, which for a public repository is free and
 # uncapped. None of them has a GPU.
 #
+#   changes       one cheap job that diffs the push/PR and outputs `code`,
+#                 false only when EVERY changed file is docs. The two heavy
+#                 jobs gate on it; `ci-ok` accepts their skip only when it says
+#                 docs-only. So a `.md`-only PR goes green on lint+test alone.
 #   lint          ruff + cmake-lint
 #   python        the pytest tier, on 3.11 and 3.13
 #   cpp (cuda)    the whole tree built for CUDA -- src/, GoogleTest, every
@@ -16,8 +20,10 @@
 #                 -x hip front end, then the same `-LE gpu`
 #   install-check install to a throwaway prefix, then build example/consumer
 #                 against it. The only tier that sees an export regression.
-#   ci-ok         an aggregate that fails unless every job above succeeded --
-#                 the one check name stable enough to require in a ruleset
+#   ci-ok         an aggregate that fails unless every job above either
+#                 succeeded or, for the two gated jobs on a docs-only change,
+#                 was skipped -- the one check name stable enough to require in
+#                 a ruleset
 #
 # BE PRECISE ABOUT WHAT THE cpp JOBS PROVE, because "the whole tree built, then
 # ctest" reads like more than it is. What `-LE gpu` leaves is essentially a
@@ -112,6 +118,54 @@ permissions:
   contents: read
 
 jobs:
+  # Docs-only detection. Its single output `code` is `false` only when EVERY
+  # file this push/PR changed is on the allowlist below; anything else -- a
+  # .cu, a .cmake, a .sh, a workflow edit, a new extension -- makes it `true`.
+  # The bias is deliberately toward `true`: a file the allowlist does not name
+  # counts as code and builds. The expensive jobs (`cpp`, `install-check`) gate
+  # on `code == 'true'`; `ci-ok` accepts their `skipped` result ONLY when `code`
+  # is `false`, so the skip a real code change must never produce is still
+  # caught. No third-party action -- a git diff is transparent and needs no pin.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.detect.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The diff needs the base commit present, which a shallow clone omits.
+          fetch-depth: 0
+      - id: detect
+        env:
+          EVENT: ${{ github.event_name }}
+          # base.sha on a PR; the pushed-over commit on a branch push. Empty on
+          # workflow_dispatch, all-zero on a branch's very first push.
+          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          # No base to diff against (manual dispatch, or a brand-new branch):
+          # build everything rather than guess what changed.
+          if [ "$EVENT" = workflow_dispatch ] || [ -z "$BASE" ] || \
+             [ "$BASE" = 0000000000000000000000000000000000000000 ]; then
+            echo "no diff base -- building everything"
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          files="$(git diff --name-only "$BASE" HEAD)"
+          echo "changed files:"; printf '%s\n' "$files"
+          # `code` becomes true the moment one changed file is NOT docs. Keep
+          # this allowlist tight -- when unsure, leave a pattern out and the file
+          # counts as code. `.github/workflows/**` is intentionally absent: a CI
+          # edit must run CI.
+          nondoc="$(printf '%s\n' "$files" | grep -vE \
+            '(\.md$|^docs/|^\.github/ISSUE_TEMPLATE/|(^|/)LICENSE$)' || true)"
+          if [ -n "$files" ] && [ -z "$nondoc" ]; then
+            echo "docs-only -- cpp and install-check will skip"
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -162,8 +216,11 @@ jobs:
     # rewrote it. See ci-ok at the bottom of this file for why that matters.
     name: cpp (${{ matrix.backend }})
     # After lint, so a ruff finding does not cost a 20-minute module build
-    # before it is reported.
-    needs: lint
+    # before it is reported. On `changes` too, so a docs-only PR skips this
+    # entirely -- `ci-ok` knows the skip is intentional. `if` is evaluated
+    # against the whole matrix, so a false skips both legs.
+    needs: [lint, changes]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
@@ -252,7 +309,9 @@ jobs:
     # never installs, so nothing in it can see an export regression -- a module
     # whose .cppm has a PRIVATE include directory installs cleanly and breaks
     # every consumer. A separate job keeps that a separate red mark.
-    needs: lint
+    # Gated on `changes` like `cpp`: a docs-only PR cannot regress an export.
+    needs: [lint, changes]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
@@ -301,7 +360,8 @@ jobs:
   # THE INVARIANT IT CREATES: a job added to this file must be added to `needs:`
   # below, or nothing gates it. There is no `needs: *`, so the list is spelled
   # out and keeping it current is a human job -- that is the whole cost of the
-  # pattern.
+  # pattern. A job that is allowed to skip must ALSO be placed in the gated set
+  # in the script below, or its skip fails this gate.
   ci-ok:
     name: ci-ok
     # Load-bearing. Without it this job is SKIPPED as soon as a need fails, and
@@ -309,33 +369,60 @@ jobs:
     # the merge with no red gate explaining why. With it, the job runs and fails
     # loudly instead.
     if: always()
-    needs: [lint, test, cpp, install-check]
+    needs: [changes, lint, test, cpp, install-check]
     runs-on: ubuntu-latest
     steps:
-      - name: every job succeeded
+      - name: every required job passed
         env:
           # Through the environment rather than interpolated into the script
-          # body. A job result is a fixed enum (success/failure/cancelled/
-          # skipped) so nothing can be injected here today, but pasting ${{ }}
-          # into a `run:` is the habit worth not forming.
-          RESULTS: ${{ join(needs.*.result, ' ') }}
+          # body. Job results and `code` are fixed enums, so nothing can be
+          # injected today -- but pasting ${{ }} into a `run:` is the habit
+          # worth not forming.
           DETAIL: ${{ toJSON(needs) }}
-        # A `skipped` result fails on purpose: a job that did not run proved
-        # nothing, and this gate answers "is this commit verified", not "did
-        # anything go wrong".
+          CODE: ${{ needs.changes.outputs.code }}
+          # Always-required set. `changes` is here too: if IT failed, `code` is
+          # empty and every gate below would misread -- so its own failure must
+          # fail the gate first.
+          ALWAYS: >-
+            changes:${{ needs.changes.result }}
+            lint:${{ needs.lint.result }}
+            test:${{ needs.test.result }}
+          # Gated set: required to succeed when code changed, but a `skipped`
+          # result is acceptable on a docs-only change (code=false). Any other
+          # result -- failure, cancelled -- still fails, on any change.
+          GATED: >-
+            cpp:${{ needs.cpp.result }}
+            install-check:${{ needs.install-check.result }}
         run: |
           echo "$DETAIL"
-          # An empty list would otherwise pass vacuously -- the loop body never
-          # runs. Only reachable by emptying `needs:` above, which is exactly the
-          # edit that would make this gate meaningless.
-          if [ -z "$RESULTS" ]; then
-            echo "ci-ok: no job results at all -- is needs: empty?" >&2
-            exit 1
-          fi
-          for result in $RESULTS; do
+          fail=0
+          # Always-required: nothing but success passes. Empty results (which is
+          # what emptying `needs:` above would produce) are not "success", so the
+          # gate cannot pass vacuously.
+          for pair in $ALWAYS; do
+            name=${pair%%:*}; result=${pair#*:}
             if [ "$result" != success ]; then
-              echo "ci-ok: a required job did not succeed -- see the detail above" >&2
-              exit 1
+              echo "ci-ok: $name did not succeed ($result)" >&2
+              fail=1
             fi
           done
-          echo "ci-ok: every required job succeeded"
+          # Gated: success always passes; skipped passes ONLY on a docs-only
+          # change. A job that did not run proved nothing, so its skip is
+          # tolerated only when `changes` said there was nothing to prove.
+          for pair in $GATED; do
+            name=${pair%%:*}; result=${pair#*:}
+            if [ "$result" = success ]; then
+              continue
+            fi
+            if [ "$result" = skipped ] && [ "$CODE" = false ]; then
+              echo "ci-ok: $name skipped -- docs-only change, expected"
+              continue
+            fi
+            echo "ci-ok: $name is '$result' (code=$CODE) -- not acceptable" >&2
+            fail=1
+          done
+          if [ "$fail" -ne 0 ]; then
+            echo "ci-ok: a required job did not pass -- see the detail above" >&2
+            exit 1
+          fi
+          echo "ci-ok: all required jobs passed (code=$CODE)"
