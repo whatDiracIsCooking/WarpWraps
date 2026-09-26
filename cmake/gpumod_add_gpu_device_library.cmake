@@ -32,7 +32,8 @@ macro(gpumod_add_gpu_device_library)
 
   if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
     # .cu maps to CUDA by extension; nothing to set for the language. Separable
-    # compilation OFF, device symbols unresolved to match — docs/architecture.md §17.
+    # compilation OFF, device symbols unresolved to match —
+    # docs/architecture.md §17.
     set_target_properties(
       ${_GDL_NAME}
       PROPERTIES CUDA_STANDARD 20
@@ -42,26 +43,28 @@ macro(gpumod_add_gpu_device_library)
     _gpumod_disable_cuda_device_linking(${_GDL_NAME})
   else()
     # A HIP build enables no CUDA language, so .cu must be forced back to CXX;
-    # that is also what lets hip::device's $<COMPILE_LANGUAGE:CXX>-gated `-x hip`
-    # reach these sources. See docs/architecture.md §17. (A macro opens no
-    # directory scope, so these relative names resolve in the caller's directory,
-    # where set_source_files_properties looks.)
+    # that is also what lets hip::device's $<COMPILE_LANGUAGE:CXX>-gated
+    # `-x hip` reach these sources. See docs/architecture.md §17. (A macro opens
+    # no directory scope, so these relative names resolve in the caller's
+    # directory, where set_source_files_properties looks.)
     set_source_files_properties(${_GDL_SOURCES} PROPERTIES LANGUAGE CXX)
 
-    # hip::device PRIVATE: its `-x hip` must reach this library's own sources and
-    # nothing else — src/hip/README.md, "Link hip::host, never hip::device".
+    # hip::device PRIVATE: its `-x hip` must reach this library's own sources
+    # and nothing else — src/hip/README.md, "Link hip::host, never
+    # hip::device".
     target_link_libraries(${_GDL_NAME} PRIVATE hip::device)
 
-    # The amdgcn-link step invokes its device linker as the bare name `lld`, which
-    # only ROCm's bundled LLVM ships; point the driver at it. See §17.
+    # The amdgcn-link step invokes its device linker as the bare name `lld`,
+    # which only ROCm's bundled LLVM ships; point the driver at it. See §17.
     get_target_property(
       _gdl_hip_include_dir hip::amdhip64 INTERFACE_INCLUDE_DIRECTORIES
     )
     get_filename_component(_gdl_hip_prefix "${_gdl_hip_include_dir}" DIRECTORY)
     target_compile_options(${_GDL_NAME} PRIVATE "-B${_gdl_hip_prefix}/llvm/bin")
 
-    # Silence the benign amdgcn "different data layouts" warning (a clang-version
-    # skew, not a defect). See docs/architecture.md §17; drop once the LLVMs converge.
+    # Silence the benign amdgcn "different data layouts" warning (a
+    # clang-version skew, not a defect). See docs/architecture.md §17; drop once
+    # the LLVMs converge.
     target_compile_options(${_GDL_NAME} PRIVATE -Wno-linker-warnings)
 
     unset(_gdl_hip_include_dir)

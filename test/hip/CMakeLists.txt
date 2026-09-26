@@ -1,7 +1,7 @@
 # HIP compile-time tests (built when GPUMOD_GPU_BACKEND is HIP)
 # Mirrors test/cuda/CMakeLists.txt exactly -- see that file's header comment
-# for the GPUMOD_LINK_CHECK/GPUMOD_DECLARED_CHECK/WHOLE_ARCHIVE rationale, which applies
-# unchanged here.
+# for the GPUMOD_LINK_CHECK/GPUMOD_DECLARED_CHECK/WHOLE_ARCHIVE rationale, which
+# applies unchanged here.
 #
 # hip_compile_tests below is the one thing that runs (ctest label
 # compile_time). It has no checks of its own -- reaching main() means every

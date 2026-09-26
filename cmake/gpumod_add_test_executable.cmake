@@ -8,7 +8,8 @@
 #     [MAIN          <source with main(); default main.cpp>]
 #     [TIMEOUT       <seconds; default 60>]
 #     [LINK_PRIVATE  <lib ...>]
-#     [WHOLE_ARCHIVE <target ...>]   # force objects in, for self-registering tests
+#     [WHOLE_ARCHIVE <target ...>]   # force objects in, for self-registering
+#                                    # tests
 #     [LINK_LIBSTDCXX])              # link libstdc++.so.6 explicitly
 macro(gpumod_add_test_executable)
   cmake_parse_arguments(

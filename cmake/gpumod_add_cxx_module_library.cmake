@@ -53,10 +53,10 @@ macro(GPUMOD_ADD_CXX_MODULE_LIBRARY)
   )
 
   # PUBLIC compile feature, not the global CMAKE_CXX_STANDARD (a directory
-  # variable, not exported): an installed consumer compiles these module units in
-  # a synthetic target built from this target's INTERFACE properties, and CMake
-  # refuses that target with "no C++ standard found" unless cxx_std_23 travels
-  # with it.
+  # variable, not exported): an installed consumer compiles these module units
+  # in a synthetic target built from this target's INTERFACE properties, and
+  # CMake refuses that target with "no C++ standard found" unless cxx_std_23
+  # travels with it.
   target_compile_features(${ARG_NAME} PUBLIC cxx_std_23)
 
   if(ARG_IMPLEMENTATION)

@@ -16,35 +16,30 @@
 # installed per run. The `cpp` job below does the real thing and is switched
 # off until you have a runner with a GPU -- see its comment.
 #
-# So: a PR touching only src/ is currently checked by nothing on the server.
-# Until that runner exists, `devtools/cpp-tier.sh` before opening the PR is the
-# whole gate, and it is a human one. Know that rather than discover it.
+# So: a PR touching only src/ is checked by nothing on the server. The lint and
+# Python jobs below DO run automatically; the C++ build (`cpp`) still needs a
+# GPU runner and stays off -- see its comment. Until that runner exists,
+# `devtools/cpp-tier.sh` before opening the PR is the whole gate for src/, and
+# it is a human one. Know that rather than discover it.
 name: ci
 
 # ---------------------------------------------------------------------------
-# CURRENTLY OFF: manual trigger only.
+# ON: runs automatically on push to main and on every PR.
 # ---------------------------------------------------------------------------
-# Every automatic trigger is commented out below, deliberately, because Actions
-# usage limits on this account make the runs fail for reasons that have nothing
-# to do with the commit -- and a gate that goes red for its own reasons teaches
-# people to ignore red.
+# The lint and test jobs run on GitHub-hosted runners on push/pull_request;
+# `workflow_dispatch` also keeps the manual trigger. The `cpp` job stays off
+# (`if: false`) because it needs a self-hosted GPU runner -- see its comment.
 #
-# This is stronger than gating the jobs with `if: false`: that still starts a
-# workflow run and posts skipped checks on every PR. With no automatic trigger
-# there is no run at all.
-#
-# To turn it back on, delete the `workflow_dispatch:` line and uncomment the
-# block under it. Nothing else in this file needs to change.
-#
-# Until then the server-side gate is nothing, for the Python tier as well as
-# the C++ one -- `devtools/prepush-tests.sh` and `devtools/cpp-tier.sh` before
-# opening a PR are the whole gate, and both are bypassable. The note above
-# about only src/ being unchecked now applies to every path.
+# This was previously manual-only because Actions usage limits on the account
+# made runs fail for reasons unrelated to the commit. If that recurs and the
+# noise outweighs the gate, comment out `push:`/`pull_request:` and leave
+# `workflow_dispatch:` -- that reverts to manual with no other change, and is
+# stronger than `if: false` on each job, which still posts skipped checks.
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
-  # push:
-  #   branches: [main]
-  # pull_request:
   # NB there is no `schedule:` here any more. It existed only to run a nightly
   # `slow` job, and that job went with devtools/slow-tier.sh when the fast/slow
   # split was retired -- the Python suite is one sub-second file now. Add both

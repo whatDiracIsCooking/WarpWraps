@@ -78,9 +78,10 @@ unset(_wa_install)
 
 # interface.cppm and instantiations.cpp's two compile requirements (the src/
 # include root for random_normal_bridge.h, and gpumod_backend for the
-# GPUMOD_GPU_BACKEND_* define behind the bridges), granted to installed consumers
-# under $<INSTALL_INTERFACE:> because they are the ones compiling them -- see the
-# comment at the end of src/CMakeLists.txt. PRIVATE for the in-tree build.
+# GPUMOD_GPU_BACKEND_* define behind the bridges), granted to installed
+# consumers under $<INSTALL_INTERFACE:> because they are the ones compiling them
+# -- see the comment at the end of src/CMakeLists.txt. PRIVATE for the in-tree
+# build.
 target_include_directories(
   gpumod.extension.random_normal
   PUBLIC $<INSTALL_INTERFACE:${GPUMOD_INSTALL_INCLUDEDIR}>
