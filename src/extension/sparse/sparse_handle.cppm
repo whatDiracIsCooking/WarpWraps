@@ -14,12 +14,6 @@ import std;
 
 export namespace gpumod::extension {
 
-// Specialize HandleErrorType for gpusparseHandle_t
-template<>
-struct HandleErrorType<gpusparseHandle_t> {
-  using type = gpusparseStatus_t;
-};
-
 /**
  * @brief RAII wrapper for a GPU sparse handle
  *

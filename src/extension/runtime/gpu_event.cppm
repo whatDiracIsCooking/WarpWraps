@@ -13,12 +13,6 @@ import std;
 
 export namespace gpumod::extension {
 
-// Specialize HandleErrorType for gpuEvent_t
-template<>
-struct HandleErrorType<gpuEvent_t> {
-  using type = gpuError_t;
-};
-
 /**
  * @brief Borrow-safe event operations, shared by the owner and the view
  *

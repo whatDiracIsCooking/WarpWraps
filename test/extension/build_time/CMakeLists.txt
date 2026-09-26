@@ -35,23 +35,9 @@ gpumod_add_cxx_module_library(
   LINK_PUBLIC
   gpumod.extension.common
   gpumod.extension.runtime
+  gpumod.extension.blas
+  gpumod.extension.solver
+  gpumod.extension.sparse
 )
 
 add_dependencies(compile_time_tests gpumod.test.extension.handle_view)
-
-# The blas/solver/sparse handle views are each proved in their own TU: on HIP
-# those three vendor handles are all void*, so importing two of the library
-# modules together collides their HandleErrorType<void*> specializations.
-foreach(_lib blas solver sparse)
-  gpumod_add_cxx_module_library(
-    NAME
-    gpumod.test.extension.${_lib}_handle_view
-    IMPORT_STD
-    NO_CUDA_DEVICE_LINKING
-    PRIMARY_INTERFACE
-    ${_lib}_handle_view.cppm
-    LINK_PUBLIC
-    gpumod.extension.common
-    gpumod.extension.${_lib})
-  add_dependencies(compile_time_tests gpumod.test.extension.${_lib}_handle_view)
-endforeach()

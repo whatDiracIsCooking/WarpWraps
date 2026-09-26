@@ -15,12 +15,6 @@ import std;
 
 export namespace gpumod::extension {
 
-// Specialize HandleErrorType for gpuGraph_t
-template<>
-struct HandleErrorType<gpuGraph_t> {
-  using type = gpuError_t;
-};
-
 /**
  * @brief RAII wrapper for a GPU graph
  *

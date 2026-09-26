@@ -14,12 +14,6 @@ import std;
 
 export namespace gpumod::extension {
 
-// Specialize HandleErrorType for gpublasHandle_t
-template<>
-struct HandleErrorType<gpublasHandle_t> {
-  using type = gpublasStatus_t;
-};
-
 /**
  * @brief RAII wrapper for a GPU BLAS handle
  *
