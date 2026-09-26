@@ -1,0 +1,213 @@
+# Docker — the batch path
+
+This directory is **one of two front ends onto the same image**
+(`./Dockerfile`). Which one you want depends on what you are doing:
+
+| | `docker/compose.yaml` (here) | `.devcontainer/cuda/` + `devtools/` |
+|---|---|---|
+| Shape | one-shot: configure, build, test, exit | long-lived container you stay in |
+| Logs | tees everything to `.log/` | on your terminal; `cpp-tier.sh` also logs |
+| Good for | CI, nightlies, sanitizer sweeps, a clean reproducible run | iterating, agents, debugging |
+| Per worktree? | no — services are global | yes, container + volumes keyed on the workspace path |
+| CPU bounds | none | `CPUSET`/`CPUS` in `devtools/config.sh` |
+| Entry point | `dc test` | `devtools/devcontainer.sh shell -c devtools/cpp-tier.sh` |
+
+They are not layered on each other and neither is deprecated. The rule of
+thumb: if you want to read the result and throw the container away, use
+compose; if you want to stay inside, use the devcontainer.
+
+Every workflow here runs through `docker/compose.yaml`. All services mount the
+repo root at `/workspace` and run as your host UID/GID, so nothing lands
+root-owned.
+
+Because the `user:` field is required, always export these two first:
+
+```bash
+export HOST_UID=$(id -u) HOST_GID=$(id -g)
+```
+
+A shell alias keeps the rest short:
+
+```bash
+alias dc='docker compose -f docker/compose.yaml run --rm'
+```
+
+## Configuration
+
+Compose reads variables from your shell and, if the file exists, from
+`docker/.env` — auto-loaded because it sits beside `compose.yaml`. That file is
+gitignored and there is deliberately **no committed template** for it: every
+variable except `HOST_UID`/`HOST_GID` already carries a default in
+`compose.yaml` (`${VAR:-default}`), and those two are written `${VAR:?...}`
+*without* one so a forgotten export fails loudly. A committed `.env` pinning
+`HOST_UID=1000` would satisfy that check and then quietly write build output
+owned by uid 1000 on any host where you are not uid 1000 — precisely the failure
+the `:?` exists to prevent.
+
+If you want one anyway, write only the part that is machine-specific:
+
+```bash
+printf 'HOST_UID=%s\nHOST_GID=%s\n' "$(id -u)" "$(id -g)" > docker/.env
+```
+
+The tables below list every variable the services read.
+
+## Build the Image
+
+`./Dockerfile` — beside this file, and shared with
+`.devcontainer/*/devcontainer.json` so the devcontainer and these services
+cannot drift onto two different toolchains.
+
+**Build it from the repo root.** The trailing `.` is the context, and the stages
+read `pyproject.toml`, `uv.lock` and `docker/install-{cuda,rocm}.sh` relative to
+it:
+
+```bash
+DOCKER_BUILDKIT=1 docker build --target cuda -f docker/Dockerfile -t gpumod:latest .
+```
+
+Widen the CUDA architecture for a mixed fleet at build time:
+
+```bash
+DOCKER_BUILDKIT=1 docker build --target cuda -f docker/Dockerfile \
+  --build-arg CUDA_ARCH="80;86;90" -t gpumod:latest .
+```
+
+## Build the Project
+
+```bash
+dc build
+```
+
+### Build Options
+
+Pass environment variables before the command:
+
+```bash
+# Debug build
+BUILD_PRESET=debug dc build
+
+# Clean rebuild (recompile everything)
+CLEAN=1 dc build
+
+# Reconfigure only (e.g. after changing CMake options)
+RECONFIGURE=1 dc build
+
+# Full rebuild from scratch
+REBUILD=1 dc build
+
+# Skip configure, just recompile after code edits
+BUILD_ONLY=1 dc build
+```
+
+| Env Var | Effect |
+|---------|--------|
+| `GPUMOD_IMAGE` | Docker image to use (default: `gpumod:latest`) |
+| `BUILD_PRESET` | Select cmake preset: `default` (Release), `debug`, `asan` (default: `default`) |
+| `CLEAN=1` | Remove compiled objects before building |
+| `RECONFIGURE=1` | Wipe cmake cache and reconfigure from scratch |
+| `REBUILD=1` | Both clean and reconfigure (nuclear) |
+| `BUILD_ONLY=1` | Skip configure, just build |
+
+## Run Tests
+
+The `test` service configures, builds, then runs gtest followed by pytest.
+
+The pytest half runs the whole suite — two files,
+`test/shared/test_dispatch.py` and `.claude/hooks/test_protect_main.py`, the
+same thing the push gate and `devcontainer.sh test` run. There is no `-m "not slow"` filter any more: the
+fast/slow split and `devtools/slow-tier.sh` were retired when the suite shrank
+to a second. The `compute-sanitizer` service still deselects `no_sanitizer`,
+because instrumented runs turn a merely-slow case into an hours-long one.
+
+```bash
+# All tests (gtest + pytest)
+dc test
+
+# Gtest only
+SKIP_PYTEST=1 dc test
+
+# Gtest with filter
+SKIP_PYTEST=1 TEST_FILTER='MemoryBuffer' dc test
+
+# Pytest only
+SKIP_GTEST=1 dc test
+
+# Pytest with filter
+SKIP_GTEST=1 PYTEST_ARGS='-k smoke' dc test
+```
+
+| Env Var | Effect |
+|---------|--------|
+| `TEST_FILTER` | Regex passed to `ctest -R` (NOT `--gtest_filter`: compose drives ctest, which registers one entry per suite) |
+| `PYTEST_ARGS` | Extra arguments appended to the pytest invocation |
+| `SKIP_GTEST=1` | Skip the C++ suite |
+| `SKIP_PYTEST=1` | Skip the Python suite |
+| `TIMEOUT_MULTIPLIER` | Scale test timeouts (default: `1`) |
+| `CUDA_VISIBLE_DEVICES` | Which GPU to run on (default: `1`) |
+
+### pytest cannot run from a `.claude/worktrees/` checkout
+
+Every service mounts `..:/workspace` and nothing else. In one of the
+lightweight worktrees the repo's `.git` is a *file* pointing at
+`<repo-root>/main/.git/worktrees/<name>`, which is outside that mount, so
+`git rev-parse --git-common-dir` fails inside the container and
+`.claude/hooks/test_protect_main.py` raises during collection — which takes
+the whole pytest run with it, `test_dispatch.py` included. The gtest half is
+unaffected, and `dc test` exits 1.
+
+Run the C++ half here and the Python half on the host, where git resolves:
+
+```bash
+SKIP_PYTEST=1 dc test     # in the worktree
+uv run pytest -n auto -rs # on the host
+```
+
+No volume in `compose.yaml` fixes this: the path that would have to be mounted
+is absolute and host-specific, so it cannot be committed. The
+`.devcontainer/*.json` files do carry exactly such a path, hand-written per
+machine, which is why the devcontainer has no such problem. Running compose
+from the primary checkout also has none — there `.git` is a real directory
+inside the mount.
+
+## Run Tests under AddressSanitizer
+
+```bash
+dc asan
+```
+
+Uses the `asan` preset, built into `build-compose-asan/`. Accepts the same `TEST_FILTER`,
+`SKIP_GTEST`, and `SKIP_PYTEST` variables.
+
+## Run Tests under Compute Sanitizer
+
+```bash
+dc compute-sanitizer
+
+# Select a tool other than memcheck
+COMPUTE_SANITIZER_TOOL=racecheck dc compute-sanitizer
+```
+
+Uses the `compute-sanitizer` preset, built into `build-compose-compute-sanitizer/`.
+
+## Interactive Shell
+
+```bash
+dc build bash
+```
+
+## Logs
+
+All output is logged to `.log/` with timestamps:
+
+```
+.log/configure.{ts}.out.txt / .log/configure.{ts}.err.txt
+.log/build.{ts}.out.txt     / .log/build.{ts}.err.txt
+.log/gtest.{ts}.out.txt     / .log/gtest.{ts}.err.txt
+.log/pytest.{ts}.out.txt    / .log/pytest.{ts}.err.txt
+```
+
+## Requirements
+
+- Docker with BuildKit support
+- NVIDIA Container Toolkit (for GPU access)

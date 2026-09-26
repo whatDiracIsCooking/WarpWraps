@@ -1,0 +1,248 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 30,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "description": "Settings shared by every preset. Not selectable directly.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CUDA_ARCHITECTURES": "native",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "default",
+      "displayName": "Default Config (container)",
+      "description": "Release build inside the project Docker image. GoogleTest is fetched and built from source; nothing is taken from /opt.",
+      "inherits": "base"
+    },
+    {
+      "name": "workstation",
+      "displayName": "Workstation Config (no container)",
+      "description": "Release build outside the image. Same dependencies as `default` -- only the build directory differs, so the two can coexist.",
+      "inherits": "base",
+      "binaryDir": "${sourceDir}/build-workstation"
+    },
+    {
+      "name": "debug",
+      "binaryDir": "${sourceDir}/build-debug",
+      "displayName": "Debug Config",
+      "description": "Debug build using Ninja and Clang",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "asan",
+      "displayName": "ASAN Config",
+      "description": "AddressSanitizer build for host code memory error detection (Debug + ASAN, separate build-asan/ dir)",
+      "inherits": "debug",
+      "binaryDir": "${sourceDir}/build-asan",
+      "cacheVariables": {
+        "ENABLE_ASAN": "ON"
+      }
+    },
+    {
+      "name": "compute-sanitizer",
+      "displayName": "Compute Sanitizer Config",
+      "description": "Debug build for NVIDIA compute-sanitizer GPU memory/race checking",
+      "inherits": "debug",
+      "binaryDir": "${sourceDir}/build-compute-sanitizer"
+    },
+    {
+      "name": "coverage",
+      "displayName": "Coverage Config",
+      "description": "Debug build with clang source-based coverage for host (CXX) code. Drive it through devtools/coverage.sh, which runs ctest and post-processes with llvm-profdata/llvm-cov.",
+      "inherits": "debug",
+      "binaryDir": "${sourceDir}/build-coverage",
+      "cacheVariables": {
+        "GPUMOD_COVERAGE": "ON"
+      }
+    },
+    {
+      "name": "hip",
+      "binaryDir": "${sourceDir}/build-hip",
+      "displayName": "HIP backend",
+      "description": "Release build against the ROCm/HIP backend instead of CUDA. Needs ROCm, not the CUDA toolkit.",
+      "inherits": "base",
+      "cacheVariables": {
+        "GPUMOD_GPU_BACKEND": "HIP"
+      }
+    },
+    {
+      "name": "compile-time",
+      "binaryDir": "${sourceDir}/build-compile-time",
+      "displayName": "Compile-time tests only",
+      "description": "Configures only the compile-time tests: no GoogleTest fetch, no runtime test targets, no GPU needed.",
+      "inherits": "base",
+      "cacheVariables": {
+        "GPUMOD_COMPILE_TIME_ONLY": "ON"
+      }
+    },
+    {
+      "name": "volta",
+      "binaryDir": "${sourceDir}/build-volta",
+      "displayName": "Volta (sm_70)",
+      "description": "Release build targeting Volta GPUs (V100, Titan V)",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_CUDA_ARCHITECTURES": "70"
+      }
+    },
+    {
+      "name": "ampere",
+      "binaryDir": "${sourceDir}/build-ampere",
+      "displayName": "Ampere (sm_80)",
+      "description": "Release build targeting Ampere GPUs (A100, RTX 30xx)",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_CUDA_ARCHITECTURES": "80"
+      }
+    },
+    {
+      "name": "hopper",
+      "binaryDir": "${sourceDir}/build-hopper",
+      "displayName": "Hopper (sm_90)",
+      "description": "Release build targeting Hopper GPUs (H100, H200, GH200)",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_CUDA_ARCHITECTURES": "90"
+      }
+    },
+    {
+      "name": "portable",
+      "binaryDir": "${sourceDir}/build-portable",
+      "displayName": "Portable (sm_70, sm_80, sm_90)",
+      "description": "Release build targeting all supported architectures (fat binary). Use when the build host and run host have different GPUs.",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_CUDA_ARCHITECTURES": "70;80;90"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default"
+    },
+    {
+      "name": "workstation",
+      "configurePreset": "workstation"
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "asan",
+      "configurePreset": "asan"
+    },
+    {
+      "name": "compute-sanitizer",
+      "configurePreset": "compute-sanitizer"
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage"
+    },
+    {
+      "name": "hip",
+      "configurePreset": "hip"
+    },
+    {
+      "name": "compile-time",
+      "configurePreset": "compile-time",
+      "targets": [
+        "compile_time_tests"
+      ]
+    },
+    {
+      "name": "volta",
+      "configurePreset": "volta"
+    },
+    {
+      "name": "ampere",
+      "configurePreset": "ampere"
+    },
+    {
+      "name": "hopper",
+      "configurePreset": "hopper"
+    },
+    {
+      "name": "portable",
+      "configurePreset": "portable"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "workstation",
+      "configurePreset": "workstation",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "asan",
+      "configurePreset": "asan",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "exclude": {
+          "label": "no_sanitizer"
+        }
+      }
+    },
+    {
+      "name": "hip",
+      "configurePreset": "hip",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "compile-time",
+      "configurePreset": "compile-time",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "include": {
+          "label": "compile_time"
+        }
+      }
+    }
+  ]
+}

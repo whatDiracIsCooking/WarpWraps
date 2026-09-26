@@ -1,0 +1,9 @@
+# Backend-neutral extension modules - higher-level wrappers and utilities
+# written once against src's gpu* names. Built for either
+# GPUMOD_GPU_BACKEND; nothing here imports src/cuda or src/hip directly.
+
+add_subdirectory(common)
+add_subdirectory(blas)
+add_subdirectory(solver)
+add_subdirectory(sparse)
+add_subdirectory(fft)

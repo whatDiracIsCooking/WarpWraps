@@ -1,0 +1,131 @@
+/**
+ * @file gpu_stream.cppm
+ * @brief RAII wrapper for GPU stream handles
+ *
+ * Provides GpuStream class for automatic GPU stream management.
+ */
+
+export module gpumod.extension.runtime:gpu_stream;
+
+import :gpu_error;
+import :gpu_graph;
+import gpumod.runtime_api;
+import gpumod.extension.common;
+import std;
+
+export namespace gpumod::extension {
+
+// Specialize HandleErrorType for gpuStream_t
+template<>
+struct HandleErrorType<gpuStream_t> {
+  using type = gpuError_t;
+};
+
+/**
+ * @brief RAII wrapper for GPU stream
+ *
+ * Automatically creates a GPU stream on construction and destroys it on destruction.
+ * Supports move semantics for transferring ownership.
+ *
+ * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<gpuError_t>)
+ * @tparam P_destroy Error policy type for destruction (defaults to P_create)
+ *
+ * @note P_destroy MUST NOT THROW - it is called from the destructor.
+ */
+template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
+         error_policy<gpuError_t> P_destroy = P_create>
+class GpuStreamWrapper : public GpuBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>,
+                                               P_create, P_destroy> {
+private:
+  using Base =
+      GpuBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create, P_destroy>;
+
+public:
+  // The `GpuStream(int dev_idx = 0)` default/per-device constructor, inherited
+  // from GpuBoundHandle, which selects and records the owning device.
+  using GpuBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create,
+                       P_destroy>::GpuBoundHandle;
+
+  /// @brief Create a GPU stream on `dev_idx` with flags
+  /// @param dev_idx Device to create the stream on
+  /// @param flags Flags for stream creation (e.g., gpuStreamNonBlocking)
+  /// @param location Source location where creation was requested
+  GpuStreamWrapper(const int dev_idx, const unsigned int flags,
+                   std::source_location location = std::source_location::current())
+      : Base(typename Base::skip_default_create_t{}) {
+    Base::select_device(dev_idx, location);
+    gpu_check(gpuStreamCreateWithFlags(&this->handle_, flags), this->policy_create_, location);
+    this->record_device();
+  }
+
+  /// @brief Create a GPU stream on `dev_idx` with flags and priority
+  /// @param dev_idx Device to create the stream on
+  /// @param flags Flags for stream creation (e.g., gpuStreamNonBlocking)
+  /// @param priority Stream priority (lower values indicate higher priority)
+  /// @param location Source location where creation was requested
+  GpuStreamWrapper(const int dev_idx, const unsigned int flags, const int priority,
+                   std::source_location location = std::source_location::current())
+      : Base(typename Base::skip_default_create_t{}) {
+    Base::select_device(dev_idx, location);
+    gpu_check(gpuStreamCreateWithPriority(&this->handle_, flags, priority), this->policy_create_,
+              location);
+    this->record_device();
+  }
+
+  /// @brief Create a GPU stream
+  /// @param handle Output parameter for the created stream
+  /// @param location Source location where creation was requested
+  void create(gpuStream_t *handle, std::source_location location) {
+    gpu_check(gpuStreamCreate(handle), this->policy_create_, location);
+  }
+
+  /// @brief Wait for an event on this stream
+  gpuError_t wait_event(gpuEvent_t event, const unsigned int flags = 0) {
+    return gpuStreamWaitEvent(this->handle_, event, flags);
+  }
+
+  /// @brief Begin capturing work submitted to this stream into a graph
+  /// @param mode Capture mode (defaults to gpuStreamCaptureModeGlobal)
+  /// @return gpuSuccess on success, or a GPU error code on failure
+  gpuError_t begin_capture(const gpuStreamCaptureMode mode = gpuStreamCaptureModeGlobal) {
+    return gpuStreamBeginCapture(this->handle_, mode);
+  }
+
+  /// @brief End capture on this stream and return the captured graph
+  ///
+  /// Wraps the graph the runtime produced in an owning GpuGraph (via
+  /// GpuGraph::adopt), so the whole capture -> instantiate -> launch flow stays
+  /// RAII. Errors go through the create policy, matching construction.
+  ///
+  /// @param location Source location where capture end was requested
+  /// @return A GpuGraph owning the captured graph
+  GpuGraphWrapper<P_create, P_destroy>
+  end_capture(std::source_location location = std::source_location::current()) {
+    gpuGraph_t graph = nullptr;
+    gpu_check(gpuStreamEndCapture(this->handle_, &graph), this->policy_create_, location);
+    return GpuGraphWrapper<P_create, P_destroy>::adopt(graph);
+  }
+
+  /// @brief Synchronize the GPU stream
+  /// @return gpuSuccess on success, or a GPU error code on failure
+  gpuError_t sync() { return gpuStreamSynchronize(this->handle_); }
+
+  /// @brief Destroy a GPU stream
+  /// @param handle The stream to destroy
+  void destroy(gpuStream_t handle) {
+    if (handle != nullptr) {
+      gpu_check(gpuStreamSynchronize(handle), this->policy_destroy_);
+      gpu_check(gpuStreamDestroy(handle), this->policy_destroy_);
+    }
+  }
+};
+
+/**
+ * @brief Convenient alias for GpuStreamWrapper with default error policies
+ *
+ * Usage:
+ *   GpuStream stream;  // Instead of GpuStreamWrapper<>
+ */
+using GpuStream = GpuStreamWrapper<>;
+
+} // namespace gpumod::extension

@@ -1,0 +1,66 @@
+/**
+ * @file fp16.cuh
+ * @brief Half type and float conversions for device-compiled TUs
+ *
+ * The device-compile counterpart to fp16.cppm: gpuHalf and the float<->half
+ * conversions. Link gpumod.device. Companion to bf16.cuh and complex.cuh.
+ *
+ * The type is the SAME one fp16.cppm exports under this name, so a host-allocated
+ * buffer and a kernel parameter named here agree, and an extern template declared
+ * in a .cppm links against a definition compiled in a .cu.
+ *
+ * Only the conversions are wrapped. Half carries its arithmetic operators on both
+ * backends, so `x + y` on two gpuHalf values is already backend-neutral code
+ * naming no vendor symbol -- there is nothing for a wrapper to make portable.
+ * Only the float<->half conversions, which no operator performs, are here.
+ * bfloat16 is the same shape and lives in bf16.cuh; complex diverges the other
+ * way -- its type has no operators -- and lives in complex.cuh. See
+ * docs/architecture.md, section 3.
+ *
+ * The conversions are __device__-only, like rand.cuh's forwarders: they serve a
+ * parallel_for functor's __device__ operator(). Host code reaches the same
+ * conversions through fp16.cppm, which wraps them for the host.
+ */
+
+#pragma once
+
+// GPUMOD_SELECTED_CUDA / GPUMOD_SELECTED_HIP, and #errors outside a device pass;
+// these vendor headers are device-only.
+#include "device_guard.h"
+
+#if defined(GPUMOD_SELECTED_CUDA)
+
+#include <cuda_fp16.h>
+
+#else
+
+// Load-bearing, and must stay before the HIP header: host_defines.h (pulled in
+// transitively by hip_fp16.h) poisons __noinline__ for libc++'s __config, so a
+// HIP header reached before <array> makes __config fail to compile. Same
+// pre-include the src/hip global module fragments carry. docs/architecture.md,
+// section 9.
+#include <array>
+
+#include <hip/hip_fp16.h>
+
+#endif
+
+namespace gpumod {
+
+// ========================================================================
+// Type -- the same one fp16.cppm exports
+// ========================================================================
+
+using gpuHalf = ::__half;
+
+/// @brief Convert a float to half precision (round to nearest even)
+__device__ __forceinline__ gpuHalf gpuFloat2Half(const float value) {
+  return ::__float2half(value);
+}
+
+/// @brief Widen a half-precision value back to float (exact)
+__device__ __forceinline__ float gpuHalf2Float(const gpuHalf value) {
+  return ::__half2float(value);
+}
+
+} // namespace gpumod

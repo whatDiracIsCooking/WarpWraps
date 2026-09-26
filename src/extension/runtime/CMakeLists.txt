@@ -1,0 +1,19 @@
+gpumod_add_cxx_module_library(
+  NAME
+  gpumod.extension.runtime
+  PRIMARY_INTERFACE
+  interface.cppm
+  PARTITIONS
+  gpu_error.cppm
+  gpu_stream.cppm
+  gpu_event.cppm
+  gpu_mem_pool.cppm
+  gpu_graph_exec.cppm
+  gpu_graph.cppm
+  stream_event_pair.cppm
+  device_handle.cppm
+  LINK_PUBLIC
+  gpumod.runtime_api
+  gpumod.extension.common
+  IMPORT_STD
+)

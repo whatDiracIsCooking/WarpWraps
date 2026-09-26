@@ -1,0 +1,33 @@
+# Expected dispatch of gpumod.wrappers.fft -- checked by test/shared/dispatch.py
+#
+# [dispatch] is one key per exec_*<T>: the gpufftExec function its compiled code
+# must call. Names are gpufft aliases (src/fft.cppm), so this one table
+# checks a CUDA and a HIP build alike.
+#
+# The rule is gpufftExec<kind>, where <kind> is the precision-specific transform:
+# float -> C2C / R2C / C2R, double -> Z2Z / D2Z / Z2D. There are no _64 variants
+# -- an FFT's size goes to the *Many64 plan functions, not an index-type suffix
+# on the exec call (src/wrappers/fft/dispatch_macros.h).
+#
+# Order follows the instantiation lists in src/wrappers/fft/exec.cppm. When
+# adding a wrapper, add its entry by hand next to its instantiations: the table
+# is only worth something as an independent statement of what should be called,
+# not a copy of what is. (--print shows what is, for comparison.)
+
+[check]
+module = "gpumod.wrappers.fft"
+prefix = "gpufft"
+# gpumod.fft is pure GPUMOD_FUNCTION aliases -- no inline forwarders to
+# recognise, unlike gpumod.blas -- so there is no forwarder_module here. The
+# exec wrappers are templated on precision alone (float/double), so no
+# [type_names] complex-type mapping is needed either.
+
+[dispatch]
+
+# ---- src/wrappers/fft/exec.cppm ----
+"exec_c2c<float>"  = ["gpufftExecC2C"]
+"exec_c2c<double>" = ["gpufftExecZ2Z"]
+"exec_r2c<float>"  = ["gpufftExecR2C"]
+"exec_r2c<double>" = ["gpufftExecD2Z"]
+"exec_c2r<float>"  = ["gpufftExecC2R"]
+"exec_c2r<double>" = ["gpufftExecZ2D"]

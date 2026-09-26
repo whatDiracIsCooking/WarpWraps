@@ -1,0 +1,87 @@
+# Memory buffer tests
+# RAII contract, views, bounds/overflow rejection, stream-ordered alloc/free
+#
+# First suite migrated to GoogleTest. Note what is gone relative to the
+# test_module version, because the rest of the migration follows this shape:
+#
+#   * no gpumod_add_cxx_module_library() wrapping the test source -- the
+#     test TU is a plain .cpp compiled straight into the executable
+#   * no WHOLE_ARCHIVE, because a TU linked directly into an executable cannot
+#     have its self-registering static objects dropped; that hack only existed
+#     to keep them alive across a static-library boundary
+#   * no main.cpp -- GTest::gtest_main supplies main()
+#   * one ctest entry per suite instead of one per binary, so `ctest -R` can
+#     select one suite and a skip no longer reads as a pass
+
+gpumod_add_gtest_executable(
+  NAME
+  extension_memory_buffer_tests
+  SOURCES
+  buffer_tests.cpp
+  host_memory_tests.cpp
+  allocation_failure_tests.cpp
+  LINK
+  gpumod.runtime_api
+  gpumod.extension.common
+  gpumod.extension.runtime
+  gpumod.extension.memory_buffer
+)
+
+# One ctest entry per suite. Add a suite here when you add one to the test file,
+# or the SuiteListIsComplete guard test will fail and say so.
+#
+# HostAccessibleOwningBufferTest is a TYPED_TEST_SUITE over three owning,
+# host-accessible kinds; TYPES names them in the same order as the
+# ::testing::Types list so its ctest entries read HostAccessibleOwningBufferTest
+# <HostBuffer> rather than .../0.
+gpumod_add_gtest_suite_tests(
+  TARGET
+  extension_memory_buffer_tests
+  SUITES
+  AllocationFailureTests
+  BufferViewTests
+  CopyAndMemsetTests
+  DefaultErrorPolicyDeathTest
+  DefaultErrorPolicyTests
+  DeviceBufferTests
+  DeviceHandleTests
+  GpuCheckDeathTest
+  GpuCheckTests
+  HostAccessibleBufferTests
+  HostBufferTests
+  HostMemoryAllocFailureTests
+  HostMemoryAllocTests
+  HostMemoryErrorTests
+  SizeOverflowRejectionTests
+  TYPED_SUITES
+  HostAccessibleOwningBufferTest
+  TYPES
+  HostBuffer
+  PinnedBuffer
+  UnifiedBuffer
+  TIMEOUT
+  60
+)
+
+# The no_sanitizer-labeled suites deliberately force a real allocation failure
+# to prove the failure path stays coherent, and every sanitizer treats that
+# intentional failure as an error of its own: compute-sanitizer's memcheck
+# counts the cudaErrorMemoryAllocation, and ASAN's allocator aborts on the
+# oversized host malloc (allocation-size-too-big) -- so under either sanitizer's
+# error-exit they would fail an otherwise-clean tree. The no_sanitizer label is
+# the ctest analog of pytest's no_sanitizer marker: the asan ctest preset and
+# both compose sanitizer services (asan, compute-sanitizer) exclude it with
+# `ctest -LE no_sanitizer`, while every non-sanitized ctest run still executes
+# the suites.
+#
+# The label is confined to the two suites that actually force the failure --
+# AllocationFailureTests (the buffer wrappers, in allocation_failure_tests.cpp)
+# and HostMemoryAllocFailureTests (the raw std_malloc SIZE_MAX case, split off
+# from HostMemoryAllocTests in host_memory_tests.cpp). Their siblings allocate
+# nothing (SizeOverflowRejectionTests) or allocate successfully
+# (HostMemoryAllocTests), so they are safe under every sanitizer and stay
+# unlabeled to keep running there.
+set_tests_properties(
+  AllocationFailureTests HostMemoryAllocFailureTests
+  PROPERTIES LABELS no_sanitizer
+)

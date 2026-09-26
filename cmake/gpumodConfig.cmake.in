@@ -1,0 +1,152 @@
+@PACKAGE_INIT@
+
+# gpumod package configuration.
+#
+# What this file has to do beyond including the target export set comes from one
+# fact about C++23 named modules: a consumer of this package COMPILES the module
+# interface sources it installs (a BMI is not portable, so none is shipped --
+# cmake/gpumod_install.cmake explains the mechanism). A consumer's build is
+# therefore not merely linking against gpumod, it is continuing it, and the
+# three things checked below are the ones where continuing it with different
+# settings produces a failure whose message points nowhere near the cause.
+
+include(CMakeFindDependencyMacro)
+
+set(GPUMOD_GPU_BACKEND "@GPUMOD_PACKAGE_BACKEND@")
+set(GPUMOD_WARP_SIZE "@GPUMOD_PACKAGE_WARP_SIZE@")
+set(GPUMOD_BUILT_WITH_CXX_COMPILER_ID "@GPUMOD_PACKAGE_CXX_COMPILER_ID@")
+set(GPUMOD_BUILT_WITH_CXX_COMPILER_VERSION
+    "@GPUMOD_PACKAGE_CXX_COMPILER_VERSION@"
+)
+set(GPUMOD_BUILT_WITH_CXX_STANDARD_LIBRARY
+    "@GPUMOD_PACKAGE_CXX_STANDARD_LIBRARY@"
+)
+
+# ---------------------------------------------------------------------------
+# 1. Backend
+# ---------------------------------------------------------------------------
+# An installation is built against exactly one backend and contains only that
+# backend's wrapper modules. Asking for the other one is not a thing that can
+# half-work, so it is refused here rather than at the point where
+# `import gpumod.cuda.cublas_v2;` fails to resolve in a HIP install.
+if(DEFINED gpumod_FIND_COMPONENTS)
+  foreach(_gpumod_component IN LISTS gpumod_FIND_COMPONENTS)
+    if(_gpumod_component MATCHES "^(CUDA|HIP)$"
+       AND NOT _gpumod_component STREQUAL GPUMOD_GPU_BACKEND
+    )
+      set(gpumod_FOUND FALSE)
+      set(gpumod_NOT_FOUND_MESSAGE
+          "This gpumod installation was built for the ${GPUMOD_GPU_BACKEND} "
+          "backend; the ${_gpumod_component} component was requested. A build "
+          "targets exactly one backend -- install a ${_gpumod_component} build "
+          "of gpumod to a separate prefix."
+      )
+      return()
+    endif()
+  endforeach()
+  unset(_gpumod_component)
+endif()
+
+# ---------------------------------------------------------------------------
+# 2. Toolchain
+# ---------------------------------------------------------------------------
+# The consumer compiles this package's module interface units with the
+# consumer's own compiler. Module interface sources are not portable across
+# implementations, and this project's units are clang + libc++ specific (they
+# `import std`, which needs libc++'s module manifest). A mismatch here surfaces
+# as a wall of errors inside gpumod's own sources, which reads as gpumod being
+# broken rather than as the build using the wrong compiler -- hence a warning
+# that names the cause.
+#
+# A warning and not an error: matching the compiler EXACTLY is stricter than
+# necessary in practice, and a consumer who knows their toolchain is compatible
+# should not need to patch this file. Silence it with
+# -DGPUMOD_SKIP_TOOLCHAIN_CHECK=ON.
+if(NOT GPUMOD_SKIP_TOOLCHAIN_CHECK)
+  if(NOT CMAKE_CXX_COMPILER_ID STREQUAL GPUMOD_BUILT_WITH_CXX_COMPILER_ID)
+    message(
+      WARNING
+        "gpumod was built with ${GPUMOD_BUILT_WITH_CXX_COMPILER_ID}, this "
+        "project uses ${CMAKE_CXX_COMPILER_ID}. Consumers COMPILE gpumod's "
+        "module interface units, and this project's units require Clang -- "
+        "expect errors inside gpumod's own sources."
+    )
+  elseif(NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL
+         GPUMOD_BUILT_WITH_CXX_COMPILER_VERSION
+  )
+    message(
+      STATUS
+        "gpumod was built with Clang "
+        "${GPUMOD_BUILT_WITH_CXX_COMPILER_VERSION}, this project uses "
+        "${CMAKE_CXX_COMPILER_VERSION}. Module sources are recompiled by the "
+        "consumer, so this is usually fine."
+    )
+  endif()
+
+  if(GPUMOD_BUILT_WITH_CXX_STANDARD_LIBRARY
+     AND NOT CMAKE_CXX_STANDARD_LIBRARY STREQUAL
+         GPUMOD_BUILT_WITH_CXX_STANDARD_LIBRARY
+  )
+    message(
+      WARNING
+        "gpumod was built against ${GPUMOD_BUILT_WITH_CXX_STANDARD_LIBRARY}, "
+        "this project uses '${CMAKE_CXX_STANDARD_LIBRARY}'. `import std` "
+        "resolves against the standard library's own module manifest; set "
+        "CMAKE_CXX_STANDARD_LIBRARY to "
+        "${GPUMOD_BUILT_WITH_CXX_STANDARD_LIBRARY} before project()."
+    )
+  endif()
+endif()
+
+# ---------------------------------------------------------------------------
+# 3. Backend packages
+# ---------------------------------------------------------------------------
+# The vendor imported targets (CUDA::cublas, hip::host, ...) appear in this
+# package's INTERFACE_LINK_LIBRARIES, so they have to exist before the export
+# set is included.
+if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
+  find_dependency(CUDAToolkit)
+
+  # libcusolverMg is not a FindCUDAToolkit component -- there is no
+  # CUDA::cusolverMg target -- so src/cuda/CMakeLists.txt finds it by hand and
+  # links it through an imported target. Exporting an imported target writes
+  # its NAME into the export set and nothing else, so the name has to be
+  # recreated here. Re-finding rather than baking in the build machine's
+  # absolute path is what keeps the installed package relocatable.
+  if(NOT TARGET gpumod::cuda_cusolverMg)
+    find_library(
+      GPUMOD_cusolverMg_LIBRARY
+      NAMES cusolverMg
+      HINTS ${CUDAToolkit_LIBRARY_DIR}
+    )
+    if(NOT GPUMOD_cusolverMg_LIBRARY)
+      set(gpumod_FOUND FALSE)
+      set(gpumod_NOT_FOUND_MESSAGE
+          "libcusolverMg not found. It ships with the CUDA Toolkit but is not "
+          "a FindCUDAToolkit component; pass -DGPUMOD_cusolverMg_LIBRARY=<path>"
+          " if it lives outside ${CUDAToolkit_LIBRARY_DIR}."
+      )
+      return()
+    endif()
+    add_library(gpumod::cuda_cusolverMg UNKNOWN IMPORTED)
+    set_target_properties(
+      gpumod::cuda_cusolverMg PROPERTIES IMPORTED_LOCATION
+                                         "${GPUMOD_cusolverMg_LIBRARY}"
+    )
+  endif()
+else()
+  find_dependency(hip)
+  find_dependency(rocm_smi)
+  find_dependency(amd_smi)
+  find_dependency(hiprtc)
+  find_dependency(hipblas)
+  find_dependency(hipblaslt)
+  find_dependency(hipsolver)
+  find_dependency(hipsparse)
+  find_dependency(hipfft)
+  find_dependency(hiprand)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/gpumod-targets.cmake")
+
+check_required_components(gpumod)

@@ -1,0 +1,17 @@
+# Scoped overrides for the wrapper forwarding layer. Merged onto the repo-root
+# .clang-tidy (InheritParentConfig), so every other check there still applies
+# here -- this file only turns off the two that are structurally wrong for this
+# subtree.
+#
+# src/wrappers/ is a thin, dispatch-checked forwarding surface: each function
+# mirrors a vendor BLAS/SOLVER/FFT/SPARSE entry point by NAME and by SIGNATURE
+# (see the token-paste forwards these expand to). So the whole public API is
+# intentionally vendor-cased (gemm, getrfBatched, csr2gebsr_bufferSize) and
+# takes the vendor's C-array parameters (T *const A[]); neither follows the
+# house style, and neither can without breaking the forward. Suppressing at each
+# site would mean hundreds of NOLINTs restating one fact about the directory.
+InheritParentConfig: true
+Checks: >
+  -readability-identifier-naming,
+  -cppcoreguidelines-avoid-c-arrays,
+  -modernize-avoid-c-arrays

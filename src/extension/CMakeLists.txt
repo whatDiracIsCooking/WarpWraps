@@ -1,0 +1,19 @@
+# Backend-neutral extension modules -- higher-level wrappers and utilities
+# written once against src/'s gpu* names. Built for either GPUMOD_GPU_BACKEND;
+# nothing here imports src/cuda or src/hip directly.
+#
+# common is added first: every other module here links it. bridge (the
+# header-only host/device type bridges) precedes parallel_for, which links it;
+# parallel_for (the header-only device launcher) precedes init_state and
+# random_normal, which use it.
+add_subdirectory(common)
+add_subdirectory(bridge)
+add_subdirectory(parallel_for)
+add_subdirectory(runtime)
+add_subdirectory(memory_buffer)
+add_subdirectory(blas)
+add_subdirectory(solver)
+add_subdirectory(fft)
+add_subdirectory(sparse)
+add_subdirectory(init_state)
+add_subdirectory(random_normal)
