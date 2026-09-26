@@ -21,6 +21,42 @@ struct HandleErrorType<gpuGraphExec_t> {
 };
 
 /**
+ * @brief Borrow-safe executable-graph operations, shared by the owner and view
+ *
+ * CRTP mixin keyed on Derived::get(): launch/upload forward to the borrowed
+ * gpuGraphExec_t and touch no ownership state, so they are correct for both
+ * GpuGraphExecWrapper (owns the exec) and GpuGraphExecView (borrows it).
+ *
+ * Methods are const: they mutate the GPU exec, not the C++ object.
+ */
+template<typename Derived>
+class GpuGraphExecAccess {
+private:
+  const Derived &self() const noexcept { return static_cast<const Derived &>(*this); }
+
+public:
+  /// @brief Launch the executable graph on a stream
+  gpuError_t launch(gpuStream_t stream) const { return gpuGraphLaunch(self().get(), stream); }
+
+  /// @brief Upload the executable graph to a stream's device without launching it
+  gpuError_t upload(gpuStream_t stream) const { return gpuGraphUpload(self().get(), stream); }
+};
+
+/**
+ * @brief Non-owning, copyable view over a GPU executable graph
+ *
+ * Carries the borrowed handle (via GpuHandleView; an exec is not device-bound)
+ * and the borrow-safe operations (via GpuGraphExecAccess). Construct one from an
+ * owning GpuGraphExec with `.view()`, or from a raw gpuGraphExec_t. It destroys
+ * nothing, so it must not outlive the exec it borrows.
+ */
+class GpuGraphExecView : public GpuHandleView<gpuGraphExec_t>,
+                         public GpuGraphExecAccess<GpuGraphExecView> {
+public:
+  using GpuHandleView<gpuGraphExec_t>::GpuHandleView;
+};
+
+/**
  * @brief RAII wrapper for a GPU executable graph
  *
  * Instantiates a graph template into an executable graph on construction and
@@ -42,7 +78,8 @@ template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
          error_policy<gpuError_t> P_destroy = P_create>
 class GpuGraphExecWrapper
     : public BaseGpuHandle<gpuGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create,
-                           P_destroy> {
+                           P_destroy>,
+      public GpuGraphExecAccess<GpuGraphExecWrapper<P_create, P_destroy>> {
 private:
   using Base =
       BaseGpuHandle<gpuGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create, P_destroy>;
@@ -58,11 +95,14 @@ public:
     gpu_check(gpuGraphInstantiate(&this->handle_, graph, flags), this->policy_create_, location);
   }
 
-  /// @brief Launch the executable graph on a stream
-  gpuError_t launch(gpuStream_t stream) { return gpuGraphLaunch(this->handle_, stream); }
+  // launch()/upload() come from GpuGraphExecAccess, shared with GpuGraphExecView.
 
-  /// @brief Upload the executable graph to a stream's device without launching it
-  gpuError_t upload(gpuStream_t stream) { return gpuGraphUpload(this->handle_, stream); }
+  /// @brief A non-owning, copyable view of this executable graph
+  ///
+  /// Deleted on rvalues so a view cannot be taken from a temporary exec, which
+  /// would dangle immediately.
+  GpuGraphExecView view() const & noexcept { return GpuGraphExecView{this->get()}; }
+  GpuGraphExecView view() && = delete;
 
   /// @brief Destroy the executable graph
   /// @param handle The executable graph to destroy

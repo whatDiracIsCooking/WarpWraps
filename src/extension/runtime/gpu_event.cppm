@@ -20,6 +20,49 @@ struct HandleErrorType<gpuEvent_t> {
 };
 
 /**
+ * @brief Borrow-safe event operations, shared by the owner and the view
+ *
+ * CRTP mixin keyed on Derived::get(): every method forwards to the borrowed
+ * gpuEvent_t and touches no ownership state, so it is correct for both
+ * GpuEventWrapper (owns the event) and GpuEventView (borrows it) with no
+ * duplication. Ownership-producing operations, if any, stay on the owner.
+ *
+ * Methods are const: they mutate the GPU event, not the C++ object, exactly as
+ * a pointer's operations are const on the pointer.
+ */
+template<typename Derived>
+class GpuEventAccess {
+private:
+  const Derived &self() const noexcept { return static_cast<const Derived &>(*this); }
+
+public:
+  /// @brief Record the event on a stream
+  gpuError_t record(gpuStream_t stream) const { return gpuEventRecord(self().get(), stream); }
+
+  /// @brief Record the event on a stream with flags
+  gpuError_t record(gpuStream_t stream, const unsigned int flags) const {
+    return gpuEventRecordWithFlags(self().get(), stream, flags);
+  }
+
+  /// @brief Synchronize the GPU event
+  /// @return gpuSuccess on success, or a GPU error code on failure
+  gpuError_t sync() const { return gpuEventSynchronize(self().get()); }
+};
+
+/**
+ * @brief Non-owning, copyable view over a GPU event
+ *
+ * Carries the borrowed handle plus its device index (via GpuBoundHandleView) and
+ * the borrow-safe event operations (via GpuEventAccess). Construct one from an
+ * owning GpuEvent with `.view()`, or directly from a raw gpuEvent_t you did not
+ * create. It destroys nothing, so it must not outlive the event it borrows.
+ */
+class GpuEventView : public GpuBoundHandleView<gpuEvent_t>, public GpuEventAccess<GpuEventView> {
+public:
+  using GpuBoundHandleView<gpuEvent_t>::GpuBoundHandleView;
+};
+
+/**
  * @brief RAII wrapper for GPU event
  *
  * Automatically creates a GPU event on construction and destroys it on destruction.
@@ -33,7 +76,8 @@ struct HandleErrorType<gpuEvent_t> {
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
          error_policy<gpuError_t> P_destroy = P_create>
 class GpuEventWrapper
-    : public GpuBoundHandle<gpuEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy> {
+    : public GpuBoundHandle<gpuEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy>,
+      public GpuEventAccess<GpuEventWrapper<P_create, P_destroy>> {
 private:
   using Base =
       GpuBoundHandle<gpuEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy>;
@@ -63,17 +107,14 @@ public:
     gpu_check(gpuEventCreate(handle), this->policy_create_, location);
   }
 
-  /// @brief Record the event on a stream
-  gpuError_t record(gpuStream_t stream) { return gpuEventRecord(this->handle_, stream); }
+  // record()/sync() come from GpuEventAccess, shared with GpuEventView.
 
-  /// @brief Record the event on a stream with flags
-  gpuError_t record(gpuStream_t stream, const unsigned int flags) {
-    return gpuEventRecordWithFlags(this->handle_, stream, flags);
-  }
-
-  /// @brief Synchronize the GPU event
-  /// @return gpuSuccess on success, or a GPU error code on failure
-  gpuError_t sync() { return gpuEventSynchronize(this->handle_); }
+  /// @brief A non-owning, copyable view of this event (handle + device index)
+  ///
+  /// Deleted on rvalues so a view cannot be taken from a temporary event, which
+  /// would dangle immediately: `GpuEvent{}.view()` does not compile.
+  GpuEventView view() const & noexcept { return GpuEventView{this->get(), this->dev_idx()}; }
+  GpuEventView view() && = delete;
 
   /// @brief Destroy a GPU event
   /// @param handle The event to destroy

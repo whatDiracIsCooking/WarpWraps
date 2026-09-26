@@ -73,4 +73,10 @@ public:
  */
 using GpusolverDnHandle = GpusolverDnHandleWrapper<>;
 
+/// @brief Non-owning, copyable view of a solver handle, carrying its device index.
+///        Returned by GpusolverDnHandle::view(); converts to gpusolverDnHandle_t
+///        for the gpusolverDn* wrappers, so a borrowed handle can be used without
+///        owning it.
+using GpusolverDnHandleView = GpuBoundHandleView<gpusolverDnHandle_t>;
+
 } // namespace gpumod::extension

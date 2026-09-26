@@ -17,6 +17,7 @@ export module gpumod.extension.common:device_bound_handle;
 import :gpu_handle;
 import :gpu_check;
 import :error_policy;
+import :device_bound_handle_view;
 import gpumod.runtime_api;
 import std;
 
@@ -118,6 +119,15 @@ public:
 
   /// @brief Index of the physical device this handle belongs to (-1 if not yet recorded)
   int dev_idx() const noexcept { return dev_idx_; }
+
+  /// @brief A non-owning, copyable view of this handle, carrying its device index.
+  ///
+  /// Hides BaseGpuHandle::view() to return the device-aware view. Deleted on
+  /// rvalues, as the base is, so a temporary cannot be viewed.
+  GpuBoundHandleView<T> view() const & noexcept {
+    return GpuBoundHandleView<T>{this->get(), dev_idx_};
+  }
+  GpuBoundHandleView<T> view() && = delete;
 };
 
 } // namespace gpumod::extension

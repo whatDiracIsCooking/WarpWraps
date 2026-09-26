@@ -21,6 +21,55 @@ struct HandleErrorType<gpuStream_t> {
 };
 
 /**
+ * @brief Borrow-safe stream operations, shared by the owner and the view
+ *
+ * CRTP mixin keyed on Derived::get(): every method forwards to the borrowed
+ * gpuStream_t and touches no ownership state, so it is correct for both
+ * GpuStreamWrapper (owns the stream) and GpuStreamView (borrows it) with no
+ * duplication. end_capture stays on the owner: it produces an owned GpuGraph
+ * through the create policy, which a non-owning view has no business doing.
+ *
+ * Methods are const: they mutate the GPU stream, not the C++ object.
+ */
+template<typename Derived>
+class GpuStreamAccess {
+private:
+  const Derived &self() const noexcept { return static_cast<const Derived &>(*this); }
+
+public:
+  /// @brief Wait for an event on this stream
+  gpuError_t wait_event(gpuEvent_t event, const unsigned int flags = 0) const {
+    return gpuStreamWaitEvent(self().get(), event, flags);
+  }
+
+  /// @brief Begin capturing work submitted to this stream into a graph
+  /// @param mode Capture mode (defaults to gpuStreamCaptureModeGlobal)
+  /// @return gpuSuccess on success, or a GPU error code on failure
+  gpuError_t begin_capture(const gpuStreamCaptureMode mode = gpuStreamCaptureModeGlobal) const {
+    return gpuStreamBeginCapture(self().get(), mode);
+  }
+
+  /// @brief Synchronize the GPU stream
+  /// @return gpuSuccess on success, or a GPU error code on failure
+  gpuError_t sync() const { return gpuStreamSynchronize(self().get()); }
+};
+
+/**
+ * @brief Non-owning, copyable view over a GPU stream
+ *
+ * Carries the borrowed handle plus its device index (via GpuBoundHandleView) and
+ * the borrow-safe stream operations (via GpuStreamAccess). Construct one from an
+ * owning GpuStream with `.view()`, or directly from a raw gpuStream_t you did not
+ * create -- the default stream (0), or a stream owned elsewhere. It destroys
+ * nothing, so it must not outlive the stream it borrows.
+ */
+class GpuStreamView : public GpuBoundHandleView<gpuStream_t>,
+                      public GpuStreamAccess<GpuStreamView> {
+public:
+  using GpuBoundHandleView<gpuStream_t>::GpuBoundHandleView;
+};
+
+/**
  * @brief RAII wrapper for GPU stream
  *
  * Automatically creates a GPU stream on construction and destroys it on destruction.
@@ -34,7 +83,8 @@ struct HandleErrorType<gpuStream_t> {
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
          error_policy<gpuError_t> P_destroy = P_create>
 class GpuStreamWrapper : public GpuBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>,
-                                               P_create, P_destroy> {
+                                               P_create, P_destroy>,
+                         public GpuStreamAccess<GpuStreamWrapper<P_create, P_destroy>> {
 private:
   using Base =
       GpuBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create, P_destroy>;
@@ -78,17 +128,8 @@ public:
     gpu_check(gpuStreamCreate(handle), this->policy_create_, location);
   }
 
-  /// @brief Wait for an event on this stream
-  gpuError_t wait_event(gpuEvent_t event, const unsigned int flags = 0) {
-    return gpuStreamWaitEvent(this->handle_, event, flags);
-  }
-
-  /// @brief Begin capturing work submitted to this stream into a graph
-  /// @param mode Capture mode (defaults to gpuStreamCaptureModeGlobal)
-  /// @return gpuSuccess on success, or a GPU error code on failure
-  gpuError_t begin_capture(const gpuStreamCaptureMode mode = gpuStreamCaptureModeGlobal) {
-    return gpuStreamBeginCapture(this->handle_, mode);
-  }
+  // wait_event()/begin_capture()/sync() come from GpuStreamAccess, shared with
+  // GpuStreamView.
 
   /// @brief End capture on this stream and return the captured graph
   ///
@@ -105,9 +146,12 @@ public:
     return GpuGraphWrapper<P_create, P_destroy>::adopt(graph);
   }
 
-  /// @brief Synchronize the GPU stream
-  /// @return gpuSuccess on success, or a GPU error code on failure
-  gpuError_t sync() { return gpuStreamSynchronize(this->handle_); }
+  /// @brief A non-owning, copyable view of this stream (handle + device index)
+  ///
+  /// Deleted on rvalues so a view cannot be taken from a temporary stream, which
+  /// would dangle immediately.
+  GpuStreamView view() const & noexcept { return GpuStreamView{this->get(), this->dev_idx()}; }
+  GpuStreamView view() && = delete;
 
   /// @brief Destroy a GPU stream
   /// @param handle The stream to destroy
