@@ -1,4 +1,6 @@
-# Build the CI container images and publish them to GHCR.
+# Build the CI container images and publish them to GHCR -- and, on a pull
+# request that touches the same paths, build them WITHOUT publishing, so a
+# Dockerfile that no longer builds fails before it merges rather than after.
 #
 # SEPARATE FROM ci.yml ON PURPOSE. These images change when docker/ changes --
 # a few times a year -- while ci.yml runs on every push. Rebuilding a ~20GB
@@ -45,6 +47,24 @@ on:
       - 'pyproject.toml'
       - 'uv.lock'
       - '.github/workflows/images.yml'
+  # The same paths on a PR, where this BUILDS BUT DOES NOT PUSH.
+  #
+  # Nothing used to verify a Dockerfile edit until after it merged. ci.yml
+  # resolves `container:` before any step runs, so a PR's cpp legs test the
+  # image main already published -- meaning a Dockerfile that no longer builds
+  # was discovered by the publish on main, one merge too late, with the tags
+  # already moved or the run already red on the wrong branch.
+  #
+  # This closes that and nothing more: it proves the files still build. It does
+  # NOT make the cpp legs test the new image -- see MOVING TAGS above for the
+  # manual step that does. The path list is spelled twice because `on:` has no
+  # way to share one.
+  pull_request:
+    paths:
+      - 'docker/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/images.yml'
   # Also weekly: these install from apt repositories that move underneath a
   # fixed Dockerfile, so an image that has not been rebuilt in months is not
   # the image the Dockerfile describes.
@@ -64,11 +84,31 @@ concurrency:
   group: images-${{ github.ref }}
   cancel-in-progress: false
 
+# Narrowed default for anything added later; the one job below declares its own,
+# which REPLACES this rather than extending it.
+permissions:
+  contents: read
+
 jobs:
   publish:
+    # Named for what the run actually does, because a green "publish (hip)" on a
+    # pull request -- which pushes nothing -- is the kind of signal this repo
+    # goes out of its way not to produce.
+    name: ${{ github.event_name == 'pull_request' && 'build' || 'publish' }} (${{ matrix.image }})
     runs-on: ubuntu-latest
-    # ROCm alone takes ~25 minutes to install before anything is pushed.
+    # Generous rather than tuned, and now backed by a number. MEASURED on a
+    # hosted runner, build-only: the ROCm install layer is 176.6s and the whole
+    # hip job 6m35s, base included. This comment previously claimed "~25 minutes
+    # to install ROCm" -- an estimate no run ever produced, and the second one in
+    # this file to survive until a real run contradicted it (see `reclaim disk`).
+    # The ceiling stays high because the publish path adds a ~3-minute push per
+    # image, and because what this guards against is an apt mirror having a bad
+    # day rather than the install itself.
     timeout-minutes: 180
+    # `permissions:` accepts no expression, so a pull_request run carries the
+    # same `packages: write` and simply never uses it -- the login step below is
+    # skipped and BUILD_PUSH is empty. Splitting the job in two to drop one
+    # unused scope would duplicate the matrix, the disk reclaim and the build.
     permissions:
       contents: read
       packages: write
@@ -124,7 +164,9 @@ jobs:
           df -h /
 
       - name: log in to ghcr.io
-        if: steps.gate.outputs.run == 'true'
+        # Not on a PR: nothing is pushed, so there is nothing to authenticate
+        # for. It would also fail for a fork, whose GITHUB_TOKEN is read-only.
+        if: steps.gate.outputs.run == 'true' && github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -139,7 +181,17 @@ jobs:
         if: steps.gate.outputs.run == 'true'
         env:
           IMAGE_TAG_SUFFIX: '-ci'
-          BUILD_PUSH: '1'
+          # build.sh pushes only when BUILD_PUSH is non-empty, so emptying it on
+          # a PR turns the exact command that publishes on main into a
+          # build-only check. One knob, not a second code path -- which matters
+          # because the thing being verified is that this command still works.
+          #
+          # THE CONDITION IS INVERTED ON PURPOSE. `x && '' || '1'` does not work
+          # here: GitHub's `&&`/`||` return operands rather than booleans and an
+          # empty string is FALSY, so the `&&` yields '' and the `||` then hands
+          # back '1' -- a PR would push. Whichever branch must be empty has to
+          # be the `||` side.
+          BUILD_PUSH: ${{ github.event_name != 'pull_request' && '1' || '' }}
         run: |
           owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           export IMAGE_REGISTRY="ghcr.io/$owner"

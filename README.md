@@ -182,7 +182,11 @@ docker/               The batch path: compose.yaml, the SDK install scripts
   └── build.sh            Builds one of them, and its ancestors, in order
 .devcontainer/        The interactive path
 devtools/             Container, worktree, test-tier and doctor scripts
+docs/                 CONTRIBUTING.md, architecture.md, gpu-header-dependencies.md
 ```
+
+New here? **[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)** is the short version
+of setup, which suite verifies what, and the gates to run before a PR.
 
 ---
 

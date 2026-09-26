@@ -10,11 +10,14 @@
 #   lint          ruff + cmake-lint
 #   python        the pytest tier, on 3.11 and 3.13
 #   cpp (cuda)    the whole tree built for CUDA -- src/, GoogleTest, every
-#                 runtime test binary -- then `ctest -LE gpu`
+#                 runtime test binary -- then `ctest -LE gpu`, then an ADVISORY
+#                 clang-tidy pass over src/*.cpp that cannot fail the job
 #   cpp (hip)     the same shape for HIP: the whole tree through clang's
 #                 -x hip front end, then the same `-LE gpu`
 #   install-check install to a throwaway prefix, then build example/consumer
 #                 against it. The only tier that sees an export regression.
+#   ci-ok         an aggregate that fails unless every job above succeeded --
+#                 the one check name stable enough to require in a ruleset
 #
 # BE PRECISE ABOUT WHAT THE cpp JOBS PROVE, because "the whole tree built, then
 # ctest" reads like more than it is. What `-LE gpu` leaves is essentially a
@@ -98,6 +101,16 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+# The default token scope for this workflow, narrowed to what `lint` and `test`
+# actually need: a checkout and nothing else. Without this they inherit the
+# repository default, which can be read-WRITE.
+#
+# A job-level `permissions:` block REPLACES this rather than adding to it, which
+# is why `cpp` and `install-check` each spell out `contents: read` alongside the
+# `packages: read` they need to pull from GHCR.
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -143,6 +156,11 @@ jobs:
         run: uv run pytest -n auto -rs
 
   cpp:
+    # An explicit name, because the default for a matrix job is built from ALL
+    # of its matrix values -- this one read `cpp (cuda, cuda-ci, ci-cuda,
+    # --tidy)` until this line existed, and every key added below silently
+    # rewrote it. See ci-ok at the bottom of this file for why that matters.
+    name: cpp (${{ matrix.backend }})
     # After lint, so a ruff finding does not cost a 20-minute module build
     # before it is reported.
     needs: lint
@@ -158,9 +176,27 @@ jobs:
           - backend: cuda
             image: cuda-ci
             preset: ci-cuda
+            # clang-tidy, on this leg only. .clang-tidy is real configuration
+            # and cpp-tier.sh has had --tidy from the start, but nothing ran it
+            # anywhere -- neither a hook nor CI -- which is the same dead-check
+            # failure mode as a preset no one exercises.
+            #
+            # It rides the build that is already happening: it lints the five
+            # src/*.cpp implementation units out of this tree's
+            # compile_commands.json, so the marginal cost is clang-tidy itself.
+            # One leg because the findings would otherwise be reported twice.
+            #
+            # IT IS ADVISORY BY CONSTRUCTION. cpp-tier.sh never lets it change
+            # the exit code (the tree is not tidy-clean yet, and clang-tidy's
+            # C++23-module support is still incomplete enough to emit the odd
+            # bogus diagnostic), so read it in the uploaded log rather than in
+            # this job's colour. Promote it to a gate only once the tree is
+            # clean AND the module diagnostics are trustworthy.
+            tidy: '--tidy'
           - backend: hip
             image: hip-ci
             preset: ci-hip
+            tidy: ''
     container:
       image: ghcr.io/whatdiraciscooking/gpumod:${{ matrix.image }}
       # The image's own USER is `ubuntu` (uid 1000) and the runner creates
@@ -203,7 +239,7 @@ jobs:
           BUILD_JOBS: '4'
         run: |
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
-          devtools/cpp-tier.sh --preset ${{ matrix.preset }}
+          devtools/cpp-tier.sh --preset ${{ matrix.preset }} ${{ matrix.tidy }}
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -245,3 +281,61 @@ jobs:
         run: |
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
           devtools/install-check.sh --preset ci-cuda --no-run
+
+  # THE AGGREGATE GATE. One job whose only purpose is to be the single required
+  # status check in a branch ruleset.
+  #
+  # It exists because every other check name in this file is GENERATED and
+  # therefore moves. `test (3.11)` carries a Python version that will be bumped.
+  # `cpp`'s name was assembled from all of its matrix values until the `name:`
+  # line above existed -- adding the `tidy:` key rewrote it from
+  # `cpp (cuda, cuda-ci, ci-cuda)` to `cpp (cuda, cuda-ci, ci-cuda, --tidy)`
+  # without touching anything that looked like a name.
+  #
+  # A ruleset matches a required check by NAME, and a required name that nothing
+  # reports blocks the pull request FOREVER, displaying "Expected -- waiting for
+  # status to be reported". That reads like GitHub being slow rather than like a
+  # stale config, which is what makes it expensive. So pin this name and no
+  # other: it is stable by construction.
+  #
+  # THE INVARIANT IT CREATES: a job added to this file must be added to `needs:`
+  # below, or nothing gates it. There is no `needs: *`, so the list is spelled
+  # out and keeping it current is a human job -- that is the whole cost of the
+  # pattern.
+  ci-ok:
+    name: ci-ok
+    # Load-bearing. Without it this job is SKIPPED as soon as a need fails, and
+    # a skipped required check never reports -- so a red `cpp` leg would block
+    # the merge with no red gate explaining why. With it, the job runs and fails
+    # loudly instead.
+    if: always()
+    needs: [lint, test, cpp, install-check]
+    runs-on: ubuntu-latest
+    steps:
+      - name: every job succeeded
+        env:
+          # Through the environment rather than interpolated into the script
+          # body. A job result is a fixed enum (success/failure/cancelled/
+          # skipped) so nothing can be injected here today, but pasting ${{ }}
+          # into a `run:` is the habit worth not forming.
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+          DETAIL: ${{ toJSON(needs) }}
+        # A `skipped` result fails on purpose: a job that did not run proved
+        # nothing, and this gate answers "is this commit verified", not "did
+        # anything go wrong".
+        run: |
+          echo "$DETAIL"
+          # An empty list would otherwise pass vacuously -- the loop body never
+          # runs. Only reachable by emptying `needs:` above, which is exactly the
+          # edit that would make this gate meaningless.
+          if [ -z "$RESULTS" ]; then
+            echo "ci-ok: no job results at all -- is needs: empty?" >&2
+            exit 1
+          fi
+          for result in $RESULTS; do
+            if [ "$result" != success ]; then
+              echo "ci-ok: a required job did not succeed -- see the detail above" >&2
+              exit 1
+            fi
+          done
+          echo "ci-ok: every required job succeeded"
