@@ -13,6 +13,7 @@
  * - :device_bound_handle - CRTP layer recording a handle's owning device
  * - :gpu_handle_view - Non-owning, copyable view over a GPU handle
  * - :device_bound_handle_view - Non-owning view carrying its handle's device
+ * - :device_scope - RAII guard that makes a device current and restores the previous one
  * - :noncopyable - Mixin deleting copy operations while allowing moves
  *
  * Usage:
@@ -33,4 +34,5 @@ export import :gpu_handle;
 export import :device_bound_handle;
 export import :gpu_handle_view;
 export import :device_bound_handle_view;
+export import :device_scope;
 export import :noncopyable;
