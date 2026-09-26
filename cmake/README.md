@@ -274,3 +274,45 @@ guard is deferred to the end of the directory scope.
 
 Nothing invokes a test binary by path any more — `docker/compose.yaml` drives
 `ctest`, so renaming a target does not need a change there.
+
+### `REQUIRES_GPU`, and the `gpu` label
+
+`gpumod_add_gtest_suite_tests(... REQUIRES_GPU)` puts the `gpu` ctest label on
+every entry it registers. Pass it when the binary needs a live device — it
+allocates device memory, launches a kernel, or creates a vendor-library handle.
+Seven targets do (`test/extension/{memory_buffer,runtime,rand,blas,solver,fft,
+sparse}`); `test/gpu/conversions` does not, because host fp16/bf16 conversion
+computes on the CPU.
+
+The label is what lets `.github/workflows/ci.yml` build and test on a
+GitHub-hosted runner, which has no card:
+
+```
+ctest --preset default    42 entries — everything
+ctest --preset ci-cuda    11 entries — `-LE gpu`
+```
+
+**A label, not a `GTEST_SKIP`.** Nothing in `test/` gates on a device count,
+and nothing should: an excluded test is named in the ctest output, where a
+skipped one blends into a green run. It is the same mechanism as
+`no_sanitizer`, which the `asan` preset and both compose sanitizer services
+already exclude.
+
+Two things to get right when adding one:
+
+- **A second label must APPEND.** `set_tests_properties(... PROPERTIES LABELS
+  x)` *replaces* the property, so on a `REQUIRES_GPU` target it silently strips
+  `gpu`. Use `set_property(TEST ... APPEND PROPERTY LABELS x)` — see
+  `test/extension/memory_buffer/CMakeLists.txt`, where two suites carry both
+  `gpu` and `no_sanitizer`.
+- **The `SuiteListIsComplete` guard is deliberately left unlabeled**, even for
+  a `REQUIRES_GPU` target. `--gtest_list_tests` enumerates the registry without
+  constructing a fixture, so it needs the binary to load but never touches a
+  device — verified: all eight guards pass in a container started without
+  `--gpus`. That keeps the hand-written suite lists honest on the runner too.
+  If a target ever grows a static initializer that talks to the driver, label
+  the guard rather than deleting it.
+
+`cuda_compile_tests` carries `gpu` for an unrelated reason — it links the CUDA
+driver stubs and cannot *load* without `libcuda.so.1`. Its own CMakeLists has
+the why, including why excluding it from CI costs nothing.

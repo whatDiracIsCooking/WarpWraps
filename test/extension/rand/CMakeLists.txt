@@ -39,4 +39,5 @@ gpumod_add_gtest_suite_tests(
   RandTests
   TIMEOUT
   60
+  REQUIRES_GPU
 )

@@ -108,6 +108,39 @@ tries to *pull* it, and fails with `pull access denied for gpumod, repository
 does not exist`, which reads like a registry problem rather than a missing local
 build. `docker/Dockerfile.base`'s header has the rest of the reasoning.
 
+### The `-ci` variants, and the registry
+
+Three more environment knobs turn a local build into a published one. Only
+`.github/workflows/images.yml` sets them, and only to publish the two images
+CI pulls:
+
+```bash
+IMAGE_TAG_SUFFIX=-ci IMAGE_REGISTRY=ghcr.io/<owner> BUILD_PUSH=1 \
+  ROCM_PRUNE=1 docker/build.sh hip      # -> gpumod:hip-ci, pushed to GHCR
+```
+
+| knob | effect |
+|---|---|
+| `IMAGE_TAG_SUFFIX` | appended to every tag in the chain (`gpumod:hip-ci`) |
+| `IMAGE_REGISTRY` | adds `<registry>/gpumod:<tag>` as a second tag |
+| `BUILD_PUSH=1` | pushes the **final target's** registry tags, not its parents' |
+
+`:latest` is dropped when a suffix is set — `gpumod:latest-ci` would be a lie,
+since `latest` is what `GPUMOD_IMAGE` resolves to and must keep meaning the
+full CUDA dev image. Parents are not pushed because a child image is
+self-contained; publishing `:base` too would upload 1.45GB nothing pulls.
+
+**`ROCM_PRUNE=1` is what makes a HIP job possible on a hosted runner.** The dev
+ROCm image is 20.5GB and a GitHub-hosted runner has roughly 20–25GB free; the
+prune drops ~13GB of Tensile/rocFFT kernel objects, composable-kernel archives,
+rccl, rocalution and hiptensor — none of which a *compile* links — and lands at
+**7.05GB**, measured. `docker/install-rocm.sh` carries the list and the reason
+each entry is safe.
+
+It has to happen inside that script's own `RUN`. Layers are additive, so an
+`rm` in a later layer hides the files and frees nothing; `:hip` and `:hip-ci`
+are therefore two full installs rather than a shared layer plus a delta.
+
 ## Build the Project
 
 ```bash

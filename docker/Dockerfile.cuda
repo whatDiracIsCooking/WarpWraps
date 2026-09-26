@@ -60,8 +60,11 @@ ENV CUDAToolkit_ROOT=/usr/local/cuda \
 #   --build-arg CUDA_ARCH="80;86;90"
 # 86 is Ampere consumer (RTX 30xx). CUDAARCHS is what CMake reads when a preset
 # does not set CMAKE_CUDA_ARCHITECTURES; the `default` preset sets it to
-# `native`, which compiles only for the card in the build machine -- use a
-# pinned or `portable` preset when the build host and run host differ.
+# `native`, which compiles only for the card in the build machine -- use the
+# ci-cuda preset, which pins 86, when the build host has no card. Keep this at
+# 75 or above: this toolkit's floor is compute_75 (see the CUDA_VERSION note at
+# the top of this file), and a lower value fails at CONFIGURE time, not at
+# build. There are no per-architecture presets; devtools/config.sh has why.
 ARG CUDA_ARCH=86
 ENV CUDA_ARCH=${CUDA_ARCH} \
     CUDAARCHS=${CUDA_ARCH}

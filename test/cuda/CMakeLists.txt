@@ -93,4 +93,26 @@ gpumod_add_test_executable(
 )
 
 add_dependencies(compile_time_tests cuda_compile_tests)
-set_tests_properties(cuda_compile_tests PROPERTIES LABELS compile_time)
+
+# Two labels, and the second is the odd one: this is a COMPILE-time test that
+# nonetheless cannot RUN on a machine without an NVIDIA driver. It links the
+# driver-API stubs (cuda_h, nvml), so the binary needs libcuda.so.1 and
+# libnvidia-ml.so.1 at LOAD time and dies before main() with `error while
+# loading shared libraries` in a container started without --gpus -- a
+# GitHub-hosted runner, for instance. test/hip's counterpart has no such
+# dependency and stays unlabeled.
+#
+# Excluding it there costs nothing, which is why this is a label and not a
+# workaround. Everything the run proves has already been proved by the build:
+# a compile error fails the build, and so does an undefined symbol, because
+# reaching main() is exactly "it linked". What is left -- that the dynamic
+# loader can resolve the binary -- is precisely what a driverless box cannot
+# answer, so `ctest -LE gpu` there is not skipping a real check.
+#
+# (The alternative was symlinking the toolkit's own stubs onto LD_LIBRARY_PATH
+# in a CI image variant. Rejected: LD_LIBRARY_PATH beats the loader cache, so
+# such an image would silently prefer the stub over the REAL driver the NVIDIA
+# runtime injects, on any machine that has one.)
+set_tests_properties(
+  cuda_compile_tests PROPERTIES LABELS "compile_time;gpu"
+)

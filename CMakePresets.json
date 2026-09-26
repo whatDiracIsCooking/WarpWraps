@@ -91,43 +91,23 @@
       }
     },
     {
-      "name": "volta",
-      "binaryDir": "${sourceDir}/build-volta",
-      "displayName": "Volta (sm_70)",
-      "description": "Release build targeting Volta GPUs (V100, Titan V)",
-      "inherits": "default",
+      "name": "ci-cuda",
+      "binaryDir": "${sourceDir}/build-ci-cuda",
+      "displayName": "CI, CUDA backend (no device)",
+      "description": "What .github/workflows/ci.yml builds on a GitHub-hosted runner: the full CUDA tree, GoogleTest and every runtime binary, with the architecture PINNED so configure never queries a driver. Its test preset excludes the `gpu` label.",
+      "inherits": "base",
       "cacheVariables": {
-        "CMAKE_CUDA_ARCHITECTURES": "70"
+        "CMAKE_CUDA_ARCHITECTURES": "86"
       }
     },
     {
-      "name": "ampere",
-      "binaryDir": "${sourceDir}/build-ampere",
-      "displayName": "Ampere (sm_80)",
-      "description": "Release build targeting Ampere GPUs (A100, RTX 30xx)",
-      "inherits": "default",
+      "name": "ci-hip",
+      "binaryDir": "${sourceDir}/build-ci-hip",
+      "displayName": "CI, HIP backend (compile-time only)",
+      "description": "The HIP half of CI: all of src/ and example/ compiled through clang's -x hip front end, with no GoogleTest fetch and no runtime targets. Answers the one question a green CUDA run cannot.",
+      "inherits": "hip",
       "cacheVariables": {
-        "CMAKE_CUDA_ARCHITECTURES": "80"
-      }
-    },
-    {
-      "name": "hopper",
-      "binaryDir": "${sourceDir}/build-hopper",
-      "displayName": "Hopper (sm_90)",
-      "description": "Release build targeting Hopper GPUs (H100, H200, GH200)",
-      "inherits": "default",
-      "cacheVariables": {
-        "CMAKE_CUDA_ARCHITECTURES": "90"
-      }
-    },
-    {
-      "name": "portable",
-      "binaryDir": "${sourceDir}/build-portable",
-      "displayName": "Portable (sm_70, sm_80, sm_90)",
-      "description": "Release build targeting all supported architectures (fat binary). Use when the build host and run host have different GPUs.",
-      "inherits": "default",
-      "cacheVariables": {
-        "CMAKE_CUDA_ARCHITECTURES": "70;80;90"
+        "GPUMOD_COMPILE_TIME_ONLY": "ON"
       }
     }
   ],
@@ -161,27 +141,19 @@
       "configurePreset": "hip"
     },
     {
+      "name": "ci-cuda",
+      "configurePreset": "ci-cuda"
+    },
+    {
+      "name": "ci-hip",
+      "configurePreset": "ci-hip"
+    },
+    {
       "name": "compile-time",
       "configurePreset": "compile-time",
       "targets": [
         "compile_time_tests"
       ]
-    },
-    {
-      "name": "volta",
-      "configurePreset": "volta"
-    },
-    {
-      "name": "ampere",
-      "configurePreset": "ampere"
-    },
-    {
-      "name": "hopper",
-      "configurePreset": "hopper"
-    },
-    {
-      "name": "portable",
-      "configurePreset": "portable"
     }
   ],
   "testPresets": [
@@ -223,6 +195,30 @@
       "configurePreset": "hip",
       "output": {
         "outputOnFailure": true
+      }
+    },
+    {
+      "name": "ci-cuda",
+      "configurePreset": "ci-cuda",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "exclude": {
+          "label": "gpu"
+        }
+      }
+    },
+    {
+      "name": "ci-hip",
+      "configurePreset": "ci-hip",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "include": {
+          "label": "compile_time"
+        }
       }
     },
     {

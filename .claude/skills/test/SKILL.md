@@ -80,27 +80,37 @@ work around.
 
 Things that will bite:
 
-- Only `default`, `workstation`, `debug`, `asan`, `hip` and `compile-time` have
-  **test** presets. With any other configure preset the script builds and then
-  reports that there is nothing to ctest — which is not the same as passing.
+- Only `default`, `workstation`, `debug`, `asan`, `hip`, `compile-time`,
+  `coverage`, `ci-cuda` and `ci-hip` have **test** presets. With any other
+  configure preset the script builds and then reports that there is nothing to
+  ctest — which is not the same as passing.
 - `default` and `workstation` are the **same configuration**, differing only in
   `binaryDir` (`build/` vs `build-workstation/`), so a container build and a
   host build can coexist instead of reconfiguring each other. Neither expects
   anything prebuilt: the only C++ dependency is GoogleTest, fetched and built
   by `deps/CMakeLists.txt` at configure time. Use `workstation` on a bare host
-  purely to keep `build/` — which compose, the `cpp:` CI job and CLAUDE.md all
-  name — for the container.
+  purely to keep `build/` — which compose and CLAUDE.md both name — for the
+  container.
 - `CMAKE_CUDA_ARCHITECTURES=native` queries a live device **at configure time**.
-  No GPU, no configure — even for a CPU-only change.
+  No GPU, no configure — even for a CPU-only change. `ci-cuda` pins sm_86 and
+  is the preset to reach for on a box with no card; there are no other
+  per-architecture presets (`volta`/`ampere`/`hopper`/`portable` were removed).
 - Every run tees to `.slow-tier-reports/cpp-<stamp>-<rev>-<preset>.log` and
   appends a PASS/FAIL line to `summary.log`. Quote the log path when reporting a
   failure; it has the compiler diagnostics that the summary does not.
-- **ctest reports one entry per gtest case**, discovered at test time
-  (`DISCOVERY_MODE PRE_TEST`), so `-R` selects by gtest suite name and a skip
-  is named rather than hidden. A GPU-less box reports a large `***Skipped`
-  count and is still green — read the skip list before calling it verified,
-  exactly as with `pytest -rs`. Deliberately no case counts quoted here: the
-  suite grows, and a stale number in a skill is worse than none.
+- **ctest reports one entry per gtest SUITE**, registered by
+  `gpumod_add_gtest_suite_tests()` as an `add_test` with a `--gtest_filter`,
+  plus a `<target>.SuiteListIsComplete` drift guard per binary. Nothing uses
+  `gtest_discover_tests` or `DISCOVERY_MODE PRE_TEST`, so `-R` selects by suite
+  name and there is no test-time discovery step.
+- **A GPU-less box FAILS the device suites; it does not skip them.** Nothing in
+  `test/` calls `GTEST_SKIP` or gates on a device count. The way to run without
+  a card is the `gpu` ctest label — the seven `test/extension/*` device targets
+  and `cuda_compile_tests` carry it, and `ctest -LE gpu` (which the `ci-cuda`
+  test preset does) excludes them BY NAME in the output. Prefer that to a skip
+  precisely because an exclusion is visible where a skip blends into green.
+  Deliberately no case counts quoted here: the suite grows, and a stale number
+  in a skill is worse than none.
 
 ## The Python tier: there is only one
 
@@ -177,7 +187,8 @@ throwaway prefix and builds `example/consumer` (which reaches gpumod through
 Steps 1–3 answer the question; step 4 runs the binary and needs a device. On a
 GPU-less box the consumer exits 77 and the script reports a skip, not a failure
 — but note the `default` preset still needs a GPU at *configure* time, so pass
-`--preset ampere` or `--preset compile-time` there.
+`--preset ci-cuda` (it pins sm_86) there, and `--no-run` to stop before step 4
+entirely. That is what `.github/workflows/ci.yml`'s `install-check` job runs.
 
 ## Host vs container — the worker count differs
 

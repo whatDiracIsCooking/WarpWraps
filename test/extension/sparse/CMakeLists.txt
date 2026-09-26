@@ -21,4 +21,5 @@ gpumod_add_gtest_suite_tests(
   GpusparseHandleTests
   TIMEOUT
   30
+  REQUIRES_GPU
 )

@@ -33,9 +33,10 @@
 #
 # Step 4 needs a GPU; steps 1-3 do not need one to BUILD, but the `default`
 # preset's CMAKE_CUDA_ARCHITECTURES=native queries a device at configure time,
-# so on a GPU-less box pass an architecture preset (--preset ampere) or
-# --preset compile-time. The consumer binary exits 77 when it finds no device,
-# which this script reports as a skip rather than a failure.
+# so on a GPU-less box pass --preset ci-cuda, which pins 86. The consumer
+# binary exits 77 when it finds no device, which this script reports as a skip
+# rather than a failure; --no-run stops before that and is what
+# .github/workflows/ci.yml uses, since its runner has no card at all.
 #
 # Flags:
 #   --preset NAME   gpumod configure preset (default: CMAKE_PRESET from

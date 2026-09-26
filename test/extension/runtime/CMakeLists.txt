@@ -31,4 +31,5 @@ gpumod_add_gtest_suite_tests(
   StreamEventPairTests
   TIMEOUT
   30
+  REQUIRES_GPU
 )

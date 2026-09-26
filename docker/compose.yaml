@@ -13,9 +13,18 @@
 # build.sh gives the CUDA image -- so nothing here needs to know about the
 # base/cuda/hip/combined chain. Compose does not build; it only runs.
 #
-# Use these when you want a clean, logged, unattended run -- CI, a nightly, a
-# sanitizer sweep. Use the devcontainer when you want to stay in the container
-# and iterate; `devtools/cpp-tier.sh` is the same three phases from inside it.
+# Use these when you want a clean, logged, unattended run on THIS machine -- a
+# nightly, a sanitizer sweep, a batch build you want a transcript of. Use the
+# devcontainer when you want to stay in the container and iterate;
+# `devtools/cpp-tier.sh` is the same three phases from inside it.
+#
+# NOT WHAT CI RUNS, despite the overlap. .github/workflows/ci.yml declares a
+# `container:` and calls devtools/cpp-tier.sh directly, for two reasons neither
+# of which compose can meet: it needs a HIP service as well as a CUDA one, and
+# it mounts the workspace where the runner put it rather than at /workspace.
+# Every service here also reserves a GPU, which no hosted runner has. The
+# sanitizer services below are the part with no CI counterpart at all, and the
+# reason this file is still the right tool for an unattended local sweep.
 #
 # HOST_UID/HOST_GID are required (`:?` below) rather than defaulted, because a
 # default of 1000 on a host where you are not uid 1000 writes root-owned build
@@ -25,7 +34,7 @@
 # Every service reserves a GPU, the `build` service included: the presets use
 # CMAKE_CUDA_ARCHITECTURES=native, which asks the driver what card is present
 # at CONFIGURE time. On a build host with no GPU, use a pinned preset instead
-# (BUILD_PRESET=ampere, or `portable` for a fat binary) and drop the `deploy`
+# (BUILD_PRESET=ci-cuda, which pins sm_86) and drop the `deploy`
 # block from that service.
 services:
   build:

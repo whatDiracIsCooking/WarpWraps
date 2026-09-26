@@ -223,6 +223,12 @@ add_dependencies(compile_time_tests gpu_alias_coverage)
 # they compute. GoogleTest is not fetched under GPUMOD_COMPILE_TIME_ONLY, so
 # this target is skipped there, exactly like test/cuda and test/hip one level
 # up.
+#
+# The ONLY runtime suite in the tree without REQUIRES_GPU, and the reason that
+# flag is worth having: `ctest -LE gpu` on a GitHub-hosted runner still runs
+# these two, because host conversion is host code. Every other runtime target
+# (test/extension/*) allocates device memory, launches a kernel or creates a
+# vendor handle, and is labeled accordingly.
 if(NOT GPUMOD_COMPILE_TIME_ONLY)
   gpumod_add_gtest_executable(
     NAME
