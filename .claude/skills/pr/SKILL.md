@@ -79,6 +79,11 @@ git push origin --delete <branch>     # remote branch cleanup
   takes tens of minutes rather than seconds; the local pre-push gate is a small
   subset of it. A PR touching `docker/` also builds the images. Check with
   `gh pr checks <number> --watch` before merging, and do not merge red.
+- **Never pass `--admin`.** It merges past required status checks, and it is the
+  one move in this whole flow that can defeat the branch ruleset. Red checks
+  mean fix them or hand the PR back — never override. A ruleset with an empty
+  bypass list makes the server refuse it anyway, but do not lean on that: the
+  bypass list is a setting someone can widen, and this rule is the intent.
 - **Never pass `--delete-branch`**: it attempts a local `git checkout main`,
   which fails when `main` is held by another worktree. Delete the remote branch
   with `git push origin --delete` instead, as above.

@@ -96,7 +96,14 @@ jobs:
     # goes out of its way not to produce.
     name: ${{ github.event_name == 'pull_request' && 'build' || 'publish' }} (${{ matrix.image }})
     runs-on: ubuntu-latest
-    # ROCm alone takes ~25 minutes to install before anything is pushed.
+    # Generous rather than tuned, and now backed by a number. MEASURED on a
+    # hosted runner, build-only: the ROCm install layer is 176.6s and the whole
+    # hip job 6m35s, base included. This comment previously claimed "~25 minutes
+    # to install ROCm" -- an estimate no run ever produced, and the second one in
+    # this file to survive until a real run contradicted it (see `reclaim disk`).
+    # The ceiling stays high because the publish path adds a ~3-minute push per
+    # image, and because what this guards against is an apt mirror having a bad
+    # day rather than the install itself.
     timeout-minutes: 180
     # `permissions:` accepts no expression, so a pull_request run carries the
     # same `packages: write` and simply never uses it -- the login step below is

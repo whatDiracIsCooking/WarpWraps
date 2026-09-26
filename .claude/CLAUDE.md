@@ -700,9 +700,19 @@ change verified.
   `.pre-commit-config.yaml`, not anything inside the script.
 - **CI runs on every push to `main` and every PR**, all of it on
   GitHub-hosted runners (`workflow_dispatch` also keeps the manual trigger).
-  `.github/workflows/ci.yml` has four jobs: `lint` (ruff + cmake-lint),
-  `test` (the pytest tier on 3.11 and 3.13), `cpp` (a two-leg matrix, below)
-  and `install-check`.
+  `.github/workflows/ci.yml` has five jobs: `lint` (ruff + cmake-lint),
+  `test` (the pytest tier on 3.11 and 3.13), `cpp` (a two-leg matrix, below),
+  `install-check`, and `ci-ok`.
+- **`ci-ok` is an aggregate, and it is the ONLY check name worth requiring in a
+  branch ruleset.** Every other name here is generated and therefore moves:
+  `test (3.11)` carries a Python version, and a matrix job's default name is
+  built from *all* its matrix values — adding the `tidy:` key silently renamed
+  `cpp (cuda, cuda-ci, ci-cuda)`. A ruleset matches a required check by name,
+  and a required name nothing reports blocks the PR indefinitely behind
+  "Expected — waiting for status to be reported". So `ci-ok` `needs:` every
+  other job and fails unless all of them succeeded, `skipped` included. **The
+  invariant: a job added to `ci.yml` must be added to `ci-ok`'s `needs:`, or
+  nothing gates it.**
 - **The C++ tree IS built on the server now, both backends, same shape.** The
   `cpp` job declares a `container:` rather than building one; each leg builds
   the whole tree for its backend and runs `ctest -LE gpu`. Neither needs a
