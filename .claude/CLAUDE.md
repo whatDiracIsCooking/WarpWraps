@@ -429,9 +429,13 @@ devtools/cross-backend-check.sh                          # does the OTHER backen
 
   `ci-hip` was briefly `GPUMOD_COMPILE_TIME_ONLY=ON`. That left
   `test/extension/*.cpp` never compiled for HIP at all — under the *stricter*
-  of the two front ends, which is most of why the leg exists. Counts today:
-  12 for `ci-hip`, 11 for `ci-cuda`, the difference being `cuda_compile_tests`
-  carrying the `gpu` label where `hip_compile_tests` does not.
+  of the two front ends, which is most of why the leg exists.
+
+  **Both legs report 12, and they are meant to stay equal.** Each is
+  `{cuda,hip}_compile_tests` + `gpu_compile_tests` + the two conversion suites
+  + eight `SuiteListIsComplete` guards. A difference between them is a signal,
+  not a quirk — which is the point of making them match, since an 11 that is
+  supposed to be 11 is the kind of number nobody notices drifting to 10.
 - **There are no per-architecture presets, and nothing may go below sm_75.**
   `base` uses `native` and `ci-cuda` pins `86`; between them that is every case
   this project has, and `86` is what the reference box, `Dockerfile.cuda`'s
@@ -614,14 +618,19 @@ targets use this machinery today: `test/gpu/conversions` (`HalfConversion`,
 >
 > ```
 > ctest --preset default    42 entries — everything, needs a card
-> ctest --preset ci-cuda    11 entries — `-LE gpu`, needs nothing
+> ctest --preset ci-cuda    12 entries — `-LE gpu`, needs nothing
+> ctest --preset ci-hip     12 entries — same, the other backend
 > ```
 >
-> `cuda_compile_tests` carries the label too, for a different reason: it links
-> the CUDA driver stubs and cannot *load* without `libcuda.so.1` (see the
-> "No GPU needed" applies to the BUILD note above). Excluding it costs nothing,
-> because everything running it proves — that it compiled and linked — the
-> build already proved. `test/hip`'s counterpart has no such dependency.
+> `cuda_compile_tests` is the one entry whose treatment depends on a cache
+> variable, for a reason unrelated to devices: it links the CUDA driver stubs
+> and cannot *load* without `libcuda.so.1` (see the "No GPU needed" applies to
+> the BUILD note above). With `GPUMOD_CUDA_DRIVER_STUBS=OFF` (the default) it
+> carries `gpu` and is excluded; with it ON — only the `ci-cuda` preset — that
+> one test gets the toolkit's own stubs on `LD_LIBRARY_PATH` via
+> `ENVIRONMENT_MODIFICATION` and runs instead. `test/cuda/CMakeLists.txt` has
+> the full reasoning, including why the stubs are in the build directory
+> rather than the image. `test/hip`'s counterpart needs none of it.
 >
 > Two traps around the label. A second label on the same test must be added
 > with `set_property(TEST ... APPEND PROPERTY LABELS ...)`, never

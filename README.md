@@ -472,6 +472,12 @@ links the CUDA driver API stubs, so *running* it needs `libcuda.so.1` — a
 container started without `--gpus` fails it with `error while loading shared
 libraries`. `gpu_compile_tests` runs anywhere.
 
+`GPUMOD_CUDA_DRIVER_STUBS=ON` (which the `ci-cuda` preset sets) resolves that
+by pointing just that one test at the toolkit's own stubs, so it runs on a
+driverless box too. It proves every *non-driver* dependency resolves — not
+that a real driver would load. `test/cuda/CMakeLists.txt` explains why the
+symlinks live in the build directory rather than the image.
+
 ### Runtime tests
 
 A test translation unit is a plain `.cpp` compiled straight into its test

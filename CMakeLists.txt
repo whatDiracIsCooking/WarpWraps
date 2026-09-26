@@ -352,6 +352,22 @@ option(
   OFF
 )
 
+# cuda_compile_tests links the driver-API stubs, so the binary needs
+# libcuda.so.1 and libnvidia-ml.so.1 at LOAD time even though it never calls
+# the driver. With this ON, test/cuda/CMakeLists.txt points that ONE ctest
+# entry at the toolkit's own stubs and drops its `gpu` label, so a machine with
+# no driver runs it instead of excluding it -- which is what makes the two CI
+# legs report the same count. OFF everywhere but the ci-cuda preset.
+#
+# It is deliberately not a property of the IMAGE: putting stubs on a
+# container-wide LD_LIBRARY_PATH would beat the loader cache and shadow the
+# real driver the NVIDIA runtime injects. See test/cuda/CMakeLists.txt.
+option(
+  GPUMOD_CUDA_DRIVER_STUBS
+  "Run cuda_compile_tests against the CUDA driver stubs (no driver needed)"
+  OFF
+)
+
 # Umbrella target. Each compile-time test directory add_dependencies()'s its own
 # targets onto it, so it is defined before those directories are added.
 add_custom_target(compile_time_tests COMMENT "Building the compile-time tests")

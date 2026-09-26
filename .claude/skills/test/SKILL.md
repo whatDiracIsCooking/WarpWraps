@@ -106,9 +106,13 @@ Things that will bite:
 - **A GPU-less box FAILS the device suites; it does not skip them.** Nothing in
   `test/` calls `GTEST_SKIP` or gates on a device count. The way to run without
   a card is the `gpu` ctest label — the seven `test/extension/*` device targets
-  and `cuda_compile_tests` carry it, and `ctest -LE gpu` (which the `ci-cuda`
-  test preset does) excludes them BY NAME in the output. Prefer that to a skip
-  precisely because an exclusion is visible where a skip blends into green.
+  carry it, and `ctest -LE gpu` (which the `ci-cuda` and `ci-hip` test presets
+  do) excludes them BY NAME in the output. Prefer that to a skip precisely
+  because an exclusion is visible where a skip blends into green.
+  `cuda_compile_tests` carries it too by default, for the unrelated reason
+  that it links the driver stubs — unless `GPUMOD_CUDA_DRIVER_STUBS=ON`, which
+  the `ci-cuda` preset sets so it runs on a driverless runner. That is why
+  both CI legs report 12.
   Deliberately no case counts quoted here: the suite grows, and a stale number
   in a skill is worse than none.
 

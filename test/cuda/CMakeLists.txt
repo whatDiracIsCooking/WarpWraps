@@ -94,25 +94,74 @@ gpumod_add_test_executable(
 
 add_dependencies(compile_time_tests cuda_compile_tests)
 
-# Two labels, and the second is the odd one: this is a COMPILE-time test that
-# nonetheless cannot RUN on a machine without an NVIDIA driver. It links the
-# driver-API stubs (cuda_h, nvml), so the binary needs libcuda.so.1 and
-# libnvidia-ml.so.1 at LOAD time and dies before main() with `error while
-# loading shared libraries` in a container started without --gpus -- a
-# GitHub-hosted runner, for instance. test/hip's counterpart has no such
-# dependency and stays unlabeled.
+# This is a COMPILE-time test that nonetheless cannot LOAD on a machine with
+# no NVIDIA driver. It links the driver-API stubs (cuda_h, nvml), so the binary
+# needs libcuda.so.1 and libnvidia-ml.so.1 at load and dies before main() with
+# `error while loading shared libraries` in a container started without --gpus
+# -- a GitHub-hosted runner, for instance. Measured with ldd: those two are the
+# ONLY unresolved entries; every other DT_NEEDED comes from the toolkit.
+# test/hip's counterpart has no such dependency and needs none of this.
 #
-# Excluding it there costs nothing, which is why this is a label and not a
-# workaround. Everything the run proves has already been proved by the build:
-# a compile error fails the build, and so does an undefined symbol, because
-# reaching main() is exactly "it linked". What is left -- that the dynamic
-# loader can resolve the binary -- is precisely what a driverless box cannot
-# answer, so `ctest -LE gpu` there is not skipping a real check.
+# Two ways to cope, and the option picks between them.
 #
-# (The alternative was symlinking the toolkit's own stubs onto LD_LIBRARY_PATH
-# in a CI image variant. Rejected: LD_LIBRARY_PATH beats the loader cache, so
-# such an image would silently prefer the stub over the REAL driver the NVIDIA
-# runtime injects, on any machine that has one.)
-set_tests_properties(
-  cuda_compile_tests PROPERTIES LABELS "compile_time;gpu"
-)
+# GPUMOD_CUDA_DRIVER_STUBS=OFF (default) -- carry the `gpu` label and be
+# excluded by `ctest -LE gpu`. Excluding it costs little: a compile error fails
+# the build, and so does an undefined symbol, because reaching main() is
+# exactly "it linked". Only the loader check is lost, and that is precisely
+# what a driverless box cannot answer honestly.
+#
+# GPUMOD_CUDA_DRIVER_STUBS=ON (the ci-cuda preset) -- point the test at the
+# toolkit's own stubs and drop the label, so it RUNS. The binary never calls
+# the driver; its main() prints and exits. This recovers the loader check for
+# the other ~15 libraries, and makes the CUDA and HIP CI legs report the same
+# ctest count, which is worth something on its own: an 11 that is supposed to
+# be 11 is the kind of number nobody notices drifting to 10.
+#
+# WHAT IT DOES NOT PROVE: that the real driver would load. It is a stub. Read a
+# pass here as "every non-driver dependency resolves".
+#
+# Three deliberate choices in how it is wired:
+#
+#   * The symlinks live in the BUILD directory, not the image. Stubs on a
+#     container-wide LD_LIBRARY_PATH would beat the loader cache and shadow the
+#     real driver the NVIDIA runtime injects on a machine that has one -- an
+#     image-wide footgun for a one-test problem.
+#   * ENVIRONMENT_MODIFICATION, not ENVIRONMENT. The latter REPLACES the
+#     variable at configure time; the toolkit's own libraries are found through
+#     LD_LIBRARY_PATH too, so replacing it would break the other 15 while
+#     fixing these 2. path_list_prepend edits it at test time instead.
+#   * The stub paths come from the cache variables FindCUDAToolkit already
+#     resolved, never from a constructed path -- the stubs sit under
+#     targets/<arch>-linux/lib/stubs, which is not where lib64 suggests.
+if(GPUMOD_CUDA_DRIVER_STUBS)
+  if(NOT CUDA_cuda_driver_LIBRARY OR NOT CUDA_nvml_LIBRARY)
+    message(
+      FATAL_ERROR
+        "GPUMOD_CUDA_DRIVER_STUBS=ON but FindCUDAToolkit did not resolve the "
+        "driver stubs (CUDA_cuda_driver_LIBRARY / CUDA_nvml_LIBRARY are "
+        "empty). Turn the option off, or install the CUDA toolkit's stubs."
+    )
+  endif()
+
+  # SONAME-named symlinks to the stubs the linker already used. The loader
+  # wants libcuda.so.1; the toolkit ships libcuda.so.
+  set(_gpumod_stub_dir "${CMAKE_CURRENT_BINARY_DIR}/driver-stubs")
+  file(MAKE_DIRECTORY "${_gpumod_stub_dir}")
+  file(CREATE_LINK "${CUDA_cuda_driver_LIBRARY}"
+       "${_gpumod_stub_dir}/libcuda.so.1" SYMBOLIC
+  )
+  file(CREATE_LINK "${CUDA_nvml_LIBRARY}"
+       "${_gpumod_stub_dir}/libnvidia-ml.so.1" SYMBOLIC
+  )
+
+  set_tests_properties(cuda_compile_tests PROPERTIES LABELS compile_time)
+  set_tests_properties(
+    cuda_compile_tests
+    PROPERTIES ENVIRONMENT_MODIFICATION
+               "LD_LIBRARY_PATH=path_list_prepend:${_gpumod_stub_dir}"
+  )
+else()
+  set_tests_properties(
+    cuda_compile_tests PROPERTIES LABELS "compile_time;gpu"
+  )
+endif()
