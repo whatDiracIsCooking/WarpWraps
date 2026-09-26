@@ -41,4 +41,15 @@ static_assert(buffer_typename<HostBuffer<float>, float>);
 static_assert(HostBuffer<void>::element_size == 1);
 static_assert(HostBuffer<float>::element_size == sizeof(float));
 
+// A reinterpreting view is only formed explicitly: naming reinterpret_view (or
+// the reinterpret_buffer_view factory), never by an implicit cross-type
+// conversion. reinterpret_buffer_view carries the source's kind and policies
+// onto a view of the requested element type.
+static_assert(!std::is_constructible_v<HostBufferView<std::byte>, HostBuffer<float> &>);
+static_assert(
+    std::is_constructible_v<HostBufferView<std::byte>, reinterpret_view_tag_t, HostBuffer<float> &>);
+static_assert(std::same_as<decltype(reinterpret_buffer_view<std::byte>(
+                               std::declval<HostBuffer<float> &>())),
+                           HostBufferView<std::byte>>);
+
 } // namespace gpumod::extension::test

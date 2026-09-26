@@ -19,6 +19,23 @@ import :memory_kind;
 export namespace gpumod::extension {
 
 // ============================================================================
+// Reinterpreting-view tag
+// ============================================================================
+
+/**
+ * @brief Tag selecting the reinterpreting (cross-type) view constructor
+ *
+ * Reinterpreting a buffer's bytes as a different element type is a sharp
+ * operation, so it is never an implicit conversion: a view whose element type
+ * differs from its source's is only ever formed by naming this tag, or through
+ * the reinterpret_buffer_view() factory below (which names it for you).
+ */
+struct reinterpret_view_tag_t {
+  explicit reinterpret_view_tag_t() = default;
+};
+inline constexpr reinterpret_view_tag_t reinterpret_view{};
+
+// ============================================================================
 // Buffer Base Class
 // ============================================================================
 
@@ -204,6 +221,49 @@ public:
              const std::source_location location = std::source_location::current())
     requires(IsView)
       : BufferBase(src, 0, src.num_elements(), location) {}
+
+  /**
+     * @brief Construct a non-owning view that reinterprets a buffer's bytes as T
+     *
+     * @tparam U The source buffer's element type, which may differ from this
+     *           view's T (this is the whole point of the overload)
+     * @param src The source buffer whose storage is reinterpreted
+     * @param location Source location for error reporting
+     *
+     * @note Only available for view types (IsView == true). The byte span is
+     *       preserved and num_elements() becomes size_bytes() / element_size.
+     * @note Selected only by naming reinterpret_view, so a same-K view of a
+     *       different element type is never formed implicitly.
+     * @note Reports an error via policy_alloc_ and leaves the view empty when
+     *       src's byte size is not a whole multiple of element_size, or when its
+     *       base pointer is not aligned for T. Either would let num_elements()
+     *       and operator[] hand out storage that is not there or is misaligned -
+     *       a misaligned sub-view is the reachable case, since an allocation is
+     *       aligned for its own element type but an offset into it need not be.
+     * @note src is a non-const reference for the same reason as the same-type
+     *       view constructors: a view hands out a mutable T*.
+     */
+  template<typename U, typename OtherDerived, bool OtherIsView>
+  BufferBase(reinterpret_view_tag_t,
+             BufferBase<U, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
+             const std::source_location location = std::source_location::current())
+    requires(IsView)
+      : policy_alloc_(src.alloc_policy()), policy_free_(src.free_policy()) {
+    const std::size_t bytes = src.size_bytes();
+    void *const raw = src.data();
+    // A partial trailing element, or a base the target type cannot be read at,
+    // would both surface only as bad accesses later - reject them up front and
+    // leave the empty-buffer invariant (data_ == nullptr <=> num_elements_ == 0)
+    // intact. reinterpret_cast to uintptr_t only inspects the address; it does
+    // not dereference, so it is valid for a device pointer too.
+    if (bytes % element_size != 0 ||
+        reinterpret_cast<std::uintptr_t>(raw) % alignof(storage_type) != 0) {
+      policy_alloc_.handle_error(MemoryInvalidValue<K>::value, location);
+    } else {
+      data_ = static_cast<T *>(raw);
+      num_elements_ = bytes / element_size;
+    }
+  }
 
   /**
      * @brief Destructor
@@ -453,8 +513,39 @@ public:
   // Default, copy and move constructors are NOT inherited (the standard
   // excludes them); BufferViewWrapper gets its own implicit ones, which
   // reach BufferBase's `requires (IsView)` copy/move overloads.
+  //
+  // The inherited set includes the reinterpret_view constructor, so
+  // `BufferViewWrapper<T, K>(reinterpret_view, src)` resolves to it; the
+  // reinterpret_buffer_view() factory below is the ergonomic front end.
   using Base::Base;
 };
+
+/**
+ * @brief Make a non-owning view that reinterprets src's bytes as T
+ *
+ * @tparam T The view's element type; the only argument to spell out, the rest
+ *           are deduced from src
+ * @tparam U The source buffer's element type, which may differ from T
+ * @param src Any owning or view buffer; its memory kind and error policies are
+ *            carried onto the returned view
+ * @param location Source location for error reporting
+ * @return A BufferViewWrapper<T, K> over src's storage. The byte span is
+ *         preserved (num_elements() == src.size_bytes() / sizeof(T)); see the
+ *         reinterpreting view constructor for the whole-multiple and alignment
+ *         checks and their empty-view failure mode.
+ *
+ * Example:
+ *   HostBuffer<float> buf(16);
+ *   auto bytes = reinterpret_buffer_view<std::byte>(buf);  // 64-element byte view
+ */
+template<typename T, typename U, MemoryKind K, typename OtherDerived,
+         error_policy<typename MemoryErrorType<K>::type> P_alloc,
+         error_policy<typename MemoryErrorType<K>::type> P_free, bool OtherIsView>
+[[nodiscard]] BufferViewWrapper<T, K, P_alloc, P_free>
+reinterpret_buffer_view(BufferBase<U, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
+                        const std::source_location location = std::source_location::current()) {
+  return BufferViewWrapper<T, K, P_alloc, P_free>(reinterpret_view, src, location);
+}
 
 // ============================================================================
 // Buffer Concept

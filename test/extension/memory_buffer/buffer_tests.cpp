@@ -260,6 +260,73 @@ TEST(BufferViewTests, OffsetPastEndDoesNotUnderflow) {
   EXPECT_EQ(view.num_elements(), std::size_t{0});
 }
 
+// ── Reinterpreting (cross-type) views ──────────────────────────────
+
+TEST(BufferViewTests, ReinterpretViewPreservesByteSpan) {
+  HostBuffer<float> buf(16); // 64 bytes
+  // For a default-policy source the factory's return type is exactly the
+  // per-kind alias, so it can be named instead of deduced with auto.
+  HostBufferView<std::byte> bytes = reinterpret_buffer_view<std::byte>(buf);
+
+  EXPECT_EQ(static_cast<void *>(bytes.data()), static_cast<void *>(buf.data()));
+  EXPECT_EQ(bytes.num_elements(), std::size_t{64});
+  EXPECT_EQ(bytes.size_bytes(), buf.size_bytes());
+}
+
+TEST(BufferViewTests, ReinterpretViewWritesAreVisibleThroughSource) {
+  HostBuffer<std::uint16_t> buf(4);
+  buf[0] = 0;
+  HostBufferView<std::byte> bytes = reinterpret_buffer_view<std::byte>(buf); // 8 bytes
+
+  ASSERT_EQ(bytes.num_elements(), std::size_t{8});
+  bytes[0] = std::byte{0xFF};
+  bytes[1] = std::byte{0xFF};
+  EXPECT_EQ(buf[0], std::uint16_t{0xFFFF}); // endianness-independent
+}
+
+TEST(BufferViewTests, ReinterpretViewRejectsPartialTrailingElement) {
+  HostPolicy policy;
+  CountedHostBuffer<std::byte> buf(6, policy); // 6 bytes, not a multiple of 4
+  auto ints = reinterpret_buffer_view<std::uint32_t>(buf);
+
+  EXPECT_EQ(ints.alloc_policy().count(), std::size_t{1});
+  EXPECT_EQ(ints.num_elements(), std::size_t{0});
+  EXPECT_EQ(ints.data(), nullptr);
+}
+
+TEST(BufferViewTests, ReinterpretViewRejectsMisalignedBase) {
+  HostPolicy policy;
+  CountedHostBuffer<std::byte> buf(16, policy);
+  // A sub-view one byte into an (over-)aligned allocation cannot be aligned for
+  // a 4-byte type -- this is the reachable misalignment case.
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostPolicy> shifted(buf, 1, 8);
+  ASSERT_EQ(shifted.num_elements(), std::size_t{8});
+
+  auto ints = reinterpret_buffer_view<std::uint32_t>(shifted);
+  EXPECT_EQ(ints.alloc_policy().count(), std::size_t{1});
+  EXPECT_EQ(ints.num_elements(), std::size_t{0});
+}
+
+TEST(BufferViewTests, ReinterpretViewComposesWithSubView) {
+  HostBuffer<float> buf(16); // 64 bytes
+  // A reinterpreting view is itself a buffer, so the ordinary offset+count
+  // sub-view constructor narrows it -- in the TARGET type's units (bytes here).
+  HostBufferView<std::byte> bytes = reinterpret_buffer_view<std::byte>(buf);
+  HostBufferView<std::byte> mid(bytes, 8, 16); // bytes [8, 24)
+
+  EXPECT_EQ(static_cast<void *>(mid.data()),
+            static_cast<void *>(reinterpret_cast<std::byte *>(buf.data()) + 8));
+  EXPECT_EQ(mid.num_elements(), std::size_t{16});
+}
+
+TEST(BufferViewTests, EmptyBufferReinterpretsToEmptyView) {
+  HostBuffer<float> buf; // null, 0 elements
+  HostBufferView<std::byte> bytes = reinterpret_buffer_view<std::byte>(buf);
+
+  EXPECT_EQ(bytes.data(), nullptr);
+  EXPECT_EQ(bytes.num_elements(), std::size_t{0});
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Device, pinned and unified buffers
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -282,6 +349,30 @@ TEST(DeviceBufferTests, PoolAllocationZeroInitialises) {
   for (std::size_t i = 0; i < host.num_elements(); ++i) {
     EXPECT_EQ(host[i], 0.0f) << "at index " << i;
   }
+}
+
+TEST(DeviceBufferTests, ReinterpretViewAliasesDeviceStorage) {
+  auto dev_h = std::make_shared<DeviceHandle>(0);
+  const gpuStream_t stream = dev_h->alloc_stream().get();
+
+  HostBuffer<float> up(16);
+  for (std::size_t i = 0; i < up.num_elements(); ++i)
+    up[i] = static_cast<float>(i) * 3.0f;
+
+  DeviceBuffer<float> dev(16, dev_h);
+  ASSERT_EQ(ext::copy(dev, up, stream), gpuSuccess);
+
+  // A device pointer passes the alignment check (it never gets dereferenced on
+  // the host); read the block back through a byte view to prove it aliases.
+  DeviceBufferView<std::byte> dev_bytes = reinterpret_buffer_view<std::byte>(dev);
+  ASSERT_EQ(static_cast<void *>(dev_bytes.data()), static_cast<void *>(dev.data()));
+  ASSERT_EQ(dev_bytes.num_elements(), dev.size_bytes());
+
+  HostBuffer<std::byte> host_bytes(dev_bytes.num_elements());
+  ASSERT_EQ(ext::copy(host_bytes, dev_bytes, stream), gpuSuccess);
+  ASSERT_EQ(gpuStreamSynchronize(stream), gpuSuccess);
+
+  EXPECT_EQ(std::memcmp(host_bytes.data(), up.data(), up.size_bytes()), 0);
 }
 
 TEST(DeviceBufferTests, MoveTransfersDeviceOwnership) {
@@ -502,6 +593,51 @@ TEST(CopyAndMemsetTests, OffsetCopyRejectsOutOfBoundsRange) {
   HostBuffer<float> host(16);
   DeviceBuffer<float> dev(16, dev_h);
   EXPECT_EQ(ext::copy(dev, 0, host, 12, 8, gpuStream_t{0}), gpuErrorInvalidValue);
+}
+
+// ── copy() through reinterpreting views ────────────────────────────
+// copy() sees a reinterpret view as an ordinary buffer, so it moves the view's
+// byte span and reads offsets/counts in the view's (reinterpreted) element
+// units. These pin both, with a reinterpret view on each end.
+
+TEST(CopyAndMemsetTests, SynchronousHostCopyThroughReinterpretViews) {
+  HostBuffer<std::uint32_t> src(4);
+  HostBuffer<std::uint32_t> dst(4);
+  for (std::size_t i = 0; i < 4; ++i) {
+    src[i] = 0xDEAD0000u + static_cast<std::uint32_t>(i);
+    dst[i] = 0;
+  }
+
+  // Byte views over both ends: the sync overload memcpy's the whole 16-byte span.
+  HostBufferView<std::byte> src_bytes = reinterpret_buffer_view<std::byte>(src);
+  HostBufferView<std::byte> dst_bytes = reinterpret_buffer_view<std::byte>(dst);
+  ASSERT_EQ(src_bytes.num_elements(), std::size_t{16});
+  ASSERT_EQ(ext::copy(dst_bytes, src_bytes), stdHostMemSuccess);
+
+  for (std::size_t i = 0; i < 4; ++i)
+    EXPECT_EQ(dst[i], src[i]) << "at index " << i;
+}
+
+TEST(CopyAndMemsetTests, OffsetCopyThroughReinterpretViewUsesByteUnits) {
+  HostBuffer<std::uint32_t> src(4);
+  HostBuffer<std::uint32_t> dst(4);
+  for (std::size_t i = 0; i < 4; ++i) {
+    src[i] = 0x11111111u * static_cast<std::uint32_t>(i + 1);
+    dst[i] = 0;
+  }
+
+  HostBufferView<std::byte> src_bytes = reinterpret_buffer_view<std::byte>(src);
+  HostBufferView<std::byte> dst_bytes = reinterpret_buffer_view<std::byte>(dst);
+
+  // 8 bytes (two uint32) from src[0..] into dst starting at byte 4 (= dst[1]).
+  // Offsets and count are in the view's element units, which are bytes here.
+  ASSERT_EQ(ext::copy(dst_bytes, 4, src_bytes, 0, 8, gpuStream_t{0}), gpuSuccess);
+  ASSERT_EQ(gpuStreamSynchronize(gpuStream_t{0}), gpuSuccess);
+
+  EXPECT_EQ(dst[0], 0u);
+  EXPECT_EQ(dst[1], src[0]);
+  EXPECT_EQ(dst[2], src[1]);
+  EXPECT_EQ(dst[3], 0u);
 }
 
 TEST(CopyAndMemsetTests, HostMemsetFillsBuffer) {
