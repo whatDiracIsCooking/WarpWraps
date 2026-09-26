@@ -16,12 +16,23 @@
   // EDIT sites below -- workspace mount, volume names and postCreate are the
   // same, so the three GPU variants are A/B-able.
   "name": "gpumod-cuda",                               // EDIT
+
+  // Builds the PARENT image first. docker/Dockerfile.cuda opens with
+  // `FROM ${PARENT_IMAGE}` (gpumod:base), and a devcontainer build is a single
+  // `docker build` with no way to produce that parent itself -- without this
+  // hook it fails on the first line with `pull access denied for gpumod`, which
+  // reads like a registry problem rather than a missing local build.
+  // initializeCommand runs on the HOST before the image is built, which is
+  // exactly the slot needed, and a fully cached parent build costs a second or
+  // two per `up`. See docker/Dockerfile.base, "WHY THE FOUR FILES CHAIN BY TAG".
+  "initializeCommand": "bash ${localWorkspaceFolder}/docker/build.sh base",
+
   "build": {
     "context": "../..",
-    "dockerfile": "../../docker/Dockerfile",
-    // docker/Dockerfile has four targets (base / cuda / hip / combined);
-    // without this the LAST stage in the file (`combined`, ~40GB) is built.
-    "target": "cuda",
+    "dockerfile": "../../docker/Dockerfile.cuda",
+    // No "target": every backend is its own file now, each with a single stage,
+    // so there is no last-stage-by-accident to guard against. Outside the
+    // devcontainer, `docker/build.sh cuda` walks base -> cuda.
     "args": {
       "PROJECT_NAME": "gpumod",                        // EDIT
       // Widen for a mixed fleet, e.g. "80;86;90".

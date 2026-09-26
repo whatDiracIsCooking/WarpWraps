@@ -206,7 +206,7 @@ using ::cublasSetSmCountTarget;
 // ill-formed inside an exported namespace ("cannot be exported"). Forwarding
 // wrappers are the same workaround cuComplex.cppm uses for the whole of
 // cuComplex.h. They appeared in a CUDA 13.0 patch release -- a toolkit older
-// than the one docker/Dockerfile pins will not have them.
+// than the one docker/Dockerfile.cuda pins will not have them.
 cublasStatus_t cublasSetEmulationStrategy(cublasHandle_t handle, cudaEmulationStrategy strategy) {
   return ::cublasSetEmulationStrategy(handle, strategy);
 }

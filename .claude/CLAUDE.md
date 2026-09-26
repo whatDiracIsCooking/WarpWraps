@@ -118,34 +118,76 @@ red on its own, so it needs no test of its own.
 > `DOCTOR_OPTIONAL_TOOLS` — and a 1-skipped host run now means "the toolchain
 > was not re-checked", not "the parser is unverified".
 
-## Containers: one file, four targets
+## Containers: four files, one diamond
 
-`docker/Dockerfile` builds all of them:
+```
+                Dockerfile.base
+                 /           \
+  Dockerfile.cuda             Dockerfile.hip
+            |                       :
+  Dockerfile.combined ..............:  (reuses install-rocm.sh, not the image)
+```
 
-| Target | What it is |
+| File | What it is |
 |---|---|
-| `base` | The vendor-neutral toolchain: clang-20 + libc++, CMake 4.2, Ninja, ccache, uv/Python. No GPU SDK. |
-| `cuda` | `base` + the CUDA toolkit. **The default backend**, and what the devcontainer and compose build. |
-| `hip` | `base` + ROCm. No CUDA at all. |
-| `combined` | `cuda` + ROCm (~40GB). |
+| `docker/Dockerfile.base` | The vendor-neutral toolchain: clang-20 + libc++, CMake 4.2, Ninja, ccache, uv/Python. No GPU SDK. |
+| `docker/Dockerfile.cuda` | `base` + the CUDA toolkit. **The default backend**, and what the devcontainer and compose build. |
+| `docker/Dockerfile.hip` | `base` + ROCm. No CUDA at all. |
+| `docker/Dockerfile.combined` | `cuda` + ROCm (~40GB). |
 
-**Always pass `--target`.** Without one Docker builds the last stage in the
-file, which is `combined` — the largest image, silently.
+**Build them with `docker/build.sh <base|cuda|hip|combined>`, never by hand.**
+The files chain by TAG, not by stage — each child opens `FROM ${PARENT_IMAGE}`
+— so a parent must exist and be tagged before its child builds, and `build.sh`
+is the only thing that walks the chain. Build a child directly with no parent
+tagged and docker does not fall back to building it: it tries to **pull**, and
+fails with `pull access denied for gpumod, repository does not exist`, which
+reads like a registry problem rather than a missing local build.
+
+`build.sh` takes the tag prefix from `PROJECT_NAME` in `devtools/config.sh`
+(so `CROSS_CHECK_IMAGE` / `ROCM_IMAGE` agree by construction, not by
+convention), tags the CUDA image both `:cuda` and `:latest`, forwards any build
+arg set in the environment to the file that declares it, and passes trailing
+flags to every step. `BUILD_DRY_RUN=1` prints the commands without running them.
+**It deliberately does not skip a step whose tag already exists** — a cached
+build is a second or two, and skipping would silently hand a child a stale
+parent after a `Dockerfile.base` edit, which is the one failure the old single
+file could not have.
+
+> **The three `.devcontainer/*/devcontainer.json` each carry an
+> `initializeCommand` that builds their parent.** A devcontainer build is one
+> `docker build` with no way to produce a parent, so the hook runs `build.sh` on
+> the host first — `base` for the cuda and hip variants, `cuda` for combined.
+> That is also why `combined`'s `CUDA_ARCH` sits in the `initializeCommand`
+> rather than in `build.args`: it is consumed by `Dockerfile.cuda`, which the
+> hook builds, not by `Dockerfile.combined`.
+>
+> **`devcontainer build` does not run that hook; only `up` does.** Verified on
+> @devcontainers/cli 0.89.0 — `up` runs it as its very first step, before it
+> resolves the image, while a bare `devcontainer build` skips lifecycle hooks and
+> dies with `Command failed: docker pull gpumod:base`. Harmless in practice,
+> since `devcontainer.sh` only ever calls `up` and `exec`, but do not reach for
+> `devcontainer build` to get just the image — `docker/build.sh cuda` is that.
+
+**`combined` is a diamond only in intent.** Docker has no multiple inheritance,
+so it takes `cuda` as its parent and re-runs `docker/install-rocm.sh`. Each SDK
+install is a script rather than an inline `RUN` precisely so that reuse costs
+nothing — Dockerfiles have no include. A `COPY --from=…:hip /opt/rocm` would be
+a literal two-parent join and is the wrong one: `install-rocm.sh` also writes an
+apt keyring and pin, `/etc/ld.so.conf.d/rocm.conf`, and the `render`/`video`
+groups, none of which live under `/opt/rocm`. The consequence to remember is
+that `ROCM_VERSION` and `GPU_TARGETS` are declared in `Dockerfile.combined` as
+well as in `Dockerfile.hip` — bump them together.
 
 The toolkit is installed from apt rather than inherited from `nvidia/cuda`,
-because a shared `base` cannot be both `nvidia/cuda` and `rocm/dev-ubuntu` at
+because `Dockerfile.base` cannot be both `nvidia/cuda` and `rocm/dev-ubuntu` at
 once, and duplicating the LLVM/CMake stages per vendor is how they drift. The
 consequence to remember: the `NVIDIA_VISIBLE_DEVICES` /
 `NVIDIA_DRIVER_CAPABILITIES` env that the `nvidia/cuda` images set is what the
-NVIDIA container runtime reads to inject the driver under `--gpus all`. The
-`cuda` stage sets both explicitly. Drop them and the container builds fine and
-then has no GPU at runtime.
+NVIDIA container runtime reads to inject the driver under `--gpus all`.
+`Dockerfile.cuda` sets both explicitly. Drop them and the container builds fine
+and then has no GPU at runtime.
 
-Each SDK install is a script (`docker/install-cuda.sh`, `docker/install-rocm.sh`)
-rather than an inline `RUN`, because `combined` cannot inherit from two parents
-and Dockerfiles have no include — the scripts are how the block is written once.
-
-Two front ends, both onto the `cuda` target:
+Two front ends, both onto the `cuda` image:
 
 - **`docker/compose.yaml`** — the batch path. `build` / `test` / `asan` /
   `compute-sanitizer`, each a one-shot run that tees to `.log/` and exits.
@@ -257,10 +299,11 @@ does this: after a PR merges, `origin/main` moves but local `main` does not, and
 `add` forks from the calling checkout's HEAD — so a stale `main` silently seeds
 stale branches.
 
-Use `rebuild`, not `up`, after editing `devcontainer.json` or the
-`docker/Dockerfile`:
+Use `rebuild`, not `up`, after editing `devcontainer.json` or any
+`docker/Dockerfile.*`:
 `up` reuses the running container, applies none of the change, and reports
-success with the same container id.
+success with the same container id. (A `Dockerfile.base` edit needs nothing
+extra beyond that — the `initializeCommand` rebuilds the parent every time.)
 
 **Three separate "how parallel" knobs, and only one bounds a container.** `JOBS`
 is the pytest worker count. `BUILD_JOBS` is `cmake --build`'s. The two that

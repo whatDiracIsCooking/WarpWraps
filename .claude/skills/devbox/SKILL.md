@@ -44,18 +44,24 @@ devtools/devcontainer.sh down      # stop and remove the container
   without an interactive session, and how the C++ tier is run:
   `devtools/devcontainer.sh shell -c devtools/cpp-tier.sh`.
 
-### Three variants, one image
+### Three variants, one toolchain
 
 `DEVCONTAINER_CONFIG` in `devtools/config.sh` picks which `devcontainer.json`
 every subcommand drives. A relative path resolves against the repo root, so it
-works from any cwd and any worktree. All three are `../docker/Dockerfile` at a
-different target:
+works from any cwd and any worktree. Each drives its own Dockerfile under
+`docker/`, and all three share `docker/Dockerfile.base` as the parent:
 
-| Config | Target | Toolchain |
+| Config | Dockerfile | Toolchain |
 |---|---|---|
-| `.devcontainer/cuda/` | `cuda` | clang-20 + libc++, CMake 4.2, Ninja, CUDA 13, ccache. Needs an NVIDIA GPU + the container toolkit. **The default.** |
-| `.devcontainer/hip/` | `hip` | the same toolchain with ROCm and no CUDA. Needs an AMD card. |
-| `.devcontainer/combined/` | `combined` | both SDKs, ~40GB. |
+| `.devcontainer/cuda/` | `Dockerfile.cuda` | clang-20 + libc++, CMake 4.2, Ninja, CUDA 13, ccache. Needs an NVIDIA GPU + the container toolkit. **The default.** |
+| `.devcontainer/hip/` | `Dockerfile.hip` | the same toolchain with ROCm and no CUDA. Needs an AMD card. |
+| `.devcontainer/combined/` | `Dockerfile.combined` | both SDKs, ~40GB. |
+
+Each config carries an **`initializeCommand` that builds its parent image**
+(`docker/build.sh base`, or `cuda` for the combined variant) before the
+devcontainer's own `docker build` runs — the files chain by tag, and a
+devcontainer build cannot produce a parent on its own. It runs on every `up` and
+`rebuild`, so a `Dockerfile.base` edit propagates with no extra step.
 
 **The CUDA one is the default**, because it is where the project actually
 builds. Override for one call with a variant flag, or for a whole session with
@@ -179,7 +185,7 @@ leaked state surfaces without anyone going looking.
 
 ## The other front end: docker compose
 
-`docker/compose.yaml` runs **the same `docker/Dockerfile` image** as one-shot
+`docker/compose.yaml` runs **the same `docker/Dockerfile.cuda` image** as one-shot
 batch jobs — configure, build, test, exit — teeing everything to `.log/`. It is
 not layered on the devcontainer and neither is deprecated:
 
@@ -195,11 +201,20 @@ when you want to *stay inside*: iterating, agents, debugging. Compose services
 are global (not per worktree) and honour no `CPUSET`/`CPUS`, so two concurrent
 compose runs will contend. `docker/README.md` has the full variable list.
 
-The image itself is built from the **repo root**, not from `docker/`:
+The image is built by `docker/build.sh`, which walks the tag chain
+(`Dockerfile.base`, then `Dockerfile.cuda`) and tags the result both
+`<project>:cuda` and `<project>:latest` — the second being what `GPUMOD_IMAGE`
+defaults to:
 
 ```bash
-DOCKER_BUILDKIT=1 docker build --target cuda -f docker/Dockerfile -t <project>:latest .
+docker/build.sh cuda
 ```
+
+Run it from anywhere; the build context is always the repo root, because the
+Dockerfiles read `pyproject.toml`, `uv.lock` and the install scripts relative to
+it. Do **not** hand-roll `docker build -f docker/Dockerfile.cuda` — with no
+parent tagged it tries to *pull* `<project>:base` and fails with `pull access
+denied`, which reads like a registry problem.
 
 ## When NOT to use this skill
 

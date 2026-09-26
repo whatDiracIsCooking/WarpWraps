@@ -1,12 +1,28 @@
 # Devcontainers
 
-One per GPU target of `../docker/Dockerfile`.
+One per GPU file of `../docker/`.
 
 | File | What it is |
 |---|---|
-| `cuda/devcontainer.json` | **The development container.** `../../docker/Dockerfile` at its `cuda` target, plus `--gpus all`: clang-20 + libc++, CMake 4.2, Ninja, CUDA 13, ccache. The default. GoogleTest is fetched at configure time; nothing is prebuilt in `/opt`. |
-| `hip/devcontainer.json` | The AMD variant: the `hip` target — the same toolchain with ROCm and **no CUDA at all**. Pins `CMAKE_PRESET`/`CTEST_PRESET` to `hip`, so a bare `devtools/cpp-tier.sh` inside it builds the HIP backend into `build-hip/`. |
-| `combined/devcontainer.json` | The `combined` target: both SDKs, ~40GB. For working on both backends in one shell. No preset pin — `default` is CUDA, `--preset hip` is the other. |
+| `cuda/devcontainer.json` | **The development container.** `../../docker/Dockerfile.cuda` plus `--gpus all`: clang-20 + libc++, CMake 4.2, Ninja, CUDA 13, ccache. The default. GoogleTest is fetched at configure time; nothing is prebuilt in `/opt`. |
+| `hip/devcontainer.json` | The AMD variant: `Dockerfile.hip` — the same toolchain with ROCm and **no CUDA at all**. Pins `CMAKE_PRESET`/`CTEST_PRESET` to `hip`, so a bare `devtools/cpp-tier.sh` inside it builds the HIP backend into `build-hip/`. |
+| `combined/devcontainer.json` | `Dockerfile.combined`: both SDKs, ~40GB. For working on both backends in one shell. No preset pin — `default` is CUDA, `--preset hip` is the other. |
+
+**Each one carries an `initializeCommand` that builds its parent image first.**
+The four Dockerfiles chain by tag (`FROM ${PARENT_IMAGE}`), and a devcontainer
+build is a single `docker build` with no way to produce that parent — so the hook
+runs `../docker/build.sh` on the host before the image is built. Without it the
+build fails on the first line with `pull access denied for gpumod`, which reads
+like a registry problem. See `../docker/Dockerfile.base`'s header.
+
+> **`devcontainer build` does not run `initializeCommand`; only `up` does.**
+> Verified against @devcontainers/cli 0.89.0: `up` runs the hook as its very
+> first step, before it resolves the image at all, but a bare
+> `devcontainer build --workspace-folder .` skips lifecycle hooks and dies with
+> `Command failed: docker pull gpumod:base`. Nothing in `devtools/` uses
+> `build` — `devcontainer.sh` only ever calls `up`, `exec` and `down` — so the
+> supported paths are unaffected. If you want just the image, use
+> `docker/build.sh cuda`, which is what the hook calls anyway.
 | `post-create.sh` | The `postCreateCommand` for all three variants, written once: seed the Claude config, trust the checkout, init submodules, install the pre-commit hook (leaving a host-installed one alone), and wire `gh` into git. JSON cannot share a fragment, so each `devcontainer.json` just calls this. |
 | `seed-claude-config.sh` | Copies the agent's host config into the container once, at create time. Invoked by `post-create.sh`. |
 
@@ -163,10 +179,17 @@ than read from `devtools/config.sh`.
 devtools/devcontainer.sh rebuild
 ```
 
-Use `rebuild`, not `up`, after editing either JSON file or a Dockerfile: `up`
+Use `rebuild`, not `up`, after editing either JSON file or any
+`../docker/Dockerfile.*`: `up`
 reuses the running container, applies none of the change, and reports success
 with the same container id. The workspace is a bind mount and the caches are
 named volumes, so both survive a rebuild.
+
+A `Dockerfile.base` edit needs nothing extra: the `initializeCommand` rebuilds
+the parent on every `up` and `rebuild` rather than skipping when the tag already
+exists, so the retagged parent is what the child then builds on. That is
+deliberate — skipping on tag presence is how a child would silently keep a stale
+toolchain.
 
 The CUDA image is large and its first build is long — LLVM 20 from
 apt.llvm.org, CMake and Ninja from tarballs, and the CUDA toolkit from apt. The

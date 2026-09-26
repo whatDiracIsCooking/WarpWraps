@@ -31,7 +31,7 @@ PROJECT_NAME=${PROJECT_NAME:-gpumod}
 
 # Which devcontainer.json devcontainer.sh drives. Relative paths resolve
 # against the repo root, so this works from any cwd and from any worktree.
-# There is one per target of docker/Dockerfile:
+# There is one per GPU file of docker/ (Dockerfile.cuda / .hip / .combined):
 #
 #   .devcontainer/cuda/devcontainer.json     THE development container:
 #                                            clang-20 + libc++, CMake 4.2,
@@ -138,8 +138,10 @@ CROSS_CHECK_PRESET=${CROSS_CHECK_PRESET:-hip}
 CROSS_CHECK_TOOL=${CROSS_CHECK_TOOL:-hipconfig}
 
 # The image carrying that toolchain, used when this machine has no hipconfig.
-# docker/Dockerfile's `hip` target builds it; there is no convention tagging it,
-# so this names one and the script prints the build command when it is absent.
+# `docker/build.sh hip` builds and tags it -- that script derives the tag from
+# PROJECT_NAME exactly as the line below does, so the two agree by construction
+# rather than by convention; the script prints the build command when it is
+# absent.
 CROSS_CHECK_IMAGE=${CROSS_CHECK_IMAGE:-${PROJECT_NAME}:hip}
 
 # Its own build directory, separate from every preset's, because two presets

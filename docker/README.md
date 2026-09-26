@@ -1,7 +1,7 @@
 # Docker — the batch path
 
 This directory is **one of two front ends onto the same image**
-(`./Dockerfile`). Which one you want depends on what you are doing:
+(`./Dockerfile.cuda`). Which one you want depends on what you are doing:
 
 | | `docker/compose.yaml` (here) | `.devcontainer/cuda/` + `devtools/` |
 |---|---|---|
@@ -54,24 +54,59 @@ The tables below list every variable the services read.
 
 ## Build the Image
 
-`./Dockerfile` — beside this file, and shared with
-`.devcontainer/*/devcontainer.json` so the devcontainer and these services
-cannot drift onto two different toolchains.
+Four files beside this one, in a diamond:
 
-**Build it from the repo root.** The trailing `.` is the context, and the stages
-read `pyproject.toml`, `uv.lock` and `docker/install-{cuda,rocm}.sh` relative to
-it:
-
-```bash
-DOCKER_BUILDKIT=1 docker build --target cuda -f docker/Dockerfile -t gpumod:latest .
+```
+                Dockerfile.base          the vendor-neutral C++23 toolchain
+                 /           \
+  Dockerfile.cuda             Dockerfile.hip
+            |                       :
+  Dockerfile.combined ..............:  (reuses install-rocm.sh, not the image)
 ```
 
-Widen the CUDA architecture for a mixed fleet at build time:
+`Dockerfile.cuda` is what these services and
+`.devcontainer/cuda/devcontainer.json` both build, so the devcontainer and
+compose cannot drift onto two different toolchains.
+
+**They chain by tag, not by stage.** A child opens with
+`FROM ${PARENT_IMAGE}`, so its parent has to be built and tagged first —
+`./build.sh` is what walks the chain, and is the way to build any of them:
 
 ```bash
-DOCKER_BUILDKIT=1 docker build --target cuda -f docker/Dockerfile \
-  --build-arg CUDA_ARCH="80;86;90" -t gpumod:latest .
+docker/build.sh cuda        # base, then cuda -> gpumod:cuda and gpumod:latest
+docker/build.sh hip         # base, then hip  -> gpumod:hip
+docker/build.sh combined    # base, cuda, then combined -> gpumod:combined
+docker/build.sh base        # just the toolchain -> gpumod:base
 ```
+
+It takes the tag prefix from `PROJECT_NAME` in `devtools/config.sh`, so
+`gpumod:latest` — what `GPUMOD_IMAGE` below defaults to — is always one of the
+two tags the CUDA image gets. Run it from anywhere; the context is always the
+repo root, because the files read `pyproject.toml`, `uv.lock` and
+`docker/install-{cuda,rocm}.sh` relative to it.
+
+Anything after the target is passed through to every `docker build` in the
+chain, and any build arg set in the environment is forwarded to the file that
+declares it — so widening the CUDA architecture for a mixed fleet is:
+
+```bash
+CUDA_ARCH="80;86;90" docker/build.sh cuda
+docker/build.sh cuda --no-cache --progress=plain   # flags reach every step
+```
+
+`BUILD_DRY_RUN=1` prints the `docker build` commands without running them.
+
+By hand is still fine, as long as you build the parent yourself first:
+
+```bash
+DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.base -t gpumod:base .
+DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.cuda -t gpumod:latest .
+```
+
+Skip that first line and docker does not fall back to building the parent — it
+tries to *pull* it, and fails with `pull access denied for gpumod, repository
+does not exist`, which reads like a registry problem rather than a missing local
+build. `docker/Dockerfile.base`'s header has the rest of the reasoning.
 
 ## Build the Project
 

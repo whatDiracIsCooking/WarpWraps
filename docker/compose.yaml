@@ -1,14 +1,17 @@
 # The BATCH path: one-shot configure/build/test runs that bring their own
 # container, tee everything to .log/, and exit. The other path is the
 # devcontainer (.devcontainer/cuda/ + devtools/devcontainer.sh), which is the
-# interactive and agent-facing one. Both run the SAME image -- ./Dockerfile
-# at its `cuda` target -- so a result here and a result in there mean the same
-# thing.
+# interactive and agent-facing one. Both run the SAME image -- ./Dockerfile.cuda
+# -- so a result here and a result in there mean the same thing.
 #
-#   # from the repo root; --target is required, the file has four stages
-#   docker build --target cuda -f docker/Dockerfile -t gpumod:latest .
+#   # from the repo root; build.sh walks base -> cuda and tags :cuda and :latest
+#   docker/build.sh cuda
 #   export HOST_UID=$(id -u) HOST_GID=$(id -g)
 #   docker compose -f docker/compose.yaml run --rm test
+#
+# GPUMOD_IMAGE below defaults to gpumod:latest, which is one of the two tags
+# build.sh gives the CUDA image -- so nothing here needs to know about the
+# base/cuda/hip/combined chain. Compose does not build; it only runs.
 #
 # Use these when you want a clean, logged, unattended run -- CI, a nightly, a
 # sanitizer sweep. Use the devcontainer when you want to stay in the container

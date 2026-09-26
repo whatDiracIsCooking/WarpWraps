@@ -144,8 +144,9 @@ Reading the result:
 | 1 | it does not — the compiler error is in the output |
 | 2 | the check could not run (no `hipconfig`, no docker, or no `hip` image) |
 
-**Exit 2 is not a pass.** It prints the `docker build --target hip` command it
-needs. Never report a run that exited 2 as a green cross-backend check.
+**Exit 2 is not a pass.** It prints the `docker/build.sh hip` command it needs
+(that script builds `Dockerfile.base` first, which `Dockerfile.hip` requires).
+Never report a run that exited 2 as a green cross-backend check.
 
 It proves the other backend **compiles**, not that it runs — no kernel is
 launched. `devtools/cpp-tier.sh --preset hip` on a real ROCm box is the

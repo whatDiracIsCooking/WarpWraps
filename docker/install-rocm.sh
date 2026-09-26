@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Install the ROCm/HIP SDK from AMD's apt repository.
 #
-# Called by the `hip` stage of docker/Dockerfile, and again by `combined` on top
-# of the CUDA stage. A script rather than an inline RUN so the block is written
-# once -- Dockerfiles have no include, and `combined` cannot inherit from two
-# parents.
+# Called by docker/Dockerfile.hip, and again by docker/Dockerfile.combined on
+# top of the CUDA image. A script rather than an inline RUN so the block is
+# written once -- Dockerfiles have no include, and `combined` cannot inherit
+# from two parents, so it reuses THIS instead of the hip image (see that file's
+# header).
 set -euo pipefail
 
 ROCM_VERSION="${ROCM_VERSION:?ROCM_VERSION must be set, e.g. 7.2.4}"

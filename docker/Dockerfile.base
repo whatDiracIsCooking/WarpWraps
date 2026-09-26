@@ -1,44 +1,58 @@
 # syntax=docker/dockerfile:1.7
 # ============================================================================
-# The GPU image, and the only one that can build the C++ side of this repo.
+# base -- the vendor-neutral C++23 toolchain, and the parent of every GPU image
 # ============================================================================
-# One file, four selectable targets. `base` is vendor-neutral -- the C++23
-# toolchain and nothing else -- and each GPU target adds one SDK on top:
+# Four files, one diamond. This is the top of it:
 #
-#   docker build --target base     -f docker/Dockerfile -t gpumod:base .
-#   docker build --target cuda     -f docker/Dockerfile -t gpumod:latest .
-#   docker build --target hip      -f docker/Dockerfile -t gpumod:hip .
-#   docker build --target combined -f docker/Dockerfile -t gpumod:combined .
+#                       Dockerfile.base
+#                        /           \
+#         Dockerfile.cuda             Dockerfile.hip
+#                   |                       :
+#         Dockerfile.combined ..............:
+#                                (reuses install-rocm.sh, not the hip image)
 #
-# RUN THOSE FROM THE REPO ROOT. The trailing `.` is the build context and it is
-# the repo root, not this directory: the stages COPY pyproject.toml and uv.lock
-# and bind-mount docker/install-{cuda,rocm}.sh, every one of those paths spelled
-# relative to that root. `docker build -f Dockerfile .` from inside docker/ dies
-# on the first COPY.
+# Everything the build needs EXCEPT a GPU SDK: clang-20 with libc++, CMake 4.2,
+# Ninja, ccache, and a uv-managed venv for the Python tooling. Useful on its own
+# to check the toolchain half in isolation, and the shared parent of `cuda` and
+# `hip` so the two cannot drift apart.
 #
-# `cuda` is the default target (it is last in file order only by accident of
-# `combined` inheriting it, so ALWAYS pass --target explicitly) and is what
-# .devcontainer/cuda/devcontainer.json and docker/compose.yaml build.
+#   docker/build.sh base          # the normal way: tags <PROJECT_NAME>:base
+#   DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.base -t gpumod:base .
+#
+# RUN THAT FROM THE REPO ROOT. The trailing `.` is the build context and it is
+# the repo root, not this directory: this file COPYs pyproject.toml and uv.lock,
+# spelled relative to that root. `docker build -f Dockerfile.base .` from inside
+# docker/ dies on the first COPY.
+#
+# WHY THE FOUR FILES CHAIN BY TAG INSTEAD OF BY STAGE:
+# these were one multi-stage Dockerfile, where `FROM base` resolved a stage in
+# the same file and a single `docker build --target cuda` did everything. Split
+# apart, a child can only name an IMAGE, so it takes an ARG:
+#
+#   ARG PARENT_IMAGE=gpumod:base
+#   FROM ${PARENT_IMAGE}
+#
+# which means the parent must exist and be tagged BEFORE the child builds. That
+# ordering is the whole cost of the split, and `docker/build.sh` is what pays it
+# -- it walks the chain for whichever target you name. Build a child by hand
+# with no parent tagged and docker does not fall back to building it; it tries
+# to PULL, and fails with `pull access denied for gpumod, repository does not
+# exist`, which reads like a registry problem rather than a missing local build.
+#
+# The .devcontainer/*/devcontainer.json files run exactly one `docker build` and
+# have no way to pre-build a parent, so each one carries an `initializeCommand`
+# that calls build.sh for its parent first.
 #
 # WHY THE TOOLKIT COMES FROM APT, NOT FROM nvidia/cuda:
-# a shared toolchain `base` cannot be both nvidia/cuda and rocm/dev-ubuntu at
-# once, and duplicating the LLVM/CMake stages per vendor is how they drift. The
+# this file cannot be both nvidia/cuda and rocm/dev-ubuntu at once, and
+# duplicating the LLVM/CMake stages per vendor is how they drift. The
 # nvidia/cuda images are Ubuntu plus the same apt packages, so the only thing
-# lost is the NVIDIA_* runtime env they set -- which the `cuda` stage sets back
+# lost is the NVIDIA_* runtime env they set -- which Dockerfile.cuda sets back
 # explicitly. ROCm is ~30GB installed, which is the whole reason `hip` is a
-# separate target rather than everything living in one image.
+# separate image rather than everything living in one.
 #
-# Pick CUDA_VERSION against the HOST DRIVER, not against the newest CUDA: a
-# driver whose ceiling is below the image's CUDA version makes the container
-# refuse to start under `--gpus all` with
-#   nvidia-container-cli: requirement error: unsatisfied condition: cuda>=X.Y
-# `nvidia-smi` reports the driver's ceiling as "CUDA Version:". Note also that
-# CUDA 13 dropped Maxwell/Pascal/Volta -- its nvcc floor is compute_75, so a
-# pre-Turing card needs a 12.x toolkit, which also means dropping the `volta`
-# preset from CMakePresets.json.
-#
-# Build one stage in isolation to debug it:
-#   docker build --target=compilers -f docker/Dockerfile -t dbg:compilers .
+# Build one stage of THIS file in isolation to debug it:
+#   docker build --target=compilers -f docker/Dockerfile.base -t dbg:compilers .
 #
 # ---------------------------------------------------------------------------
 # WHY THE VERSIONS BELOW ARE PINNED HERE AND NOT DISCOVERED
@@ -48,13 +62,15 @@
 # to the CMake version). Floating any one of them turns a working build into
 # "module 'std' not found" with no other symptom. Bump them together, and
 # re-check the UUID in the new CMake's Help/dev/experimental.rst.
+#
+# The two SDK versions are NOT here: CUDA_VERSION lives in Dockerfile.cuda and
+# ROCM_VERSION in Dockerfile.hip / Dockerfile.combined, beside the install
+# script each one drives.
 ARG UBUNTU_TAG=24.04
 ARG LLVM_VERSION=20
 ARG CMAKE_VERSION=4.2.3
 ARG CMAKE_MAJOR_MINOR=4.2
 ARG NINJA_VERSION=1.13.1
-ARG CUDA_VERSION=13-0
-ARG ROCM_VERSION=7.2.4
 
 # ============================================================================
 # Stage 1: base-system -- OS packages every later stage shares
@@ -166,11 +182,10 @@ RUN cd /tmp && ./cmake-installer.sh --skip-license --prefix=/usr/local && rm cma
 # ============================================================================
 # Stage 5: base -- the complete, vendor-neutral toolchain
 # ============================================================================
-# Everything the build needs EXCEPT a GPU SDK. Selectable on its own
-# (`--target base`) to check the toolchain half in isolation, and the shared
-# parent of `cuda` and `hip` so the two cannot drift apart.
+# The published stage of this file, and what Dockerfile.{cuda,hip} take as
+# their PARENT_IMAGE.
 #
-# Note there are no prebuilt C++ dependencies here any more: the project fetches
+# Note there are no prebuilt C++ dependencies here: the project fetches
 # GoogleTest from source at configure time and needs nothing else, so the /opt
 # trees the template used to bake are gone along with the demo code that used
 # them.
@@ -181,7 +196,9 @@ ARG LLVM_VERSION
 
 # This label is what scopes `devtools/worktree.sh gc` to this project's build
 # images, so it cannot delete another repo's. Must match PROJECT_NAME in
-# devtools/config.sh -- devtools/doctor.sh warns when they drift.
+# devtools/config.sh -- devtools/doctor.sh warns when they drift. Labels are
+# inherited, so the GPU children carry it too; each of those re-stamps it
+# anyway, to keep the build arg they are passed consumed where it is declared.
 ARG PROJECT_NAME=gpumod
 LABEL devcontainer.project="${PROJECT_NAME}"
 
@@ -229,105 +246,3 @@ RUN clang --version | head -1 && \
 
 USER ubuntu
 CMD ["/bin/bash"]
-
-# ============================================================================
-# Stage 6: cuda -- base + the CUDA toolkit (the default backend)
-# ============================================================================
-FROM base AS cuda
-
-ARG CUDA_VERSION
-ARG TARGETARCH
-USER root
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=bind,source=docker/install-cuda.sh,target=/tmp/install-cuda.sh \
-    CUDA_VERSION="${CUDA_VERSION}" TARGETARCH="${TARGETARCH}" bash /tmp/install-cuda.sh
-
-# Set by the nvidia/cuda base images, and required by the NVIDIA container
-# runtime to inject the driver under `--gpus all`. Building on plain Ubuntu
-# means setting them here instead.
-ENV NVIDIA_VISIBLE_DEVICES=all \
-    NVIDIA_DRIVER_CAPABILITIES=compute,utility
-
-# Version-independent symlink, so a toolkit bump (13.0 -> 13.1) does not leave
-# these pointing at a directory that no longer exists.
-ENV CUDAToolkit_ROOT=/usr/local/cuda \
-    CUDACXX=/usr/local/cuda/bin/nvcc \
-    PATH=/usr/local/cuda/bin:${PATH} \
-    LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
-
-# The target architecture, as a build arg so a cluster build can widen it:
-#   --build-arg CUDA_ARCH="80;86;90"
-# 86 is Ampere consumer (RTX 30xx). CUDAARCHS is what CMake reads when a preset
-# does not set CMAKE_CUDA_ARCHITECTURES; the `default` preset sets it to
-# `native`, which compiles only for the card in the build machine -- use a
-# pinned or `portable` preset when the build host and run host differ.
-ARG CUDA_ARCH=86
-ENV CUDA_ARCH=${CUDA_ARCH} \
-    CUDAARCHS=${CUDA_ARCH}
-
-# Nsight Systems CLI, for profiling from inside the container. Non-fatal: the
-# repository is occasionally unavailable, and nothing else depends on nsys.
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    repo="https://developer.download.nvidia.com/devtools/repos/ubuntu2404/${TARGETARCH}" && \
-    ( wget -qO /etc/apt/trusted.gpg.d/nvidia-devtools.asc "${repo}/nvidia.pub" && \
-      echo "deb ${repo}/ /" > /etc/apt/sources.list.d/nvidia-devtools.list && \
-      apt-get update && apt-get install -y --no-install-recommends nsight-systems-cli ) \
-    || echo "WARN: nsight-systems-cli unavailable; nsys will be missing (doctor.sh reports it)"
-
-USER ubuntu
-RUN nvcc --version | grep release
-
-# ============================================================================
-# Stage 7: hip -- base + ROCm, with no CUDA toolkit at all
-# ============================================================================
-# A HIP build needs no CUDA, which is the point of splitting this from `cuda`:
-# ROCm alone is ~30GB, and neither backend should pay for the other.
-FROM base AS hip
-
-ARG ROCM_VERSION
-USER root
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=bind,source=docker/install-rocm.sh,target=/tmp/install-rocm.sh \
-    ROCM_VERSION="${ROCM_VERSION}" bash /tmp/install-rocm.sh
-
-# The LLVM target for the AMD card this image is built for. Exported as
-# GPU_TARGETS / AMDGPU_TARGETS so a HIP CMake build has a default to read.
-# gfx1200 is RDNA4 (Radeon RX 9060 XT); override for another card:
-#   --build-arg GPU_TARGETS=gfx1100
-ARG GPU_TARGETS=gfx1200
-ENV GPU_TARGETS=${GPU_TARGETS} \
-    AMDGPU_TARGETS=${GPU_TARGETS} \
-    ROCM_PATH=/opt/rocm \
-    PATH=/opt/rocm/bin:${PATH}
-
-USER ubuntu
-RUN hipconfig --version
-
-# ============================================================================
-# Stage 8: combined -- both SDKs in one image
-# ============================================================================
-# For switching backends without switching containers. It is the sum of the two
-# above (~40GB); prefer `cuda` or `hip` unless you actually need both.
-FROM cuda AS combined
-
-ARG ROCM_VERSION
-USER root
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=bind,source=docker/install-rocm.sh,target=/tmp/install-rocm.sh \
-    ROCM_VERSION="${ROCM_VERSION}" bash /tmp/install-rocm.sh
-
-ARG GPU_TARGETS=gfx1200
-ENV GPU_TARGETS=${GPU_TARGETS} \
-    AMDGPU_TARGETS=${GPU_TARGETS} \
-    ROCM_PATH=/opt/rocm \
-    PATH=/opt/rocm/bin:${PATH}
-
-USER ubuntu
-RUN nvcc --version | grep release && hipconfig --version

@@ -57,7 +57,7 @@ VOL_SUFFIXES=(pytest-tmp claude-plugins claude-backups)
 # How this project's build images are recognised. The devcontainer CLI tags an
 # image `vsc-<worktree-basename>-<64hex>`, which says nothing about WHICH repo
 # it came from -- two checkouts on one box both produce a `vsc-main-...`. So
-# image removal is gated on a label the Dockerfile stamps
+# image removal is gated on a label every docker/Dockerfile.* stamps
 # (LABEL devcontainer.project="${PROJECT_NAME}", passed as a build arg from
 # devcontainer.json) rather than on the tag alone. An image without the label
 # is never removed: it belongs to another project, or predates the label, and
