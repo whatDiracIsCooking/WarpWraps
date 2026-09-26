@@ -10,7 +10,8 @@
 #   lint          ruff + cmake-lint
 #   python        the pytest tier, on 3.11 and 3.13
 #   cpp (cuda)    the whole tree built for CUDA -- src/, GoogleTest, every
-#                 runtime test binary -- then `ctest -LE gpu`
+#                 runtime test binary -- then `ctest -LE gpu`, then an ADVISORY
+#                 clang-tidy pass over src/*.cpp that cannot fail the job
 #   cpp (hip)     the same shape for HIP: the whole tree through clang's
 #                 -x hip front end, then the same `-LE gpu`
 #   install-check install to a throwaway prefix, then build example/consumer
@@ -98,6 +99,16 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+# The default token scope for this workflow, narrowed to what `lint` and `test`
+# actually need: a checkout and nothing else. Without this they inherit the
+# repository default, which can be read-WRITE.
+#
+# A job-level `permissions:` block REPLACES this rather than adding to it, which
+# is why `cpp` and `install-check` each spell out `contents: read` alongside the
+# `packages: read` they need to pull from GHCR.
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -158,9 +169,27 @@ jobs:
           - backend: cuda
             image: cuda-ci
             preset: ci-cuda
+            # clang-tidy, on this leg only. .clang-tidy is real configuration
+            # and cpp-tier.sh has had --tidy from the start, but nothing ran it
+            # anywhere -- neither a hook nor CI -- which is the same dead-check
+            # failure mode as a preset no one exercises.
+            #
+            # It rides the build that is already happening: it lints the five
+            # src/*.cpp implementation units out of this tree's
+            # compile_commands.json, so the marginal cost is clang-tidy itself.
+            # One leg because the findings would otherwise be reported twice.
+            #
+            # IT IS ADVISORY BY CONSTRUCTION. cpp-tier.sh never lets it change
+            # the exit code (the tree is not tidy-clean yet, and clang-tidy's
+            # C++23-module support is still incomplete enough to emit the odd
+            # bogus diagnostic), so read it in the uploaded log rather than in
+            # this job's colour. Promote it to a gate only once the tree is
+            # clean AND the module diagnostics are trustworthy.
+            tidy: '--tidy'
           - backend: hip
             image: hip-ci
             preset: ci-hip
+            tidy: ''
     container:
       image: ghcr.io/whatdiraciscooking/gpumod:${{ matrix.image }}
       # The image's own USER is `ubuntu` (uid 1000) and the runner creates
@@ -203,7 +232,7 @@ jobs:
           BUILD_JOBS: '4'
         run: |
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
-          devtools/cpp-tier.sh --preset ${{ matrix.preset }}
+          devtools/cpp-tier.sh --preset ${{ matrix.preset }} ${{ matrix.tidy }}
 
       - uses: actions/upload-artifact@v4
         if: always()

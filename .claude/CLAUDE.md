@@ -710,6 +710,10 @@ change verified.
   queries a driver. Read both as compile-and-link plus a thin runtime slice:
   nothing on a hosted runner tests GPU behaviour (see "Two kinds of C++ test"
   and the `ci.yml` header for exactly what the surviving entries prove).
+  The **cuda leg also runs `--tidy`** after its ctest — the only place
+  clang-tidy runs at all. It is advisory by construction (`cpp-tier.sh` never
+  lets it touch the exit code), so its findings are in the uploaded log, not in
+  the job's colour; a green `cpp (cuda)` says nothing about tidy.
 - **The images come from `.github/workflows/images.yml`**, which publishes
   `ghcr.io/<owner>/gpumod:{cuda-ci,hip-ci}` on a change under `docker/` (plus
   weekly, plus on demand). They are the same Dockerfiles as the dev images
@@ -719,6 +723,13 @@ change verified.
   **Those tags move, and `container:` is resolved before any step runs** — so
   a PR that edits `docker/` is tested against the image `main` already
   published. Run `images` manually on the branch first.
+
+  What such a PR *does* get is a **build-only run of that same workflow**: the
+  `pull_request` trigger carries the same `paths:` filter and builds both
+  images without pushing (`BUILD_PUSH` empty, the GHCR login skipped, and the
+  job renames itself `build (<image>)`). So a Dockerfile that no longer builds
+  fails on the PR instead of on the publish after the merge. It does **not**
+  make the `cpp` legs use the new image — that is still the manual run above.
 
 **So a PR touching `src/` is now gated on the server for compile, link, export
 and every non-device test.** What is still not: the seven device-dependent

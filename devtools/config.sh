@@ -341,6 +341,7 @@ llvm-cxxfilt:test/extension/build_time's blas dispatch check
 compute-sanitizer:the GPU memcheck/racecheck run (docker compose run --rm compute-sanitizer)
 nsys:Nsight Systems profiling from inside the container
 ccache:warm rebuilds; without it every configure recompiles from scratch
+clang-tidy:the advisory lint pass (cpp-tier.sh --tidy, and CI's cuda leg)
 clang-format:the C++ formatting pass (see CLAUDE.md -- it is not a git hook)
 cmake-format:the CMake formatting pass; run by hand, not by any hook
 cmake-lint:the CMake lint pass CI runs on every PR"}

@@ -54,11 +54,18 @@ git push -u origin <branch>
 ## 4. Create the PR
 
 ```bash
-gh pr create --title "<concise title>" --body "<what and why>"
+gh pr create --title "<concise title>" --body-file <path>
 ```
 
-Summarise what changed and why, and note any test implications. The harness's
-PR-body footer rules apply.
+**Fill in `.github/pull_request_template.md`, do not bypass it.** `gh pr create`
+applies the repository template only when no body is supplied, so `--body "…"`
+silently discards it — and its checklist is the only record of which tiers
+actually ran, the device suites among them, which nothing on a runner can
+verify. Copy the template to a scratch file, fill in *What and why*, tick only
+the commands you really ran, delete the reviewer notes that do not apply, and
+pass it with `--body-file`.
+
+The harness's PR-body footer rules apply.
 
 ## 5. Merge
 
@@ -67,8 +74,10 @@ gh pr merge <number> --squash
 git push origin --delete <branch>     # remote branch cleanup
 ```
 
-- **Wait for CI.** `.github/workflows/ci.yml` runs lint and the fast tier on
-  every PR; the local pre-push gate is a subset of it. Check with
+- **Wait for CI.** `.github/workflows/ci.yml` runs lint, the Python tier, the
+  whole C++ tree for BOTH backends and the install check on every PR, so it
+  takes tens of minutes rather than seconds; the local pre-push gate is a small
+  subset of it. A PR touching `docker/` also builds the images. Check with
   `gh pr checks <number> --watch` before merging, and do not merge red.
 - **Never pass `--delete-branch`**: it attempts a local `git checkout main`,
   which fails when `main` is held by another worktree. Delete the remote branch
