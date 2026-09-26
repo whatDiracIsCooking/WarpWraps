@@ -39,23 +39,16 @@ static_assert(!error_policy<int, int>); // a bare int is not a policy
 // nothrow move (it is used as a member of move-only wrappers), and an implicit
 // conversion back to the underlying handle. This is the "compiles clean,
 // semantics silently wrong" class the build-time tier is for. We instantiate it
-// exactly as the real wrappers do -- a HandleErrorType specialization plus a
-// CRTP derived type -- against a stand-in handle so the check depends on no
-// vendor type. HandleErrorType is specialized in the gpumod::extension namespace,
-// matching how blas_handle.cppm / solver_handle.cppm wire a handle to its error.
+// exactly as the real wrappers do -- a CRTP derived type plus an error policy --
+// against a stand-in handle so the check depends on no vendor type. The error
+// type is deduced from the policy (DefaultErrorPolicy<int>::error_type), not from
+// the handle type, so no per-handle table is needed here or in the real wrappers.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::extension {
+namespace gpumod::extension::test {
 
 struct fake_handle_tag;
 using FakeHandle = fake_handle_tag *;
-
-template<>
-struct HandleErrorType<FakeHandle> {
-  using type = int;
-};
-
-namespace test {
 
 class FakeHandleWrapper
     : public BaseGpuHandle<FakeHandle, FakeHandleWrapper, DefaultErrorPolicy<int>> {
@@ -73,5 +66,4 @@ static_assert(std::is_nothrow_move_constructible_v<FakeHandleWrapper>);
 static_assert(std::is_nothrow_move_assignable_v<FakeHandleWrapper>);
 static_assert(std::is_convertible_v<FakeHandleWrapper, FakeHandle>);
 
-} // namespace test
-} // namespace gpumod::extension
+} // namespace gpumod::extension::test

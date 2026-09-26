@@ -30,6 +30,10 @@ export namespace gpumod::extension {
 template<typename T>
 class BaseErrorPolicy {
 public:
+  /// @brief The error code type this policy handles. A handle deduces its own
+  ///        error type from its policy through this (see typed_error_policy).
+  using error_type = T;
+
   /**
      * @brief Handle an error condition
      *
@@ -60,5 +64,19 @@ template<typename P, typename T>
 concept error_policy =
     std::derived_from<P, BaseErrorPolicy<T>> && std::is_nothrow_move_constructible_v<P> &&
     std::is_nothrow_move_assignable_v<P>;
+
+/**
+ * @brief An error policy that publishes the error type it handles as `error_type`
+ *
+ * @tparam P The policy type to check
+ *
+ * @note A handle deduces its error type from its policy through this concept,
+ *       rather than from a separate handle-type -> error-type table. That table
+ *       is unusable on HIP, where hipblas/hipsolver/hipsparse handles are all
+ *       `void*` and so cannot key distinct error types; the policy always can.
+ */
+template<typename P>
+concept typed_error_policy =
+    requires { typename P::error_type; } && error_policy<P, typename P::error_type>;
 
 } // namespace gpumod::extension

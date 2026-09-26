@@ -6,6 +6,9 @@ import std;
 import gpumod.runtime_api;
 import gpumod.extension.common;
 import gpumod.extension.runtime;
+import gpumod.extension.blas;
+import gpumod.extension.solver;
+import gpumod.extension.sparse;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Compile-time contract of the handle views
@@ -18,13 +21,12 @@ import gpumod.extension.runtime;
 // richest view a handle has -- device-aware and/or operation-carrying -- and is
 // deleted on rvalues so a temporary cannot be viewed.
 //
-// The runtime handles below span all four structural variants, so they exercise
-// the whole view machinery: bound+ops (event, stream), unbound+ops (graph exec),
-// bound+no-ops (mem pool), unbound+no-ops (graph). The blas/solver/sparse handle
-// views (device-bound, no-ops -- a GpuBoundHandleView alias) are checked in their
-// own per-library TUs, NOT here: on HIP those three vendor handles are all
-// `void*`, which makes their per-module HandleErrorType<void*> specializations
-// collide when two are imported into a single TU.
+// This TU deliberately imports all three vendor-handle extension modules
+// (blas/solver/sparse) TOGETHER. That used to be ill-formed on HIP, where those
+// handles are all `void*`: a per-handle-type HandleErrorType<void*> table gave
+// them conflicting error types in one TU. The error type is now deduced from the
+// policy instead (typed_error_policy), so the table is gone and the three
+// coexist -- this test is the regression guard for that.
 //
 // These are compile-time contracts; the runtime tests live beside the wrappers.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -43,6 +45,9 @@ static_assert(is_view_value<GpuStreamView>);
 static_assert(is_view_value<GpuGraphExecView>);
 static_assert(is_view_value<GpuMemPoolView>);
 static_assert(is_view_value<GpuGraphView>);
+static_assert(is_view_value<GpublasHandleView>);
+static_assert(is_view_value<GpusolverDnHandleView>);
+static_assert(is_view_value<GpusparseHandleView>);
 
 // The generic view bases carry the same semantics.
 static_assert(is_view_value<GpuHandleView<gpuEvent_t>>);
@@ -51,6 +56,7 @@ static_assert(is_view_value<GpuBoundHandleView<gpuEvent_t>>);
 // Owners are move-only; a view is never taken by copying an owner.
 static_assert(!std::is_copy_constructible_v<GpuEvent>);
 static_assert(!std::is_copy_constructible_v<GpuStream>);
+static_assert(!std::is_copy_constructible_v<GpublasHandle>);
 static_assert(std::is_nothrow_move_constructible_v<GpuEvent>);
 
 // Views convert to the raw handle, exactly as the owners do.
@@ -76,6 +82,12 @@ static_assert(
     std::is_same_v<decltype(std::declval<const GpuGraphExec &>().view()), GpuGraphExecView>);
 static_assert(std::is_same_v<decltype(std::declval<const GpuMemPool &>().view()), GpuMemPoolView>);
 static_assert(std::is_same_v<decltype(std::declval<const GpuGraph &>().view()), GpuGraphView>);
+static_assert(
+    std::is_same_v<decltype(std::declval<const GpublasHandle &>().view()), GpublasHandleView>);
+static_assert(std::is_same_v<decltype(std::declval<const GpusolverDnHandle &>().view()),
+                             GpusolverDnHandleView>);
+static_assert(
+    std::is_same_v<decltype(std::declval<const GpusparseHandle &>().view()), GpusparseHandleView>);
 
 // Never called: exists only to instantiate and type-check the borrow-safe
 // operations shared by each owner and its view, without a device.

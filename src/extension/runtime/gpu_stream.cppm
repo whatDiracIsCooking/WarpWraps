@@ -14,12 +14,6 @@ import std;
 
 export namespace gpumod::extension {
 
-// Specialize HandleErrorType for gpuStream_t
-template<>
-struct HandleErrorType<gpuStream_t> {
-  using type = gpuError_t;
-};
-
 /**
  * @brief Borrow-safe stream operations, shared by the owner and the view
  *

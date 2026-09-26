@@ -52,8 +52,8 @@ export namespace gpumod::extension {
  * @tparam P_create The error policy type for creation
  * @tparam P_destroy The error policy type for destruction (defaults to P_create)
  */
-template<typename T, typename Derived, error_policy<typename HandleErrorType<T>::type> P_create,
-         error_policy<typename HandleErrorType<T>::type> P_destroy = P_create>
+template<typename T, typename Derived, typed_error_policy P_create,
+         error_policy<typename P_create::error_type> P_destroy = P_create>
 class GpuBoundHandle : public BaseGpuHandle<T, Derived, P_create, P_destroy> {
 private:
   using Base = BaseGpuHandle<T, Derived, P_create, P_destroy>;

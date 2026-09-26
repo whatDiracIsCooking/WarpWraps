@@ -14,12 +14,6 @@ import std;
 
 export namespace gpumod::extension {
 
-// Specialize HandleErrorType for gpusolverDnParams_t
-template<>
-struct HandleErrorType<gpusolverDnParams_t> {
-  using type = gpusolverStatus_t;
-};
-
 /**
  * @brief RAII wrapper for GPU solver params
  *

@@ -14,12 +14,6 @@ import std;
 
 export namespace gpumod::extension {
 
-// Specialize HandleErrorType for gpuGraphExec_t
-template<>
-struct HandleErrorType<gpuGraphExec_t> {
-  using type = gpuError_t;
-};
-
 /**
  * @brief Borrow-safe executable-graph operations, shared by the owner and view
  *

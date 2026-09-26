@@ -20,11 +20,6 @@ import std;
 
 export namespace gpumod::extension {
 
-template<typename T>
-struct HandleErrorType {
-  using type = void;
-};
-
 // ============================================================================
 // RAII Handle Wrapper
 // ============================================================================
@@ -32,14 +27,19 @@ struct HandleErrorType {
 /// @brief RAII wrapper for GPU handles using CRTP
 /// @tparam T The underlying GPU handle type
 /// @tparam Derived The derived class type
-/// @tparam P_create The error policy type for creation
-/// @tparam P_destroy The error policy type for destruction (defaults to P_create)
+/// @tparam P_create The error policy for creation; its error_type is the error
+///         type this handle checks against
+/// @tparam P_destroy The error policy for destruction (defaults to P_create),
+///         constrained to P_create's error type
 ///
 /// @note P_destroy MUST NOT THROW exceptions, as it is invoked from the destructor.
 ///       Throwing from P_destroy::handle_error() will result in program termination.
-/// @note ErrorType is automatically deduced from HandleErrorType<T>::type
-template<typename T, typename Derived, error_policy<typename HandleErrorType<T>::type> P_create,
-         error_policy<typename HandleErrorType<T>::type> P_destroy = P_create>
+/// @note The error type is deduced from the policy (P_create::error_type), not
+///       from the handle type T: on HIP the vendor handles are all `void*`, so a
+///       handle-type -> error-type table cannot tell them apart. The policy
+///       always carries its own error type.
+template<typename T, typename Derived, typed_error_policy P_create,
+         error_policy<typename P_create::error_type> P_destroy = P_create>
 class BaseGpuHandle : private NonCopyable {
 protected:
   T handle_ = nullptr;

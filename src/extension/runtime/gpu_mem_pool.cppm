@@ -13,12 +13,6 @@ import std;
 
 export namespace gpumod::extension {
 
-// Specialize HandleErrorType for gpuMemPool_t
-template<>
-struct HandleErrorType<gpuMemPool_t> {
-  using type = gpuError_t;
-};
-
 /**
  * @brief RAII wrapper for GPU memory pool
  *
