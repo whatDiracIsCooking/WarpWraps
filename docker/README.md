@@ -130,12 +130,16 @@ since `latest` is what `GPUMOD_IMAGE` resolves to and must keep meaning the
 full CUDA dev image. Parents are not pushed because a child image is
 self-contained; publishing `:base` too would upload 1.45GB nothing pulls.
 
-**`ROCM_PRUNE=1` is what makes a HIP job possible on a hosted runner.** The dev
-ROCm image is 20.5GB and a GitHub-hosted runner has roughly 20–25GB free; the
-prune drops ~13GB of Tensile/rocFFT kernel objects, composable-kernel archives,
-rccl, rocalution and hiptensor — none of which a *compile* links — and lands at
-**7.05GB**, measured. `docker/install-rocm.sh` carries the list and the reason
-each entry is safe.
+**`ROCM_PRUNE=1` takes the ROCm image from 20.5GB to 7.05GB**, dropping
+Tensile/rocFFT kernel objects, composable-kernel archives, rccl, rocalution and
+hiptensor — none of which a *compile* links. `docker/install-rocm.sh` carries
+the list and the reason each entry is safe.
+
+It is an **optimisation**, worth ~13GB less to pull on every CI run and a
+3-minute push instead of many. It is not what makes a HIP job possible: a
+GitHub-hosted runner has a 145GB root with 86GB free before any cleanup, so the
+unpruned image fits too. (This paragraph previously claimed otherwise, on an
+estimate the first real run disproved.)
 
 It has to happen inside that script's own `RUN`. Layers are additive, so an
 `rm` in a later layer hides the files and frees nothing; `:hip` and `:hip-ci`

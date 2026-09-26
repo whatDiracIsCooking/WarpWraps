@@ -327,7 +327,7 @@ existing ones. There is no code generator.
 | `coverage` | Debug + `GPUMOD_COVERAGE=ON` in `build-coverage/`: clang source-based coverage for host code. Driven by `devtools/coverage.sh`. |
 | `hip` | The ROCm/HIP backend, in `build-hip/`. Needs ROCm, not CUDA. |
 | `compile-time` | `GPUMOD_COMPILE_TIME_ONLY=ON` in `build-compile-time/`: no GoogleTest fetch, no runtime tests, no GPU. |
-| `ci-cuda` / `ci-hip` | What `.github/workflows/ci.yml` builds, and runnable here to reproduce it. `ci-cuda` is the full CUDA tree with the architecture pinned, tested with `-LE gpu`; `ci-hip` compiles all of `src/` and `example/` for HIP. Neither needs a device. |
+| `ci-cuda` / `ci-hip` | What `.github/workflows/ci.yml` builds, and runnable here to reproduce it. Same shape as each other: the whole tree for that backend, runtime binaries included, then `ctest -LE gpu`. Neither needs a device (`ci-cuda` pins the architecture so configure never queries a driver). Read them as compile-and-link plus a thin runtime slice, not as a test of GPU behaviour. |
 
 Every configure preset has its own `binaryDir`, and it needs to stay that way —
 two presets sharing one build directory silently reconfigure it back and forth.

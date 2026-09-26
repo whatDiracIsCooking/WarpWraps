@@ -140,8 +140,11 @@ red on its own, so it needs no test of its own.
 > `ghcr.io/<owner>/gpumod:{cuda-ci,hip-ci}`, which `.github/workflows/ci.yml`
 > names in `container:`. `hip-ci` is built with `ROCM_PRUNE=1`, dropping ~13GB
 > of kernel objects and unused libraries that no *compile* links: **20.5GB →
-> 7.05GB**, measured, which is the difference between fitting a GitHub-hosted
-> runner and not. `docker/install-rocm.sh` has the list.
+> 7.05GB**, measured. `docker/install-rocm.sh` has the list. That is an
+> optimisation — ~13GB less to pull per CI run — **not** what makes the HIP
+> job possible: a hosted runner has a 145GB root with 86GB free before any
+> cleanup, so the unpruned image would fit. These docs claimed otherwise until
+> the first real run produced a `df`.
 >
 > The suffix, the registry and the push are three environment knobs on
 > `build.sh` (`IMAGE_TAG_SUFFIX`, `IMAGE_REGISTRY`, `BUILD_PUSH`), so the image
@@ -408,10 +411,27 @@ devtools/cross-backend-check.sh                          # does the OTHER backen
   pass. (`coverage` exists for `coverage.sh`, which drives its own ctest to
   collect profiles — see "Running tests".)
 - **`ci-cuda` and `ci-hip` are what CI runs, and they run here too.** Reach for
-  them to reproduce a CI result exactly: `ci-cuda` is the full CUDA build with
-  the architecture pinned to 86 and `ctest -LE gpu`, `ci-hip` compiles all of
-  `src/` and `example/` for HIP with no GoogleTest. Neither needs a device, so
-  both work in a container started without `--gpus`.
+  them to reproduce a CI result exactly. They are deliberately the SAME SHAPE:
+  each builds the whole tree for its backend — GoogleTest and every runtime
+  test binary included — and then runs `ctest -LE gpu`. Neither needs a
+  device, so both work in a container started without `--gpus`; `ci-cuda`
+  pins the architecture so configure never queries a driver.
+
+  Read the result as **compile-and-link plus a thin runtime slice**, not as a
+  test of GPU behaviour. Of what `-LE gpu` leaves, only `HalfConversion` and
+  `Bfloat16Conversion` compute anything (host fp16/bf16, and *not* shared
+  between backends — `gpumod.fp16`/`gpumod.bf16` map onto the chosen backend's
+  own types, so running them on both legs is worth it). The rest are the
+  `SuiteListIsComplete` guards, which prove each device binary loads and its
+  registry matches the CMake list, and the `*_compile_tests` link checks. The
+  four dispatch checks run at BUILD time on both legs, so they never appear in
+  the ctest count but are covered.
+
+  `ci-hip` was briefly `GPUMOD_COMPILE_TIME_ONLY=ON`. That left
+  `test/extension/*.cpp` never compiled for HIP at all — under the *stricter*
+  of the two front ends, which is most of why the leg exists. Counts today:
+  12 for `ci-hip`, 11 for `ci-cuda`, the difference being `cuda_compile_tests`
+  carrying the `gpu` label where `hip_compile_tests` does not.
 - **There are no per-architecture presets, and nothing may go below sm_75.**
   `base` uses `native` and `ci-cuda` pins `86`; between them that is every case
   this project has, and `86` is what the reference box, `Dockerfile.cuda`'s
@@ -469,8 +489,8 @@ this one for the seconds-long local answer before you push.
 **To reproduce what CI saw, run CI's presets rather than guessing:**
 
 ```bash
-devtools/cpp-tier.sh --preset ci-cuda   # the full CUDA build, then -LE gpu
-devtools/cpp-tier.sh --preset ci-hip    # all of src/ + example/ for HIP
+devtools/cpp-tier.sh --preset ci-cuda   # whole tree for CUDA, then -LE gpu
+devtools/cpp-tier.sh --preset ci-hip    # whole tree for HIP,  then -LE gpu
 ```
 
 Both work in a container with no `--gpus` and no `/dev/kfd`, which is the point
@@ -674,18 +694,19 @@ change verified.
   `.github/workflows/ci.yml` has four jobs: `lint` (ruff + cmake-lint),
   `test` (the pytest tier on 3.11 and 3.13), `cpp` (a two-leg matrix, below)
   and `install-check`.
-- **The C++ tree IS built on the server now, both backends.** The `cpp` job
-  declares a `container:` rather than building one — the `cuda` leg does the
-  full CUDA build and then `ctest -LE gpu`, the `hip` leg compiles all of
-  `src/` and `example/` through clang's `-x hip` front end. Neither needs a
-  device: the `ci-cuda` preset pins `CMAKE_CUDA_ARCHITECTURES` so configure
-  never queries a driver, and `ci-hip` is compile-time only.
+- **The C++ tree IS built on the server now, both backends, same shape.** The
+  `cpp` job declares a `container:` rather than building one; each leg builds
+  the whole tree for its backend and runs `ctest -LE gpu`. Neither needs a
+  device — `ci-cuda` pins `CMAKE_CUDA_ARCHITECTURES` so configure never
+  queries a driver. Read both as compile-and-link plus a thin runtime slice:
+  nothing on a hosted runner tests GPU behaviour (see "Two kinds of C++ test"
+  and the `ci.yml` header for exactly what the surviving entries prove).
 - **The images come from `.github/workflows/images.yml`**, which publishes
   `ghcr.io/<owner>/gpumod:{cuda-ci,hip-ci}` on a change under `docker/` (plus
   weekly, plus on demand). They are the same Dockerfiles as the dev images
   with different build args: `hip-ci` is built with `ROCM_PRUNE=1`, which
   drops ~12.9GB of kernel objects and unused libraries that no *compile*
-  needs, because the 20.5GB dev image does not fit a hosted runner.
+  needs — 20.5GB to 7.05GB, so there is that much less to pull per run.
   **Those tags move, and `container:` is resolved before any step runs** — so
   a PR that edits `docker/` is tested against the image `main` already
   published. Run `images` manually on the branch first.

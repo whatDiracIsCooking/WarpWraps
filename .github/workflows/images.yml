@@ -16,11 +16,12 @@
 # stops a pruned image from overwriting `gpumod:hip`, which a developer runs
 # against a real card.
 #
-# The prune is not an optimisation, it is the thing that makes the HIP half of
-# CI possible at all: the dev ROCm image is 20.5GB and a GitHub-hosted runner
-# has roughly 20-25GB free before cleanup. ROCM_PRUNE=1 drops ~12.9GB of
-# kernel objects and unused libraries that no COMPILE needs -- see
-# docker/install-rocm.sh for the measured list.
+# ROCM_PRUNE=1 drops ~12.9GB of kernel objects and unused libraries that no
+# COMPILE links, taking the ROCm image from 20.5GB to 7.05GB -- see
+# docker/install-rocm.sh for the measured list. It is an OPTIMISATION: ~13GB
+# less to pull on every ci.yml run, and a 3-minute push. This comment used to
+# claim it was what made the HIP job possible at all, on an estimate of
+# "20-25GB free" that the first real run disproved -- see `reclaim disk`.
 #
 # ---------------------------------------------------------------------------
 # MOVING TAGS, AND THE ONE CASE THEY GET WRONG
@@ -96,15 +97,19 @@ jobs:
       - uses: actions/checkout@v4
         if: steps.gate.outputs.run == 'true'
 
-      # Reclaiming disk BEFORE the build, not a third-party action. The peak is
-      # not the finished image: ROCm downloads ~8GB of debs and unpacks ~20GB
+      # Headroom before the build, not a third-party action. The peak is not
+      # the finished image: ROCm downloads ~8GB of debs and unpacks ~20GB
       # before install-rocm.sh prunes anything, because the prune has to happen
-      # inside that same RUN (a delete in a later layer frees nothing). ~30GB
-      # has to be free at once, and a stock runner does not have it.
+      # inside that same RUN (a delete in a later layer frees nothing). So
+      # ~30GB has to be free at once.
       #
-      # These four trees are preinstalled toolchains this repo never touches
-      # and are the standard ~25GB. `df` is printed either side so a future
-      # disk failure says what was actually available rather than just dying.
+      # MEASURED, and it turns out this step is not load-bearing: the runner
+      # starts with a 145GB root and 86GB free, and these four preinstalled
+      # toolchains free another 24GB on top. Kept anyway -- it costs ~80s, it
+      # is what keeps the ROCm build off a cliff if GitHub shrinks the image or
+      # the toolkit grows, and the `df` either side is what turned the original
+      # guess of "20-25GB free" into a number. Drop it only with fresh `df`
+      # output in hand.
       - name: reclaim disk
         if: steps.gate.outputs.run == 'true'
         run: |

@@ -54,11 +54,17 @@ apt-get install -y --no-install-recommends \
 
 # --- ROCM_PRUNE: the compile-only variant -----------------------------------
 #
-# ROCm installs at ~20GB, and a GitHub-hosted runner has roughly 20-25GB free on
-# its root filesystem before anything else. That is the whole reason this block
-# exists: .github/workflows/images.yml builds a second tag (:hip-ci) with
-# ROCM_PRUNE=1 so the HIP half of CI can pull an image that FITS. The dev image
-# is untouched -- the default is off.
+# ROCm installs at ~20GB. .github/workflows/images.yml builds a second tag
+# (:hip-ci) with ROCM_PRUNE=1, which brings the image to 7.05GB; the dev image
+# is untouched, since the default is off.
+#
+# IT IS AN OPTIMISATION, NOT AN ENABLER -- this comment used to claim a hosted
+# runner has "20-25GB free" and that the prune was the only way the HIP job
+# could fit. Measured on the first real run: a GitHub-hosted runner has a 145GB
+# root with 86GB free BEFORE any cleanup, so the unpruned 20.5GB image would
+# have fit comfortably. What the prune actually buys is ~13GB less to pull on
+# every CI run, and a push that takes 3 minutes instead of many. Worth keeping
+# for that, and worth not overstating.
 #
 # What comes out, measured rather than guessed (`du -x -d1 /opt/rocm/lib` plus
 # `dpkg -S` on each of the largest files):
@@ -77,6 +83,13 @@ apt-get install -y --no-install-recommends \
 # test that decides what may go on this list. Adding anything here that a
 # hipcc link actually needs surfaces as an undefined symbol in the ci-hip tier,
 # not as a silent wrong answer, so the failure mode is at least loud.
+#
+# Since ci-hip became a full build it also LINKS and LOADS the runtime test
+# binaries, so the SuiteListIsComplete guards now dlopen librocblas,
+# librocsolver, librocsparse and librocfft out of a pruned tree on every CI
+# run. They pass: those libraries read their kernel data lazily, on handle
+# creation, not at load. That is a stronger check of this list than the
+# compile-time tier could make.
 #
 # THE DELETION HAS TO HAPPEN IN THIS SCRIPT, not in a later Dockerfile layer.
 # Layers are additive: an `rm` in a child layer hides the files but keeps their
