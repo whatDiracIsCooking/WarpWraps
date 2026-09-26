@@ -701,8 +701,8 @@ change verified.
 - **CI runs on every push to `main` and every PR**, all of it on
   GitHub-hosted runners (`workflow_dispatch` also keeps the manual trigger).
   `.github/workflows/ci.yml` has six jobs: `changes` (a cheap docs-only
-  detector), `lint` (ruff + cmake-lint), `test` (the pytest tier on 3.11 and
-  3.13), `cpp` (a two-leg matrix, below), `install-check`, and `ci-ok`.
+  detector), `lint` (ruff + cmake-lint), `test` (the pytest tier on 3.13),
+  `cpp` (a two-leg matrix, below), `install-check`, and `ci-ok`.
 - **A docs-only change skips the two heavy jobs.** The `changes` job diffs the
   push/PR and outputs `code`, which is `false` only when *every* changed file
   is on a tight allowlist (`.md`, `docs/`, `.github/ISSUE_TEMPLATE/`,
@@ -714,7 +714,7 @@ change verified.
   report and block the PR forever — the exact failure `ci-ok` exists to avoid.
 - **`ci-ok` is an aggregate, and it is the ONLY check name worth requiring in a
   branch ruleset.** Every other name here is generated and therefore moves:
-  `test (3.11)` carries a Python version, and a matrix job's default name is
+  `test (3.13)` carries a Python version, and a matrix job's default name is
   built from *all* its matrix values — adding the `tidy:` key silently renamed
   `cpp (cuda, cuda-ci, ci-cuda)`. A ruleset matches a required check by name,
   and a required name nothing reports blocks the PR indefinitely behind
@@ -799,7 +799,7 @@ the fast local answer before you push; it is seconds against CI's minutes.
   from its global module fragment is reached this way, so its root must be
   exported (PUBLIC/INTERFACE), not PRIVATE — a PRIVATE include root is the export
   regression `install-check.sh` exists to catch.
-- Python ≥3.11, `from __future__ import annotations` everywhere.
+- Python ≥3.13, `from __future__ import annotations` everywhere.
 - Lint is deliberately narrow (`E,F,I,UP,B`) and there is **no formatter hook** —
   not ruff-format, not clang-format, not cmake-format, though all three are
   configured. A formatter rewrites whole files and buries real diffs in

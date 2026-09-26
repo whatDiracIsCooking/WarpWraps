@@ -12,7 +12,7 @@
 #                 jobs gate on it; `ci-ok` accepts their skip only when it says
 #                 docs-only. So a `.md`-only PR goes green on lint+test alone.
 #   lint          ruff + cmake-lint
-#   python        the pytest tier, on 3.11 and 3.13
+#   python        the pytest tier, on 3.13
 #   cpp (cuda)    the whole tree built for CUDA -- src/, GoogleTest, every
 #                 runtime test binary -- then `ctest -LE gpu`, then an ADVISORY
 #                 clang-tidy pass over src/*.cpp that cannot fail the job
@@ -191,9 +191,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Match `requires-python` in pyproject.toml. The floor and the ceiling
-        # are the two that actually break.
-        python: ["3.11", "3.13"]
+        # Match `requires-python` in pyproject.toml. It floors at 3.13 with no
+        # ceiling, so 3.13 is the one version tested; add the ceiling here when a
+        # newer Python is supported. Kept a matrix so that is a one-line edit.
+        python: ["3.13"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -345,7 +346,7 @@ jobs:
   # status check in a branch ruleset.
   #
   # It exists because every other check name in this file is GENERATED and
-  # therefore moves. `test (3.11)` carries a Python version that will be bumped.
+  # therefore moves. `test (3.13)` carries a Python version that will be bumped.
   # `cpp`'s name was assembled from all of its matrix values until the `name:`
   # line above existed -- adding the `tidy:` key rewrote it from
   # `cpp (cuda, cuda-ci, ci-cuda)` to `cpp (cuda, cuda-ci, ci-cuda, --tidy)`
