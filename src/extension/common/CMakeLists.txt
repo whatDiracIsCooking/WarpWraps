@@ -17,6 +17,8 @@ gpumod_add_cxx_module_library(
   default_error_policy.cppm
   gpu_handle.cppm
   device_bound_handle.cppm
+  gpu_handle_view.cppm
+  device_bound_handle_view.cppm
   noncopyable.cppm
   LINK_PUBLIC
   gpumod.runtime_api

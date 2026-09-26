@@ -128,4 +128,9 @@ public:
  */
 using GpuMemPool = GpuMemPoolWrapper<>;
 
+/// @brief Non-owning, copyable view of a memory pool handle (carries its device
+///        index). Returned by GpuMemPool::view(); has no borrow-safe operations
+///        of its own -- a pool handle is consumed by allocation calls.
+using GpuMemPoolView = GpuBoundHandleView<gpuMemPool_t>;
+
 } // namespace gpumod::extension

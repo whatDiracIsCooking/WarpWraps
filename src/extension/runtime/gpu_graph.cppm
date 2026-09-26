@@ -100,4 +100,9 @@ public:
  */
 using GpuGraph = GpuGraphWrapper<>;
 
+/// @brief Non-owning, copyable view of a graph handle. Returned by
+///        GpuGraph::view(); a graph is not device-bound, so it carries no device
+///        index, and instantiate() stays on the owner (it produces an owned exec).
+using GpuGraphView = GpuHandleView<gpuGraph_t>;
+
 } // namespace gpumod::extension

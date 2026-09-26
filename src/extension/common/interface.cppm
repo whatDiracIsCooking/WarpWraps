@@ -11,6 +11,8 @@
  * - :default_error_policy - Default error policy implementation
  * - :gpu_handle - RAII wrapper base class for GPU handles
  * - :device_bound_handle - CRTP layer recording a handle's owning device
+ * - :gpu_handle_view - Non-owning, copyable view over a GPU handle
+ * - :device_bound_handle_view - Non-owning view carrying its handle's device
  * - :noncopyable - Mixin deleting copy operations while allowing moves
  *
  * Usage:
@@ -29,4 +31,6 @@ export import :error_policy;
 export import :default_error_policy;
 export import :gpu_handle;
 export import :device_bound_handle;
+export import :gpu_handle_view;
+export import :device_bound_handle_view;
 export import :noncopyable;

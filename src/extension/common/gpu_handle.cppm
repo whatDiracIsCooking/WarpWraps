@@ -15,6 +15,7 @@ export module gpumod.extension.common:gpu_handle;
 
 import :error_policy;
 import :noncopyable;
+import :gpu_handle_view;
 import std;
 
 export namespace gpumod::extension {
@@ -104,6 +105,14 @@ public:
 
   operator T() const noexcept { return handle_; }
   T get() const noexcept { return handle_; }
+
+  /// @brief A non-owning, copyable view of this handle.
+  ///
+  /// Deleted on rvalues so a view cannot be taken from a temporary handle, which
+  /// would dangle immediately. Derived layers hide this with a richer view type
+  /// (device index, borrow-safe operations) where they have one.
+  GpuHandleView<T> view() const & noexcept { return GpuHandleView<T>{handle_}; }
+  GpuHandleView<T> view() && = delete;
 };
 
 } // namespace gpumod::extension
