@@ -169,11 +169,11 @@ src/cuda/             Low-level CUDA API module wrappers (CUDA backend)
 src/hip/              Low-level ROCm/HIP API module wrappers (HIP backend)
 src/wrappers/         Backend-neutral higher-level abstractions
 example/consumer/     A standalone project that uses an INSTALLED gpumod
-test/shared/          link_check.h, dispatch.py + its pytest suite
+test/shared/          link_check.h; dispatch.py + alias_coverage.py and their pytest suites
 test/cuda/, test/hip/ Compile-time checks for the low-level wrappers
-test/gpu/             Compile-time checks that every gpu* name is the backend's
-test/wrappers/       Behavioural tests for src/wrappers (either backend)
-  └── build_time/     static_asserts and the blas dispatch check (built, not run)
+test/gpu/             Compile-time checks that every gpu* name is the backend's, + fp16/bf16 conversions
+test/wrappers/        Build-time dispatch checks for the blas/solver/fft/sparse wrappers (built, not run)
+test/extension/       Extension tests: static_assert build-time checks and the runtime GoogleTest suites
 docker/               The batch path: compose.yaml, the SDK install scripts
   ├── Dockerfile.base     The vendor-neutral toolchain; parent of the three below
   ├── Dockerfile.cuda     base + CUDA. The default backend
@@ -203,6 +203,8 @@ placed in the `gpumod` namespace.
 | `gpumod.cuda.cublas_v2` | `import gpumod.cuda.cublas_v2;` | `cublas_v2.h` — complete cuBLAS API |
 | `gpumod.cuda.cusolverDn` | `import gpumod.cuda.cusolverDn;` | `cusolverDn.h` — complete cuSOLVER Dense API |
 | `gpumod.cuda.curand` | `import gpumod.cuda.curand;` | `curand.h` / `curand_kernel.h` |
+| `gpumod.cuda.cufft` | `import gpumod.cuda.cufft;` | `cufft.h` — complete cuFFT API |
+| `gpumod.cuda.cusparse` | `import gpumod.cuda.cusparse;` | `cusparse.h` — complete cuSPARSE API |
 | `gpumod.cuda.cuComplex` | `import gpumod.cuda.cuComplex;` | `cuComplex.h` (forwarding wrappers for `static inline` symbols) |
 | `gpumod.cuda.cuda_fp16` | `import gpumod.cuda.cuda_fp16;` | `cuda_fp16.h` — `__half`, `__half2` and operators |
 | `gpumod.cuda.cuda_bf16` | `import gpumod.cuda.cuda_bf16;` | `cuda_bf16.h` — `__nv_bfloat16` and operators |
@@ -223,14 +225,18 @@ handful that only one does, and how to reach them.
 
 | Module | Purpose |
 |--------|---------|
-| `gpumod.wrappers.common` | Error handling, RAII handle base, FP concepts, integer utilities |
-| `gpumod.extension.runtime` | RAII stream, event and memory pool |
+| `gpumod.wrappers.common` | FP concepts and integer utilities the generic wrappers build on |
+| `gpumod.extension.common` | Error handling (`gpu_check`, pluggable policy), the RAII handle base, `DeviceScope`, `GpuHandleView` |
+| `gpumod.extension.runtime` | RAII stream, event, graph and memory pool |
 | `gpumod.wrappers.blas` | Generic templated BLAS (`gemm<float>(…)` rather than `cublasSgemm_v2` / `hipblasSgemm`), either backend |
 | `gpumod.wrappers.solver` | Generic templated dense solver, either backend |
+| `gpumod.wrappers.fft` | Generic templated FFT, transform kind selected at compile time, either backend |
 | `gpumod.wrappers.sparse` | Generic templated sparse over the shared legacy-typed API (`bsrmv<float>(…)`, `gtsv2`, `csrgeam2`, …), either backend |
+| `gpumod.extension.blas` / `.solver` / `.fft` / `.sparse` | RAII, device-bound vendor handles and the FFT plan, either backend |
 | `gpumod.extension.memory_buffer` | `DeviceBuffer<T>`, `PinnedBuffer<T>`, `UnifiedBuffer<T>`, `HostBuffer<T>` and the view types |
 | `gpumod.extension.init_state` | Per-thread RNG state initialization on the device API, either backend |
 | `gpumod.extension.random_normal` | Normal-distribution draws from those per-thread states, either backend |
+| `gpumod.fp16` / `gpumod.bf16` | Host-side fp16 / bf16 conversions, mapped onto the chosen backend's own type |
 | `parallel_for` | header-only device-side parallel iteration helper, either backend |
 
 ### Vendor-only functions
@@ -415,7 +421,7 @@ its own `build-compose*/` directories for exactly that reason.
 Three tiers:
 
 ```sh
-pytest -n auto -rs          # the Python suite: two files, under two seconds
+pytest -n auto -rs          # the Python suite: three files, under two seconds
 devtools/cpp-tier.sh        # the C++ tier: configure, build, ctest
 devtools/install-check.sh   # the package tier: install, then consume it
 ```
@@ -428,10 +434,14 @@ devtools/cross-backend-check.sh   # does the OTHER GPU backend still compile? ~7
 
 Every tier above builds exactly one backend, so none of them can see a
 portability break. A `.cu` goes through nvcc under CUDA and clang under HIP,
-and nvcc is the more permissive of the two — `gpumod.extension.fill` shipped in
-#18 having never compiled for HIP at all. Run this whenever a change touches a
-`.cu`, or anything under `src/` that a `.cu` includes. It exits 2, not 0, when
-it cannot run, so a skip is never mistaken for a pass.
+and nvcc is the more permissive of the two — a functor holding a `const` member
+of class type, for instance, is non-trivially-copyable under clang and fails
+`parallel_for`'s `device_functor` concept, while nvcc accepts it: it passes the
+whole CUDA tier and only breaks on a ROCm build. Run this whenever a change
+touches a `.cu`, or anything under `src/` that a `.cu` includes. It exits 2, not
+0, when it cannot run, so a skip is never mistaken for a pass. CI now runs the
+`ci-hip` leg on every PR too, but keep this for the seconds-long local answer
+before you push.
 
 And one measurement tool, also not a tier:
 
@@ -444,11 +454,12 @@ is header-only modules proved at compile time, which never run — so they show 
 uncovered and are not gaps. `--html` writes a browsable report under
 `build-coverage/coverage/`.
 
-The Python suite is two files, each beside the script it tests:
-`test/shared/test_dispatch.py` for the build-time dispatch checker, and
-`.claude/hooks/test_protect_main.py` for the main-checkout guard. Neither
-touches a built binary. There is no fast/slow split: `slow-tier.sh` and the
-`slow` marker were retired once the suite fit in a second.
+The Python suite is three files, each beside the script it tests:
+`test/shared/test_dispatch.py` for the build-time dispatch checker,
+`test/shared/test_alias_coverage.py` for the `gpu*` alias-coverage guard, and
+`.claude/hooks/test_protect_main.py` for the main-checkout guard. None touches a
+built binary. There is no fast/slow split: `slow-tier.sh` and the `slow` marker
+were retired once the suite fit in a second.
 
 The package tier is the only one that looks at the *installed* result.
 `cpp-tier.sh` builds the tree in place and never installs, so an export
