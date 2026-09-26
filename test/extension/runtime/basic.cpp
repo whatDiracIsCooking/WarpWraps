@@ -481,4 +481,45 @@ TEST(DeviceScopeTests, NestedScopesRestore) {
   EXPECT_EQ(after_outer, before);
 }
 
+// A recording policy for the threaded-policy guard below. DefaultErrorPolicy
+// aborts, so it cannot observe the guard's behaviour; this one counts instead,
+// which is all the error_policy concept asks for.
+template<typename T>
+class RecordingScopePolicy : public BaseErrorPolicy<T> {
+public:
+  void handle_error(const T error, std::source_location) override {
+    ++count_;
+    last_ = error;
+  }
+  std::size_t count() const noexcept { return count_; }
+
+private:
+  std::size_t count_ = 0;
+  T last_{};
+};
+
+// DeviceScopeWrapper's two-argument constructor threads a caller's own error
+// policy through the guard, borrowing it by reference rather than copying, so a
+// stateful policy observes the guard's gpuGetDevice/gpuSetDevice in place. This
+// is the path DeviceBuffer uses to route the device switch through its
+// allocation/deallocation policy. Device 0 always exists, so the switch here
+// succeeds and the policy stays untouched -- which is exactly the contract on
+// the success path: the guard reports nothing it was not asked to.
+TEST(DeviceScopeTests, ThreadsBorrowedPolicy) {
+  int before = -1;
+  ASSERT_EQ(gpuGetDevice(&before), gpuSuccess);
+
+  RecordingScopePolicy<gpuError_t> policy;
+  {
+    DeviceScopeWrapper<RecordingScopePolicy<gpuError_t>> scope(before, policy);
+    EXPECT_EQ(scope.original_idx, before);
+  }
+
+  EXPECT_EQ(policy.count(), std::size_t{0});
+
+  int after = -1;
+  ASSERT_EQ(gpuGetDevice(&after), gpuSuccess);
+  EXPECT_EQ(after, before);
+}
+
 } // namespace gpumod::extension::test
