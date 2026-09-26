@@ -20,7 +20,7 @@ dev = [
     # flag; drop the dependency and set JOBS= empty if the suite is small
     # enough not to need it.
     "pytest-xdist>=3.6",
-    "ruff>=0.6",
+    "ruff>=0.16.8",
     "pre-commit>=3.7",
     # cmake-format / cmake-lint, for the CMakeLists.txt and cmake/*.cmake that
     # define every target in the tree. Configured by .cmake-format.yaml. Not a
