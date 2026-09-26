@@ -11,6 +11,7 @@ gpumod_add_cxx_module_library(
   interface.cppm
   PARTITIONS
   error_code.cppm
+  gpu_error.cppm
   gpu_check.cppm
   error_policy.cppm
   default_error_policy.cppm

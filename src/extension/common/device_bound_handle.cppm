@@ -80,8 +80,14 @@ protected:
     gpu_check(gpuSetDevice(dev_idx), location);
   }
 
-  /// @brief Record the current device as this handle's owner (call after creating the handle)
-  void record_device() { gpu_check(gpuGetDevice(&dev_idx_), this->policy_create_); }
+  /// @brief Record the current device as this handle's owner (call after creating the handle).
+  ///        Uses the default checker (aborts on failure), not policy_create_:
+  ///        gpuGetDevice returns gpuError_t, which a library handle's error
+  ///        policy is not typed to accept (it is typed to gpublasStatus_t and
+  ///        the like), so routing it through policy_create_ only compiles for
+  ///        the gpuError_t-typed handles -- the same reason select_device is a
+  ///        plain default-checked call.
+  void record_device() { gpu_check(gpuGetDevice(&dev_idx_)); }
 
 public:
   /// @brief Create on `dev_idx` (default 0): select it, run Derived::create, record it.

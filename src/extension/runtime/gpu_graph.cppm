@@ -8,7 +8,6 @@
 
 export module gpumod.extension.runtime:gpu_graph;
 
-import :gpu_error;
 import :gpu_graph_exec;
 import gpumod.runtime_api;
 import gpumod.extension.common;

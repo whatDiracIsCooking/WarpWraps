@@ -9,6 +9,11 @@
 // integer handle unchanged and only flips its private `created_`, so a
 // moved-from plan is indistinguishable from a live one through the public API.
 //
+// A cuFFT/hipFFT plan is still device-bound, so the wrapper hand-rolls the same
+// select-device / record-device contract GpuBoundHandle gives the other library
+// handles: dev_idx() reports the creation device and the move clears it to -1.
+// The cases below pin that alongside the double-free contract.
+//
 // So these cases assert the destroy-exactly-once contract directly, through a
 // counting error policy substituted for the default one. gpu_check routes a
 // failing gpufftDestroy to the policy instead of a return value, so a
@@ -97,6 +102,25 @@ TEST(FftPlanTests, SelfMoveAssignmentIsSafe) {
     EXPECT_EQ(plan.get(), raw);
   }
   EXPECT_EQ(errors, 0);
+}
+
+TEST(FftPlanTests, RecordsCreationDevice) {
+  // The default constructor creates on device 0; dev_idx is the (defaulted)
+  // first constructor argument, and device 0 always exists.
+  FftPlan plan;
+  EXPECT_EQ(plan.dev_idx(), 0);
+
+  FftPlan on0(0);
+  EXPECT_EQ(on0.dev_idx(), 0);
+}
+
+TEST(FftPlanTests, MovePreservesDevice) {
+  FftPlan plan1;
+  const int dev = plan1.dev_idx();
+
+  FftPlan plan2(std::move(plan1));
+  EXPECT_EQ(plan2.dev_idx(), dev);
+  EXPECT_EQ(plan1.dev_idx(), -1);
 }
 
 } // namespace gpumod::extension::test

@@ -23,8 +23,11 @@ struct HandleErrorType<gpusolverDnHandle_t> {
 /**
  * @brief RAII wrapper for a GPU solver handle
  *
- * Automatically creates a GPU solver handle on construction and destroys it on destruction.
- * Supports move semantics for transferring ownership.
+ * A cuSOLVER/rocSOLVER handle belongs to whatever device was current when it
+ * was created, so this derives from GpuBoundHandle: construction selects
+ * dev_idx (the first constructor argument, default 0), creates the handle
+ * there, and records it -- read it back with dev_idx(). Destroys the handle on
+ * destruction; supports move semantics, copy is deleted.
  *
  * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<gpusolverStatus_t>)
  * @tparam P_destroy Error policy type for destruction (defaults to P_create)
@@ -34,16 +37,17 @@ struct HandleErrorType<gpusolverDnHandle_t> {
 template<error_policy<gpusolverStatus_t> P_create = DefaultErrorPolicy<gpusolverStatus_t>,
          error_policy<gpusolverStatus_t> P_destroy = P_create>
 class GpusolverDnHandleWrapper
-    : public BaseGpuHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>,
-                           P_create, P_destroy> {
+    : public GpuBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>,
+                            P_create, P_destroy> {
 private:
-  using Base = BaseGpuHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>,
-                             P_create, P_destroy>;
+  using Base = GpuBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>,
+                              P_create, P_destroy>;
 
 public:
-  // Default constructors - inherited from base
-  using BaseGpuHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>, P_create,
-                      P_destroy>::BaseGpuHandle;
+  // The `GpusolverDnHandle(int dev_idx = 0)` default/per-device constructor,
+  // inherited from GpuBoundHandle, which selects and records the owning device.
+  using GpuBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>, P_create,
+                       P_destroy>::GpuBoundHandle;
 
   /// @brief Create a GPU solver handle
   /// @param handle Output parameter for the created handle

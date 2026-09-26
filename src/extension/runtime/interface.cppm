@@ -3,7 +3,6 @@
  * @brief Primary interface for gpumod.extension.runtime
  *
  * This module provides GPU runtime API extensions (backend-neutral) including:
- * - :gpu_error - Error code specializations for gpuError_t
  * - :gpu_stream - RAII wrapper for GPU streams
  * - :gpu_event - RAII wrapper for GPU events
  * - :gpu_mem_pool - RAII wrapper for GPU memory pools
@@ -15,7 +14,6 @@
  *   import gpumod.extension.runtime;
  *   using namespace gpumod::extension;
  *
- *   auto success = success_code<gpuError_t>();
  *   GpuStream stream;
  *   GpuEvent event;
  *   GpuMemPool mem_pool;
@@ -23,7 +21,6 @@
 
 export module gpumod.extension.runtime;
 
-export import :gpu_error;
 export import :gpu_stream;
 export import :gpu_event;
 export import :gpu_mem_pool;

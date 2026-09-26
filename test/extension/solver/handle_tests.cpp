@@ -1,10 +1,12 @@
 // handle_tests.cpp - RAII contract of gpumod.extension.solver's two wrappers
 //
-// GpusolverDnHandle and GpusolverDnParams are both BaseGpuHandle
-// specialisations (over gpusolverDnHandle_t and gpusolverDnParams_t); see
+// GpusolverDnHandle is a GpuBoundHandle specialisation (over
+// gpusolverDnHandle_t): it records the device it was created on, since a
+// cuSOLVER handle is device-bound. GpusolverDnParams stays a BaseGpuHandle
+// specialisation (over gpusolverDnParams_t) -- params carry no device. See
 // test/extension/blas/handle_tests.cpp for the shape and why get() nulling on
 // the moved-from object is the double-free guard. Params is the second live
-// type the solver module owns, so it gets the same contract as the handle.
+// type the solver module owns, so it gets the same RAII contract as the handle.
 //
 // Runtime, device-requiring: gpusolverDnCreate needs a live GPU context.
 // Backend-neutral -- built and run for either GPUMOD_GPU_BACKEND.
@@ -66,6 +68,25 @@ TEST(GpusolverDnHandleTests, SelfMoveAssignmentKeepsHandle) {
 
   handle = std::move(handle);
   EXPECT_EQ(handle.get(), raw);
+}
+
+TEST(GpusolverDnHandleTests, RecordsCreationDevice) {
+  // The default constructor creates on device 0.
+  GpusolverDnHandle handle;
+  EXPECT_EQ(handle.dev_idx(), 0);
+
+  // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
+  GpusolverDnHandle on0(0);
+  EXPECT_EQ(on0.dev_idx(), 0);
+}
+
+TEST(GpusolverDnHandleTests, MovePreservesDevice) {
+  GpusolverDnHandle handle1;
+  const int dev = handle1.dev_idx();
+
+  GpusolverDnHandle handle2(std::move(handle1));
+  EXPECT_EQ(handle2.dev_idx(), dev);
+  EXPECT_EQ(handle1.dev_idx(), -1);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
