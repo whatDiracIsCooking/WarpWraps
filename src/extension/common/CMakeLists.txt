@@ -19,6 +19,7 @@ gpumod_add_cxx_module_library(
   device_bound_handle.cppm
   gpu_handle_view.cppm
   device_bound_handle_view.cppm
+  device_scope.cppm
   noncopyable.cppm
   LINK_PUBLIC
   gpumod.runtime_api
