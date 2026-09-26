@@ -94,7 +94,7 @@
       "name": "ci-cuda",
       "binaryDir": "${sourceDir}/build-ci-cuda",
       "displayName": "CI, CUDA backend (no device)",
-      "description": "What .github/workflows/ci.yml builds on a GitHub-hosted runner: the full CUDA tree, GoogleTest and every runtime binary, with the architecture PINNED so configure never queries a driver. Its test preset excludes the `gpu` label.",
+      "description": "The CUDA half of CI: the whole tree built, GoogleTest and every runtime binary included, with the architecture PINNED so configure never queries a driver. Its test preset excludes the `gpu` label, which leaves a COMPILE-AND-LINK answer plus a thin runtime slice -- two CPU-only conversion suites and one load check per device binary. It does not test GPU behaviour; nothing without a card can.",
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_CUDA_ARCHITECTURES": "86"
@@ -103,12 +103,9 @@
     {
       "name": "ci-hip",
       "binaryDir": "${sourceDir}/build-ci-hip",
-      "displayName": "CI, HIP backend (compile-time only)",
-      "description": "The HIP half of CI: all of src/ and example/ compiled through clang's -x hip front end, with no GoogleTest fetch and no runtime targets. Answers the one question a green CUDA run cannot.",
-      "inherits": "hip",
-      "cacheVariables": {
-        "GPUMOD_COMPILE_TIME_ONLY": "ON"
-      }
+      "displayName": "CI, HIP backend (no device)",
+      "description": "The HIP half of CI, deliberately the same shape as ci-cuda: the whole tree through clang's -x hip front end, runtime test binaries included, then the same `-LE gpu` selection. Compiling the test sources is the point -- clang is the stricter front end, and nvcc waves through code it rejects.",
+      "inherits": "hip"
     }
   ],
   "buildPresets": [
@@ -216,8 +213,8 @@
         "outputOnFailure": true
       },
       "filter": {
-        "include": {
-          "label": "compile_time"
+        "exclude": {
+          "label": "gpu"
         }
       }
     },

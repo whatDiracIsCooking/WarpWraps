@@ -82,8 +82,16 @@ DEVCONTAINER_CONFIG=${DEVCONTAINER_CONFIG:-.devcontainer/cuda/devcontainer.json}
 #               `gpu` label. Runnable here too, and worth it to reproduce a CI
 #               failure exactly -- `devtools/cpp-tier.sh --preset ci-cuda`
 #               gives the same selection on this box that the runner gets.
-#   ci-hip      the HIP half of CI: all of src/ and example/ compiled through
-#               clang's -x hip front end, no GoogleTest, no device.
+#   ci-hip      the HIP half, deliberately the SAME SHAPE: the whole tree
+#               through clang's -x hip front end, runtime binaries included,
+#               then the same -LE gpu. Compiling the test sources is the
+#               point -- clang is the stricter front end. No device either.
+#
+# Read either one as compile-and-link plus a thin runtime slice, NOT as a test
+# of GPU behaviour: `-LE gpu` leaves two CPU-only conversion suites that
+# actually compute, one load check per device binary, and the link checks.
+# The four dispatch checks run at build time on both, so they are covered
+# without appearing in the ctest count.
 #
 # ci-cuda pins CMAKE_CUDA_ARCHITECTURES to 86 rather than widening it, so that
 # CI compiles exactly what `native` compiles on the reference box and a red run
