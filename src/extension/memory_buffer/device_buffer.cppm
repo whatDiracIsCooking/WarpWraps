@@ -46,13 +46,15 @@ public:
      * @brief Allocate device memory from a DeviceHandle's pool on its stream
      *
      * A DeviceBuffer is always drawn from a shared DeviceHandle -- this and the
-     * policy-taking overload below are the only constructors. Selects the
-     * handle's device (gpuSetDevice), then allocates
-     * from its memory pool (gpuMallocFromPoolAsync) on its default allocation
-     * stream. The handle is retained (shared_ptr) so the pool and stream outlive
-     * this buffer -- the destructor returns the block to the pool on that stream
-     * via gpuFreeAsync; see deallocate(). Sharing lives at the handle level:
-     * neither pool nor stream is ever owned independently of its DeviceHandle.
+     * policy-taking overload below are the only constructors. Makes the handle's
+     * device current for the allocation via a DeviceScope guard -- routed
+     * through this buffer's allocation policy, and restoring the caller's
+     * previous device afterward -- then allocates from its memory pool
+     * (gpuMallocFromPoolAsync) on its default allocation stream. The handle
+     * is retained (shared_ptr) so the pool and stream outlive this buffer -- the
+     * destructor returns the block to the pool on that stream via gpuFreeAsync;
+     * see deallocate(). Sharing lives at the handle level: neither pool nor
+     * stream is ever owned independently of its DeviceHandle.
      *
      * @param num_elements Number of elements to allocate
      * @param handle Device to allocate on; its mem_pool() backs the block and
@@ -99,41 +101,47 @@ public:
      * @param ptr Pointer to memory to deallocate
      * @param num_elements Number of elements (unused, kept for interface consistency)
      *
-     * @note Released with gpuFreeAsync on the handle's stream -- the same stream
-     *       the block was drawn on. gpuFree performs no implicit synchronisation
-     *       for a pointer from gpuMallocFromPoolAsync, so using it here would hand
-     *       the block back to the pool while work still queued on the stream was
-     *       reading and writing it.
+     * @note A DeviceScope guard makes the handle's device current for the free
+     *       -- routed through this buffer's deallocation policy -- and restores
+     *       the caller's previous device afterward. Released with
+     *       gpuFreeAsync on the handle's stream -- the same stream the block was
+     *       drawn on. gpuFree performs no implicit synchronisation for a pointer
+     *       from gpuMallocFromPoolAsync, so using it here would hand the block
+     *       back to the pool while work still queued on the stream was reading
+     *       and writing it.
      */
   void deallocate(T *ptr, std::size_t num_elements) {
     if (ptr == nullptr)
       return;
-    gpu_check(gpuFreeAsync(ptr, stream_), this->policy_free_);
+    DeviceScopeWrapper<P_free> scope{handle_->index(), this->policy_free_};
+    gpu_check(gpuFreeAsync(ptr, handle_->alloc_stream().get()), this->policy_free_);
   }
 
 private:
   /// @brief Draw `num_elements` from the retained handle's pool on its stream
   ///
   /// The body shared by both constructors; runs after handle_ (and, for the
-  /// policy overload, the error policy) is in place. Caches the handle's
-  /// allocation stream, selects its device, then allocates from its pool.
+  /// policy overload, the error policy) is in place. A DeviceScope guard --
+  /// routed through policy_alloc_ -- makes the handle's device current
+  /// (restoring the caller's previous device on return), then allocates from
+  /// its pool on its allocation stream.
   ///
   /// @param num_elements Number of elements to allocate
   /// @param location Source location where allocation was requested
   void allocate_from_pool(std::size_t num_elements, std::source_location location) {
-    stream_ = handle_->alloc_stream();
     if (!should_allocate(num_elements, location))
       return;
-    gpu_check(gpuSetDevice(handle_->index()), this->policy_alloc_, location);
+    DeviceScopeWrapper<P_alloc> scope{handle_->index(), this->policy_alloc_, location};
+    const gpuStream_t stream = handle_->alloc_stream().get();
     const std::size_t size_bytes = num_elements * Base::element_size;
     if (!gpu_check(gpuMallocFromPoolAsync(reinterpret_cast<void **>(&this->data_), size_bytes,
-                                          handle_->mem_pool(), stream_),
+                                          handle_->mem_pool(), stream),
                    this->policy_alloc_, location)) {
       this->data_ = nullptr;
       return;
     }
     this->num_elements_ = num_elements;
-    gpu_check(gpuMemsetAsync(this->data_, 0, size_bytes, stream_), this->policy_alloc_, location);
+    gpu_check(gpuMemsetAsync(this->data_, 0, size_bytes, stream), this->policy_alloc_, location);
   }
 
   /// @brief Whether to proceed with an allocation of `num_elements`
@@ -152,10 +160,6 @@ private:
     }
     return num_elements != 0;
   }
-
-  /// The handle's allocation stream, cached from handle_->alloc_stream(); the
-  /// block is drawn on it and returned to the pool on it.
-  gpuStream_t stream_ = nullptr;
 
   /// Retains the DeviceHandle (and thus its memory pool and allocation stream)
   /// so both outlive this buffer's gpuFreeAsync. Null only in the moved-from state.
