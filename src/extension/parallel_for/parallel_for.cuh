@@ -58,7 +58,7 @@ template<typename F, typename IndexType = std::size_t>
 concept device_functor = std::integral<IndexType> && std::is_trivially_copyable_v<F> &&
                          std::is_class_v<F> && !std::is_copy_assignable_v<F>;
 
-namespace detail {
+namespace device {
 
 /// @brief [kernel] Index-per-thread mapping executing one functor call per element
 ///
@@ -76,7 +76,7 @@ __global__ void parallel_for_kernel(GPUMOD_GRID_CONSTANT const Functor f, IndexT
   }
 }
 
-} // namespace detail
+} // namespace device
 
 /// @brief Launch a 1-D grid invoking functor(i) for each index in [0, count)
 ///
@@ -104,7 +104,7 @@ void parallel_for(gpuStream_t stream, const IndexType count, Functor functor) {
 
   const uint32_t num_blocks = static_cast<uint32_t>((count + kBlockSize - 1) / kBlockSize);
 
-  detail::parallel_for_kernel<<<num_blocks, kBlockSize, 0, stream>>>(functor, count);
+  device::parallel_for_kernel<<<num_blocks, kBlockSize, 0, stream>>>(functor, count);
 }
 
 } // namespace gpumod::extension

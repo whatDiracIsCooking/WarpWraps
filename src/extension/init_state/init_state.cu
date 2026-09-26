@@ -17,7 +17,7 @@
 
 #include <cstddef>
 
-namespace gpumod::extension::detail {
+namespace gpumod::extension::device {
 
 namespace {
 
@@ -53,4 +53,4 @@ void init_state(const gpuStream_t stream, const std::size_t count, gpurandState 
   parallel_for(stream, count, functor);
 }
 
-} // namespace gpumod::extension::detail
+} // namespace gpumod::extension::device

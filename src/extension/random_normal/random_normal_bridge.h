@@ -30,11 +30,13 @@
 
 #include <cstddef>
 
-namespace gpumod::extension::detail {
+namespace gpumod::extension::device {
 
-/// @brief Fill `output` with `count` standard normal values
+/// @brief Fill `output` with `count` standard normal values, each times `scale`
 /// @param states one initialized state per element
-template<typename OutputType>
-void random_normal(gpuStream_t stream, std::size_t count, gpurandState *states, OutputType *output);
+/// @param scale each drawn value is multiplied by this before being stored
+template<typename T>
+void random_normal(gpuStream_t stream, std::size_t count, gpurandState *states, T *output,
+                   T scale);
 
-} // namespace gpumod::extension::detail
+} // namespace gpumod::extension::device

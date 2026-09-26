@@ -69,8 +69,8 @@ export namespace gpumod::extension {
 void init_state(const gpuStream_t stream, const std::size_t count, gpurandState *states,
                 const unsigned long long seed = 0, const unsigned long long sequence_offset = 0,
                 const unsigned long long offset = 0) {
-  // detail:: is load-bearing -- without it this names itself.
-  detail::init_state(stream, count, states, seed, sequence_offset, offset);
+  // device:: is load-bearing -- without it this names itself.
+  device::init_state(stream, count, states, seed, sequence_offset, offset);
 }
 
 } // namespace gpumod::extension

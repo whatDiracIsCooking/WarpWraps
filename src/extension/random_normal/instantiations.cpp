@@ -7,7 +7,7 @@
  * importer from instantiating the template again at each call site.
  *
  * These instantiate the exported WRAPPER. The device-side work it calls
- * (detail::random_normal) is instantiated separately, in random_normal.cu,
+ * (device::random_normal) is instantiated separately, in random_normal.cu,
  * because that one has to be compiled as device code.
  * Both lists cover the same six types and have to stay in step -- a type
  * added here without being added there links against nothing.
@@ -27,13 +27,14 @@ import gpumod.bf16;
 
 namespace gpumod::extension {
 
-template void random_normal<float>(gpuStream_t, std::size_t, gpurandState *, float *);
-template void random_normal<double>(gpuStream_t, std::size_t, gpurandState *, double *);
+template void random_normal<float>(gpuStream_t, std::size_t, gpurandState *, float *, float);
+template void random_normal<double>(gpuStream_t, std::size_t, gpurandState *, double *, double);
 template void random_normal<gpuFloatComplex>(gpuStream_t, std::size_t, gpurandState *,
-                                             gpuFloatComplex *);
+                                             gpuFloatComplex *, gpuFloatComplex);
 template void random_normal<gpuDoubleComplex>(gpuStream_t, std::size_t, gpurandState *,
-                                              gpuDoubleComplex *);
-template void random_normal<gpuHalf>(gpuStream_t, std::size_t, gpurandState *, gpuHalf *);
-template void random_normal<gpuBfloat16>(gpuStream_t, std::size_t, gpurandState *, gpuBfloat16 *);
+                                              gpuDoubleComplex *, gpuDoubleComplex);
+template void random_normal<gpuHalf>(gpuStream_t, std::size_t, gpurandState *, gpuHalf *, gpuHalf);
+template void random_normal<gpuBfloat16>(gpuStream_t, std::size_t, gpurandState *, gpuBfloat16 *,
+                                         gpuBfloat16);
 
 } // namespace gpumod::extension

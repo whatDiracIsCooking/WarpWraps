@@ -54,7 +54,7 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
-# Force the device archive member in, or the linker drops detail::init_state's
+# Force the device archive member in, or the linker drops device::init_state's
 # lazily-resolved object and consumers fail to link. The WHOLE_ARCHIVE genex and
 # the BUILD/INSTALL spelling split are both needed for this to survive export --
 # see cmake/README.md, "Forcing a device archive into an exported target".
