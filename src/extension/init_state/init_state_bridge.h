@@ -30,11 +30,11 @@
 
 #include <cstddef>
 
-namespace gpumod::extension::detail {
+namespace gpumod::extension::device {
 
 /// @brief Initialize `count` generator states, one per element
 void init_state(gpuStream_t stream, std::size_t count, gpurandState *states,
                 unsigned long long seed, unsigned long long sequence_offset,
                 unsigned long long offset);
 
-} // namespace gpumod::extension::detail
+} // namespace gpumod::extension::device

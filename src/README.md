@@ -299,8 +299,8 @@ There are exactly four, two here and two above, consumed by
 |---|---|
 | `gpu_stream_bridge.h` | `gpumod::gpuStream_t` |
 | `rand_state_bridge.h` | `gpumod::gpurandState` |
-| `extension/init_state/init_state_bridge.h` | `detail::init_state()` |
-| `extension/random_normal/random_normal_bridge.h` | `detail::random_normal()` |
+| `extension/init_state/init_state_bridge.h` | `device::init_state()` |
+| `extension/random_normal/random_normal_bridge.h` | `device::random_normal()` |
 
 `selected_backend.h` compiles in both modes too and is deliberately *not* a
 bridge: it declares nothing at all, so nothing of it crosses. It answers a

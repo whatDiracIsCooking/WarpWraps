@@ -57,7 +57,7 @@ gpumod_add_cxx_module_library(
 )
 
 # Force every member of the device archive in, or the explicit
-# detail::random_normal<T> instantiations in random_normal.cu are dropped (the
+# device::random_normal<T> instantiations in random_normal.cu are dropped (the
 # module only names them through lazily-resolved calls) and consumers fail to
 # link. The WHOLE_ARCHIVE genex and the BUILD/INSTALL spelling split are both
 # needed for this to survive export -- see cmake/README.md, "Forcing a device

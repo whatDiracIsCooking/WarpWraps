@@ -20,9 +20,10 @@ random_normal(stream, n, states.data(), values.data());
 
 | Exports |
 |---|
-| `random_normal<OutputType>(stream, count, states, output)` |
+| `random_normal<T>(stream, count, states, output, scale = T{1})` |
 
-`count == 0` is a no-op and launches nothing.
+`count == 0` is a no-op and launches nothing. Each drawn value is multiplied by
+`scale` before being stored; it defaults to 1 (an unscaled standard normal).
 
 ## Which RNG API is this, and when to use the other one
 
@@ -56,15 +57,15 @@ it explicitly instantiates, and any other type fails to link:
 |---|---|
 | `float` | `gpurand_normal` |
 | `double` | `gpurand_normal_double` |
-| `gpuFloatComplex` | `gpurand_normal2`, each component scaled by 1/sqrt(2) |
-| `gpuDoubleComplex` | `gpurand_normal2_double`, likewise |
+| `gpuFloatComplex` | `gpurand_normal2` |
+| `gpuDoubleComplex` | `gpurand_normal2_double` |
 | `gpuHalf` | `gpurand_normal`, converted |
 | `gpuBfloat16` | `gpurand_normal`, converted |
 
-For the complex types each component is drawn independently and scaled by
-1/sqrt(2), so that **the complex value as a whole** is standard normal: each
-part has variance 1/2 and `E[|z|^2] = 1`. Dropping the scaling would give
-`E[|z|^2] = 2`.
+For the complex types each component is drawn as an independent standard
+normal, so a component has variance 1 and `E[|z|^2] = 2` — the value is **not**
+standard normal as a whole. Pass `scale = 1/sqrt(2)` to normalize the
+magnitude to unit variance.
 
 The half types are drawn in single precision and converted — neither vendor
 offers a native half-precision normal generator.
@@ -106,8 +107,8 @@ Two things in here are worth knowing before editing:
   `import gpumod.rand` — they are the same types, so nothing is cast anywhere.
   Reading the define those bridges need is why this module links `gpumod_backend`
   PRIVATE.
-- **The device-side function is `detail::random_normal`** — same name as the
-  exported wrapper, one namespace down. Keep the `detail::` qualification at the
+- **The device-side function is `device::random_normal`** — same name as the
+  exported wrapper, one namespace down. Keep the `device::` qualification at the
   call site: dropping it is infinite recursion, not a compile error.
 - **Three instantiation lists, all six types, all have to stay in step:** the
   `extern template` declarations in `interface.cppm`, the definitions in

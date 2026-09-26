@@ -150,11 +150,12 @@ TEST(RandTests, Bfloat16IsStandardNormal) {
   EXPECT_TRUE(std::ranges::any_of(as_double, [](double v) { return v > 0.0; }));
 }
 
-// Each component of a complex draw is scaled by 1/sqrt(2), so that the value
-// as a whole is standard normal: each part has variance 1/2 and |z|^2 has
-// expectation 1. This is the claim random_normal.cppm's header makes, and the
-// one most likely to be got wrong by dropping the scaling.
-TEST(RandTests, FloatComplexComponentsHaveHalfVariance) {
+// Each component of a complex draw is an independent standard normal: each
+// part has variance 1 and |z|^2 has expectation 2. random_normal does no
+// per-component normalization -- a caller wanting the complex value as a whole
+// to be standard normal passes scale = 1/sqrt(2). This is the claim
+// random_normal.cppm's header makes, and the one most likely to be got wrong.
+TEST(RandTests, FloatComplexComponentsAreStandardNormal) {
   const auto values = draw<gpuFloatComplex>(kCount);
 
   std::vector<double> parts;
@@ -168,12 +169,12 @@ TEST(RandTests, FloatComplexComponentsHaveHalfVariance) {
 
   const auto [mean, variance] = moments(parts);
   EXPECT_NEAR(mean, 0.0, 0.05) << "component mean is not near 0";
-  EXPECT_NEAR(variance, 0.5, 0.05) << "component variance is not near 1/2";
-  EXPECT_NEAR(sum_magnitude_sq / static_cast<double>(values.size()), 1.0, 0.05)
-      << "E[|z|^2] is not near 1";
+  EXPECT_NEAR(variance, 1.0, 0.05) << "component variance is not near 1";
+  EXPECT_NEAR(sum_magnitude_sq / static_cast<double>(values.size()), 2.0, 0.05)
+      << "E[|z|^2] is not near 2";
 }
 
-TEST(RandTests, DoubleComplexComponentsHaveHalfVariance) {
+TEST(RandTests, DoubleComplexComponentsAreStandardNormal) {
   const auto values = draw<gpuDoubleComplex>(kCount);
 
   std::vector<double> parts;
@@ -187,8 +188,8 @@ TEST(RandTests, DoubleComplexComponentsHaveHalfVariance) {
 
   const auto [mean, variance] = moments(parts);
   EXPECT_NEAR(mean, 0.0, 0.05);
-  EXPECT_NEAR(variance, 0.5, 0.05);
-  EXPECT_NEAR(sum_magnitude_sq / static_cast<double>(values.size()), 1.0, 0.05);
+  EXPECT_NEAR(variance, 1.0, 0.05);
+  EXPECT_NEAR(sum_magnitude_sq / static_cast<double>(values.size()), 2.0, 0.05);
 }
 
 // init_state puts element i on subsequence sequence_offset + i. If that offset

@@ -80,8 +80,8 @@ Two things in here are worth knowing before editing:
   `import gpumod.rand` — they are the same types, so nothing is cast anywhere.
   Reading the define those bridges need is why this module links `gpumod_backend`
   PRIVATE.
-- **The device-side function is `detail::init_state`** — same name as the
-  exported wrapper, one namespace down. Keep the `detail::` qualification at the
+- **The device-side function is `device::init_state`** — same name as the
+  exported wrapper, one namespace down. Keep the `device::` qualification at the
   call site: dropping it is infinite recursion, not a compile error.
 
 ## Relation to what it replaced
