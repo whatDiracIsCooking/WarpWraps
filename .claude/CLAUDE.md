@@ -776,7 +776,7 @@ the fast local answer before you push; it is seconds against CI's minutes.
 
 - C++23, named modules, clang + libc++. `CMakeLists.txt` **refuses gcc**.
 - Targets are declared through the macros in `cmake/`: `gpumod_add_cxx_module_library`
-  (75 call sites), `gpumod_add_gtest_executable` / `gpumod_add_gtest_suite_tests`
+  (76 call sites), `gpumod_add_gtest_executable` / `gpumod_add_gtest_suite_tests`
   / `gpumod_add_test_executable` for tests, and `gpumod_add_gpu_device_library`
   (9 call sites, `src/extension/{random_normal,init_state}` among them) for a
   module's device-kernel `.cu` library. That last one replaced
