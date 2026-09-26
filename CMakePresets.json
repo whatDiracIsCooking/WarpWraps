@@ -97,7 +97,8 @@
       "description": "The CUDA half of CI: the whole tree built, GoogleTest and every runtime binary included, with the architecture PINNED so configure never queries a driver. Its test preset excludes the `gpu` label, which leaves a COMPILE-AND-LINK answer plus a thin runtime slice -- two CPU-only conversion suites and one load check per device binary. It does not test GPU behaviour; nothing without a card can.",
       "inherits": "base",
       "cacheVariables": {
-        "CMAKE_CUDA_ARCHITECTURES": "86"
+        "CMAKE_CUDA_ARCHITECTURES": "86",
+        "GPUMOD_CUDA_DRIVER_STUBS": "ON"
       }
     },
     {

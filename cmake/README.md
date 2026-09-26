@@ -289,7 +289,8 @@ GitHub-hosted runner, which has no card:
 
 ```
 ctest --preset default    42 entries — everything
-ctest --preset ci-cuda    11 entries — `-LE gpu`
+ctest --preset ci-cuda    12 entries — `-LE gpu`
+ctest --preset ci-hip     12 entries — same, the other backend
 ```
 
 **A label, not a `GTEST_SKIP`.** Nothing in `test/` gates on a device count,
@@ -313,6 +314,10 @@ Two things to get right when adding one:
   If a target ever grows a static initializer that talks to the driver, label
   the guard rather than deleting it.
 
-`cuda_compile_tests` carries `gpu` for an unrelated reason — it links the CUDA
-driver stubs and cannot *load* without `libcuda.so.1`. Its own CMakeLists has
-the why, including why excluding it from CI costs nothing.
+`cuda_compile_tests` is the one entry whose label depends on a cache variable,
+for a reason unrelated to devices — it links the CUDA driver stubs and cannot
+*load* without `libcuda.so.1`. It carries `gpu` by default, and with
+`GPUMOD_CUDA_DRIVER_STUBS=ON` (the `ci-cuda` preset) it instead gets the
+toolkit's stubs on `LD_LIBRARY_PATH` for that one test and runs. Its own
+CMakeLists has the why, including why the stubs go in the build directory and
+why `ENVIRONMENT_MODIFICATION` rather than `ENVIRONMENT`.

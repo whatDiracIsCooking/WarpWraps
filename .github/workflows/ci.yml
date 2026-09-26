@@ -50,10 +50,19 @@
 # `devtools/cpp-tier.sh` on a box with a card is the only thing that does, and
 # it stays a human gate.
 #
-# cuda_compile_tests carries the same label for a different reason -- it links
-# the driver stubs and cannot LOAD without libcuda.so.1. See test/cuda/
-# CMakeLists.txt for why excluding it costs nothing. hip_compile_tests has no
-# such dependency and runs, which is why the two legs' counts differ by one.
+# BOTH LEGS REPORT 12, and that is worth keeping equal. Each is
+# {cuda,hip}_compile_tests + gpu_compile_tests + the two conversion suites +
+# eight SuiteListIsComplete guards, so a divergence between them is a signal
+# rather than a quirk of one backend.
+#
+# Getting there needed one thing: cuda_compile_tests links the driver stubs
+# and cannot LOAD without libcuda.so.1, where hip_compile_tests has no such
+# dependency. The ci-cuda preset sets GPUMOD_CUDA_DRIVER_STUBS=ON, which points
+# THAT ONE TEST at the toolkit's own stubs -- build-directory symlinks and a
+# per-test ENVIRONMENT_MODIFICATION, never an image-wide LD_LIBRARY_PATH, which
+# would shadow the real driver on a machine that has one. It proves every
+# non-driver dependency resolves; it does not prove a real driver would load.
+# test/cuda/CMakeLists.txt has the full reasoning.
 #
 # ---------------------------------------------------------------------------
 # THE IMAGES COME FROM .github/workflows/images.yml
