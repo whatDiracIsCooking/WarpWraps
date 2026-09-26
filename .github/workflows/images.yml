@@ -1,0 +1,148 @@
+# Build the CI container images and publish them to GHCR.
+#
+# SEPARATE FROM ci.yml ON PURPOSE. These images change when docker/ changes --
+# a few times a year -- while ci.yml runs on every push. Rebuilding a ~20GB
+# ROCm install per commit would cost more than the tests it exists to run, so
+# ci.yml PULLS what this workflow PUSHES.
+#
+# ---------------------------------------------------------------------------
+# WHAT IT PUBLISHES, AND WHY THESE ARE NOT THE DEV IMAGES
+# ---------------------------------------------------------------------------
+#   ghcr.io/<owner>/gpumod:cuda-ci   the CUDA toolchain, unmodified
+#   ghcr.io/<owner>/gpumod:hip-ci    ROCm with ROCM_PRUNE=1
+#
+# Same Dockerfiles as the dev images, different build args and a different tag
+# (docker/build.sh, "variant tags and the registry"). The `-ci` suffix is what
+# stops a pruned image from overwriting `gpumod:hip`, which a developer runs
+# against a real card.
+#
+# The prune is not an optimisation, it is the thing that makes the HIP half of
+# CI possible at all: the dev ROCm image is 20.5GB and a GitHub-hosted runner
+# has roughly 20-25GB free before cleanup. ROCM_PRUNE=1 drops ~12.9GB of
+# kernel objects and unused libraries that no COMPILE needs -- see
+# docker/install-rocm.sh for the measured list.
+#
+# ---------------------------------------------------------------------------
+# MOVING TAGS, AND THE ONE CASE THEY GET WRONG
+# ---------------------------------------------------------------------------
+# `:cuda-ci` and `:hip-ci` move. ci.yml names them in `container:`, which
+# GitHub resolves before any step runs and so cannot be computed from the diff.
+#
+# The consequence to know: A PR THAT EDITS docker/ IS TESTED AGAINST THE IMAGE
+# main ALREADY PUBLISHED, not against its own. Run this workflow manually on
+# that branch first (Actions -> images -> Run workflow -> pick the branch) and
+# the PR's next push tests the new image. Nothing detects the omission for you.
+name: images
+
+on:
+  push:
+    branches: [main]
+    # Everything the images are a function of. uv.lock is in the list because
+    # Dockerfile.base installs /opt/venv from it with `uv sync --frozen`.
+    paths:
+      - 'docker/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/images.yml'
+  # Also weekly: these install from apt repositories that move underneath a
+  # fixed Dockerfile, so an image that has not been rebuilt in months is not
+  # the image the Dockerfile describes.
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Which image to publish'
+        type: choice
+        default: both
+        options: [both, cuda, hip]
+
+concurrency:
+  # Never cancel a publish in flight: a half-pushed manifest is worse than a
+  # duplicated build, and these are rare enough that queueing costs nothing.
+  group: images-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # ROCm alone takes ~25 minutes to install before anything is pushed.
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: cuda
+            # No prune: the CUDA toolkit is 10GB, which fits.
+            build_env: ''
+          - image: hip
+            build_env: 'ROCM_PRUNE=1'
+    steps:
+      - name: skip unselected target
+        id: gate
+        env:
+          CHOICE: ${{ github.event.inputs.target || 'both' }}
+        run: |
+          if [ "$CHOICE" = both ] || [ "$CHOICE" = "${{ matrix.image }}" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "target '$CHOICE' selected -- skipping ${{ matrix.image }}"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+
+      # Reclaiming disk BEFORE the build, not a third-party action. The peak is
+      # not the finished image: ROCm downloads ~8GB of debs and unpacks ~20GB
+      # before install-rocm.sh prunes anything, because the prune has to happen
+      # inside that same RUN (a delete in a later layer frees nothing). ~30GB
+      # has to be free at once, and a stock runner does not have it.
+      #
+      # These four trees are preinstalled toolchains this repo never touches
+      # and are the standard ~25GB. `df` is printed either side so a future
+      # disk failure says what was actually available rather than just dying.
+      - name: reclaim disk
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          df -h /
+          sudo rm -rf \
+            /usr/share/dotnet \
+            /usr/local/lib/android \
+            /opt/ghc \
+            /usr/local/share/boost \
+            "${AGENT_TOOLSDIRECTORY:-/opt/hostedtoolcache}"
+          sudo docker image prune -af
+          df -h /
+
+      - name: log in to ghcr.io
+        if: steps.gate.outputs.run == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # build.sh walks base -> <image> (the files chain by tag, so the child
+      # cannot be built alone) and applies the suffix to every step, tags the
+      # target for the registry, and pushes only the target. The registry owner
+      # must be lowercase; github.repository_owner is not guaranteed to be.
+      - name: build and push
+        if: steps.gate.outputs.run == 'true'
+        env:
+          IMAGE_TAG_SUFFIX: '-ci'
+          BUILD_PUSH: '1'
+        run: |
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          export IMAGE_REGISTRY="ghcr.io/$owner"
+          env ${{ matrix.build_env }} docker/build.sh ${{ matrix.image }}
+
+      - name: report size
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          docker images --format '{{.Repository}}:{{.Tag}}\t{{.Size}}' \
+            | grep -- '-ci' || true
+          df -h /

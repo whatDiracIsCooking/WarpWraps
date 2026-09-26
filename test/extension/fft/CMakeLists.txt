@@ -24,4 +24,5 @@ gpumod_add_gtest_suite_tests(
   FftPlanTests
   TIMEOUT
   30
+  REQUIRES_GPU
 )

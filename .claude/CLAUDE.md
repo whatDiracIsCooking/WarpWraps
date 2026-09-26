@@ -135,6 +135,23 @@ red on its own, so it needs no test of its own.
 | `docker/Dockerfile.hip` | `base` + ROCm. No CUDA at all. |
 | `docker/Dockerfile.combined` | `cuda` + ROCm (~40GB). |
 
+> **Four files, but six images — the `-ci` variants are the same files with
+> different build args.** `.github/workflows/images.yml` publishes
+> `ghcr.io/<owner>/gpumod:{cuda-ci,hip-ci}`, which `.github/workflows/ci.yml`
+> names in `container:`. `hip-ci` is built with `ROCM_PRUNE=1`, dropping ~13GB
+> of kernel objects and unused libraries that no *compile* links: **20.5GB →
+> 7.05GB**, measured, which is the difference between fitting a GitHub-hosted
+> runner and not. `docker/install-rocm.sh` has the list.
+>
+> The suffix, the registry and the push are three environment knobs on
+> `build.sh` (`IMAGE_TAG_SUFFIX`, `IMAGE_REGISTRY`, `BUILD_PUSH`), so the image
+> names still live in exactly one table. The suffix is what stops a pruned
+> image from overwriting the `gpumod:hip` a developer runs against a real card,
+> and `:latest` is dropped when it is set. The prune has to run inside
+> `install-rocm.sh`'s own `RUN` — layers are additive, so a later `rm` frees
+> nothing — which is why `:hip` and `:hip-ci` are two full installs rather than
+> a shared layer.
+
 **Build them with `docker/build.sh <base|cuda|hip|combined>`, never by hand.**
 The files chain by TAG, not by stage — each child opens `FROM ${PARENT_IMAGE}`
 — so a parent must exist and be tagged before its child builds, and `build.sh`
@@ -349,9 +366,9 @@ devtools/cross-backend-check.sh                          # does the OTHER backen
 ```
 
 - **`CMAKE_CUDA_ARCHITECTURES=native` queries a live device at *configure*
-  time.** No GPU, no configure — even for a change that touches no CUDA. Pin an
-  architecture preset (`ampere`, `hopper`) or use `portable` when the build host
-  and the run host differ.
+  time.** No GPU, no configure — even for a change that touches no CUDA. Use
+  `ci-cuda`, which pins `86`, when the build host has no card, or `-D` an
+  architecture onto any preset.
 - **The HIP counterpart fails *silently* instead.** ROCm's `hip-config-amd.cmake`
   reads the CMake variable `GPU_TARGETS`; unset, it runs `amdgpu-arch` to detect
   an installed card, and on a box with no AMD GPU that detection fails and ROCm
@@ -383,13 +400,41 @@ devtools/cross-backend-check.sh                          # does the OTHER backen
   preset, device nodes and group names.
 - **`default` and `workstation` are now the same configuration**, differing only
   in `binaryDir`, so a container build and a host build can coexist. `default`
-  is the one that keeps `build/`, because compose, the `cpp:` CI job and this
-  file all name that path.
-- **`default`, `workstation`, `debug`, `asan`, `hip`, `compile-time` and
-  `coverage` have test presets.** With any other preset `cpp-tier.sh` builds and
-  then says there was nothing to ctest. That is not a pass. (`coverage` exists
-  for `coverage.sh`, which drives its own ctest to collect profiles — see
-  "Running tests".)
+  is the one that keeps `build/`, because compose and this file both name that
+  path.
+- **`default`, `workstation`, `debug`, `asan`, `hip`, `compile-time`,
+  `ci-cuda`, `ci-hip` and `coverage` have test presets.** With any other preset
+  `cpp-tier.sh` builds and then says there was nothing to ctest. That is not a
+  pass. (`coverage` exists for `coverage.sh`, which drives its own ctest to
+  collect profiles — see "Running tests".)
+- **`ci-cuda` and `ci-hip` are what CI runs, and they run here too.** Reach for
+  them to reproduce a CI result exactly: `ci-cuda` is the full CUDA build with
+  the architecture pinned to 86 and `ctest -LE gpu`, `ci-hip` compiles all of
+  `src/` and `example/` for HIP with no GoogleTest. Neither needs a device, so
+  both work in a container started without `--gpus`.
+- **There are no per-architecture presets, and nothing may go below sm_75.**
+  `base` uses `native` and `ci-cuda` pins `86`; between them that is every case
+  this project has, and `86` is what the reference box, `Dockerfile.cuda`'s
+  `CUDA_ARCH` and `ci-cuda` already agree on. `volta` (70), `ampere` (80),
+  `hopper` (90) and `portable` (70;80;90) were removed rather than corrected.
+
+  Two of them *could not configure at all*: CUDA 13's nvcc floor is
+  `compute_75`, so sm_70 dies at configure with `nvcc fatal : Unsupported gpu
+  architecture 'compute_70'` — reported as "Check for working CUDA compiler -
+  broken", with the real line further up the output. `Dockerfile.cuda`'s header
+  predicted exactly this when the toolkit was bumped and nobody acted on it,
+  which is the lesson worth keeping: **a preset nothing exercises can be dead
+  for a whole toolkit generation.** What is exercised now is `default`
+  (`native`, on a real card) and the two presets CI drives.
+
+  Target another architecture with a `-D` and a build directory of its own.
+  It has to be `-D`: that beats a preset's `cacheVariables`, where an
+  environment variable does not — `CUDAARCHS` is read only when the cache
+  variable is unset, and `base` always sets it.
+
+  ```bash
+  cmake --preset default -B build-h100 -DCMAKE_CUDA_ARCHITECTURES="90"
+  ```
 - **Every configure preset has its own `binaryDir`**, and it needs to stay that
   way — two presets sharing one directory silently reconfigure it back and forth,
   a full rebuild each way.
@@ -417,7 +462,21 @@ devtools/cpp-tier.sh --rocm      # the C++ tier on a real AMD card, from the hos
 
 The fourth is not a tier — it runs no test and launches no kernel. It answers
 the one question the other three cannot, because each of them builds exactly
-one backend. See "A green CUDA build does not mean the code is portable".
+one backend. See "A green CUDA build does not mean the code is portable". CI
+now answers it too, on every PR, by building the `ci-hip` preset for real; keep
+this one for the seconds-long local answer before you push.
+
+**To reproduce what CI saw, run CI's presets rather than guessing:**
+
+```bash
+devtools/cpp-tier.sh --preset ci-cuda   # the full CUDA build, then -LE gpu
+devtools/cpp-tier.sh --preset ci-hip    # all of src/ + example/ for HIP
+```
+
+Both work in a container with no `--gpus` and no `/dev/kfd`, which is the point
+— they are the same selection the runner gets. `--preset default` is still what
+you want before a PR, because it is the only thing that runs the seven
+device-dependent suites.
 
 **The third one is not a variant of the second.** `cpp-tier.sh` builds the tree
 in place and never installs, so nothing in it can see an export regression —
@@ -526,19 +585,34 @@ targets use this machinery today: `test/gpu/conversions` (`HalfConversion`,
 > launch kernels, or create vendor-library handles, so a GPU-less box now
 > *fails* them.
 >
-> **There is still no GPU-skip mechanism** — nothing in `test/` calls
-> `GTEST_SKIP` or gates on a device count — so on a driverless box those
-> device-dependent runtime suites *error* rather than skip-and-name, and that is
-> now a real gap. A `REQUIRE_GPU()` guard plus
-> `gtest_discover_tests(DISCOVERY_MODE PRE_TEST)` would skip-and-name
-> device-dependent cases instead of erroring; with device-dependent runtime
-> tests present, it would be worth adding.
+> **The way to run without a device is the `gpu` ctest label, not a skip.**
+> Nothing in `test/` calls `GTEST_SKIP` or gates on a device count, and nothing
+> should: a skipped test blends into a green run, where an EXCLUDED one is
+> named in the ctest output. `gpumod_add_gtest_suite_tests(... REQUIRES_GPU)`
+> puts `gpu` on every entry it registers, the seven device-dependent targets
+> above pass it, and `test/gpu/conversions` deliberately does not. So:
 >
-> So a driverless box now goes red in **two** places, not one: the
-> **compile-time** tier, where `cuda_compile_tests` links the CUDA driver stubs
-> and fails to *load* without `libcuda.so.1` (see the "No GPU needed" applies to
-> the BUILD note above), and these device-dependent **runtime** suites. Check
-> whether a GPU and driver were present before reading either as a broken change.
+> ```
+> ctest --preset default    42 entries — everything, needs a card
+> ctest --preset ci-cuda    11 entries — `-LE gpu`, needs nothing
+> ```
+>
+> `cuda_compile_tests` carries the label too, for a different reason: it links
+> the CUDA driver stubs and cannot *load* without `libcuda.so.1` (see the
+> "No GPU needed" applies to the BUILD note above). Excluding it costs nothing,
+> because everything running it proves — that it compiled and linked — the
+> build already proved. `test/hip`'s counterpart has no such dependency.
+>
+> Two traps around the label. A second label on the same test must be added
+> with `set_property(TEST ... APPEND PROPERTY LABELS ...)`, never
+> `set_tests_properties(... PROPERTIES LABELS ...)`, which REPLACES — that is
+> how `no_sanitizer` on the two allocation-failure suites would silently strip
+> their `gpu`. And the `<target>.SuiteListIsComplete` guards are intentionally
+> left unlabeled: `--gtest_list_tests` touches no device, so they still run on
+> a GPU-less runner and keep the hand-written suite lists honest there.
+>
+> None of this changes what a box with a card runs: no preset other than
+> `ci-cuda` filters on `gpu`, so `devtools/cpp-tier.sh` still runs all 42.
 
 ### A green CUDA build does not mean the code is portable
 
@@ -595,34 +669,44 @@ change verified.
 - **`git push`** runs the fast pytest tier — **only when the push touches a
   `.py`**. That condition is the `files: \.py$` filter on the pre-push hook in
   `.pre-commit-config.yaml`, not anything inside the script.
-- **CI is ON for the lint and Python jobs.** `.github/workflows/ci.yml` runs
-  them automatically on push to `main` and on every PR (`workflow_dispatch` also
-  keeps the manual trigger). `lint` is ruff + cmake-lint; `test` is the pytest
-  tier across Python 3.11 and 3.13. Both run on GitHub-hosted runners. It was
-  previously manual-only because Actions usage limits on the account made runs
-  fail for reasons unrelated to the commit; if that recurs, the file's header
-  comment says how to revert to manual (comment out `push:`/`pull_request:`,
-  leave `workflow_dispatch:`).
-- **Nothing** builds the C++ tree on the server: the `cpp:` job does the real
-  thing but ships with `if: false`, because a GitHub-hosted runner has no GPU and
-  `native` needs one at configure time. Turning it on needs a self-hosted GPU
-  runner — the job's own comment has the steps.
+- **CI runs on every push to `main` and every PR**, all of it on
+  GitHub-hosted runners (`workflow_dispatch` also keeps the manual trigger).
+  `.github/workflows/ci.yml` has four jobs: `lint` (ruff + cmake-lint),
+  `test` (the pytest tier on 3.11 and 3.13), `cpp` (a two-leg matrix, below)
+  and `install-check`.
+- **The C++ tree IS built on the server now, both backends.** The `cpp` job
+  declares a `container:` rather than building one — the `cuda` leg does the
+  full CUDA build and then `ctest -LE gpu`, the `hip` leg compiles all of
+  `src/` and `example/` through clang's `-x hip` front end. Neither needs a
+  device: the `ci-cuda` preset pins `CMAKE_CUDA_ARCHITECTURES` so configure
+  never queries a driver, and `ci-hip` is compile-time only.
+- **The images come from `.github/workflows/images.yml`**, which publishes
+  `ghcr.io/<owner>/gpumod:{cuda-ci,hip-ci}` on a change under `docker/` (plus
+  weekly, plus on demand). They are the same Dockerfiles as the dev images
+  with different build args: `hip-ci` is built with `ROCM_PRUNE=1`, which
+  drops ~12.9GB of kernel objects and unused libraries that no *compile*
+  needs, because the 20.5GB dev image does not fit a hosted runner.
+  **Those tags move, and `container:` is resolved before any step runs** — so
+  a PR that edits `docker/` is tested against the image `main` already
+  published. Run `images` manually on the branch first.
 
-**So a PR touching only `src/` is still gated by nothing on the server** — the
-Python tier now is (the `test` job), but the C++ tier is not, since the `cpp:`
-job is off. `devtools/cpp-tier.sh` before opening a PR is the whole gate for
-`src/`, it is local, and it is bypassable with `--no-verify`. Run it and say
-what you ran. Add
-`devtools/install-check.sh` when the change touches `cmake/`, a target's usage
-requirements, or anything under `src/` that a consumer imports — nothing else
-looks at the installed package. Add `devtools/cross-backend-check.sh` when it
-touches a `.cu` or anything a `.cu` includes — nothing else compiles the other
-backend, and the regression above is what that costs.
+**So a PR touching `src/` is now gated on the server for compile, link, export
+and every non-device test.** What is still not: the seven device-dependent
+runtime suites — `test/extension/{memory_buffer,runtime,rand,blas,solver,fft,
+sparse}` — which carry the `gpu` ctest label and are excluded by name. Only a
+box with a card runs those, so **`devtools/cpp-tier.sh` before opening a PR
+remains the gate for anything touching device behaviour**, it is local, and it
+is bypassable with `--no-verify`. Run it and say what you ran.
 
-That gap is deliberate rather than an oversight: a C++23 named-module build with
-CUDA separable compilation costs minutes even warm, and a gate that costs
-minutes is one people learn to bypass with `--no-verify`, which is worse than no
-gate.
+That the local tier is not itself a git hook is deliberate rather than an
+oversight: a C++23 named-module build with CUDA separable compilation costs
+minutes even warm, and a gate that costs minutes is one people learn to bypass
+with `--no-verify`, which is worse than no gate. CI is where that cost belongs,
+and now carries it.
+
+`devtools/cross-backend-check.sh` is no longer the only thing that compiles the
+other backend — the `cpp (hip)` leg does the same work on every PR. Keep it for
+the fast local answer before you push; it is seconds against CI's minutes.
 
 ## Conventions
 

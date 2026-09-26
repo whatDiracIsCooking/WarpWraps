@@ -52,6 +52,56 @@ apt-get install -y --no-install-recommends \
   rocprofiler-sdk \
   rocm-gdb
 
+# --- ROCM_PRUNE: the compile-only variant -----------------------------------
+#
+# ROCm installs at ~20GB, and a GitHub-hosted runner has roughly 20-25GB free on
+# its root filesystem before anything else. That is the whole reason this block
+# exists: .github/workflows/images.yml builds a second tag (:hip-ci) with
+# ROCM_PRUNE=1 so the HIP half of CI can pull an image that FITS. The dev image
+# is untouched -- the default is off.
+#
+# What comes out, measured rather than guessed (`du -x -d1 /opt/rocm/lib` plus
+# `dpkg -S` on each of the largest files):
+#
+#   4.8G  composablekernel-dev   libdevice_{gemm,conv,reduction,contraction}
+#                                _operations.a -- static archives nothing in
+#                                this tree links. Pulled in by rocm-hip-sdk.
+#   4.5G  hipblaslt/library      Tensile kernel objects, loaded at RUN time by
+#   644M  rocblas/library        libhipblaslt.so / librocblas.so. The .so files
+#   1.7G  rocfft/                themselves stay; only the kernel data goes.
+#   572M  rccl                   multi-GPU collectives; nothing here wraps them
+#   459M  rocalution             sparse iterative solvers; likewise
+#   226M  hiptensor              tensor contraction; likewise
+#
+# ~12.9GB of ~20.5GB, and none of it is a link-time dependency -- which is the
+# test that decides what may go on this list. Adding anything here that a
+# hipcc link actually needs surfaces as an undefined symbol in the ci-hip tier,
+# not as a silent wrong answer, so the failure mode is at least loud.
+#
+# THE DELETION HAS TO HAPPEN IN THIS SCRIPT, not in a later Dockerfile layer.
+# Layers are additive: an `rm` in a child layer hides the files but keeps their
+# bytes in the parent, and the image does not shrink at all. That is also why
+# :hip and :hip-ci cannot share the ROCm layer -- each is a full install.
+#
+# The four whole packages go through apt rather than rm, so that removing one
+# something else needs FAILS here instead of at link time. They pull out the
+# rocm-hip-sdk / rocm-hip-libraries meta-packages with them, which carry no
+# files of their own. --auto-remove is deliberately NOT passed: it would widen
+# the removal to whatever else those metas were the last reference to, which is
+# exactly the kind of quiet cascade this list is written to avoid.
+if [ "${ROCM_PRUNE:-0}" = "1" ]; then
+  echo "install-rocm.sh: ROCM_PRUNE=1 -- building the compile-only variant"
+  apt-get purge -y \
+    composablekernel-dev \
+    rccl rccl-dev \
+    rocalution rocalution-dev \
+    hiptensor hiptensor-dev
+  rm -rf \
+    /opt/rocm/lib/hipblaslt/library \
+    /opt/rocm/lib/rocblas/library \
+    /opt/rocm/lib/rocfft
+fi
+
 # ROCm unpacks to /opt/rocm-<version> and rocm-core provides the /opt/rocm
 # symlink. Nothing in the deb set registers that prefix with the dynamic loader,
 # so without this every hipcc-linked binary would need an explicit RPATH.

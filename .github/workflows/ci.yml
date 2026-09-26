@@ -1,49 +1,63 @@
 # The server-side gate. The pre-push hook (devtools/prepush-tests.sh) is the
 # same idea run locally and is bypassable with --no-verify; this is not.
 #
-# It runs the FAST tier only, for the same reason the push gate does: a
-# per-commit job that takes hours is one people learn to ignore. The expensive
-# tier belongs in the scheduled job below -- and on a self-hosted runner if it
-# needs a GPU or more RAM than a hosted runner has.
+# ---------------------------------------------------------------------------
+# WHAT RUNS HERE, AND WHAT STILL CANNOT
+# ---------------------------------------------------------------------------
+# Every runner is GitHub-hosted, which for a public repository is free and
+# uncapped. None of them has a GPU, and that is the only real limit -- so the
+# question this file answers is "how much of the tree is verifiable without a
+# device", and the answer is most of it:
+#
+#   lint          ruff + cmake-lint
+#   python        the pytest tier, on 3.11 and 3.13
+#   cpp (cuda)    the FULL CUDA build -- src/, GoogleTest, every runtime test
+#                 binary -- then `ctest -LE gpu`
+#   cpp (hip)     all of src/ and example/ through clang's -x hip front end,
+#                 plus the compile-time tests. The check a green CUDA run
+#                 cannot make: nvcc is the more permissive front end, so a
+#                 whole class of error is invisible until someone builds ROCm.
+#   install-check install to a throwaway prefix, then build example/consumer
+#                 against it. The only tier that sees an export regression.
+#
+# WHAT IS LEFT: seven runtime suites that genuinely need a card --
+# test/extension/{memory_buffer,runtime,rand,blas,solver,fft,sparse}. They
+# allocate device memory, launch kernels or create vendor handles, and they
+# carry the `gpu` ctest label so `-LE gpu` names them as excluded rather than
+# quietly passing over them. `devtools/cpp-tier.sh` on a box with a card is
+# still the only thing that runs those, and it stays a human gate.
+#
+# cuda_compile_tests carries the same label for a different reason -- it links
+# the driver stubs and cannot LOAD without libcuda.so.1. See test/cuda/
+# CMakeLists.txt for why excluding it costs nothing.
 #
 # ---------------------------------------------------------------------------
-# WHAT THIS FILE DOES NOT COVER, AND WHY
+# THE IMAGES COME FROM .github/workflows/images.yml
 # ---------------------------------------------------------------------------
-# The C++ tree is NOT built here by default. A GitHub-hosted runner cannot do
-# it: `project(... LANGUAGES CXX CUDA)` needs nvcc, the presets ask for
-# CMAKE_CUDA_ARCHITECTURES=native which queries a driver that is not there, and
-# clang-20 + libc++'s module manifest + CMake 4.2 would all have to be
-# installed per run. The `cpp` job below does the real thing and is switched
-# off until you have a runner with a GPU -- see its comment.
+# Neither C++ job builds a container; both declare one. The toolchain is
+# clang-20 with libc++'s module manifest, CMake 4.2 and a vendor SDK, which is
+# far too much to install per run -- and re-deriving it in YAML is how it
+# drifts from docker/. images.yml publishes `:cuda-ci` and `:hip-ci` to GHCR
+# and this file pulls them.
 #
-# So: a PR touching only src/ is checked by nothing on the server. The lint and
-# Python jobs below DO run automatically; the C++ build (`cpp`) still needs a
-# GPU runner and stays off -- see its comment. Until that runner exists,
-# `devtools/cpp-tier.sh` before opening the PR is the whole gate for src/, and
-# it is a human one. Know that rather than discover it.
+# THE TAGS MOVE, and `container:` is resolved before any step runs, so it
+# cannot be computed from the diff: a PR that edits docker/ is tested against
+# the image main already published. images.yml's header says how to publish a
+# branch's image first.
+#
+# The owner is spelled in lowercase literally, twice. GHCR rejects an uppercase
+# path and ${{ github.repository_owner }} preserves the case of the account
+# name, which here has capitals -- and `container:` has no shell to lowercase
+# it in. A fork with no packages of its own pulls these, which is the intended
+# behaviour rather than an accident: forks get a working CI without publishing
+# anything.
 name: ci
 
-# ---------------------------------------------------------------------------
-# ON: runs automatically on push to main and on every PR.
-# ---------------------------------------------------------------------------
-# The lint and test jobs run on GitHub-hosted runners on push/pull_request;
-# `workflow_dispatch` also keeps the manual trigger. The `cpp` job stays off
-# (`if: false`) because it needs a self-hosted GPU runner -- see its comment.
-#
-# This was previously manual-only because Actions usage limits on the account
-# made runs fail for reasons unrelated to the commit. If that recurs and the
-# noise outweighs the gate, comment out `push:`/`pull_request:` and leave
-# `workflow_dispatch:` -- that reverts to manual with no other change, and is
-# stronger than `if: false` on each job, which still posts skipped checks.
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
-  # NB there is no `schedule:` here any more. It existed only to run a nightly
-  # `slow` job, and that job went with devtools/slow-tier.sh when the fast/slow
-  # split was retired -- the Python suite is one sub-second file now. Add both
-  # back together if an expensive tier ever reappears.
 
 concurrency:
   # A new push to a PR cancels the previous run for that PR; main is never
@@ -96,63 +110,105 @@ jobs:
         run: uv run pytest -n auto -rs
 
   cpp:
-    # THE REAL BUILD, AND IT IS OFF -- so a PR touching only src/ is checked by
-    # nothing on the server. This job does the real thing; it needs a runner
-    # with an NVIDIA GPU and the NVIDIA Container Toolkit, because the presets
-    # ask for CMAKE_CUDA_ARCHITECTURES=native, which queries a live device at
-    # CONFIGURE time. A GitHub-hosted runner has no card, so it cannot even
-    # configure.
-    #
-    # TO TURN IT ON, in this order:
-    #
-    #   1. On the GPU box, register it as a repository runner:
-    #        Settings -> Actions -> Runners -> New self-hosted runner
-    #      and follow the generated ./config.sh + ./run.sh (or install it as a
-    #      service with ./svc.sh install). Give it a label you will recognise,
-    #      e.g. `cuda`.
-    #   2. Check the runner shows as Idle in that same Settings page.
-    #   3. THEN, in this file: `if: false` -> `if: true`, and `runs-on:
-    #      ubuntu-latest` -> `runs-on: [self-hosted, cuda]`.
-    #
-    # Do steps 1-2 before step 3. Merging the flip while no runner is
-    # registered does not fail the job -- it queues it forever, and every
-    # subsequent PR sits pending on a check that can never complete.
-    #
-    # Measured on a 24-core box with an RTX 3080, warm: ~2 min for the image
-    # (cold is far longer -- LLVM, CMake and three dependencies compiled
-    # against libc++), ~2-3 min for configure + build + ctest. A persistent
-    # self-hosted runner keeps both the docker layers and the ccache, which is
-    # what makes those numbers hold; a registry cache is the alternative.
-    #
-    # BUILD_JOBS is set below rather than left to Ninja: a C++23 module build
-    # is memory-hungry per job, and Ninja's default of cores+2 is what
-    # OOM-kills a box -- surfacing as a bare `ninja: build stopped` with
-    # nothing about memory in it. Raise it only with the runner's RAM in view.
-    if: false
-    runs-on: ubuntu-latest  # EDIT with step 3 above: [self-hosted, cuda]
-    timeout-minutes: 120
+    # After lint, so a ruff finding does not cost a 20-minute module build
+    # before it is reported.
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - backend: cuda
+            image: cuda-ci
+            preset: ci-cuda
+          - backend: hip
+            image: hip-ci
+            preset: ci-hip
+    container:
+      image: ghcr.io/whatdiraciscooking/gpumod:${{ matrix.image }}
+      # The image's own USER is `ubuntu` (uid 1000) and the runner creates
+      # /__w owned by someone else, so the default user cannot write its own
+      # workspace. Running as root inside a throwaway container is the usual
+      # answer and costs nothing here.
+      options: --user root
     steps:
       - uses: actions/checkout@v4
+
+      # cpp-tier.sh puts `git rev-parse --short HEAD` in its log name, and git
+      # refuses to read a repository owned by a different uid. Without this the
+      # job dies on "detected dubious ownership", which reads like a checkout
+      # problem rather than a container one.
+      - name: trust the workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      # A C++23 named-module build is expensive enough that a cold cache
+      # dominates the job. CCACHE_DIR has to live INSIDE the workspace: the
+      # image points it at /home/ubuntu/.ccache, which is not the mounted
+      # directory, so actions/cache on the host would never see it.
+      - uses: actions/cache@v4
         with:
-          submodules: recursive
-      # build.sh walks docker/Dockerfile.base then .cuda -- they chain by tag,
-      # so the child cannot be built alone (see Dockerfile.base's header). It
-      # takes the tag prefix from PROJECT_NAME, so overriding that is what names
-      # the image ci-image:latest for the step below.
-      - name: build image
-        run: PROJECT_NAME=ci-image docker/build.sh cuda
-      # `native` needs a live device at CONFIGURE time, so this reads the
-      # runner's card. Pin the preset (ampere/hopper) if the runner's GPU is
-      # not the one you ship for.
-      - name: configure, build, ctest
+          path: .ccache
+          key: ccache-${{ matrix.backend }}-${{ github.sha }}
+          restore-keys: |
+            ccache-${{ matrix.backend }}-
+
+      # BUILD_JOBS rather than Ninja's default of cores+2. A hosted runner is
+      # 4 vCPU / 16GB and a module build is memory-hungry per job (the scanner
+      # plus a BMI cache); an OOM-killed compiler surfaces as a bare
+      # `ninja: build stopped` with nothing about memory in it. Lower this
+      # first if that appears.
+      #
+      # The preset is passed explicitly, so cpp-tier.sh moves the TEST preset
+      # with it -- ci-cuda excludes the `gpu` label, ci-hip includes only
+      # `compile_time`.
+      - name: cpp tier
+        env:
+          BUILD_JOBS: '4'
         run: |
-          docker run --rm --gpus all \
-            -e BUILD_JOBS="${BUILD_JOBS:-8}" \
-            -v "$PWD:/workspace" -w /workspace \
-            -u "$(id -u):$(id -g)" \
-            ci-image:latest devtools/cpp-tier.sh
+          export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
+          devtools/cpp-tier.sh --preset ${{ matrix.preset }}
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: cpp-tier-logs
+          name: cpp-tier-${{ matrix.backend }}
           path: .slow-tier-reports/
+
+  install-check:
+    # Its own job, not a step on the cuda leg: cpp-tier.sh builds in place and
+    # never installs, so nothing in it can see an export regression -- a module
+    # whose .cppm has a PRIVATE include directory installs cleanly and breaks
+    # every consumer. A separate job keeps that a separate red mark.
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      packages: read
+    container:
+      image: ghcr.io/whatdiraciscooking/gpumod:cuda-ci
+      options: --user root
+    steps:
+      - uses: actions/checkout@v4
+      - name: trust the workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-install-check-${{ github.sha }}
+          restore-keys: |
+            ccache-install-check-
+      # --no-run stops after BUILDING example/consumer. Step 4 launches the
+      # binary, which needs a device; the script would report its exit-77 as a
+      # skip rather than a failure, but saying so here is clearer than a skip
+      # line in a log. Steps 1-3 are the ones that answer the question.
+      - name: package tier
+        env:
+          BUILD_JOBS: '4'
+        run: |
+          export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
+          devtools/install-check.sh --preset ci-cuda --no-run

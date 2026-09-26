@@ -77,14 +77,46 @@ DEVCONTAINER_CONFIG=${DEVCONTAINER_CONFIG:-.devcontainer/cuda/devcontainer.json}
 #   debug / asan / compute-sanitizer
 #   hip         the ROCm backend (build-hip/)
 #   compile-time  builds the static_assert tier only: no GPU, no GoogleTest
-#   volta / ampere / hopper / portable   pin the architecture
+#   ci-cuda     what .github/workflows/ci.yml builds: the full CUDA tree with
+#               the architecture PINNED, and a test preset that excludes the
+#               `gpu` label. Runnable here too, and worth it to reproduce a CI
+#               failure exactly -- `devtools/cpp-tier.sh --preset ci-cuda`
+#               gives the same selection on this box that the runner gets.
+#   ci-hip      the HIP half of CI: all of src/ and example/ compiled through
+#               clang's -x hip front end, no GoogleTest, no device.
+#
+# ci-cuda pins CMAKE_CUDA_ARCHITECTURES to 86 rather than widening it, so that
+# CI compiles exactly what `native` compiles on the reference box and a red run
+# reproduces locally with one command.
+#
+# THERE ARE NO PER-ARCHITECTURE PRESETS. `base` uses native and ci-cuda pins
+# 86; between them that is every case this project has, and sm_86 is what the
+# reference box, docker/Dockerfile.cuda's CUDA_ARCH and ci-cuda all already
+# say. volta (70), ampere (80), hopper (90) and portable (70;80;90) were
+# removed rather than corrected -- nothing exercised them and two could not
+# configure at all. Target something else with a -D and a build dir of its own:
+#
+#   cmake --preset default -B build-h100 -DCMAKE_CUDA_ARCHITECTURES="90"
+#
+# It has to be -D. That overrides a preset's cacheVariables, where an
+# environment variable does not: CUDAARCHS is consulted only when the cache
+# variable is unset, and `base` always sets it.
+#
+# NOTHING MAY GO BELOW sm_75. CUDA 13's nvcc floor is compute_75, so
+# CMAKE_CUDA_ARCHITECTURES=70 dies at CONFIGURE time with `nvcc fatal :
+# Unsupported gpu architecture 'compute_70'` -- reported as CMake's "Check for
+# working CUDA compiler - broken", which is why volta and portable sat broken
+# through the whole CUDA 13 bump without anyone noticing. A pre-Turing card
+# needs a 12.x CUDA_VERSION in docker/Dockerfile.cuda, whose header has the
+# rest of it.
 #
 # Override for one run rather than editing:
 #   CMAKE_PRESET=asan CTEST_PRESET=asan devtools/cpp-tier.sh
 #
 # CTEST_PRESET is separate because not every configure preset has a matching
-# test preset -- only default, workstation, debug, asan, hip, compile-time and
-# coverage do. Set it empty to configure and build without running ctest.
+# test preset -- only default, workstation, debug, asan, hip, compile-time,
+# ci-cuda, ci-hip and coverage do. Set it empty to configure and build without
+# running ctest.
 CMAKE_PRESET=${CMAKE_PRESET:-default}
 CTEST_PRESET=${CTEST_PRESET:-default}
 

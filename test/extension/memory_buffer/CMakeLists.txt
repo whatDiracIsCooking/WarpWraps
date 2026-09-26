@@ -61,6 +61,7 @@ gpumod_add_gtest_suite_tests(
   UnifiedBuffer
   TIMEOUT
   60
+  REQUIRES_GPU
 )
 
 # The no_sanitizer-labeled suites deliberately force a real allocation failure
@@ -81,7 +82,15 @@ gpumod_add_gtest_suite_tests(
 # nothing (SizeOverflowRejectionTests) or allocate successfully
 # (HostMemoryAllocTests), so they are safe under every sanitizer and stay
 # unlabeled to keep running there.
-set_tests_properties(
-  AllocationFailureTests HostMemoryAllocFailureTests
-  PROPERTIES LABELS no_sanitizer
+#
+# APPEND, not `set_tests_properties(... PROPERTIES LABELS no_sanitizer)`. That
+# form REPLACES the property, and REQUIRES_GPU above has already put `gpu` on
+# every entry in this target -- so the plain form would silently strip it from
+# exactly these two suites, and `ctest -LE gpu` on a GPU-less runner would then
+# try to run them and fail. A test carries two independent labels here; each one
+# has to append.
+set_property(
+  TEST AllocationFailureTests HostMemoryAllocFailureTests
+  APPEND
+  PROPERTY LABELS no_sanitizer
 )

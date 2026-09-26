@@ -23,4 +23,5 @@ gpumod_add_gtest_suite_tests(
   GpublasHandleTests
   TIMEOUT
   30
+  REQUIRES_GPU
 )

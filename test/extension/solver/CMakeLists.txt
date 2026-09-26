@@ -23,4 +23,5 @@ gpumod_add_gtest_suite_tests(
   GpusolverDnParamsTests
   TIMEOUT
   30
+  REQUIRES_GPU
 )

@@ -320,21 +320,45 @@ existing ones. There is no code generator.
 
 | Preset | What it is |
 |---|---|
-| `default` | Release, CUDA backend, `build/`. What CI and compose name. |
+| `default` | Release, CUDA backend, `build/`. What compose names, and the one preset that runs every test. |
 | `workstation` | Same, in `build-workstation/`, so a host build and a container build can coexist. |
 | `debug` / `asan` | Debug, and Debug + AddressSanitizer. |
 | `compute-sanitizer` | Debug build for the GPU memcheck/racecheck run. |
 | `coverage` | Debug + `GPUMOD_COVERAGE=ON` in `build-coverage/`: clang source-based coverage for host code. Driven by `devtools/coverage.sh`. |
 | `hip` | The ROCm/HIP backend, in `build-hip/`. Needs ROCm, not CUDA. |
 | `compile-time` | `GPUMOD_COMPILE_TIME_ONLY=ON` in `build-compile-time/`: no GoogleTest fetch, no runtime tests, no GPU. |
-| `volta` / `ampere` / `hopper` / `portable` | Pinned `CMAKE_CUDA_ARCHITECTURES` instead of `native`. |
+| `ci-cuda` / `ci-hip` | What `.github/workflows/ci.yml` builds, and runnable here to reproduce it. `ci-cuda` is the full CUDA tree with the architecture pinned, tested with `-LE gpu`; `ci-hip` compiles all of `src/` and `example/` for HIP. Neither needs a device. |
 
 Every configure preset has its own `binaryDir`, and it needs to stay that way —
 two presets sharing one build directory silently reconfigure it back and forth.
 
-`default`, `workstation`, `debug`, `asan`, `hip`, `compile-time` and `coverage`
-have test presets. With any other preset `cpp-tier.sh` builds and then reports
-that there was nothing to ctest; that is not a pass.
+`default`, `workstation`, `debug`, `asan`, `hip`, `compile-time`, `ci-cuda`,
+`ci-hip` and `coverage` have test presets. With any other preset `cpp-tier.sh`
+builds and then reports that there was nothing to ctest; that is not a pass.
+
+**There are no per-architecture presets.** `base` uses `native`, which resolves
+to the card in the build machine, and `ci-cuda` pins `86` for a runner that has
+none — between them that is every case this project has. The `volta` (sm_70),
+`ampere` (sm_80), `hopper` (sm_90) and `portable` (sm_70;80;90) presets were
+removed rather than corrected: nothing exercised them, two of them could not
+configure at all, and one architecture is handled straightforwardly without
+them.
+
+Target something else with a command-line `-D` and a build directory of its
+own. It has to be `-D`: that overrides a preset's `cacheVariables`, where an
+environment variable does not — `CUDAARCHS` is consulted only when the cache
+variable is unset, and `base` always sets it.
+
+```bash
+cmake --preset default -B build-h100 -DCMAKE_CUDA_ARCHITECTURES="90"
+cmake --build build-h100
+```
+
+**Nothing may go below sm_75.** CUDA 13's nvcc floor is `compute_75`, so
+`CMAKE_CUDA_ARCHITECTURES=70` fails at *configure* with `nvcc fatal :
+Unsupported gpu architecture 'compute_70'` — reported as "Check for working
+CUDA compiler - broken", with the real line further up the output. That is how
+`volta` and `portable` stayed broken across the whole CUDA 13 bump.
 
 ---
 
@@ -534,9 +558,10 @@ memory-hungry per job, and an OOM-killed compiler surfaces as a bare
   fails to resolve. The new value is in that release's
   `Help/dev/experimental.rst`.
 - **`CMAKE_CUDA_ARCHITECTURES=native` queries a live device at configure time.**
-  No GPU, no configure. Pin an architecture preset or use `portable` when the
-  build host and the run host differ.
+  No GPU, no configure. Use `ci-cuda` (pinned `86`) when the build host has no
+  card, or `-D` an architecture onto any preset.
 - **CUDA 13 has an sm_75 floor.** A pre-Turing card needs a 12.x
-  `CUDA_VERSION` in `docker/Dockerfile.cuda`, and the `volta` preset dropped.
+  `CUDA_VERSION` in `docker/Dockerfile.cuda`. There are no per-architecture
+  presets any more — see "Presets".
 - Lint is deliberately narrow (`E,F,I,UP,B`) and there is **no formatter hook**.
   `ruff check .` is clean — keep it that way.

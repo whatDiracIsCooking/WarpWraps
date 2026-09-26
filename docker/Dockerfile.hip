@@ -26,6 +26,15 @@ ARG PARENT_IMAGE=${PROJECT_NAME}:base
 FROM ${PARENT_IMAGE}
 
 ARG ROCM_VERSION=7.2.4
+
+# Drop the ~12.9GB of ROCm that only a RUNNING kernel needs -- the Tensile and
+# rocFFT kernel objects, composable-kernel's static archives, rccl, rocalution,
+# hiptensor. See install-rocm.sh for the measured list and why nothing on it is
+# a link-time dependency. OFF here: this is the dev image and it runs kernels.
+# .github/workflows/images.yml sets it to 1 for the :hip-ci tag, whose only job
+# is to answer "does the other backend still compile" on a GitHub-hosted runner
+# that has neither an AMD card nor 20GB of free disk.
+ARG ROCM_PRUNE=0
 USER root
 
 # Re-stamped rather than merely inherited from the parent, so that the
@@ -37,7 +46,8 @@ LABEL devcontainer.project="${PROJECT_NAME}"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,source=docker/install-rocm.sh,target=/tmp/install-rocm.sh \
-    ROCM_VERSION="${ROCM_VERSION}" bash /tmp/install-rocm.sh
+    ROCM_VERSION="${ROCM_VERSION}" ROCM_PRUNE="${ROCM_PRUNE}" \
+    bash /tmp/install-rocm.sh
 
 # The LLVM target for the AMD card this image is built for. Exported as
 # GPU_TARGETS / AMDGPU_TARGETS so a HIP CMake build has a default to read.
