@@ -157,6 +157,28 @@ Views are copyable and never deallocate. The source is taken by non-const refere
 view hands out a mutable `T*`. Out-of-range ranges are reported through `P_alloc` and leave the
 view empty; the bounds check does not overflow for large offsets or counts.
 
+### Reinterpreting (cross-type) views
+
+A view's element type may differ from the source buffer's. This is a byte
+reinterpretation, so it is never an implicit conversion — form it with the
+`reinterpret_buffer_view<T2>` factory (or, equivalently, the `reinterpret_view`
+tag constructor):
+
+```cpp
+HostBuffer<float> buf(16);                            // 64 bytes
+auto bytes = reinterpret_buffer_view<std::byte>(buf); // HostBufferView<std::byte>, 64 elements
+auto ints  = reinterpret_buffer_view<int>(buf);       // HostBufferView<int>, 16 elements
+HostBufferView<std::byte> b(reinterpret_view, buf);   // the tag form, same result
+```
+
+The byte span is preserved: `num_elements()` becomes `src.size_bytes() / sizeof(T2)`, and the
+source's memory kind and error policies are carried onto the view. Reinterpretation is reported
+through `P_alloc` and leaves the view empty when the source's byte size is not a whole multiple
+of `sizeof(T2)`, or when its base pointer is not aligned for `T2` — the latter is reachable for
+a sub-view, whose offset into an allocation aligned for one type need not be aligned for a
+wider one. A device buffer can be reinterpreted too: the alignment check inspects the pointer
+value only and never dereferences it.
+
 ## Extending: the `BufferBase` contract
 
 An owning buffer deriving from `BufferBase<T, K, Derived, P_alloc, P_free>` must:
