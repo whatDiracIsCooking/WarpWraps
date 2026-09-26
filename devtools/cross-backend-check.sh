@@ -146,12 +146,13 @@ if ! docker image inspect "$image" >/dev/null 2>&1; then
   cat >&2 <<EOF
 cross-backend-check: cannot run -- docker image '$image' is not built.
 
-  Build it once (it is large, and --target is required because docker/Dockerfile
-  has four stages and the last one is the ~40GB 'combined'):
+  Build it once (it is large; build.sh walks the chain, since
+  docker/Dockerfile.${backend,,} needs docker/Dockerfile.base tagged first):
 
-    DOCKER_BUILDKIT=1 docker build --target ${backend,,} -f docker/Dockerfile -t $image .
+    docker/build.sh ${backend,,}
 
-  Or set CROSS_CHECK_IMAGE to an image that has the $backend toolchain.
+  That tags <PROJECT_NAME>:${backend,,}, which is what CROSS_CHECK_IMAGE
+  defaults to. Or set CROSS_CHECK_IMAGE to an image with the $backend toolchain.
 EOF
   exit 2
 fi

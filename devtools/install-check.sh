@@ -27,7 +27,7 @@
 # that passes cpp-tier.sh and breaks consumers. This is the tier that notices.
 #
 # THE TOOLCHAIN IS NOT ON YOUR HOST -- clang-20 with libc++'s module manifest
-# and CMake 4.2 live in docker/Dockerfile, same as for cpp-tier.sh:
+# and CMake 4.2 live in docker/Dockerfile.base, same as for cpp-tier.sh:
 #
 #   devtools/devcontainer.sh shell -c devtools/install-check.sh
 #

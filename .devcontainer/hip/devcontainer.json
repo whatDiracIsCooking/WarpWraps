@@ -1,9 +1,9 @@
 {
-  // The AMD/ROCm variant: ../../docker/Dockerfile at its `hip` target -- the
+  // The AMD/ROCm variant: ../../docker/Dockerfile.hip -- the
   // same clang-20 + libc++ + CMake 4.2 + Ninja toolchain as the CUDA container,
   // with ROCm instead of the CUDA toolkit and NO nvcc at all. A HIP build
   // needs no CUDA, which is the whole point of the split; see the header of
-  // docker/Dockerfile.
+  // docker/Dockerfile.hip.
   //
   // NOT the default. devtools/config.sh points DEVCONTAINER_CONFIG at the CUDA
   // variant; select this one per call:
@@ -15,12 +15,16 @@
   // below -- workspace mount, volume names, postCreate and features are the
   // same, so the three GPU variants are A/B-able.
   "name": "gpumod-hip",                                // EDIT
+
+  // Builds the PARENT image (gpumod:base) first -- see ../cuda/ for why a
+  // devcontainer needs this hook at all.
+  "initializeCommand": "bash ${localWorkspaceFolder}/docker/build.sh base",
+
   "build": {
     "context": "../..",
-    "dockerfile": "../../docker/Dockerfile",
-    // docker/Dockerfile has four targets (base / cuda / hip / combined);
-    // without this the LAST stage in the file (`combined`, ~40GB) is built.
-    "target": "hip",
+    "dockerfile": "../../docker/Dockerfile.hip",
+    // No "target": every backend is its own file now, each with a single stage.
+    // Outside the devcontainer, `docker/build.sh hip` walks base -> hip.
     "args": {
       "PROJECT_NAME": "gpumod",                        // EDIT
       // The LLVM target for the card this image is built for. gfx1200 is RDNA4

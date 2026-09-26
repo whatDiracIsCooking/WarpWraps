@@ -15,9 +15,9 @@
 # toolchain.
 #
 # THE TOOLCHAIN IS NOT ON YOUR HOST. clang-20 with libc++'s module manifest,
-# CMake 4.2 and nvcc live in docker/Dockerfile, so the normal way to call this
-# is from inside that container (which DEVCONTAINER_CONFIG in config.sh already
-# selects):
+# CMake 4.2 and nvcc live in docker/Dockerfile.cuda, so the normal way to call
+# this is from inside that container (which DEVCONTAINER_CONFIG in config.sh
+# already selects):
 #
 #   devtools/devcontainer.sh shell -c devtools/cpp-tier.sh
 #
@@ -129,12 +129,13 @@ if [ "$rocm" = 1 ]; then
     cat >&2 <<EOF
 cpp-tier --rocm: cannot run -- docker image '$ROCM_IMAGE' is not built.
 
-  Build it once (--target is required; docker/Dockerfile has four stages and the
-  last one is the ~40GB 'combined'):
+  Build it once (build.sh walks the chain -- docker/Dockerfile.hip needs
+  docker/Dockerfile.base built and tagged first):
 
-    DOCKER_BUILDKIT=1 docker build --target hip -f docker/Dockerfile -t $ROCM_IMAGE .
+    docker/build.sh hip
 
-  Or set ROCM_IMAGE to an image that has the ROCm toolchain.
+  That tags <PROJECT_NAME>:hip, which is what ROCM_IMAGE defaults to. Or set
+  ROCM_IMAGE to an image that has the ROCm toolchain.
 EOF
     exit 2
   }

@@ -75,8 +75,8 @@ module below whose header reaches `hip_complex.h` carries this same
 `amd_detail/amd_hip_fp4.h` and `amd_detail/amd_hip_fp6.h` each define
 `half_to_f16`, `half2_to_f16x2`, `hipbf16_to_bf16` and `hipbf162_to_bf16x2` as
 non-inline statics in the global namespace — including both headers in one TU
-is a redefinition error (see `docker/Dockerfile`'s ROCm stage comment, and
-project memory `project-hip-fp4-fp6-cannot-share-tu`). Fine for this
+is a redefinition error (see project memory
+`project-hip-fp4-fp6-cannot-share-tu`). Fine for this
 module-per-library tree, where `hip_fp4.cppm` and `hip_fp6.cppm` are separate
 targets exactly as `cuda_fp4.cppm`/`cuda_fp6.cppm` are — but do not merge them.
 
@@ -294,8 +294,9 @@ multi-GPU API) has a ROCm counterpart. There is no multi-GPU dense-solve API
 anywhere in rocSOLVER or hipSOLVER, and no `Xt`-prefixed or otherwise
 multi-device API anywhere in hipBLAS or hipBLASLt -- verified directly
 against the installed ROCm CMake packages and headers, not assumed. Recorded
-here, mirroring how `docker/Dockerfile` documents `cufile`/`nvJitLink`/
-`nvFatbin` as having no ROCm analogue, so nobody re-investigates this later.
+here -- like the other deliberate absences on the CUDA side
+(`cufile`, `nvJitLink`, `nvFatbin` have no ROCm analogue either) -- so
+nobody re-investigates this later.
 No code follows from this -- it is a deliberate absence, not a gap to fill.
 
 ### `gpumod.hip.hip_fp4` / `gpumod.hip.hip_fp6` -- blocked, not built

@@ -36,8 +36,8 @@ On a bare host, **around a dozen warnings is the expected, healthy state**.
 What is genuinely container-only is the clang/GPU toolchain -- `cmake`,
 `ninja`, `clang++`, `clang-scan-deps`, `clang-format`, `llvm-objdump`,
 `llvm-cxxfilt`, `nvcc`, `compute-sanitizer`, `nsys`, `ccache` -- and
-`hipconfig`, which is present only in the `hip` and `combined` targets of
-`docker/Dockerfile`, not in the `cuda` one.
+`hipconfig`, which is present only in the images built from
+`docker/Dockerfile.hip` and `docker/Dockerfile.combined`, not the `cuda` one.
 
 Note what is NOT on that list any more: `cmake-format` and `cmake-lint` come
 from the `cmakelang[yaml]` dev dependency, and doctor resolves tools through

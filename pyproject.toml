@@ -4,8 +4,8 @@
 # must stay in sync with devtools/config.sh, which PREPUSH_PATHS assumes exists.
 #
 # `name` below is recorded in uv.lock too, and `uv sync --frozen` -- what both
-# docker/Dockerfile and CI run -- refuses a lock that disagrees with it. Change
-# it and re-run `uv lock`; devtools/doctor.sh warns when the two have drifted.
+# docker/Dockerfile.base and CI run -- refuses a lock that disagrees with it.
+# Change it and re-run `uv lock`; devtools/doctor.sh warns when they drift.
 [project]
 name = "gpumod"
 version = "0.1.0"
@@ -43,7 +43,7 @@ dev = [
 
 # uv.lock is TRACKED, and it is the only place exact versions are written down:
 # pyproject says what is wanted, the lock says what satisfies it, and
-# docker/Dockerfile's `uv sync --frozen` installs that same lock, so the
+# docker/Dockerfile.base's `uv sync --frozen` installs that same lock, so the
 # container and the host cannot drift. After editing dependencies here, run `uv lock` and
 # commit the result -- never hand-install with `uv pip install`.
 

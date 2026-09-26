@@ -29,7 +29,7 @@ Batch, onto the same image:
 
 ```sh
 export HOST_UID=$(id -u) HOST_GID=$(id -g)
-DOCKER_BUILDKIT=1 docker build --target cuda -f docker/Dockerfile -t gpumod:latest .
+docker/build.sh cuda          # builds docker/Dockerfile.base, then .cuda
 docker compose -f docker/compose.yaml run --rm build
 docker compose -f docker/compose.yaml run --rm test
 ```
@@ -175,7 +175,11 @@ test/gpu/             Compile-time checks that every gpu* name is the backend's
 test/wrappers/       Behavioural tests for src/wrappers (either backend)
   └── build_time/     static_asserts and the blas dispatch check (built, not run)
 docker/               The batch path: compose.yaml, the SDK install scripts
-  └── Dockerfile      The development/CI image: base / cuda / hip / combined
+  ├── Dockerfile.base     The vendor-neutral toolchain; parent of the three below
+  ├── Dockerfile.cuda     base + CUDA. The default backend
+  ├── Dockerfile.hip      base + ROCm, no CUDA
+  ├── Dockerfile.combined cuda + ROCm (~40GB)
+  └── build.sh            Builds one of them, and its ancestors, in order
 .devcontainer/        The interactive path
 devtools/             Container, worktree, test-tier and doctor scripts
 ```
@@ -336,27 +340,40 @@ that there was nothing to ctest; that is not a pass.
 
 ## Containers
 
-One file, `docker/Dockerfile`, with four targets:
+Four files under `docker/`, in a diamond:
 
-| Target | What it adds |
+| File | What it adds |
 |---|---|
-| `base` | The vendor-neutral C++23 toolchain: clang-20 + libc++, CMake, Ninja, ccache, uv/Python. No GPU SDK. |
-| `cuda` | `base` + the CUDA toolkit. The default, and what the devcontainer and compose build. |
-| `hip` | `base` + ROCm/HIP. No CUDA at all. |
-| `combined` | `cuda` + ROCm, for switching backends without switching containers (~40GB). |
+| `Dockerfile.base` | The vendor-neutral C++23 toolchain: clang-20 + libc++, CMake, Ninja, ccache, uv/Python. No GPU SDK. |
+| `Dockerfile.cuda` | `base` + the CUDA toolkit. The default, and what the devcontainer and compose build. |
+| `Dockerfile.hip` | `base` + ROCm/HIP. No CUDA at all. |
+| `Dockerfile.combined` | `cuda` + ROCm, for switching backends without switching containers (~40GB). |
 
 ```sh
-docker build --target cuda -f docker/Dockerfile -t gpumod:latest .
+docker/build.sh cuda        # base, then cuda -> gpumod:cuda and gpumod:latest
+docker/build.sh hip         # base, then hip
+docker/build.sh combined    # base, cuda, then combined
 ```
 
-**Always pass `--target`.** Without one, Docker builds the last stage in the
-file, which is `combined`.
+**They chain by tag, not by stage.** Each child opens with
+`FROM ${PARENT_IMAGE}`, so the parent must be built and tagged before it —
+`docker/build.sh` is what walks the chain, and building a child by hand with no
+parent tagged fails with `pull access denied for gpumod` rather than building
+one. The `.devcontainer/*/devcontainer.json` files run a single `docker build`,
+so each carries an `initializeCommand` that calls `build.sh` for its parent.
+
+`combined` is the bottom of the diamond in intent only: docker has no multiple
+inheritance, so it takes `cuda` as its parent and re-runs
+`docker/install-rocm.sh` — which is why that block is a script rather than an
+inline `RUN`. Copying `/opt/rocm` out of the `hip` image instead would miss the
+apt keyring, the loader path and the `render`/`video` groups the script also
+writes.
 
 The toolkit comes from apt rather than from the `nvidia/cuda` base image,
-because a shared `base` cannot be both `nvidia/cuda` and `rocm/dev-ubuntu` at
-once and duplicating the toolchain stages per vendor is how they drift. The
-`cuda` stage sets the `NVIDIA_*` runtime variables those images would otherwise
-have provided.
+because `Dockerfile.base` cannot be both `nvidia/cuda` and `rocm/dev-ubuntu` at
+once and duplicating the toolchain stages per vendor is how they drift.
+`Dockerfile.cuda` sets the `NVIDIA_*` runtime variables those images would
+otherwise have provided.
 
 Two front ends onto the same image, and they do **not** share a build directory:
 the devcontainer mounts the workspace at its host path, compose mounts it at
@@ -499,8 +516,8 @@ marker expressions, the doctor lists. Edit that file, not the scripts.
 `cpp-tier.sh` builds the tree in place and never installs, so a module whose
 compile requirements are `PRIVATE` passes it and breaks every consumer.
 
-Use `rebuild`, not `up`, after editing `devcontainer.json` or the
-`docker/Dockerfile`:
+Use `rebuild`, not `up`, after editing `devcontainer.json` or any
+`docker/Dockerfile.*`:
 `up` reuses the running container and reports success having applied nothing.
 
 `BUILD_JOBS` is the one to set conservatively — a C++23 module build is
@@ -520,6 +537,6 @@ memory-hungry per job, and an OOM-killed compiler surfaces as a bare
   No GPU, no configure. Pin an architecture preset or use `portable` when the
   build host and the run host differ.
 - **CUDA 13 has an sm_75 floor.** A pre-Turing card needs a 12.x
-  `CUDA_VERSION` in `docker/Dockerfile`, and the `volta` preset dropped.
+  `CUDA_VERSION` in `docker/Dockerfile.cuda`, and the `volta` preset dropped.
 - Lint is deliberately narrow (`E,F,I,UP,B`) and there is **no formatter hook**.
   `ruff check .` is clean — keep it that way.

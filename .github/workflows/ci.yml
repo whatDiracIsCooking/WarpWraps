@@ -140,8 +140,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      # build.sh walks docker/Dockerfile.base then .cuda -- they chain by tag,
+      # so the child cannot be built alone (see Dockerfile.base's header). It
+      # takes the tag prefix from PROJECT_NAME, so overriding that is what names
+      # the image ci-image:latest for the step below.
       - name: build image
-        run: DOCKER_BUILDKIT=1 docker build --target cuda -f docker/Dockerfile -t ci-image:latest .
+        run: PROJECT_NAME=ci-image docker/build.sh cuda
       # `native` needs a live device at CONFIGURE time, so this reads the
       # runner's card. Pin the preset (ampere/hopper) if the runner's GPU is
       # not the one you ship for.

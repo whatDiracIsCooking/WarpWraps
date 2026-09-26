@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 # Install the CUDA toolkit from NVIDIA's apt repository.
 #
-# Called by the `cuda` stage of docker/Dockerfile, and inherited by `combined`.
-# It is a script rather than an inline RUN so that `combined` can reuse it
-# without the block being written twice -- Dockerfiles have no include.
+# Called by docker/Dockerfile.cuda, and inherited (already installed) by
+# docker/Dockerfile.combined, which builds on the CUDA image. Still a script
+# rather than an inline RUN, to match install-rocm.sh -- which has to be one,
+# since `combined` runs it a second time.
 #
 # Why apt and not the nvidia/cuda base image: this repo builds a HIP backend
-# too, and a shared toolchain `base` stage cannot be both nvidia/cuda and
+# too, and the shared docker/Dockerfile.base cannot be both nvidia/cuda and
 # rocm/dev-ubuntu at once. Installing the toolkit on top of plain Ubuntu is what
 # lets `base` stay vendor-neutral. The nvidia/cuda images are themselves Ubuntu
 # plus these same packages, so nothing is lost -- except the NVIDIA_* runtime
-# env those images set, which the Dockerfile sets explicitly instead.
+# env those images set, which Dockerfile.cuda sets explicitly instead.
 set -euo pipefail
 
 CUDA_VERSION="${CUDA_VERSION:?CUDA_VERSION must be set, e.g. 13-0}"
