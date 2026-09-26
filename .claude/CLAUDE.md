@@ -552,23 +552,24 @@ change verified.
 - **`git push`** runs the fast pytest tier — **only when the push touches a
   `.py`**. That condition is the `files: \.py$` filter on the pre-push hook in
   `.pre-commit-config.yaml`, not anything inside the script.
-- **CI is currently OFF.** `.github/workflows/ci.yml` has every automatic
-  trigger commented out and only `workflow_dispatch` left, because Actions usage
-  limits on this account make runs fail for reasons unrelated to the commit, and
-  a gate that goes red for its own reasons teaches people to ignore red. It is
-  off by having no trigger rather than by `if: false` on each job, since the
-  latter still posts skipped checks on every PR. The jobs themselves (ruff +
-  cmake-lint, the pytest tier) are intact and come back by uncommenting the
-  `on:` block.
-- **Nothing** builds the C++ tree on the server, and that was true before CI was
-  switched off: the `cpp:` job does the real thing but ships with `if: false`,
-  because a GitHub-hosted runner has no GPU and `native` needs one at configure
-  time.
+- **CI is ON for the lint and Python jobs.** `.github/workflows/ci.yml` runs
+  them automatically on push to `main` and on every PR (`workflow_dispatch` also
+  keeps the manual trigger). `lint` is ruff + cmake-lint; `test` is the pytest
+  tier across Python 3.11 and 3.13. Both run on GitHub-hosted runners. It was
+  previously manual-only because Actions usage limits on the account made runs
+  fail for reasons unrelated to the commit; if that recurs, the file's header
+  comment says how to revert to manual (comment out `push:`/`pull_request:`,
+  leave `workflow_dispatch:`).
+- **Nothing** builds the C++ tree on the server: the `cpp:` job does the real
+  thing but ships with `if: false`, because a GitHub-hosted runner has no GPU and
+  `native` needs one at configure time. Turning it on needs a self-hosted GPU
+  runner — the job's own comment has the steps.
 
-**So right now there is no server-side gate at all, for any path.** Not just
-`src/` — the Python tier too. `devtools/cpp-tier.sh` and `devtools/prepush-tests.sh`
-before opening a PR are the whole gate, both are local, and both are bypassable
-with `--no-verify`. Run them and say what you ran. Add
+**So a PR touching only `src/` is still gated by nothing on the server** — the
+Python tier now is (the `test` job), but the C++ tier is not, since the `cpp:`
+job is off. `devtools/cpp-tier.sh` before opening a PR is the whole gate for
+`src/`, it is local, and it is bypassable with `--no-verify`. Run it and say
+what you ran. Add
 `devtools/install-check.sh` when the change touches `cmake/`, a target's usage
 requirements, or anything under `src/` that a consumer imports — nothing else
 looks at the installed package. Add `devtools/cross-backend-check.sh` when it
