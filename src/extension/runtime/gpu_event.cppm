@@ -7,7 +7,6 @@
 
 export module gpumod.extension.runtime:gpu_event;
 
-import :gpu_error;
 import gpumod.runtime_api;
 import gpumod.extension.common;
 import std;

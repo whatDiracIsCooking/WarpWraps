@@ -5,6 +5,7 @@
  * This module provides common, backend-neutral utilities for GPU error handling and extension functionality.
  * It aggregates:
  * - :error_code - Success codes and error string utilities
+ * - :gpu_error - gpuError_t specializations of the error_code utilities
  * - :gpu_check - GPU error checking utilities
  * - :error_policy - Base error policy class template
  * - :default_error_policy - Default error policy implementation
@@ -22,6 +23,7 @@ export module gpumod.extension.common;
 import std;
 
 export import :error_code;
+export import :gpu_error;
 export import :gpu_check;
 export import :error_policy;
 export import :default_error_policy;

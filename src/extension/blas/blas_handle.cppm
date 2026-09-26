@@ -23,8 +23,11 @@ struct HandleErrorType<gpublasHandle_t> {
 /**
  * @brief RAII wrapper for a GPU BLAS handle
  *
- * Automatically creates a GPU BLAS handle on construction and destroys it on destruction.
- * Supports move semantics for transferring ownership.
+ * A cuBLAS/rocBLAS handle belongs to whatever device was current when it was
+ * created, so this derives from GpuBoundHandle: construction selects dev_idx
+ * (the first constructor argument, default 0), creates the handle there, and
+ * records it -- read it back with dev_idx(). Destroys the handle on
+ * destruction; supports move semantics, copy is deleted.
  *
  * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<gpublasStatus_t>)
  * @tparam P_destroy Error policy type for destruction (defaults to P_create)
@@ -34,16 +37,17 @@ struct HandleErrorType<gpublasHandle_t> {
 template<error_policy<gpublasStatus_t> P_create = DefaultErrorPolicy<gpublasStatus_t>,
          error_policy<gpublasStatus_t> P_destroy = P_create>
 class GpublasHandleWrapper
-    : public BaseGpuHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
-                           P_destroy> {
+    : public GpuBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
+                            P_destroy> {
 private:
-  using Base = BaseGpuHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
-                             P_destroy>;
+  using Base = GpuBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
+                              P_destroy>;
 
 public:
-  // Default constructors - inherited from base
-  using BaseGpuHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
-                      P_destroy>::BaseGpuHandle;
+  // The `GpublasHandle(int dev_idx = 0)` default/per-device constructor,
+  // inherited from GpuBoundHandle, which selects and records the owning device.
+  using GpuBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
+                       P_destroy>::GpuBoundHandle;
 
   /// @brief Create a GPU BLAS handle
   /// @param handle Output parameter for the created handle

@@ -4,7 +4,6 @@ gpumod_add_cxx_module_library(
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
-  gpu_error.cppm
   gpu_stream.cppm
   gpu_event.cppm
   gpu_mem_pool.cppm

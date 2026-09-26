@@ -1,14 +1,23 @@
 /**
  * @file gpu_error.cppm
- * @brief GPU runtime API error code specializations
+ * @brief GPU runtime API error code specializations (gpuError_t)
  *
- * Provides specializations of error handling templates for gpuError_t.
+ * Provides the success_code / error_name / error_string specializations for
+ * gpuError_t and the gpu_check<gpuError_t> instantiation. These live in common,
+ * not the runtime extension module, because :device_bound_handle selects and
+ * records the owning device (gpuSetDevice / gpuGetDevice, both gpuError_t) for
+ * every device-bound handle -- including the library handles (blas, solver,
+ * sparse, fft) that link common but not the runtime module. Keeping them here
+ * makes the device-bound base self-sufficient for all of its users.
  */
 
-export module gpumod.extension.runtime:gpu_error;
+export module gpumod.extension.common:gpu_error;
 
+import :error_code;
+import :gpu_check;
+import :error_policy;
+import :default_error_policy;
 import gpumod.runtime_api;
-import gpumod.extension.common;
 import std;
 
 export namespace gpumod::extension {
