@@ -9,8 +9,8 @@
 # gpu_check) live in the gpumod.extension.common.error_handling submodule; this
 # module links it PUBLIC and re-exports it, then adds the gpuError_t
 # specializations (:gpu_error) on top. The RAII GPU-handle layer built on this
-# foundation now lives in the handle/ subdirectory
-# (gpumod.extension.common.handle), added below.
+# foundation is a sibling module (gpumod.extension.handle, in
+# src/extension/handle).
 add_subdirectory(error_handling)
 
 gpumod_add_cxx_module_library(
@@ -27,8 +27,3 @@ gpumod_add_cxx_module_library(
   gpumod.extension.common.error_handling
   IMPORT_STD
 )
-
-# The RAII GPU-handle layer, split out but living under common/ because it is a
-# direct extension of this foundation. Added after the target above so it can
-# link it.
-add_subdirectory(handle)

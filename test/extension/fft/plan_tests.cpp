@@ -3,7 +3,7 @@
 // FftPlan derives from GpuBoundHandle like the other library handles, but it is
 // the one handle whose liveness cannot ride the base's null sentinel:
 // gpufftHandle is an integer on CUDA (cufftHandle is `int`) with no reserved
-// invalid value. BaseGpuHandle handles that by tracking ownership with an
+// invalid value. BaseHandle handles that by tracking ownership with an
 // explicit flag for handle types with no in-band null, so a moved-from plan is
 // left owning nothing while its integer handle is unchanged -- indistinguishable
 // from a live one through get(), which is exactly why a broken move would
@@ -28,7 +28,7 @@
 
 import std;
 import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.common.handle; // BaseGpuHandle, GpuBoundHandle
+import gpumod.extension.handle; // BaseHandle, GpuBoundHandle
 import gpumod.extension.fft; // re-exports gpumod.fft: gpufftHandle, gpufftResult_t, GPUFFT_SUCCESS
 
 namespace gpumod::extension::test {

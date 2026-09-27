@@ -14,10 +14,11 @@ backend.
 
 > The wrappers here take the raw vendor handle (`gpublasHandle_t`, …) and return
 > the raw vendor status (`gpublasStatus_t`, …); this module carries no
-> error-handling or RAII layer of its own. Typed error policies and RAII handle
-> ownership — `error_code`, `error_policy`, `default_error_policy`, `gpu_check`
-> and the `BaseGpuHandle` CRTP base — live in `gpumod.extension.common`, and each
-> extension's `:*_error` / `:*_handle` partitions build on it.
+> error-handling or RAII layer of its own. Typed error policies —
+> `error_code`, `error_policy`, `default_error_policy`, `gpu_check` — live in
+> `gpumod.extension.common`, and the `BaseHandle` CRTP base lives in
+> `gpumod.extension.handle`; each extension's `:*_error` / `:*_handle`
+> partitions build on them.
 
 ## Module Partitions
 

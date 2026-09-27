@@ -8,13 +8,13 @@
 # modules that derive concrete handles from these bases link this.
 gpumod_add_cxx_module_library(
   NAME
-  gpumod.extension.common.handle
+  gpumod.extension.handle
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
-  gpu_handle.cppm
+  handle.cppm
   device_bound_handle.cppm
-  gpu_handle_view.cppm
+  handle_view.cppm
   device_bound_handle_view.cppm
   LINK_PUBLIC
   gpumod.extension.common

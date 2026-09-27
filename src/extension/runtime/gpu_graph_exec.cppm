@@ -10,7 +10,7 @@ export module gpumod.extension.runtime:gpu_graph_exec;
 
 import gpumod.runtime_api;
 import gpumod.extension.common;
-import gpumod.extension.common.handle;
+import gpumod.extension.handle;
 import std;
 
 export namespace gpumod::extension {
@@ -40,15 +40,15 @@ public:
 /**
  * @brief Non-owning, copyable view over a GPU executable graph
  *
- * Carries the borrowed handle (via GpuHandleView; an exec is not device-bound)
+ * Carries the borrowed handle (via HandleView; an exec is not device-bound)
  * and the borrow-safe operations (via GpuGraphExecAccess). Construct one from an
  * owning GpuGraphExec with `.view()`, or from a raw gpuGraphExec_t. It destroys
  * nothing, so it must not outlive the exec it borrows.
  */
-class GpuGraphExecView : public GpuHandleView<gpuGraphExec_t>,
+class GpuGraphExecView : public HandleView<gpuGraphExec_t>,
                          public GpuGraphExecAccess<GpuGraphExecView> {
 public:
-  using GpuHandleView<gpuGraphExec_t>::GpuHandleView;
+  using HandleView<gpuGraphExec_t>::HandleView;
 };
 
 /**
@@ -58,7 +58,7 @@ public:
  * destroys it on destruction. Supports move semantics for transferring
  * ownership.
  *
- * @note An executable graph is NOT device-bound, so this sits on BaseGpuHandle
+ * @note An executable graph is NOT device-bound, so this sits on BaseHandle
  *       rather than GpuBoundHandle: gpuGraphInstantiate* takes no device, a
  *       graph may span multiple devices, and the exec runs on whatever device
  *       the stream passed to launch() belongs to. There is no device index to
@@ -72,12 +72,12 @@ public:
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
          nothrow_error_policy<gpuError_t> P_destroy = P_create>
 class GpuGraphExecWrapper
-    : public BaseGpuHandle<gpuGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create,
+    : public BaseHandle<gpuGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create,
                            P_destroy>,
       public GpuGraphExecAccess<GpuGraphExecWrapper<P_create, P_destroy>> {
 private:
   using Base =
-      BaseGpuHandle<gpuGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create, P_destroy>;
+      BaseHandle<gpuGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 public:
   /// @brief Instantiate an executable graph from a graph template

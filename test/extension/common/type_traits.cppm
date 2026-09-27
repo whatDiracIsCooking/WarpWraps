@@ -2,7 +2,7 @@
 // error/handle layer
 //
 // static_asserts on the error policy and RAII handle base (error_code,
-// error_policy, default_error_policy, gpu_check, gpu_handle). The build is the
+// error_policy, default_error_policy, gpu_check, handle). The build is the
 // test: this file is a compile_time_tests dependency (see CMakeLists.txt). The
 // fp/int concept and type-map asserts live in test/wrappers/common.
 
@@ -10,7 +10,7 @@ export module gpumod.test.extension.common_error_handle;
 
 import std;
 import gpumod.extension.common;
-import gpumod.extension.common.handle;
+import gpumod.extension.handle;
 
 namespace gpumod::extension::test {
 
@@ -40,7 +40,7 @@ static_assert(!error_policy<int, int>); // a bare int is not a policy
 } // namespace gpumod::extension::test
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// BaseGpuHandle RAII semantics
+// BaseHandle RAII semantics
 //
 // Every extension instantiates this CRTP base, so it compiles -- but nothing
 // asserts the ownership contract it exists to provide: move-only (copy deleted),
@@ -59,9 +59,9 @@ struct fake_handle_tag;
 using FakeHandle = fake_handle_tag *;
 
 class FakeHandleWrapper
-    : public BaseGpuHandle<FakeHandle, FakeHandleWrapper, DefaultErrorPolicy<int>> {
+    : public BaseHandle<FakeHandle, FakeHandleWrapper, DefaultErrorPolicy<int>> {
 public:
-  using BaseGpuHandle::BaseGpuHandle;
+  using BaseHandle::BaseHandle;
   void create(FakeHandle *h, std::source_location) { *h = nullptr; }
   void destroy(FakeHandle) {}
 };

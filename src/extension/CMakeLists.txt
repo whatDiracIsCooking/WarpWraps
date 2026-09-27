@@ -2,13 +2,14 @@
 # written once against src/'s gpu* names. Built for either GPUMOD_GPU_BACKEND;
 # nothing here imports src/cuda or src/hip directly.
 #
-# common is added first: every other module here links it, and its own
-# subdirectory adds gpumod.extension.common.handle (the RAII handle layer) so
-# that too is defined before its consumers. bridge (the
+# common is added first: every other module here links it. handle (the RAII
+# handle layer) is added next -- it links common, and the runtime/memory_buffer/
+# blas/solver/fft/sparse modules link it, so it must precede them. bridge (the
 # header-only host/device type bridges) precedes parallel_for, which links it;
 # parallel_for (the header-only device launcher) precedes init_state and
 # random_normal, which use it.
 add_subdirectory(common)
+add_subdirectory(handle)
 add_subdirectory(bridge)
 add_subdirectory(parallel_for)
 add_subdirectory(runtime)

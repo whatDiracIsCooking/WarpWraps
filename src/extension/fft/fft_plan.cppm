@@ -14,7 +14,7 @@ export module gpumod.extension.fft:fft_plan;
 import :fft_error;
 import gpumod.fft;
 import gpumod.extension.common;
-import gpumod.extension.common.handle;
+import gpumod.extension.handle;
 import std;
 
 export namespace gpumod::extension {
@@ -31,8 +31,8 @@ export namespace gpumod::extension {
  *
  * The plan used to hand-roll all of that because gpufftHandle is an integer on
  * CUDA (cufftHandle is `int`; hipfftHandle is a pointer) with no reserved
- * invalid value, so it could not ride BaseGpuHandle's null-sentinel liveness
- * test. BaseGpuHandle now tracks liveness with an explicit flag for exactly the
+ * invalid value, so it could not ride BaseHandle's null-sentinel liveness
+ * test. BaseHandle now tracks liveness with an explicit flag for exactly the
  * handle types with no in-band null, so the plan needs nothing more than the
  * create()/destroy() hooks below.
  *
@@ -65,7 +65,7 @@ public:
   /// @param handle Output parameter for the created plan
   /// @param location Source location where creation was requested
   /// @return Whether the plan was created -- gpufftHandle has no null sentinel,
-  ///         so BaseGpuHandle tracks ownership from this bool.
+  ///         so BaseHandle tracks ownership from this bool.
   bool create(gpufftHandle *handle, std::source_location location) {
     return gpu_check(gpufftCreate(handle), this->policy_create_, location);
   }

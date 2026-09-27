@@ -1,20 +1,20 @@
 /**
- * @file gpu_handle.cppm
+ * @file handle.cppm
  * @brief RAII wrapper for GPU handles
  *
  * Provides generic RAII wrapper for managing GPU handles (streams, events, library handles)
  * with automatic resource cleanup.
  *
  * Usage:
- *   import gpumod.extension.common.handle;
+ *   import gpumod.extension.handle;
  *
- *   class GpuStream : public BaseGpuHandle<gpuStream_t, GpuStream, ...> { ... };
+ *   class GpuStream : public BaseHandle<gpuStream_t, GpuStream, ...> { ... };
  */
 
-export module gpumod.extension.common.handle:gpu_handle;
+export module gpumod.extension.handle:handle;
 
 import gpumod.extension.common; // BaseErrorPolicy, NonCopyable
-import :gpu_handle_view;
+import :handle_view;
 import std;
 
 export namespace gpumod::extension {
@@ -47,7 +47,7 @@ export namespace gpumod::extension {
 ///       ever materialises for cuFFT.
 template<typename T, typename Derived, typed_error_policy P_create,
          nothrow_error_policy<typename P_create::error_type> P_destroy = P_create>
-class BaseGpuHandle : private NonCopyable {
+class BaseHandle : private NonCopyable {
 protected:
   T handle_{};
 
@@ -99,31 +99,31 @@ protected:
 
   // Protected constructor that skips automatic handle creation
   // Allows derived classes to manually create handles with custom parameters
-  BaseGpuHandle(skip_default_create_t) noexcept {}
+  BaseHandle(skip_default_create_t) noexcept {}
 
 public:
-  BaseGpuHandle(std::source_location location = std::source_location::current()) {
+  BaseHandle(std::source_location location = std::source_location::current()) {
     run_create(location);
   }
 
-  BaseGpuHandle(P_create policy, std::source_location location = std::source_location::current())
+  BaseHandle(P_create policy, std::source_location location = std::source_location::current())
       : policy_create_(policy), policy_destroy_(std::move(policy)) {
     run_create(location);
   }
 
-  BaseGpuHandle(P_create policy_create, P_destroy policy_destroy,
+  BaseHandle(P_create policy_create, P_destroy policy_destroy,
                 std::source_location location = std::source_location::current())
       : policy_create_(std::move(policy_create)), policy_destroy_(std::move(policy_destroy)) {
     run_create(location);
   }
 
-  ~BaseGpuHandle() {
+  ~BaseHandle() {
     if (live()) {
       static_cast<Derived *>(this)->destroy(handle_);
     }
   }
 
-  BaseGpuHandle(BaseGpuHandle &&other) noexcept
+  BaseHandle(BaseHandle &&other) noexcept
       : handle_(other.handle_), owns_(other.owns_),
         policy_create_(std::move(other.policy_create_)),
         policy_destroy_(std::move(other.policy_destroy_)) {
@@ -131,7 +131,7 @@ public:
     other.release();
   }
 
-  BaseGpuHandle &operator=(BaseGpuHandle &&other) noexcept {
+  BaseHandle &operator=(BaseHandle &&other) noexcept {
     // Self-assignment check
     if (this != &other) {
       // Destroy current handle if we own one
@@ -160,8 +160,8 @@ public:
   /// Deleted on rvalues so a view cannot be taken from a temporary handle, which
   /// would dangle immediately. Derived layers hide this with a richer view type
   /// (device index, borrow-safe operations) where they have one.
-  GpuHandleView<T> view() const & noexcept { return GpuHandleView<T>{handle_}; }
-  GpuHandleView<T> view() && = delete;
+  HandleView<T> view() const & noexcept { return HandleView<T>{handle_}; }
+  HandleView<T> view() && = delete;
 };
 
 } // namespace gpumod::extension

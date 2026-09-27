@@ -10,7 +10,7 @@ export module gpumod.extension.solver:solver_params;
 import :solver_error;
 import gpumod.solver;
 import gpumod.extension.common;
-import gpumod.extension.common.handle;
+import gpumod.extension.handle;
 import std;
 
 export namespace gpumod::extension {
@@ -29,16 +29,16 @@ export namespace gpumod::extension {
 template<error_policy<gpusolverStatus_t> P_create = DefaultErrorPolicy<gpusolverStatus_t>,
          nothrow_error_policy<gpusolverStatus_t> P_destroy = P_create>
 class GpusolverDnParamsWrapper
-    : public BaseGpuHandle<gpusolverDnParams_t, GpusolverDnParamsWrapper<P_create, P_destroy>,
+    : public BaseHandle<gpusolverDnParams_t, GpusolverDnParamsWrapper<P_create, P_destroy>,
                            P_create, P_destroy> {
 private:
-  using Base = BaseGpuHandle<gpusolverDnParams_t, GpusolverDnParamsWrapper<P_create, P_destroy>,
+  using Base = BaseHandle<gpusolverDnParams_t, GpusolverDnParamsWrapper<P_create, P_destroy>,
                              P_create, P_destroy>;
 
 public:
   // Default constructors - inherited from base
-  using BaseGpuHandle<gpusolverDnParams_t, GpusolverDnParamsWrapper<P_create, P_destroy>, P_create,
-                      P_destroy>::BaseGpuHandle;
+  using BaseHandle<gpusolverDnParams_t, GpusolverDnParamsWrapper<P_create, P_destroy>, P_create,
+                      P_destroy>::BaseHandle;
 
   /// @brief Create GPU solver params
   /// @param params Output parameter for the created params
