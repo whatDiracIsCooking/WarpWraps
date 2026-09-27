@@ -1,8 +1,9 @@
 // main.cpp -- what using an installed gpumod actually looks like.
 //
 // This consumes ONLY the parts of gpumod that the package installs: the
-// backend-neutral gpu* layer (gpumod.runtime_api, gpumod.blas) and the
-// dispatch-only wrappers (gpumod.wrappers.*). It deliberately does NOT touch
+// backend-neutral gpu* layer (gpumod.runtime_api, gpumod.blas) and the wrappers
+// (gpumod.wrappers.* -- the dispatch wrappers, plus the untyped tools-extension
+// wrapper gpumod.wrappers.tx). It deliberately does NOT touch
 // the extension layer (gpumod.extension.*, the RAII handle / buffer / error
 // abstractions) -- that layer is built in-tree but is not part of the installed
 // package, so a find_package consumer cannot see it. Restoring it to the
@@ -42,6 +43,7 @@ import gpumod.wrappers.blas;
 import gpumod.wrappers.solver;
 import gpumod.wrappers.fft;
 import gpumod.wrappers.sparse;
+import gpumod.wrappers.tx; // gpumod::tx::mark, ScopedRange, range_start/stop
 
 // The gpu* names (gpuSuccess, gpuMalloc, GPUBLAS_OP_N, ...) and the wrappers
 // (gemm, potri, ...) are all exported in namespace gpumod. A consumer is not
@@ -155,6 +157,17 @@ bool wrappers_link() {
 } // namespace
 
 int main() {
+  // gpumod.wrappers.tx is host-side profiler annotation -- it needs no device,
+  // so exercising the whole surface here (marker, RAII push/pop via ScopedRange,
+  // async start/stop) proves the tx wrapper chain -- gpumod.wrappers.tx ->
+  // gpumod.tx -> the backend's NVTX/rocTX module -- installs, compiles, links
+  // AND runs, regardless of whether a GPU is present. The ScopedRange guards the
+  // rest of main, so it pops on every return path below.
+  tx::mark("consumer start");
+  const tx::ScopedRange session{"gpumod install-check"};
+  tx::range_stop(tx::range_start("async probe"));
+  std::println("tx     : marker + scoped/async ranges resolved and linked");
+
   // Compile-and-link proof first: no device needed, and it is what proves the
   // install regardless of whether a GPU is present to run the gemm.
   if (!wrappers_link())

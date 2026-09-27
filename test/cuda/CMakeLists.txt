@@ -34,6 +34,7 @@ set(CUDA_TEST_LIBRARIES
     cuda_h
     cusolverMg
     cupti
+    nvToolsExt
     cuda_profiler_api
     cusolverSp
     nvFatbin

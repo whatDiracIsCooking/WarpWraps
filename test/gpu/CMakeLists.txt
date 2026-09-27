@@ -23,6 +23,7 @@ if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_test_raw_sparse gpumod.cuda.cusparse)
   set(_gpu_test_raw_fft gpumod.cuda.cufft)
   set(_gpu_test_raw_rand gpumod.cuda.curand)
+  set(_gpu_test_raw_tx gpumod.cuda.nvToolsExt)
 else()
   set(_gpu_test_raw_runtime_api gpumod.hip.hip_runtime_api)
   set(_gpu_test_raw_complex gpumod.hip.hip_complex)
@@ -35,6 +36,7 @@ else()
   # Two, matching src/CMakeLists.txt: hipRAND's device state types live in
   # their own module, where cuRAND keeps them in curand.cppm.
   set(_gpu_test_raw_rand gpumod.hip.hiprand gpumod.hip.hiprand_kernel)
+  set(_gpu_test_raw_tx gpumod.hip.roctx)
 endif()
 
 set(GPU_TEST_LIBRARIES
@@ -47,6 +49,7 @@ set(GPU_TEST_LIBRARIES
     sparse
     fft
     rand
+    tx
 )
 
 set(_gpu_test_targets "")

@@ -14,9 +14,10 @@
  *     surface is already gpumod.hip.hip_runtime_api's.
  *   - roctracer_roctx.h, which types the ACTIVITY_DOMAIN_ROCTX callback
  *     payload but requires roctx.h -- a distinct marker API with its own
- *     library, wrapped nowhere in this project (nor is NVTX). The domain
- *     enumerator itself, from prof_protocol.h, IS exported; only the
- *     ROCTX-specific callback-data struct is absent.
+ *     library, wrapped separately in gpumod.hip.roctx (its NVTX counterpart is
+ *     gpumod.cuda.nvToolsExt). The domain enumerator itself, from
+ *     prof_protocol.h, IS exported here; only the ROCTX-specific callback-data
+ *     struct is absent.
  *
  * Usage:
  *   import gpumod.hip.roctracer;

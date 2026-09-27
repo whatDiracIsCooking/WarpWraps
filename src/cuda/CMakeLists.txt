@@ -275,6 +275,23 @@ gpumod_add_cxx_module_library(
   PUBLIC
 )
 
+# NVTX (NVIDIA Tools Extension) -- marker/range core
+#
+# HIP counterpart: roctx.cppm. Header-only: nvtx3/nvToolsExt.h is static inline
+# with no libnvToolsExt and no CUDA::nvToolsExt target, so this links no CUDA
+# library -- INCLUDE_CUDA_TOOLKIT alone puts nvtx3/ on the include path (needed
+# both here and when a consumer recompiles the installed module unit). See
+# src/cuda/nvToolsExt.cppm.
+gpumod_add_cxx_module_library(
+  NAME
+  gpumod.cuda.nvToolsExt
+  PRIMARY_INTERFACE
+  nvToolsExt.cppm
+  IMPORT_STD
+  INCLUDE_CUDA_TOOLKIT
+  PUBLIC
+)
+
 # CUPTI (CUDA Profiling Tools Interface)
 gpumod_add_cxx_module_library(
   NAME

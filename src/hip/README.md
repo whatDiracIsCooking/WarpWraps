@@ -194,11 +194,11 @@ callback-ID enum from `cupti_nvtx_cbid.h` without needing to wrap `nvtx.h`):
 - `roctracer_roctx.h` -- exists only to type the callback `data` payload for
   `ACTIVITY_DOMAIN_ROCTX`, but doing so requires including `roctx.h`, a
   distinct marker/range-annotation API (AMD's analogue of NVTX) with its own
-  library (`libroctx64`) and its own public function surface. Neither NVTX nor
-  ROCTX is wrapped anywhere in this project yet, so pulling in `roctx.h` here
-  would silently wrap a second, unrelated library's API to get two small
-  types. `ACTIVITY_DOMAIN_ROCTX` itself (the domain enumerator) is still
-  exported; only the ROCTX-specific callback-data struct is left out.
+  library (`libroctx64`) and its own public function surface. That API is
+  wrapped separately as `gpumod.hip.roctx` (see below), so pulling in `roctx.h`
+  *here* would only re-wrap it to get two small callback-payload types.
+  `ACTIVITY_DOMAIN_ROCTX` itself (the domain enumerator) is still exported;
+  only the ROCTX-specific callback-data struct is left out.
 
 No CMake package exists for `roctracer` (no `/opt/rocm/lib/cmake/roctracer/`),
 so `src/hip/CMakeLists.txt` uses `find_library(ROCTRACER_LIBRARY roctracer64
@@ -212,6 +212,43 @@ a standalone probe against it. It still needs `/opt/rocm/include` on the
 include path so `#include <roctracer/roctracer.h>` itself resolves --
 `find_path(ROCTRACER_INCLUDE_DIR roctracer/roctracer.h ...)` gets that without
 pulling in `hip::host` just for a side effect of linking it.
+
+### `gpumod.hip.roctx`
+
+**Import:** `import gpumod.hip.roctx;`
+
+Wraps `roctracer/roctx.h` -- rocTX, AMD's marker/range profiler-annotation API
+and the HIP counterpart to NVTX (`gpumod.cuda.nvToolsExt`). Scoped to the
+marker-and-range surface both backends share -- markers (`roctxMarkA`), nested
+push/pop ranges (`roctxRangePushA` / `roctxRangePop`), asynchronous start/stop
+ranges (`roctxRangeStartA` / `roctxRangeStop`), and the range-id type
+(`roctx_range_id_t`, a `uint64_t`). This is nearly the whole of the classic
+`roctx.h`; a neutral `gpu*` layer can sit on exactly this set.
+
+Two name-shape differences from NVTX are worth flagging: the async-range
+terminator is `roctxRangeStop` where NVTX spells it `nvtxRangeEnd`, and the
+range-id type is `roctx_range_id_t` where NVTX uses `nvtxRangeId_t`.
+
+Unlike NVTX's header-only static-inline functions, rocTX's are real `extern "C"`
+symbols in `libroctx64`, so they re-export by name with `using ::` rather than
+through forwarding wrappers. Like `roctracer`, rocTX has no CMake package, so
+`src/hip/CMakeLists.txt` uses `find_library(ROCTX_LIBRARY roctx64 ...)` and
+`find_path(ROCTX_INCLUDE_DIR roctracer/roctx.h ...)`. `roctx.h` pulls in only
+`<stdint.h>`, needing the HIP runtime for neither symbols nor includes, so this
+target links `libroctx64` alone -- no `hip::` target.
+
+Deliberately out of scope:
+
+- `roctx_version_major` / `roctx_version_minor` -- versioning queries with no
+  counterpart in NVTX's common marker/range surface.
+- the richer surface present only in the `rocprofiler-sdk-roctx` variant of the
+  header (a distinct library, `librocprofiler-sdk-roctx`), which has no
+  classic-NVTX marker/range analogue: `roctxProfilerPause`/`Resume`,
+  `roctxNameOsThread`, `roctxNameHipDevice`/`HipStream`, `roctxNameHsaAgent`,
+  `roctxGetThreadId`.
+- the `roctxMark` / `roctxRangePush` / `roctxRangeStart` names -- function-like
+  macro aliases for the A-suffixed functions, and macros do not cross a module
+  boundary, so only the real A-suffixed functions are exported.
 
 ### `gpumod.hip.hip_complex`
 
