@@ -12,9 +12,9 @@ All buffer types live in the `wwr::extension` namespace and are template aliases
 
 | Alias | Memory kind | Allocation API | Host-accessible |
 |---|---|---|---|
-| `DeviceBuffer<T>` | GPU device memory | `gpuMallocFromPoolAsync` (from a `DeviceHandle`'s pool) | No |
-| `PinnedBuffer<T>` | Page-locked host memory | `gpuHostAlloc` (`gpuHostAllocDefault` unless flags are given) | Yes |
-| `UnifiedBuffer<T>` | Unified (managed) memory | `gpuMallocManaged` | Yes |
+| `DeviceBuffer<T>` | GPU device memory | `wwrMallocFromPoolAsync` (from a `DeviceHandle`'s pool) | No |
+| `PinnedBuffer<T>` | Page-locked host memory | `wwrHostAlloc` (`wwrHostAllocDefault` unless flags are given) | Yes |
+| `UnifiedBuffer<T>` | Unified (managed) memory | `wwrMallocManaged` | Yes |
 | `HostBuffer<T>` | Standard host memory | `std::malloc` | Yes |
 
 ### Common Interface (from `BaseBuffer`)
@@ -62,26 +62,26 @@ instantiable; `storage_type` is `T` for every case in which the operator is enab
 **Device buffers are always drawn from a shared `DeviceHandle`:**
 ```cpp
 auto device = std::make_shared<DeviceHandle>(0);
-DeviceBuffer<T> buf(n, device);          // gpuMallocFromPoolAsync from the handle's pool
+DeviceBuffer<T> buf(n, device);          // wwrMallocFromPoolAsync from the handle's pool
 DeviceBuffer<T> buf(n, device, policy);  // ...with a custom error policy
 ```
 
-A `DeviceBuffer` selects the handle's device with `gpuSetDevice`, allocates `n` elements from
+A `DeviceBuffer` selects the handle's device with `wwrSetDevice`, allocates `n` elements from
 the handle's memory pool (`mem_pool()`) on its `alloc_stream()`, and zero-initialises them on
 that stream. It keeps a `shared_ptr` to the handle, so the pool and stream — owned solely by
-the `DeviceHandle`, never shared on their own — outlive the buffer's `gpuFreeAsync`. The block
-is released with `gpuFreeAsync` on that same stream; `gpuFree` performs no implicit
+the `DeviceHandle`, never shared on their own — outlive the buffer's `wwrFreeAsync`. The block
+is released with `wwrFreeAsync` on that same stream; `wwrFree` performs no implicit
 synchronisation for a pointer from the stream-ordered pool allocator, so using it would return
 the block while work still queued on the stream was reading and writing it.
 
 **Pinned-specific with flags:**
 ```cpp
-PinnedBuffer<T> buf(n, gpuHostAllocMapped);  // gpuHostAlloc with flags
+PinnedBuffer<T> buf(n, wwrHostAllocMapped);  // wwrHostAlloc with flags
 ```
 
 **Unified-specific with flags:**
 ```cpp
-UnifiedBuffer<T> buf(n, gpuMemAttachHost);   // gpuMallocManaged with flags
+UnifiedBuffer<T> buf(n, wwrMemAttachHost);   // wwrMallocManaged with flags
 ```
 
 ## Error Handling
@@ -90,7 +90,7 @@ Error policies are parameterised via `P_alloc` and `P_free` template arguments. 
 
 | Kind | Error type |
 |---|---|
-| `Device`, `Pinned`, `Unified` | `gpuError_t` |
+| `Device`, `Pinned`, `Unified` | `wwrError_t` |
 | `Host` | `stdHostMemoryError_t` |
 
 `stdHostMemoryError_t` is a project-defined enum providing `stdHostMemSuccess`, `stdHostMemAllocFailure`, `stdHostMemDeallocFailure`, and `stdHostMemInvalidValue`.
@@ -116,7 +116,7 @@ Uses `std::memcpy`. Validates bounds before copying.
 ```cpp
 template <buffer_base B1, buffer_base B2>
     requires same_value_type<B1, B2> && ...
-[[nodiscard]] gpuError_t copy(B1& dst, const B2& src, gpuStream_t stream) noexcept;
+[[nodiscard]] wwrError_t copy(B1& dst, const B2& src, wwrStream_t stream) noexcept;
 ```
 
 ### Stream-ordered async copy (with offsets)
@@ -124,13 +124,13 @@ template <buffer_base B1, buffer_base B2>
 ```cpp
 template <buffer_base B1, buffer_base B2>
     requires same_value_type<B1, B2> && ...
-[[nodiscard]] gpuError_t copy(B1& dst, std::size_t dst_offset,
+[[nodiscard]] wwrError_t copy(B1& dst, std::size_t dst_offset,
                                 const B2& src, std::size_t src_offset,
                                 std::size_t count,
-                                gpuStream_t stream) noexcept;
+                                wwrStream_t stream) noexcept;
 ```
 
-Both async overloads use `gpuMemcpyAsync` with `gpuMemcpyDefault` (direction inferred from Unified Virtual Addressing). All copy functions validate bounds and return an error code rather than throwing.
+Both async overloads use `wwrMemcpyAsync` with `wwrMemcpyDefault` (direction inferred from Unified Virtual Addressing). All copy functions validate bounds and return an error code rather than throwing.
 
 ## Concepts
 
@@ -209,5 +209,5 @@ Each buffer type exposes `static constexpr MemoryKind memory_kind` and the boole
 | Dependency | Purpose |
 |---|---|
 | `wwr.extension.common` | Error policy concepts, `gpu_check`, `DefaultErrorPolicy` |
-| `wwr.extension.runtime` | `gpu_check` overloads for `gpuError_t` |
+| `wwr.extension.runtime` | `gpu_check` overloads for `wwrError_t` |
 | `wwr.runtime_api` | gpu* memory allocation APIs (CUDA or HIP runtime) |

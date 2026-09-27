@@ -13,12 +13,12 @@
  *
  * Legacy API characteristics:
  * - int for all dimensions, not int64_t
- * - no gpusolverDnParams_t parameter
+ * - no wwrsolverDnParams_t parameter
  * - a single workspace buffer, not separate device/host
  * - for the complex eigenvalue solvers (heevd), eigenvalues are real-valued
  *
  * The two Jacobi info types are opaque handles created and destroyed through
- * gpusolverDnCreateSyevjInfo / gpusolverDnCreateGesvdjInfo and passed through
+ * wwrsolverDnCreateSyevjInfo / wwrsolverDnCreateGesvdjInfo and passed through
  * unmodified; they alias each backend's own name (see src/solver.cppm).
  *
  * Usage:
@@ -31,7 +31,7 @@
  *
  *   // Allocate and compute
  *   float* workspace;
- *   gpuMalloc(&workspace, lwork * sizeof(float));
+ *   wwrMalloc(&workspace, lwork * sizeof(float));
  *   syevd<float>(handle, jobz, uplo, n, A, lda, W, workspace, lwork, devInfo);
  */
 
@@ -59,17 +59,17 @@ export namespace wwr {
  * This function computes the size of the workspace buffer required for the
  * SVD operation.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param m Number of rows of matrix A
  * @param n Number of columns of matrix A
  * @param lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gesvd_bufferSize(gpusolverDnHandle_t handle, int m, int n, int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvd_bufferSize, handle, m, n, lwork);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvd_bufferSize, handle, m, n, lwork);
+wwrsolverStatus_t gesvd_bufferSize(wwrsolverDnHandle_t handle, int m, int n, int *lwork) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, gesvd_bufferSize, handle, m, n, lwork);
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, gesvd_bufferSize, handle, m, n, lwork);
 }
 
 /**
@@ -78,7 +78,7 @@ gpusolverStatus_t gesvd_bufferSize(gpusolverDnHandle_t handle, int m, int n, int
  * Computes the singular value decomposition of a general m×n matrix A.
  * The diagonal matrix Sigma contains the singular values in descending order.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param jobu Specifies options for computing U:
  *             'A': all m columns of U are returned in array U
@@ -103,15 +103,15 @@ gpusolverStatus_t gesvd_bufferSize(gpusolverDnHandle_t handle, int m, int n, int
  * @param lwork Workspace size in elements of type T
  * @param rwork Additional real workspace for complex types (can be NULL for real types)
  * @param devInfo Device pointer: 0 on success, >0 if convergence failed
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gesvd(gpusolverDnHandle_t handle, signed char jobu, signed char jobvt, int m,
+wwrsolverStatus_t gesvd(wwrsolverDnHandle_t handle, signed char jobu, signed char jobvt, int m,
                         int n, T *A, int lda, ComplexToRealType<T> *S, T *U, int ldu, T *VT,
                         int ldvt, T *work, int lwork, ComplexToRealType<T> *rwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvd, handle, jobu, jobvt, m, n, A, lda, S, U, ldu,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, gesvd, handle, jobu, jobvt, m, n, A, lda, S, U, ldu,
                        VT, ldvt, work, lwork, rwork, devInfo);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvd, handle, jobu, jobvt, m, n, A, lda, S, U, ldu,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, gesvd, handle, jobu, jobvt, m, n, A, lda, S, U, ldu,
                           VT, ldvt, work, lwork, rwork, devInfo);
 }
 
@@ -136,13 +136,13 @@ gpusolverStatus_t gesvd(gpusolverDnHandle_t handle, signed char jobu, signed cha
  * @param lda Leading dimension of A (lda >= max(1, n))
  * @param W Pointer to eigenvalues array (device memory, n elements)
  * @param lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t syevd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                                   gpublasFillMode_t uplo, int n, const T *A, int lda, const T *W,
+wwrsolverStatus_t syevd_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                                   wwrblasFillMode_t uplo, int n, const T *A, int lda, const T *W,
                                    int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevd_bufferSize, handle, jobz, uplo, n, A, lda, W,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, syevd_bufferSize, handle, jobz, uplo, n, A, lda, W,
                        lwork);
 }
 
@@ -166,12 +166,12 @@ gpusolverStatus_t syevd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_
  * @param work Device workspace buffer (size from syevd_bufferSize)
  * @param lwork Workspace size in elements of type T
  * @param devInfo Device pointer: 0 on success, i if i-th parameter is invalid, >n if convergence failed
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t syevd(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpublasFillMode_t uplo,
+wwrsolverStatus_t syevd(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo,
                         int n, T *A, int lda, T *W, T *work, int lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevd, handle, jobz, uplo, n, A, lda, W, work, lwork,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, syevd, handle, jobz, uplo, n, A, lda, W, work, lwork,
                        devInfo);
 }
 
@@ -204,14 +204,14 @@ gpusolverStatus_t syevd(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpu
  * @param meig Output: number of eigenvalues found (host or device pointer)
  * @param W Pointer to eigenvalues array (device memory)
  * @param lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t syevdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                                    gpusolverEigRange_t range, gpublasFillMode_t uplo, int n,
+wwrsolverStatus_t syevdx_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                                    wwrsolverEigRange_t range, wwrblasFillMode_t uplo, int n,
                                     const T *A, int lda, T vl, T vu, int il, int iu, int *meig,
                                     const T *W, int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevdx_bufferSize, handle, jobz, range, uplo, n, A,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, syevdx_bufferSize, handle, jobz, range, uplo, n, A,
                        lda, vl, vu, il, iu, meig, W, lwork);
 }
 
@@ -242,14 +242,14 @@ gpusolverStatus_t syevdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode
  * @param work Device workspace buffer (size from syevdx_bufferSize)
  * @param lwork Workspace size in elements of type T
  * @param info Device pointer: 0 on success, i if i-th parameter is invalid
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t syevdx(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                         gpusolverEigRange_t range, gpublasFillMode_t uplo, int n, T *A, int lda,
+wwrsolverStatus_t syevdx(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                         wwrsolverEigRange_t range, wwrblasFillMode_t uplo, int n, T *A, int lda,
                          T vl, T vu, int il, int iu, int *meig, T *W, T *work, int lwork,
                          int *info) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevdx, handle, jobz, range, uplo, n, A, lda, vl, vu,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, syevdx, handle, jobz, range, uplo, n, A, lda, vl, vu,
                        il, iu, meig, W, work, lwork, info);
 }
 
@@ -263,7 +263,7 @@ gpusolverStatus_t syevdx(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
  * This function computes the size of the workspace buffer required for the
  * Hermitian eigenvalue decomposition operation.
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR: compute eigenvalues and eigenvectors
  *             CUSOLVER_EIG_MODE_NOVECTOR: compute eigenvalues only
@@ -274,15 +274,15 @@ gpusolverStatus_t syevdx(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
  * @param lda Leading dimension of A (lda >= max(1, n))
  * @param W Pointer to eigenvalues array (device memory, n elements, real-valued)
  * @param lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  *
- * @note For complex matrices, the eigenvalues W are real (float for gpuFloatComplex, double for gpuDoubleComplex)
+ * @note For complex matrices, the eigenvalues W are real (float for wwrFloatComplex, double for wwrDoubleComplex)
  */
 template<complex_fp T>
-gpusolverStatus_t heevd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                                   gpublasFillMode_t uplo, int n, const T *A, int lda,
+wwrsolverStatus_t heevd_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                                   wwrblasFillMode_t uplo, int n, const T *A, int lda,
                                    const ComplexToRealType<T> *W, int *lwork) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevd_bufferSize, handle, jobz, uplo, n, A, lda, W,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, heevd_bufferSize, handle, jobz, uplo, n, A, lda, W,
                           lwork);
 }
 
@@ -293,7 +293,7 @@ gpusolverStatus_t heevd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_
  * The eigenvalue decomposition is: A = Q * Lambda * Q^H
  * where Lambda is a diagonal matrix of real eigenvalues and Q is unitary.
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR: compute eigenvalues and eigenvectors
  *             CUSOLVER_EIG_MODE_NOVECTOR: compute eigenvalues only
@@ -306,15 +306,15 @@ gpusolverStatus_t heevd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_
  * @param work Device workspace buffer (size from heevd_bufferSize)
  * @param lwork Workspace size in elements of type T
  * @param devInfo Device pointer: 0 on success, i if i-th parameter is invalid, >n if convergence failed
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  *
- * @note For complex matrices, the eigenvalues W are real (float for gpuFloatComplex, double for gpuDoubleComplex)
+ * @note For complex matrices, the eigenvalues W are real (float for wwrFloatComplex, double for wwrDoubleComplex)
  */
 template<complex_fp T>
-gpusolverStatus_t heevd(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpublasFillMode_t uplo,
+wwrsolverStatus_t heevd(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo,
                         int n, T *A, int lda, ComplexToRealType<T> *W, T *work, int lwork,
                         int *devInfo) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevd, handle, jobz, uplo, n, A, lda, W, work,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, heevd, handle, jobz, uplo, n, A, lda, W, work,
                           lwork, devInfo);
 }
 
@@ -328,7 +328,7 @@ gpusolverStatus_t heevd(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpu
  * This function computes the size of the workspace buffer required for the
  * heevdx operation, which can compute a subset of eigenvalues/eigenvectors.
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR: compute eigenvalues and eigenvectors
  *             CUSOLVER_EIG_MODE_NOVECTOR: compute eigenvalues only
@@ -347,17 +347,17 @@ gpusolverStatus_t heevd(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpu
  * @param meig Output: number of eigenvalues found (host or device pointer)
  * @param W Pointer to eigenvalues array (device memory, real-valued)
  * @param lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  *
- * @note For complex matrices, the eigenvalues W are real (float for gpuFloatComplex, double for gpuDoubleComplex)
+ * @note For complex matrices, the eigenvalues W are real (float for wwrFloatComplex, double for wwrDoubleComplex)
  */
 template<complex_fp T>
-gpusolverStatus_t heevdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                                    gpusolverEigRange_t range, gpublasFillMode_t uplo, int n,
+wwrsolverStatus_t heevdx_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                                    wwrsolverEigRange_t range, wwrblasFillMode_t uplo, int n,
                                     const T *A, int lda, ComplexToRealType<T> vl,
                                     ComplexToRealType<T> vu, int il, int iu, int *meig,
                                     const ComplexToRealType<T> *W, int *lwork) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevdx_bufferSize, handle, jobz, range, uplo, n, A,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, heevdx_bufferSize, handle, jobz, range, uplo, n, A,
                           lda, vl, vu, il, iu, meig, W, lwork);
 }
 
@@ -367,7 +367,7 @@ gpusolverStatus_t heevdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode
  * Computes selected eigenvalues and, optionally, eigenvectors of a complex Hermitian matrix A.
  * Can compute all eigenvalues, eigenvalues in a range, or the il-th through iu-th eigenvalues.
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR: compute eigenvalues and eigenvectors
  *             CUSOLVER_EIG_MODE_NOVECTOR: compute eigenvalues only
@@ -388,16 +388,16 @@ gpusolverStatus_t heevdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode
  * @param work Device workspace buffer (size from heevdx_bufferSize)
  * @param lwork Workspace size in elements of type T
  * @param info Device pointer: 0 on success, i if i-th parameter is invalid
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  *
- * @note For complex matrices, the eigenvalues W are real (float for gpuFloatComplex, double for gpuDoubleComplex)
+ * @note For complex matrices, the eigenvalues W are real (float for wwrFloatComplex, double for wwrDoubleComplex)
  */
 template<complex_fp T>
-gpusolverStatus_t heevdx(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                         gpusolverEigRange_t range, gpublasFillMode_t uplo, int n, T *A, int lda,
+wwrsolverStatus_t heevdx(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                         wwrsolverEigRange_t range, wwrblasFillMode_t uplo, int n, T *A, int lda,
                          ComplexToRealType<T> vl, ComplexToRealType<T> vu, int il, int iu,
                          int *meig, ComplexToRealType<T> *W, T *work, int lwork, int *info) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevdx, handle, jobz, range, uplo, n, A, lda, vl,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, heevdx, handle, jobz, range, uplo, n, A, lda, vl,
                           vu, il, iu, meig, W, work, lwork, info);
 }
 
@@ -422,13 +422,13 @@ gpusolverStatus_t heevdx(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
  * @param E Off-diagonal elements (device memory, n-1 elements)
  * @param tau Elementary reflectors (device memory, n-1 elements)
  * @param lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t sytrd_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n,
+wwrsolverStatus_t sytrd_bufferSize(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *D, const T *E, const T *tau,
                                    int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sytrd_bufferSize, handle, uplo, n, A, lda, D, E, tau,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, sytrd_bufferSize, handle, uplo, n, A, lda, D, E, tau,
                        lwork);
 }
 
@@ -450,12 +450,12 @@ gpusolverStatus_t sytrd_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
  * @param work Device workspace buffer (size from sytrd_bufferSize)
  * @param lwork Workspace size in elements of type T
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t sytrd(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
+wwrsolverStatus_t sytrd(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, T *A, int lda,
                         T *D, T *E, T *tau, T *work, int lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sytrd, handle, uplo, n, A, lda, D, E, tau, work, lwork,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, sytrd, handle, uplo, n, A, lda, D, E, tau, work, lwork,
                        devInfo);
 }
 
@@ -465,7 +465,7 @@ gpusolverStatus_t sytrd(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
  * This function computes the size of the workspace buffer required for the
  * Hermitian tridiagonal reduction operation.
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param uplo CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
  * @param n Order of matrix A (n >= 0)
@@ -475,13 +475,13 @@ gpusolverStatus_t sytrd(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
  * @param E Off-diagonal elements (device memory, n-1 elements, real-valued)
  * @param tau Elementary reflectors (device memory, n-1 elements)
  * @param lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t hetrd_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n,
+wwrsolverStatus_t hetrd_bufferSize(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n,
                                    const T *A, int lda, const ComplexToRealType<T> *D,
                                    const ComplexToRealType<T> *E, const T *tau, int *lwork) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hetrd_bufferSize, handle, uplo, n, A, lda, D, E,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, hetrd_bufferSize, handle, uplo, n, A, lda, D, E,
                           tau, lwork);
 }
 
@@ -491,7 +491,7 @@ gpusolverStatus_t hetrd_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
  * Reduces a complex Hermitian matrix A to real symmetric tridiagonal form T
  * by a unitary similarity transformation: Q^H * A * Q = T
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param uplo CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
  * @param n Order of matrix A (n >= 0)
@@ -503,13 +503,13 @@ gpusolverStatus_t hetrd_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
  * @param work Device workspace buffer (size from hetrd_bufferSize)
  * @param lwork Workspace size in elements of type T
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t hetrd(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
+wwrsolverStatus_t hetrd(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, T *A, int lda,
                         ComplexToRealType<T> *D, ComplexToRealType<T> *E, T *tau, T *work,
                         int lwork, int *devInfo) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hetrd, handle, uplo, n, A, lda, D, E, tau, work,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, hetrd, handle, uplo, n, A, lda, D, E, tau, work,
                           lwork, devInfo);
 }
 
@@ -528,12 +528,12 @@ gpusolverStatus_t hetrd(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
  * @param lda Leading dimension of A
  * @param tau Elementary reflectors from sytrd (device memory)
  * @param lwork Output: required workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t orgtr_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n,
+wwrsolverStatus_t orgtr_bufferSize(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *tau, int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, orgtr_bufferSize, handle, uplo, n, A, lda, tau, lwork);
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, orgtr_bufferSize, handle, uplo, n, A, lda, tau, lwork);
 }
 
 /**
@@ -552,19 +552,19 @@ gpusolverStatus_t orgtr_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
  * @param work Device workspace buffer
  * @param lwork Workspace size
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t orgtr(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
+wwrsolverStatus_t orgtr(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, T *A, int lda,
                         const T *tau, T *work, int lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, orgtr, handle, uplo, n, A, lda, tau, work, lwork,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, orgtr, handle, uplo, n, A, lda, tau, work, lwork,
                        devInfo);
 }
 
 /**
  * @brief Query workspace size for generating unitary matrix from tridiagonal (complex types)
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param uplo CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
  * @param n Order of matrix (n >= 0)
@@ -572,12 +572,12 @@ gpusolverStatus_t orgtr(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
  * @param lda Leading dimension of A
  * @param tau Elementary reflectors from hetrd (device memory)
  * @param lwork Output: required workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t ungtr_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n,
+wwrsolverStatus_t ungtr_bufferSize(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *tau, int *lwork) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, ungtr_bufferSize, handle, uplo, n, A, lda, tau,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, ungtr_bufferSize, handle, uplo, n, A, lda, tau,
                           lwork);
 }
 
@@ -587,7 +587,7 @@ gpusolverStatus_t ungtr_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
  * Generates the complex unitary matrix Q from hetrd that reduced
  * a Hermitian matrix to tridiagonal form.
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param uplo CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
  * @param n Order of matrix (n >= 0)
@@ -597,12 +597,12 @@ gpusolverStatus_t ungtr_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
  * @param work Device workspace buffer
  * @param lwork Workspace size
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t ungtr(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
+wwrsolverStatus_t ungtr(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, T *A, int lda,
                         const T *tau, T *work, int lwork, int *devInfo) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, ungtr, handle, uplo, n, A, lda, tau, work, lwork,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, ungtr, handle, uplo, n, A, lda, tau, work, lwork,
                           devInfo);
 }
 
@@ -626,14 +626,14 @@ gpusolverStatus_t ungtr(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
  * @param C Pointer to matrix C (device memory)
  * @param ldc Leading dimension of C
  * @param lwork Output: required workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t ormtr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t side,
-                                   gpublasFillMode_t uplo, gpublasOperation_t trans, int m, int n,
+wwrsolverStatus_t ormtr_bufferSize(wwrsolverDnHandle_t handle, wwrblasSideMode_t side,
+                                   wwrblasFillMode_t uplo, wwrblasOperation_t trans, int m, int n,
                                    const T *A, int lda, const T *tau, const T *C, int ldc,
                                    int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, ormtr_bufferSize, handle, side, uplo, trans, m, n, A,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, ormtr_bufferSize, handle, side, uplo, trans, m, n, A,
                        lda, tau, C, ldc, lwork);
 }
 
@@ -657,20 +657,20 @@ gpusolverStatus_t ormtr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t
  * @param work Device workspace buffer
  * @param lwork Workspace size
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t ormtr(gpusolverDnHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo,
-                        gpublasOperation_t trans, int m, int n, T *A, int lda, T *tau, T *C,
+wwrsolverStatus_t ormtr(wwrsolverDnHandle_t handle, wwrblasSideMode_t side, wwrblasFillMode_t uplo,
+                        wwrblasOperation_t trans, int m, int n, T *A, int lda, T *tau, T *C,
                         int ldc, T *work, int lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, ormtr, handle, side, uplo, trans, m, n, A, lda, tau, C,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, ormtr, handle, side, uplo, trans, m, n, A, lda, tau, C,
                        ldc, work, lwork, devInfo);
 }
 
 /**
  * @brief Query workspace size for applying unitary matrix from tridiagonal (complex types)
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param side CUBLAS_SIDE_LEFT or CUBLAS_SIDE_RIGHT
  * @param uplo CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
@@ -683,14 +683,14 @@ gpusolverStatus_t ormtr(gpusolverDnHandle_t handle, gpublasSideMode_t side, gpub
  * @param C Pointer to matrix C (device memory)
  * @param ldc Leading dimension of C
  * @param lwork Output: required workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t unmtr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t side,
-                                   gpublasFillMode_t uplo, gpublasOperation_t trans, int m, int n,
+wwrsolverStatus_t unmtr_bufferSize(wwrsolverDnHandle_t handle, wwrblasSideMode_t side,
+                                   wwrblasFillMode_t uplo, wwrblasOperation_t trans, int m, int n,
                                    const T *A, int lda, const T *tau, const T *C, int ldc,
                                    int *lwork) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, unmtr_bufferSize, handle, side, uplo, trans, m, n,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, unmtr_bufferSize, handle, side, uplo, trans, m, n,
                           A, lda, tau, C, ldc, lwork);
 }
 
@@ -699,7 +699,7 @@ gpusolverStatus_t unmtr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t
  *
  * Multiplies a complex matrix C by the unitary matrix Q from hetrd.
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param side CUBLAS_SIDE_LEFT (Q*C) or CUBLAS_SIDE_RIGHT (C*Q)
  * @param uplo CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
@@ -714,13 +714,13 @@ gpusolverStatus_t unmtr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t
  * @param work Device workspace buffer
  * @param lwork Workspace size
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t unmtr(gpusolverDnHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo,
-                        gpublasOperation_t trans, int m, int n, T *A, int lda, T *tau, T *C,
+wwrsolverStatus_t unmtr(wwrsolverDnHandle_t handle, wwrblasSideMode_t side, wwrblasFillMode_t uplo,
+                        wwrblasOperation_t trans, int m, int n, T *A, int lda, T *tau, T *C,
                         int ldc, T *work, int lwork, int *devInfo) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, unmtr, handle, side, uplo, trans, m, n, A, lda, tau,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, unmtr, handle, side, uplo, trans, m, n, A, lda, tau,
                           C, ldc, work, lwork, devInfo);
 }
 
@@ -742,13 +742,13 @@ gpusolverStatus_t unmtr(gpusolverDnHandle_t handle, gpublasSideMode_t side, gpub
  * @param W Pointer to eigenvalues array (device memory, n elements)
  * @param lwork Output: required workspace size in elements of type T
  * @param params Jacobi parameters (can be NULL for default)
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t syevj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                                   gpublasFillMode_t uplo, int n, const T *A, int lda, const T *W,
-                                   int *lwork, gpusolverSyevjInfo_t params) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevj_bufferSize, handle, jobz, uplo, n, A, lda, W,
+wwrsolverStatus_t syevj_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                                   wwrblasFillMode_t uplo, int n, const T *A, int lda, const T *W,
+                                   int *lwork, wwrsolverSyevjInfo_t params) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, syevj_bufferSize, handle, jobz, uplo, n, A, lda, W,
                        lwork, params);
 }
 
@@ -767,13 +767,13 @@ gpusolverStatus_t syevj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_
  * @param lwork Workspace size in elements of type T
  * @param info Device pointer: 0 on success
  * @param params Jacobi parameters (can be NULL for default)
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t syevj(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpublasFillMode_t uplo,
+wwrsolverStatus_t syevj(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo,
                         int n, T *A, int lda, T *W, T *work, int lwork, int *info,
-                        gpusolverSyevjInfo_t params) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevj, handle, jobz, uplo, n, A, lda, W, work, lwork,
+                        wwrsolverSyevjInfo_t params) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, syevj, handle, jobz, uplo, n, A, lda, W, work, lwork,
                        info, params);
 }
 
@@ -791,14 +791,14 @@ gpusolverStatus_t syevj(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpu
  * @param lwork Output: required workspace size
  * @param params Jacobi parameters
  * @param batchSize Number of matrices in batch
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t syevjBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                                          gpublasFillMode_t uplo, int n, const T *A, int lda,
-                                          const T *W, int *lwork, gpusolverSyevjInfo_t params,
+wwrsolverStatus_t syevjBatched_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                                          wwrblasFillMode_t uplo, int n, const T *A, int lda,
+                                          const T *W, int *lwork, wwrsolverSyevjInfo_t params,
                                           int batchSize) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevjBatched_bufferSize, handle, jobz, uplo, n, A, lda,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, syevjBatched_bufferSize, handle, jobz, uplo, n, A, lda,
                        W, lwork, params, batchSize);
 }
 
@@ -818,13 +818,13 @@ gpusolverStatus_t syevjBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverE
  * @param info Device pointer: array of status codes
  * @param params Jacobi parameters
  * @param batchSize Number of matrices in batch
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t syevjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                               gpublasFillMode_t uplo, int n, T *A, int lda, T *W, T *work,
-                               int lwork, int *info, gpusolverSyevjInfo_t params, int batchSize) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevjBatched, handle, jobz, uplo, n, A, lda, W, work,
+wwrsolverStatus_t syevjBatched(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                               wwrblasFillMode_t uplo, int n, T *A, int lda, T *W, T *work,
+                               int lwork, int *info, wwrsolverSyevjInfo_t params, int batchSize) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, syevjBatched, handle, jobz, uplo, n, A, lda, W, work,
                        lwork, info, params, batchSize);
 }
 
@@ -835,7 +835,7 @@ gpusolverStatus_t syevjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jo
 /**
  * @brief Query workspace size for Jacobi Hermitian eigenvalue decomposition
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR or CUSOLVER_EIG_MODE_NOVECTOR
  * @param uplo CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
@@ -845,21 +845,21 @@ gpusolverStatus_t syevjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jo
  * @param W Pointer to eigenvalues array (real-valued)
  * @param lwork Output: required workspace size
  * @param params Jacobi parameters
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t heevj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                                   gpublasFillMode_t uplo, int n, const T *A, int lda,
+wwrsolverStatus_t heevj_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                                   wwrblasFillMode_t uplo, int n, const T *A, int lda,
                                    const ComplexToRealType<T> *W, int *lwork,
-                                   gpusolverSyevjInfo_t params) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevj_bufferSize, handle, jobz, uplo, n, A, lda, W,
+                                   wwrsolverSyevjInfo_t params) {
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, heevj_bufferSize, handle, jobz, uplo, n, A, lda, W,
                           lwork, params);
 }
 
 /**
  * @brief Compute Hermitian eigenvalue decomposition using Jacobi method
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR or CUSOLVER_EIG_MODE_NOVECTOR
  * @param uplo CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
@@ -871,20 +871,20 @@ gpusolverStatus_t heevj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_
  * @param lwork Workspace size
  * @param info Device pointer: 0 on success
  * @param params Jacobi parameters
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t heevj(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpublasFillMode_t uplo,
+wwrsolverStatus_t heevj(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo,
                         int n, T *A, int lda, ComplexToRealType<T> *W, T *work, int lwork,
-                        int *info, gpusolverSyevjInfo_t params) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevj, handle, jobz, uplo, n, A, lda, W, work,
+                        int *info, wwrsolverSyevjInfo_t params) {
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, heevj, handle, jobz, uplo, n, A, lda, W, work,
                           lwork, info, params);
 }
 
 /**
  * @brief Query workspace size for batched Jacobi Hermitian eigenvalue decomposition
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR or CUSOLVER_EIG_MODE_NOVECTOR
  * @param uplo CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
@@ -895,21 +895,21 @@ gpusolverStatus_t heevj(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpu
  * @param lwork Output: required workspace size
  * @param params Jacobi parameters
  * @param batchSize Number of matrices in batch
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t heevjBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                                          gpublasFillMode_t uplo, int n, const T *A, int lda,
+wwrsolverStatus_t heevjBatched_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                                          wwrblasFillMode_t uplo, int n, const T *A, int lda,
                                           const ComplexToRealType<T> *W, int *lwork,
-                                          gpusolverSyevjInfo_t params, int batchSize) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevjBatched_bufferSize, handle, jobz, uplo, n, A,
+                                          wwrsolverSyevjInfo_t params, int batchSize) {
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, heevjBatched_bufferSize, handle, jobz, uplo, n, A,
                           lda, W, lwork, params, batchSize);
 }
 
 /**
  * @brief Compute batched Hermitian eigenvalue decomposition using Jacobi method
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR or CUSOLVER_EIG_MODE_NOVECTOR
  * @param uplo CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
@@ -922,14 +922,14 @@ gpusolverStatus_t heevjBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverE
  * @param info Device pointer: array of status codes
  * @param params Jacobi parameters
  * @param batchSize Number of matrices in batch
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t heevjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
-                               gpublasFillMode_t uplo, int n, T *A, int lda,
+wwrsolverStatus_t heevjBatched(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
+                               wwrblasFillMode_t uplo, int n, T *A, int lda,
                                ComplexToRealType<T> *W, T *work, int lwork, int *info,
-                               gpusolverSyevjInfo_t params, int batchSize) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevjBatched, handle, jobz, uplo, n, A, lda, W,
+                               wwrsolverSyevjInfo_t params, int batchSize) {
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, heevjBatched, handle, jobz, uplo, n, A, lda, W,
                           work, lwork, info, params, batchSize);
 }
 
@@ -940,7 +940,7 @@ gpusolverStatus_t heevjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jo
 /**
  * @brief Query workspace size for Jacobi SVD
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR: compute singular vectors
  * @param econ 0 for full SVD, 1 for economy-size SVD
@@ -955,23 +955,23 @@ gpusolverStatus_t heevjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jo
  * @param ldv Leading dimension of V
  * @param lwork Output: required workspace size
  * @param params Jacobi parameters
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gesvdj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, int econ,
+wwrsolverStatus_t gesvdj_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz, int econ,
                                     int m, int n, const T *A, int lda,
                                     const ComplexToRealType<T> *S, const T *U, int ldu, const T *V,
-                                    int ldv, int *lwork, gpusolverGesvdjInfo_t params) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdj_bufferSize, handle, jobz, econ, m, n, A, lda, S,
+                                    int ldv, int *lwork, wwrsolverGesvdjInfo_t params) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, gesvdj_bufferSize, handle, jobz, econ, m, n, A, lda, S,
                        U, ldu, V, ldv, lwork, params);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdj_bufferSize, handle, jobz, econ, m, n, A, lda,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, gesvdj_bufferSize, handle, jobz, econ, m, n, A, lda,
                           S, U, ldu, V, ldv, lwork, params);
 }
 
 /**
  * @brief Compute SVD using Jacobi method
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR: compute singular vectors
  * @param econ 0 for full SVD, 1 for economy-size SVD
@@ -988,22 +988,22 @@ gpusolverStatus_t gesvdj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode
  * @param lwork Workspace size
  * @param info Device pointer: 0 on success
  * @param params Jacobi parameters
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gesvdj(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, int econ, int m,
+wwrsolverStatus_t gesvdj(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz, int econ, int m,
                          int n, T *A, int lda, ComplexToRealType<T> *S, T *U, int ldu, T *V,
-                         int ldv, T *work, int lwork, int *info, gpusolverGesvdjInfo_t params) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdj, handle, jobz, econ, m, n, A, lda, S, U, ldu, V,
+                         int ldv, T *work, int lwork, int *info, wwrsolverGesvdjInfo_t params) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, gesvdj, handle, jobz, econ, m, n, A, lda, S, U, ldu, V,
                        ldv, work, lwork, info, params);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdj, handle, jobz, econ, m, n, A, lda, S, U, ldu,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, gesvdj, handle, jobz, econ, m, n, A, lda, S, U, ldu,
                           V, ldv, work, lwork, info, params);
 }
 
 /**
  * @brief Query workspace size for batched Jacobi SVD
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR: compute singular vectors
  * @param m Number of rows of each matrix
@@ -1018,24 +1018,24 @@ gpusolverStatus_t gesvdj(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, in
  * @param lwork Output: required workspace size
  * @param params Jacobi parameters
  * @param batchSize Number of matrices in batch
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gesvdjBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
+wwrsolverStatus_t gesvdjBatched_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz,
                                            int m, int n, const T *A, int lda,
                                            const ComplexToRealType<T> *S, const T *U, int ldu,
                                            const T *V, int ldv, int *lwork,
-                                           gpusolverGesvdjInfo_t params, int batchSize) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdjBatched_bufferSize, handle, jobz, m, n, A, lda,
+                                           wwrsolverGesvdjInfo_t params, int batchSize) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, gesvdjBatched_bufferSize, handle, jobz, m, n, A, lda,
                        S, U, ldu, V, ldv, lwork, params, batchSize);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdjBatched_bufferSize, handle, jobz, m, n, A,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, gesvdjBatched_bufferSize, handle, jobz, m, n, A,
                           lda, S, U, ldu, V, ldv, lwork, params, batchSize);
 }
 
 /**
  * @brief Compute batched SVD using Jacobi method
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR: compute singular vectors
  * @param m Number of rows of each matrix
@@ -1052,16 +1052,16 @@ gpusolverStatus_t gesvdjBatched_bufferSize(gpusolverDnHandle_t handle, gpusolver
  * @param info Device pointer: array of status codes
  * @param params Jacobi parameters
  * @param batchSize Number of matrices in batch
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gesvdjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, int m, int n,
+wwrsolverStatus_t gesvdjBatched(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz, int m, int n,
                                 T *A, int lda, ComplexToRealType<T> *S, T *U, int ldu, T *V,
                                 int ldv, T *work, int lwork, int *info,
-                                gpusolverGesvdjInfo_t params, int batchSize) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdjBatched, handle, jobz, m, n, A, lda, S, U, ldu,
+                                wwrsolverGesvdjInfo_t params, int batchSize) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, gesvdjBatched, handle, jobz, m, n, A, lda, S, U, ldu,
                        V, ldv, work, lwork, info, params, batchSize);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdjBatched, handle, jobz, m, n, A, lda, S, U,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, gesvdjBatched, handle, jobz, m, n, A, lda, S, U,
                           ldu, V, ldv, work, lwork, info, params, batchSize);
 }
 
@@ -1084,14 +1084,14 @@ gpusolverStatus_t gesvdjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t j
  * @param ldb Leading dimension of B
  * @param W Pointer to eigenvalues array
  * @param lwork Output: required workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t sygvd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
-                                   gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n,
+wwrsolverStatus_t sygvd_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype,
+                                   wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *B, int ldb, const T *W,
                                    int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvd_bufferSize, handle, itype, jobz, uplo, n, A, lda,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, sygvd_bufferSize, handle, itype, jobz, uplo, n, A, lda,
                        B, ldb, W, lwork);
 }
 
@@ -1112,13 +1112,13 @@ gpusolverStatus_t sygvd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_
  * @param work Device workspace buffer
  * @param lwork Workspace size
  * @param info Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t sygvd(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
-                        gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n, T *A, int lda, T *B,
+wwrsolverStatus_t sygvd(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype,
+                        wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo, int n, T *A, int lda, T *B,
                         int ldb, T *W, T *work, int lwork, int *info) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvd, handle, itype, jobz, uplo, n, A, lda, B, ldb, W,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, sygvd, handle, itype, jobz, uplo, n, A, lda, B, ldb, W,
                        work, lwork, info);
 }
 
@@ -1149,15 +1149,15 @@ gpusolverStatus_t sygvd(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
  * @param meig Output: number of eigenvalues found
  * @param W Pointer to eigenvalues array
  * @param lwork Output: required workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t sygvdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
-                                    gpusolverEigMode_t jobz, gpusolverEigRange_t range,
-                                    gpublasFillMode_t uplo, int n, const T *A, int lda, const T *B,
+wwrsolverStatus_t sygvdx_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype,
+                                    wwrsolverEigMode_t jobz, wwrsolverEigRange_t range,
+                                    wwrblasFillMode_t uplo, int n, const T *A, int lda, const T *B,
                                     int ldb, T vl, T vu, int il, int iu, int *meig, const T *W,
                                     int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvdx_bufferSize, handle, itype, jobz, range, uplo, n,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, sygvdx_bufferSize, handle, itype, jobz, range, uplo, n,
                        A, lda, B, ldb, vl, vu, il, iu, meig, W, lwork);
 }
 
@@ -1186,14 +1186,14 @@ gpusolverStatus_t sygvdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType
  * @param work Device workspace buffer
  * @param lwork Workspace size
  * @param info Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t sygvdx(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
-                         gpusolverEigMode_t jobz, gpusolverEigRange_t range, gpublasFillMode_t uplo,
+wwrsolverStatus_t sygvdx(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype,
+                         wwrsolverEigMode_t jobz, wwrsolverEigRange_t range, wwrblasFillMode_t uplo,
                          int n, T *A, int lda, T *B, int ldb, T vl, T vu, int il, int iu, int *meig,
                          T *W, T *work, int lwork, int *info) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvdx, handle, itype, jobz, range, uplo, n, A, lda, B,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, sygvdx, handle, itype, jobz, range, uplo, n, A, lda, B,
                        ldb, vl, vu, il, iu, meig, W, work, lwork, info);
 }
 
@@ -1204,7 +1204,7 @@ gpusolverStatus_t sygvdx(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
 /**
  * @brief Query workspace size for generalized Hermitian eigenvalue problem
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param itype Problem type
  * @param jobz CUSOLVER_EIG_MODE_VECTOR or CUSOLVER_EIG_MODE_NOVECTOR
@@ -1216,21 +1216,21 @@ gpusolverStatus_t sygvdx(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
  * @param ldb Leading dimension of B
  * @param W Pointer to eigenvalues array (real-valued)
  * @param lwork Output: required workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t hegvd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
-                                   gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n,
+wwrsolverStatus_t hegvd_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype,
+                                   wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *B, int ldb,
                                    const ComplexToRealType<T> *W, int *lwork) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvd_bufferSize, handle, itype, jobz, uplo, n, A,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, hegvd_bufferSize, handle, itype, jobz, uplo, n, A,
                           lda, B, ldb, W, lwork);
 }
 
 /**
  * @brief Compute generalized Hermitian eigenvalue problem
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param itype Problem type
  * @param jobz CUSOLVER_EIG_MODE_VECTOR or CUSOLVER_EIG_MODE_NOVECTOR
@@ -1244,13 +1244,13 @@ gpusolverStatus_t hegvd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_
  * @param work Device workspace buffer
  * @param lwork Workspace size
  * @param info Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t hegvd(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
-                        gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n, T *A, int lda, T *B,
+wwrsolverStatus_t hegvd(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype,
+                        wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo, int n, T *A, int lda, T *B,
                         int ldb, ComplexToRealType<T> *W, T *work, int lwork, int *info) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvd, handle, itype, jobz, uplo, n, A, lda, B, ldb,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, hegvd, handle, itype, jobz, uplo, n, A, lda, B, ldb,
                           W, work, lwork, info);
 }
 
@@ -1261,7 +1261,7 @@ gpusolverStatus_t hegvd(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
 /**
  * @brief Query workspace size for generalized Hermitian eigenvalue problem with subset selection
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param itype Problem type
  * @param jobz CUSOLVER_EIG_MODE_VECTOR or CUSOLVER_EIG_MODE_NOVECTOR
@@ -1281,22 +1281,22 @@ gpusolverStatus_t hegvd(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
  * @param meig Output: number of eigenvalues found
  * @param W Pointer to eigenvalues array (real-valued)
  * @param lwork Output: required workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t
-hegvdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_t itype, gpusolverEigMode_t jobz,
-                  gpusolverEigRange_t range, gpublasFillMode_t uplo, int n, const T *A, int lda,
+wwrsolverStatus_t
+hegvdx_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype, wwrsolverEigMode_t jobz,
+                  wwrsolverEigRange_t range, wwrblasFillMode_t uplo, int n, const T *A, int lda,
                   const T *B, int ldb, ComplexToRealType<T> vl, ComplexToRealType<T> vu, int il,
                   int iu, int *meig, const ComplexToRealType<T> *W, int *lwork) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvdx_bufferSize, handle, itype, jobz, range, uplo,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, hegvdx_bufferSize, handle, itype, jobz, range, uplo,
                           n, A, lda, B, ldb, vl, vu, il, iu, meig, W, lwork);
 }
 
 /**
  * @brief Compute generalized Hermitian eigenvalue problem with subset selection
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param itype Problem type
  * @param jobz CUSOLVER_EIG_MODE_VECTOR or CUSOLVER_EIG_MODE_NOVECTOR
@@ -1318,15 +1318,15 @@ hegvdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_t itype, gpusolve
  * @param work Device workspace buffer
  * @param lwork Workspace size
  * @param info Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t hegvdx(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
-                         gpusolverEigMode_t jobz, gpusolverEigRange_t range, gpublasFillMode_t uplo,
+wwrsolverStatus_t hegvdx(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype,
+                         wwrsolverEigMode_t jobz, wwrsolverEigRange_t range, wwrblasFillMode_t uplo,
                          int n, T *A, int lda, T *B, int ldb, ComplexToRealType<T> vl,
                          ComplexToRealType<T> vu, int il, int iu, int *meig,
                          ComplexToRealType<T> *W, T *work, int lwork, int *info) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvdx, handle, itype, jobz, range, uplo, n, A, lda,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, hegvdx, handle, itype, jobz, range, uplo, n, A, lda,
                           B, ldb, vl, vu, il, iu, meig, W, work, lwork, info);
 }
 
@@ -1350,14 +1350,14 @@ gpusolverStatus_t hegvdx(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
  * @param W Pointer to eigenvalues array
  * @param lwork Output: required workspace size
  * @param params Jacobi parameters
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t sygvj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
-                                   gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n,
+wwrsolverStatus_t sygvj_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype,
+                                   wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *B, int ldb, const T *W, int *lwork,
-                                   gpusolverSyevjInfo_t params) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvj_bufferSize, handle, itype, jobz, uplo, n, A, lda,
+                                   wwrsolverSyevjInfo_t params) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, sygvj_bufferSize, handle, itype, jobz, uplo, n, A, lda,
                        B, ldb, W, lwork, params);
 }
 
@@ -1379,13 +1379,13 @@ gpusolverStatus_t sygvj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_
  * @param lwork Workspace size
  * @param info Device pointer: 0 on success
  * @param params Jacobi parameters
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t sygvj(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
-                        gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n, T *A, int lda, T *B,
-                        int ldb, T *W, T *work, int lwork, int *info, gpusolverSyevjInfo_t params) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvj, handle, itype, jobz, uplo, n, A, lda, B, ldb, W,
+wwrsolverStatus_t sygvj(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype,
+                        wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo, int n, T *A, int lda, T *B,
+                        int ldb, T *W, T *work, int lwork, int *info, wwrsolverSyevjInfo_t params) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, sygvj, handle, itype, jobz, uplo, n, A, lda, B, ldb, W,
                        work, lwork, info, params);
 }
 
@@ -1396,7 +1396,7 @@ gpusolverStatus_t sygvj(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
 /**
  * @brief Query workspace size for generalized Hermitian eigenvalue using Jacobi
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param itype Problem type
  * @param jobz CUSOLVER_EIG_MODE_VECTOR or CUSOLVER_EIG_MODE_NOVECTOR
@@ -1409,21 +1409,21 @@ gpusolverStatus_t sygvj(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
  * @param W Pointer to eigenvalues array (real-valued)
  * @param lwork Output: required workspace size
  * @param params Jacobi parameters
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t
-hegvj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_t itype, gpusolverEigMode_t jobz,
-                 gpublasFillMode_t uplo, int n, const T *A, int lda, const T *B, int ldb,
-                 const ComplexToRealType<T> *W, int *lwork, gpusolverSyevjInfo_t params) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvj_bufferSize, handle, itype, jobz, uplo, n, A,
+wwrsolverStatus_t
+hegvj_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype, wwrsolverEigMode_t jobz,
+                 wwrblasFillMode_t uplo, int n, const T *A, int lda, const T *B, int ldb,
+                 const ComplexToRealType<T> *W, int *lwork, wwrsolverSyevjInfo_t params) {
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, hegvj_bufferSize, handle, itype, jobz, uplo, n, A,
                           lda, B, ldb, W, lwork, params);
 }
 
 /**
  * @brief Compute generalized Hermitian eigenvalue using Jacobi method
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param itype Problem type
  * @param jobz CUSOLVER_EIG_MODE_VECTOR or CUSOLVER_EIG_MODE_NOVECTOR
@@ -1438,14 +1438,14 @@ hegvj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_t itype, gpusolver
  * @param lwork Workspace size
  * @param info Device pointer: 0 on success
  * @param params Jacobi parameters
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t hegvj(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
-                        gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n, T *A, int lda, T *B,
+wwrsolverStatus_t hegvj(wwrsolverDnHandle_t handle, wwrsolverEigType_t itype,
+                        wwrsolverEigMode_t jobz, wwrblasFillMode_t uplo, int n, T *A, int lda, T *B,
                         int ldb, ComplexToRealType<T> *W, T *work, int lwork, int *info,
-                        gpusolverSyevjInfo_t params) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvj, handle, itype, jobz, uplo, n, A, lda, B, ldb,
+                        wwrsolverSyevjInfo_t params) {
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, hegvj, handle, itype, jobz, uplo, n, A, lda, B, ldb,
                           W, work, lwork, info, params);
 }
 
@@ -1459,7 +1459,7 @@ gpusolverStatus_t hegvj(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
  * This function computes the workspace size required for gesvdaStridedBatched,
  * which performs approximate SVD on a batch of matrices with strided layout.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR: compute singular vectors
  *             CUSOLVER_EIG_MODE_NOVECTOR: compute singular values only
@@ -1479,19 +1479,19 @@ gpusolverStatus_t hegvj(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
  * @param strideV Stride between V matrices (in elements)
  * @param lwork Output: required workspace size in elements of type T
  * @param batchSize Number of matrices in the batch
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t
-gesvdaStridedBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, int rank,
+wwrsolverStatus_t
+gesvdaStridedBatched_bufferSize(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz, int rank,
                                 int m, int n, const T *d_A, int lda, long long int strideA,
                                 const ComplexToRealType<T> *d_S, long long int strideS,
                                 const T *d_U, int ldu, long long int strideU, const T *d_V, int ldv,
                                 long long int strideV, int *lwork, int batchSize) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdaStridedBatched_bufferSize, handle, jobz, rank, m,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, gesvdaStridedBatched_bufferSize, handle, jobz, rank, m,
                        n, d_A, lda, strideA, d_S, strideS, d_U, ldu, strideU, d_V, ldv, strideV,
                        lwork, batchSize);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdaStridedBatched_bufferSize, handle, jobz, rank,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, gesvdaStridedBatched_bufferSize, handle, jobz, rank,
                           m, n, d_A, lda, strideA, d_S, strideS, d_U, ldu, strideU, d_V, ldv,
                           strideV, lwork, batchSize);
 }
@@ -1503,7 +1503,7 @@ gesvdaStridedBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t j
  * randomized algorithms. Matrices are stored in strided layout (fixed stride between matrices).
  * This is faster than exact SVD but provides approximate results.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param jobz CUSOLVER_EIG_MODE_VECTOR: compute singular vectors
  *             CUSOLVER_EIG_MODE_NOVECTOR: compute singular values only
@@ -1526,89 +1526,89 @@ gesvdaStridedBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t j
  * @param d_info Device pointer: array of status codes (batchSize elements), 0 on success for each matrix
  * @param h_R_nrmF Host pointer: array of residual Frobenius norms (double, batchSize elements)
  * @param batchSize Number of matrices in the batch
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t
-gesvdaStridedBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, int rank, int m, int n,
+wwrsolverStatus_t
+gesvdaStridedBatched(wwrsolverDnHandle_t handle, wwrsolverEigMode_t jobz, int rank, int m, int n,
                      const T *d_A, int lda, long long int strideA, ComplexToRealType<T> *d_S,
                      long long int strideS, T *d_U, int ldu, long long int strideU, T *d_V, int ldv,
                      long long int strideV, T *d_work, int lwork, int *d_info, double *h_R_nrmF,
                      int batchSize) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdaStridedBatched, handle, jobz, rank, m, n, d_A,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, gesvdaStridedBatched, handle, jobz, rank, m, n, d_A,
                        lda, strideA, d_S, strideS, d_U, ldu, strideU, d_V, ldv, strideV, d_work,
                        lwork, d_info, h_R_nrmF, batchSize);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdaStridedBatched, handle, jobz, rank, m, n, d_A,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, gesvdaStridedBatched, handle, jobz, rank, m, n, d_A,
                           lda, strideA, d_S, strideS, d_U, ldu, strideU, d_V, ldv, strideV, d_work,
                           lwork, d_info, h_R_nrmF, batchSize);
 }
 
 // ==================== Explicit Template Instantiation Declarations ====================
 // Generated code will be inserted here by cmake/instantiation/generate_instantiations.py
-// To regenerate: cmake --build build --target gpusolverDn_generate_instantiations
+// To regenerate: cmake --build build --target wwrsolverDn_generate_instantiations
 
 // Function: gesvd_bufferSize
-extern template gpusolverStatus_t gesvd_bufferSize<float>(gpusolverDnHandle_t, int, int, int *);
-extern template gpusolverStatus_t gesvd_bufferSize<double>(gpusolverDnHandle_t, int, int, int *);
-extern template gpusolverStatus_t gesvd_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t, int, int,
+extern template wwrsolverStatus_t gesvd_bufferSize<float>(wwrsolverDnHandle_t, int, int, int *);
+extern template wwrsolverStatus_t gesvd_bufferSize<double>(wwrsolverDnHandle_t, int, int, int *);
+extern template wwrsolverStatus_t gesvd_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t, int, int,
                                                                     int *);
-extern template gpusolverStatus_t gesvd_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t, int, int,
+extern template wwrsolverStatus_t gesvd_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int,
                                                                      int *);
 
 // Function: gesvd
-extern template gpusolverStatus_t gesvd<float>(gpusolverDnHandle_t, signed char, signed char, int,
+extern template wwrsolverStatus_t gesvd<float>(wwrsolverDnHandle_t, signed char, signed char, int,
                                                int, float *, int, ComplexToRealType<float> *,
                                                float *, int, float *, int, float *, int,
                                                ComplexToRealType<float> *, int *);
-extern template gpusolverStatus_t gesvd<double>(gpusolverDnHandle_t, signed char, signed char, int,
+extern template wwrsolverStatus_t gesvd<double>(wwrsolverDnHandle_t, signed char, signed char, int,
                                                 int, double *, int, ComplexToRealType<double> *,
                                                 double *, int, double *, int, double *, int,
                                                 ComplexToRealType<double> *, int *);
-extern template gpusolverStatus_t
-gesvd<gpuFloatComplex>(gpusolverDnHandle_t, signed char, signed char, int, int, gpuFloatComplex *,
-                       int, ComplexToRealType<gpuFloatComplex> *, gpuFloatComplex *, int,
-                       gpuFloatComplex *, int, gpuFloatComplex *, int,
-                       ComplexToRealType<gpuFloatComplex> *, int *);
-extern template gpusolverStatus_t
-gesvd<gpuDoubleComplex>(gpusolverDnHandle_t, signed char, signed char, int, int, gpuDoubleComplex *,
-                        int, ComplexToRealType<gpuDoubleComplex> *, gpuDoubleComplex *, int,
-                        gpuDoubleComplex *, int, gpuDoubleComplex *, int,
-                        ComplexToRealType<gpuDoubleComplex> *, int *);
+extern template wwrsolverStatus_t
+gesvd<wwrFloatComplex>(wwrsolverDnHandle_t, signed char, signed char, int, int, wwrFloatComplex *,
+                       int, ComplexToRealType<wwrFloatComplex> *, wwrFloatComplex *, int,
+                       wwrFloatComplex *, int, wwrFloatComplex *, int,
+                       ComplexToRealType<wwrFloatComplex> *, int *);
+extern template wwrsolverStatus_t
+gesvd<wwrDoubleComplex>(wwrsolverDnHandle_t, signed char, signed char, int, int, wwrDoubleComplex *,
+                        int, ComplexToRealType<wwrDoubleComplex> *, wwrDoubleComplex *, int,
+                        wwrDoubleComplex *, int, wwrDoubleComplex *, int,
+                        ComplexToRealType<wwrDoubleComplex> *, int *);
 
 // Function: syevd_bufferSize
-extern template gpusolverStatus_t syevd_bufferSize<float>(gpusolverDnHandle_t, gpusolverEigMode_t,
-                                                          gpublasFillMode_t, int, const float *,
+extern template wwrsolverStatus_t syevd_bufferSize<float>(wwrsolverDnHandle_t, wwrsolverEigMode_t,
+                                                          wwrblasFillMode_t, int, const float *,
                                                           int, const float *, int *);
-extern template gpusolverStatus_t syevd_bufferSize<double>(gpusolverDnHandle_t, gpusolverEigMode_t,
-                                                           gpublasFillMode_t, int, const double *,
+extern template wwrsolverStatus_t syevd_bufferSize<double>(wwrsolverDnHandle_t, wwrsolverEigMode_t,
+                                                           wwrblasFillMode_t, int, const double *,
                                                            int, const double *, int *);
 
 // Function: syevd
-extern template gpusolverStatus_t syevd<float>(gpusolverDnHandle_t, gpusolverEigMode_t,
-                                               gpublasFillMode_t, int, float *, int, float *,
+extern template wwrsolverStatus_t syevd<float>(wwrsolverDnHandle_t, wwrsolverEigMode_t,
+                                               wwrblasFillMode_t, int, float *, int, float *,
                                                float *, int, int *);
-extern template gpusolverStatus_t syevd<double>(gpusolverDnHandle_t, gpusolverEigMode_t,
-                                                gpublasFillMode_t, int, double *, int, double *,
+extern template wwrsolverStatus_t syevd<double>(wwrsolverDnHandle_t, wwrsolverEigMode_t,
+                                                wwrblasFillMode_t, int, double *, int, double *,
                                                 double *, int, int *);
 
 // Function: syevdx_bufferSize
-extern template gpusolverStatus_t syevdx_bufferSize<float>(gpusolverDnHandle_t, gpusolverEigMode_t,
-                                                           gpusolverEigRange_t, gpublasFillMode_t,
+extern template wwrsolverStatus_t syevdx_bufferSize<float>(wwrsolverDnHandle_t, wwrsolverEigMode_t,
+                                                           wwrsolverEigRange_t, wwrblasFillMode_t,
                                                            int, const float *, int, float, float,
                                                            int, int, int *, const float *, int *);
-extern template gpusolverStatus_t syevdx_bufferSize<double>(gpusolverDnHandle_t, gpusolverEigMode_t,
-                                                            gpusolverEigRange_t, gpublasFillMode_t,
+extern template wwrsolverStatus_t syevdx_bufferSize<double>(wwrsolverDnHandle_t, wwrsolverEigMode_t,
+                                                            wwrsolverEigRange_t, wwrblasFillMode_t,
                                                             int, const double *, int, double,
                                                             double, int, int, int *, const double *,
                                                             int *);
 
 // Function: syevdx
-extern template gpusolverStatus_t syevdx<float>(gpusolverDnHandle_t, gpusolverEigMode_t,
-                                                gpusolverEigRange_t, gpublasFillMode_t, int,
+extern template wwrsolverStatus_t syevdx<float>(wwrsolverDnHandle_t, wwrsolverEigMode_t,
+                                                wwrsolverEigRange_t, wwrblasFillMode_t, int,
                                                 float *, int, float, float, int, int, int *,
                                                 float *, float *, int, int *);
-extern template gpusolverStatus_t syevdx<double>(gpusolverDnHandle_t, gpusolverEigMode_t,
-                                                 gpusolverEigRange_t, gpublasFillMode_t, int,
+extern template wwrsolverStatus_t syevdx<double>(wwrsolverDnHandle_t, wwrsolverEigMode_t,
+                                                 wwrsolverEigRange_t, wwrblasFillMode_t, int,
                                                  double *, int, double, double, int, int, int *,
                                                  double *, double *, int, int *);
 

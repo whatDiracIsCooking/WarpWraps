@@ -60,14 +60,14 @@ CheckOptions:
     value: _
   - key: readability-identifier-naming.ConstexprVariableCase
     value: lower_case
-  # The neutral gpu* layer names everything gpuCamelCase to mirror the vendor
+  # The neutral wwr* layer names everything wwrCamelCase to mirror the vendor
   # entry point it fronts -- deliberately NOT the snake_case/lower_case cases
-  # above. It surfaces as two identifier kinds: real functions (gpuGraphInstantiate,
-  # gpuFloat2Half) and the constexpr aliases WWR_FUNCTION/WWR_VALUE generate
-  # (gpuMalloc, gpuHostAllocDefault). Exempt the prefix for both rather than
+  # above. It surfaces as two identifier kinds: real functions (wwrGraphInstantiate,
+  # wwrFloat2Half) and the constexpr aliases WWR_FUNCTION/WWR_VALUE generate
+  # (wwrMalloc, wwrHostAllocDefault). Exempt the prefix for both rather than
   # annotate each site. Wrapper functions that mirror a non-prefixed vendor name
   # (gemm, getrfBatched) are handled by src/wrappers/.clang-tidy instead.
   - key: readability-identifier-naming.FunctionIgnoredRegexp
-    value: 'gpu[A-Z].*'
+    value: 'wwr[A-Z].*'
   - key: readability-identifier-naming.ConstexprVariableIgnoredRegexp
-    value: 'gpu[A-Z].*'
+    value: 'wwr[A-Z].*'

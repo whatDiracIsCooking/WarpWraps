@@ -24,7 +24,7 @@
 #include <cstdint>
 #include <type_traits>
 
-// WWR_GRID_CONSTANT and WWR_WARP_SIZE, then gpuStream_t for
+// WWR_GRID_CONSTANT and WWR_WARP_SIZE, then wwrStream_t for
 // the signature below. Both are the gpu* layer's, reached bare through
 // wwr.device's include path. runtime.cuh is also the device-pass
 // gate: it #errors outside a CUDA or HIP device compile, so this header carries
@@ -86,7 +86,7 @@ __global__ void parallel_for_kernel(WWR_GRID_CONSTANT const Functor f, IndexType
 /// @param count Number of elements to process
 /// @param functor Per-thread functor invoked with thread index
 template<std::integral IndexType = std::size_t, device_functor<IndexType> Functor>
-void parallel_for(gpuStream_t stream, const IndexType count, Functor functor) {
+void parallel_for(wwrStream_t stream, const IndexType count, Functor functor) {
   if (count < 1) {
     return;
   }

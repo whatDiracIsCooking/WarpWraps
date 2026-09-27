@@ -30,7 +30,7 @@ namespace {
 // side and a caller assume -- 16 bits, on both backends. A vendor changing it
 // breaks that agreement silently.
 // ---------------------------------------------------------------------------
-static_assert(sizeof(gpuHalf) == 2, "gpuHalf is expected to be 16 bits");
+static_assert(sizeof(wwrHalf) == 2, "wwrHalf is expected to be 16 bits");
 
 } // namespace
 
@@ -40,15 +40,15 @@ static_assert(sizeof(gpuHalf) == 2, "gpuHalf is expected to be 16 bits");
 // identically by the vendors, so no #if reaches this TU; this kernel is a device
 // context, which is where the conversions are callable.
 __global__ void wwr_fp_conversions(float *out) {
-  const gpuHalf h = gpuFloat2Half(1.5f);
-  float acc = gpuHalf2Float(h);
+  const wwrHalf h = wwrFloat2Half(1.5f);
+  float acc = wwrHalf2Float(h);
 
   // §3's other half: half DOES carry operators on both backends, so a functor
   // accumulating in reduced precision needs no wrapper -- this is already
   // backend-neutral code naming no vendor symbol. Exercised here so a vendor
   // dropping the operators is caught too.
-  const gpuHalf hsum = h + gpuFloat2Half(2.0f);
-  acc += gpuHalf2Float(hsum);
+  const wwrHalf hsum = h + wwrFloat2Half(2.0f);
+  acc += wwrHalf2Float(hsum);
 
   out[0] = acc;
 }

@@ -68,27 +68,27 @@ stdHostMemoryError_t copy(B1 &dst, const B2 &src) noexcept {
 /**
  * @brief Generic stream-ordered async copy for any buffer combination
  * @note Both buffers must have the same element type
- * @note Uses gpuMemcpyDefault to automatically determine copy direction via UVA
+ * @note Uses wwrMemcpyDefault to automatically determine copy direction via UVA
  * @note Supports all buffer combinations with stream-ordered semantics
  * @note Host-to-host copies maintain stream ordering but execute synchronously
  * @param dst Destination buffer
  * @param src Source buffer
  * @param stream GPU stream for the copy (use stream 0 for default stream)
- * @return gpuError_t from gpuMemcpyAsync, or gpuErrorInvalidValue if validation fails
+ * @return wwrError_t from wwrMemcpyAsync, or wwrErrorInvalidValue if validation fails
  */
 template<buffer_base B1, buffer_base B2>
   requires same_value_type<B1, B2>
-gpuError_t copy(B1 &dst, const B2 &src, gpuStream_t stream) noexcept {
+wwrError_t copy(B1 &dst, const B2 &src, wwrStream_t stream) noexcept {
   if (!validate_copy(dst, 0, src, 0, src.num_elements()))
-    return gpuErrorInvalidValue;
+    return wwrErrorInvalidValue;
 
-  return gpuMemcpyAsync(dst.data(), src.data(), src.size_bytes(), gpuMemcpyDefault, stream);
+  return wwrMemcpyAsync(dst.data(), src.data(), src.size_bytes(), wwrMemcpyDefault, stream);
 }
 
 /**
  * @brief Generic stream-ordered async copy with offsets and count
  * @note Both buffers must have the same element type
- * @note Uses gpuMemcpyDefault to automatically determine copy direction via UVA
+ * @note Uses wwrMemcpyDefault to automatically determine copy direction via UVA
  * @note Supports all buffer combinations with stream-ordered semantics
  * @note Host-to-host copies maintain stream ordering but execute synchronously
  * @param dst Destination buffer
@@ -97,22 +97,22 @@ gpuError_t copy(B1 &dst, const B2 &src, gpuStream_t stream) noexcept {
  * @param src_offset Offset in source buffer (in elements)
  * @param count Number of elements to copy
  * @param stream GPU stream for the copy (use stream 0 for default stream)
- * @return gpuError_t from gpuMemcpyAsync, or gpuErrorInvalidValue if validation fails
+ * @return wwrError_t from wwrMemcpyAsync, or wwrErrorInvalidValue if validation fails
  */
 template<buffer_base B1, buffer_base B2>
   requires same_value_type<B1, B2>
-gpuError_t copy(B1 &dst, const std::size_t dst_offset, const B2 &src, const std::size_t src_offset,
-                const std::size_t count, gpuStream_t stream) noexcept {
+wwrError_t copy(B1 &dst, const std::size_t dst_offset, const B2 &src, const std::size_t src_offset,
+                const std::size_t count, wwrStream_t stream) noexcept {
   if (!validate_copy(dst, dst_offset, src, src_offset, count))
-    return gpuErrorInvalidValue;
+    return wwrErrorInvalidValue;
   if (count == 0)
-    return gpuSuccess;
+    return wwrSuccess;
 
   // Offset through storage_type: for a void buffer, "dst.data() + dst_offset"
   // is arithmetic on void* - a GNU extension rather than portable C++.
-  return gpuMemcpyAsync(static_cast<typename B1::storage_type *>(dst.data()) + dst_offset,
+  return wwrMemcpyAsync(static_cast<typename B1::storage_type *>(dst.data()) + dst_offset,
                         static_cast<const typename B2::storage_type *>(src.data()) + src_offset,
-                        count * B1::element_size, gpuMemcpyDefault, stream);
+                        count * B1::element_size, wwrMemcpyDefault, stream);
 }
 
 } // namespace wwr::extension

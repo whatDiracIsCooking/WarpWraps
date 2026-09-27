@@ -1,6 +1,6 @@
 # wwr.extension.solver RAII handle tests
 #
-# Runtime only: gpusolverDnCreate needs a live GPU context. Same shape as
+# Runtime only: wwrsolverDnCreate needs a live GPU context. Same shape as
 # test/extension/blas -- one plain .cpp, one ctest entry per suite. Two suites
 # here, one per live type the module owns (the Dn handle and its params).
 
@@ -20,8 +20,8 @@ wwr_add_gtest_suite_tests(
   TARGET
   extension_solver_tests
   SUITES
-  GpusolverDnHandleTests
-  GpusolverDnParamsTests
+  WwrsolverDnHandleTests
+  WwrsolverDnParamsTests
   TIMEOUT
   30
   REQUIRES_GPU

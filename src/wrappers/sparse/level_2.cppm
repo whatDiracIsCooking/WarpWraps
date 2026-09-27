@@ -26,9 +26,9 @@ export namespace wwr {
 // ========================================================================
 
 template<usual_fp T>
-gpusparseStatus_t bsrmv(gpusparseHandle_t handle, gpusparseDirection_t dirA,
-                        gpusparseOperation_t transA, int mb, int nb, int nnzb, const T *alpha,
-                        const gpusparseMatDescr_t descrA, const T *bsrSortedValA,
+wwrsparseStatus_t bsrmv(wwrsparseHandle_t handle, wwrsparseDirection_t dirA,
+                        wwrsparseOperation_t transA, int mb, int nb, int nnzb, const T *alpha,
+                        const wwrsparseMatDescr_t descrA, const T *bsrSortedValA,
                         const int *bsrSortedRowPtrA, const int *bsrSortedColIndA, int blockDim,
                         const T *x, const T *beta, T *y) {
   WWR_USUAL_DISPATCH(T, bsrmv, handle, dirA, transA, mb, nb, nnzb, alpha, descrA, bsrSortedValA,
@@ -40,25 +40,25 @@ gpusparseStatus_t bsrmv(gpusparseHandle_t handle, gpusparseDirection_t dirA,
 // instantiations.cpp.
 
 // Function: bsrmv
-extern template gpusparseStatus_t bsrmv<float>(gpusparseHandle_t, gpusparseDirection_t,
-                                               gpusparseOperation_t, int, int, int, const float *,
-                                               const gpusparseMatDescr_t, const float *,
+extern template wwrsparseStatus_t bsrmv<float>(wwrsparseHandle_t, wwrsparseDirection_t,
+                                               wwrsparseOperation_t, int, int, int, const float *,
+                                               const wwrsparseMatDescr_t, const float *,
                                                const int *, const int *, int, const float *,
                                                const float *, float *);
-extern template gpusparseStatus_t bsrmv<double>(gpusparseHandle_t, gpusparseDirection_t,
-                                                gpusparseOperation_t, int, int, int, const double *,
-                                                const gpusparseMatDescr_t, const double *,
+extern template wwrsparseStatus_t bsrmv<double>(wwrsparseHandle_t, wwrsparseDirection_t,
+                                                wwrsparseOperation_t, int, int, int, const double *,
+                                                const wwrsparseMatDescr_t, const double *,
                                                 const int *, const int *, int, const double *,
                                                 const double *, double *);
-extern template gpusparseStatus_t
-bsrmv<gpuFloatComplex>(gpusparseHandle_t, gpusparseDirection_t, gpusparseOperation_t, int, int, int,
-                       const gpuFloatComplex *, const gpusparseMatDescr_t, const gpuFloatComplex *,
-                       const int *, const int *, int, const gpuFloatComplex *,
-                       const gpuFloatComplex *, gpuFloatComplex *);
-extern template gpusparseStatus_t
-bsrmv<gpuDoubleComplex>(gpusparseHandle_t, gpusparseDirection_t, gpusparseOperation_t, int, int,
-                        int, const gpuDoubleComplex *, const gpusparseMatDescr_t,
-                        const gpuDoubleComplex *, const int *, const int *, int,
-                        const gpuDoubleComplex *, const gpuDoubleComplex *, gpuDoubleComplex *);
+extern template wwrsparseStatus_t
+bsrmv<wwrFloatComplex>(wwrsparseHandle_t, wwrsparseDirection_t, wwrsparseOperation_t, int, int, int,
+                       const wwrFloatComplex *, const wwrsparseMatDescr_t, const wwrFloatComplex *,
+                       const int *, const int *, int, const wwrFloatComplex *,
+                       const wwrFloatComplex *, wwrFloatComplex *);
+extern template wwrsparseStatus_t
+bsrmv<wwrDoubleComplex>(wwrsparseHandle_t, wwrsparseDirection_t, wwrsparseOperation_t, int, int,
+                        int, const wwrDoubleComplex *, const wwrsparseMatDescr_t,
+                        const wwrDoubleComplex *, const int *, const int *, int,
+                        const wwrDoubleComplex *, const wwrDoubleComplex *, wwrDoubleComplex *);
 
 } // namespace wwr

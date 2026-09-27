@@ -46,30 +46,30 @@ static_assert(is_view_value<GpuStreamView>);
 static_assert(is_view_value<GpuGraphExecView>);
 static_assert(is_view_value<GpuMemPoolView>);
 static_assert(is_view_value<GpuGraphView>);
-static_assert(is_view_value<GpublasHandleView>);
-static_assert(is_view_value<GpusolverDnHandleView>);
-static_assert(is_view_value<GpusparseHandleView>);
+static_assert(is_view_value<WwrblasHandleView>);
+static_assert(is_view_value<WwrsolverDnHandleView>);
+static_assert(is_view_value<WwrsparseHandleView>);
 
 // The generic view bases carry the same semantics.
-static_assert(is_view_value<HandleView<gpuEvent_t>>);
-static_assert(is_view_value<DeviceBoundHandleView<gpuEvent_t>>);
+static_assert(is_view_value<HandleView<wwrEvent_t>>);
+static_assert(is_view_value<DeviceBoundHandleView<wwrEvent_t>>);
 
 // Owners are move-only; a view is never taken by copying an owner.
 static_assert(!std::is_copy_constructible_v<GpuEvent>);
 static_assert(!std::is_copy_constructible_v<GpuStream>);
-static_assert(!std::is_copy_constructible_v<GpublasHandle>);
+static_assert(!std::is_copy_constructible_v<WwrblasHandle>);
 static_assert(std::is_nothrow_move_constructible_v<GpuEvent>);
 
 // Views convert to the raw handle, exactly as the owners do.
-static_assert(std::is_convertible_v<GpuEventView, gpuEvent_t>);
-static_assert(std::is_convertible_v<GpuStreamView, gpuStream_t>);
-static_assert(std::is_convertible_v<GpuGraphExecView, gpuGraphExec_t>);
+static_assert(std::is_convertible_v<GpuEventView, wwrEvent_t>);
+static_assert(std::is_convertible_v<GpuStreamView, wwrStream_t>);
+static_assert(std::is_convertible_v<GpuGraphExecView, wwrGraphExec_t>);
 
 // A view is constructible from a raw handle (device unknown) or, when bound,
 // from a handle plus its device index.
-static_assert(std::is_constructible_v<GpuStreamView, gpuStream_t>);
-static_assert(std::is_constructible_v<GpuStreamView, gpuStream_t, int>);
-static_assert(std::is_constructible_v<GpuGraphExecView, gpuGraphExec_t>);
+static_assert(std::is_constructible_v<GpuStreamView, wwrStream_t>);
+static_assert(std::is_constructible_v<GpuStreamView, wwrStream_t, int>);
+static_assert(std::is_constructible_v<GpuGraphExecView, wwrGraphExec_t>);
 
 // .view() is offered on an lvalue owner and returns the richest view the handle
 // has. Its rvalue overload is deleted so a view cannot be taken from a temporary
@@ -84,17 +84,17 @@ static_assert(
 static_assert(std::is_same_v<decltype(std::declval<const GpuMemPool &>().view()), GpuMemPoolView>);
 static_assert(std::is_same_v<decltype(std::declval<const GpuGraph &>().view()), GpuGraphView>);
 static_assert(
-    std::is_same_v<decltype(std::declval<const GpublasHandle &>().view()), GpublasHandleView>);
-static_assert(std::is_same_v<decltype(std::declval<const GpusolverDnHandle &>().view()),
-                             GpusolverDnHandleView>);
+    std::is_same_v<decltype(std::declval<const WwrblasHandle &>().view()), WwrblasHandleView>);
+static_assert(std::is_same_v<decltype(std::declval<const WwrsolverDnHandle &>().view()),
+                             WwrsolverDnHandleView>);
 static_assert(
-    std::is_same_v<decltype(std::declval<const GpusparseHandle &>().view()), GpusparseHandleView>);
+    std::is_same_v<decltype(std::declval<const WwrsparseHandle &>().view()), WwrsparseHandleView>);
 
 // Never called: exists only to instantiate and type-check the borrow-safe
 // operations shared by each owner and its view, without a device.
 [[maybe_unused]] void exercise(const GpuEvent &event, const GpuStream &stream,
-                               const GpuGraphExec &exec, gpuStream_t raw_stream,
-                               gpuEvent_t raw_event) {
+                               const GpuGraphExec &exec, wwrStream_t raw_stream,
+                               wwrEvent_t raw_event) {
   const GpuEventView ev = event.view();
   (void)ev.get();
   (void)ev.dev_idx();

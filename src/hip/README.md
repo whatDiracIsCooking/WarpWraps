@@ -701,7 +701,7 @@ decision should be revisited.
 
 The hipBLAS wrappers are no longer a HIP-only mirror: `src/wrappers/blas`
 (`import wwr.wrappers.blas;`) is written once against `src/blas`'s
-`gpublas*` names and builds for either backend. The hipBLAS-vs-cuBLAS
+`wwrblas*` names and builds for either backend. The hipBLAS-vs-cuBLAS
 differences the old mirror documented -- no `_v2` suffix, a single
 `hipblasStatusToString`, `getrsBatched`/`getriBatched`'s non-const arrays, and
 the five cuBLAS-only functions (`gemm3m`, `gemmGroupedBatched`,
@@ -712,7 +712,7 @@ and `src/wrappers/blas/README.md`.
 
 Also no longer a HIP-only mirror: `src/wrappers/solver`
 (`import wwr.wrappers.solver;`) is written once against
-`src/solver`'s `gpusolverDn*` names and builds for either backend, both
+`src/solver`'s `wwrsolverDn*` names and builds for either backend, both
 legacy partitions (linear + eigen/SVD, 32 + 48 functions, fully shared) plus
 the 8 functions the two backends' modern (X-prefixed) APIs share. The
 cuSOLVER-only remainder (the rest of the modern API: `sytrs`/`trtri`/`larft`

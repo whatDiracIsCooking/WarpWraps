@@ -27,14 +27,14 @@ import wwr.bf16;
 
 namespace wwr::extension {
 
-template void random_normal<float>(gpuStream_t, std::size_t, gpurandState *, float *, float);
-template void random_normal<double>(gpuStream_t, std::size_t, gpurandState *, double *, double);
-template void random_normal<gpuFloatComplex>(gpuStream_t, std::size_t, gpurandState *,
-                                             gpuFloatComplex *, gpuFloatComplex);
-template void random_normal<gpuDoubleComplex>(gpuStream_t, std::size_t, gpurandState *,
-                                              gpuDoubleComplex *, gpuDoubleComplex);
-template void random_normal<gpuHalf>(gpuStream_t, std::size_t, gpurandState *, gpuHalf *, gpuHalf);
-template void random_normal<gpuBfloat16>(gpuStream_t, std::size_t, gpurandState *, gpuBfloat16 *,
-                                         gpuBfloat16);
+template void random_normal<float>(wwrStream_t, std::size_t, wwrrandState *, float *, float);
+template void random_normal<double>(wwrStream_t, std::size_t, wwrrandState *, double *, double);
+template void random_normal<wwrFloatComplex>(wwrStream_t, std::size_t, wwrrandState *,
+                                             wwrFloatComplex *, wwrFloatComplex);
+template void random_normal<wwrDoubleComplex>(wwrStream_t, std::size_t, wwrrandState *,
+                                              wwrDoubleComplex *, wwrDoubleComplex);
+template void random_normal<wwrHalf>(wwrStream_t, std::size_t, wwrrandState *, wwrHalf *, wwrHalf);
+template void random_normal<wwrBfloat16>(wwrStream_t, std::size_t, wwrrandState *, wwrBfloat16 *,
+                                         wwrBfloat16);
 
 } // namespace wwr::extension

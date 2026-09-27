@@ -37,15 +37,15 @@
 
 import std;
 
-import wwr.runtime_api; // gpuMalloc, gpuMemcpy, gpuGetDevice, gpuSuccess
-import wwr.blas;        // gpublasHandle_t, gpublasCreate, GPUBLAS_OP_N
+import wwr.runtime_api; // wwrMalloc, wwrMemcpy, wwrGetDevice, wwrSuccess
+import wwr.blas;        // wwrblasHandle_t, wwrblasCreate, WWRBLAS_OP_N
 import wwr.wrappers.blas;
 import wwr.wrappers.solver;
 import wwr.wrappers.fft;
 import wwr.wrappers.sparse;
 import wwr.wrappers.tx; // wwr::tx::mark, ScopedRange, range_start/stop
 
-// The gpu* names (gpuSuccess, gpuMalloc, GPUBLAS_OP_N, ...) and the wrappers
+// The gpu* names (wwrSuccess, wwrMalloc, WWRBLAS_OP_N, ...) and the wrappers
 // (gemm, potri, ...) are all exported in namespace wwr. A consumer is not
 // inside it, so unlike this project's own tests it has to say so.
 using namespace wwr;
@@ -74,51 +74,51 @@ bool multiply_square(const int n) {
   float *a = nullptr;
   float *b = nullptr;
   float *c = nullptr;
-  if (gpuMalloc(reinterpret_cast<void **>(&a), bytes) != gpuSuccess ||
-      gpuMalloc(reinterpret_cast<void **>(&b), bytes) != gpuSuccess ||
-      gpuMalloc(reinterpret_cast<void **>(&c), bytes) != gpuSuccess) {
+  if (wwrMalloc(reinterpret_cast<void **>(&a), bytes) != wwrSuccess ||
+      wwrMalloc(reinterpret_cast<void **>(&b), bytes) != wwrSuccess ||
+      wwrMalloc(reinterpret_cast<void **>(&c), bytes) != wwrSuccess) {
     std::println(stderr, "device allocation failed");
     return false;
   }
 
-  // One cleanup path for every early return below. gpuFree's status is
+  // One cleanup path for every early return below. wwrFree's status is
   // discarded on purpose -- this is best-effort teardown -- and the casts are
   // load-bearing: hipFree is [[nodiscard]] where cudaFree is not, so without
   // them the example warns under HIP and is clean under CUDA.
   const auto teardown = [&] {
-    (void)gpuFree(a);
-    (void)gpuFree(b);
-    (void)gpuFree(c);
+    (void)wwrFree(a);
+    (void)wwrFree(b);
+    (void)wwrFree(c);
   };
 
-  if (gpuMemcpy(a, host_a.data(), bytes, gpuMemcpyHostToDevice) != gpuSuccess ||
-      gpuMemcpy(b, host_b.data(), bytes, gpuMemcpyHostToDevice) != gpuSuccess) {
+  if (wwrMemcpy(a, host_a.data(), bytes, wwrMemcpyHostToDevice) != wwrSuccess ||
+      wwrMemcpy(b, host_b.data(), bytes, wwrMemcpyHostToDevice) != wwrSuccess) {
     std::println(stderr, "host -> device copy failed");
     teardown();
     return false;
   }
 
-  gpublasHandle_t handle{};
-  if (gpublasCreate(&handle) != GPUBLAS_STATUS_SUCCESS) {
-    std::println(stderr, "gpublasCreate failed");
+  wwrblasHandle_t handle{};
+  if (wwrblasCreate(&handle) != WWRBLAS_STATUS_SUCCESS) {
+    std::println(stderr, "wwrblasCreate failed");
     teardown();
     return false;
   }
 
   const float alpha = 1.0f;
   const float beta = 0.0f;
-  const auto status = gemm<float, int>(handle, GPUBLAS_OP_N, GPUBLAS_OP_N, n, n, n, &alpha, a, n, b,
+  const auto status = gemm<float, int>(handle, WWRBLAS_OP_N, WWRBLAS_OP_N, n, n, n, &alpha, a, n, b,
                                        n, &beta, c, n);
-  gpublasDestroy(handle);
-  if (status != GPUBLAS_STATUS_SUCCESS) {
+  wwrblasDestroy(handle);
+  if (status != WWRBLAS_STATUS_SUCCESS) {
     std::println(stderr, "gemm failed with status {}", static_cast<int>(status));
     teardown();
     return false;
   }
 
   std::vector<float> host_c(count);
-  const bool copied = gpuMemcpy(host_c.data(), c, bytes, gpuMemcpyDeviceToHost) == gpuSuccess &&
-                      gpuDeviceSynchronize() == gpuSuccess;
+  const bool copied = wwrMemcpy(host_c.data(), c, bytes, wwrMemcpyDeviceToHost) == wwrSuccess &&
+                      wwrDeviceSynchronize() == wwrSuccess;
   teardown();
   if (!copied) {
     std::println(stderr, "device -> host copy failed");
@@ -174,7 +174,7 @@ int main() {
     return 1;
 
   int device = 0;
-  if (gpuGetDevice(&device) != gpuSuccess) {
+  if (wwrGetDevice(&device) != wwrSuccess) {
     std::println("gpumod : installed package consumed and linked; no GPU to run the gemm");
     return 77; // ctest's conventional "skipped"
   }

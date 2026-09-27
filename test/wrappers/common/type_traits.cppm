@@ -27,7 +27,7 @@ namespace wwr::test {
 // *_DISPATCH_64 macros discriminate: `if constexpr (is_same_v<IntT, int>) ...
 // else if (is_same_v<IntT, int64_t>) ...`, with no else. Any type that
 // satisfies the concept but matches neither branch expands the wrapper body to
-// nothing -- a non-void function returning gpublasStatus_t with no return. The
+// nothing -- a non-void function returning wwrblasStatus_t with no return. The
 // concept is the guard that keeps that from being reachable, so these asserts
 // pin its domain to the two types the dispatch handles and nothing wider.
 //
@@ -79,37 +79,37 @@ static_assert(!int_type<int *>);
 
 static_assert(real_fp<float>);
 static_assert(real_fp<double>);
-static_assert(!real_fp<gpuFloatComplex>);
-static_assert(!real_fp<gpuDoubleComplex>);
-static_assert(!real_fp<gpuHalf>);
+static_assert(!real_fp<wwrFloatComplex>);
+static_assert(!real_fp<wwrDoubleComplex>);
+static_assert(!real_fp<wwrHalf>);
 static_assert(!real_fp<int>);
 
-static_assert(complex_fp<gpuFloatComplex>);
-static_assert(complex_fp<gpuDoubleComplex>);
+static_assert(complex_fp<wwrFloatComplex>);
+static_assert(complex_fp<wwrDoubleComplex>);
 static_assert(!complex_fp<float>);
 static_assert(!complex_fp<double>);
 
 static_assert(usual_fp<float>);
 static_assert(usual_fp<double>);
-static_assert(usual_fp<gpuFloatComplex>);
-static_assert(usual_fp<gpuDoubleComplex>);
-static_assert(!usual_fp<gpuHalf>);
-static_assert(!usual_fp<gpuBfloat16>);
+static_assert(usual_fp<wwrFloatComplex>);
+static_assert(usual_fp<wwrDoubleComplex>);
+static_assert(!usual_fp<wwrHalf>);
+static_assert(!usual_fp<wwrBfloat16>);
 static_assert(!usual_fp<int>);
 static_assert(!usual_fp<long double>);
 
-static_assert(half_fp<gpuHalf>);
-static_assert(half_fp<gpuBfloat16>);
+static_assert(half_fp<wwrHalf>);
+static_assert(half_fp<wwrBfloat16>);
 static_assert(!half_fp<float>);
 static_assert(!half_fp<double>);
-static_assert(!half_fp<gpuFloatComplex>);
+static_assert(!half_fp<wwrFloatComplex>);
 
 static_assert(usual_and_half_fp<float>);
 static_assert(usual_and_half_fp<double>);
-static_assert(usual_and_half_fp<gpuFloatComplex>);
-static_assert(usual_and_half_fp<gpuDoubleComplex>);
-static_assert(usual_and_half_fp<gpuHalf>);
-static_assert(usual_and_half_fp<gpuBfloat16>);
+static_assert(usual_and_half_fp<wwrFloatComplex>);
+static_assert(usual_and_half_fp<wwrDoubleComplex>);
+static_assert(usual_and_half_fp<wwrHalf>);
+static_assert(usual_and_half_fp<wwrBfloat16>);
 static_assert(!usual_and_half_fp<int>);
 static_assert(!usual_and_half_fp<long double>);
 
@@ -122,19 +122,19 @@ static_assert(!usual_and_half_fp<long double>);
 // round-trip.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-static_assert(std::is_same_v<RealToComplexType<float>, gpuFloatComplex>);
-static_assert(std::is_same_v<RealToComplexType<double>, gpuDoubleComplex>);
+static_assert(std::is_same_v<RealToComplexType<float>, wwrFloatComplex>);
+static_assert(std::is_same_v<RealToComplexType<double>, wwrDoubleComplex>);
 
 static_assert(std::is_same_v<ComplexToRealType<float>, float>);
 static_assert(std::is_same_v<ComplexToRealType<double>, double>);
-static_assert(std::is_same_v<ComplexToRealType<gpuFloatComplex>, float>);
-static_assert(std::is_same_v<ComplexToRealType<gpuDoubleComplex>, double>);
+static_assert(std::is_same_v<ComplexToRealType<wwrFloatComplex>, float>);
+static_assert(std::is_same_v<ComplexToRealType<wwrDoubleComplex>, double>);
 
 // real -> complex -> real is the identity on the reals
 static_assert(std::is_same_v<ComplexToRealType<RealToComplexType<float>>, float>);
 static_assert(std::is_same_v<ComplexToRealType<RealToComplexType<double>>, double>);
 
-static_assert(std::is_same_v<HalfToFloatType<gpuHalf>, float>);
-static_assert(std::is_same_v<HalfToFloatType<gpuBfloat16>, float>);
+static_assert(std::is_same_v<HalfToFloatType<wwrHalf>, float>);
+static_assert(std::is_same_v<HalfToFloatType<wwrBfloat16>, float>);
 
 } // namespace wwr::test

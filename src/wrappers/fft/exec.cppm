@@ -2,11 +2,11 @@
  * @file exec.cppm
  * @brief Type-safe GPU FFT execution wrappers
  *
- * The six gpufftExec* entry points collapse into three functions templated on
+ * The six wwrfftExec* entry points collapse into three functions templated on
  * the real precision T (float or double): exec_c2c, exec_r2c, exec_c2r. Each
- * token-pastes its precision-specific transform kind onto gpufftExec via
+ * token-pastes its precision-specific transform kind onto wwrfftExec via
  * dispatch_macros.h. The complex element type is the FFT library's own
- * (FftComplex<T> = gpufftComplex / gpufftDoubleComplex), so the wrapper
+ * (FftComplex<T> = wwrfftComplex / wwrfftDoubleComplex), so the wrapper
  * signatures match the vendor functions on both backends.
  *
  * Usage:
@@ -14,8 +14,8 @@
  *   using namespace wwr;
  *
  *   FftPlan plan;
- *   gpufftMakePlan1d(plan, n, GPUFFT_C2C, 1, &work);
- *   exec_c2c<float>(plan, in, out, GPUFFT_FORWARD);
+ *   wwrfftMakePlan1d(plan, n, WWRFFT_C2C, 1, &work);
+ *   exec_c2c<float>(plan, in, out, WWRFFT_FORWARD);
  */
 
 module;
@@ -41,11 +41,11 @@ export namespace wwr {
  * @param plan A configured FFT plan for the matching transform type
  * @param idata Input complex data (device memory)
  * @param odata Output complex data (device memory); may alias idata (in-place)
- * @param direction GPUFFT_FORWARD or GPUFFT_INVERSE
- * @return gpufftResult_t status code
+ * @param direction WWRFFT_FORWARD or WWRFFT_INVERSE
+ * @return wwrfftResult_t status code
  */
 template<real_fp T>
-gpufftResult_t exec_c2c(gpufftHandle plan, FftComplex<T> *idata, FftComplex<T> *odata,
+wwrfftResult_t exec_c2c(wwrfftHandle plan, FftComplex<T> *idata, FftComplex<T> *odata,
                         int direction) {
   WWR_FFT_EXEC_DISPATCH(T, C2C, Z2Z, plan, idata, odata, direction);
 }
@@ -61,10 +61,10 @@ gpufftResult_t exec_c2c(gpufftHandle plan, FftComplex<T> *idata, FftComplex<T> *
  * @param plan A configured FFT plan for the matching transform type
  * @param idata Input real data (device memory)
  * @param odata Output complex data (device memory)
- * @return gpufftResult_t status code
+ * @return wwrfftResult_t status code
  */
 template<real_fp T>
-gpufftResult_t exec_r2c(gpufftHandle plan, T *idata, FftComplex<T> *odata) {
+wwrfftResult_t exec_r2c(wwrfftHandle plan, T *idata, FftComplex<T> *odata) {
   WWR_FFT_EXEC_DISPATCH(T, R2C, D2Z, plan, idata, odata);
 }
 
@@ -79,10 +79,10 @@ gpufftResult_t exec_r2c(gpufftHandle plan, T *idata, FftComplex<T> *odata) {
  * @param plan A configured FFT plan for the matching transform type
  * @param idata Input complex data (device memory)
  * @param odata Output real data (device memory)
- * @return gpufftResult_t status code
+ * @return wwrfftResult_t status code
  */
 template<real_fp T>
-gpufftResult_t exec_c2r(gpufftHandle plan, FftComplex<T> *idata, T *odata) {
+wwrfftResult_t exec_c2r(wwrfftHandle plan, FftComplex<T> *idata, T *odata) {
   WWR_FFT_EXEC_DISPATCH(T, C2R, Z2D, plan, idata, odata);
 }
 
@@ -91,16 +91,16 @@ gpufftResult_t exec_c2r(gpufftHandle plan, FftComplex<T> *idata, T *odata) {
 // instantiations live in instantiations.cpp.
 
 // Function: exec_c2c
-extern template gpufftResult_t exec_c2c<float>(gpufftHandle, gpufftComplex *, gpufftComplex *, int);
-extern template gpufftResult_t exec_c2c<double>(gpufftHandle, gpufftDoubleComplex *,
-                                                gpufftDoubleComplex *, int);
+extern template wwrfftResult_t exec_c2c<float>(wwrfftHandle, wwrfftComplex *, wwrfftComplex *, int);
+extern template wwrfftResult_t exec_c2c<double>(wwrfftHandle, wwrfftDoubleComplex *,
+                                                wwrfftDoubleComplex *, int);
 
 // Function: exec_r2c
-extern template gpufftResult_t exec_r2c<float>(gpufftHandle, float *, gpufftComplex *);
-extern template gpufftResult_t exec_r2c<double>(gpufftHandle, double *, gpufftDoubleComplex *);
+extern template wwrfftResult_t exec_r2c<float>(wwrfftHandle, float *, wwrfftComplex *);
+extern template wwrfftResult_t exec_r2c<double>(wwrfftHandle, double *, wwrfftDoubleComplex *);
 
 // Function: exec_c2r
-extern template gpufftResult_t exec_c2r<float>(gpufftHandle, gpufftComplex *, float *);
-extern template gpufftResult_t exec_c2r<double>(gpufftHandle, gpufftDoubleComplex *, double *);
+extern template wwrfftResult_t exec_c2r<float>(wwrfftHandle, wwrfftComplex *, float *);
+extern template wwrfftResult_t exec_c2r<double>(wwrfftHandle, wwrfftDoubleComplex *, double *);
 
 } // namespace wwr

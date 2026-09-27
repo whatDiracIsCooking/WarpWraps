@@ -259,7 +259,7 @@ TEST(SizeOverflowRejectionTests, DeviceElementCountOverflowIsRejected) {
   CountedDeviceBuffer<float> buf(CountedDeviceBuffer<float>::max_num_elements + 1, dev, policy);
 
   EXPECT_EQ(buf.alloc_policy().count(), std::size_t{1});
-  EXPECT_EQ(buf.alloc_policy().last(), gpuErrorInvalidValue);
+  EXPECT_EQ(buf.alloc_policy().last(), wwrErrorInvalidValue);
   EXPECT_EQ(buf.data(), nullptr);
   EXPECT_EQ(buf.num_elements(), std::size_t{0});
 }
@@ -442,9 +442,9 @@ TEST(BufferViewTests, ReinterpretViewUpcastsToWiderElementType) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Device, pinned and unified buffers
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// NOTE: copy() and memset() return gpuError_t, where gpuSuccess is 0.
+// NOTE: copy() and memset() return wwrError_t, where wwrSuccess is 0.
 // EXPECT_TRUE on one of those is inverted -- it passes only when the call
-// FAILED. Always compare against gpuSuccess explicitly.
+// FAILED. Always compare against wwrSuccess explicitly.
 
 TEST(DeviceBufferTests, PoolAllocationZeroInitialises) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
@@ -455,9 +455,9 @@ TEST(DeviceBufferTests, PoolAllocationZeroInitialises) {
   // The buffer zero-inits on the handle's stream, so read it back on that same
   // stream rather than stream 0, which would race the async memset.
   HostBuffer<float> host(64);
-  const gpuStream_t stream = dev_h->alloc_stream().get();
-  ASSERT_EQ(ext::copy(host, dev, stream), gpuSuccess);
-  ASSERT_EQ(gpuStreamSynchronize(stream), gpuSuccess);
+  const wwrStream_t stream = dev_h->alloc_stream().get();
+  ASSERT_EQ(ext::copy(host, dev, stream), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
   for (std::size_t i = 0; i < host.num_elements(); ++i) {
     EXPECT_EQ(host[i], 0.0f) << "at index " << i;
   }
@@ -465,14 +465,14 @@ TEST(DeviceBufferTests, PoolAllocationZeroInitialises) {
 
 TEST(DeviceBufferTests, ReinterpretViewAliasesDeviceStorage) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  const gpuStream_t stream = dev_h->alloc_stream().get();
+  const wwrStream_t stream = dev_h->alloc_stream().get();
 
   HostBuffer<float> up(16);
   for (std::size_t i = 0; i < up.num_elements(); ++i)
     up[i] = static_cast<float>(i) * 3.0f;
 
   DeviceBuffer<float> dev(16, dev_h);
-  ASSERT_EQ(ext::copy(dev, up, stream), gpuSuccess);
+  ASSERT_EQ(ext::copy(dev, up, stream), wwrSuccess);
 
   // A device pointer passes the alignment check (it never gets dereferenced on
   // the host); read the block back through a byte view to prove it aliases.
@@ -481,8 +481,8 @@ TEST(DeviceBufferTests, ReinterpretViewAliasesDeviceStorage) {
   ASSERT_EQ(dev_bytes.num_elements(), dev.size_bytes());
 
   HostBuffer<std::byte> host_bytes(dev_bytes.num_elements());
-  ASSERT_EQ(ext::copy(host_bytes, dev_bytes, stream), gpuSuccess);
-  ASSERT_EQ(gpuStreamSynchronize(stream), gpuSuccess);
+  ASSERT_EQ(ext::copy(host_bytes, dev_bytes, stream), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
 
   EXPECT_EQ(std::memcmp(host_bytes.data(), up.data(), up.size_bytes()), 0);
 }
@@ -498,7 +498,7 @@ TEST(DeviceBufferTests, MoveTransfersDeviceOwnership) {
 }
 
 TEST(DeviceBufferTests, MoveAssignmentReleasesDeviceOwnership) {
-  // Move-assignment onto a non-empty buffer takes the destroy_() -> gpuFreeAsync
+  // Move-assignment onto a non-empty buffer takes the destroy_() -> wwrFreeAsync
   // path the move constructor never reaches: dst's original block must be
   // returned to the pool on its stream before dst takes src's block. The move
   // constructor has no prior allocation to free, so this is the only test that
@@ -517,8 +517,8 @@ TEST(DeviceBufferTests, MoveAssignmentReleasesDeviceOwnership) {
 
   // The async free of dst's old block drains cleanly - no double free, no
   // error left on the stream.
-  EXPECT_EQ(gpuStreamSynchronize(stream.get()), gpuSuccess);
-  EXPECT_EQ(gpuGetLastError(), gpuSuccess);
+  EXPECT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
+  EXPECT_EQ(wwrGetLastError(), wwrSuccess);
 }
 
 TEST(DeviceBufferTests, RoundTripsThroughDeviceMemory) {
@@ -529,10 +529,10 @@ TEST(DeviceBufferTests, RoundTripsThroughDeviceMemory) {
 
   auto dev_h = std::make_shared<DeviceHandle>(0);
   DeviceBuffer<float> dev(32, dev_h);
-  const gpuStream_t stream = dev_h->alloc_stream().get();
-  ASSERT_EQ(ext::copy(dev, up, stream), gpuSuccess);
-  ASSERT_EQ(ext::copy(down, dev, stream), gpuSuccess);
-  ASSERT_EQ(gpuStreamSynchronize(stream), gpuSuccess);
+  const wwrStream_t stream = dev_h->alloc_stream().get();
+  ASSERT_EQ(ext::copy(dev, up, stream), wwrSuccess);
+  ASSERT_EQ(ext::copy(down, dev, stream), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
 
   for (std::size_t i = 0; i < 32; ++i) {
     EXPECT_EQ(down[i], up[i]) << "at index " << i;
@@ -541,8 +541,8 @@ TEST(DeviceBufferTests, RoundTripsThroughDeviceMemory) {
 
 TEST(DeviceBufferTests, StreamOrderedAllocationsSurviveRepeatedChurn) {
   // Regression test for the stream-ordered allocate/free pairing.
-  // gpuFree performs no implicit synchronisation for a pointer from
-  // gpuMallocAsync, so releasing with it handed blocks back to the
+  // wwrFree performs no implicit synchronisation for a pointer from
+  // wwrMallocAsync, so releasing with it handed blocks back to the
   // pool while queued work was still using them - and the pool then
   // reissued them to the next allocation. Freeing on the same stream
   // keeps each block alive until its work has drained.
@@ -552,10 +552,10 @@ TEST(DeviceBufferTests, StreamOrderedAllocationsSurviveRepeatedChurn) {
     DeviceBuffer<float> buf(4096, dev_h);
     ASSERT_NE(buf.data(), nullptr) << "at iteration " << iter;
     EXPECT_EQ(buf.num_elements(), std::size_t{4096}) << "at iteration " << iter;
-    EXPECT_EQ(ext::memset(buf, 0xAB, stream.get()), gpuSuccess) << "at iteration " << iter;
+    EXPECT_EQ(ext::memset(buf, 0xAB, stream.get()), wwrSuccess) << "at iteration " << iter;
   }
-  EXPECT_EQ(gpuStreamSynchronize(stream.get()), gpuSuccess);
-  EXPECT_EQ(gpuGetLastError(), gpuSuccess);
+  EXPECT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
+  EXPECT_EQ(wwrGetLastError(), wwrSuccess);
 }
 
 TEST(DeviceBufferTests, StreamOrderedBufferHoldsItsContents) {
@@ -564,14 +564,14 @@ TEST(DeviceBufferTests, StreamOrderedBufferHoldsItsContents) {
   HostBuffer<float> host(128);
   {
     DeviceBuffer<float> dev(128, dev_h);
-    ASSERT_EQ(ext::memset(dev, 0, stream.get()), gpuSuccess);
-    ASSERT_EQ(ext::copy(host, dev, stream.get()), gpuSuccess);
-    ASSERT_EQ(gpuStreamSynchronize(stream.get()), gpuSuccess);
+    ASSERT_EQ(ext::memset(dev, 0, stream.get()), wwrSuccess);
+    ASSERT_EQ(ext::copy(host, dev, stream.get()), wwrSuccess);
+    ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
   }
   for (std::size_t i = 0; i < host.num_elements(); ++i) {
     EXPECT_EQ(host[i], 0.0f) << "at index " << i;
   }
-  EXPECT_EQ(gpuStreamSynchronize(stream.get()), gpuSuccess);
+  EXPECT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
 }
 
 TEST(DeviceBufferTests, MovedStreamOrderedBufferFreesOnce) {
@@ -583,8 +583,8 @@ TEST(DeviceBufferTests, MovedStreamOrderedBufferFreesOnce) {
     EXPECT_EQ(src.data(), nullptr);
     EXPECT_NE(dst.data(), nullptr);
   }
-  EXPECT_EQ(gpuStreamSynchronize(stream.get()), gpuSuccess);
-  EXPECT_EQ(gpuGetLastError(), gpuSuccess);
+  EXPECT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
+  EXPECT_EQ(wwrGetLastError(), wwrSuccess);
 }
 
 TEST(DeviceHandleTests, ReportsIndexAndQueriesProperties) {
@@ -594,7 +594,7 @@ TEST(DeviceHandleTests, ReportsIndexAndQueriesProperties) {
   // names itself, which also exercises the field across both backends.
   EXPECT_NE(dev.props().name[0], '\0');
   // The stream created eagerly on that device is usable.
-  EXPECT_EQ(dev.alloc_stream().sync(), gpuSuccess);
+  EXPECT_EQ(dev.alloc_stream().sync(), wwrSuccess);
   // The memory pool created eagerly on that device is a live handle.
   EXPECT_NE(dev.mem_pool().get(), nullptr);
 }
@@ -606,25 +606,25 @@ TEST(DeviceBufferTests, HandleAllocationHoldsItsContents) {
     DeviceBuffer<float> buf(128, dev);
     ASSERT_NE(buf.data(), nullptr);
     EXPECT_EQ(buf.num_elements(), std::size_t{128});
-    ASSERT_EQ(ext::memset(buf, 0, dev->alloc_stream().get()), gpuSuccess);
-    ASSERT_EQ(ext::copy(host, buf, dev->alloc_stream().get()), gpuSuccess);
-    ASSERT_EQ(dev->alloc_stream().sync(), gpuSuccess);
+    ASSERT_EQ(ext::memset(buf, 0, dev->alloc_stream().get()), wwrSuccess);
+    ASSERT_EQ(ext::copy(host, buf, dev->alloc_stream().get()), wwrSuccess);
+    ASSERT_EQ(dev->alloc_stream().sync(), wwrSuccess);
   }
   for (std::size_t i = 0; i < host.num_elements(); ++i) {
     EXPECT_EQ(host[i], 0.0f) << "at index " << i;
   }
-  EXPECT_EQ(gpuGetLastError(), gpuSuccess);
+  EXPECT_EQ(wwrGetLastError(), wwrSuccess);
 }
 
 TEST(DeviceBufferTests, HandleBufferRetainsStreamAfterLocalHandleReset) {
   // The buffer keeps a shared_ptr to the handle, so dropping the local
   // reference must not destroy the stream the destructor frees on.
   auto dev = std::make_shared<DeviceHandle>(0);
-  const gpuStream_t stream = dev->alloc_stream().get();
+  const wwrStream_t stream = dev->alloc_stream().get();
   DeviceBuffer<float> buf(256, dev);
   dev.reset(); // the buffer's retained handle is now the sole owner
   ASSERT_NE(buf.data(), nullptr);
-  EXPECT_EQ(gpuStreamSynchronize(stream), gpuSuccess); // stream still alive
+  EXPECT_EQ(wwrStreamSynchronize(stream), wwrSuccess); // stream still alive
   // ~buf frees on that same stream, then releases the handle - no use-after-free.
 }
 
@@ -634,7 +634,7 @@ TEST(DeviceBufferTests, HandleBufferRetainsStreamAfterLocalHandleReset) {
 // unified memory is genuinely host-writable.
 
 TEST(HostAccessibleBufferTests, PinnedBufferWithFlags) {
-  PinnedBuffer<float> buf(64, gpuHostAllocMapped);
+  PinnedBuffer<float> buf(64, wwrHostAllocMapped);
   EXPECT_NE(buf.data(), nullptr);
   EXPECT_EQ(buf.num_elements(), std::size_t{64});
 }
@@ -648,7 +648,7 @@ TEST(HostAccessibleBufferTests, UnifiedBufferIsHostAccessible) {
 }
 
 TEST(HostAccessibleBufferTests, UnifiedBufferWithFlags) {
-  UnifiedBuffer<float> buf(64, gpuMemAttachHost);
+  UnifiedBuffer<float> buf(64, wwrMemAttachHost);
   EXPECT_NE(buf.data(), nullptr);
   EXPECT_EQ(buf.num_elements(), std::size_t{64});
 }
@@ -690,10 +690,10 @@ TEST(CopyAndMemsetTests, OffsetCopyMovesOnlyTheRequestedRange) {
   DeviceBuffer<float> dev(16, dev_h);
   HostBuffer<float> out(16);
 
-  const gpuStream_t stream = dev_h->alloc_stream().get();
-  ASSERT_EQ(ext::copy(dev, 0, host, 4, 8, stream), gpuSuccess);
-  ASSERT_EQ(ext::copy(out, 0, dev, 0, 8, stream), gpuSuccess);
-  ASSERT_EQ(gpuStreamSynchronize(stream), gpuSuccess);
+  const wwrStream_t stream = dev_h->alloc_stream().get();
+  ASSERT_EQ(ext::copy(dev, 0, host, 4, 8, stream), wwrSuccess);
+  ASSERT_EQ(ext::copy(out, 0, dev, 0, 8, stream), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
 
   for (std::size_t i = 0; i < 8; ++i) {
     EXPECT_EQ(out[i], static_cast<float>(i + 4) + 1.0f) << "at index " << i;
@@ -704,7 +704,7 @@ TEST(CopyAndMemsetTests, OffsetCopyRejectsOutOfBoundsRange) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
   HostBuffer<float> host(16);
   DeviceBuffer<float> dev(16, dev_h);
-  EXPECT_EQ(ext::copy(dev, 0, host, 12, 8, gpuStream_t{0}), gpuErrorInvalidValue);
+  EXPECT_EQ(ext::copy(dev, 0, host, 12, 8, wwrStream_t{0}), wwrErrorInvalidValue);
 }
 
 // ── copy() through reinterpreting views ────────────────────────────
@@ -743,8 +743,8 @@ TEST(CopyAndMemsetTests, OffsetCopyThroughReinterpretViewUsesByteUnits) {
 
   // 8 bytes (two uint32) from src[0..] into dst starting at byte 4 (= dst[1]).
   // Offsets and count are in the view's element units, which are bytes here.
-  ASSERT_EQ(ext::copy(dst_bytes, 4, src_bytes, 0, 8, gpuStream_t{0}), gpuSuccess);
-  ASSERT_EQ(gpuStreamSynchronize(gpuStream_t{0}), gpuSuccess);
+  ASSERT_EQ(ext::copy(dst_bytes, 4, src_bytes, 0, 8, wwrStream_t{0}), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(wwrStream_t{0}), wwrSuccess);
 
   EXPECT_EQ(dst[0], 0u);
   EXPECT_EQ(dst[1], src[0]);
@@ -768,7 +768,7 @@ TEST(CopyAndMemsetTests, EmptyBufferMemsetIsANoOp) {
 TEST(CopyAndMemsetTests, OffsetMemsetRejectsOutOfBoundsRange) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
   DeviceBuffer<float> dev(16, dev_h);
-  EXPECT_EQ(ext::memset(dev, 12, 8, 0, gpuStream_t{0}), gpuErrorInvalidValue);
+  EXPECT_EQ(ext::memset(dev, 12, 8, 0, wwrStream_t{0}), wwrErrorInvalidValue);
 }
 
 TEST(CopyAndMemsetTests, OffsetMemsetFillsOnlyTheRequestedRange) {
@@ -779,14 +779,14 @@ TEST(CopyAndMemsetTests, OffsetMemsetFillsOnlyTheRequestedRange) {
   // A std::byte buffer makes the fill byte observable directly; 0xAB in a
   // float would read back as a NaN bit pattern.
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  const gpuStream_t stream = dev_h->alloc_stream().get();
+  const wwrStream_t stream = dev_h->alloc_stream().get();
   DeviceBuffer<std::byte> dev(16, dev_h); // zero-initialised by the pool draw
 
-  ASSERT_EQ(ext::memset(dev, 4, 8, 0xAB, stream), gpuSuccess);
+  ASSERT_EQ(ext::memset(dev, 4, 8, 0xAB, stream), wwrSuccess);
 
   HostBuffer<std::byte> host(16);
-  ASSERT_EQ(ext::copy(host, dev, stream), gpuSuccess);
-  ASSERT_EQ(gpuStreamSynchronize(stream), gpuSuccess);
+  ASSERT_EQ(ext::copy(host, dev, stream), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
 
   for (std::size_t i = 0; i < 16; ++i) {
     const int expected = (i >= 4 && i < 12) ? 0xAB : 0x00;
@@ -799,8 +799,8 @@ TEST(CopyAndMemsetTests, VoidBufferCopiesByBytes) {
   HostBuffer<void> dst(32);
   EXPECT_EQ(src.size_bytes(), std::size_t{32});
   EXPECT_EQ(ext::copy(dst, src), stdHostMemSuccess);
-  EXPECT_EQ(ext::copy(dst, 8, src, 8, 16, gpuStream_t{0}), gpuSuccess);
-  EXPECT_EQ(gpuStreamSynchronize(gpuStream_t{0}), gpuSuccess);
+  EXPECT_EQ(ext::copy(dst, 8, src, 8, 16, wwrStream_t{0}), wwrSuccess);
+  EXPECT_EQ(wwrStreamSynchronize(wwrStream_t{0}), wwrSuccess);
 }
 
 } // namespace wwr::extension::test

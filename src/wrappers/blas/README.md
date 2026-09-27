@@ -6,8 +6,8 @@ generic C++ template function. Callers write `gemm<float>(...)` instead of
 `cublasSgemm_v2(...)` / `hipblasSgemm(...)`; the correct typed function is
 selected at compile time via `if constexpr` dispatch.
 
-It is backend-neutral: written once against `src/blas`'s `gpublas*` names
-(`gpublasSgemm` is `cublasSgemm_v2` on a CUDA build and `hipblasSgemm` on a HIP
+It is backend-neutral: written once against `src/blas`'s `wwrblas*` names
+(`wwrblasSgemm` is `cublasSgemm_v2` on a CUDA build and `hipblasSgemm` on a HIP
 build), so the same source builds for either `WWR_GPU_BACKEND`.
 
 **Import:** `import wwr.wrappers.blas;`
@@ -18,9 +18,9 @@ build), so the same source builds for either `WWR_GPU_BACKEND`.
 None of them are resolved here -- all live in `src/blas.cppm`:
 
 - **Names.** cuBLAS's `_v2` suffix and hipBLAS's bare names both map to
-  `gpublas<X>`; dispatch basenames here carry no `_v2`.
+  `wwrblas<X>`; dispatch basenames here carry no `_v2`.
 - **Status strings.** hipBLAS has only `hipblasStatusToString`;
-  `gpublasGetStatusName` and `gpublasGetStatusString` both map to it on HIP.
+  `wwrblasGetStatusName` and `wwrblasGetStatusString` both map to it on HIP.
 - **`getrsBatched` / `getriBatched` constness.** hipBLAS declares the input
   arrays (and `getriBatched`'s pivots) non-const. The wrappers here keep
   cuBLAS's const-correct signature on both backends; on HIP,
@@ -32,11 +32,11 @@ None of them are resolved here -- all live in `src/blas.cppm`:
   `import wwr.cuda.cublas_v2;`, which exposes the whole cuBLAS API on a CUDA
   build. The repository README lists them under "Vendor-only functions".
 
-The wrappers take the raw `gpublasHandle_t` and return the raw `gpublasStatus_t`
+The wrappers take the raw `wwrblasHandle_t` and return the raw `wwrblasStatus_t`
 — a caller creates, destroys and error-checks the handle itself. RAII ownership
 and typed error handling live in the sibling `wwr.extension.blas` module
-(`:blas_handle` wraps `gpublasHandle_t`; `:blas_error` specialises the error
-policy for `gpublasStatus_t`).
+(`:blas_handle` wraps `wwrblasHandle_t`; `:blas_error` specialises the error
+policy for `wwrblasStatus_t`).
 
 ## Module Partitions
 
@@ -49,16 +49,16 @@ Re-exports concepts from `wwr.wrappers.common` and adds:
 template<typename T>
 concept int_type = ...;
 
-// Maps gpuHalf and gpuBfloat16 to float (used by gemvStridedBatched)
+// Maps wwrHalf and wwrBfloat16 to float (used by gemvStridedBatched)
 template<half_fp T> struct GetSinglePrecisionType { using type = T; };
-template<> struct GetSinglePrecisionType<gpuHalf>     { using type = float; };
-template<> struct GetSinglePrecisionType<gpuBfloat16> { using type = float; };
+template<> struct GetSinglePrecisionType<wwrHalf>     { using type = float; };
+template<> struct GetSinglePrecisionType<wwrBfloat16> { using type = float; };
 
 template<half_fp T>
 using SinglePrecisionType = typename GetSinglePrecisionType<T>::type;
 ```
 
-Also re-exports `gpuFloatComplex`, `gpuDoubleComplex`, `gpuComplex`, and
+Also re-exports `wwrFloatComplex`, `wwrDoubleComplex`, `wwrComplex`, and
 `std::int64_t` for use by callers that import only this extension.
 
 ### `:level_1` — `level_1.cppm` — Vector-Vector Operations
@@ -145,7 +145,7 @@ The `IntT` parameter selects between the 32-bit (`int`) and 64-bit (`int64_t`,
 ## Template Instantiation
 
 Explicit instantiations are written by hand for the type set (`float`, `double`,
-`gpuFloatComplex`, `gpuDoubleComplex`), each crossed with an index type
+`wwrFloatComplex`, `wwrDoubleComplex`), each crossed with an index type
 (`int`, `int64_t`) where the underlying function is templated on both. The
 `extern template` declarations live in `level_1.cppm`, `level_2.cppm`,
 `level_3.cppm`, and `extension.cppm`, next to each function; the matching
@@ -158,7 +158,7 @@ A new instantiation also needs its entry in
 
 - `test/wrappers/blas/blas_dispatch.toml` -- build-time, both backends, no
   GPU: `test/shared/dispatch.py` disassembles this target's objects and checks
-  that every explicit instantiation calls exactly the gpublas function the
+  that every explicit instantiation calls exactly the wwrblas function the
   table names. Catches what the types let through: an `int` widened into a
   `_64` entry point, a basename mixed up with one of the same signature
   (`iamax`/`iamin`), a dispatch branch missing.
@@ -184,7 +184,7 @@ wwr_add_cxx_module_library(
 )
 ```
 
-`dispatch_macros.h` (the `gpublas`-prefixed `WWR_USUAL_DISPATCH` plus the `_64`
+`dispatch_macros.h` (the `wwrblas`-prefixed `WWR_USUAL_DISPATCH` plus the `_64`
 index variants) sits next to the sources and is included same-dir; it
 builds on the prefix-agnostic `WWR_REAL_DISPATCH` / `WWR_COMPLEX_DISPATCH` cores shared
 from `wrappers/common/dispatch_sdcz.h`.

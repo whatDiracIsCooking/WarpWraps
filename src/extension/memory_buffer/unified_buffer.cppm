@@ -25,14 +25,14 @@ export namespace wwr::extension {
  * Simplifies memory management at the cost of potential performance overhead.
  *
  * @tparam T The element type stored in the buffer
- * @tparam P_alloc Error policy type for allocation (defaults to DefaultErrorPolicy<gpuError_t>)
+ * @tparam P_alloc Error policy type for allocation (defaults to DefaultErrorPolicy<wwrError_t>)
  * @tparam P_free Error policy type for deallocation (defaults to P_alloc)
  *
  * @note P_free MUST NOT THROW - it is called from the destructor.
  * @note Unified memory requires compute capability 6.0 or higher for full functionality
  */
-template<typename T, error_policy<gpuError_t> P_alloc = DefaultErrorPolicy<gpuError_t>,
-         nothrow_error_policy<gpuError_t> P_free = P_alloc>
+template<typename T, error_policy<wwrError_t> P_alloc = DefaultErrorPolicy<wwrError_t>,
+         nothrow_error_policy<wwrError_t> P_free = P_alloc>
 class UnifiedBufferWrapper
     : public BaseBuffer<T, MemoryKind::Unified, UnifiedBufferWrapper<T, P_alloc, P_free>, P_alloc,
                         P_free> {
@@ -49,7 +49,7 @@ public:
      * @brief Allocate unified memory with flags
      *
      * @param num_elements Number of elements to allocate
-     * @param flags Flags for gpuMallocManaged (e.g., gpuMemAttachGlobal, gpuMemAttachHost)
+     * @param flags Flags for wwrMallocManaged (e.g., wwrMemAttachGlobal, wwrMemAttachHost)
      * @param location Source location where allocation was requested
      */
   UnifiedBufferWrapper(std::size_t num_elements, unsigned int flags,
@@ -62,7 +62,7 @@ public:
     if (num_elements == 0)
       return;
     const std::size_t size_bytes = num_elements * Base::element_size;
-    if (!gpu_check(gpuMallocManaged(reinterpret_cast<void **>(&this->data_), size_bytes, flags),
+    if (!gpu_check(wwrMallocManaged(reinterpret_cast<void **>(&this->data_), size_bytes, flags),
                    this->policy_alloc_, location)) {
       this->data_ = nullptr;
       return;
@@ -93,7 +93,7 @@ public:
     const std::size_t size_bytes = num_elements * Base::element_size;
     // Must return on failure: *ptr is still null, and a policy that reports
     // without aborting would otherwise fall through to memset a null pointer.
-    if (!gpu_check(gpuMallocManaged(reinterpret_cast<void **>(ptr), size_bytes, gpuMemAttachGlobal),
+    if (!gpu_check(wwrMallocManaged(reinterpret_cast<void **>(ptr), size_bytes, wwrMemAttachGlobal),
                    policy, location)) {
       *ptr = nullptr;
       return;
@@ -109,7 +109,7 @@ public:
      */
   void deallocate(T *ptr, std::size_t num_elements) {
     if (ptr != nullptr) {
-      gpu_check(gpuFree(ptr), this->policy_free_);
+      gpu_check(wwrFree(ptr), this->policy_free_);
     }
   }
 };

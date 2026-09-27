@@ -3,13 +3,13 @@
  * @brief GPU error checking for gpumod project
  *
  * Provides simple no-throw error checking for any error code type with a
- * success_code<T>() specialization (gpuError_t, library status codes, ...).
+ * success_code<T>() specialization (wwrError_t, library status codes, ...).
  * Hands failures to an error policy and returns bool indicating success.
  *
  * Usage:
  *   import wwr.extension.common;
  *
- *   if (!gpu_check(gpuStreamCreate(&stream))) {
+ *   if (!gpu_check(wwrStreamCreate(&stream))) {
  *       return;  // handle error
  *   }
  */
@@ -34,7 +34,7 @@ export namespace wwr::extension {
  * @return true if error == success code, false otherwise
  *
  * @example
- *   if (!gpu_check(gpuStreamCreate(&stream))) {
+ *   if (!gpu_check(wwrStreamCreate(&stream))) {
  *       // Handle error (will print to stderr and abort)
  *       return;
  *   }
@@ -60,8 +60,8 @@ bool gpu_check(const T error, std::source_location location = std::source_locati
  * @return true if error == success code, false otherwise
  *
  * @example
- *   CustomErrorPolicy<gpuError_t> policy;
- *   if (!gpu_check(gpuStreamCreate(&stream), policy)) {
+ *   CustomErrorPolicy<wwrError_t> policy;
+ *   if (!gpu_check(wwrStreamCreate(&stream), policy)) {
  *       // Handle error using custom policy
  *       return;
  *   }

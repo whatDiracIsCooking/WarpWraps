@@ -2,9 +2,9 @@
  * @file complex.cuh
  * @brief Complex types and portable arithmetic for device-compiled TUs
  *
- * The device-compile counterpart to complex.cppm: gpuFloatComplex /
- * gpuDoubleComplex / gpuComplex, make_gpu*Complex, the gpuC* arithmetic and
- * accessors, and the gpuComplexFloatToDouble / gpuComplexDoubleToFloat precision
+ * The device-compile counterpart to complex.cppm: wwrFloatComplex /
+ * wwrDoubleComplex / wwrComplex, make_gpu*Complex, the wwrC* arithmetic and
+ * accessors, and the wwrComplexFloatToDouble / wwrComplexDoubleToFloat precision
  * conversions. Link wwr.device. Companion to fp16.cuh and bf16.cuh.
  *
  * The types are the SAME ones complex.cppm exports under these names, so a
@@ -55,15 +55,15 @@ namespace wwr {
 
 #if defined(WWR_SELECTED_CUDA)
 
-using gpuFloatComplex = ::cuFloatComplex;
-using gpuDoubleComplex = ::cuDoubleComplex;
-using gpuComplex = ::cuComplex;
+using wwrFloatComplex = ::cuFloatComplex;
+using wwrDoubleComplex = ::cuDoubleComplex;
+using wwrComplex = ::cuComplex;
 
 #else
 
-using gpuFloatComplex = ::hipFloatComplex;
-using gpuDoubleComplex = ::hipDoubleComplex;
-using gpuComplex = ::hipComplex;
+using wwrFloatComplex = ::hipFloatComplex;
+using wwrDoubleComplex = ::hipDoubleComplex;
+using wwrComplex = ::hipComplex;
 
 #endif
 
@@ -76,7 +76,7 @@ using gpuComplex = ::hipComplex;
 // ========================================================================
 
 /// @brief Build a single-precision complex value from its two components
-__device__ __forceinline__ gpuFloatComplex make_gpuFloatComplex(const float re, const float im) {
+__device__ __forceinline__ wwrFloatComplex make_gpuFloatComplex(const float re, const float im) {
 #if defined(WWR_SELECTED_CUDA)
   return ::make_cuFloatComplex(re, im);
 #else
@@ -85,7 +85,7 @@ __device__ __forceinline__ gpuFloatComplex make_gpuFloatComplex(const float re, 
 }
 
 /// @brief Build a double-precision complex value from its two components
-__device__ __forceinline__ gpuDoubleComplex make_gpuDoubleComplex(const double re,
+__device__ __forceinline__ wwrDoubleComplex make_gpuDoubleComplex(const double re,
                                                                   const double im) {
 #if defined(WWR_SELECTED_CUDA)
   return ::make_cuDoubleComplex(re, im);
@@ -95,8 +95,8 @@ __device__ __forceinline__ gpuDoubleComplex make_gpuDoubleComplex(const double r
 }
 
 /// @brief Build a single-precision complex value (the vendors' make_*Complex
-///        alias for make_gpuFloatComplex -- gpuComplex is gpuFloatComplex)
-__device__ __forceinline__ gpuComplex make_gpuComplex(const float re, const float im) {
+///        alias for make_gpuFloatComplex -- wwrComplex is wwrFloatComplex)
+__device__ __forceinline__ wwrComplex make_gpuComplex(const float re, const float im) {
 #if defined(WWR_SELECTED_CUDA)
   return ::make_cuComplex(re, im);
 #else
@@ -115,12 +115,12 @@ __device__ __forceinline__ gpuComplex make_gpuComplex(const float re, const floa
 // portable spelling; the gpu* names carry the divergent cu*/hip* spellings.
 //
 // __device__ __forceinline__ like construction above. The arguments are taken
-// by value, as the vendors declare them -- gpuFloatComplex is 8 bytes,
-// gpuDoubleComplex 16.
+// by value, as the vendors declare them -- wwrFloatComplex is 8 bytes,
+// wwrDoubleComplex 16.
 // ========================================================================
 
 /// @brief Real part of a single-precision complex value
-__device__ __forceinline__ float gpuCrealf(const gpuFloatComplex z) {
+__device__ __forceinline__ float wwrCrealf(const wwrFloatComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCrealf(z);
 #else
@@ -129,7 +129,7 @@ __device__ __forceinline__ float gpuCrealf(const gpuFloatComplex z) {
 }
 
 /// @brief Imaginary part of a single-precision complex value
-__device__ __forceinline__ float gpuCimagf(const gpuFloatComplex z) {
+__device__ __forceinline__ float wwrCimagf(const wwrFloatComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCimagf(z);
 #else
@@ -138,7 +138,7 @@ __device__ __forceinline__ float gpuCimagf(const gpuFloatComplex z) {
 }
 
 /// @brief Real part of a double-precision complex value
-__device__ __forceinline__ double gpuCreal(const gpuDoubleComplex z) {
+__device__ __forceinline__ double wwrCreal(const wwrDoubleComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCreal(z);
 #else
@@ -147,7 +147,7 @@ __device__ __forceinline__ double gpuCreal(const gpuDoubleComplex z) {
 }
 
 /// @brief Imaginary part of a double-precision complex value
-__device__ __forceinline__ double gpuCimag(const gpuDoubleComplex z) {
+__device__ __forceinline__ double wwrCimag(const wwrDoubleComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCimag(z);
 #else
@@ -156,7 +156,7 @@ __device__ __forceinline__ double gpuCimag(const gpuDoubleComplex z) {
 }
 
 /// @brief Magnitude (absolute value) of a single-precision complex value
-__device__ __forceinline__ float gpuCabsf(const gpuFloatComplex z) {
+__device__ __forceinline__ float wwrCabsf(const wwrFloatComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCabsf(z);
 #else
@@ -165,7 +165,7 @@ __device__ __forceinline__ float gpuCabsf(const gpuFloatComplex z) {
 }
 
 /// @brief Magnitude (absolute value) of a double-precision complex value
-__device__ __forceinline__ double gpuCabs(const gpuDoubleComplex z) {
+__device__ __forceinline__ double wwrCabs(const wwrDoubleComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCabs(z);
 #else
@@ -174,7 +174,7 @@ __device__ __forceinline__ double gpuCabs(const gpuDoubleComplex z) {
 }
 
 /// @brief Complex conjugate of a single-precision complex value
-__device__ __forceinline__ gpuFloatComplex gpuConjf(const gpuFloatComplex z) {
+__device__ __forceinline__ wwrFloatComplex wwrConjf(const wwrFloatComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuConjf(z);
 #else
@@ -183,7 +183,7 @@ __device__ __forceinline__ gpuFloatComplex gpuConjf(const gpuFloatComplex z) {
 }
 
 /// @brief Complex conjugate of a double-precision complex value
-__device__ __forceinline__ gpuDoubleComplex gpuConj(const gpuDoubleComplex z) {
+__device__ __forceinline__ wwrDoubleComplex wwrConj(const wwrDoubleComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuConj(z);
 #else
@@ -192,8 +192,8 @@ __device__ __forceinline__ gpuDoubleComplex gpuConj(const gpuDoubleComplex z) {
 }
 
 /// @brief Sum of two single-precision complex values
-__device__ __forceinline__ gpuFloatComplex gpuCaddf(const gpuFloatComplex a,
-                                                    const gpuFloatComplex b) {
+__device__ __forceinline__ wwrFloatComplex wwrCaddf(const wwrFloatComplex a,
+                                                    const wwrFloatComplex b) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCaddf(a, b);
 #else
@@ -202,8 +202,8 @@ __device__ __forceinline__ gpuFloatComplex gpuCaddf(const gpuFloatComplex a,
 }
 
 /// @brief Difference of two single-precision complex values
-__device__ __forceinline__ gpuFloatComplex gpuCsubf(const gpuFloatComplex a,
-                                                    const gpuFloatComplex b) {
+__device__ __forceinline__ wwrFloatComplex wwrCsubf(const wwrFloatComplex a,
+                                                    const wwrFloatComplex b) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCsubf(a, b);
 #else
@@ -212,8 +212,8 @@ __device__ __forceinline__ gpuFloatComplex gpuCsubf(const gpuFloatComplex a,
 }
 
 /// @brief Product of two single-precision complex values
-__device__ __forceinline__ gpuFloatComplex gpuCmulf(const gpuFloatComplex a,
-                                                    const gpuFloatComplex b) {
+__device__ __forceinline__ wwrFloatComplex wwrCmulf(const wwrFloatComplex a,
+                                                    const wwrFloatComplex b) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCmulf(a, b);
 #else
@@ -222,8 +222,8 @@ __device__ __forceinline__ gpuFloatComplex gpuCmulf(const gpuFloatComplex a,
 }
 
 /// @brief Quotient of two single-precision complex values
-__device__ __forceinline__ gpuFloatComplex gpuCdivf(const gpuFloatComplex a,
-                                                    const gpuFloatComplex b) {
+__device__ __forceinline__ wwrFloatComplex wwrCdivf(const wwrFloatComplex a,
+                                                    const wwrFloatComplex b) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCdivf(a, b);
 #else
@@ -232,8 +232,8 @@ __device__ __forceinline__ gpuFloatComplex gpuCdivf(const gpuFloatComplex a,
 }
 
 /// @brief Sum of two double-precision complex values
-__device__ __forceinline__ gpuDoubleComplex gpuCadd(const gpuDoubleComplex a,
-                                                    const gpuDoubleComplex b) {
+__device__ __forceinline__ wwrDoubleComplex wwrCadd(const wwrDoubleComplex a,
+                                                    const wwrDoubleComplex b) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCadd(a, b);
 #else
@@ -242,8 +242,8 @@ __device__ __forceinline__ gpuDoubleComplex gpuCadd(const gpuDoubleComplex a,
 }
 
 /// @brief Difference of two double-precision complex values
-__device__ __forceinline__ gpuDoubleComplex gpuCsub(const gpuDoubleComplex a,
-                                                    const gpuDoubleComplex b) {
+__device__ __forceinline__ wwrDoubleComplex wwrCsub(const wwrDoubleComplex a,
+                                                    const wwrDoubleComplex b) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCsub(a, b);
 #else
@@ -252,8 +252,8 @@ __device__ __forceinline__ gpuDoubleComplex gpuCsub(const gpuDoubleComplex a,
 }
 
 /// @brief Product of two double-precision complex values
-__device__ __forceinline__ gpuDoubleComplex gpuCmul(const gpuDoubleComplex a,
-                                                    const gpuDoubleComplex b) {
+__device__ __forceinline__ wwrDoubleComplex wwrCmul(const wwrDoubleComplex a,
+                                                    const wwrDoubleComplex b) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCmul(a, b);
 #else
@@ -262,8 +262,8 @@ __device__ __forceinline__ gpuDoubleComplex gpuCmul(const gpuDoubleComplex a,
 }
 
 /// @brief Quotient of two double-precision complex values
-__device__ __forceinline__ gpuDoubleComplex gpuCdiv(const gpuDoubleComplex a,
-                                                    const gpuDoubleComplex b) {
+__device__ __forceinline__ wwrDoubleComplex wwrCdiv(const wwrDoubleComplex a,
+                                                    const wwrDoubleComplex b) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCdiv(a, b);
 #else
@@ -281,7 +281,7 @@ __device__ __forceinline__ gpuDoubleComplex gpuCdiv(const gpuDoubleComplex a,
 // ========================================================================
 
 /// @brief Widen a single-precision complex value to double precision
-__device__ __forceinline__ gpuDoubleComplex gpuComplexFloatToDouble(const gpuFloatComplex z) {
+__device__ __forceinline__ wwrDoubleComplex wwrComplexFloatToDouble(const wwrFloatComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuComplexFloatToDouble(z);
 #else
@@ -290,7 +290,7 @@ __device__ __forceinline__ gpuDoubleComplex gpuComplexFloatToDouble(const gpuFlo
 }
 
 /// @brief Narrow a double-precision complex value to single precision
-__device__ __forceinline__ gpuFloatComplex gpuComplexDoubleToFloat(const gpuDoubleComplex z) {
+__device__ __forceinline__ wwrFloatComplex wwrComplexDoubleToFloat(const wwrDoubleComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuComplexDoubleToFloat(z);
 #else

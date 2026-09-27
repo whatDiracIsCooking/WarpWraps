@@ -19,7 +19,7 @@
  *
  *   auto device = std::make_shared<DeviceHandle>();
  *   auto stream = device->alloc_stream().get();
- *   DeviceBuffer<gpurandState> states(n, device);
+ *   DeviceBuffer<wwrrandState> states(n, device);
  *   DeviceBuffer<float> values(n, device);
  *
  *   init_state(stream, n, states.data(), seed);
@@ -27,7 +27,7 @@
  *
  * The state array is the caller's: it is what makes a second call continue the
  * same streams instead of repeating them, and what lets one kernel's states be
- * reused by another. gpurandState comes from wwr.rand.
+ * reused by another. wwrrandState comes from wwr.rand.
  *
  * This and wwr.extension.random_normal were split out of the single
  * wwr.extension.rand module (two partitions), itself the port of the
@@ -66,7 +66,7 @@ export namespace wwr::extension {
  *                        independent blocks out of one seed.
  * @param offset How far into each state's own subsequence to skip ahead
  */
-void init_state(const gpuStream_t stream, const std::size_t count, gpurandState *states,
+void init_state(const wwrStream_t stream, const std::size_t count, wwrrandState *states,
                 const unsigned long long seed = 0, const unsigned long long sequence_offset = 0,
                 const unsigned long long offset = 0) {
   // device:: is load-bearing -- without it this names itself.

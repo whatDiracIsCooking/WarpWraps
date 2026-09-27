@@ -20,10 +20,10 @@ import wwr.bf16;
 
 namespace {
 
-using wwr::gpuBfloat162Float;
-using wwr::gpuFloat2Bfloat16;
-using wwr::gpuFloat2Half;
-using wwr::gpuHalf2Float;
+using wwr::wwrBfloat162Float;
+using wwr::wwrFloat2Bfloat16;
+using wwr::wwrFloat2Half;
+using wwr::wwrHalf2Float;
 
 // Representable in both formats -> the round trip is lossless either way.
 constexpr float kExact = 1.5f;
@@ -32,19 +32,19 @@ constexpr float kExact = 1.5f;
 constexpr float kHalfOnly = 1.0f + 0x1p-9f; // 1.001953125
 
 TEST(HalfConversion, RoundTripExact) {
-  EXPECT_EQ(gpuHalf2Float(gpuFloat2Half(kExact)), kExact);
+  EXPECT_EQ(wwrHalf2Float(wwrFloat2Half(kExact)), kExact);
 }
 
 TEST(HalfConversion, KeepsHalfPrecision) {
-  EXPECT_EQ(gpuHalf2Float(gpuFloat2Half(kHalfOnly)), kHalfOnly);
+  EXPECT_EQ(wwrHalf2Float(wwrFloat2Half(kHalfOnly)), kHalfOnly);
 }
 
 TEST(Bfloat16Conversion, RoundTripExact) {
-  EXPECT_EQ(gpuBfloat162Float(gpuFloat2Bfloat16(kExact)), kExact);
+  EXPECT_EQ(wwrBfloat162Float(wwrFloat2Bfloat16(kExact)), kExact);
 }
 
 TEST(Bfloat16Conversion, NarrowsBelowBfloat16Precision) {
-  EXPECT_EQ(gpuBfloat162Float(gpuFloat2Bfloat16(kHalfOnly)), 1.0f);
+  EXPECT_EQ(wwrBfloat162Float(wwrFloat2Bfloat16(kHalfOnly)), 1.0f);
 }
 
 } // namespace

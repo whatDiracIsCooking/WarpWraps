@@ -2,7 +2,7 @@
  * @file convenience_blas.cppm
  * @brief Default-policy aliases for the GPU BLAS handle wrapper
  *
- * `GpublasHandle` / `GpublasHandleView` bind GpublasHandleWrapper to the default
+ * `WwrblasHandle` / `WwrblasHandleView` bind WwrblasHandleWrapper to the default
  * error policy. This partition is the curated home for those default bindings;
  * alternative-policy aliases (e.g. a throwing or logging policy) belong here too.
  */
@@ -17,16 +17,16 @@ import wwr.extension.handle;
 export namespace wwr::extension {
 
 /**
- * @brief Convenient alias for GpublasHandleWrapper with default error policies
+ * @brief Convenient alias for WwrblasHandleWrapper with default error policies
  *
  * Usage:
- *   GpublasHandle handle;  // Instead of GpublasHandleWrapper<>
+ *   WwrblasHandle handle;  // Instead of WwrblasHandleWrapper<>
  */
-using GpublasHandle = GpublasHandleWrapper<>;
+using WwrblasHandle = WwrblasHandleWrapper<>;
 
 /// @brief Non-owning, copyable view of a BLAS handle, carrying its device index.
-///        Returned by GpublasHandle::view(); converts to gpublasHandle_t for the
-///        gpublas* wrappers, so a borrowed handle can be used without owning it.
-using GpublasHandleView = DeviceBoundHandleView<gpublasHandle_t>;
+///        Returned by WwrblasHandle::view(); converts to wwrblasHandle_t for the
+///        wwrblas* wrappers, so a borrowed handle can be used without owning it.
+using WwrblasHandleView = DeviceBoundHandleView<wwrblasHandle_t>;
 
 } // namespace wwr::extension

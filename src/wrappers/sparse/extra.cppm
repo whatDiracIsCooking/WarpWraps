@@ -28,11 +28,11 @@ export namespace wwr {
 // ========================================================================
 
 template<usual_fp T>
-gpusparseStatus_t csrgeam2_bufferSizeExt(
-    gpusparseHandle_t handle, int m, int n, const T *alpha, const gpusparseMatDescr_t descrA,
+wwrsparseStatus_t csrgeam2_bufferSizeExt(
+    wwrsparseHandle_t handle, int m, int n, const T *alpha, const wwrsparseMatDescr_t descrA,
     int nnzA, const T *csrSortedValA, const int *csrSortedRowPtrA, const int *csrSortedColIndA,
-    const T *beta, const gpusparseMatDescr_t descrB, int nnzB, const T *csrSortedValB,
-    const int *csrSortedRowPtrB, const int *csrSortedColIndB, const gpusparseMatDescr_t descrC,
+    const T *beta, const wwrsparseMatDescr_t descrB, int nnzB, const T *csrSortedValB,
+    const int *csrSortedRowPtrB, const int *csrSortedColIndB, const wwrsparseMatDescr_t descrC,
     const T *csrSortedValC, const int *csrSortedRowPtrC, const int *csrSortedColIndC,
     size_t *pBufferSizeInBytes) {
   WWR_USUAL_DISPATCH(T, csrgeam2_bufferSizeExt, handle, m, n, alpha, descrA, nnzA, csrSortedValA,
@@ -42,11 +42,11 @@ gpusparseStatus_t csrgeam2_bufferSizeExt(
 }
 
 template<usual_fp T>
-gpusparseStatus_t
-csrgeam2(gpusparseHandle_t handle, int m, int n, const T *alpha, const gpusparseMatDescr_t descrA,
+wwrsparseStatus_t
+csrgeam2(wwrsparseHandle_t handle, int m, int n, const T *alpha, const wwrsparseMatDescr_t descrA,
          int nnzA, const T *csrSortedValA, const int *csrSortedRowPtrA, const int *csrSortedColIndA,
-         const T *beta, const gpusparseMatDescr_t descrB, int nnzB, const T *csrSortedValB,
-         const int *csrSortedRowPtrB, const int *csrSortedColIndB, const gpusparseMatDescr_t descrC,
+         const T *beta, const wwrsparseMatDescr_t descrB, int nnzB, const T *csrSortedValB,
+         const int *csrSortedRowPtrB, const int *csrSortedColIndB, const wwrsparseMatDescr_t descrC,
          T *csrSortedValC, int *csrSortedRowPtrC, int *csrSortedColIndC, void *pBuffer) {
   WWR_USUAL_DISPATCH(T, csrgeam2, handle, m, n, alpha, descrA, nnzA, csrSortedValA,
                         csrSortedRowPtrA, csrSortedColIndA, beta, descrB, nnzB, csrSortedValB,
@@ -58,51 +58,51 @@ csrgeam2(gpusparseHandle_t handle, int m, int n, const T *alpha, const gpusparse
 // Matching `template` instantiations live in instantiations.cpp.
 
 // Function: csrgeam2_bufferSizeExt
-extern template gpusparseStatus_t
-csrgeam2_bufferSizeExt<float>(gpusparseHandle_t, int, int, const float *, const gpusparseMatDescr_t,
+extern template wwrsparseStatus_t
+csrgeam2_bufferSizeExt<float>(wwrsparseHandle_t, int, int, const float *, const wwrsparseMatDescr_t,
                               int, const float *, const int *, const int *, const float *,
-                              const gpusparseMatDescr_t, int, const float *, const int *,
-                              const int *, const gpusparseMatDescr_t, const float *, const int *,
+                              const wwrsparseMatDescr_t, int, const float *, const int *,
+                              const int *, const wwrsparseMatDescr_t, const float *, const int *,
                               const int *, size_t *);
-extern template gpusparseStatus_t
-csrgeam2_bufferSizeExt<double>(gpusparseHandle_t, int, int, const double *,
-                               const gpusparseMatDescr_t, int, const double *, const int *,
-                               const int *, const double *, const gpusparseMatDescr_t, int,
-                               const double *, const int *, const int *, const gpusparseMatDescr_t,
+extern template wwrsparseStatus_t
+csrgeam2_bufferSizeExt<double>(wwrsparseHandle_t, int, int, const double *,
+                               const wwrsparseMatDescr_t, int, const double *, const int *,
+                               const int *, const double *, const wwrsparseMatDescr_t, int,
+                               const double *, const int *, const int *, const wwrsparseMatDescr_t,
                                const double *, const int *, const int *, size_t *);
-extern template gpusparseStatus_t csrgeam2_bufferSizeExt<gpuFloatComplex>(
-    gpusparseHandle_t, int, int, const gpuFloatComplex *, const gpusparseMatDescr_t, int,
-    const gpuFloatComplex *, const int *, const int *, const gpuFloatComplex *,
-    const gpusparseMatDescr_t, int, const gpuFloatComplex *, const int *, const int *,
-    const gpusparseMatDescr_t, const gpuFloatComplex *, const int *, const int *, size_t *);
-extern template gpusparseStatus_t csrgeam2_bufferSizeExt<gpuDoubleComplex>(
-    gpusparseHandle_t, int, int, const gpuDoubleComplex *, const gpusparseMatDescr_t, int,
-    const gpuDoubleComplex *, const int *, const int *, const gpuDoubleComplex *,
-    const gpusparseMatDescr_t, int, const gpuDoubleComplex *, const int *, const int *,
-    const gpusparseMatDescr_t, const gpuDoubleComplex *, const int *, const int *, size_t *);
+extern template wwrsparseStatus_t csrgeam2_bufferSizeExt<wwrFloatComplex>(
+    wwrsparseHandle_t, int, int, const wwrFloatComplex *, const wwrsparseMatDescr_t, int,
+    const wwrFloatComplex *, const int *, const int *, const wwrFloatComplex *,
+    const wwrsparseMatDescr_t, int, const wwrFloatComplex *, const int *, const int *,
+    const wwrsparseMatDescr_t, const wwrFloatComplex *, const int *, const int *, size_t *);
+extern template wwrsparseStatus_t csrgeam2_bufferSizeExt<wwrDoubleComplex>(
+    wwrsparseHandle_t, int, int, const wwrDoubleComplex *, const wwrsparseMatDescr_t, int,
+    const wwrDoubleComplex *, const int *, const int *, const wwrDoubleComplex *,
+    const wwrsparseMatDescr_t, int, const wwrDoubleComplex *, const int *, const int *,
+    const wwrsparseMatDescr_t, const wwrDoubleComplex *, const int *, const int *, size_t *);
 
 // Function: csrgeam2
-extern template gpusparseStatus_t
-csrgeam2<float>(gpusparseHandle_t, int, int, const float *, const gpusparseMatDescr_t, int,
-                const float *, const int *, const int *, const float *, const gpusparseMatDescr_t,
-                int, const float *, const int *, const int *, const gpusparseMatDescr_t, float *,
+extern template wwrsparseStatus_t
+csrgeam2<float>(wwrsparseHandle_t, int, int, const float *, const wwrsparseMatDescr_t, int,
+                const float *, const int *, const int *, const float *, const wwrsparseMatDescr_t,
+                int, const float *, const int *, const int *, const wwrsparseMatDescr_t, float *,
                 int *, int *, void *);
-extern template gpusparseStatus_t
-csrgeam2<double>(gpusparseHandle_t, int, int, const double *, const gpusparseMatDescr_t, int,
+extern template wwrsparseStatus_t
+csrgeam2<double>(wwrsparseHandle_t, int, int, const double *, const wwrsparseMatDescr_t, int,
                  const double *, const int *, const int *, const double *,
-                 const gpusparseMatDescr_t, int, const double *, const int *, const int *,
-                 const gpusparseMatDescr_t, double *, int *, int *, void *);
-extern template gpusparseStatus_t
-csrgeam2<gpuFloatComplex>(gpusparseHandle_t, int, int, const gpuFloatComplex *,
-                          const gpusparseMatDescr_t, int, const gpuFloatComplex *, const int *,
-                          const int *, const gpuFloatComplex *, const gpusparseMatDescr_t, int,
-                          const gpuFloatComplex *, const int *, const int *,
-                          const gpusparseMatDescr_t, gpuFloatComplex *, int *, int *, void *);
-extern template gpusparseStatus_t
-csrgeam2<gpuDoubleComplex>(gpusparseHandle_t, int, int, const gpuDoubleComplex *,
-                           const gpusparseMatDescr_t, int, const gpuDoubleComplex *, const int *,
-                           const int *, const gpuDoubleComplex *, const gpusparseMatDescr_t, int,
-                           const gpuDoubleComplex *, const int *, const int *,
-                           const gpusparseMatDescr_t, gpuDoubleComplex *, int *, int *, void *);
+                 const wwrsparseMatDescr_t, int, const double *, const int *, const int *,
+                 const wwrsparseMatDescr_t, double *, int *, int *, void *);
+extern template wwrsparseStatus_t
+csrgeam2<wwrFloatComplex>(wwrsparseHandle_t, int, int, const wwrFloatComplex *,
+                          const wwrsparseMatDescr_t, int, const wwrFloatComplex *, const int *,
+                          const int *, const wwrFloatComplex *, const wwrsparseMatDescr_t, int,
+                          const wwrFloatComplex *, const int *, const int *,
+                          const wwrsparseMatDescr_t, wwrFloatComplex *, int *, int *, void *);
+extern template wwrsparseStatus_t
+csrgeam2<wwrDoubleComplex>(wwrsparseHandle_t, int, int, const wwrDoubleComplex *,
+                           const wwrsparseMatDescr_t, int, const wwrDoubleComplex *, const int *,
+                           const int *, const wwrDoubleComplex *, const wwrsparseMatDescr_t, int,
+                           const wwrDoubleComplex *, const int *, const int *,
+                           const wwrsparseMatDescr_t, wwrDoubleComplex *, int *, int *, void *);
 
 } // namespace wwr

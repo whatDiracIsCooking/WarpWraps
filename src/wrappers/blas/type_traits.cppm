@@ -33,12 +33,12 @@ struct GetSinglePrecisionType {
 };
 
 template<>
-struct GetSinglePrecisionType<gpuHalf> {
+struct GetSinglePrecisionType<wwrHalf> {
   using type = float;
 };
 
 template<>
-struct GetSinglePrecisionType<gpuBfloat16> {
+struct GetSinglePrecisionType<wwrBfloat16> {
   using type = float;
 };
 

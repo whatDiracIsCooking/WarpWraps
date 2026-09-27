@@ -28,7 +28,7 @@ namespace {
 /// is plain `__device__` -- it runs only inside parallel_for's kernel, and its
 /// callability is constrained on that kernel template, not on device_functor.
 struct init_state_functor {
-  gpurandState *const states_;
+  wwrrandState *const states_;
   const unsigned long long seed_;
   const unsigned long long sequence_offset_;
   const unsigned long long offset_;
@@ -37,13 +37,13 @@ struct init_state_functor {
     // sequence_offset_ + i, not a constant: states on DIFFERENT
     // subsequences of one seed are independent, states on the same one
     // are identical.
-    gpurand_init(seed_, sequence_offset_ + i, offset_, &states_[i]);
+    wwrrand_init(seed_, sequence_offset_ + i, offset_, &states_[i]);
   }
 };
 
 } // namespace
 
-void init_state(const gpuStream_t stream, const std::size_t count, gpurandState *states,
+void init_state(const wwrStream_t stream, const std::size_t count, wwrrandState *states,
                 const unsigned long long seed, const unsigned long long sequence_offset,
                 const unsigned long long offset) {
   if (count < 1) {

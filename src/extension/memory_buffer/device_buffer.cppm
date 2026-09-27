@@ -22,18 +22,18 @@ export namespace wwr::extension {
  *
  * Allocates device memory on construction and releases it on destruction. The
  * only way to build one is from a shared DeviceHandle: the block is drawn from
- * that handle's memory pool (gpuMallocFromPoolAsync) on its allocation stream,
+ * that handle's memory pool (wwrMallocFromPoolAsync) on its allocation stream,
  * and the handle is retained so both outlive the buffer. Device memory resides
  * on the GPU and provides the fastest access for device code.
  *
  * @tparam T The element type stored in the buffer
- * @tparam P_alloc Error policy type for allocation (defaults to DefaultErrorPolicy<gpuError_t>)
+ * @tparam P_alloc Error policy type for allocation (defaults to DefaultErrorPolicy<wwrError_t>)
  * @tparam P_free Error policy type for deallocation (defaults to P_alloc)
  *
  * @note P_free MUST NOT THROW - it is called from the destructor.
  */
-template<typename T, error_policy<gpuError_t> P_alloc = DefaultErrorPolicy<gpuError_t>,
-         nothrow_error_policy<gpuError_t> P_free = P_alloc>
+template<typename T, error_policy<wwrError_t> P_alloc = DefaultErrorPolicy<wwrError_t>,
+         nothrow_error_policy<wwrError_t> P_free = P_alloc>
 class DeviceBufferWrapper
     : public BaseBuffer<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free>, P_alloc,
                         P_free> {
@@ -49,9 +49,9 @@ public:
      * policy-taking overload below are the only constructors. Makes the handle's
      * device current for the allocation via a DeviceScope guard -- restoring the
      * caller's previous device afterward -- then allocates from its memory pool
-     * (gpuMallocFromPoolAsync) on its default allocation stream. The handle
+     * (wwrMallocFromPoolAsync) on its default allocation stream. The handle
      * is retained (shared_ptr) so the pool and stream outlive this buffer -- the
-     * destructor returns the block to the pool on that stream via gpuFreeAsync;
+     * destructor returns the block to the pool on that stream via wwrFreeAsync;
      * see deallocate(). Sharing lives at the handle level: neither pool nor
      * stream is ever owned independently of its DeviceHandle.
      *
@@ -102,9 +102,9 @@ public:
      *
      * @note A DeviceScope guard makes the handle's device current for the free
      *       and restores the caller's previous device afterward. Released with
-     *       gpuFreeAsync on the handle's stream -- the same stream the block was
-     *       drawn on. gpuFree performs no implicit synchronisation for a pointer
-     *       from gpuMallocFromPoolAsync, so using it here would hand the block
+     *       wwrFreeAsync on the handle's stream -- the same stream the block was
+     *       drawn on. wwrFree performs no implicit synchronisation for a pointer
+     *       from wwrMallocFromPoolAsync, so using it here would hand the block
      *       back to the pool while work still queued on the stream was reading
      *       and writing it.
      */
@@ -112,7 +112,7 @@ public:
     if (ptr == nullptr)
       return;
     DeviceScope scope{handle_->index()};
-    gpu_check(gpuFreeAsync(ptr, handle_->alloc_stream().get()), this->policy_free_);
+    gpu_check(wwrFreeAsync(ptr, handle_->alloc_stream().get()), this->policy_free_);
   }
 
 private:
@@ -129,16 +129,16 @@ private:
     if (!should_allocate(num_elements, location))
       return;
     DeviceScope scope{handle_->index(), location};
-    const gpuStream_t stream = handle_->alloc_stream().get();
+    const wwrStream_t stream = handle_->alloc_stream().get();
     const std::size_t size_bytes = num_elements * Base::element_size;
-    if (!gpu_check(gpuMallocFromPoolAsync(reinterpret_cast<void **>(&this->data_), size_bytes,
+    if (!gpu_check(wwrMallocFromPoolAsync(reinterpret_cast<void **>(&this->data_), size_bytes,
                                           handle_->mem_pool(), stream),
                    this->policy_alloc_, location)) {
       this->data_ = nullptr;
       return;
     }
     this->num_elements_ = num_elements;
-    gpu_check(gpuMemsetAsync(this->data_, 0, size_bytes, stream), this->policy_alloc_, location);
+    gpu_check(wwrMemsetAsync(this->data_, 0, size_bytes, stream), this->policy_alloc_, location);
   }
 
   /// @brief Whether to proceed with an allocation of `num_elements`
@@ -159,7 +159,7 @@ private:
   }
 
   /// Retains the DeviceHandle (and thus its memory pool and allocation stream)
-  /// so both outlive this buffer's gpuFreeAsync. Null only in the moved-from state.
+  /// so both outlive this buffer's wwrFreeAsync. Null only in the moved-from state.
   std::shared_ptr<DeviceHandle> handle_;
 };
 

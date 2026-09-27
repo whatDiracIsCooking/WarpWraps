@@ -1,4 +1,4 @@
-# GPU BLAS extension - type-safe wrappers over gpublas* (cuBLAS or hipBLAS,
+# GPU BLAS extension - type-safe wrappers over wwrblas* (cuBLAS or hipBLAS,
 # per WWR_GPU_BACKEND). dispatch_macros.h sits next to the sources and is
 # #include'd same-dir, so it needs no include directory; the shared
 # dispatch_sdcz.h it pulls in is reached through the src/ root that

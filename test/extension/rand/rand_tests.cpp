@@ -60,15 +60,15 @@ std::vector<OutputType> draw(const std::size_t count, const unsigned long long s
                              const unsigned long long offset = 0) {
   auto handle = std::make_shared<DeviceHandle>(0);
   GpuStream &stream = handle->alloc_stream();
-  DeviceBuffer<gpurandState> states(count, handle);
+  DeviceBuffer<wwrrandState> states(count, handle);
   DeviceBuffer<OutputType> values(count, handle);
 
   init_state(stream.get(), count, states.data(), seed, sequence_offset, offset);
   random_normal(stream.get(), count, states.data(), values.data(), scale);
 
   HostBuffer<OutputType> host(count);
-  EXPECT_EQ(copy(host, values, stream.get()), gpuSuccess);
-  EXPECT_EQ(gpuStreamSynchronize(stream.get()), gpuSuccess);
+  EXPECT_EQ(copy(host, values, stream.get()), wwrSuccess);
+  EXPECT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
 
   return std::vector<OutputType>(host.data(), host.data() + count);
 }
@@ -126,10 +126,10 @@ TEST(RandTests, DoubleIsStandardNormal) {
 }
 
 TEST(RandTests, HalfIsStandardNormal) {
-  const auto values = draw<gpuHalf>(kCount);
+  const auto values = draw<wwrHalf>(kCount);
   std::vector<double> as_double;
   as_double.reserve(values.size());
-  for (const gpuHalf v : values) {
+  for (const wwrHalf v : values) {
     as_double.push_back(static_cast<double>(static_cast<float>(v)));
   }
   // Half precision quantizes heavily (~2^-11 relative), so the moments are
@@ -142,10 +142,10 @@ TEST(RandTests, HalfIsStandardNormal) {
 }
 
 TEST(RandTests, Bfloat16IsStandardNormal) {
-  const auto values = draw<gpuBfloat16>(kCount);
+  const auto values = draw<wwrBfloat16>(kCount);
   std::vector<double> as_double;
   as_double.reserve(values.size());
-  for (const gpuBfloat16 v : values) {
+  for (const wwrBfloat16 v : values) {
     as_double.push_back(static_cast<double>(static_cast<float>(v)));
   }
   // bfloat16 keeps only 8 mantissa bits -- looser still than half.
@@ -162,12 +162,12 @@ TEST(RandTests, Bfloat16IsStandardNormal) {
 // to be standard normal passes scale = 1/sqrt(2). This is the claim
 // random_normal.cppm's header makes, and the one most likely to be got wrong.
 TEST(RandTests, FloatComplexComponentsAreStandardNormal) {
-  const auto values = draw<gpuFloatComplex>(kCount);
+  const auto values = draw<wwrFloatComplex>(kCount);
 
   std::vector<double> parts;
   parts.reserve(2 * values.size());
   double sum_magnitude_sq = 0.0;
-  for (const gpuFloatComplex z : values) {
+  for (const wwrFloatComplex z : values) {
     parts.push_back(static_cast<double>(z.x));
     parts.push_back(static_cast<double>(z.y));
     sum_magnitude_sq += static_cast<double>(z.x) * z.x + static_cast<double>(z.y) * z.y;
@@ -181,12 +181,12 @@ TEST(RandTests, FloatComplexComponentsAreStandardNormal) {
 }
 
 TEST(RandTests, DoubleComplexComponentsAreStandardNormal) {
-  const auto values = draw<gpuDoubleComplex>(kCount);
+  const auto values = draw<wwrDoubleComplex>(kCount);
 
   std::vector<double> parts;
   parts.reserve(2 * values.size());
   double sum_magnitude_sq = 0.0;
-  for (const gpuDoubleComplex z : values) {
+  for (const wwrDoubleComplex z : values) {
     parts.push_back(z.x);
     parts.push_back(z.y);
     sum_magnitude_sq += z.x * z.x + z.y * z.y;
@@ -214,15 +214,15 @@ TEST(RandTests, RealScaleScalesVarianceBySquare) {
 // A complex draw has component variance 1 and E[|z|^2] = 2 unscaled. Passing
 // scale = 1/sqrt(2) (as a complex value) normalizes E[|z|^2] to 1 -- the exact
 // claim random_normal's header makes. This drives the complex-multiply scale
-// path (gpuCmulf), distinct from the real one above.
+// path (wwrCmulf), distinct from the real one above.
 TEST(RandTests, ComplexScaleNormalizesMagnitudeVariance) {
-  gpuFloatComplex s{};
+  wwrFloatComplex s{};
   s.x = static_cast<float>(1.0 / std::sqrt(2.0));
   s.y = 0.0f;
-  const auto values = draw<gpuFloatComplex>(kCount, kSeed, 0, s);
+  const auto values = draw<wwrFloatComplex>(kCount, kSeed, 0, s);
 
   double sum_magnitude_sq = 0.0;
-  for (const gpuFloatComplex z : values) {
+  for (const wwrFloatComplex z : values) {
     sum_magnitude_sq += static_cast<double>(z.x) * z.x + static_cast<double>(z.y) * z.y;
   }
   EXPECT_NEAR(sum_magnitude_sq / static_cast<double>(values.size()), 1.0, 0.05)
@@ -233,12 +233,12 @@ TEST(RandTests, ComplexScaleNormalizesMagnitudeVariance) {
 // third distinct scale path (scale flows through the float<->half conversion).
 // Tolerances are looser than the real path, matching HalfIsStandardNormal.
 TEST(RandTests, ScaleAppliesThroughHalfConversion) {
-  const gpuHalf s = static_cast<gpuHalf>(2.0f);
-  const auto values = draw<gpuHalf>(kCount, kSeed, 0, s);
+  const wwrHalf s = static_cast<wwrHalf>(2.0f);
+  const auto values = draw<wwrHalf>(kCount, kSeed, 0, s);
 
   std::vector<double> as_double;
   as_double.reserve(values.size());
-  for (const gpuHalf v : values) {
+  for (const wwrHalf v : values) {
     as_double.push_back(static_cast<double>(static_cast<float>(v)));
   }
   const auto [mean, variance] = moments(as_double);
@@ -288,20 +288,20 @@ TEST(RandTests, StatesAdvanceAcrossCalls) {
 
   auto handle = std::make_shared<DeviceHandle>(0);
   GpuStream &stream = handle->alloc_stream();
-  DeviceBuffer<gpurandState> states(n, handle);
+  DeviceBuffer<wwrrandState> states(n, handle);
   DeviceBuffer<double> values(n, handle);
   HostBuffer<double> host(n);
 
   init_state(stream.get(), n, states.data(), kSeed);
 
   random_normal(stream.get(), n, states.data(), values.data());
-  ASSERT_EQ(copy(host, values, stream.get()), gpuSuccess);
-  ASSERT_EQ(gpuStreamSynchronize(stream.get()), gpuSuccess);
+  ASSERT_EQ(copy(host, values, stream.get()), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
   const std::vector<double> first(host.data(), host.data() + n);
 
   random_normal(stream.get(), n, states.data(), values.data());
-  ASSERT_EQ(copy(host, values, stream.get()), gpuSuccess);
-  ASSERT_EQ(gpuStreamSynchronize(stream.get()), gpuSuccess);
+  ASSERT_EQ(copy(host, values, stream.get()), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
   const std::vector<double> second(host.data(), host.data() + n);
 
   EXPECT_NE(first, second);
@@ -320,18 +320,18 @@ TEST(RandTests, SequenceOffsetShiftsTheStreams) {
 TEST(RandTests, ZeroCountIsANoOp) {
   auto handle = std::make_shared<DeviceHandle>(0);
   GpuStream &stream = handle->alloc_stream();
-  DeviceBuffer<gpurandState> states(4, handle);
+  DeviceBuffer<wwrrandState> states(4, handle);
   DeviceBuffer<double> values(4, handle);
 
-  ASSERT_EQ(memset(values, 0, stream.get()), gpuSuccess);
+  ASSERT_EQ(memset(values, 0, stream.get()), wwrSuccess);
 
   init_state(stream.get(), 0, states.data(), kSeed);
   random_normal(stream.get(), 0, states.data(), values.data());
-  ASSERT_EQ(gpuStreamSynchronize(stream.get()), gpuSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
 
   HostBuffer<double> host(4);
-  ASSERT_EQ(copy(host, values, stream.get()), gpuSuccess);
-  ASSERT_EQ(gpuStreamSynchronize(stream.get()), gpuSuccess);
+  ASSERT_EQ(copy(host, values, stream.get()), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
 
   for (std::size_t i = 0; i < 4; ++i) {
     EXPECT_EQ(host[i], 0.0) << "at index " << i;

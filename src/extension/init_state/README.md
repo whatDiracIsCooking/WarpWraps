@@ -11,7 +11,7 @@ using namespace wwr::extension;
 
 auto device = std::make_shared<DeviceHandle>();
 auto stream = device->alloc_stream().get();
-DeviceBuffer<gpurandState> states(n, device);
+DeviceBuffer<wwrrandState> states(n, device);
 DeviceBuffer<float> values(n, device);
 
 init_state(stream, n, states.data(), seed);
@@ -40,7 +40,7 @@ Because the caller holds the states:
 - one array can be shared by several kernels;
 - `sequence_offset` carves further disjoint blocks out of one seed.
 
-`gpurandState` comes from `wwr.rand`. Note that it is `gpurandStateXORWOW`
+`wwrrandState` comes from `wwr.rand`. Note that it is `wwrrandStateXORWOW`
 on CUDA and a *distinct type* on HIP — see `src/README.md`.
 
 ## How it is built, and why it is shaped this way

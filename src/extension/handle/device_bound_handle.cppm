@@ -9,7 +9,7 @@
  * Usage:
  *   import wwr.extension.handle;
  *
- *   class GpuStream : public DeviceBoundHandle<gpuStream_t, GpuStream, ...> { ... };
+ *   class GpuStream : public DeviceBoundHandle<wwrStream_t, GpuStream, ...> { ... };
  */
 
 export module wwr.extension.handle:device_bound_handle;
@@ -36,7 +36,7 @@ export namespace wwr::extension {
  * argument, defaulted to 0. There is no device-agnostic constructor -- a child
  * of this layer cannot be created without naming (or defaulting) its device, so
  * no handle silently lands on whatever device happened to be current. The
- * recorded index is then read back from the runtime (gpuGetDevice), so it
+ * recorded index is then read back from the runtime (wwrGetDevice), so it
  * reflects the device the handle was *actually* created on.
  *
  * Derived classes that create the handle through the default create() path get
@@ -46,7 +46,7 @@ export namespace wwr::extension {
  * including when the device is implied by the handle's own descriptor (e.g. a
  * memory pool's props.location.id, which is selected before the pool is created).
  *
- * @tparam T The underlying GPU handle type (e.g., gpuStream_t)
+ * @tparam T The underlying GPU handle type (e.g., wwrStream_t)
  * @tparam Derived The concrete class inheriting from this layer (CRTP)
  * @tparam P_create The error policy type for creation
  * @tparam P_destroy The error policy type for destruction (defaults to P_create)
@@ -77,17 +77,17 @@ protected:
   ///        checker, which aborts on failure.
   static void select_device(int dev_idx,
                             std::source_location location = std::source_location::current()) {
-    gpu_check(gpuSetDevice(dev_idx), location);
+    gpu_check(wwrSetDevice(dev_idx), location);
   }
 
   /// @brief Record the current device as this handle's owner (call after creating the handle).
   ///        Uses the default checker (aborts on failure), not policy_create_:
-  ///        gpuGetDevice returns gpuError_t, which a library handle's error
-  ///        policy is not typed to accept (it is typed to gpublasStatus_t and
+  ///        wwrGetDevice returns wwrError_t, which a library handle's error
+  ///        policy is not typed to accept (it is typed to wwrblasStatus_t and
   ///        the like), so routing it through policy_create_ only compiles for
-  ///        the gpuError_t-typed handles -- the same reason select_device is a
+  ///        the wwrError_t-typed handles -- the same reason select_device is a
   ///        plain default-checked call.
-  void record_device() { gpu_check(gpuGetDevice(&dev_idx_)); }
+  void record_device() { gpu_check(wwrGetDevice(&dev_idx_)); }
 
 public:
   /// @brief Create on `dev_idx` (default 0): select it, run Derived::create, record it.

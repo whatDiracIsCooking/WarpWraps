@@ -16,7 +16,7 @@
 # both ways, to see the difference (see example/README.md).
 add_executable(wwr.example.custom_default_error_policy main.cpp)
 
-# wwr.runtime_api for gpuErrorInvalidValue/gpuSuccess; wwr.extension.common for
+# wwr.runtime_api for wwrErrorInvalidValue/wwrSuccess; wwr.extension.common for
 # gpu_check and DefaultErrorPolicy. Both are backend-neutral, so this compiles
 # on either backend -- which is what devtools/cross-backend-check.sh checks.
 target_link_libraries(

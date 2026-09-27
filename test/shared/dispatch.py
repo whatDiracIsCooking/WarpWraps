@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that every wrapper in a wwr.wrappers module calls the right gpu* function.
+"""Check that every wrapper in a wwr.wrappers module calls the right wwr* function.
 
 The wrappers pick their vendor function by token-pasting a type prefix (and, in
 BLAS, an optional _64 suffix) onto a basename -- see each module's
@@ -12,35 +12,35 @@ link, and run.
 So this reads the compiled code instead. Each explicit instantiation of a
 wrapper is its own function in the object file, and the relocations inside it
 name the vendor function it actually calls. `llvm-objdump -dr` lists them; the
-vendor name is mapped back to its gpu* alias through the WWR_FUNCTION table in
-the matching gpu* module, which names both backends' functions -- so one
-expected table, written in gpu* names, checks a CUDA and a HIP build alike.
+vendor name is mapped back to its wwr* alias through the WWR_FUNCTION table in
+the matching wwr* module, which names both backends' functions -- so one
+expected table, written in wwr* names, checks a CUDA and a HIP build alike.
 
 Everything module-specific lives in one TOML table file (--table), so this
 script is shared by every extension module that dispatches this way:
 
     [check]
     module     = "wwr.wrappers.blas"   # module name in the mangled symbols
-    prefix     = "gpublas"                 # the gpu* alias prefix to look for
+    prefix     = "wwrblas"                 # the wwr* alias prefix to look for
     namespace  = "wwr"       # optional; this is the default
     forwarder_module = "wwr.blas"   # optional; see below
 
     [type_names.CUDA]                      # demangled spelling -> table spelling
-    float2 = "gpuComplex"
+    float2 = "wwrComplex"
     [type_names.HIP]
-    "HIP_vector_type<float, 2u>" = "gpuComplex"
+    "HIP_vector_type<float, 2u>" = "wwrComplex"
 
     [dispatch]                             # the hand-written expectations
-    "iamax<float, int>"    = ["gpublasIsamax"]
-    "rot<gpuComplex, int>" = ["gpublasCrot", "gpublasCsrot"]
+    "iamax<float, int>"    = ["wwrblasIsamax"]
+    "rot<wwrComplex, int>" = ["wwrblasCrot", "wwrblasCsrot"]
 
-`[dispatch]` is one key per wrapper<T, ...>, then the gpu* function(s) it must
+`[dispatch]` is one key per wrapper<T, ...>, then the wwr* function(s) it must
 call. A key with more than one function covers overloads sharing template
 arguments (BLAS's complex rot and scal; the solver names that exist in both the
 legacy and the modern API); each overload must call exactly one, and together
 they must call exactly the listed ones.
 
-`forwarder_module` is for gpu* modules that define ordinary inline functions
+`forwarder_module` is for wwr* modules that define ordinary inline functions
 alongside the WWR_FUNCTION aliases (wwr.blas does, for the HIP
 getrs/getriBatched shims). If one of those is not inlined, the wrapper calls it
 by name rather than the vendor symbol, and this is what recognises it. Omit the
@@ -48,7 +48,7 @@ key for a module that has none.
 
 Fails on: a wrapper calling the wrong function, calling none (a missing dispatch
 branch falls off the end), calling more than one, an instantiation the table
-lists but the object lacks, and a wrapper calling a gpu* function that the table
+lists but the object lacks, and a wrapper calling a wwr* function that the table
 does not list at all.
 
 --print dumps what the objects actually contain, as a `[dispatch]` block ready
@@ -64,7 +64,7 @@ import tomllib
 from collections import Counter, defaultdict
 from pathlib import Path
 
-# WWR_FUNCTION(gpublasSaxpy, cublasSaxpy_v2, hipblasSaxpy) -- the alias is
+# WWR_FUNCTION(wwrblasSaxpy, cublasSaxpy_v2, hipblasSaxpy) -- the alias is
 # constrained to the configured prefix so an unrelated WWR_FUNCTION line in the
 # same file (handle create/destroy, stream setters) cannot be mistaken for a
 # dispatch target.
@@ -76,7 +76,7 @@ GPU_FUNCTION_RE_TEMPLATE = (
 # <namespace>::<name>@<module><<targs>>(<params>).
 WRAPPER_RE_TEMPLATE = r"{namespace}::(\w+)@{module}<(.*?)>\("
 
-# An inline forwarder in the gpu* module that was not inlined away.
+# An inline forwarder in the wwr* module that was not inlined away.
 FORWARDER_RE_TEMPLATE = r"\b({prefix}\w+)@{forwarder_module}\("
 
 FUNC_HEADER_RE = re.compile(r"^[0-9a-f]+ <(.+)>:$")
@@ -164,11 +164,11 @@ class Table:
             self.expected[canon] = callees
 
     def vendor_aliases(self, gpu_source):
-        """vendor symbol -> the gpu* alias(es) naming it, for this backend.
+        """vendor symbol -> the wwr* alias(es) naming it, for this backend.
 
         The value is a LIST because the mapping is legitimately many-to-one: one
         backend can merge two of the other's entry points, and src/blas.cppm
-        does exactly that -- gpublasGetStatusName and gpublasGetStatusString are
+        does exactly that -- wwrblasGetStatusName and wwrblasGetStatusString are
         both hipblasStatusToString under HIP. Returning a bare dict silently kept
         whichever WWR_FUNCTION line came last and dropped the other, so a wrapper
         calling the merged symbol was reported under an arbitrary one of its two
@@ -264,11 +264,11 @@ def demangle(cxxfilt, names):
 
 
 def resolve_alias(symbol, candidates, want, key, ambiguous):
-    """Which gpu* alias to report for a vendor symbol that several of them name.
+    """Which wwr* alias to report for a vendor symbol that several of them name.
 
     This is NOT the check giving itself the answer. When one backend merges two
-    entry points -- hipblasStatusToString is both gpublasGetStatusName and
-    gpublasGetStatusString -- the object file holds ONE symbol, so no amount of
+    entry points -- hipblasStatusToString is both wwrblasGetStatusName and
+    wwrblasGetStatusString -- the object file holds ONE symbol, so no amount of
     disassembly can say which spelling the source used, and both are equally
     true of the compiled code. Preferring the expected spelling is therefore
     exact, not lenient: the check still proves the wrapper calls that symbol and
@@ -289,7 +289,7 @@ def resolve_alias(symbol, candidates, want, key, ambiguous):
 
 
 def actual_dispatch(table, args):
-    """wrapper<T, ...> -> list (one per overload) of the gpu* functions it calls."""
+    """wrapper<T, ...> -> list (one per overload) of the wwr* functions it calls."""
     vendor = table.vendor_aliases(args.gpu_source)
     calls = read_calls(args.objdump, args.objects)
     wanted = set(calls) | {t for ts in calls.values() for t in ts}
@@ -377,7 +377,7 @@ def main():
     ap.add_argument("--backend", required=True, choices=list(BACKENDS))
     ap.add_argument("--table", required=True, help="the TOML dispatch table")
     ap.add_argument(
-        "--gpu-source", required=True, help="the gpu* module holding WWR_FUNCTION"
+        "--gpu-source", required=True, help="the wwr* module holding WWR_FUNCTION"
     )
     ap.add_argument("--stamp", help="touched on success")
     ap.add_argument(

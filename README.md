@@ -7,7 +7,7 @@ of them.
 
 A build targets exactly one GPU backend, CUDA or HIP (`WWR_GPU_BACKEND`).
 The `gpu*` layer directly under `src/` maps backend-neutral `gpu*` names
-(`gpuStream_t`, `gpuStreamCreate`, `gpuFloatComplex`, …) onto the chosen
+(`wwrStream_t`, `wwrStreamCreate`, `wwrFloatComplex`, …) onto the chosen
 backend, and `src/wrappers` is written once against those names.
 
 ## Quick start

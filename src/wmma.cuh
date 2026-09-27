@@ -5,7 +5,7 @@
  * `#include`d into a .cu (CUDA) or `-x hip` device-compiled (HIP) TU; link
  * `wwr.device`. Resolves the two things that differ -- `<mma.h>` against
  * `<rocwmma/rocwmma.hpp>`, and `nvcuda::wmma` against `rocwmma` -- and defines
- * exactly one name, `wwr::gpuwmma`, aliasing whichever the build selected.
+ * exactly one name, `wwr::wwrwmma`, aliasing whichever the build selected.
  * Inside it the spellings agree: `fragment`, `matrix_a`/`matrix_b`/
  * `accumulator`, `row_major`/`col_major`, `layout_t`, `fill_fragment`,
  * `load_matrix_sync`, `store_matrix_sync` and `mma_sync`.
@@ -17,7 +17,7 @@
  * Constraints the caller carries:
  *
  *   - 16x16x16 is the only portable shape; CUDA's 32x8x16 and 8x32x16 are not.
- *   - `gpuHalf` is a portable element type; `gpuBfloat16` is NOT.
+ *   - `wwrHalf` is a portable element type; `wwrBfloat16` is NOT.
  *   - `fragment::num_elements` is not portable, and under HIP it differs
  *     between the two compile passes of one TU -- never `static_assert` it.
  *   - CUDA-only: `precision::tf32`, `bmma_sync`, `experimental::precision::*`.
@@ -51,11 +51,11 @@ namespace wwr {
 
 #if defined(WWR_SELECTED_CUDA)
 
-namespace gpuwmma = ::nvcuda::wmma;
+namespace wwrwmma = ::nvcuda::wmma;
 
 #else
 
-namespace gpuwmma = ::rocwmma;
+namespace wwrwmma = ::rocwmma;
 
 #endif
 

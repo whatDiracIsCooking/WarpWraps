@@ -1,7 +1,7 @@
 # Expected dispatch of wwr.wrappers.sparse -- checked by test/shared/dispatch.py
 #
-# [dispatch] is one key per wrapper<T>: the gpusparse function its compiled code
-# must call. Names are gpusparse aliases (src/sparse.cppm), so this one table
+# [dispatch] is one key per wrapper<T>: the wwrsparse function its compiled code
+# must call. Names are wwrsparse aliases (src/sparse.cppm), so this one table
 # checks a CUDA and a HIP build.
 #
 # Order follows the extern template lists in src/wrappers/sparse. When adding a
@@ -9,12 +9,12 @@
 # worth something if it is an independent statement of what should be called,
 # not a copy of what is. (--print shows what is, for comparison.)
 #
-# The rule is gpusparse<S|D|C|Z><name>. There is no _64 variant -- the legacy
+# The rule is wwrsparse<S|D|C|Z><name>. There is no _64 variant -- the legacy
 # typed cuSPARSE/hipSPARSE functions take a single index width.
 
 [check]
 module = "wwr.wrappers.sparse"
-prefix = "gpusparse"
+prefix = "wwrsparse"
 # wwr.sparse defines the CUDA gebsr2gebsc_bufferSize / csr2gebsr_bufferSize
 # shims (cuSPARSE spells the byte count int*, hipSPARSE size_t*) as ordinary
 # inline functions next to its WWR_FUNCTION aliases; one that is not inlined is
@@ -22,93 +22,93 @@ prefix = "gpusparse"
 forwarder_module = "wwr.sparse"
 
 # How the demangler spells each template argument, mapped to the name this table
-# uses. gpuComplex and gpuFloatComplex are the same underlying vendor type, so
-# the demangler cannot tell them apart -- this table's choice is gpuComplex.
+# uses. wwrComplex and wwrFloatComplex are the same underlying vendor type, so
+# the demangler cannot tell them apart -- this table's choice is wwrComplex.
 [type_names.CUDA]
-float2 = "gpuComplex"
-double2 = "gpuDoubleComplex"
+float2 = "wwrComplex"
+double2 = "wwrDoubleComplex"
 
 [type_names.HIP]
-"HIP_vector_type<float, 2u>" = "gpuComplex"
-"HIP_vector_type<double, 2u>" = "gpuDoubleComplex"
+"HIP_vector_type<float, 2u>" = "wwrComplex"
+"HIP_vector_type<double, 2u>" = "wwrDoubleComplex"
 
 [dispatch]
 # ---- src/wrappers/sparse/level_2.cppm ----
-"bsrmv<float>"                                            = ["gpusparseSbsrmv"]
-"bsrmv<double>"                                           = ["gpusparseDbsrmv"]
-"bsrmv<gpuComplex>"                                       = ["gpusparseCbsrmv"]
-"bsrmv<gpuDoubleComplex>"                                 = ["gpusparseZbsrmv"]
+"bsrmv<float>"                                            = ["wwrsparseSbsrmv"]
+"bsrmv<double>"                                           = ["wwrsparseDbsrmv"]
+"bsrmv<wwrComplex>"                                       = ["wwrsparseCbsrmv"]
+"bsrmv<wwrDoubleComplex>"                                 = ["wwrsparseZbsrmv"]
 
 # ---- src/wrappers/sparse/solvers.cppm ----
-"gtsv2_bufferSizeExt<float>"                              = ["gpusparseSgtsv2_bufferSizeExt"]
-"gtsv2_bufferSizeExt<double>"                             = ["gpusparseDgtsv2_bufferSizeExt"]
-"gtsv2_bufferSizeExt<gpuComplex>"                         = ["gpusparseCgtsv2_bufferSizeExt"]
-"gtsv2_bufferSizeExt<gpuDoubleComplex>"                   = ["gpusparseZgtsv2_bufferSizeExt"]
-"gtsv2<float>"                                            = ["gpusparseSgtsv2"]
-"gtsv2<double>"                                           = ["gpusparseDgtsv2"]
-"gtsv2<gpuComplex>"                                       = ["gpusparseCgtsv2"]
-"gtsv2<gpuDoubleComplex>"                                 = ["gpusparseZgtsv2"]
-"gtsv2_nopivot_bufferSizeExt<float>"                      = ["gpusparseSgtsv2_nopivot_bufferSizeExt"]
-"gtsv2_nopivot_bufferSizeExt<double>"                     = ["gpusparseDgtsv2_nopivot_bufferSizeExt"]
-"gtsv2_nopivot_bufferSizeExt<gpuComplex>"                 = ["gpusparseCgtsv2_nopivot_bufferSizeExt"]
-"gtsv2_nopivot_bufferSizeExt<gpuDoubleComplex>"           = ["gpusparseZgtsv2_nopivot_bufferSizeExt"]
-"gtsv2_nopivot<float>"                                    = ["gpusparseSgtsv2_nopivot"]
-"gtsv2_nopivot<double>"                                   = ["gpusparseDgtsv2_nopivot"]
-"gtsv2_nopivot<gpuComplex>"                               = ["gpusparseCgtsv2_nopivot"]
-"gtsv2_nopivot<gpuDoubleComplex>"                         = ["gpusparseZgtsv2_nopivot"]
-"gtsv2StridedBatch_bufferSizeExt<float>"                 = ["gpusparseSgtsv2StridedBatch_bufferSizeExt"]
-"gtsv2StridedBatch_bufferSizeExt<double>"                = ["gpusparseDgtsv2StridedBatch_bufferSizeExt"]
-"gtsv2StridedBatch_bufferSizeExt<gpuComplex>"            = ["gpusparseCgtsv2StridedBatch_bufferSizeExt"]
-"gtsv2StridedBatch_bufferSizeExt<gpuDoubleComplex>"      = ["gpusparseZgtsv2StridedBatch_bufferSizeExt"]
-"gtsv2StridedBatch<float>"                               = ["gpusparseSgtsv2StridedBatch"]
-"gtsv2StridedBatch<double>"                              = ["gpusparseDgtsv2StridedBatch"]
-"gtsv2StridedBatch<gpuComplex>"                          = ["gpusparseCgtsv2StridedBatch"]
-"gtsv2StridedBatch<gpuDoubleComplex>"                    = ["gpusparseZgtsv2StridedBatch"]
-"gtsvInterleavedBatch_bufferSizeExt<float>"              = ["gpusparseSgtsvInterleavedBatch_bufferSizeExt"]
-"gtsvInterleavedBatch_bufferSizeExt<double>"             = ["gpusparseDgtsvInterleavedBatch_bufferSizeExt"]
-"gtsvInterleavedBatch_bufferSizeExt<gpuComplex>"         = ["gpusparseCgtsvInterleavedBatch_bufferSizeExt"]
-"gtsvInterleavedBatch_bufferSizeExt<gpuDoubleComplex>"   = ["gpusparseZgtsvInterleavedBatch_bufferSizeExt"]
-"gtsvInterleavedBatch<float>"                            = ["gpusparseSgtsvInterleavedBatch"]
-"gtsvInterleavedBatch<double>"                           = ["gpusparseDgtsvInterleavedBatch"]
-"gtsvInterleavedBatch<gpuComplex>"                       = ["gpusparseCgtsvInterleavedBatch"]
-"gtsvInterleavedBatch<gpuDoubleComplex>"                 = ["gpusparseZgtsvInterleavedBatch"]
-"gpsvInterleavedBatch_bufferSizeExt<float>"              = ["gpusparseSgpsvInterleavedBatch_bufferSizeExt"]
-"gpsvInterleavedBatch_bufferSizeExt<double>"             = ["gpusparseDgpsvInterleavedBatch_bufferSizeExt"]
-"gpsvInterleavedBatch_bufferSizeExt<gpuComplex>"         = ["gpusparseCgpsvInterleavedBatch_bufferSizeExt"]
-"gpsvInterleavedBatch_bufferSizeExt<gpuDoubleComplex>"   = ["gpusparseZgpsvInterleavedBatch_bufferSizeExt"]
-"gpsvInterleavedBatch<float>"                            = ["gpusparseSgpsvInterleavedBatch"]
-"gpsvInterleavedBatch<double>"                           = ["gpusparseDgpsvInterleavedBatch"]
-"gpsvInterleavedBatch<gpuComplex>"                       = ["gpusparseCgpsvInterleavedBatch"]
-"gpsvInterleavedBatch<gpuDoubleComplex>"                 = ["gpusparseZgpsvInterleavedBatch"]
+"gtsv2_bufferSizeExt<float>"                              = ["wwrsparseSgtsv2_bufferSizeExt"]
+"gtsv2_bufferSizeExt<double>"                             = ["wwrsparseDgtsv2_bufferSizeExt"]
+"gtsv2_bufferSizeExt<wwrComplex>"                         = ["wwrsparseCgtsv2_bufferSizeExt"]
+"gtsv2_bufferSizeExt<wwrDoubleComplex>"                   = ["wwrsparseZgtsv2_bufferSizeExt"]
+"gtsv2<float>"                                            = ["wwrsparseSgtsv2"]
+"gtsv2<double>"                                           = ["wwrsparseDgtsv2"]
+"gtsv2<wwrComplex>"                                       = ["wwrsparseCgtsv2"]
+"gtsv2<wwrDoubleComplex>"                                 = ["wwrsparseZgtsv2"]
+"gtsv2_nopivot_bufferSizeExt<float>"                      = ["wwrsparseSgtsv2_nopivot_bufferSizeExt"]
+"gtsv2_nopivot_bufferSizeExt<double>"                     = ["wwrsparseDgtsv2_nopivot_bufferSizeExt"]
+"gtsv2_nopivot_bufferSizeExt<wwrComplex>"                 = ["wwrsparseCgtsv2_nopivot_bufferSizeExt"]
+"gtsv2_nopivot_bufferSizeExt<wwrDoubleComplex>"           = ["wwrsparseZgtsv2_nopivot_bufferSizeExt"]
+"gtsv2_nopivot<float>"                                    = ["wwrsparseSgtsv2_nopivot"]
+"gtsv2_nopivot<double>"                                   = ["wwrsparseDgtsv2_nopivot"]
+"gtsv2_nopivot<wwrComplex>"                               = ["wwrsparseCgtsv2_nopivot"]
+"gtsv2_nopivot<wwrDoubleComplex>"                         = ["wwrsparseZgtsv2_nopivot"]
+"gtsv2StridedBatch_bufferSizeExt<float>"                 = ["wwrsparseSgtsv2StridedBatch_bufferSizeExt"]
+"gtsv2StridedBatch_bufferSizeExt<double>"                = ["wwrsparseDgtsv2StridedBatch_bufferSizeExt"]
+"gtsv2StridedBatch_bufferSizeExt<wwrComplex>"            = ["wwrsparseCgtsv2StridedBatch_bufferSizeExt"]
+"gtsv2StridedBatch_bufferSizeExt<wwrDoubleComplex>"      = ["wwrsparseZgtsv2StridedBatch_bufferSizeExt"]
+"gtsv2StridedBatch<float>"                               = ["wwrsparseSgtsv2StridedBatch"]
+"gtsv2StridedBatch<double>"                              = ["wwrsparseDgtsv2StridedBatch"]
+"gtsv2StridedBatch<wwrComplex>"                          = ["wwrsparseCgtsv2StridedBatch"]
+"gtsv2StridedBatch<wwrDoubleComplex>"                    = ["wwrsparseZgtsv2StridedBatch"]
+"gtsvInterleavedBatch_bufferSizeExt<float>"              = ["wwrsparseSgtsvInterleavedBatch_bufferSizeExt"]
+"gtsvInterleavedBatch_bufferSizeExt<double>"             = ["wwrsparseDgtsvInterleavedBatch_bufferSizeExt"]
+"gtsvInterleavedBatch_bufferSizeExt<wwrComplex>"         = ["wwrsparseCgtsvInterleavedBatch_bufferSizeExt"]
+"gtsvInterleavedBatch_bufferSizeExt<wwrDoubleComplex>"   = ["wwrsparseZgtsvInterleavedBatch_bufferSizeExt"]
+"gtsvInterleavedBatch<float>"                            = ["wwrsparseSgtsvInterleavedBatch"]
+"gtsvInterleavedBatch<double>"                           = ["wwrsparseDgtsvInterleavedBatch"]
+"gtsvInterleavedBatch<wwrComplex>"                       = ["wwrsparseCgtsvInterleavedBatch"]
+"gtsvInterleavedBatch<wwrDoubleComplex>"                 = ["wwrsparseZgtsvInterleavedBatch"]
+"gpsvInterleavedBatch_bufferSizeExt<float>"              = ["wwrsparseSgpsvInterleavedBatch_bufferSizeExt"]
+"gpsvInterleavedBatch_bufferSizeExt<double>"             = ["wwrsparseDgpsvInterleavedBatch_bufferSizeExt"]
+"gpsvInterleavedBatch_bufferSizeExt<wwrComplex>"         = ["wwrsparseCgpsvInterleavedBatch_bufferSizeExt"]
+"gpsvInterleavedBatch_bufferSizeExt<wwrDoubleComplex>"   = ["wwrsparseZgpsvInterleavedBatch_bufferSizeExt"]
+"gpsvInterleavedBatch<float>"                            = ["wwrsparseSgpsvInterleavedBatch"]
+"gpsvInterleavedBatch<double>"                           = ["wwrsparseDgpsvInterleavedBatch"]
+"gpsvInterleavedBatch<wwrComplex>"                       = ["wwrsparseCgpsvInterleavedBatch"]
+"gpsvInterleavedBatch<wwrDoubleComplex>"                 = ["wwrsparseZgpsvInterleavedBatch"]
 
 # ---- src/wrappers/sparse/extra.cppm ----
-"csrgeam2_bufferSizeExt<float>"                          = ["gpusparseScsrgeam2_bufferSizeExt"]
-"csrgeam2_bufferSizeExt<double>"                         = ["gpusparseDcsrgeam2_bufferSizeExt"]
-"csrgeam2_bufferSizeExt<gpuComplex>"                     = ["gpusparseCcsrgeam2_bufferSizeExt"]
-"csrgeam2_bufferSizeExt<gpuDoubleComplex>"               = ["gpusparseZcsrgeam2_bufferSizeExt"]
-"csrgeam2<float>"                                        = ["gpusparseScsrgeam2"]
-"csrgeam2<double>"                                       = ["gpusparseDcsrgeam2"]
-"csrgeam2<gpuComplex>"                                   = ["gpusparseCcsrgeam2"]
-"csrgeam2<gpuDoubleComplex>"                             = ["gpusparseZcsrgeam2"]
+"csrgeam2_bufferSizeExt<float>"                          = ["wwrsparseScsrgeam2_bufferSizeExt"]
+"csrgeam2_bufferSizeExt<double>"                         = ["wwrsparseDcsrgeam2_bufferSizeExt"]
+"csrgeam2_bufferSizeExt<wwrComplex>"                     = ["wwrsparseCcsrgeam2_bufferSizeExt"]
+"csrgeam2_bufferSizeExt<wwrDoubleComplex>"               = ["wwrsparseZcsrgeam2_bufferSizeExt"]
+"csrgeam2<float>"                                        = ["wwrsparseScsrgeam2"]
+"csrgeam2<double>"                                       = ["wwrsparseDcsrgeam2"]
+"csrgeam2<wwrComplex>"                                   = ["wwrsparseCcsrgeam2"]
+"csrgeam2<wwrDoubleComplex>"                             = ["wwrsparseZcsrgeam2"]
 
 # ---- src/wrappers/sparse/conversion.cppm ----
-"nnz<float>"                                             = ["gpusparseSnnz"]
-"nnz<double>"                                            = ["gpusparseDnnz"]
-"nnz<gpuComplex>"                                        = ["gpusparseCnnz"]
-"nnz<gpuDoubleComplex>"                                  = ["gpusparseZnnz"]
-"gebsr2gebsc_bufferSize<float>"                          = ["gpusparseSgebsr2gebsc_bufferSize"]
-"gebsr2gebsc_bufferSize<double>"                         = ["gpusparseDgebsr2gebsc_bufferSize"]
-"gebsr2gebsc_bufferSize<gpuComplex>"                     = ["gpusparseCgebsr2gebsc_bufferSize"]
-"gebsr2gebsc_bufferSize<gpuDoubleComplex>"               = ["gpusparseZgebsr2gebsc_bufferSize"]
-"gebsr2gebsc<float>"                                     = ["gpusparseSgebsr2gebsc"]
-"gebsr2gebsc<double>"                                    = ["gpusparseDgebsr2gebsc"]
-"gebsr2gebsc<gpuComplex>"                                = ["gpusparseCgebsr2gebsc"]
-"gebsr2gebsc<gpuDoubleComplex>"                          = ["gpusparseZgebsr2gebsc"]
-"csr2gebsr_bufferSize<float>"                            = ["gpusparseScsr2gebsr_bufferSize"]
-"csr2gebsr_bufferSize<double>"                           = ["gpusparseDcsr2gebsr_bufferSize"]
-"csr2gebsr_bufferSize<gpuComplex>"                       = ["gpusparseCcsr2gebsr_bufferSize"]
-"csr2gebsr_bufferSize<gpuDoubleComplex>"                 = ["gpusparseZcsr2gebsr_bufferSize"]
-"csr2gebsr<float>"                                       = ["gpusparseScsr2gebsr"]
-"csr2gebsr<double>"                                      = ["gpusparseDcsr2gebsr"]
-"csr2gebsr<gpuComplex>"                                  = ["gpusparseCcsr2gebsr"]
-"csr2gebsr<gpuDoubleComplex>"                            = ["gpusparseZcsr2gebsr"]
+"nnz<float>"                                             = ["wwrsparseSnnz"]
+"nnz<double>"                                            = ["wwrsparseDnnz"]
+"nnz<wwrComplex>"                                        = ["wwrsparseCnnz"]
+"nnz<wwrDoubleComplex>"                                  = ["wwrsparseZnnz"]
+"gebsr2gebsc_bufferSize<float>"                          = ["wwrsparseSgebsr2gebsc_bufferSize"]
+"gebsr2gebsc_bufferSize<double>"                         = ["wwrsparseDgebsr2gebsc_bufferSize"]
+"gebsr2gebsc_bufferSize<wwrComplex>"                     = ["wwrsparseCgebsr2gebsc_bufferSize"]
+"gebsr2gebsc_bufferSize<wwrDoubleComplex>"               = ["wwrsparseZgebsr2gebsc_bufferSize"]
+"gebsr2gebsc<float>"                                     = ["wwrsparseSgebsr2gebsc"]
+"gebsr2gebsc<double>"                                    = ["wwrsparseDgebsr2gebsc"]
+"gebsr2gebsc<wwrComplex>"                                = ["wwrsparseCgebsr2gebsc"]
+"gebsr2gebsc<wwrDoubleComplex>"                          = ["wwrsparseZgebsr2gebsc"]
+"csr2gebsr_bufferSize<float>"                            = ["wwrsparseScsr2gebsr_bufferSize"]
+"csr2gebsr_bufferSize<double>"                           = ["wwrsparseDcsr2gebsr_bufferSize"]
+"csr2gebsr_bufferSize<wwrComplex>"                       = ["wwrsparseCcsr2gebsr_bufferSize"]
+"csr2gebsr_bufferSize<wwrDoubleComplex>"                 = ["wwrsparseZcsr2gebsr_bufferSize"]
+"csr2gebsr<float>"                                       = ["wwrsparseScsr2gebsr"]
+"csr2gebsr<double>"                                      = ["wwrsparseDcsr2gebsr"]
+"csr2gebsr<wwrComplex>"                                  = ["wwrsparseCcsr2gebsr"]
+"csr2gebsr<wwrDoubleComplex>"                            = ["wwrsparseZcsr2gebsr"]

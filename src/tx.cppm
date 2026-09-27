@@ -1,8 +1,8 @@
 /**
  * @file tx.cppm
- * @brief Backend-neutral tools extension: gputx* names for NVTX / rocTX
+ * @brief Backend-neutral tools extension: wwrtx* names for NVTX / rocTX
  *
- * Exports gputx-prefixed aliases of the marker-and-range profiler-annotation
+ * Exports wwrtx-prefixed aliases of the marker-and-range profiler-annotation
  * core -- NVTX (nvtx3/nvToolsExt.h) on CUDA, rocTX (roctracer/roctx.h) on HIP,
  * whichever backend this build is configured for. See gpu_backend.h for the
  * switch. This is the neutral layer src/wrappers is written against; it covers
@@ -17,9 +17,9 @@
  * Two backend differences are resolved here, not above -- the same way
  * blas.cppm resolves its own:
  *   - the async-range terminator is nvtxRangeEnd on CUDA but roctxRangeStop on
- *     HIP; the neutral name is gputxRangeStop (pairing start/stop).
+ *     HIP; the neutral name is wwrtxRangeStop (pairing start/stop).
  *   - the range-id type is nvtxRangeId_t on CUDA but roctx_range_id_t on HIP;
- *     both are uint64_t. The neutral name is gputxRangeId_t.
+ *     both are uint64_t. The neutral name is wwrtxRangeId_t.
  *
  * The A suffix is carried through from the vendor names (nvtxMarkA / roctxMarkA
  * etc.) -- both vendors spell the ASCII entry points that way, so the neutral
@@ -29,9 +29,9 @@
  * Usage:
  *   import wwr.tx;
  *
- *   gputxRangePushA("phase 1");
+ *   wwrtxRangePushA("phase 1");
  *   // ... work ...
- *   gputxRangePop();
+ *   wwrtxRangePop();
  */
 
 module;
@@ -54,29 +54,29 @@ export namespace wwr {
 
 // Opaque handle identifying a process-wide asynchronous range (uint64_t). The
 // HIP name differs beyond the nvtx/roctx prefix (roctx_range_id_t).
-WWR_TYPE(gputxRangeId_t, nvtxRangeId_t, roctx_range_id_t)
+WWR_TYPE(wwrtxRangeId_t, nvtxRangeId_t, roctx_range_id_t)
 
 // ========================================================================
 // Markers -- an instantaneous event at a point in time
 // ========================================================================
 
-WWR_FUNCTION(gputxMarkA, nvtxMarkA, roctxMarkA)
+WWR_FUNCTION(wwrtxMarkA, nvtxMarkA, roctxMarkA)
 
 // ========================================================================
 // Ranges -- nested (stack) push/pop on the calling thread
 // ========================================================================
 
-WWR_FUNCTION(gputxRangePushA, nvtxRangePushA, roctxRangePushA)
-WWR_FUNCTION(gputxRangePop, nvtxRangePop, roctxRangePop)
+WWR_FUNCTION(wwrtxRangePushA, nvtxRangePushA, roctxRangePushA)
+WWR_FUNCTION(wwrtxRangePop, nvtxRangePop, roctxRangePop)
 
 // ========================================================================
 // Ranges -- process-wide asynchronous start/stop
 // ========================================================================
 
-WWR_FUNCTION(gputxRangeStartA, nvtxRangeStartA, roctxRangeStartA)
+WWR_FUNCTION(wwrtxRangeStartA, nvtxRangeStartA, roctxRangeStartA)
 
 // Async-range terminator. The CUDA name is nvtxRangeEnd, not nvtxRangeStop --
 // the one name that does not prefix-swap.
-WWR_FUNCTION(gputxRangeStop, nvtxRangeEnd, roctxRangeStop)
+WWR_FUNCTION(wwrtxRangeStop, nvtxRangeEnd, roctxRangeStop)
 
 } // namespace wwr

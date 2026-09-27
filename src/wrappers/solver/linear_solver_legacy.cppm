@@ -6,12 +6,12 @@
  * hipSOLVER Dense API -- 32 functions, all shared between both backends
  * (verified signature by signature against hipsolver-dense.h). For new code,
  * prefer the modern API in the :linear_solver partition, which uses
- * gpusolverDnParams_t and int64_t dimensions -- though only 8 of its
+ * wwrsolverDnParams_t and int64_t dimensions -- though only 8 of its
  * functions have a hipSOLVER counterpart at all.
  *
  * Legacy API characteristics:
  * - Uses int for all dimensions (not int64_t)
- * - No gpusolverDnParams_t parameter
+ * - No wwrsolverDnParams_t parameter
  * - Single workspace buffer (not separate device/host)
  * - Pivot arrays use int* (not int64_t*)
  *
@@ -25,7 +25,7 @@
  *
  *   // Allocate and compute
  *   float* workspace;
- *   gpuMalloc(&workspace, Lwork * sizeof(float));
+ *   wwrMalloc(&workspace, Lwork * sizeof(float));
  *   potrf<float>(handle, uplo, n, A, lda, workspace, Lwork, devInfo);
  */
 
@@ -53,20 +53,20 @@ export namespace wwr {
  * This function computes the size of the workspace buffer required for the
  * Cholesky factorization operation.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param uplo Fill mode: CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
  * @param n Order of matrix A
  * @param A Pointer to matrix A (device memory)
  * @param lda Leading dimension of A
  * @param Lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t potrf_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A,
+wwrsolverStatus_t potrf_bufferSize(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, T *A,
                                    int lda, int *Lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, potrf_bufferSize, handle, uplo, n, A, lda, Lwork);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, potrf_bufferSize, handle, uplo, n, A, lda, Lwork);
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, potrf_bufferSize, handle, uplo, n, A, lda, Lwork);
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, potrf_bufferSize, handle, uplo, n, A, lda, Lwork);
 }
 
 /**
@@ -76,7 +76,7 @@ gpusolverStatus_t potrf_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
  * - If uplo = CUBLAS_FILL_MODE_LOWER: A = L*L^T (lower triangular)
  * - If uplo = CUBLAS_FILL_MODE_UPPER: A = U^T*U (upper triangular)
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param uplo Fill mode: CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
  * @param n Order of matrix A
@@ -85,14 +85,14 @@ gpusolverStatus_t potrf_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
  * @param Workspace Device workspace buffer (size from potrf_bufferSize)
  * @param Lwork Workspace size in elements of type T
  * @param devInfo Device pointer: 0 on success, i if A(i,i) is not positive definite
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t potrf(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
+wwrsolverStatus_t potrf(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, T *A, int lda,
                         T *Workspace, int Lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, potrf, handle, uplo, n, A, lda, Workspace, Lwork,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, potrf, handle, uplo, n, A, lda, Workspace, Lwork,
                        devInfo);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, potrf, handle, uplo, n, A, lda, Workspace, Lwork,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, potrf, handle, uplo, n, A, lda, Workspace, Lwork,
                           devInfo);
 }
 
@@ -102,7 +102,7 @@ gpusolverStatus_t potrf(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
  * Solves a system of linear equations A*X = B using the Cholesky factorization
  * computed by potrf(). Matrix A must have been factorized before calling this function.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param uplo Fill mode used in potrf: CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
  * @param n Order of matrix A
@@ -112,13 +112,13 @@ gpusolverStatus_t potrf(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
  * @param B Pointer to matrix B (device memory); overwritten with solution X
  * @param ldb Leading dimension of B (ldb >= max(1, n))
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t potrs(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, int nrhs,
+wwrsolverStatus_t potrs(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, int nrhs,
                         const T *A, int lda, T *B, int ldb, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, potrs, handle, uplo, n, nrhs, A, lda, B, ldb, devInfo);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, potrs, handle, uplo, n, nrhs, A, lda, B, ldb,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, potrs, handle, uplo, n, nrhs, A, lda, B, ldb, devInfo);
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, potrs, handle, uplo, n, nrhs, A, lda, B, ldb,
                           devInfo);
 }
 
@@ -128,20 +128,20 @@ gpusolverStatus_t potrs(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
  * This function computes the size of the workspace buffer required for the
  * matrix inversion operation using Cholesky factorization.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param uplo Fill mode: CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
  * @param n Order of matrix A
  * @param A Pointer to factorized matrix from potrf (device memory)
  * @param lda Leading dimension of A
  * @param Lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t potri_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A,
+wwrsolverStatus_t potri_bufferSize(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, T *A,
                                    int lda, int *Lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, potri_bufferSize, handle, uplo, n, A, lda, Lwork);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, potri_bufferSize, handle, uplo, n, A, lda, Lwork);
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, potri_bufferSize, handle, uplo, n, A, lda, Lwork);
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, potri_bufferSize, handle, uplo, n, A, lda, Lwork);
 }
 
 /**
@@ -155,7 +155,7 @@ gpusolverStatus_t potri_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
  * On entry, A contains the triangular factor L or U from the Cholesky factorization.
  * On exit, A is overwritten with the inverse matrix A^-1.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param uplo Fill mode used in potrf: CUBLAS_FILL_MODE_UPPER or CUBLAS_FILL_MODE_LOWER
  * @param n Order of matrix A (n >= 0)
@@ -164,14 +164,14 @@ gpusolverStatus_t potri_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
  * @param Workspace Device workspace buffer (size from potri_bufferSize)
  * @param Lwork Workspace size in elements of type T
  * @param devInfo Device pointer: 0 on success, i if A(i,i) is zero (singular matrix)
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t potri(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
+wwrsolverStatus_t potri(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, T *A, int lda,
                         T *Workspace, int Lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, potri, handle, uplo, n, A, lda, Workspace, Lwork,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, potri, handle, uplo, n, A, lda, Workspace, Lwork,
                        devInfo);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, potri, handle, uplo, n, A, lda, Workspace, Lwork,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, potri, handle, uplo, n, A, lda, Workspace, Lwork,
                           devInfo);
 }
 
@@ -185,20 +185,20 @@ gpusolverStatus_t potri(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
  * This function computes the size of the workspace buffer required for the
  * LU factorization operation.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param m Number of rows of matrix A
  * @param n Number of columns of matrix A
  * @param A Pointer to matrix A (device memory)
  * @param lda Leading dimension of A
  * @param Lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t getrf_bufferSize(gpusolverDnHandle_t handle, int m, int n, T *A, int lda,
+wwrsolverStatus_t getrf_bufferSize(wwrsolverDnHandle_t handle, int m, int n, T *A, int lda,
                                    int *Lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, getrf_bufferSize, handle, m, n, A, lda, Lwork);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, getrf_bufferSize, handle, m, n, A, lda, Lwork);
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, getrf_bufferSize, handle, m, n, A, lda, Lwork);
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, getrf_bufferSize, handle, m, n, A, lda, Lwork);
 }
 
 /**
@@ -209,7 +209,7 @@ gpusolverStatus_t getrf_bufferSize(gpusolverDnHandle_t handle, int m, int n, T *
  * where P is a permutation matrix, L is lower triangular with unit diagonal,
  * and U is upper triangular.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param m Number of rows of matrix A
  * @param n Number of columns of matrix A
@@ -218,14 +218,14 @@ gpusolverStatus_t getrf_bufferSize(gpusolverDnHandle_t handle, int m, int n, T *
  * @param Workspace Device workspace buffer (size from getrf_bufferSize)
  * @param devIpiv Device array of pivot indices (min(m,n) elements)
  * @param devInfo Device pointer: 0 on success, i if U(i,i)=0 (singular matrix)
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t getrf(gpusolverDnHandle_t handle, int m, int n, T *A, int lda, T *Workspace,
+wwrsolverStatus_t getrf(wwrsolverDnHandle_t handle, int m, int n, T *A, int lda, T *Workspace,
                         int *devIpiv, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, getrf, handle, m, n, A, lda, Workspace, devIpiv,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, getrf, handle, m, n, A, lda, Workspace, devIpiv,
                        devInfo);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, getrf, handle, m, n, A, lda, Workspace, devIpiv,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, getrf, handle, m, n, A, lda, Workspace, devIpiv,
                           devInfo);
 }
 
@@ -237,7 +237,7 @@ gpusolverStatus_t getrf(gpusolverDnHandle_t handle, int m, int n, T *A, int lda,
  * - If trans = CUBLAS_OP_T: A^T*X = B
  * - If trans = CUBLAS_OP_C: A^H*X = B (Hermitian transpose)
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param trans Operation: CUBLAS_OP_N, CUBLAS_OP_T, or CUBLAS_OP_C
  * @param n Order of matrix A (n >= 0)
@@ -248,14 +248,14 @@ gpusolverStatus_t getrf(gpusolverDnHandle_t handle, int m, int n, T *A, int lda,
  * @param B Pointer to matrix B (device memory); overwritten with solution X
  * @param ldb Leading dimension of B (ldb >= max(1, n))
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t getrs(gpusolverDnHandle_t handle, gpublasOperation_t trans, int n, int nrhs,
+wwrsolverStatus_t getrs(wwrsolverDnHandle_t handle, wwrblasOperation_t trans, int n, int nrhs,
                         const T *A, int lda, const int *devIpiv, T *B, int ldb, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, getrs, handle, trans, n, nrhs, A, lda, devIpiv, B, ldb,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, getrs, handle, trans, n, nrhs, A, lda, devIpiv, B, ldb,
                        devInfo);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, getrs, handle, trans, n, nrhs, A, lda, devIpiv, B,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, getrs, handle, trans, n, nrhs, A, lda, devIpiv, B,
                           ldb, devInfo);
 }
 
@@ -269,20 +269,20 @@ gpusolverStatus_t getrs(gpusolverDnHandle_t handle, gpublasOperation_t trans, in
  * This function computes the size of the workspace buffer required for the
  * QR factorization operation.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param m Number of rows of matrix A
  * @param n Number of columns of matrix A
  * @param A Pointer to matrix A (device memory)
  * @param lda Leading dimension of A
  * @param Lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t geqrf_bufferSize(gpusolverDnHandle_t handle, int m, int n, T *A, int lda,
+wwrsolverStatus_t geqrf_bufferSize(wwrsolverDnHandle_t handle, int m, int n, T *A, int lda,
                                    int *Lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, geqrf_bufferSize, handle, m, n, A, lda, Lwork);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, geqrf_bufferSize, handle, m, n, A, lda, Lwork);
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, geqrf_bufferSize, handle, m, n, A, lda, Lwork);
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, geqrf_bufferSize, handle, m, n, A, lda, Lwork);
 }
 
 /**
@@ -295,7 +295,7 @@ gpusolverStatus_t geqrf_bufferSize(gpusolverDnHandle_t handle, int m, int n, T *
  * The matrix Q is represented as a product of elementary reflectors:
  * Q = H(1) * H(2) * ... * H(k), where k = min(m,n)
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param m Number of rows of matrix A (m >= 0)
  * @param n Number of columns of matrix A (n >= 0)
@@ -305,14 +305,14 @@ gpusolverStatus_t geqrf_bufferSize(gpusolverDnHandle_t handle, int m, int n, T *
  * @param Workspace Device workspace buffer (size from geqrf_bufferSize)
  * @param Lwork Workspace size in elements of type T
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t geqrf(gpusolverDnHandle_t handle, int m, int n, T *A, int lda, T *TAU,
+wwrsolverStatus_t geqrf(wwrsolverDnHandle_t handle, int m, int n, T *A, int lda, T *TAU,
                         T *Workspace, int Lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, geqrf, handle, m, n, A, lda, TAU, Workspace, Lwork,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, geqrf, handle, m, n, A, lda, TAU, Workspace, Lwork,
                        devInfo);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, geqrf, handle, m, n, A, lda, TAU, Workspace, Lwork,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, geqrf, handle, m, n, A, lda, TAU, Workspace, Lwork,
                           devInfo);
 }
 
@@ -339,13 +339,13 @@ gpusolverStatus_t geqrf(gpusolverDnHandle_t handle, int m, int n, T *A, int lda,
  * @param C Pointer to matrix C (device memory)
  * @param ldc Leading dimension of C
  * @param Lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t ormqr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t side,
-                                   gpublasOperation_t trans, int m, int n, int k, const T *A,
+wwrsolverStatus_t ormqr_bufferSize(wwrsolverDnHandle_t handle, wwrblasSideMode_t side,
+                                   wwrblasOperation_t trans, int m, int n, int k, const T *A,
                                    int lda, const T *tau, const T *C, int ldc, int *Lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, ormqr_bufferSize, handle, side, trans, m, n, k, A, lda,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, ormqr_bufferSize, handle, side, trans, m, n, k, A, lda,
                        tau, C, ldc, Lwork);
 }
 
@@ -373,13 +373,13 @@ gpusolverStatus_t ormqr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t
  * @param Workspace Device workspace buffer (size from ormqr_bufferSize)
  * @param Lwork Workspace size in elements of type T
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t ormqr(gpusolverDnHandle_t handle, gpublasSideMode_t side,
-                        gpublasOperation_t trans, int m, int n, int k, const T *A, int lda,
+wwrsolverStatus_t ormqr(wwrsolverDnHandle_t handle, wwrblasSideMode_t side,
+                        wwrblasOperation_t trans, int m, int n, int k, const T *A, int lda,
                         const T *tau, T *C, int ldc, T *Workspace, int Lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, ormqr, handle, side, trans, m, n, k, A, lda, tau, C,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, ormqr, handle, side, trans, m, n, k, A, lda, tau, C,
                        ldc, Workspace, Lwork, devInfo);
 }
 
@@ -389,7 +389,7 @@ gpusolverStatus_t ormqr(gpusolverDnHandle_t handle, gpublasSideMode_t side,
  * This function computes the size of the workspace buffer required for the
  * unmqr operation (complex types only).
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param side Left (CUBLAS_SIDE_LEFT) or right (CUBLAS_SIDE_RIGHT) multiplication
  * @param trans Operation: CUBLAS_OP_N (Q) or CUBLAS_OP_C (Q^H, Hermitian transpose)
@@ -402,13 +402,13 @@ gpusolverStatus_t ormqr(gpusolverDnHandle_t handle, gpublasSideMode_t side,
  * @param C Pointer to matrix C (device memory)
  * @param ldc Leading dimension of C
  * @param Lwork Output: required workspace size in elements of type T
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t unmqr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t side,
-                                   gpublasOperation_t trans, int m, int n, int k, const T *A,
+wwrsolverStatus_t unmqr_bufferSize(wwrsolverDnHandle_t handle, wwrblasSideMode_t side,
+                                   wwrblasOperation_t trans, int m, int n, int k, const T *A,
                                    int lda, const T *tau, const T *C, int ldc, int *Lwork) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, unmqr_bufferSize, handle, side, trans, m, n, k, A,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, unmqr_bufferSize, handle, side, trans, m, n, k, A,
                           lda, tau, C, ldc, Lwork);
 }
 
@@ -421,7 +421,7 @@ gpusolverStatus_t unmqr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t
  * - If side = CUBLAS_SIDE_RIGHT and trans = CUBLAS_OP_N: C := C*Q
  * - If side = CUBLAS_SIDE_RIGHT and trans = CUBLAS_OP_C: C := C*Q^H
  *
- * @tparam T Data type (gpuFloatComplex or gpuDoubleComplex only)
+ * @tparam T Data type (wwrFloatComplex or wwrDoubleComplex only)
  * @param handle cuSOLVER handle
  * @param side Left or right multiplication
  * @param trans Operation: CUBLAS_OP_N (Q) or CUBLAS_OP_C (Q^H, Hermitian transpose)
@@ -436,13 +436,13 @@ gpusolverStatus_t unmqr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t
  * @param Workspace Device workspace buffer (size from unmqr_bufferSize)
  * @param Lwork Workspace size in elements of type T
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<complex_fp T>
-gpusolverStatus_t unmqr(gpusolverDnHandle_t handle, gpublasSideMode_t side,
-                        gpublasOperation_t trans, int m, int n, int k, const T *A, int lda,
+wwrsolverStatus_t unmqr(wwrsolverDnHandle_t handle, wwrblasSideMode_t side,
+                        wwrblasOperation_t trans, int m, int n, int k, const T *A, int lda,
                         const T *tau, T *C, int ldc, T *Workspace, int Lwork, int *devInfo) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, unmqr, handle, side, trans, m, n, k, A, lda, tau, C,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, unmqr, handle, side, trans, m, n, k, A, lda, tau, C,
                           ldc, Workspace, Lwork, devInfo);
 }
 
@@ -460,7 +460,7 @@ gpusolverStatus_t unmqr(gpusolverDnHandle_t handle, gpublasSideMode_t side,
  * - If m >= n: minimize ||b - A*x|| (least squares)
  * - If m < n: find minimum norm solution
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param m Number of rows of matrix A
  * @param n Number of columns of matrix A
@@ -473,15 +473,15 @@ gpusolverStatus_t unmqr(gpusolverDnHandle_t handle, gpublasSideMode_t side,
  * @param lddx Leading dimension of X (lddx >= max(1, n))
  * @param dWorkspace Pointer to workspace buffer (device memory)
  * @param lwork_bytes Output: required workspace size in bytes
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gels_bufferSize(gpusolverDnHandle_t handle, int m, int n, int nrhs, T *dA,
+wwrsolverStatus_t gels_bufferSize(wwrsolverDnHandle_t handle, int m, int n, int nrhs, T *dA,
                                   int ldda, T *dB, int lddb, T *dX, int lddx, void *dWorkspace,
                                   std::size_t *lwork_bytes) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, SS, DD, gels_bufferSize, handle, m, n, nrhs, dA, ldda, dB,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, SS, DD, gels_bufferSize, handle, m, n, nrhs, dA, ldda, dB,
                        lddb, dX, lddx, dWorkspace, lwork_bytes);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, CC, ZZ, gels_bufferSize, handle, m, n, nrhs, dA, ldda, dB,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, CC, ZZ, gels_bufferSize, handle, m, n, nrhs, dA, ldda, dB,
                           lddb, dX, lddx, dWorkspace, lwork_bytes);
 }
 
@@ -495,7 +495,7 @@ gpusolverStatus_t gels_bufferSize(gpusolverDnHandle_t handle, int m, int n, int 
  *
  * The function uses iterative refinement to improve the solution accuracy.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param m Number of rows of matrix A
  * @param n Number of columns of matrix A
@@ -510,15 +510,15 @@ gpusolverStatus_t gels_bufferSize(gpusolverDnHandle_t handle, int m, int n, int 
  * @param lwork_bytes Workspace size in bytes
  * @param iter Device pointer: number of iterations performed (output)
  * @param d_info Device pointer: 0 on success, >0 if singular
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gels(gpusolverDnHandle_t handle, int m, int n, int nrhs, T *dA, int ldda, T *dB,
+wwrsolverStatus_t gels(wwrsolverDnHandle_t handle, int m, int n, int nrhs, T *dA, int ldda, T *dB,
                        int lddb, T *dX, int lddx, void *dWorkspace, std::size_t lwork_bytes,
                        int *iter, int *d_info) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, SS, DD, gels, handle, m, n, nrhs, dA, ldda, dB, lddb, dX,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, SS, DD, gels, handle, m, n, nrhs, dA, ldda, dB, lddb, dX,
                        lddx, dWorkspace, lwork_bytes, iter, d_info);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, CC, ZZ, gels, handle, m, n, nrhs, dA, ldda, dB, lddb, dX,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, CC, ZZ, gels, handle, m, n, nrhs, dA, ldda, dB, lddb, dX,
                           lddx, dWorkspace, lwork_bytes, iter, d_info);
 }
 
@@ -534,7 +534,7 @@ gpusolverStatus_t gels(gpusolverDnHandle_t handle, int m, int n, int nrhs, T *dA
  *
  * Solves the linear system A*X = B where A is a square n×n matrix.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param n Order of matrix A (n×n square matrix)
  * @param nrhs Number of right-hand sides (columns of B and X)
@@ -547,15 +547,15 @@ gpusolverStatus_t gels(gpusolverDnHandle_t handle, int m, int n, int nrhs, T *dA
  * @param lddx Leading dimension of X (lddx >= max(1, n))
  * @param dWorkspace Pointer to workspace buffer (device memory)
  * @param lwork_bytes Output: required workspace size in bytes
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gesv_bufferSize(gpusolverDnHandle_t handle, int n, int nrhs, T *dA, int ldda,
+wwrsolverStatus_t gesv_bufferSize(wwrsolverDnHandle_t handle, int n, int nrhs, T *dA, int ldda,
                                   int *dipiv, T *dB, int lddb, T *dX, int lddx, void *dWorkspace,
                                   std::size_t *lwork_bytes) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, SS, DD, gesv_bufferSize, handle, n, nrhs, dA, ldda, dipiv,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, SS, DD, gesv_bufferSize, handle, n, nrhs, dA, ldda, dipiv,
                        dB, lddb, dX, lddx, dWorkspace, lwork_bytes);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, CC, ZZ, gesv_bufferSize, handle, n, nrhs, dA, ldda, dipiv,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, CC, ZZ, gesv_bufferSize, handle, n, nrhs, dA, ldda, dipiv,
                           dB, lddb, dX, lddx, dWorkspace, lwork_bytes);
 }
 
@@ -567,7 +567,7 @@ gpusolverStatus_t gesv_bufferSize(gpusolverDnHandle_t handle, int n, int nrhs, T
  *
  * The function uses iterative refinement to improve the solution accuracy.
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param n Order of matrix A (n×n square matrix)
  * @param nrhs Number of right-hand sides (columns of B and X)
@@ -582,15 +582,15 @@ gpusolverStatus_t gesv_bufferSize(gpusolverDnHandle_t handle, int n, int nrhs, T
  * @param lwork_bytes Workspace size in bytes
  * @param iter Device pointer: number of iterations performed (output)
  * @param d_info Device pointer: 0 on success, >0 if singular
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gesv(gpusolverDnHandle_t handle, int n, int nrhs, T *dA, int ldda, int *dipiv,
+wwrsolverStatus_t gesv(wwrsolverDnHandle_t handle, int n, int nrhs, T *dA, int ldda, int *dipiv,
                        T *dB, int lddb, T *dX, int lddx, void *dWorkspace, std::size_t lwork_bytes,
                        int *iter, int *d_info) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, SS, DD, gesv, handle, n, nrhs, dA, ldda, dipiv, dB, lddb, dX,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, SS, DD, gesv, handle, n, nrhs, dA, ldda, dipiv, dB, lddb, dX,
                        lddx, dWorkspace, lwork_bytes, iter, d_info);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, CC, ZZ, gesv, handle, n, nrhs, dA, ldda, dipiv, dB, lddb,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, CC, ZZ, gesv, handle, n, nrhs, dA, ldda, dipiv, dB, lddb,
                           dX, lddx, dWorkspace, lwork_bytes, iter, d_info);
 }
 
@@ -601,7 +601,7 @@ gpusolverStatus_t gesv(gpusolverDnHandle_t handle, int n, int nrhs, T *dA, int l
 /**
  * @brief Compute batched Cholesky factorization A = L*L^T or U^T*U
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param uplo Fill mode
  * @param n Order of each matrix
@@ -609,21 +609,21 @@ gpusolverStatus_t gesv(gpusolverDnHandle_t handle, int n, int nrhs, T *dA, int l
  * @param lda Leading dimension
  * @param infoArray Array of status codes (device memory)
  * @param batchSize Number of matrices
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t potrfBatched(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n,
+wwrsolverStatus_t potrfBatched(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n,
                                T *Aarray[], int lda, int *infoArray, int batchSize) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, potrfBatched, handle, uplo, n, Aarray, lda, infoArray,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, potrfBatched, handle, uplo, n, Aarray, lda, infoArray,
                        batchSize);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, potrfBatched, handle, uplo, n, Aarray, lda,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, potrfBatched, handle, uplo, n, Aarray, lda,
                           infoArray, batchSize);
 }
 
 /**
  * @brief Solve batched systems using Cholesky factorization
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param uplo Fill mode
  * @param n Order of each matrix
@@ -634,14 +634,14 @@ gpusolverStatus_t potrfBatched(gpusolverDnHandle_t handle, gpublasFillMode_t upl
  * @param ldb Leading dimension of B
  * @param info Array of status codes (device memory)
  * @param batchSize Number of matrices
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t potrsBatched(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, int nrhs,
+wwrsolverStatus_t potrsBatched(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, int nrhs,
                                T *A[], int lda, T *B[], int ldb, int *info, int batchSize) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, potrsBatched, handle, uplo, n, nrhs, A, lda, B, ldb,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, potrsBatched, handle, uplo, n, nrhs, A, lda, B, ldb,
                        info, batchSize);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, potrsBatched, handle, uplo, n, nrhs, A, lda, B, ldb,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, potrsBatched, handle, uplo, n, nrhs, A, lda, B, ldb,
                           info, batchSize);
 }
 
@@ -652,7 +652,7 @@ gpusolverStatus_t potrsBatched(gpusolverDnHandle_t handle, gpublasFillMode_t upl
 /**
  * @brief Query workspace size for symmetric factorization (Bunch-Kaufman)
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param uplo Fill mode
  * @param n Order of matrix
@@ -660,18 +660,18 @@ gpusolverStatus_t potrsBatched(gpusolverDnHandle_t handle, gpublasFillMode_t upl
  * @param lda Leading dimension
  * @param ipiv Pivot indices (device memory)
  * @param lwork Output: workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t sytrf_bufferSize(gpusolverDnHandle_t handle, int n, T *A, int lda, int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sytrf_bufferSize, handle, n, A, lda, lwork);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, sytrf_bufferSize, handle, n, A, lda, lwork);
+wwrsolverStatus_t sytrf_bufferSize(wwrsolverDnHandle_t handle, int n, T *A, int lda, int *lwork) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, sytrf_bufferSize, handle, n, A, lda, lwork);
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, sytrf_bufferSize, handle, n, A, lda, lwork);
 }
 
 /**
  * @brief Compute symmetric factorization using Bunch-Kaufman (A = U*D*U^T or L*D*L^T)
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param uplo Fill mode
  * @param n Order of matrix
@@ -681,14 +681,14 @@ gpusolverStatus_t sytrf_bufferSize(gpusolverDnHandle_t handle, int n, T *A, int 
  * @param work Workspace buffer
  * @param lwork Workspace size
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t sytrf(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
+wwrsolverStatus_t sytrf(wwrsolverDnHandle_t handle, wwrblasFillMode_t uplo, int n, T *A, int lda,
                         int *ipiv, T *work, int lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sytrf, handle, uplo, n, A, lda, ipiv, work, lwork,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, sytrf, handle, uplo, n, A, lda, ipiv, work, lwork,
                        devInfo);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, sytrf, handle, uplo, n, A, lda, ipiv, work, lwork,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, sytrf, handle, uplo, n, A, lda, ipiv, work, lwork,
                           devInfo);
 }
 
@@ -699,23 +699,23 @@ gpusolverStatus_t sytrf(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
 /**
  * @brief Query workspace size for bidiagonal reduction
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param m Number of rows
  * @param n Number of columns
  * @param lwork Output: workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gebrd_bufferSize(gpusolverDnHandle_t handle, int m, int n, int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gebrd_bufferSize, handle, m, n, lwork);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gebrd_bufferSize, handle, m, n, lwork);
+wwrsolverStatus_t gebrd_bufferSize(wwrsolverDnHandle_t handle, int m, int n, int *lwork) {
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, gebrd_bufferSize, handle, m, n, lwork);
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, gebrd_bufferSize, handle, m, n, lwork);
 }
 
 /**
  * @brief Reduce general matrix to bidiagonal form
  *
- * @tparam T Data type (float, double, gpuFloatComplex, gpuDoubleComplex)
+ * @tparam T Data type (float, double, wwrFloatComplex, wwrDoubleComplex)
  * @param handle cuSOLVER handle
  * @param m Number of rows
  * @param n Number of columns
@@ -728,15 +728,15 @@ gpusolverStatus_t gebrd_bufferSize(gpusolverDnHandle_t handle, int m, int n, int
  * @param work Workspace buffer
  * @param lwork Workspace size
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<usual_fp T>
-gpusolverStatus_t gebrd(gpusolverDnHandle_t handle, int m, int n, T *A, int lda,
+wwrsolverStatus_t gebrd(wwrsolverDnHandle_t handle, int m, int n, T *A, int lda,
                         ComplexToRealType<T> *D, ComplexToRealType<T> *E, T *tauq, T *taup, T *work,
                         int lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gebrd, handle, m, n, A, lda, D, E, tauq, taup, work,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, gebrd, handle, m, n, A, lda, D, E, tauq, taup, work,
                        lwork, devInfo);
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gebrd, handle, m, n, A, lda, D, E, tauq, taup, work,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, gebrd, handle, m, n, A, lda, D, E, tauq, taup, work,
                           lwork, devInfo);
 }
 
@@ -747,7 +747,7 @@ gpusolverStatus_t gebrd(gpusolverDnHandle_t handle, int m, int n, T *A, int lda,
 /**
  * @brief Query workspace size for generating orthogonal/unitary matrix from QR
  *
- * @tparam T Data type (float, double for orgqr; gpuFloatComplex, gpuDoubleComplex for ungqr)
+ * @tparam T Data type (float, double for orgqr; wwrFloatComplex, wwrDoubleComplex for ungqr)
  * @param handle cuSOLVER handle
  * @param m Number of rows
  * @param n Number of columns
@@ -756,18 +756,18 @@ gpusolverStatus_t gebrd(gpusolverDnHandle_t handle, int m, int n, T *A, int lda,
  * @param lda Leading dimension
  * @param tau Elementary reflectors (device memory)
  * @param lwork Output: workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t orgqr_bufferSize(gpusolverDnHandle_t handle, int m, int n, int k, const T *A,
+wwrsolverStatus_t orgqr_bufferSize(wwrsolverDnHandle_t handle, int m, int n, int k, const T *A,
                                    int lda, const T *tau, int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, orgqr_bufferSize, handle, m, n, k, A, lda, tau, lwork);
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, orgqr_bufferSize, handle, m, n, k, A, lda, tau, lwork);
 }
 
 template<complex_fp T>
-gpusolverStatus_t ungqr_bufferSize(gpusolverDnHandle_t handle, int m, int n, int k, const T *A,
+wwrsolverStatus_t ungqr_bufferSize(wwrsolverDnHandle_t handle, int m, int n, int k, const T *A,
                                    int lda, const T *tau, int *lwork) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, ungqr_bufferSize, handle, m, n, k, A, lda, tau,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, ungqr_bufferSize, handle, m, n, k, A, lda, tau,
                           lwork);
 }
 
@@ -785,19 +785,19 @@ gpusolverStatus_t ungqr_bufferSize(gpusolverDnHandle_t handle, int m, int n, int
  * @param work Workspace buffer
  * @param lwork Workspace size
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t orgqr(gpusolverDnHandle_t handle, int m, int n, int k, T *A, int lda,
+wwrsolverStatus_t orgqr(wwrsolverDnHandle_t handle, int m, int n, int k, T *A, int lda,
                         const T *tau, T *work, int lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, orgqr, handle, m, n, k, A, lda, tau, work, lwork,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, orgqr, handle, m, n, k, A, lda, tau, work, lwork,
                        devInfo);
 }
 
 template<complex_fp T>
-gpusolverStatus_t ungqr(gpusolverDnHandle_t handle, int m, int n, int k, T *A, int lda,
+wwrsolverStatus_t ungqr(wwrsolverDnHandle_t handle, int m, int n, int k, T *A, int lda,
                         const T *tau, T *work, int lwork, int *devInfo) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, ungqr, handle, m, n, k, A, lda, tau, work, lwork,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, ungqr, handle, m, n, k, A, lda, tau, work, lwork,
                           devInfo);
 }
 
@@ -818,19 +818,19 @@ gpusolverStatus_t ungqr(gpusolverDnHandle_t handle, int m, int n, int k, T *A, i
  * @param lda Leading dimension
  * @param tau Elementary reflectors (device memory)
  * @param lwork Output: workspace size
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t orgbr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t vect, int m, int n,
+wwrsolverStatus_t orgbr_bufferSize(wwrsolverDnHandle_t handle, wwrblasSideMode_t vect, int m, int n,
                                    int k, const T *A, int lda, const T *tau, int *lwork) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, orgbr_bufferSize, handle, vect, m, n, k, A, lda, tau,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, orgbr_bufferSize, handle, vect, m, n, k, A, lda, tau,
                        lwork);
 }
 
 template<complex_fp T>
-gpusolverStatus_t ungbr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t vect, int m, int n,
+wwrsolverStatus_t ungbr_bufferSize(wwrsolverDnHandle_t handle, wwrblasSideMode_t vect, int m, int n,
                                    int k, const T *A, int lda, const T *tau, int *lwork) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, ungbr_bufferSize, handle, vect, m, n, k, A, lda,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, ungbr_bufferSize, handle, vect, m, n, k, A, lda,
                           tau, lwork);
 }
 
@@ -849,403 +849,403 @@ gpusolverStatus_t ungbr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t
  * @param work Workspace buffer
  * @param lwork Workspace size
  * @param devInfo Device pointer: 0 on success
- * @return gpusolverStatus_t status code
+ * @return wwrsolverStatus_t status code
  */
 template<real_fp T>
-gpusolverStatus_t orgbr(gpusolverDnHandle_t handle, gpublasSideMode_t vect, int m, int n, int k,
+wwrsolverStatus_t orgbr(wwrsolverDnHandle_t handle, wwrblasSideMode_t vect, int m, int n, int k,
                         T *A, int lda, const T *tau, T *work, int lwork, int *devInfo) {
-  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, orgbr, handle, vect, m, n, k, A, lda, tau, work, lwork,
+  WWR_REAL_DISPATCH(T, wwrsolverDn, S, D, orgbr, handle, vect, m, n, k, A, lda, tau, work, lwork,
                        devInfo);
 }
 
 template<complex_fp T>
-gpusolverStatus_t ungbr(gpusolverDnHandle_t handle, gpublasSideMode_t vect, int m, int n, int k,
+wwrsolverStatus_t ungbr(wwrsolverDnHandle_t handle, wwrblasSideMode_t vect, int m, int n, int k,
                         T *A, int lda, const T *tau, T *work, int lwork, int *devInfo) {
-  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, ungbr, handle, vect, m, n, k, A, lda, tau, work,
+  WWR_COMPLEX_DISPATCH(T, wwrsolverDn, C, Z, ungbr, handle, vect, m, n, k, A, lda, tau, work,
                           lwork, devInfo);
 }
 
 // ==================== Explicit Template Instantiation Declarations ====================
 // Generated code will be inserted here by cmake/instantiation/generate_instantiations.py
-// To regenerate: cmake --build build --target gpusolverDn_generate_instantiations
+// To regenerate: cmake --build build --target wwrsolverDn_generate_instantiations
 
 // Function: potrf_bufferSize
-extern template gpusolverStatus_t potrf_bufferSize<float>(gpusolverDnHandle_t, gpublasFillMode_t,
+extern template wwrsolverStatus_t potrf_bufferSize<float>(wwrsolverDnHandle_t, wwrblasFillMode_t,
                                                           int, float *, int, int *);
-extern template gpusolverStatus_t potrf_bufferSize<double>(gpusolverDnHandle_t, gpublasFillMode_t,
+extern template wwrsolverStatus_t potrf_bufferSize<double>(wwrsolverDnHandle_t, wwrblasFillMode_t,
                                                            int, double *, int, int *);
-extern template gpusolverStatus_t potrf_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t,
-                                                                    gpublasFillMode_t, int,
-                                                                    gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t potrf_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t,
-                                                                     gpublasFillMode_t, int,
-                                                                     gpuDoubleComplex *, int,
+extern template wwrsolverStatus_t potrf_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t,
+                                                                    wwrblasFillMode_t, int,
+                                                                    wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t potrf_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t,
+                                                                     wwrblasFillMode_t, int,
+                                                                     wwrDoubleComplex *, int,
                                                                      int *);
 
 // Function: potrf
-extern template gpusolverStatus_t potrf<float>(gpusolverDnHandle_t, gpublasFillMode_t, int, float *,
+extern template wwrsolverStatus_t potrf<float>(wwrsolverDnHandle_t, wwrblasFillMode_t, int, float *,
                                                int, float *, int, int *);
-extern template gpusolverStatus_t potrf<double>(gpusolverDnHandle_t, gpublasFillMode_t, int,
+extern template wwrsolverStatus_t potrf<double>(wwrsolverDnHandle_t, wwrblasFillMode_t, int,
                                                 double *, int, double *, int, int *);
-extern template gpusolverStatus_t potrf<gpuFloatComplex>(gpusolverDnHandle_t, gpublasFillMode_t,
-                                                         int, gpuFloatComplex *, int,
-                                                         gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t potrf<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasFillMode_t,
-                                                          int, gpuDoubleComplex *, int,
-                                                          gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t potrf<wwrFloatComplex>(wwrsolverDnHandle_t, wwrblasFillMode_t,
+                                                         int, wwrFloatComplex *, int,
+                                                         wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t potrf<wwrDoubleComplex>(wwrsolverDnHandle_t, wwrblasFillMode_t,
+                                                          int, wwrDoubleComplex *, int,
+                                                          wwrDoubleComplex *, int, int *);
 
 // Function: potrs
-extern template gpusolverStatus_t potrs<float>(gpusolverDnHandle_t, gpublasFillMode_t, int, int,
+extern template wwrsolverStatus_t potrs<float>(wwrsolverDnHandle_t, wwrblasFillMode_t, int, int,
                                                const float *, int, float *, int, int *);
-extern template gpusolverStatus_t potrs<double>(gpusolverDnHandle_t, gpublasFillMode_t, int, int,
+extern template wwrsolverStatus_t potrs<double>(wwrsolverDnHandle_t, wwrblasFillMode_t, int, int,
                                                 const double *, int, double *, int, int *);
-extern template gpusolverStatus_t potrs<gpuFloatComplex>(gpusolverDnHandle_t, gpublasFillMode_t,
-                                                         int, int, const gpuFloatComplex *, int,
-                                                         gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t potrs<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasFillMode_t,
-                                                          int, int, const gpuDoubleComplex *, int,
-                                                          gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t potrs<wwrFloatComplex>(wwrsolverDnHandle_t, wwrblasFillMode_t,
+                                                         int, int, const wwrFloatComplex *, int,
+                                                         wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t potrs<wwrDoubleComplex>(wwrsolverDnHandle_t, wwrblasFillMode_t,
+                                                          int, int, const wwrDoubleComplex *, int,
+                                                          wwrDoubleComplex *, int, int *);
 
 // Function: potri_bufferSize
-extern template gpusolverStatus_t potri_bufferSize<float>(gpusolverDnHandle_t, gpublasFillMode_t,
+extern template wwrsolverStatus_t potri_bufferSize<float>(wwrsolverDnHandle_t, wwrblasFillMode_t,
                                                           int, float *, int, int *);
-extern template gpusolverStatus_t potri_bufferSize<double>(gpusolverDnHandle_t, gpublasFillMode_t,
+extern template wwrsolverStatus_t potri_bufferSize<double>(wwrsolverDnHandle_t, wwrblasFillMode_t,
                                                            int, double *, int, int *);
-extern template gpusolverStatus_t potri_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t,
-                                                                    gpublasFillMode_t, int,
-                                                                    gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t potri_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t,
-                                                                     gpublasFillMode_t, int,
-                                                                     gpuDoubleComplex *, int,
+extern template wwrsolverStatus_t potri_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t,
+                                                                    wwrblasFillMode_t, int,
+                                                                    wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t potri_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t,
+                                                                     wwrblasFillMode_t, int,
+                                                                     wwrDoubleComplex *, int,
                                                                      int *);
 
 // Function: potri
-extern template gpusolverStatus_t potri<float>(gpusolverDnHandle_t, gpublasFillMode_t, int, float *,
+extern template wwrsolverStatus_t potri<float>(wwrsolverDnHandle_t, wwrblasFillMode_t, int, float *,
                                                int, float *, int, int *);
-extern template gpusolverStatus_t potri<double>(gpusolverDnHandle_t, gpublasFillMode_t, int,
+extern template wwrsolverStatus_t potri<double>(wwrsolverDnHandle_t, wwrblasFillMode_t, int,
                                                 double *, int, double *, int, int *);
-extern template gpusolverStatus_t potri<gpuFloatComplex>(gpusolverDnHandle_t, gpublasFillMode_t,
-                                                         int, gpuFloatComplex *, int,
-                                                         gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t potri<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasFillMode_t,
-                                                          int, gpuDoubleComplex *, int,
-                                                          gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t potri<wwrFloatComplex>(wwrsolverDnHandle_t, wwrblasFillMode_t,
+                                                         int, wwrFloatComplex *, int,
+                                                         wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t potri<wwrDoubleComplex>(wwrsolverDnHandle_t, wwrblasFillMode_t,
+                                                          int, wwrDoubleComplex *, int,
+                                                          wwrDoubleComplex *, int, int *);
 
 // Function: getrf_bufferSize
-extern template gpusolverStatus_t getrf_bufferSize<float>(gpusolverDnHandle_t, int, int, float *,
+extern template wwrsolverStatus_t getrf_bufferSize<float>(wwrsolverDnHandle_t, int, int, float *,
                                                           int, int *);
-extern template gpusolverStatus_t getrf_bufferSize<double>(gpusolverDnHandle_t, int, int, double *,
+extern template wwrsolverStatus_t getrf_bufferSize<double>(wwrsolverDnHandle_t, int, int, double *,
                                                            int, int *);
-extern template gpusolverStatus_t getrf_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t, int, int,
-                                                                    gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t
-getrf_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t, int, int, gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t getrf_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t, int, int,
+                                                                    wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t
+getrf_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int, wwrDoubleComplex *, int, int *);
 
 // Function: getrf
-extern template gpusolverStatus_t getrf<float>(gpusolverDnHandle_t, int, int, float *, int, float *,
+extern template wwrsolverStatus_t getrf<float>(wwrsolverDnHandle_t, int, int, float *, int, float *,
                                                int *, int *);
-extern template gpusolverStatus_t getrf<double>(gpusolverDnHandle_t, int, int, double *, int,
+extern template wwrsolverStatus_t getrf<double>(wwrsolverDnHandle_t, int, int, double *, int,
                                                 double *, int *, int *);
-extern template gpusolverStatus_t getrf<gpuFloatComplex>(gpusolverDnHandle_t, int, int,
-                                                         gpuFloatComplex *, int, gpuFloatComplex *,
+extern template wwrsolverStatus_t getrf<wwrFloatComplex>(wwrsolverDnHandle_t, int, int,
+                                                         wwrFloatComplex *, int, wwrFloatComplex *,
                                                          int *, int *);
-extern template gpusolverStatus_t getrf<gpuDoubleComplex>(gpusolverDnHandle_t, int, int,
-                                                          gpuDoubleComplex *, int,
-                                                          gpuDoubleComplex *, int *, int *);
+extern template wwrsolverStatus_t getrf<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int,
+                                                          wwrDoubleComplex *, int,
+                                                          wwrDoubleComplex *, int *, int *);
 
 // Function: getrs
-extern template gpusolverStatus_t getrs<float>(gpusolverDnHandle_t, gpublasOperation_t, int, int,
+extern template wwrsolverStatus_t getrs<float>(wwrsolverDnHandle_t, wwrblasOperation_t, int, int,
                                                const float *, int, const int *, float *, int,
                                                int *);
-extern template gpusolverStatus_t getrs<double>(gpusolverDnHandle_t, gpublasOperation_t, int, int,
+extern template wwrsolverStatus_t getrs<double>(wwrsolverDnHandle_t, wwrblasOperation_t, int, int,
                                                 const double *, int, const int *, double *, int,
                                                 int *);
-extern template gpusolverStatus_t getrs<gpuFloatComplex>(gpusolverDnHandle_t, gpublasOperation_t,
-                                                         int, int, const gpuFloatComplex *, int,
-                                                         const int *, gpuFloatComplex *, int,
+extern template wwrsolverStatus_t getrs<wwrFloatComplex>(wwrsolverDnHandle_t, wwrblasOperation_t,
+                                                         int, int, const wwrFloatComplex *, int,
+                                                         const int *, wwrFloatComplex *, int,
                                                          int *);
-extern template gpusolverStatus_t getrs<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasOperation_t,
-                                                          int, int, const gpuDoubleComplex *, int,
-                                                          const int *, gpuDoubleComplex *, int,
+extern template wwrsolverStatus_t getrs<wwrDoubleComplex>(wwrsolverDnHandle_t, wwrblasOperation_t,
+                                                          int, int, const wwrDoubleComplex *, int,
+                                                          const int *, wwrDoubleComplex *, int,
                                                           int *);
 
 // Function: geqrf_bufferSize
-extern template gpusolverStatus_t geqrf_bufferSize<float>(gpusolverDnHandle_t, int, int, float *,
+extern template wwrsolverStatus_t geqrf_bufferSize<float>(wwrsolverDnHandle_t, int, int, float *,
                                                           int, int *);
-extern template gpusolverStatus_t geqrf_bufferSize<double>(gpusolverDnHandle_t, int, int, double *,
+extern template wwrsolverStatus_t geqrf_bufferSize<double>(wwrsolverDnHandle_t, int, int, double *,
                                                            int, int *);
-extern template gpusolverStatus_t geqrf_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t, int, int,
-                                                                    gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t
-geqrf_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t, int, int, gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t geqrf_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t, int, int,
+                                                                    wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t
+geqrf_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int, wwrDoubleComplex *, int, int *);
 
 // Function: geqrf
-extern template gpusolverStatus_t geqrf<float>(gpusolverDnHandle_t, int, int, float *, int, float *,
+extern template wwrsolverStatus_t geqrf<float>(wwrsolverDnHandle_t, int, int, float *, int, float *,
                                                float *, int, int *);
-extern template gpusolverStatus_t geqrf<double>(gpusolverDnHandle_t, int, int, double *, int,
+extern template wwrsolverStatus_t geqrf<double>(wwrsolverDnHandle_t, int, int, double *, int,
                                                 double *, double *, int, int *);
-extern template gpusolverStatus_t geqrf<gpuFloatComplex>(gpusolverDnHandle_t, int, int,
-                                                         gpuFloatComplex *, int, gpuFloatComplex *,
-                                                         gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t geqrf<gpuDoubleComplex>(gpusolverDnHandle_t, int, int,
-                                                          gpuDoubleComplex *, int,
-                                                          gpuDoubleComplex *, gpuDoubleComplex *,
+extern template wwrsolverStatus_t geqrf<wwrFloatComplex>(wwrsolverDnHandle_t, int, int,
+                                                         wwrFloatComplex *, int, wwrFloatComplex *,
+                                                         wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t geqrf<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int,
+                                                          wwrDoubleComplex *, int,
+                                                          wwrDoubleComplex *, wwrDoubleComplex *,
                                                           int, int *);
 
 // Function: ormqr_bufferSize
-extern template gpusolverStatus_t ormqr_bufferSize<float>(gpusolverDnHandle_t, gpublasSideMode_t,
-                                                          gpublasOperation_t, int, int, int,
+extern template wwrsolverStatus_t ormqr_bufferSize<float>(wwrsolverDnHandle_t, wwrblasSideMode_t,
+                                                          wwrblasOperation_t, int, int, int,
                                                           const float *, int, const float *,
                                                           const float *, int, int *);
-extern template gpusolverStatus_t ormqr_bufferSize<double>(gpusolverDnHandle_t, gpublasSideMode_t,
-                                                           gpublasOperation_t, int, int, int,
+extern template wwrsolverStatus_t ormqr_bufferSize<double>(wwrsolverDnHandle_t, wwrblasSideMode_t,
+                                                           wwrblasOperation_t, int, int, int,
                                                            const double *, int, const double *,
                                                            const double *, int, int *);
 
 // Function: ormqr
-extern template gpusolverStatus_t ormqr<float>(gpusolverDnHandle_t, gpublasSideMode_t,
-                                               gpublasOperation_t, int, int, int, const float *,
+extern template wwrsolverStatus_t ormqr<float>(wwrsolverDnHandle_t, wwrblasSideMode_t,
+                                               wwrblasOperation_t, int, int, int, const float *,
                                                int, const float *, float *, int, float *, int,
                                                int *);
-extern template gpusolverStatus_t ormqr<double>(gpusolverDnHandle_t, gpublasSideMode_t,
-                                                gpublasOperation_t, int, int, int, const double *,
+extern template wwrsolverStatus_t ormqr<double>(wwrsolverDnHandle_t, wwrblasSideMode_t,
+                                                wwrblasOperation_t, int, int, int, const double *,
                                                 int, const double *, double *, int, double *, int,
                                                 int *);
 
 // Function: unmqr_bufferSize
-extern template gpusolverStatus_t
-unmqr_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t, gpublasSideMode_t, gpublasOperation_t, int,
-                                  int, int, const gpuFloatComplex *, int, const gpuFloatComplex *,
-                                  const gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t
-unmqr_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasSideMode_t, gpublasOperation_t, int,
-                                   int, int, const gpuDoubleComplex *, int,
-                                   const gpuDoubleComplex *, const gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t
+unmqr_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t, wwrblasSideMode_t, wwrblasOperation_t, int,
+                                  int, int, const wwrFloatComplex *, int, const wwrFloatComplex *,
+                                  const wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t
+unmqr_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t, wwrblasSideMode_t, wwrblasOperation_t, int,
+                                   int, int, const wwrDoubleComplex *, int,
+                                   const wwrDoubleComplex *, const wwrDoubleComplex *, int, int *);
 
 // Function: unmqr
-extern template gpusolverStatus_t unmqr<gpuFloatComplex>(gpusolverDnHandle_t, gpublasSideMode_t,
-                                                         gpublasOperation_t, int, int, int,
-                                                         const gpuFloatComplex *, int,
-                                                         const gpuFloatComplex *, gpuFloatComplex *,
-                                                         int, gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t
-unmqr<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasSideMode_t, gpublasOperation_t, int, int, int,
-                        const gpuDoubleComplex *, int, const gpuDoubleComplex *, gpuDoubleComplex *,
-                        int, gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t unmqr<wwrFloatComplex>(wwrsolverDnHandle_t, wwrblasSideMode_t,
+                                                         wwrblasOperation_t, int, int, int,
+                                                         const wwrFloatComplex *, int,
+                                                         const wwrFloatComplex *, wwrFloatComplex *,
+                                                         int, wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t
+unmqr<wwrDoubleComplex>(wwrsolverDnHandle_t, wwrblasSideMode_t, wwrblasOperation_t, int, int, int,
+                        const wwrDoubleComplex *, int, const wwrDoubleComplex *, wwrDoubleComplex *,
+                        int, wwrDoubleComplex *, int, int *);
 
 // Function: gels_bufferSize
-extern template gpusolverStatus_t gels_bufferSize<float>(gpusolverDnHandle_t, int, int, int,
+extern template wwrsolverStatus_t gels_bufferSize<float>(wwrsolverDnHandle_t, int, int, int,
                                                          float *, int, float *, int, float *, int,
                                                          void *, std::size_t *);
-extern template gpusolverStatus_t gels_bufferSize<double>(gpusolverDnHandle_t, int, int, int,
+extern template wwrsolverStatus_t gels_bufferSize<double>(wwrsolverDnHandle_t, int, int, int,
                                                           double *, int, double *, int, double *,
                                                           int, void *, std::size_t *);
-extern template gpusolverStatus_t gels_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t, int, int,
-                                                                   int, gpuFloatComplex *, int,
-                                                                   gpuFloatComplex *, int,
-                                                                   gpuFloatComplex *, int, void *,
+extern template wwrsolverStatus_t gels_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t, int, int,
+                                                                   int, wwrFloatComplex *, int,
+                                                                   wwrFloatComplex *, int,
+                                                                   wwrFloatComplex *, int, void *,
                                                                    std::size_t *);
-extern template gpusolverStatus_t gels_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t, int, int,
-                                                                    int, gpuDoubleComplex *, int,
-                                                                    gpuDoubleComplex *, int,
-                                                                    gpuDoubleComplex *, int, void *,
+extern template wwrsolverStatus_t gels_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int,
+                                                                    int, wwrDoubleComplex *, int,
+                                                                    wwrDoubleComplex *, int,
+                                                                    wwrDoubleComplex *, int, void *,
                                                                     std::size_t *);
 
 // Function: gels
-extern template gpusolverStatus_t gels<float>(gpusolverDnHandle_t, int, int, int, float *, int,
+extern template wwrsolverStatus_t gels<float>(wwrsolverDnHandle_t, int, int, int, float *, int,
                                               float *, int, float *, int, void *, std::size_t,
                                               int *, int *);
-extern template gpusolverStatus_t gels<double>(gpusolverDnHandle_t, int, int, int, double *, int,
+extern template wwrsolverStatus_t gels<double>(wwrsolverDnHandle_t, int, int, int, double *, int,
                                                double *, int, double *, int, void *, std::size_t,
                                                int *, int *);
-extern template gpusolverStatus_t gels<gpuFloatComplex>(gpusolverDnHandle_t, int, int, int,
-                                                        gpuFloatComplex *, int, gpuFloatComplex *,
-                                                        int, gpuFloatComplex *, int, void *,
+extern template wwrsolverStatus_t gels<wwrFloatComplex>(wwrsolverDnHandle_t, int, int, int,
+                                                        wwrFloatComplex *, int, wwrFloatComplex *,
+                                                        int, wwrFloatComplex *, int, void *,
                                                         std::size_t, int *, int *);
-extern template gpusolverStatus_t gels<gpuDoubleComplex>(gpusolverDnHandle_t, int, int, int,
-                                                         gpuDoubleComplex *, int,
-                                                         gpuDoubleComplex *, int,
-                                                         gpuDoubleComplex *, int, void *,
+extern template wwrsolverStatus_t gels<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int, int,
+                                                         wwrDoubleComplex *, int,
+                                                         wwrDoubleComplex *, int,
+                                                         wwrDoubleComplex *, int, void *,
                                                          std::size_t, int *, int *);
 
 // Function: gesv_bufferSize
-extern template gpusolverStatus_t gesv_bufferSize<float>(gpusolverDnHandle_t, int, int, float *,
+extern template wwrsolverStatus_t gesv_bufferSize<float>(wwrsolverDnHandle_t, int, int, float *,
                                                          int, int *, float *, int, float *, int,
                                                          void *, std::size_t *);
-extern template gpusolverStatus_t gesv_bufferSize<double>(gpusolverDnHandle_t, int, int, double *,
+extern template wwrsolverStatus_t gesv_bufferSize<double>(wwrsolverDnHandle_t, int, int, double *,
                                                           int, int *, double *, int, double *, int,
                                                           void *, std::size_t *);
-extern template gpusolverStatus_t gesv_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t, int, int,
-                                                                   gpuFloatComplex *, int, int *,
-                                                                   gpuFloatComplex *, int,
-                                                                   gpuFloatComplex *, int, void *,
+extern template wwrsolverStatus_t gesv_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t, int, int,
+                                                                   wwrFloatComplex *, int, int *,
+                                                                   wwrFloatComplex *, int,
+                                                                   wwrFloatComplex *, int, void *,
                                                                    std::size_t *);
-extern template gpusolverStatus_t gesv_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t, int, int,
-                                                                    gpuDoubleComplex *, int, int *,
-                                                                    gpuDoubleComplex *, int,
-                                                                    gpuDoubleComplex *, int, void *,
+extern template wwrsolverStatus_t gesv_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int,
+                                                                    wwrDoubleComplex *, int, int *,
+                                                                    wwrDoubleComplex *, int,
+                                                                    wwrDoubleComplex *, int, void *,
                                                                     std::size_t *);
 
 // Function: gesv
-extern template gpusolverStatus_t gesv<float>(gpusolverDnHandle_t, int, int, float *, int, int *,
+extern template wwrsolverStatus_t gesv<float>(wwrsolverDnHandle_t, int, int, float *, int, int *,
                                               float *, int, float *, int, void *, std::size_t,
                                               int *, int *);
-extern template gpusolverStatus_t gesv<double>(gpusolverDnHandle_t, int, int, double *, int, int *,
+extern template wwrsolverStatus_t gesv<double>(wwrsolverDnHandle_t, int, int, double *, int, int *,
                                                double *, int, double *, int, void *, std::size_t,
                                                int *, int *);
-extern template gpusolverStatus_t gesv<gpuFloatComplex>(gpusolverDnHandle_t, int, int,
-                                                        gpuFloatComplex *, int, int *,
-                                                        gpuFloatComplex *, int, gpuFloatComplex *,
+extern template wwrsolverStatus_t gesv<wwrFloatComplex>(wwrsolverDnHandle_t, int, int,
+                                                        wwrFloatComplex *, int, int *,
+                                                        wwrFloatComplex *, int, wwrFloatComplex *,
                                                         int, void *, std::size_t, int *, int *);
-extern template gpusolverStatus_t gesv<gpuDoubleComplex>(gpusolverDnHandle_t, int, int,
-                                                         gpuDoubleComplex *, int, int *,
-                                                         gpuDoubleComplex *, int,
-                                                         gpuDoubleComplex *, int, void *,
+extern template wwrsolverStatus_t gesv<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int,
+                                                         wwrDoubleComplex *, int, int *,
+                                                         wwrDoubleComplex *, int,
+                                                         wwrDoubleComplex *, int, void *,
                                                          std::size_t, int *, int *);
 
 // Function: potrfBatched
-extern template gpusolverStatus_t potrfBatched<float>(gpusolverDnHandle_t, gpublasFillMode_t, int,
+extern template wwrsolverStatus_t potrfBatched<float>(wwrsolverDnHandle_t, wwrblasFillMode_t, int,
                                                       float *[], int, int *, int);
-extern template gpusolverStatus_t potrfBatched<double>(gpusolverDnHandle_t, gpublasFillMode_t, int,
+extern template wwrsolverStatus_t potrfBatched<double>(wwrsolverDnHandle_t, wwrblasFillMode_t, int,
                                                        double *[], int, int *, int);
-extern template gpusolverStatus_t potrfBatched<gpuFloatComplex>(gpusolverDnHandle_t,
-                                                                gpublasFillMode_t, int,
-                                                                gpuFloatComplex *[], int, int *,
+extern template wwrsolverStatus_t potrfBatched<wwrFloatComplex>(wwrsolverDnHandle_t,
+                                                                wwrblasFillMode_t, int,
+                                                                wwrFloatComplex *[], int, int *,
                                                                 int);
-extern template gpusolverStatus_t potrfBatched<gpuDoubleComplex>(gpusolverDnHandle_t,
-                                                                 gpublasFillMode_t, int,
-                                                                 gpuDoubleComplex *[], int, int *,
+extern template wwrsolverStatus_t potrfBatched<wwrDoubleComplex>(wwrsolverDnHandle_t,
+                                                                 wwrblasFillMode_t, int,
+                                                                 wwrDoubleComplex *[], int, int *,
                                                                  int);
 
 // Function: potrsBatched
-extern template gpusolverStatus_t potrsBatched<float>(gpusolverDnHandle_t, gpublasFillMode_t, int,
+extern template wwrsolverStatus_t potrsBatched<float>(wwrsolverDnHandle_t, wwrblasFillMode_t, int,
                                                       int, float *[], int, float *[], int, int *,
                                                       int);
-extern template gpusolverStatus_t potrsBatched<double>(gpusolverDnHandle_t, gpublasFillMode_t, int,
+extern template wwrsolverStatus_t potrsBatched<double>(wwrsolverDnHandle_t, wwrblasFillMode_t, int,
                                                        int, double *[], int, double *[], int, int *,
                                                        int);
-extern template gpusolverStatus_t
-potrsBatched<gpuFloatComplex>(gpusolverDnHandle_t, gpublasFillMode_t, int, int, gpuFloatComplex *[],
-                              int, gpuFloatComplex *[], int, int *, int);
-extern template gpusolverStatus_t
-potrsBatched<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasFillMode_t, int, int,
-                               gpuDoubleComplex *[], int, gpuDoubleComplex *[], int, int *, int);
+extern template wwrsolverStatus_t
+potrsBatched<wwrFloatComplex>(wwrsolverDnHandle_t, wwrblasFillMode_t, int, int, wwrFloatComplex *[],
+                              int, wwrFloatComplex *[], int, int *, int);
+extern template wwrsolverStatus_t
+potrsBatched<wwrDoubleComplex>(wwrsolverDnHandle_t, wwrblasFillMode_t, int, int,
+                               wwrDoubleComplex *[], int, wwrDoubleComplex *[], int, int *, int);
 
 // Function: sytrf_bufferSize
-extern template gpusolverStatus_t sytrf_bufferSize<float>(gpusolverDnHandle_t, int, float *, int,
+extern template wwrsolverStatus_t sytrf_bufferSize<float>(wwrsolverDnHandle_t, int, float *, int,
                                                           int *);
-extern template gpusolverStatus_t sytrf_bufferSize<double>(gpusolverDnHandle_t, int, double *, int,
+extern template wwrsolverStatus_t sytrf_bufferSize<double>(wwrsolverDnHandle_t, int, double *, int,
                                                            int *);
-extern template gpusolverStatus_t sytrf_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t, int,
-                                                                    gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t
-sytrf_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t, int, gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t sytrf_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t, int,
+                                                                    wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t
+sytrf_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t, int, wwrDoubleComplex *, int, int *);
 
 // Function: sytrf
-extern template gpusolverStatus_t sytrf<float>(gpusolverDnHandle_t, gpublasFillMode_t, int, float *,
+extern template wwrsolverStatus_t sytrf<float>(wwrsolverDnHandle_t, wwrblasFillMode_t, int, float *,
                                                int, int *, float *, int, int *);
-extern template gpusolverStatus_t sytrf<double>(gpusolverDnHandle_t, gpublasFillMode_t, int,
+extern template wwrsolverStatus_t sytrf<double>(wwrsolverDnHandle_t, wwrblasFillMode_t, int,
                                                 double *, int, int *, double *, int, int *);
-extern template gpusolverStatus_t sytrf<gpuFloatComplex>(gpusolverDnHandle_t, gpublasFillMode_t,
-                                                         int, gpuFloatComplex *, int, int *,
-                                                         gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t sytrf<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasFillMode_t,
-                                                          int, gpuDoubleComplex *, int, int *,
-                                                          gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t sytrf<wwrFloatComplex>(wwrsolverDnHandle_t, wwrblasFillMode_t,
+                                                         int, wwrFloatComplex *, int, int *,
+                                                         wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t sytrf<wwrDoubleComplex>(wwrsolverDnHandle_t, wwrblasFillMode_t,
+                                                          int, wwrDoubleComplex *, int, int *,
+                                                          wwrDoubleComplex *, int, int *);
 
 // Function: gebrd_bufferSize
-extern template gpusolverStatus_t gebrd_bufferSize<float>(gpusolverDnHandle_t, int, int, int *);
-extern template gpusolverStatus_t gebrd_bufferSize<double>(gpusolverDnHandle_t, int, int, int *);
-extern template gpusolverStatus_t gebrd_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t, int, int,
+extern template wwrsolverStatus_t gebrd_bufferSize<float>(wwrsolverDnHandle_t, int, int, int *);
+extern template wwrsolverStatus_t gebrd_bufferSize<double>(wwrsolverDnHandle_t, int, int, int *);
+extern template wwrsolverStatus_t gebrd_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t, int, int,
                                                                     int *);
-extern template gpusolverStatus_t gebrd_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t, int, int,
+extern template wwrsolverStatus_t gebrd_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int,
                                                                      int *);
 
 // Function: gebrd
-extern template gpusolverStatus_t gebrd<float>(gpusolverDnHandle_t, int, int, float *, int,
+extern template wwrsolverStatus_t gebrd<float>(wwrsolverDnHandle_t, int, int, float *, int,
                                                ComplexToRealType<float> *,
                                                ComplexToRealType<float> *, float *, float *,
                                                float *, int, int *);
-extern template gpusolverStatus_t gebrd<double>(gpusolverDnHandle_t, int, int, double *, int,
+extern template wwrsolverStatus_t gebrd<double>(wwrsolverDnHandle_t, int, int, double *, int,
                                                 ComplexToRealType<double> *,
                                                 ComplexToRealType<double> *, double *, double *,
                                                 double *, int, int *);
-extern template gpusolverStatus_t
-gebrd<gpuFloatComplex>(gpusolverDnHandle_t, int, int, gpuFloatComplex *, int,
-                       ComplexToRealType<gpuFloatComplex> *, ComplexToRealType<gpuFloatComplex> *,
-                       gpuFloatComplex *, gpuFloatComplex *, gpuFloatComplex *, int, int *);
-extern template gpusolverStatus_t gebrd<gpuDoubleComplex>(gpusolverDnHandle_t, int, int,
-                                                          gpuDoubleComplex *, int,
-                                                          ComplexToRealType<gpuDoubleComplex> *,
-                                                          ComplexToRealType<gpuDoubleComplex> *,
-                                                          gpuDoubleComplex *, gpuDoubleComplex *,
-                                                          gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t
+gebrd<wwrFloatComplex>(wwrsolverDnHandle_t, int, int, wwrFloatComplex *, int,
+                       ComplexToRealType<wwrFloatComplex> *, ComplexToRealType<wwrFloatComplex> *,
+                       wwrFloatComplex *, wwrFloatComplex *, wwrFloatComplex *, int, int *);
+extern template wwrsolverStatus_t gebrd<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int,
+                                                          wwrDoubleComplex *, int,
+                                                          ComplexToRealType<wwrDoubleComplex> *,
+                                                          ComplexToRealType<wwrDoubleComplex> *,
+                                                          wwrDoubleComplex *, wwrDoubleComplex *,
+                                                          wwrDoubleComplex *, int, int *);
 
 // Function: orgqr_bufferSize
-extern template gpusolverStatus_t orgqr_bufferSize<float>(gpusolverDnHandle_t, int, int, int,
+extern template wwrsolverStatus_t orgqr_bufferSize<float>(wwrsolverDnHandle_t, int, int, int,
                                                           const float *, int, const float *, int *);
-extern template gpusolverStatus_t orgqr_bufferSize<double>(gpusolverDnHandle_t, int, int, int,
+extern template wwrsolverStatus_t orgqr_bufferSize<double>(wwrsolverDnHandle_t, int, int, int,
                                                            const double *, int, const double *,
                                                            int *);
 
 // Function: ungqr_bufferSize
-extern template gpusolverStatus_t ungqr_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t, int, int,
-                                                                    int, const gpuFloatComplex *,
-                                                                    int, const gpuFloatComplex *,
+extern template wwrsolverStatus_t ungqr_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t, int, int,
+                                                                    int, const wwrFloatComplex *,
+                                                                    int, const wwrFloatComplex *,
                                                                     int *);
-extern template gpusolverStatus_t ungqr_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t, int, int,
-                                                                     int, const gpuDoubleComplex *,
-                                                                     int, const gpuDoubleComplex *,
+extern template wwrsolverStatus_t ungqr_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int,
+                                                                     int, const wwrDoubleComplex *,
+                                                                     int, const wwrDoubleComplex *,
                                                                      int *);
 
 // Function: orgqr
-extern template gpusolverStatus_t orgqr<float>(gpusolverDnHandle_t, int, int, int, float *, int,
+extern template wwrsolverStatus_t orgqr<float>(wwrsolverDnHandle_t, int, int, int, float *, int,
                                                const float *, float *, int, int *);
-extern template gpusolverStatus_t orgqr<double>(gpusolverDnHandle_t, int, int, int, double *, int,
+extern template wwrsolverStatus_t orgqr<double>(wwrsolverDnHandle_t, int, int, int, double *, int,
                                                 const double *, double *, int, int *);
 
 // Function: ungqr
-extern template gpusolverStatus_t ungqr<gpuFloatComplex>(gpusolverDnHandle_t, int, int, int,
-                                                         gpuFloatComplex *, int,
-                                                         const gpuFloatComplex *, gpuFloatComplex *,
+extern template wwrsolverStatus_t ungqr<wwrFloatComplex>(wwrsolverDnHandle_t, int, int, int,
+                                                         wwrFloatComplex *, int,
+                                                         const wwrFloatComplex *, wwrFloatComplex *,
                                                          int, int *);
-extern template gpusolverStatus_t ungqr<gpuDoubleComplex>(gpusolverDnHandle_t, int, int, int,
-                                                          gpuDoubleComplex *, int,
-                                                          const gpuDoubleComplex *,
-                                                          gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t ungqr<wwrDoubleComplex>(wwrsolverDnHandle_t, int, int, int,
+                                                          wwrDoubleComplex *, int,
+                                                          const wwrDoubleComplex *,
+                                                          wwrDoubleComplex *, int, int *);
 
 // Function: orgbr_bufferSize
-extern template gpusolverStatus_t orgbr_bufferSize<float>(gpusolverDnHandle_t, gpublasSideMode_t,
+extern template wwrsolverStatus_t orgbr_bufferSize<float>(wwrsolverDnHandle_t, wwrblasSideMode_t,
                                                           int, int, int, const float *, int,
                                                           const float *, int *);
-extern template gpusolverStatus_t orgbr_bufferSize<double>(gpusolverDnHandle_t, gpublasSideMode_t,
+extern template wwrsolverStatus_t orgbr_bufferSize<double>(wwrsolverDnHandle_t, wwrblasSideMode_t,
                                                            int, int, int, const double *, int,
                                                            const double *, int *);
 
 // Function: ungbr_bufferSize
-extern template gpusolverStatus_t
-ungbr_bufferSize<gpuFloatComplex>(gpusolverDnHandle_t, gpublasSideMode_t, int, int, int,
-                                  const gpuFloatComplex *, int, const gpuFloatComplex *, int *);
-extern template gpusolverStatus_t
-ungbr_bufferSize<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasSideMode_t, int, int, int,
-                                   const gpuDoubleComplex *, int, const gpuDoubleComplex *, int *);
+extern template wwrsolverStatus_t
+ungbr_bufferSize<wwrFloatComplex>(wwrsolverDnHandle_t, wwrblasSideMode_t, int, int, int,
+                                  const wwrFloatComplex *, int, const wwrFloatComplex *, int *);
+extern template wwrsolverStatus_t
+ungbr_bufferSize<wwrDoubleComplex>(wwrsolverDnHandle_t, wwrblasSideMode_t, int, int, int,
+                                   const wwrDoubleComplex *, int, const wwrDoubleComplex *, int *);
 
 // Function: orgbr
-extern template gpusolverStatus_t orgbr<float>(gpusolverDnHandle_t, gpublasSideMode_t, int, int,
+extern template wwrsolverStatus_t orgbr<float>(wwrsolverDnHandle_t, wwrblasSideMode_t, int, int,
                                                int, float *, int, const float *, float *, int,
                                                int *);
-extern template gpusolverStatus_t orgbr<double>(gpusolverDnHandle_t, gpublasSideMode_t, int, int,
+extern template wwrsolverStatus_t orgbr<double>(wwrsolverDnHandle_t, wwrblasSideMode_t, int, int,
                                                 int, double *, int, const double *, double *, int,
                                                 int *);
 
 // Function: ungbr
-extern template gpusolverStatus_t ungbr<gpuFloatComplex>(gpusolverDnHandle_t, gpublasSideMode_t,
-                                                         int, int, int, gpuFloatComplex *, int,
-                                                         const gpuFloatComplex *, gpuFloatComplex *,
+extern template wwrsolverStatus_t ungbr<wwrFloatComplex>(wwrsolverDnHandle_t, wwrblasSideMode_t,
+                                                         int, int, int, wwrFloatComplex *, int,
+                                                         const wwrFloatComplex *, wwrFloatComplex *,
                                                          int, int *);
-extern template gpusolverStatus_t ungbr<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasSideMode_t,
-                                                          int, int, int, gpuDoubleComplex *, int,
-                                                          const gpuDoubleComplex *,
-                                                          gpuDoubleComplex *, int, int *);
+extern template wwrsolverStatus_t ungbr<wwrDoubleComplex>(wwrsolverDnHandle_t, wwrblasSideMode_t,
+                                                          int, int, int, wwrDoubleComplex *, int,
+                                                          const wwrDoubleComplex *,
+                                                          wwrDoubleComplex *, int, int *);
 
 } // namespace wwr

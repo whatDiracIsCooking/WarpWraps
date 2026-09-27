@@ -33,7 +33,7 @@
 namespace wwr::extension::device {
 
 /// @brief Initialize `count` generator states, one per element
-void init_state(gpuStream_t stream, std::size_t count, gpurandState *states,
+void init_state(wwrStream_t stream, std::size_t count, wwrrandState *states,
                 unsigned long long seed, unsigned long long sequence_offset,
                 unsigned long long offset);
 

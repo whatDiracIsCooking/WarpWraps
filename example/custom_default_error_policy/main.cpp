@@ -20,10 +20,10 @@
 #include <cstdlib>
 
 import std;
-import wwr.runtime_api;      // gpuErrorInvalidValue, gpuSuccess
+import wwr.runtime_api;      // wwrErrorInvalidValue, wwrSuccess
 import wwr.extension.common; // gpu_check, DefaultErrorPolicy
 
-using namespace wwr;            // gpuErrorInvalidValue
+using namespace wwr;            // wwrErrorInvalidValue
 using namespace wwr::extension; // gpu_check
 
 int main() {
@@ -32,7 +32,7 @@ int main() {
   // A deterministic, device-independent non-success code -- no driver or device
   // is needed. gpu_check only compares it against the success code and, on a
   // mismatch, hands the failure to the default policy.
-  const bool ok = gpu_check(gpuErrorInvalidValue);
+  const bool ok = gpu_check(wwrErrorInvalidValue);
 
   std::println("gpu_check returned {} -- the custom default policy handled the error "
                "without aborting",

@@ -11,7 +11,7 @@ using namespace wwr::extension;
 
 auto device = std::make_shared<DeviceHandle>();
 auto stream = device->alloc_stream().get();
-DeviceBuffer<gpurandState> states(n, device);
+DeviceBuffer<wwrrandState> states(n, device);
 DeviceBuffer<float> values(n, device);
 
 init_state(stream, n, states.data(), seed);
@@ -27,7 +27,7 @@ random_normal(stream, n, states.data(), values.data());
 
 ## Which RNG API is this, and when to use the other one
 
-`wwr.rand` wraps the **host** API — `gpurandGenerateNormal(gen, out, n,
+`wwr.rand` wraps the **host** API — `wwrrandGenerateNormal(gen, out, n,
 …)` fills a buffer with one library call. That is the right tool when a filled
 buffer is all that is wanted, and it is faster for that.
 
@@ -45,7 +45,7 @@ streams rather than repeating them (`RandTests.StatesAdvanceAcrossCalls`). The
 states must have been initialized by `wwr.extension.init_state`, which is
 also where `sequence_offset` and per-element independence are documented.
 
-`gpurandState` comes from `wwr.rand`. Note that it is `gpurandStateXORWOW`
+`wwrrandState` comes from `wwr.rand`. Note that it is `wwrrandStateXORWOW`
 on CUDA and a *distinct type* on HIP — see `src/README.md`.
 
 ## Supported output types
@@ -55,12 +55,12 @@ it explicitly instantiates, and any other type fails to link:
 
 | Output type | Drawn with |
 |---|---|
-| `float` | `gpurand_normal` |
-| `double` | `gpurand_normal_double` |
-| `gpuFloatComplex` | `gpurand_normal2` |
-| `gpuDoubleComplex` | `gpurand_normal2_double` |
-| `gpuHalf` | `gpurand_normal`, converted |
-| `gpuBfloat16` | `gpurand_normal`, converted |
+| `float` | `wwrrand_normal` |
+| `double` | `wwrrand_normal_double` |
+| `wwrFloatComplex` | `wwrrand_normal2` |
+| `wwrDoubleComplex` | `wwrrand_normal2_double` |
+| `wwrHalf` | `wwrrand_normal`, converted |
+| `wwrBfloat16` | `wwrrand_normal`, converted |
 
 For the complex types each component is drawn as an independent standard
 normal, so a component has variance 1 and `E[|z|^2] = 2` — the value is **not**

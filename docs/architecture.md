@@ -23,7 +23,7 @@ Sections are cited from code by number, so **append rather than insert**.
 
 ---
 
-## 1. `gpurandState` is not `gpurandStateXORWOW` on HIP
+## 1. `wwrrandState` is not `wwrrandStateXORWOW` on HIP
 
 **The divergence.** cuRAND makes the default state an alias
 (`typedef struct curandStateXORWOW curandState;` — one type, two names).
@@ -31,7 +31,7 @@ hipRAND emits a **separate struct per generator** over a shared
 `rocrand_state_xorwow` base, so `hiprandState` and `hiprandStateXORWOW` are two
 distinct C++ types with the same layout.
 
-**Consequence.** A `gpurandState*` where a `gpurandStateXORWOW*` is wanted
+**Consequence.** A `wwrrandState*` where a `wwrrandStateXORWOW*` is wanted
 compiles on CUDA and fails on HIP. Pick one spelling and keep it. Pinned by
 `test/hip/hiprand_kernel.cppm` and `test/gpu/rand.cppm`, which assert the two
 backends' opposite answers separately.
@@ -72,7 +72,7 @@ non-const member on HIP.
 ## 3. Complex construction goes through `make_gpu*Complex`
 
 `cuFloatComplex` is `float2`, a plain aggregate; `hipFloatComplex` is a
-`HIP_vector_type<float, 2>` class. Brace-initialising `gpuFloatComplex{re, im}`
+`HIP_vector_type<float, 2>` class. Brace-initialising `wwrFloatComplex{re, im}`
 is therefore not the same operation on both backends, and the vendor
 make-functions are the portable way to build one.
 
@@ -83,7 +83,7 @@ under `gpu*` names anyway, for the layering reason in §5.
 ## 4. Forwarding templates where `WWR_FUNCTION` cannot reach
 
 `WWR_FUNCTION` binds a reference straight to the backend's function
-(`inline constexpr auto& gpuX = ::cuX;`), so the signature is never restated and
+(`inline constexpr auto& wwrX = ::cuX;`), so the signature is never restated and
 cannot drift. A function reference carries no default arguments and **cannot
 name an overload set**, which rules it out in three places:
 
@@ -91,9 +91,9 @@ name an overload set**, which rules it out in three places:
   on CUDA (one per state type) and a *function template* on hipRAND (one
   template, constrained by a `check_state_type` static_assert). A reference can
   name neither, so each is a thin `__device__` template over the state type.
-- **`gpuMalloc`.** `hipMalloc` has a `template<class T>` overload, so the
+- **`wwrMalloc`.** `hipMalloc` has a `template<class T>` overload, so the
   reference is given an explicit type to select one:
-  `inline constexpr gpuError_t (&gpuMalloc)(void**, std::size_t) = ...;`
+  `inline constexpr wwrError_t (&wwrMalloc)(void**, std::size_t) = ...;`
 - **Signature divergences** (§8) — a hand-written forwarding function.
 
 ## 5. const-correctness divergences between the vendors
@@ -104,18 +104,18 @@ function with a `const_cast` into an API that only reads those arguments.
 
 | Neutral name | Divergence |
 |---|---|
-| `gpublas*getrsBatched`, `gpublas*getriBatched` | hipBLAS declares the input arrays (and `getriBatched`'s pivots) non-const where cuBLAS declares them const. The `gpublas*` signature keeps cuBLAS's; HIP forwards with a `const_cast`. |
-| `gpurandGetScrambleConstants32`/`64` | The neutral signature takes hipRAND's const-correct `const unsigned int**` / `const unsigned long long**`; on CUDA these are forwarding functions around cuRAND's non-const signature. |
+| `wwrblas*getrsBatched`, `wwrblas*getriBatched` | hipBLAS declares the input arrays (and `getriBatched`'s pivots) non-const where cuBLAS declares them const. The `wwrblas*` signature keeps cuBLAS's; HIP forwards with a `const_cast`. |
+| `wwrrandGetScrambleConstants32`/`64` | The neutral signature takes hipRAND's const-correct `const unsigned int**` / `const unsigned long long**`; on CUDA these are forwarding functions around cuRAND's non-const signature. |
 
 Also name-level, not signature-level: hipBLAS has a single status-to-string
-function, so `gpublasGetStatusName` and `gpublasGetStatusString` both map to
+function, so `wwrblasGetStatusName` and `wwrblasGetStatusString` both map to
 `hipblasStatusToString`. Neither cuSOLVER nor hipSOLVER has one at all, so
-`gpusolverGetStatusName`/`String` are hand-written switches, one per backend,
+`wwrsolverGetStatusName`/`String` are hand-written switches, one per backend,
 over each backend's own differently-sized enumerator set.
 
 ## 6. Enumerator values differ even where names agree
 
-`GPURAND_RNG_PSEUDO_DEFAULT` is **100** on cuRAND and **400** on hipRAND; every
+`WWRRAND_RNG_PSEUDO_DEFAULT` is **100** on cuRAND and **400** on hipRAND; every
 RNG type is offset the same way. Status, ordering and direction-vector-set
 values happen to agree. **Use the names; never store or compare the numbers.**
 
@@ -142,7 +142,7 @@ device-compile macro rather than from a CMake define.
 
 The types are the **same types** the modules export under the same names, so a
 buffer allocated by host code that imports `wwr.rand` is exactly what a
-kernel naming `gpurandState` expects, and an `extern template` declared in a
+kernel naming `wwrrandState` expects, and an `extern template` declared in a
 `.cppm` links against a definition compiled in a `.cu`.
 
 ## 9. `<array>` before any HIP header
@@ -313,16 +313,16 @@ the `matrix_a`/`matrix_b`/`accumulator` and `row_major`/`col_major` tags,
 `layout_t`, `fill_fragment`, `load_matrix_sync`, `store_matrix_sync` and
 `mma_sync` are spelled identically. The namespaces are not: `nvcuda::wmma`
 against `rocwmma`. That is one name more than §2's case, which is why
-`src/wmma.cuh` defines the `gpuwmma` alias where `cooperative_groups.cuh`
+`src/wmma.cuh` defines the `wwrwmma` alias where `cooperative_groups.cuh`
 defines nothing. Two of the divergences below are silent, and both bite code
 that never reads either file.
 
-**`gpuBfloat16` is not a WMMA element type on HIP.** `bf16.cuh` aliases it to
+**`wwrBfloat16` is not a WMMA element type on HIP.** `bf16.cuh` aliases it to
 `__nv_bfloat16` (CUDA) and `__hip_bfloat16` (HIP), but rocWMMA's `bfloat16_t`
 is the *older* `hip_bfloat16`, a distinct type. Both backends do 16x16x16 bf16;
 only CUDA does it with the type this layer hands out. The HIP failure is a
 template error about an undefined `rocwmma::PackTraits<__hip_bfloat16>`, which
-names neither bfloat16 nor WMMA. `gpuHalf` has no such problem — it is `__half`
+names neither bfloat16 nor WMMA. `wwrHalf` has no such problem — it is `__half`
 on both, and rocWMMA's `hfloat16_t` is `__half` too.
 
 **`fragment::num_elements` changes between HIP's two compile passes.** It is the

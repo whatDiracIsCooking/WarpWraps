@@ -115,7 +115,7 @@ add_dependencies(
 # complex.cuh, fp16.cuh and bf16.cuh are the same shape of test for the same
 # reason: their __device__ functions over cuComplex/hipComplex and __half /
 # bfloat16 can only be named by a device pass, and the claim each can break --
-# every gpuC* / conversion resolving on both backends through one include
+# every wwrC* / conversion resolving on both backends through one include
 # switch, plus (for complex) the §3 aggregate vs class divergence the header is
 # built around -- is a device-compile claim. Building them is the assertion; no
 # ctest entry, no launch. Reached through wwr.device, the same include path a
@@ -151,7 +151,7 @@ wwr_add_gpu_device_library(
 add_dependencies(compile_time_tests wwr.test.gpu.bf16.device)
 
 # wmma.cu is cooperative_groups.cu's shape with a weaker starting guarantee.
-# wmma.cuh exports one name -- the wwr::gpuwmma alias -- so there is still
+# wmma.cuh exports one name -- the wwr::wwrwmma alias -- so there is still
 # nothing for a .cppm module test to compare, and every WMMA entity is
 # __device__-only, so a host-compiled module test structurally cannot reach it.
 # But where cooperative_groups.cuh switches between two paths to the same vendor

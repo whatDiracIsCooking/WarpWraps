@@ -1,5 +1,5 @@
 # GPU sparse extension - type-safe wrappers over the legacy typed (S/D/C/Z)
-# gpusparse* functions cuSPARSE and hipSPARSE share (per WWR_GPU_BACKEND).
+# wwrsparse* functions cuSPARSE and hipSPARSE share (per WWR_GPU_BACKEND).
 # dispatch_macros.h sits next to the sources and is #include'd by relative
 # path, so it needs no include directory.
 wwr_add_cxx_module_library(

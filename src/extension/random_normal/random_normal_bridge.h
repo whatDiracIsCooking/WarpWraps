@@ -36,7 +36,7 @@ namespace wwr::extension::device {
 /// @param states one initialized state per element
 /// @param scale each drawn value is multiplied by this before being stored
 template<typename T>
-void random_normal(gpuStream_t stream, std::size_t count, gpurandState *states, T *output,
+void random_normal(wwrStream_t stream, std::size_t count, wwrrandState *states, T *output,
                    T scale);
 
 } // namespace wwr::extension::device

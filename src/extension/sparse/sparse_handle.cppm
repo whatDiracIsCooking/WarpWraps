@@ -2,7 +2,7 @@
  * @file sparse_handle.cppm
  * @brief RAII wrapper for a GPU sparse handle
  *
- * Provides GpusparseHandle class for automatic GPU sparse handle management.
+ * Provides WwrsparseHandle class for automatic GPU sparse handle management.
  */
 
 export module wwr.extension.sparse:sparse_handle;
@@ -24,38 +24,38 @@ export namespace wwr::extension {
  * there, and records it -- read it back with dev_idx(). Destroys the handle on
  * destruction; supports move semantics, copy is deleted.
  *
- * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<gpusparseStatus_t>)
+ * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<wwrsparseStatus_t>)
  * @tparam P_destroy Error policy type for destruction (defaults to P_create)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
-template<error_policy<gpusparseStatus_t> P_create = DefaultErrorPolicy<gpusparseStatus_t>,
-         nothrow_error_policy<gpusparseStatus_t> P_destroy = P_create>
-class GpusparseHandleWrapper
-    : public DeviceBoundHandle<gpusparseHandle_t, GpusparseHandleWrapper<P_create, P_destroy>, P_create,
+template<error_policy<wwrsparseStatus_t> P_create = DefaultErrorPolicy<wwrsparseStatus_t>,
+         nothrow_error_policy<wwrsparseStatus_t> P_destroy = P_create>
+class WwrsparseHandleWrapper
+    : public DeviceBoundHandle<wwrsparseHandle_t, WwrsparseHandleWrapper<P_create, P_destroy>, P_create,
                             P_destroy> {
 private:
-  using Base = DeviceBoundHandle<gpusparseHandle_t, GpusparseHandleWrapper<P_create, P_destroy>,
+  using Base = DeviceBoundHandle<wwrsparseHandle_t, WwrsparseHandleWrapper<P_create, P_destroy>,
                               P_create, P_destroy>;
 
 public:
-  // The `GpusparseHandle(int dev_idx = 0)` default/per-device constructor,
+  // The `WwrsparseHandle(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
-  using DeviceBoundHandle<gpusparseHandle_t, GpusparseHandleWrapper<P_create, P_destroy>, P_create,
+  using DeviceBoundHandle<wwrsparseHandle_t, WwrsparseHandleWrapper<P_create, P_destroy>, P_create,
                        P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU sparse handle
   /// @param handle Output parameter for the created handle
   /// @param location Source location where creation was requested
-  void create(gpusparseHandle_t *handle, std::source_location location) {
-    gpu_check(gpusparseCreate(handle), this->policy_create_, location);
+  void create(wwrsparseHandle_t *handle, std::source_location location) {
+    gpu_check(wwrsparseCreate(handle), this->policy_create_, location);
   }
 
   /// @brief Destroy a GPU sparse handle
   /// @param handle The handle to destroy
-  void destroy(gpusparseHandle_t handle) {
+  void destroy(wwrsparseHandle_t handle) {
     if (handle != nullptr) {
-      gpu_check(gpusparseDestroy(handle), this->policy_destroy_);
+      gpu_check(wwrsparseDestroy(handle), this->policy_destroy_);
     }
   }
 };

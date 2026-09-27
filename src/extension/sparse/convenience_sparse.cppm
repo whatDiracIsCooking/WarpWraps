@@ -2,7 +2,7 @@
  * @file convenience_sparse.cppm
  * @brief Default-policy aliases for the GPU sparse handle wrapper
  *
- * `GpusparseHandle` / `GpusparseHandleView` bind GpusparseHandleWrapper to the
+ * `WwrsparseHandle` / `WwrsparseHandleView` bind WwrsparseHandleWrapper to the
  * default error policy. This partition is the curated home for those default
  * bindings; alternative-policy aliases belong here too.
  */
@@ -17,16 +17,16 @@ import wwr.extension.handle;
 export namespace wwr::extension {
 
 /**
- * @brief Convenient alias for GpusparseHandleWrapper with default error policies
+ * @brief Convenient alias for WwrsparseHandleWrapper with default error policies
  *
  * Usage:
- *   GpusparseHandle handle;  // Instead of GpusparseHandleWrapper<>
+ *   WwrsparseHandle handle;  // Instead of WwrsparseHandleWrapper<>
  */
-using GpusparseHandle = GpusparseHandleWrapper<>;
+using WwrsparseHandle = WwrsparseHandleWrapper<>;
 
 /// @brief Non-owning, copyable view of a sparse handle, carrying its device index.
-///        Returned by GpusparseHandle::view(); converts to gpusparseHandle_t for
-///        the gpusparse* wrappers, so a borrowed handle can be used without owning it.
-using GpusparseHandleView = DeviceBoundHandleView<gpusparseHandle_t>;
+///        Returned by WwrsparseHandle::view(); converts to wwrsparseHandle_t for
+///        the wwrsparse* wrappers, so a borrowed handle can be used without owning it.
+using WwrsparseHandleView = DeviceBoundHandleView<wwrsparseHandle_t>;
 
 } // namespace wwr::extension

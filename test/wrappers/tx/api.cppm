@@ -13,7 +13,7 @@ import wwr.wrappers.tx;
 // vendor but not against these), and ScopedRange's ownership contract. Both are
 // constant expressions, so this is a static_assert-only module with no runtime
 // half, like the fft/solver wrapper tests. The forwarding itself is checked by
-// the wrapper compiling, and the gputx* -> vendor link is checked by
+// the wrapper compiling, and the wwrtx* -> vendor link is checked by
 // test/gpu/tx.cppm.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -28,8 +28,8 @@ using namespace wwr;
 static_assert(std::is_same_v<decltype(tx::mark), void(const char *)>);
 static_assert(std::is_same_v<decltype(tx::range_push), int(const char *)>);
 static_assert(std::is_same_v<decltype(tx::range_pop), int()>);
-static_assert(std::is_same_v<decltype(tx::range_start), gputxRangeId_t(const char *)>);
-static_assert(std::is_same_v<decltype(tx::range_stop), void(gputxRangeId_t)>);
+static_assert(std::is_same_v<decltype(tx::range_start), wwrtxRangeId_t(const char *)>);
+static_assert(std::is_same_v<decltype(tx::range_stop), void(wwrtxRangeId_t)>);
 
 // ──────────────────────────────────────────────────────────────────────
 // ScopedRange ownership contract: constructed from a message, never copied,

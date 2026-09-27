@@ -2,7 +2,7 @@
 # WWR_GPU_BACKEND)
 #
 # Build-time only. The wrappers in src/wrappers/blas are token-paste
-# forwarders -- the body is `return gpublas<X><name>(__VA_ARGS__)` and nothing
+# forwarders -- the body is `return wwrblas<X><name>(__VA_ARGS__)` and nothing
 # else -- so the whole of what they can get wrong is which name is pasted, and
 # the dispatch check proves that for every instantiation, without a device.
 

@@ -5,7 +5,7 @@
  * The error-handling and RAII-plan layer for GPU FFT (cuFFT or hipFFT, per
  * WWR_GPU_BACKEND). The type-safe execution wrappers built on top of it
  * live separately in wwr.wrappers.fft. It aggregates:
- * - :fft_error - Error code specializations for gpufftResult_t
+ * - :fft_error - Error code specializations for wwrfftResult_t
  * - :fft_plan - RAII wrapper for a GPU FFT plan handle
  * - :convenience_fft - Default-policy alias (FftPlan)
  *
@@ -18,8 +18,8 @@ export module wwr.extension.fft;
 
 import std;
 
-// Re-export the vendor FFT module: gpufftHandle is the return type of
-// FftPlan::get() and its conversion operator (and gpufftResult_t is its error
+// Re-export the vendor FFT module: wwrfftHandle is the return type of
+// FftPlan::get() and its conversion operator (and wwrfftResult_t is its error
 // type), so a consumer can name them without importing wwr.fft separately.
 export import wwr.fft;
 export import :fft_error;

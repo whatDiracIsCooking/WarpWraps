@@ -3,16 +3,16 @@
  * @brief Backend-neutral complex types and arithmetic: gpu* names for
  *        cuComplex / hipComplex
  *
- * The host-module counterpart to complex.cuh: gpuFloatComplex /
- * gpuDoubleComplex / gpuComplex, make_gpu*Complex, the gpuC* arithmetic and
- * accessors, and the gpuComplexFloatToDouble / gpuComplexDoubleToFloat precision
+ * The host-module counterpart to complex.cuh: wwrFloatComplex /
+ * wwrDoubleComplex / wwrComplex, make_gpu*Complex, the wwrC* arithmetic and
+ * accessors, and the wwrComplexFloatToDouble / wwrComplexDoubleToFloat precision
  * conversions, whichever backend this build is configured for. See
  * gpu_backend.h. Companion to fp16.cppm and bf16.cppm.
  *
  * Usage:
  *   import wwr.complex;
  *
- *   gpuDoubleComplex z = make_gpuDoubleComplex(1.0, 2.0);
+ *   wwrDoubleComplex z = make_gpuDoubleComplex(1.0, 2.0);
  *
  * The wrappers below duplicate complex.cuh's surface on purpose, the same way
  * fp16.cppm duplicates fp16.cuh: a host TU reaches this construction and
@@ -40,8 +40,8 @@ module;
 
 #include "gpu_backend.h"
 
-// Complex types: gpuX -> cuX / hipX
-#define WWR_COMPLEX_TYPE(x) WWR_TYPE(gpu##x, cu##x, hip##x)
+// Complex types: wwrX -> cuX / hipX
+#define WWR_COMPLEX_TYPE(x) WWR_TYPE(wwr##x, cu##x, hip##x)
 
 export module wwr.complex;
 
@@ -70,18 +70,18 @@ WWR_COMPLEX_TYPE(Complex)
 // ========================================================================
 
 /// @brief Build a single-precision complex value from its two components
-inline gpuFloatComplex make_gpuFloatComplex(const float re, const float im) {
+inline wwrFloatComplex make_gpuFloatComplex(const float re, const float im) {
   return WWR_SELECT(make_cuFloatComplex, make_hipFloatComplex)(re, im);
 }
 
 /// @brief Build a double-precision complex value from its two components
-inline gpuDoubleComplex make_gpuDoubleComplex(const double re, const double im) {
+inline wwrDoubleComplex make_gpuDoubleComplex(const double re, const double im) {
   return WWR_SELECT(make_cuDoubleComplex, make_hipDoubleComplex)(re, im);
 }
 
 /// @brief Build a single-precision complex value (the vendors' make_*Complex
-///        alias for make_gpuFloatComplex -- gpuComplex is gpuFloatComplex)
-inline gpuComplex make_gpuComplex(const float re, const float im) {
+///        alias for make_gpuFloatComplex -- wwrComplex is wwrFloatComplex)
+inline wwrComplex make_gpuComplex(const float re, const float im) {
   return WWR_SELECT(make_cuComplex, make_hipComplex)(re, im);
 }
 
@@ -96,86 +96,86 @@ inline gpuComplex make_gpuComplex(const float re, const float im) {
 // portable spelling; the gpu* names carry the divergent cu*/hip* spellings.
 //
 // The arguments are taken by value, as the vendors declare them --
-// gpuFloatComplex is 8 bytes, gpuDoubleComplex 16.
+// wwrFloatComplex is 8 bytes, wwrDoubleComplex 16.
 // ========================================================================
 
 /// @brief Real part of a single-precision complex value
-inline float gpuCrealf(const gpuFloatComplex z) {
+inline float wwrCrealf(const wwrFloatComplex z) {
   return WWR_SELECT(cuCrealf, hipCrealf)(z);
 }
 
 /// @brief Imaginary part of a single-precision complex value
-inline float gpuCimagf(const gpuFloatComplex z) {
+inline float wwrCimagf(const wwrFloatComplex z) {
   return WWR_SELECT(cuCimagf, hipCimagf)(z);
 }
 
 /// @brief Real part of a double-precision complex value
-inline double gpuCreal(const gpuDoubleComplex z) {
+inline double wwrCreal(const wwrDoubleComplex z) {
   return WWR_SELECT(cuCreal, hipCreal)(z);
 }
 
 /// @brief Imaginary part of a double-precision complex value
-inline double gpuCimag(const gpuDoubleComplex z) {
+inline double wwrCimag(const wwrDoubleComplex z) {
   return WWR_SELECT(cuCimag, hipCimag)(z);
 }
 
 /// @brief Magnitude (absolute value) of a single-precision complex value
-inline float gpuCabsf(const gpuFloatComplex z) {
+inline float wwrCabsf(const wwrFloatComplex z) {
   return WWR_SELECT(cuCabsf, hipCabsf)(z);
 }
 
 /// @brief Magnitude (absolute value) of a double-precision complex value
-inline double gpuCabs(const gpuDoubleComplex z) {
+inline double wwrCabs(const wwrDoubleComplex z) {
   return WWR_SELECT(cuCabs, hipCabs)(z);
 }
 
 /// @brief Complex conjugate of a single-precision complex value
-inline gpuFloatComplex gpuConjf(const gpuFloatComplex z) {
+inline wwrFloatComplex wwrConjf(const wwrFloatComplex z) {
   return WWR_SELECT(cuConjf, hipConjf)(z);
 }
 
 /// @brief Complex conjugate of a double-precision complex value
-inline gpuDoubleComplex gpuConj(const gpuDoubleComplex z) {
+inline wwrDoubleComplex wwrConj(const wwrDoubleComplex z) {
   return WWR_SELECT(cuConj, hipConj)(z);
 }
 
 /// @brief Sum of two single-precision complex values
-inline gpuFloatComplex gpuCaddf(const gpuFloatComplex a, const gpuFloatComplex b) {
+inline wwrFloatComplex wwrCaddf(const wwrFloatComplex a, const wwrFloatComplex b) {
   return WWR_SELECT(cuCaddf, hipCaddf)(a, b);
 }
 
 /// @brief Difference of two single-precision complex values
-inline gpuFloatComplex gpuCsubf(const gpuFloatComplex a, const gpuFloatComplex b) {
+inline wwrFloatComplex wwrCsubf(const wwrFloatComplex a, const wwrFloatComplex b) {
   return WWR_SELECT(cuCsubf, hipCsubf)(a, b);
 }
 
 /// @brief Product of two single-precision complex values
-inline gpuFloatComplex gpuCmulf(const gpuFloatComplex a, const gpuFloatComplex b) {
+inline wwrFloatComplex wwrCmulf(const wwrFloatComplex a, const wwrFloatComplex b) {
   return WWR_SELECT(cuCmulf, hipCmulf)(a, b);
 }
 
 /// @brief Quotient of two single-precision complex values
-inline gpuFloatComplex gpuCdivf(const gpuFloatComplex a, const gpuFloatComplex b) {
+inline wwrFloatComplex wwrCdivf(const wwrFloatComplex a, const wwrFloatComplex b) {
   return WWR_SELECT(cuCdivf, hipCdivf)(a, b);
 }
 
 /// @brief Sum of two double-precision complex values
-inline gpuDoubleComplex gpuCadd(const gpuDoubleComplex a, const gpuDoubleComplex b) {
+inline wwrDoubleComplex wwrCadd(const wwrDoubleComplex a, const wwrDoubleComplex b) {
   return WWR_SELECT(cuCadd, hipCadd)(a, b);
 }
 
 /// @brief Difference of two double-precision complex values
-inline gpuDoubleComplex gpuCsub(const gpuDoubleComplex a, const gpuDoubleComplex b) {
+inline wwrDoubleComplex wwrCsub(const wwrDoubleComplex a, const wwrDoubleComplex b) {
   return WWR_SELECT(cuCsub, hipCsub)(a, b);
 }
 
 /// @brief Product of two double-precision complex values
-inline gpuDoubleComplex gpuCmul(const gpuDoubleComplex a, const gpuDoubleComplex b) {
+inline wwrDoubleComplex wwrCmul(const wwrDoubleComplex a, const wwrDoubleComplex b) {
   return WWR_SELECT(cuCmul, hipCmul)(a, b);
 }
 
 /// @brief Quotient of two double-precision complex values
-inline gpuDoubleComplex gpuCdiv(const gpuDoubleComplex a, const gpuDoubleComplex b) {
+inline wwrDoubleComplex wwrCdiv(const wwrDoubleComplex a, const wwrDoubleComplex b) {
   return WWR_SELECT(cuCdiv, hipCdiv)(a, b);
 }
 
@@ -189,12 +189,12 @@ inline gpuDoubleComplex gpuCdiv(const gpuDoubleComplex a, const gpuDoubleComplex
 // ========================================================================
 
 /// @brief Widen a single-precision complex value to double precision
-inline gpuDoubleComplex gpuComplexFloatToDouble(const gpuFloatComplex z) {
+inline wwrDoubleComplex wwrComplexFloatToDouble(const wwrFloatComplex z) {
   return WWR_SELECT(cuComplexFloatToDouble, hipComplexFloatToDouble)(z);
 }
 
 /// @brief Narrow a double-precision complex value to single precision
-inline gpuFloatComplex gpuComplexDoubleToFloat(const gpuDoubleComplex z) {
+inline wwrFloatComplex wwrComplexDoubleToFloat(const wwrDoubleComplex z) {
   return WWR_SELECT(cuComplexDoubleToFloat, hipComplexDoubleToFloat)(z);
 }
 
