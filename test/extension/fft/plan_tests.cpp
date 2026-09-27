@@ -1,18 +1,18 @@
 // plan_tests.cpp - RAII contract of gpumod.extension.fft's FftPlan
 //
-// FftPlan is the one extension handle that does NOT derive from BaseGpuHandle:
+// FftPlan derives from GpuBoundHandle like the other library handles, but it is
+// the one handle whose liveness cannot ride the base's null sentinel:
 // gpufftHandle is an integer on CUDA (cufftHandle is `int`) with no reserved
-// invalid value, so the wrapper tracks liveness with an explicit `created_`
-// flag and hand-rolls its own move ctor / move assign / destructor rather than
-// inheriting the base's null-sentinel logic. That bespoke code is exactly what
-// can double-free, and get() cannot see it: the move leaves the source's
-// integer handle unchanged and only flips its private `created_`, so a
-// moved-from plan is indistinguishable from a live one through the public API.
+// invalid value. BaseGpuHandle handles that by tracking ownership with an
+// explicit flag for handle types with no in-band null, so a moved-from plan is
+// left owning nothing while its integer handle is unchanged -- indistinguishable
+// from a live one through get(), which is exactly why a broken move would
+// double-free undetected by the public API.
 //
-// A cuFFT/hipFFT plan is still device-bound, so the wrapper hand-rolls the same
-// select-device / record-device contract GpuBoundHandle gives the other library
-// handles: dev_idx() reports the creation device and the move clears it to -1.
-// The cases below pin that alongside the double-free contract.
+// A cuFFT/hipFFT plan is device-bound, so GpuBoundHandle's select-device /
+// record-device contract applies: dev_idx() reports the creation device and the
+// move clears it to -1. The cases below pin that alongside the double-free
+// contract.
 //
 // So these cases assert the destroy-exactly-once contract directly, through a
 // counting error policy substituted for the default one. gpu_check routes a

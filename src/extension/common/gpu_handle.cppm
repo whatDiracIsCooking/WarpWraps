@@ -38,11 +38,59 @@ export namespace gpumod::extension {
 ///       from the handle type T: on HIP the vendor handles are all `void*`, so a
 ///       handle-type -> error-type table cannot tell them apart. The policy
 ///       always carries its own error type.
+/// @note Liveness (does this wrapper own a handle to destroy?) is tracked one of
+///       two ways, chosen by the handle type. A pointer handle uses null as the
+///       sentinel -- no extra state, so `owns_` is an empty member. A handle type
+///       with no reserved invalid value (cufftHandle is a plain `int` on CUDA)
+///       has nowhere to encode "empty" in the handle itself, so an explicit bool
+///       tracks it. On HIP every vendor handle is a pointer, so the flag only
+///       ever materialises for cuFFT.
 template<typename T, typename Derived, typed_error_policy P_create,
          error_policy<typename P_create::error_type> P_destroy = P_create>
 class BaseGpuHandle : private NonCopyable {
 protected:
-  T handle_ = nullptr;
+  T handle_{};
+
+private:
+  static constexpr bool has_null_sentinel = std::is_pointer_v<T>;
+  struct no_flag {};
+  [[no_unique_address]] std::conditional_t<has_null_sentinel, no_flag, bool> owns_{};
+
+  // Does this wrapper currently own a handle that must be destroyed?
+  bool live() const noexcept {
+    if constexpr (has_null_sentinel) {
+      return handle_ != nullptr;
+    } else {
+      return owns_;
+    }
+  }
+
+  // Give up ownership without destroying -- applied to the moved-from source so
+  // its destructor becomes a no-op. Only the sentinel is cleared; a non-pointer
+  // handle keeps its (now unowned) integer value, exactly as the pointer case
+  // keeps nothing observable.
+  void release() noexcept {
+    if constexpr (has_null_sentinel) {
+      handle_ = nullptr;
+    } else {
+      owns_ = false;
+    }
+  }
+
+  // Run Derived::create and record whether it produced a live handle. For a
+  // pointer handle that is "is it non-null" (create() returns void); for a
+  // flagged handle it is create()'s own success bool, which it returns for
+  // exactly this purpose.
+  void run_create(std::source_location location) {
+    auto *derived = static_cast<Derived *>(this);
+    if constexpr (has_null_sentinel) {
+      derived->create(&handle_, location);
+    } else {
+      owns_ = derived->create(&handle_, location);
+    }
+  }
+
+protected:
   P_create policy_create_{};
   P_destroy policy_destroy_{};
 
@@ -55,47 +103,48 @@ protected:
 
 public:
   BaseGpuHandle(std::source_location location = std::source_location::current()) {
-    static_cast<Derived *>(this)->create(&handle_, location);
+    run_create(location);
   }
 
   BaseGpuHandle(P_create policy, std::source_location location = std::source_location::current())
       : policy_create_(policy), policy_destroy_(std::move(policy)) {
-    static_cast<Derived *>(this)->create(&handle_, location);
+    run_create(location);
   }
 
   BaseGpuHandle(P_create policy_create, P_destroy policy_destroy,
                 std::source_location location = std::source_location::current())
       : policy_create_(std::move(policy_create)), policy_destroy_(std::move(policy_destroy)) {
-    static_cast<Derived *>(this)->create(&handle_, location);
+    run_create(location);
   }
 
   ~BaseGpuHandle() {
-    if (handle_) {
+    if (live()) {
       static_cast<Derived *>(this)->destroy(handle_);
     }
   }
 
   BaseGpuHandle(BaseGpuHandle &&other) noexcept
-      : handle_(other.handle_), policy_create_(std::move(other.policy_create_)),
+      : handle_(other.handle_), owns_(other.owns_),
+        policy_create_(std::move(other.policy_create_)),
         policy_destroy_(std::move(other.policy_destroy_)) {
-    // Take ownership by moving the handle
-    // Leave other in valid null state
-    other.handle_ = nullptr;
+    // Take ownership; leave other holding nothing.
+    other.release();
   }
 
   BaseGpuHandle &operator=(BaseGpuHandle &&other) noexcept {
     // Self-assignment check
     if (this != &other) {
-      // Destroy current handle if valid
-      if (handle_ != nullptr) {
+      // Destroy current handle if we own one
+      if (live()) {
         static_cast<Derived *>(this)->destroy(handle_);
       }
 
       // Take ownership from other
       handle_ = other.handle_;
-      other.handle_ = nullptr;
+      owns_ = other.owns_;
       policy_create_ = std::move(other.policy_create_);
       policy_destroy_ = std::move(other.policy_destroy_);
+      other.release();
     }
 
     return *this;
