@@ -32,7 +32,7 @@ export namespace gpumod::extension {
  */
 template<typename T,
          error_policy<stdHostMemoryError_t> P_alloc = DefaultErrorPolicy<stdHostMemoryError_t>,
-         error_policy<stdHostMemoryError_t> P_free = P_alloc>
+         nothrow_error_policy<stdHostMemoryError_t> P_free = P_alloc>
 class HostBufferWrapper
     : public BufferBase<T, MemoryKind::Host, HostBufferWrapper<T, P_alloc, P_free>, P_alloc,
                         P_free> {

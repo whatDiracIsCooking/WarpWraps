@@ -22,10 +22,17 @@ namespace gpumod::extension::test {
 // stopped satisfying error_policy (say a member made it throw on move) every
 // handle would fail to compile with a constraint error far from the cause. Pin
 // it here, and pin that the concept actually rejects a non-policy type.
+//
+// The policy is duck-typed, not base-derived (no BaseErrorPolicy): what a handle
+// actually requires is typed_error_policy -- a handle_error member plus the
+// error_type alias it deduces its error type from -- so assert that, not an
+// implementation detail. DefaultErrorPolicy is also usable in the destruction
+// slot, so pin nothrow_error_policy (its handle_error is noexcept) too.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 static_assert(error_policy<DefaultErrorPolicy<int>, int>);
-static_assert(std::derived_from<DefaultErrorPolicy<int>, BaseErrorPolicy<int>>);
+static_assert(typed_error_policy<DefaultErrorPolicy<int>>);
+static_assert(nothrow_error_policy<DefaultErrorPolicy<int>, int>);
 static_assert(std::is_nothrow_move_constructible_v<DefaultErrorPolicy<int>>);
 static_assert(std::is_nothrow_move_assignable_v<DefaultErrorPolicy<int>>);
 static_assert(!error_policy<int, int>); // a bare int is not a policy

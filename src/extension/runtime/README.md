@@ -38,7 +38,7 @@ Also explicitly instantiates `DefaultErrorPolicy<gpuError_t>` and both overloads
 
 ```cpp
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
-         error_policy<gpuError_t> P_destroy = P_create>
+         nothrow_error_policy<gpuError_t> P_destroy = P_create>
 class GpuStreamWrapper;
 
 using GpuStream = GpuStreamWrapper<>;
@@ -57,7 +57,7 @@ Graph capture: `begin_capture(mode = gpuStreamCaptureModeGlobal)` starts recordi
 
 ```cpp
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
-         error_policy<gpuError_t> P_destroy = P_create>
+         nothrow_error_policy<gpuError_t> P_destroy = P_create>
 class GpuEventWrapper;
 
 using GpuEvent = GpuEventWrapper<>;
@@ -73,7 +73,7 @@ Destruction calls `gpuEventDestroy`.
 
 ```cpp
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
-         error_policy<gpuError_t> P_destroy = P_create>
+         nothrow_error_policy<gpuError_t> P_destroy = P_create>
 class GpuMemPoolWrapper;
 
 using GpuMemPool = GpuMemPoolWrapper<>;
@@ -89,7 +89,7 @@ Destruction calls `gpuMemPoolDestroy`.
 
 ```cpp
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
-         error_policy<gpuError_t> P_destroy = P_create>
+         nothrow_error_policy<gpuError_t> P_destroy = P_create>
 class GpuGraphWrapper;
 
 using GpuGraph = GpuGraphWrapper<>;
@@ -104,7 +104,7 @@ Constructors:
 
 ```cpp
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
-         error_policy<gpuError_t> P_destroy = P_create>
+         nothrow_error_policy<gpuError_t> P_destroy = P_create>
 class GpuGraphExecWrapper;
 
 using GpuGraphExec = GpuGraphExecWrapper<>;

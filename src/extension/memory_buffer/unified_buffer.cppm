@@ -32,7 +32,7 @@ export namespace gpumod::extension {
  * @note Unified memory requires compute capability 6.0 or higher for full functionality
  */
 template<typename T, error_policy<gpuError_t> P_alloc = DefaultErrorPolicy<gpuError_t>,
-         error_policy<gpuError_t> P_free = P_alloc>
+         nothrow_error_policy<gpuError_t> P_free = P_alloc>
 class UnifiedBufferWrapper
     : public BufferBase<T, MemoryKind::Unified, UnifiedBufferWrapper<T, P_alloc, P_free>, P_alloc,
                         P_free> {

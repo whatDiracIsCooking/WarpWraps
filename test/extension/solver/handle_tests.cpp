@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.extension.common; // BaseErrorPolicy, for the counting policy
+import gpumod.extension.common; // the error_policy concept, for the counting policy
 import gpumod.extension.common.handle; // BaseGpuHandle, GpuBoundHandle(View)
 import gpumod.extension.solver; // re-exports gpumod.solver, so the raw handle/params types are in scope
 
@@ -23,10 +23,11 @@ namespace gpumod::extension::test {
 // A counting policy for the destroy-exactly-once check below; see
 // test/extension/blas/handle_tests.cpp for why the counter is a static (the
 // GpuBoundHandle-inherited constructor takes no policy instance).
-struct CountingSolverPolicy : BaseErrorPolicy<gpusolverStatus_t> {
+struct CountingSolverPolicy {
+  using error_type = gpusolverStatus_t;
   static inline int errors = 0;
   static void reset() { errors = 0; }
-  void handle_error(gpusolverStatus_t, std::source_location) override { ++errors; }
+  void handle_error(gpusolverStatus_t, std::source_location) noexcept { ++errors; }
 };
 using CountingSolverHandle = GpusolverDnHandleWrapper<CountingSolverPolicy>;
 

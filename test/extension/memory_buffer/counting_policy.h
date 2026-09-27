@@ -26,9 +26,11 @@ namespace gpumod::extension::test {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 template<typename T>
-class CountingPolicy : public BaseErrorPolicy<T> {
+class CountingPolicy {
 public:
-  void handle_error(const T error, std::source_location) override {
+  using error_type = T;
+
+  void handle_error(const T error, std::source_location) noexcept {
     ++count_;
     last_ = error;
   }

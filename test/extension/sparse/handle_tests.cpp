@@ -11,7 +11,7 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.extension.common; // BaseErrorPolicy, for the counting policy
+import gpumod.extension.common; // the error_policy concept, for the counting policy
 import gpumod.extension.common.handle; // GpuBoundHandle(View)
 import gpumod.extension.sparse; // re-exports gpumod.sparse, so gpusparseHandle_t is in scope
 
@@ -20,10 +20,11 @@ namespace gpumod::extension::test {
 // A counting policy for the destroy-exactly-once check below; see
 // test/extension/blas/handle_tests.cpp for why the counter is a static (the
 // GpuBoundHandle-inherited constructor takes no policy instance).
-struct CountingSparsePolicy : BaseErrorPolicy<gpusparseStatus_t> {
+struct CountingSparsePolicy {
+  using error_type = gpusparseStatus_t;
   static inline int errors = 0;
   static void reset() { errors = 0; }
-  void handle_error(gpusparseStatus_t, std::source_location) override { ++errors; }
+  void handle_error(gpusparseStatus_t, std::source_location) noexcept { ++errors; }
 };
 using CountingSparseHandle = GpusparseHandleWrapper<CountingSparsePolicy>;
 

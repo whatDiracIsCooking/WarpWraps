@@ -95,7 +95,7 @@ Error policies are parameterised via `P_alloc` and `P_free` template arguments. 
 
 `stdHostMemoryError_t` is a project-defined enum providing `stdHostMemSuccess`, `stdHostMemAllocFailure`, `stdHostMemDeallocFailure`, and `stdHostMemInvalidValue`.
 
-**Constraint:** `P_free` must not throw, as it is invoked from the destructor.
+**Constraint:** `P_free` must not throw, as it is invoked from the destructor. This is enforced at compile time by the `nothrow_error_policy` concept on the `P_free` slot.
 
 ## Copy Functions
 

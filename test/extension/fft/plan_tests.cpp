@@ -27,7 +27,7 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.extension.common; // BaseErrorPolicy, for the counting policy
+import gpumod.extension.common; // the error_policy concept, for the counting policy
 import gpumod.extension.common.handle; // BaseGpuHandle, GpuBoundHandle
 import gpumod.extension.fft; // re-exports gpumod.fft: gpufftHandle, gpufftResult_t, GPUFFT_SUCCESS
 
@@ -36,13 +36,14 @@ namespace gpumod::extension::test {
 // An error policy that tallies failures into an external counter instead of
 // aborting, so a botched destroy is observable after the objects are gone
 // rather than terminating the process (which DefaultErrorPolicy would).
-struct CountingErrorPolicy : BaseErrorPolicy<gpufftResult_t> {
+struct CountingErrorPolicy {
+  using error_type = gpufftResult_t;
   int *errors = nullptr;
 
   CountingErrorPolicy() = default;
   explicit CountingErrorPolicy(int *counter) : errors(counter) {}
 
-  void handle_error(gpufftResult_t, std::source_location) override {
+  void handle_error(gpufftResult_t, std::source_location) noexcept {
     if (errors != nullptr) {
       ++*errors;
     }
