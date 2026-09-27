@@ -93,6 +93,7 @@ if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_raw_sparse gpumod.cuda.cusparse)
   set(_gpu_raw_fft gpumod.cuda.cufft)
   set(_gpu_raw_rand gpumod.cuda.curand)
+  set(_gpu_raw_tx gpumod.cuda.nvToolsExt)
 else()
   set(_gpu_raw_runtime_api gpumod.hip.hip_runtime_api)
   set(_gpu_raw_complex gpumod.hip.hip_complex)
@@ -106,6 +107,7 @@ else()
   # together, hipRAND keeps hiprand_kernel.h separate. rand.cppm needs both
   # (host API + device generator state types) -- see src/hip/CMakeLists.txt.
   set(_gpu_raw_rand gpumod.hip.hiprand gpumod.hip.hiprand_kernel)
+  set(_gpu_raw_tx gpumod.hip.roctx)
 endif()
 
 gpumod_add_cxx_module_library(
@@ -215,6 +217,18 @@ gpumod_add_cxx_module_library(
   rand.cppm
   LINK_PUBLIC
   ${_gpu_raw_rand}
+  LINK_PRIVATE
+  gpumod_backend
+  IMPORT_STD
+)
+
+gpumod_add_cxx_module_library(
+  NAME
+  gpumod.tx
+  PRIMARY_INTERFACE
+  tx.cppm
+  LINK_PUBLIC
+  ${_gpu_raw_tx}
   LINK_PRIVATE
   gpumod_backend
   IMPORT_STD

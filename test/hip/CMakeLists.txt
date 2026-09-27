@@ -13,6 +13,7 @@ set(HIP_TEST_LIBRARIES
     rocm_smi
     amd_smi
     roctracer
+    roctx
     hip_complex
     hip_fp16
     hip_bf16

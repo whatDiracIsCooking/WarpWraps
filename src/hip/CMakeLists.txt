@@ -73,6 +73,26 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
+# rocTX (ROCm Tracing Extension) -- marker/range core
+#
+# HIP's counterpart to NVTX (gpumod.cuda.nvToolsExt). Like roctracer above,
+# rocTX has no CMake package, so find_library roctx64 and find_path its header
+# directly. roctx.h pulls in only <stdint.h> -- neither the HIP runtime's
+# symbols nor its headers -- so this links no hip:: target, only libroctx64.
+find_library(ROCTX_LIBRARY roctx64 HINTS /opt/rocm/lib REQUIRED)
+find_path(ROCTX_INCLUDE_DIR roctracer/roctx.h HINTS /opt/rocm/include REQUIRED)
+gpumod_add_cxx_module_library(
+  NAME
+  gpumod.hip.roctx
+  PRIMARY_INTERFACE
+  roctx.cppm
+  LINK_PUBLIC
+  ${ROCTX_LIBRARY}
+  INCLUDE_DIRS_PRIVATE
+  ${ROCTX_INCLUDE_DIR}
+  IMPORT_STD
+)
+
 # HIP Complex Numbers
 #
 # hip/hip_complex.h -> amd_detail/amd_hip_complex.h. All functions there are

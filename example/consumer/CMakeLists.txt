@@ -62,4 +62,5 @@ target_link_libraries(
           gpumod::gpumod.wrappers.solver
           gpumod::gpumod.wrappers.fft
           gpumod::gpumod.wrappers.sparse
+          gpumod::gpumod.wrappers.tx
 )
