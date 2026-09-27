@@ -30,6 +30,11 @@ static_assert(std::is_enum_v<hipblasLtMatmulPreferenceAttributes_t>);
 static_assert(std::is_enum_v<hipblasLtOrder_t>);
 static_assert(std::is_enum_v<hipblasLtMatrixTransformDescAttributes_t>);
 
+// Re-exported hipBLAS common types (from hipblas-common.h): the status hipBLASLt
+// returns and the compute type its matmul descriptor takes.
+static_assert(std::is_enum_v<hipblasStatus_t>);
+static_assert(std::is_enum_v<hipblasComputeType_t>);
+
 // ────────────────────────────────────────────────────────────────────────
 // Enum values: hipblasLtEpilogue_t
 // ────────────────────────────────────────────────────────────────────────
