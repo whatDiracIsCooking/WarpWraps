@@ -131,7 +131,7 @@ jobs:
     outputs:
       code: ${{ steps.detect.outputs.code }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # The diff needs the base commit present, which a shallow clone omits.
           fetch-depth: 0
@@ -169,8 +169,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
       # --frozen: install the lock as committed, and fail rather than
@@ -196,10 +196,10 @@ jobs:
         # newer Python is supported. Kept a matrix so that is a one-line edit.
         python: ["3.13"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
           python-version: ${{ matrix.python }}
@@ -263,7 +263,7 @@ jobs:
       # answer and costs nothing here.
       options: --user root
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # cpp-tier.sh puts `git rev-parse --short HEAD` in its log name, and git
       # refuses to read a repository owned by a different uid. Without this the
@@ -276,7 +276,7 @@ jobs:
       # dominates the job. CCACHE_DIR has to live INSIDE the workspace: the
       # image points it at /home/ubuntu/.ccache, which is not the mounted
       # directory, so actions/cache on the host would never see it.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: .ccache
           key: ccache-${{ matrix.backend }}-${{ github.sha }}
@@ -299,7 +299,7 @@ jobs:
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
           devtools/cpp-tier.sh --preset ${{ matrix.preset }} ${{ matrix.tidy }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: cpp-tier-${{ matrix.backend }}
@@ -322,10 +322,10 @@ jobs:
       image: ghcr.io/whatdiraciscooking/gpumod:cuda-ci
       options: --user root
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: trust the workspace
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: .ccache
           key: ccache-install-check-${{ github.sha }}
