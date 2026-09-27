@@ -27,7 +27,7 @@ wwr_add_cxx_module_library(
 set(WWR_DEFAULT_ERROR_POLICY_IMPL
     ""
     CACHE FILEPATH
-    "Header providing wwr::extension::DefaultErrorPolicyImpl<T> (replaces the default policy body)"
+    "Header providing wwr::extension::DefaultErrorPolicyImpl<T>"
 )
 if(WWR_DEFAULT_ERROR_POLICY_IMPL)
   cmake_path(GET WWR_DEFAULT_ERROR_POLICY_IMPL PARENT_PATH _wwr_depol_dir)

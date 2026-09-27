@@ -2,12 +2,13 @@
 #
 # Demonstrates the WWR_DEFAULT_ERROR_POLICY_IMPL build option: configure the
 # tree with
-#   -DWWR_DEFAULT_ERROR_POLICY_IMPL=${CMAKE_CURRENT_SOURCE_DIR}/custom_default_error_policy.h
+#   -DWWR_DEFAULT_ERROR_POLICY_IMPL=\
+#       ${CMAKE_CURRENT_SOURCE_DIR}/custom_default_error_policy.h
 # and wwr::extension::DefaultErrorPolicy is replaced build-wide (see
-# custom_default_error_policy.h and src/extension/common/error_handling). The swap
-# happens in that module's own build; this target just imports the extension
-# layer and inherits whichever default policy the tree was compiled with, so it
-# builds unchanged either way.
+# custom_default_error_policy.h and src/extension/common/error_handling). The
+# swap happens in that module's own build; this target just imports the
+# extension layer and inherits whichever default policy the tree was compiled
+# with, so it builds unchanged either way.
 #
 # No ctest entry -- and this is why: with the default policy the program aborts
 # by design (it triggers an error to show the policy running), so registering it
