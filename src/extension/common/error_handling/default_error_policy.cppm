@@ -7,7 +7,7 @@
  *   using namespace gpumod::extension;
  */
 
-export module gpumod.extension.common:default_error_policy;
+export module gpumod.extension.common.error_handling:default_error_policy;
 
 import std;
 import :error_code;

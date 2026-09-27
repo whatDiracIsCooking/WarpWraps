@@ -13,10 +13,7 @@
 
 export module gpumod.extension.common:gpu_error;
 
-import :error_code;
-import :gpu_check;
-import :error_policy;
-import :default_error_policy;
+import gpumod.extension.common.error_handling;
 import gpumod.runtime_api;
 import std;
 

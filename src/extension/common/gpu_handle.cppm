@@ -13,7 +13,7 @@
 
 export module gpumod.extension.common:gpu_handle;
 
-import :error_policy;
+import gpumod.extension.common.error_handling;
 import :noncopyable;
 import :gpu_handle_view;
 import std;

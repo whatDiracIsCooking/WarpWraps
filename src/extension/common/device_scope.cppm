@@ -13,9 +13,7 @@
 
 export module gpumod.extension.common:device_scope;
 
-import :gpu_check;
-import :error_policy;
-import :default_error_policy;
+import gpumod.extension.common.error_handling;
 // The default policy DefaultErrorPolicy<gpuError_t> is concept-checked on this
 // template's default argument, which instantiates its vtable and thus its
 // virtual handle_error -- and that odr-uses success_code<gpuError_t>(). That
