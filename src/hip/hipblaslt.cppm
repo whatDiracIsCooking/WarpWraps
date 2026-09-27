@@ -12,7 +12,9 @@
  * cublasLtDisableCpuInstructionsSetMask analogue, and no algo introspection
  * beyond the heuristic search: hipblasLtMatmulAlgo_t is an opaque blob
  * obtained only from hipblasLtMatmulAlgoGetHeuristic. hipblasLtGetGitRevision
- * and hipblasLtGetArchName are its own additions.
+ * and hipblasLtGetArchName are its own additions. The status and compute-type
+ * enums it returns and consumes (hipblasStatus_t, hipblasComputeType_t) belong
+ * to hipblas-common and are re-exported here, as cuBLASLt re-exports its own.
  *
  * The *Opaque_t descriptor types are uint64_t data[N] structs, not cuBLASLt's
  * int64_t[N]; hipblasLtMatmulAlgo_t and hipblasLtMatmulHeuristicResult_t are
@@ -155,6 +157,16 @@ using ::HIPBLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE;
 using ::HIPBLASLT_MATRIX_TRANSFORM_DESC_TRANSA;
 using ::HIPBLASLT_MATRIX_TRANSFORM_DESC_TRANSB;
 using ::hipblasLtMatrixTransformDescAttributes_t;
+
+// ========================================================================
+// Re-exported hipBLAS common types (from hipblas-common.h)
+// ========================================================================
+// hipBLASLt has no status/compute type of its own: its functions return
+// hipblasStatus_t and its matmul descriptor takes hipblasComputeType_t, both
+// from hipblas-common. The cuBLASLt counterpart re-exports cublasStatus_t /
+// cublasComputeType_t the same way -- see wwr.cuda.cublasLt.
+using ::hipblasComputeType_t;
+using ::hipblasStatus_t;
 
 // ========================================================================
 // Handle type traits (opaque pointer types)

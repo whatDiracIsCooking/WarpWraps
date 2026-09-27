@@ -89,6 +89,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_raw_fp16 wwr.cuda.cuda_fp16)
   set(_gpu_raw_bf16 wwr.cuda.cuda_bf16)
   set(_gpu_raw_blas wwr.cuda.cublas_v2)
+  set(_gpu_raw_blaslt wwr.cuda.cublasLt)
   set(_gpu_raw_solver wwr.cuda.cusolverDn)
   set(_gpu_raw_sparse wwr.cuda.cusparse)
   set(_gpu_raw_fft wwr.cuda.cufft)
@@ -100,6 +101,7 @@ else()
   set(_gpu_raw_fp16 wwr.hip.hip_fp16)
   set(_gpu_raw_bf16 wwr.hip.hip_bf16)
   set(_gpu_raw_blas wwr.hip.hipblas)
+  set(_gpu_raw_blaslt wwr.hip.hipblaslt)
   set(_gpu_raw_solver wwr.hip.hipsolver)
   set(_gpu_raw_sparse wwr.hip.hipsparse)
   set(_gpu_raw_fft wwr.hip.hipfft)
@@ -166,6 +168,18 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_gpu_raw_blas}
   wwr.complex
+  LINK_PRIVATE
+  wwr_backend
+  IMPORT_STD
+)
+
+wwr_add_cxx_module_library(
+  NAME
+  wwr.blaslt
+  PRIMARY_INTERFACE
+  blaslt.cppm
+  LINK_PUBLIC
+  ${_gpu_raw_blaslt}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD

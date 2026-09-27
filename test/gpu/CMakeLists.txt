@@ -19,6 +19,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_test_raw_fp16 wwr.cuda.cuda_fp16)
   set(_gpu_test_raw_bf16 wwr.cuda.cuda_bf16)
   set(_gpu_test_raw_blas wwr.cuda.cublas_v2)
+  set(_gpu_test_raw_blaslt wwr.cuda.cublasLt)
   set(_gpu_test_raw_solver wwr.cuda.cusolverDn)
   set(_gpu_test_raw_sparse wwr.cuda.cusparse)
   set(_gpu_test_raw_fft wwr.cuda.cufft)
@@ -30,6 +31,7 @@ else()
   set(_gpu_test_raw_fp16 wwr.hip.hip_fp16)
   set(_gpu_test_raw_bf16 wwr.hip.hip_bf16)
   set(_gpu_test_raw_blas wwr.hip.hipblas)
+  set(_gpu_test_raw_blaslt wwr.hip.hipblaslt)
   set(_gpu_test_raw_solver wwr.hip.hipsolver)
   set(_gpu_test_raw_sparse wwr.hip.hipsparse)
   set(_gpu_test_raw_fft wwr.hip.hipfft)
@@ -45,6 +47,7 @@ set(GPU_TEST_LIBRARIES
     fp16
     bf16
     blas
+    blaslt
     solver
     sparse
     fft
