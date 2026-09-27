@@ -134,7 +134,7 @@ jobs:
             echo "target '$CHOICE' selected -- skipping ${{ matrix.image }}"
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: steps.gate.outputs.run == 'true'
 
       # Headroom before the build, not a third-party action. The peak is not
