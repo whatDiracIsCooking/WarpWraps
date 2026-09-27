@@ -15,6 +15,10 @@
  * hipRAND: hiprandGenerateChar/Short, the *Half generators,
  * HIPRAND_STATUS_NOT_IMPLEMENTED. Neither has a status-to-string function.
  *
+ * The compile-time CURAND_VERSION / HIPRAND_VERSION macro is not aliased: its
+ * value is backend-specific, and the runtime gpurandGetVersion query is the
+ * portable equivalent.
+ *
  * gpurandState and gpurandStateXORWOW are one type on CUDA and two on HIP, and
  * enumerator VALUES differ even where names agree. See docs/architecture.md,
  * sections 1 and 6.
