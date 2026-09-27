@@ -10,7 +10,7 @@ import :gpu_stream;
 import :gpu_mem_pool;
 import gpumod.runtime_api;
 import gpumod.extension.common;
-import gpumod.extension.common.handle;
+import gpumod.extension.handle;
 import std;
 
 export namespace gpumod::extension {

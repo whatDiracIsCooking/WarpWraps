@@ -1,19 +1,19 @@
 /**
- * @file gpu_handle_view.cppm
+ * @file handle_view.cppm
  * @brief Non-owning, copyable view over a GPU handle
  *
- * Provides GpuHandleView, the copyable twin of BaseGpuHandle: it holds a raw
+ * Provides HandleView, the copyable twin of BaseHandle: it holds a raw
  * GPU handle but does not own it, so it is freely copyable and movable and
  * destroys nothing. Use it to pass a borrowed handle (a stream/event you do not
  * own, the default stream, an interop handle) while keeping get()/operator T().
  *
  * Usage:
- *   import gpumod.extension.common.handle;
+ *   import gpumod.extension.handle;
  *
- *   void wait(GpuHandleView<gpuStream_t> s) { gpuStreamSynchronize(s); }
+ *   void wait(HandleView<gpuStream_t> s) { gpuStreamSynchronize(s); }
  */
 
-export module gpumod.extension.common.handle:gpu_handle_view;
+export module gpumod.extension.handle:handle_view;
 
 import std;
 
@@ -28,13 +28,13 @@ export namespace gpumod::extension {
 /// raw pointer or std::string_view. Domain operations (sync, record, ...) are
 /// added by inheriting an accessor mixin alongside this base.
 template<typename T>
-class GpuHandleView {
+class HandleView {
 protected:
   T handle_{}; // nullptr for a pointer handle, 0 for an integer one (cufftHandle)
 
 public:
-  GpuHandleView() noexcept = default;
-  explicit GpuHandleView(T handle) noexcept : handle_(handle) {}
+  HandleView() noexcept = default;
+  explicit HandleView(T handle) noexcept : handle_(handle) {}
 
   // Copyable AND movable -- the whole point of a view. All defaulted (trivial).
 

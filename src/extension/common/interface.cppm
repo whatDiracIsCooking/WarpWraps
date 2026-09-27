@@ -11,8 +11,8 @@
  * - :device_scope - RAII guard that makes a device current and restores the previous one
  * - :noncopyable - Mixin deleting copy operations while allowing moves
  *
- * The RAII GPU-handle layer that once lived here (BaseGpuHandle, GpuBoundHandle
- * and their views) is now its own module, gpumod.extension.common.handle, which
+ * The RAII GPU-handle layer that once lived here (BaseHandle, GpuBoundHandle
+ * and their views) is now its own module, gpumod.extension.handle, which
  * builds on this one.
  *
  * Usage:

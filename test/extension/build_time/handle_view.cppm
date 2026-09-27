@@ -5,7 +5,7 @@ export module gpumod.test.extension.handle_view;
 import std;
 import gpumod.runtime_api;
 import gpumod.extension.common;
-import gpumod.extension.common.handle;
+import gpumod.extension.handle;
 import gpumod.extension.runtime;
 import gpumod.extension.blas;
 import gpumod.extension.solver;
@@ -51,7 +51,7 @@ static_assert(is_view_value<GpusolverDnHandleView>);
 static_assert(is_view_value<GpusparseHandleView>);
 
 // The generic view bases carry the same semantics.
-static_assert(is_view_value<GpuHandleView<gpuEvent_t>>);
+static_assert(is_view_value<HandleView<gpuEvent_t>>);
 static_assert(is_view_value<GpuBoundHandleView<gpuEvent_t>>);
 
 // Owners are move-only; a view is never taken by copying an owner.

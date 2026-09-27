@@ -14,7 +14,7 @@ gpumod_add_cxx_module_library(
   gpumod.fp16
   gpumod.bf16
   gpumod.extension.common
-  gpumod.extension.common.handle
+  gpumod.extension.handle
 )
 
 add_dependencies(

@@ -11,7 +11,7 @@ export module gpumod.extension.runtime:gpu_graph;
 import :gpu_graph_exec;
 import gpumod.runtime_api;
 import gpumod.extension.common;
-import gpumod.extension.common.handle;
+import gpumod.extension.handle;
 import std;
 
 export namespace gpumod::extension {
@@ -22,7 +22,7 @@ export namespace gpumod::extension {
  * Creates an empty graph on construction and destroys it on destruction.
  * Supports move semantics for transferring ownership.
  *
- * @note A graph is NOT device-bound, so this sits on BaseGpuHandle rather than
+ * @note A graph is NOT device-bound, so this sits on BaseHandle rather than
  *       GpuBoundHandle: gpuGraphCreate takes no device, and a graph is a
  *       description of work whose nodes may target different devices. There is
  *       no device index to record. See device_bound_handle.cppm.
@@ -35,19 +35,19 @@ export namespace gpumod::extension {
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
          nothrow_error_policy<gpuError_t> P_destroy = P_create>
 class GpuGraphWrapper
-    : public BaseGpuHandle<gpuGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create, P_destroy> {
+    : public BaseHandle<gpuGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create, P_destroy> {
 private:
-  using Base = BaseGpuHandle<gpuGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create, P_destroy>;
+  using Base = BaseHandle<gpuGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 protected:
   // Construct without creating a handle; used by adopt() below.
   GpuGraphWrapper(typename Base::skip_default_create_t tag) noexcept : Base(tag) {}
 
 public:
-  // The default/policy constructors, inherited from BaseGpuHandle; each routes
+  // The default/policy constructors, inherited from BaseHandle; each routes
   // through create() below to build an empty graph.
-  using BaseGpuHandle<gpuGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create,
-                      P_destroy>::BaseGpuHandle;
+  using BaseHandle<gpuGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create,
+                      P_destroy>::BaseHandle;
 
   /// @brief Take ownership of an already-created raw graph handle.
   ///
@@ -98,6 +98,6 @@ using GpuGraph = GpuGraphWrapper<>;
 /// @brief Non-owning, copyable view of a graph handle. Returned by
 ///        GpuGraph::view(); a graph is not device-bound, so it carries no device
 ///        index, and instantiate() stays on the owner (it produces an owned exec).
-using GpuGraphView = GpuHandleView<gpuGraph_t>;
+using GpuGraphView = HandleView<gpuGraph_t>;
 
 } // namespace gpumod::extension

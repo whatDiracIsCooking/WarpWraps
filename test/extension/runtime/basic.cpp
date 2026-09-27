@@ -14,7 +14,7 @@
 import std;
 import gpumod.runtime_api;
 import gpumod.extension.common;
-import gpumod.extension.common.handle;
+import gpumod.extension.handle;
 import gpumod.extension.runtime;
 
 namespace gpumod::extension::test {

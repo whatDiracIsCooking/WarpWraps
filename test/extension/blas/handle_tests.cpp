@@ -17,7 +17,7 @@
 
 import std;
 import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.common.handle; // GpuBoundHandle(View)
+import gpumod.extension.handle; // GpuBoundHandle(View)
 import gpumod.extension.blas; // re-exports gpumod.blas, so gpublasHandle_t is in scope
 
 namespace gpumod::extension::test {

@@ -2,7 +2,7 @@
 //
 // GpusolverDnHandle is a GpuBoundHandle specialisation (over
 // gpusolverDnHandle_t): it records the device it was created on, since a
-// cuSOLVER handle is device-bound. GpusolverDnParams stays a BaseGpuHandle
+// cuSOLVER handle is device-bound. GpusolverDnParams stays a BaseHandle
 // specialisation (over gpusolverDnParams_t) -- params carry no device. See
 // test/extension/blas/handle_tests.cpp for the shape and why get() nulling on
 // the moved-from object is the double-free guard. Params is the second live
@@ -15,7 +15,7 @@
 
 import std;
 import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.common.handle; // BaseGpuHandle, GpuBoundHandle(View)
+import gpumod.extension.handle; // BaseHandle, GpuBoundHandle(View)
 import gpumod.extension.solver; // re-exports gpumod.solver, so the raw handle/params types are in scope
 
 namespace gpumod::extension::test {

@@ -16,7 +16,7 @@ gpumod_add_gtest_executable(
   LINK
   gpumod.runtime_api
   gpumod.extension.common
-  gpumod.extension.common.handle
+  gpumod.extension.handle
   gpumod.extension.runtime
 )
 

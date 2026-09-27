@@ -2,19 +2,19 @@
  * @file device_bound_handle.cppm
  * @brief CRTP layer recording the physical GPU a handle is bound to
  *
- * Provides GpuBoundHandle, a thin layer over BaseGpuHandle that records the
+ * Provides GpuBoundHandle, a thin layer over BaseHandle that records the
  * device index a device-bound handle (stream, event, memory pool, library
  * handle) was created on.
  *
  * Usage:
- *   import gpumod.extension.common.handle;
+ *   import gpumod.extension.handle;
  *
  *   class GpuStream : public GpuBoundHandle<gpuStream_t, GpuStream, ...> { ... };
  */
 
-export module gpumod.extension.common.handle:device_bound_handle;
+export module gpumod.extension.handle:device_bound_handle;
 
-import :gpu_handle;
+import :handle;
 import :device_bound_handle_view;
 import gpumod.extension.common; // gpu_check, error_policy
 import gpumod.runtime_api;
@@ -23,11 +23,11 @@ import std;
 export namespace gpumod::extension {
 
 /**
- * @brief CRTP layer over BaseGpuHandle for handles bound to one physical device
+ * @brief CRTP layer over BaseHandle for handles bound to one physical device
  *
  * A GPU stream, event, cuBLAS/cuSOLVER handle or memory pool is created on --
  * and belongs to -- whatever device was current at creation time. This layer
- * records that device index so it can be queried later. BaseGpuHandle itself
+ * records that device index so it can be queried later. BaseHandle itself
  * stays device-agnostic, which is what lets resources that are *not*
  * device-bound (graphs, graph execs, solver params) sit on it without carrying
  * a device index they have no meaning for.
@@ -53,9 +53,9 @@ export namespace gpumod::extension {
  */
 template<typename T, typename Derived, typed_error_policy P_create,
          nothrow_error_policy<typename P_create::error_type> P_destroy = P_create>
-class GpuBoundHandle : public BaseGpuHandle<T, Derived, P_create, P_destroy> {
+class GpuBoundHandle : public BaseHandle<T, Derived, P_create, P_destroy> {
 private:
-  using Base = BaseGpuHandle<T, Derived, P_create, P_destroy>;
+  using Base = BaseHandle<T, Derived, P_create, P_destroy>;
 
   // Select `dev_idx` as the current device, then yield `loc`. Evaluated as the
   // argument to the base initializer -- i.e. BEFORE Base runs Derived::create
@@ -135,7 +135,7 @@ public:
 
   /// @brief A non-owning, copyable view of this handle, carrying its device index.
   ///
-  /// Hides BaseGpuHandle::view() to return the device-aware view. Deleted on
+  /// Hides BaseHandle::view() to return the device-aware view. Deleted on
   /// rvalues, as the base is, so a temporary cannot be viewed.
   GpuBoundHandleView<T> view() const & noexcept {
     return GpuBoundHandleView<T>{this->get(), dev_idx_};
