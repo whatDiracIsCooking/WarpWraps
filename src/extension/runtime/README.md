@@ -115,7 +115,7 @@ Constructors:
 
 `launch(gpuStream_t)` runs the graph; `upload(gpuStream_t)` uploads it without launching. Destruction calls `gpuGraphExecDestroy`.
 
-> Neither graph type is device-bound — both sit on `BaseHandle`, not `GpuBoundHandle`. A graph describes work whose nodes may target different devices, and an executable graph runs on whatever device the stream passed to `launch()` belongs to, so there is no owning device to record.
+> Neither graph type is device-bound — both sit on `BaseHandle`, not `DeviceBoundHandle`. A graph describes work whose nodes may target different devices, and an executable graph runs on whatever device the stream passed to `launch()` belongs to, so there is no owning device to record.
 >
 > `gpuGraphInstantiate` is a hand-written forwarding function in `gpumod.runtime_api`, not a plain alias: the backends' plain `*Instantiate` entry points disagree on signature beyond the prefix (CUDA takes flags, HIP takes an error-node/log-buffer triple), so `gpuGraphInstantiate(exec, graph, flags = 0)` forwards to `cudaGraphInstantiate` on CUDA and `hipGraphInstantiateWithFlags` on HIP — both of which take `(GraphExec_t*, Graph_t, unsigned long long)`.
 

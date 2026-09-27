@@ -52,16 +52,16 @@ public:
 /**
  * @brief Non-owning, copyable view over a GPU stream
  *
- * Carries the borrowed handle plus its device index (via GpuBoundHandleView) and
+ * Carries the borrowed handle plus its device index (via DeviceBoundHandleView) and
  * the borrow-safe stream operations (via GpuStreamAccess). Construct one from an
  * owning GpuStream with `.view()`, or directly from a raw gpuStream_t you did not
  * create -- the default stream (0), or a stream owned elsewhere. It destroys
  * nothing, so it must not outlive the stream it borrows.
  */
-class GpuStreamView : public GpuBoundHandleView<gpuStream_t>,
+class GpuStreamView : public DeviceBoundHandleView<gpuStream_t>,
                       public GpuStreamAccess<GpuStreamView> {
 public:
-  using GpuBoundHandleView<gpuStream_t>::GpuBoundHandleView;
+  using DeviceBoundHandleView<gpuStream_t>::DeviceBoundHandleView;
 };
 
 /**
@@ -77,18 +77,18 @@ public:
  */
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
          nothrow_error_policy<gpuError_t> P_destroy = P_create>
-class GpuStreamWrapper : public GpuBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>,
+class GpuStreamWrapper : public DeviceBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>,
                                                P_create, P_destroy>,
                          public GpuStreamAccess<GpuStreamWrapper<P_create, P_destroy>> {
 private:
   using Base =
-      GpuBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create, P_destroy>;
+      DeviceBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 public:
   // The `GpuStream(int dev_idx = 0)` default/per-device constructor, inherited
-  // from GpuBoundHandle, which selects and records the owning device.
-  using GpuBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::GpuBoundHandle;
+  // from DeviceBoundHandle, which selects and records the owning device.
+  using DeviceBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create,
+                       P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU stream on `dev_idx` with flags
   /// @param dev_idx Device to create the stream on

@@ -19,7 +19,7 @@ export namespace gpumod::extension {
  * @brief RAII wrapper for a GPU solver handle
  *
  * A cuSOLVER/rocSOLVER handle belongs to whatever device was current when it
- * was created, so this derives from GpuBoundHandle: construction selects
+ * was created, so this derives from DeviceBoundHandle: construction selects
  * dev_idx (the first constructor argument, default 0), creates the handle
  * there, and records it -- read it back with dev_idx(). Destroys the handle on
  * destruction; supports move semantics, copy is deleted.
@@ -32,17 +32,17 @@ export namespace gpumod::extension {
 template<error_policy<gpusolverStatus_t> P_create = DefaultErrorPolicy<gpusolverStatus_t>,
          nothrow_error_policy<gpusolverStatus_t> P_destroy = P_create>
 class GpusolverDnHandleWrapper
-    : public GpuBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>,
+    : public DeviceBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>,
                             P_create, P_destroy> {
 private:
-  using Base = GpuBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>,
+  using Base = DeviceBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>,
                               P_create, P_destroy>;
 
 public:
   // The `GpusolverDnHandle(int dev_idx = 0)` default/per-device constructor,
-  // inherited from GpuBoundHandle, which selects and records the owning device.
-  using GpuBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::GpuBoundHandle;
+  // inherited from DeviceBoundHandle, which selects and records the owning device.
+  using DeviceBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>, P_create,
+                       P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU solver handle
   /// @param handle Output parameter for the created handle
@@ -72,6 +72,6 @@ using GpusolverDnHandle = GpusolverDnHandleWrapper<>;
 ///        Returned by GpusolverDnHandle::view(); converts to gpusolverDnHandle_t
 ///        for the gpusolverDn* wrappers, so a borrowed handle can be used without
 ///        owning it.
-using GpusolverDnHandleView = GpuBoundHandleView<gpusolverDnHandle_t>;
+using GpusolverDnHandleView = DeviceBoundHandleView<gpusolverDnHandle_t>;
 
 } // namespace gpumod::extension

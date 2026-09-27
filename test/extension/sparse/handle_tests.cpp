@@ -1,6 +1,6 @@
 // handle_tests.cpp - RAII contract of gpumod.extension.sparse's GpusparseHandle
 //
-// GpusparseHandle is a GpuBoundHandle specialisation over gpusparseHandle_t: it
+// GpusparseHandle is a DeviceBoundHandle specialisation over gpusparseHandle_t: it
 // records the device it was created on, since a cuSPARSE handle is
 // device-bound. See test/extension/blas/handle_tests.cpp for the shape and why
 // get() nulling on the moved-from object is the double-free guard.
@@ -12,14 +12,14 @@
 
 import std;
 import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.handle; // GpuBoundHandle(View)
+import gpumod.extension.handle; // DeviceBoundHandle(View)
 import gpumod.extension.sparse; // re-exports gpumod.sparse, so gpusparseHandle_t is in scope
 
 namespace gpumod::extension::test {
 
 // A counting policy for the destroy-exactly-once check below; see
 // test/extension/blas/handle_tests.cpp for why the counter is a static (the
-// GpuBoundHandle-inherited constructor takes no policy instance).
+// DeviceBoundHandle-inherited constructor takes no policy instance).
 struct CountingSparsePolicy {
   using error_type = gpusparseStatus_t;
   static inline int errors = 0;
@@ -91,9 +91,9 @@ TEST(GpusparseHandleTests, MovePreservesDevice) {
 }
 
 TEST(GpusparseHandleTests, ViewMirrorsOwnerHandleAndDevice) {
-  // view() is inherited from GpuBoundHandle and only compile-tested elsewhere;
+  // view() is inherited from DeviceBoundHandle and only compile-tested elsewhere;
   // this reads the borrowed handle/device back from a live handle. The view is
-  // a bare GpuBoundHandleView with no borrow-safe ops (a cuSPARSE call consumes
+  // a bare DeviceBoundHandleView with no borrow-safe ops (a cuSPARSE call consumes
   // the raw handle), so mirroring get()/dev_idx() is its whole job.
   GpusparseHandle handle;
   const GpusparseHandleView view = handle.view();

@@ -2,14 +2,14 @@
  * @file device_bound_handle.cppm
  * @brief CRTP layer recording the physical GPU a handle is bound to
  *
- * Provides GpuBoundHandle, a thin layer over BaseHandle that records the
+ * Provides DeviceBoundHandle, a thin layer over BaseHandle that records the
  * device index a device-bound handle (stream, event, memory pool, library
  * handle) was created on.
  *
  * Usage:
  *   import gpumod.extension.handle;
  *
- *   class GpuStream : public GpuBoundHandle<gpuStream_t, GpuStream, ...> { ... };
+ *   class GpuStream : public DeviceBoundHandle<gpuStream_t, GpuStream, ...> { ... };
  */
 
 export module gpumod.extension.handle:device_bound_handle;
@@ -53,7 +53,7 @@ export namespace gpumod::extension {
  */
 template<typename T, typename Derived, typed_error_policy P_create,
          nothrow_error_policy<typename P_create::error_type> P_destroy = P_create>
-class GpuBoundHandle : public BaseHandle<T, Derived, P_create, P_destroy> {
+class DeviceBoundHandle : public BaseHandle<T, Derived, P_create, P_destroy> {
 private:
   using Base = BaseHandle<T, Derived, P_create, P_destroy>;
 
@@ -70,7 +70,7 @@ protected:
 
   /// @brief Construct without creating the handle; derived selects the device,
   ///        creates the raw handle, then records it (see the class note).
-  GpuBoundHandle(typename Base::skip_default_create_t tag) noexcept : Base(tag) {}
+  DeviceBoundHandle(typename Base::skip_default_create_t tag) noexcept : Base(tag) {}
 
   /// @brief Make `dev_idx` the current device (call before creating a handle on it).
   ///        Static, so it can run before the instance exists; uses the default
@@ -92,36 +92,36 @@ protected:
 public:
   /// @brief Create on `dev_idx` (default 0): select it, run Derived::create, record it.
   ///
-  /// This is the only create path GpuBoundHandle offers, and it is why every
+  /// This is the only create path DeviceBoundHandle offers, and it is why every
   /// child names its device as the first constructor argument. `dev_idx`
   /// defaults to 0 so the common single-GPU case stays `Derived{}`, but there is
   /// deliberately no overload that omits it.
-  explicit GpuBoundHandle(int dev_idx = 0,
+  explicit DeviceBoundHandle(int dev_idx = 0,
                           std::source_location location = std::source_location::current())
       : Base(on_device(dev_idx, location)) {
     record_device();
   }
 
   /// @brief Create on `dev_idx` (default 0) with a custom error policy.
-  GpuBoundHandle(P_create policy, int dev_idx = 0,
+  DeviceBoundHandle(P_create policy, int dev_idx = 0,
                  std::source_location location = std::source_location::current())
       : Base(std::move(policy), on_device(dev_idx, location)) {
     record_device();
   }
 
   /// @brief Create on `dev_idx` (default 0) with distinct create/destroy policies.
-  GpuBoundHandle(P_create policy_create, P_destroy policy_destroy, int dev_idx = 0,
+  DeviceBoundHandle(P_create policy_create, P_destroy policy_destroy, int dev_idx = 0,
                  std::source_location location = std::source_location::current())
       : Base(std::move(policy_create), std::move(policy_destroy), on_device(dev_idx, location)) {
     record_device();
   }
 
-  GpuBoundHandle(GpuBoundHandle &&other) noexcept
+  DeviceBoundHandle(DeviceBoundHandle &&other) noexcept
       : Base(std::move(other)), dev_idx_(other.dev_idx_) {
     other.dev_idx_ = -1;
   }
 
-  GpuBoundHandle &operator=(GpuBoundHandle &&other) noexcept {
+  DeviceBoundHandle &operator=(DeviceBoundHandle &&other) noexcept {
     if (this != &other) {
       Base::operator=(std::move(other));
       dev_idx_ = other.dev_idx_;
@@ -137,10 +137,10 @@ public:
   ///
   /// Hides BaseHandle::view() to return the device-aware view. Deleted on
   /// rvalues, as the base is, so a temporary cannot be viewed.
-  GpuBoundHandleView<T> view() const & noexcept {
-    return GpuBoundHandleView<T>{this->get(), dev_idx_};
+  DeviceBoundHandleView<T> view() const & noexcept {
+    return DeviceBoundHandleView<T>{this->get(), dev_idx_};
   }
-  GpuBoundHandleView<T> view() && = delete;
+  DeviceBoundHandleView<T> view() && = delete;
 };
 
 } // namespace gpumod::extension

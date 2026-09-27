@@ -1,6 +1,6 @@
 // handle_tests.cpp - RAII contract of gpumod.extension.blas's GpublasHandle
 //
-// GpublasHandle is a GpuBoundHandle specialisation over gpublasHandle_t, so its
+// GpublasHandle is a DeviceBoundHandle specialisation over gpublasHandle_t, so its
 // whole behaviour is that layer's: create a live cuBLAS/hipBLAS handle on the
 // selected device (recorded as dev_idx()), hand ownership across on move
 // (leaving the source null and dev_idx() == -1 so its destructor is a no-op),
@@ -17,12 +17,12 @@
 
 import std;
 import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.handle; // GpuBoundHandle(View)
+import gpumod.extension.handle; // DeviceBoundHandle(View)
 import gpumod.extension.blas; // re-exports gpumod.blas, so gpublasHandle_t is in scope
 
 namespace gpumod::extension::test {
 
-// A counting policy for the destroy-exactly-once check below. GpuBoundHandle
+// A counting policy for the destroy-exactly-once check below. DeviceBoundHandle
 // inherits only the (int dev_idx) constructor -- unlike FftPlanWrapper it takes
 // no policy instance -- so the counter lives in a static rather than being
 // injected by pointer as test/extension/fft/plan_tests.cpp does. It tallies
@@ -100,10 +100,10 @@ TEST(GpublasHandleTests, MovePreservesDevice) {
 }
 
 TEST(GpublasHandleTests, ViewMirrorsOwnerHandleAndDevice) {
-  // view() is inherited from GpuBoundHandle and only compile-tested elsewhere
+  // view() is inherited from DeviceBoundHandle and only compile-tested elsewhere
   // (test/extension/build_time/handle_view.cppm); nothing constructs a live
   // handle and reads the borrowed handle/device back. GpublasHandleView is a
-  // bare GpuBoundHandleView with no borrow-safe ops of its own -- a cuBLAS call
+  // bare DeviceBoundHandleView with no borrow-safe ops of its own -- a cuBLAS call
   // consumes the raw handle -- so mirroring get()/dev_idx() is its whole job.
   GpublasHandle handle;
   const GpublasHandleView view = handle.view();

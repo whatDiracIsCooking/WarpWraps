@@ -47,14 +47,14 @@ public:
 /**
  * @brief Non-owning, copyable view over a GPU event
  *
- * Carries the borrowed handle plus its device index (via GpuBoundHandleView) and
+ * Carries the borrowed handle plus its device index (via DeviceBoundHandleView) and
  * the borrow-safe event operations (via GpuEventAccess). Construct one from an
  * owning GpuEvent with `.view()`, or directly from a raw gpuEvent_t you did not
  * create. It destroys nothing, so it must not outlive the event it borrows.
  */
-class GpuEventView : public GpuBoundHandleView<gpuEvent_t>, public GpuEventAccess<GpuEventView> {
+class GpuEventView : public DeviceBoundHandleView<gpuEvent_t>, public GpuEventAccess<GpuEventView> {
 public:
-  using GpuBoundHandleView<gpuEvent_t>::GpuBoundHandleView;
+  using DeviceBoundHandleView<gpuEvent_t>::DeviceBoundHandleView;
 };
 
 /**
@@ -71,17 +71,17 @@ public:
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
          nothrow_error_policy<gpuError_t> P_destroy = P_create>
 class GpuEventWrapper
-    : public GpuBoundHandle<gpuEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy>,
+    : public DeviceBoundHandle<gpuEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy>,
       public GpuEventAccess<GpuEventWrapper<P_create, P_destroy>> {
 private:
   using Base =
-      GpuBoundHandle<gpuEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy>;
+      DeviceBoundHandle<gpuEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 public:
   // The `GpuEvent(int dev_idx = 0)` default/per-device constructor, inherited
-  // from GpuBoundHandle, which selects and records the owning device.
-  using GpuBoundHandle<gpuEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::GpuBoundHandle;
+  // from DeviceBoundHandle, which selects and records the owning device.
+  using DeviceBoundHandle<gpuEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create,
+                       P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU event on `dev_idx` with flags
   /// @param dev_idx Device to create the event on

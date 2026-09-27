@@ -31,7 +31,7 @@ export namespace gpumod::extension {
  * Move-only, because it owns a GpuStream and a GpuMemPool: two DeviceHandle
  * instances must never both claim ownership of the same underlying stream or
  * pool. Every device-bound resource already takes its device by `int dev_idx`
- * (see GpuBoundHandle in gpumod.extension.common) rather than by DeviceHandle,
+ * (see DeviceBoundHandle in gpumod.extension.common) rather than by DeviceHandle,
  * so this bundles a device rather than gating access to one.
  *
  * The full cudaDeviceProp / hipDeviceProp_t is held directly and exposed via
