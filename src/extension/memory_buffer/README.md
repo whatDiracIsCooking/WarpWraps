@@ -17,9 +17,9 @@ All buffer types live in the `gpumod::extension` namespace and are template alia
 | `UnifiedBuffer<T>` | Unified (managed) memory | `gpuMallocManaged` | Yes |
 | `HostBuffer<T>` | Standard host memory | `std::malloc` | Yes |
 
-### Common Interface (from `BufferBase`)
+### Common Interface (from `BaseBuffer`)
 
-All buffer types inherit from `BufferBase<T, K, Derived, P_alloc, P_free>` (CRTP) and expose:
+All buffer types inherit from `BaseBuffer<T, K, Derived, P_alloc, P_free>` (CRTP) and expose:
 
 ```cpp
 T*             data() noexcept;
@@ -179,20 +179,20 @@ a sub-view, whose offset into an allocation aligned for one type need not be ali
 wider one. A device buffer can be reinterpreted too: the alignment check inspects the pointer
 value only and never dereferences it.
 
-## Extending: the `BufferBase` contract
+## Extending: the `BaseBuffer` contract
 
-An owning buffer deriving from `BufferBase<T, K, Derived, P_alloc, P_free>` must:
+An owning buffer deriving from `BaseBuffer<T, K, Derived, P_alloc, P_free>` must:
 
 1. provide `static void allocate(T**, std::size_t, P_alloc&, std::source_location)` -- static,
-   because it runs from a `BufferBase` constructor, before the derived object exists;
+   because it runs from a `BaseBuffer` constructor, before the derived object exists;
 2. provide `void deallocate(T*, std::size_t)`;
 3. call `destroy_()` from its own destructor.
 
 Point 3 is what lets `deallocate()` see derived state such as `DeviceBufferWrapper`'s stream. A
-base destructor cannot call it: the derived sub-object is already gone by then. `~BufferBase`
+base destructor cannot call it: the derived sub-object is already gone by then. `~BaseBuffer`
 reports through `P_free` if a derived class fails to do this, rather than leaking silently.
 
-Views pass `IsView = true` as the trailing template argument of `BufferBase`. The flag is a
+Views pass `IsView = true` as the trailing template argument of `BaseBuffer`. The flag is a
 template parameter rather than a member read back out of `Derived`, because the
 constrained/deleted copy-constructor pair is resolved while `Derived` is still incomplete.
 

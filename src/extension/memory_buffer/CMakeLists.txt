@@ -8,7 +8,7 @@ gpumod_add_cxx_module_library(
   PARTITIONS
   memory_kind.cppm
   host_memory.cppm
-  buffer_base.cppm
+  base_buffer.cppm
   device_buffer.cppm
   pinned_buffer.cppm
   unified_buffer.cppm

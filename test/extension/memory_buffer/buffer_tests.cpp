@@ -39,7 +39,7 @@ namespace ext = gpumod::extension;
 // HostBuffer, PinnedBuffer and UnifiedBuffer are all owning, host-accessible
 // (operator[]), zero-initialising, and built from a bare element count. Their
 // allocate/zero-init and the move that transfers ownership are one shared
-// BufferBase implementation, so a typed suite proves that contract once per
+// BaseBuffer implementation, so a typed suite proves that contract once per
 // kind instead of copying three near-identical TEST()s per property. It also
 // covers move-ASSIGNMENT for the pinned and unified kinds, which the old
 // per-kind tests never did -- only the host kind's was exercised.
@@ -179,7 +179,7 @@ TEST(HostBufferTests, SeparateAllocAndFreePoliciesReachTheirOwnSlots) {
 
 // ── The base destructor's leaked-allocation safety net ──────────────
 //
-// ~BufferBase reports (via policy_free_) when an owning buffer still has a live
+// ~BaseBuffer reports (via policy_free_) when an owning buffer still has a live
 // allocation at base-destruction time -- i.e. the derived class forgot to call
 // destroy_(). No other test reaches that branch, because every real buffer kind
 // releases correctly. A deliberately-broken owning buffer whose destructor omits
@@ -202,12 +202,12 @@ struct StaticHostPolicy {
 
 // Broken on purpose: allocates like a real host buffer but its (implicit)
 // destructor never calls destroy_(), so the allocation is still live when
-// ~BufferBase runs. The block is freed by hand after the object dies, so no
+// ~BaseBuffer runs. The block is freed by hand after the object dies, so no
 // actual leak remains and the case stays sanitizer-clean.
 template<typename T, typename P>
-class LeakyBuffer : public BufferBase<T, MemoryKind::Host, LeakyBuffer<T, P>, P, P> {
+class LeakyBuffer : public BaseBuffer<T, MemoryKind::Host, LeakyBuffer<T, P>, P, P> {
 public:
-  using Base = BufferBase<T, MemoryKind::Host, LeakyBuffer<T, P>, P, P>;
+  using Base = BaseBuffer<T, MemoryKind::Host, LeakyBuffer<T, P>, P, P>;
   using Base::Base;
   static void allocate(T **ptr, std::size_t n, P &, std::source_location) {
     *ptr = static_cast<T *>(std::malloc(n * sizeof(T)));
@@ -223,7 +223,7 @@ TEST(HostBufferTests, LeakedAllocationIsReportedByBaseDestructor) {
     LeakyBuffer<float, StaticHostPolicy> buf(8);
     raw = buf.data();
     ASSERT_NE(raw, nullptr);
-    // buf destructs here WITHOUT calling destroy_(); ~BufferBase sees data_ set
+    // buf destructs here WITHOUT calling destroy_(); ~BaseBuffer sees data_ set
     // and must report through policy_free_.
   }
   EXPECT_EQ(StaticHostPolicy::fires, 1) << "base destructor did not report the leak";

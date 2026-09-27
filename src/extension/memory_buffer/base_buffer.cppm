@@ -1,5 +1,5 @@
 /**
- * @file buffer_base.cppm
+ * @file base_buffer.cppm
  * @brief Base class for memory buffer management
  *
  * Provides RAII-based memory buffer management with support for different
@@ -10,7 +10,7 @@
  *   using namespace gpumod::extension;
  */
 
-export module gpumod.extension.memory_buffer:buffer_base;
+export module gpumod.extension.memory_buffer:base_buffer;
 
 import std;
 import gpumod.extension.common;
@@ -55,12 +55,12 @@ inline constexpr reinterpret_view_tag_t reinterpret_view{};
  * @note An owning Derived MUST (a) provide a static
  *       allocate(T**, std::size_t, P_alloc&, std::source_location), (b) provide
  *       a member deallocate(T*, std::size_t), and (c) call destroy_() from its
- *       own destructor. See the notes on ~BufferBase() and destroy_().
+ *       own destructor. See the notes on ~BaseBuffer() and destroy_().
  */
 template<typename T, MemoryKind K, typename Derived,
          error_policy<typename MemoryErrorType<K>::type> P_alloc,
          nothrow_error_policy<typename MemoryErrorType<K>::type> P_free = P_alloc, bool IsView = false>
-class BufferBase {
+class BaseBuffer {
 public:
   /** @brief Element type stored in this buffer */
   using value_type = T;
@@ -109,7 +109,7 @@ public:
      * Creates a buffer with data_ = nullptr and num_elements_ = 0.
      * Can be move-assigned later to take ownership of allocated memory.
      */
-  BufferBase() noexcept = default;
+  BaseBuffer() noexcept = default;
 
   /**
      * @brief Construct buffer with automatic allocation
@@ -119,7 +119,7 @@ public:
      *
      * @note Only available for owning buffers (not views)
      */
-  BufferBase(const std::size_t num_elements,
+  BaseBuffer(const std::size_t num_elements,
              const std::source_location location = std::source_location::current())
     requires(!IsView)
   {
@@ -135,7 +135,7 @@ public:
      *
      * @note Only available for owning buffers (not views)
      */
-  BufferBase(const std::size_t num_elements, P_alloc policy,
+  BaseBuffer(const std::size_t num_elements, P_alloc policy,
              const std::source_location location = std::source_location::current())
     requires(!IsView)
       : policy_alloc_(std::move(policy)), policy_free_(policy_alloc_) {
@@ -152,7 +152,7 @@ public:
      *
      * @note Only available for owning buffers (not views)
      */
-  BufferBase(const std::size_t num_elements, P_alloc policy_alloc, P_free policy_free,
+  BaseBuffer(const std::size_t num_elements, P_alloc policy_alloc, P_free policy_free,
              const std::source_location location = std::source_location::current())
     requires(!IsView)
       : policy_alloc_(std::move(policy_alloc)), policy_free_(std::move(policy_free)) {
@@ -174,7 +174,7 @@ public:
      *       mutable T*; a view over a const buffer would launder away the const
      */
   template<typename OtherDerived, bool OtherIsView>
-  BufferBase(BufferBase<T, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
+  BaseBuffer(BaseBuffer<T, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
              const std::size_t offset, const std::size_t count,
              const std::source_location location = std::source_location::current())
     requires(IsView)
@@ -199,13 +199,13 @@ public:
      * @note Only available for view types (IsView == true)
      */
   template<typename OtherDerived, bool OtherIsView>
-  BufferBase(BufferBase<T, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
+  BaseBuffer(BaseBuffer<T, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
              const std::size_t offset,
              const std::source_location location = std::source_location::current())
     requires(IsView)
       // An offset past the end would underflow the remaining-element count, so
       // forward a count the delegated-to bounds check is guaranteed to reject.
-      : BufferBase(src, offset,
+      : BaseBuffer(src, offset,
                    offset <= src.num_elements() ? src.num_elements() - offset : std::size_t{1},
                    location) {}
 
@@ -218,10 +218,10 @@ public:
      * @note Only available for view types (IsView == true)
      */
   template<typename OtherDerived, bool OtherIsView>
-  BufferBase(BufferBase<T, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
+  BaseBuffer(BaseBuffer<T, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
              const std::source_location location = std::source_location::current())
     requires(IsView)
-      : BufferBase(src, 0, src.num_elements(), location) {}
+      : BaseBuffer(src, 0, src.num_elements(), location) {}
 
   /**
      * @brief Construct a non-owning view that reinterprets a buffer's bytes as T
@@ -245,8 +245,8 @@ public:
      *       view constructors: a view hands out a mutable T*.
      */
   template<typename U, typename OtherDerived, bool OtherIsView>
-  BufferBase(reinterpret_view_tag_t,
-             BufferBase<U, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
+  BaseBuffer(reinterpret_view_tag_t,
+             BaseBuffer<U, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
              const std::source_location location = std::source_location::current())
     requires(IsView)
       : policy_alloc_(src.alloc_policy()), policy_free_(src.free_policy()) {
@@ -277,7 +277,7 @@ public:
      *       destructor via destroy_(); if data_ is still live here the derived
      *       class forgot to do so, which is reported rather than leaked silently.
      */
-  ~BufferBase() {
+  ~BaseBuffer() {
     if constexpr (!IsView) {
       if (data_ != nullptr) {
         policy_free_.handle_error(MemoryInvalidValue<K>::value, std::source_location::current());
@@ -288,7 +288,7 @@ public:
   /**
      * @brief Move constructor
      */
-  BufferBase(BufferBase &&other) noexcept
+  BaseBuffer(BaseBuffer &&other) noexcept
       : data_(other.data_), num_elements_(other.num_elements_),
         policy_alloc_(std::move(other.policy_alloc_)), policy_free_(std::move(other.policy_free_)) {
     // Take ownership by moving the data pointer
@@ -300,7 +300,7 @@ public:
   /**
      * @brief Move assignment operator
      */
-  BufferBase &operator=(BufferBase &&other) noexcept {
+  BaseBuffer &operator=(BaseBuffer &&other) noexcept {
     // Self-assignment check
     if (this != &other) {
       // Release the current contents (owning only). Safe here, unlike in
@@ -320,14 +320,14 @@ public:
   }
 
   // Copy operations: enabled for views, deleted for owning buffers
-  BufferBase(const BufferBase &) noexcept
+  BaseBuffer(const BaseBuffer &) noexcept
     requires(IsView)
   = default;
-  BufferBase &operator=(const BufferBase &) noexcept
+  BaseBuffer &operator=(const BaseBuffer &) noexcept
     requires(IsView)
   = default;
-  BufferBase(const BufferBase &) = delete;
-  BufferBase &operator=(const BufferBase &) = delete;
+  BaseBuffer(const BaseBuffer &) = delete;
+  BaseBuffer &operator=(const BaseBuffer &) = delete;
 
   /**
      * @brief Implicit conversion to pointer
@@ -422,7 +422,7 @@ protected:
 
   // Protected constructor that skips automatic allocation
   // Allows derived classes to manually allocate memory with custom parameters
-  BufferBase(skip_default_alloc_t) noexcept {}
+  BaseBuffer(skip_default_alloc_t) noexcept {}
 
   /**
      * @brief Release the owned allocation and reset to the empty state
@@ -498,22 +498,22 @@ template<typename T, MemoryKind K,
              DefaultErrorPolicy<typename MemoryErrorType<K>::type>,
          nothrow_error_policy<typename MemoryErrorType<K>::type> P_free = P_alloc>
 class BufferViewWrapper
-    : public BufferBase<T, K, BufferViewWrapper<T, K, P_alloc, P_free>, P_alloc, P_free, true> {
+    : public BaseBuffer<T, K, BufferViewWrapper<T, K, P_alloc, P_free>, P_alloc, P_free, true> {
 public:
-  using Base = BufferBase<T, K, BufferViewWrapper<T, K, P_alloc, P_free>, P_alloc, P_free, true>;
+  using Base = BaseBuffer<T, K, BufferViewWrapper<T, K, P_alloc, P_free>, P_alloc, P_free, true>;
 
-  // Inherit BufferBase's constructors: the view-from-buffer and
+  // Inherit BaseBuffer's constructors: the view-from-buffer and
   // sub-view-from-buffer templates.
   //
-  // Spelled `Base::Base`, not `Base::BufferBase`: the terminal name must
+  // Spelled `Base::Base`, not `Base::BaseBuffer`: the terminal name must
   // match the nested-name-specifier for the using-declarator to name the
-  // CONSTRUCTORS. `Base::BufferBase` instead resolves to BufferBase's
+  // CONSTRUCTORS. `Base::BaseBuffer` instead resolves to BaseBuffer's
   // injected-class-name -- a type -- and the declaration is then ill-formed
   // without `typename`.
   //
   // Default, copy and move constructors are NOT inherited (the standard
   // excludes them); BufferViewWrapper gets its own implicit ones, which
-  // reach BufferBase's `requires (IsView)` copy/move overloads.
+  // reach BaseBuffer's `requires (IsView)` copy/move overloads.
   //
   // The inherited set includes the reinterpret_view constructor, so
   // `BufferViewWrapper<T, K>(reinterpret_view, src)` resolves to it; the
@@ -543,7 +543,7 @@ template<typename T, typename U, MemoryKind K, typename OtherDerived,
          error_policy<typename MemoryErrorType<K>::type> P_alloc,
          nothrow_error_policy<typename MemoryErrorType<K>::type> P_free, bool OtherIsView>
 [[nodiscard]] BufferViewWrapper<T, K, P_alloc, P_free>
-reinterpret_buffer_view(BufferBase<U, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
+reinterpret_buffer_view(BaseBuffer<U, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
                         const std::source_location location = std::source_location::current()) {
   return BufferViewWrapper<T, K, P_alloc, P_free>(reinterpret_view, src, location);
 }

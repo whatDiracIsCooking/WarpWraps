@@ -8,7 +8,7 @@
 
 export module gpumod.extension.memory_buffer:pinned_buffer;
 
-import :buffer_base;
+import :base_buffer;
 import :memory_kind;
 import gpumod.runtime_api;
 import gpumod.extension.common;
@@ -34,16 +34,16 @@ export namespace gpumod::extension {
 template<typename T, error_policy<gpuError_t> P_alloc = DefaultErrorPolicy<gpuError_t>,
          nothrow_error_policy<gpuError_t> P_free = P_alloc>
 class PinnedBufferWrapper
-    : public BufferBase<T, MemoryKind::Pinned, PinnedBufferWrapper<T, P_alloc, P_free>, P_alloc,
+    : public BaseBuffer<T, MemoryKind::Pinned, PinnedBufferWrapper<T, P_alloc, P_free>, P_alloc,
                         P_free> {
 private:
   using Base =
-      BufferBase<T, MemoryKind::Pinned, PinnedBufferWrapper<T, P_alloc, P_free>, P_alloc, P_free>;
+      BaseBuffer<T, MemoryKind::Pinned, PinnedBufferWrapper<T, P_alloc, P_free>, P_alloc, P_free>;
 
 public:
   // Inherit constructors from base
-  using BufferBase<T, MemoryKind::Pinned, PinnedBufferWrapper<T, P_alloc, P_free>, P_alloc,
-                   P_free>::BufferBase;
+  using BaseBuffer<T, MemoryKind::Pinned, PinnedBufferWrapper<T, P_alloc, P_free>, P_alloc,
+                   P_free>::BaseBuffer;
 
   /**
      * @brief Allocate pinned host memory with flags
@@ -85,7 +85,7 @@ public:
      * @param policy Error policy for allocation
      * @param location Source location where allocation was requested
      *
-     * @note Static: it runs from a BufferBase constructor, before this object exists.
+     * @note Static: it runs from a BaseBuffer constructor, before this object exists.
      */
   static void allocate(T **ptr, std::size_t num_elements, P_alloc &policy,
                        std::source_location location) {

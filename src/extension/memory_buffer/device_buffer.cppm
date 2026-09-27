@@ -8,7 +8,7 @@
 
 export module gpumod.extension.memory_buffer:device_buffer;
 
-import :buffer_base;
+import :base_buffer;
 import :memory_kind;
 import gpumod.runtime_api;
 import gpumod.extension.common;
@@ -35,11 +35,11 @@ export namespace gpumod::extension {
 template<typename T, error_policy<gpuError_t> P_alloc = DefaultErrorPolicy<gpuError_t>,
          nothrow_error_policy<gpuError_t> P_free = P_alloc>
 class DeviceBufferWrapper
-    : public BufferBase<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free>, P_alloc,
+    : public BaseBuffer<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free>, P_alloc,
                         P_free> {
 private:
   using Base =
-      BufferBase<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free>, P_alloc, P_free>;
+      BaseBuffer<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free>, P_alloc, P_free>;
 
 public:
   /**
@@ -70,7 +70,7 @@ public:
      * @brief As above, with a custom allocation/deallocation error policy
      *
      * The pool draw is otherwise identical; the policy instance is installed
-     * before allocating so it observes any failure. As with BufferBase's
+     * before allocating so it observes any failure. As with BaseBuffer's
      * single-policy constructor, the deallocation policy is a copy of it.
      *
      * @param num_elements Number of elements to allocate

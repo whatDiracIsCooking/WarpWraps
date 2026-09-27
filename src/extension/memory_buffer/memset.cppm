@@ -14,7 +14,7 @@
 export module gpumod.extension.memory_buffer:memset;
 
 import std;
-import :buffer_base;
+import :base_buffer;
 import :host_memory;
 import gpumod.runtime_api;
 

@@ -13,7 +13,7 @@
 export module gpumod.extension.memory_buffer:copy;
 
 import std;
-import :buffer_base;
+import :base_buffer;
 import :host_memory;
 import gpumod.runtime_api;
 

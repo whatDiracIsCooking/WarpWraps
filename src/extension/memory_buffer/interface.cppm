@@ -25,12 +25,12 @@ export module gpumod.extension.memory_buffer;
 
 import std;
 
-// MemoryKind, BufferBase/BufferViewWrapper and stdHostMemoryError_t are all part
+// MemoryKind, BaseBuffer/BufferViewWrapper and stdHostMemoryError_t are all part
 // of the documented public API - MemoryKind and the policy types are needed to
 // name a buffer or view with a non-default error policy, and copy() returns
 // stdHostMemoryError_t - so consumers must be able to name them.
 export import :memory_kind;
-export import :buffer_base;
+export import :base_buffer;
 export import :host_memory;
 
 export import :device_buffer;
