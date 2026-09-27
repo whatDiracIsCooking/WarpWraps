@@ -215,11 +215,21 @@ COPY --link --from=build-tools /usr/local/share/cmake-${CMAKE_MAJOR_MINOR} /usr/
 # to pyproject.toml, run `uv lock`, commit both.
 COPY --from=ghcr.io/astral-sh/uv:0.9.7 /uv /uvx /usr/local/bin/
 
+# UV_PYTHON_INSTALL_DIR is load-bearing, not tidiness. pyproject requires
+# Python >=3.13 and this layer has no such system interpreter, so `uv sync`
+# downloads a uv-managed CPython and points /opt/venv/bin/python at it. By
+# default that lands in the BUILD user's home -- /root/.local/share/uv/python --
+# and /root is 0700, so uid 1000 cannot traverse it: chowning /opt/venv fixes
+# the symlink's inode and not its target, and the venv is dead for the user the
+# container actually runs as. Sending the interpreter to /opt/uv/python puts it
+# somewhere every uid can reach, and keeps it there at runtime too, so a later
+# `uv sync` in the workspace reuses it instead of re-downloading into $HOME.
 ENV UV_PROJECT_ENVIRONMENT=/opt/venv \
-    UV_LINK_MODE=copy
+    UV_LINK_MODE=copy \
+    UV_PYTHON_INSTALL_DIR=/opt/uv/python
 COPY pyproject.toml uv.lock /tmp/uvroot/
 RUN cd /tmp/uvroot && uv sync --frozen --no-install-project && rm -rf /tmp/uvroot && \
-    chown -R 1000:1000 /opt/venv
+    chown -R 1000:1000 /opt/venv /opt/uv
 
 # Ubuntu 24.04 ships an `ubuntu` user at uid 1000, which matches a typical
 # single-user host, so files written into the bind mount stay owned by you.
@@ -241,8 +251,18 @@ WORKDIR /workspace
 RUN clang --version | head -1 && \
     cmake --version | head -1 && \
     ninja --version && \
-    python3 --version && \
     test -f /usr/lib/llvm-${LLVM_VERSION}/lib/libc++.modules.json
 
 USER ubuntu
+
+# The venv smoke test belongs HERE, after the USER switch, because the bug it
+# guards against is a permission one: a venv that works for root and not for
+# uid 1000. It also has to do more than `python3 --version` -- an interpreter
+# whose stdlib is unreadable still prints its version, then dies on `import
+# encodings`, which is exactly how the /root leak above shipped unnoticed. So
+# import something, and run two entry points through the venv's shebang.
+RUN python3 -c "import json, sys; print(sys.version.split()[0], sys.executable)" && \
+    pre-commit --version && \
+    pytest --version
+
 CMD ["/bin/bash"]
