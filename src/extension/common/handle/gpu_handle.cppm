@@ -31,8 +31,9 @@ export namespace gpumod::extension {
 /// @tparam P_destroy The error policy for destruction (defaults to P_create),
 ///         constrained to P_create's error type
 ///
-/// @note P_destroy MUST NOT THROW exceptions, as it is invoked from the destructor.
-///       Throwing from P_destroy::handle_error() will result in program termination.
+/// @note P_destroy MUST NOT THROW exceptions, as it is invoked from the destructor
+///       (a throwing handle_error would std::terminate). The nothrow_error_policy
+///       constraint enforces this at compile time.
 /// @note The error type is deduced from the policy (P_create::error_type), not
 ///       from the handle type T: on HIP the vendor handles are all `void*`, so a
 ///       handle-type -> error-type table cannot tell them apart. The policy
@@ -45,7 +46,7 @@ export namespace gpumod::extension {
 ///       tracks it. On HIP every vendor handle is a pointer, so the flag only
 ///       ever materialises for cuFFT.
 template<typename T, typename Derived, typed_error_policy P_create,
-         error_policy<typename P_create::error_type> P_destroy = P_create>
+         nothrow_error_policy<typename P_create::error_type> P_destroy = P_create>
 class BaseGpuHandle : private NonCopyable {
 protected:
   T handle_{};

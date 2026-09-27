@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.extension.common; // BaseErrorPolicy, for the counting policy
+import gpumod.extension.common; // the error_policy concept, for the counting policy
 import gpumod.extension.common.handle; // GpuBoundHandle(View)
 import gpumod.extension.blas; // re-exports gpumod.blas, so gpublasHandle_t is in scope
 
@@ -28,10 +28,11 @@ namespace gpumod::extension::test {
 // injected by pointer as test/extension/fft/plan_tests.cpp does. It tallies
 // failures instead of aborting (DefaultErrorPolicy would terminate the process),
 // so a botched destroy is observable after the objects are gone.
-struct CountingBlasPolicy : BaseErrorPolicy<gpublasStatus_t> {
+struct CountingBlasPolicy {
+  using error_type = gpublasStatus_t;
   static inline int errors = 0;
   static void reset() { errors = 0; }
-  void handle_error(gpublasStatus_t, std::source_location) override { ++errors; }
+  void handle_error(gpublasStatus_t, std::source_location) noexcept { ++errors; }
 };
 using CountingBlasHandle = GpublasHandleWrapper<CountingBlasPolicy>;
 

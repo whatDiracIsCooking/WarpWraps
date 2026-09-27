@@ -32,7 +32,7 @@ export namespace gpumod::extension {
  * @note Pinned memory is a limited resource - allocate conservatively
  */
 template<typename T, error_policy<gpuError_t> P_alloc = DefaultErrorPolicy<gpuError_t>,
-         error_policy<gpuError_t> P_free = P_alloc>
+         nothrow_error_policy<gpuError_t> P_free = P_alloc>
 class PinnedBufferWrapper
     : public BufferBase<T, MemoryKind::Pinned, PinnedBufferWrapper<T, P_alloc, P_free>, P_alloc,
                         P_free> {

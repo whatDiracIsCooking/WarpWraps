@@ -47,7 +47,7 @@ export namespace gpumod::extension {
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
 template<error_policy<gpufftResult_t> P_create = DefaultErrorPolicy<gpufftResult_t>,
-         error_policy<gpufftResult_t> P_destroy = P_create>
+         nothrow_error_policy<gpufftResult_t> P_destroy = P_create>
 class FftPlanWrapper
     : public GpuBoundHandle<gpufftHandle, FftPlanWrapper<P_create, P_destroy>, P_create,
                             P_destroy> {

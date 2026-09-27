@@ -76,7 +76,7 @@ public:
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
-         error_policy<gpuError_t> P_destroy = P_create>
+         nothrow_error_policy<gpuError_t> P_destroy = P_create>
 class GpuStreamWrapper : public GpuBoundHandle<gpuStream_t, GpuStreamWrapper<P_create, P_destroy>,
                                                P_create, P_destroy>,
                          public GpuStreamAccess<GpuStreamWrapper<P_create, P_destroy>> {

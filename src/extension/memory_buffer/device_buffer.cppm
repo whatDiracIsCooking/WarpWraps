@@ -33,7 +33,7 @@ export namespace gpumod::extension {
  * @note P_free MUST NOT THROW - it is called from the destructor.
  */
 template<typename T, error_policy<gpuError_t> P_alloc = DefaultErrorPolicy<gpuError_t>,
-         error_policy<gpuError_t> P_free = P_alloc>
+         nothrow_error_policy<gpuError_t> P_free = P_alloc>
 class DeviceBufferWrapper
     : public BufferBase<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free>, P_alloc,
                         P_free> {
@@ -47,9 +47,8 @@ public:
      *
      * A DeviceBuffer is always drawn from a shared DeviceHandle -- this and the
      * policy-taking overload below are the only constructors. Makes the handle's
-     * device current for the allocation via a DeviceScope guard -- routed
-     * through this buffer's allocation policy, and restoring the caller's
-     * previous device afterward -- then allocates from its memory pool
+     * device current for the allocation via a DeviceScope guard -- restoring the
+     * caller's previous device afterward -- then allocates from its memory pool
      * (gpuMallocFromPoolAsync) on its default allocation stream. The handle
      * is retained (shared_ptr) so the pool and stream outlive this buffer -- the
      * destructor returns the block to the pool on that stream via gpuFreeAsync;
@@ -102,8 +101,7 @@ public:
      * @param num_elements Number of elements (unused, kept for interface consistency)
      *
      * @note A DeviceScope guard makes the handle's device current for the free
-     *       -- routed through this buffer's deallocation policy -- and restores
-     *       the caller's previous device afterward. Released with
+     *       and restores the caller's previous device afterward. Released with
      *       gpuFreeAsync on the handle's stream -- the same stream the block was
      *       drawn on. gpuFree performs no implicit synchronisation for a pointer
      *       from gpuMallocFromPoolAsync, so using it here would hand the block
@@ -113,7 +111,7 @@ public:
   void deallocate(T *ptr, std::size_t num_elements) {
     if (ptr == nullptr)
       return;
-    DeviceScopeWrapper<P_free> scope{handle_->index(), this->policy_free_};
+    DeviceScope scope{handle_->index()};
     gpu_check(gpuFreeAsync(ptr, handle_->alloc_stream().get()), this->policy_free_);
   }
 
@@ -121,17 +119,16 @@ private:
   /// @brief Draw `num_elements` from the retained handle's pool on its stream
   ///
   /// The body shared by both constructors; runs after handle_ (and, for the
-  /// policy overload, the error policy) is in place. A DeviceScope guard --
-  /// routed through policy_alloc_ -- makes the handle's device current
-  /// (restoring the caller's previous device on return), then allocates from
-  /// its pool on its allocation stream.
+  /// policy overload, the error policy) is in place. A DeviceScope guard makes
+  /// the handle's device current (restoring the caller's previous device on
+  /// return), then allocates from its pool on its allocation stream.
   ///
   /// @param num_elements Number of elements to allocate
   /// @param location Source location where allocation was requested
   void allocate_from_pool(std::size_t num_elements, std::source_location location) {
     if (!should_allocate(num_elements, location))
       return;
-    DeviceScopeWrapper<P_alloc> scope{handle_->index(), this->policy_alloc_, location};
+    DeviceScope scope{handle_->index(), location};
     const gpuStream_t stream = handle_->alloc_stream().get();
     const std::size_t size_bytes = num_elements * Base::element_size;
     if (!gpu_check(gpuMallocFromPoolAsync(reinterpret_cast<void **>(&this->data_), size_bytes,

@@ -162,11 +162,12 @@ TEST(HostBufferTests, ConstAndPointerAccessorsMatchData) {
 // slots, and free_policy() was never called. A policy carrying a public tag lets
 // us check which instance landed in which slot without forcing a failure.
 namespace {
-struct TaggedHostPolicy : BaseErrorPolicy<stdHostMemoryError_t> {
+struct TaggedHostPolicy {
+  using error_type = stdHostMemoryError_t;
   int tag = 0;
   TaggedHostPolicy() = default;
   explicit TaggedHostPolicy(int t) : tag(t) {}
-  void handle_error(stdHostMemoryError_t, std::source_location) override {}
+  void handle_error(stdHostMemoryError_t, std::source_location) noexcept {}
 };
 } // namespace
 
@@ -185,14 +186,15 @@ TEST(HostBufferTests, SeparateAllocAndFreePoliciesReachTheirOwnSlots) {
 // destroy_() is the only way in. The policy records to statics because the base
 // destructor fires after any instance policy would already be gone.
 namespace {
-struct StaticHostPolicy : BaseErrorPolicy<stdHostMemoryError_t> {
+struct StaticHostPolicy {
+  using error_type = stdHostMemoryError_t;
   static inline int fires = 0;
   static inline stdHostMemoryError_t last{};
   static void reset() {
     fires = 0;
     last = stdHostMemoryError_t{};
   }
-  void handle_error(stdHostMemoryError_t error, std::source_location) override {
+  void handle_error(stdHostMemoryError_t error, std::source_location) noexcept {
     ++fires;
     last = error;
   }

@@ -49,8 +49,9 @@ inline constexpr reinterpret_view_tag_t reinterpret_view{};
  *
  * @note Provides RAII-based memory management with appropriate allocation
  *       and deallocation strategies based on the memory kind
- * @note P_free MUST NOT THROW exceptions, as it is invoked from the destructor.
- *       Throwing from P_free::handle_error() will result in program termination.
+ * @note P_free MUST NOT THROW exceptions, as it is invoked from the destructor
+ *       (a throwing handle_error would std::terminate). The nothrow_error_policy
+ *       constraint on the P_free slot enforces this at compile time.
  * @note An owning Derived MUST (a) provide a static
  *       allocate(T**, std::size_t, P_alloc&, std::source_location), (b) provide
  *       a member deallocate(T*, std::size_t), and (c) call destroy_() from its
@@ -58,7 +59,7 @@ inline constexpr reinterpret_view_tag_t reinterpret_view{};
  */
 template<typename T, MemoryKind K, typename Derived,
          error_policy<typename MemoryErrorType<K>::type> P_alloc,
-         error_policy<typename MemoryErrorType<K>::type> P_free = P_alloc, bool IsView = false>
+         nothrow_error_policy<typename MemoryErrorType<K>::type> P_free = P_alloc, bool IsView = false>
 class BufferBase {
 public:
   /** @brief Element type stored in this buffer */
@@ -495,7 +496,7 @@ private:
 template<typename T, MemoryKind K,
          error_policy<typename MemoryErrorType<K>::type> P_alloc =
              DefaultErrorPolicy<typename MemoryErrorType<K>::type>,
-         error_policy<typename MemoryErrorType<K>::type> P_free = P_alloc>
+         nothrow_error_policy<typename MemoryErrorType<K>::type> P_free = P_alloc>
 class BufferViewWrapper
     : public BufferBase<T, K, BufferViewWrapper<T, K, P_alloc, P_free>, P_alloc, P_free, true> {
 public:
@@ -540,7 +541,7 @@ public:
  */
 template<typename T, typename U, MemoryKind K, typename OtherDerived,
          error_policy<typename MemoryErrorType<K>::type> P_alloc,
-         error_policy<typename MemoryErrorType<K>::type> P_free, bool OtherIsView>
+         nothrow_error_policy<typename MemoryErrorType<K>::type> P_free, bool OtherIsView>
 [[nodiscard]] BufferViewWrapper<T, K, P_alloc, P_free>
 reinterpret_buffer_view(BufferBase<U, K, OtherDerived, P_alloc, P_free, OtherIsView> &src,
                         const std::source_location location = std::source_location::current()) {

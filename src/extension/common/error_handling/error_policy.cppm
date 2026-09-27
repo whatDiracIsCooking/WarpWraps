@@ -1,8 +1,11 @@
 /**
  * @file error_policy.cppm
- * @brief Error policy base class for error handling strategies
+ * @brief Error policy concepts for error handling strategies
  *
- * Provides abstract base class template for implementing error handling policies.
+ * An error policy is any type with a `handle_error(T, source_location)` member
+ * and a `using error_type = T;` -- no base class. The concepts here are
+ * structural (duck-typed), so writing a policy is just declaring that member;
+ * the destruction slot additionally requires it to be noexcept.
  *
  * Usage:
  *   import gpumod.extension.common;
@@ -16,54 +19,41 @@ import std;
 export namespace gpumod::extension {
 
 // ============================================================================
-// Base Error Policy
+// Error Policy Concepts
 // ============================================================================
 
 /**
- * @brief Abstract base class template for error handling policies
- *
- * @tparam T The error code type
- *
- * @note This is an abstract base class that should be specialized for
- *       specific error handling strategies
- */
-template<typename T>
-class BaseErrorPolicy {
-public:
-  /// @brief The error code type this policy handles. A handle deduces its own
-  ///        error type from its policy through this (see typed_error_policy).
-  using error_type = T;
-
-  /**
-     * @brief Handle an error condition
-     *
-     * @param error The error code to handle
-     * @param location Source location where the error occurred
-     *
-     * @note Pure virtual function - must be implemented by derived classes
-     */
-  virtual void handle_error(const T error, std::source_location location) = 0;
-
-  virtual ~BaseErrorPolicy() = default;
-};
-
-// ============================================================================
-// Error Policy Concept
-// ============================================================================
-
-/**
- * @brief Concept constraining type P to be derived from BaseErrorPolicy<T>
+ * @brief A type usable as an error policy for error type T
  *
  * @tparam P The policy type to check
  * @tparam T The error code type
  *
- * @note Ensures that P is a valid error policy for error type T
- * @note Requires nothrow move operations to ensure safe use in RAII wrappers
+ * @note Structural, not inheritance-based: P need only expose
+ *       `handle_error(T, source_location)` returning void. Nothrow move is
+ *       required so a policy is safe as a member of the move-only RAII wrappers.
  */
 template<typename P, typename T>
-concept error_policy =
-    std::derived_from<P, BaseErrorPolicy<T>> && std::is_nothrow_move_constructible_v<P> &&
-    std::is_nothrow_move_assignable_v<P>;
+concept error_policy = requires(P p, T e, std::source_location loc) {
+  { p.handle_error(e, loc) } -> std::same_as<void>;
+} && std::is_nothrow_move_constructible_v<P> && std::is_nothrow_move_assignable_v<P>;
+
+/**
+ * @brief An error policy whose handle_error is additionally noexcept
+ *
+ * @tparam P The policy type to check
+ * @tparam T The error code type
+ *
+ * @note Required of the *destruction* slot (P_destroy / P_free): it runs from a
+ *       destructor, so a throwing handle_error would std::terminate. The
+ *       creation slot deliberately stays the weaker error_policy -- a create
+ *       policy may throw to propagate a failure, which is only unsafe on the
+ *       destroy path. This turns the "MUST NOT THROW" rule from a comment into
+ *       a compile-time constraint.
+ */
+template<typename P, typename T>
+concept nothrow_error_policy = error_policy<P, T> && requires(P p, T e, std::source_location loc) {
+  { p.handle_error(e, loc) } noexcept;
+};
 
 /**
  * @brief An error policy that publishes the error type it handles as `error_type`

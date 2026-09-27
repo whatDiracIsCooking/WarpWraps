@@ -27,9 +27,11 @@ namespace {
 // CountingPolicy and kept in an anonymous namespace to avoid any cross-TU
 // clash within the shared executable.
 template<typename T>
-class RecordingPolicy : public BaseErrorPolicy<T> {
+class RecordingPolicy {
 public:
-  void handle_error(const T error, std::source_location) override {
+  using error_type = T;
+
+  void handle_error(const T error, std::source_location) noexcept {
     ++count_;
     last_ = error;
   }

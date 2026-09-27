@@ -8,7 +8,7 @@
  * (gpumod.extension.common:gpu_error for gpuError_t, the blas/solver/fft/sparse
  * error modules for the library status codes). It aggregates:
  * - :error_code - success_code / error_name / error_string templates
- * - :error_policy - BaseErrorPolicy base and the error_policy concepts
+ * - :error_policy - the error_policy / nothrow_error_policy / typed_error_policy concepts
  * - :default_error_policy - DefaultErrorPolicy (prints to stderr, aborts)
  * - :gpu_check - no-throw error checks routed through an error policy
  *

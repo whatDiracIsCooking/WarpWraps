@@ -30,7 +30,7 @@ export namespace gpumod::extension {
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
 template<error_policy<gpusparseStatus_t> P_create = DefaultErrorPolicy<gpusparseStatus_t>,
-         error_policy<gpusparseStatus_t> P_destroy = P_create>
+         nothrow_error_policy<gpusparseStatus_t> P_destroy = P_create>
 class GpusparseHandleWrapper
     : public GpuBoundHandle<gpusparseHandle_t, GpusparseHandleWrapper<P_create, P_destroy>, P_create,
                             P_destroy> {
