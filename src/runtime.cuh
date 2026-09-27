@@ -11,7 +11,7 @@
  *   WWR_WARP_SIZE       warp/wavefront size, as a constant expression. Set
  *                       with -DWWR_WARP_SIZE (default 32; 64 for CDNA)
  *
- * gpuStream_t is NOT provided here.
+ * wwrStream_t is NOT provided here.
  *
  * Nothing here is #undef'd; include it once, near the top of a device TU.
  */

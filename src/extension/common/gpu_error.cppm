@@ -1,11 +1,11 @@
 /**
  * @file gpu_error.cppm
- * @brief GPU runtime API error code specializations (gpuError_t)
+ * @brief GPU runtime API error code specializations (wwrError_t)
  *
  * Provides the success_code / error_name / error_string specializations for
- * gpuError_t and the gpu_check<gpuError_t> instantiation. These live in common,
+ * wwrError_t and the gpu_check<wwrError_t> instantiation. These live in common,
  * not the runtime extension module, because :device_bound_handle selects and
- * records the owning device (gpuSetDevice / gpuGetDevice, both gpuError_t) for
+ * records the owning device (wwrSetDevice / wwrGetDevice, both wwrError_t) for
  * every device-bound handle -- including the library handles (blas, solver,
  * sparse, fft) that link common but not the runtime module. Keeping them here
  * makes the device-bound base self-sufficient for all of its users.
@@ -24,13 +24,13 @@ export namespace wwr::extension {
 // ============================================================================
 
 /**
- * @brief Specialization for gpuError_t
+ * @brief Specialization for wwrError_t
  *
- * @return gpuSuccess
+ * @return wwrSuccess
  */
 template<>
-gpuError_t success_code<gpuError_t>() noexcept {
-  return gpuSuccess;
+wwrError_t success_code<wwrError_t>() noexcept {
+  return wwrSuccess;
 }
 
 // ============================================================================
@@ -38,14 +38,14 @@ gpuError_t success_code<gpuError_t>() noexcept {
 // ============================================================================
 
 /**
- * @brief Specialization for gpuError_t
+ * @brief Specialization for wwrError_t
  *
  * @param error The GPU error code
  * @return The error name string (e.g., "cudaErrorMemoryAllocation" or "hipErrorOutOfMemory")
  */
 template<>
-const char *error_name<gpuError_t>(gpuError_t error) noexcept {
-  return gpuGetErrorName(error);
+const char *error_name<wwrError_t>(wwrError_t error) noexcept {
+  return wwrGetErrorName(error);
 }
 
 // ============================================================================
@@ -53,27 +53,27 @@ const char *error_name<gpuError_t>(gpuError_t error) noexcept {
 // ============================================================================
 
 /**
- * @brief Specialization for gpuError_t
+ * @brief Specialization for wwrError_t
  *
  * @param error The GPU error code
  * @return The error description string (e.g., "out of memory")
  */
 template<>
-const char *error_string<gpuError_t>(gpuError_t error) noexcept {
-  return gpuGetErrorString(error);
+const char *error_string<wwrError_t>(wwrError_t error) noexcept {
+  return wwrGetErrorString(error);
 }
 
 // ============================================================================
 // Template Instantiations
 // ============================================================================
 
-// Explicitly instantiate DefaultErrorPolicy for gpuError_t
-template class DefaultErrorPolicy<gpuError_t>;
+// Explicitly instantiate DefaultErrorPolicy for wwrError_t
+template class DefaultErrorPolicy<wwrError_t>;
 
-// Explicitly instantiate gpu_check for gpuError_t
-template bool gpu_check<gpuError_t>(const gpuError_t error, std::source_location location);
+// Explicitly instantiate gpu_check for wwrError_t
+template bool gpu_check<wwrError_t>(const wwrError_t error, std::source_location location);
 
-template bool gpu_check<gpuError_t, DefaultErrorPolicy<gpuError_t>>(
-    const gpuError_t error, DefaultErrorPolicy<gpuError_t> &policy, std::source_location location);
+template bool gpu_check<wwrError_t, DefaultErrorPolicy<wwrError_t>>(
+    const wwrError_t error, DefaultErrorPolicy<wwrError_t> &policy, std::source_location location);
 
 } // namespace wwr::extension

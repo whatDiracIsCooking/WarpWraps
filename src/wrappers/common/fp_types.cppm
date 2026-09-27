@@ -26,9 +26,9 @@ export namespace wwr {
 // GPU Complex Types
 // ========================================================================
 
-using wwr::gpuComplex;
-using wwr::gpuDoubleComplex;
-using wwr::gpuFloatComplex;
+using wwr::wwrComplex;
+using wwr::wwrDoubleComplex;
+using wwr::wwrFloatComplex;
 
 // ========================================================================
 // Floating-Point Type Concepts
@@ -46,17 +46,17 @@ concept real_fp = std::is_same_v<T, float> || std::is_same_v<T, double>;
 /**
  * @brief Concept constraining type T to GPU complex floating-point types
  *
- * Constrains T to be either gpuFloatComplex or gpuDoubleComplex, which are
+ * Constrains T to be either wwrFloatComplex or wwrDoubleComplex, which are
  * the complex-valued floating-point types supported by GPU BLAS operations.
  */
 template<typename T>
-concept complex_fp = std::is_same_v<T, gpuFloatComplex> || std::is_same_v<T, gpuDoubleComplex>;
+concept complex_fp = std::is_same_v<T, wwrFloatComplex> || std::is_same_v<T, wwrDoubleComplex>;
 
 /**
  * @brief Concept constraining type T to usual GPU BLAS floating-point types
  *
  * Constrains T to be any of the usual floating-point types supported by GPU BLAS operations,
- * including both real (float, double) and complex (gpuFloatComplex, gpuDoubleComplex) types.
+ * including both real (float, double) and complex (wwrFloatComplex, wwrDoubleComplex) types.
  */
 template<typename T>
 concept usual_fp = real_fp<T> || complex_fp<T>;
@@ -64,18 +64,18 @@ concept usual_fp = real_fp<T> || complex_fp<T>;
 /**
  * @brief Concept constraining type T to GPU half-precision floating-point types
  *
- * Constrains T to be either gpuHalf or gpuBfloat16, which are the
+ * Constrains T to be either wwrHalf or wwrBfloat16, which are the
  * half-precision floating-point types supported by GPU BLAS operations.
  */
 template<typename T>
-concept half_fp = std::is_same_v<T, gpuHalf> || std::is_same_v<T, gpuBfloat16>;
+concept half_fp = std::is_same_v<T, wwrHalf> || std::is_same_v<T, wwrBfloat16>;
 
 /**
  * @brief Concept constraining type T to usual or half-precision GPU BLAS floating-point types
  *
  * Constrains T to be any floating-point type supported by GPU BLAS operations,
- * including usual types (float, double, gpuFloatComplex, gpuDoubleComplex) and
- * half-precision types (gpuHalf, gpuBfloat16).
+ * including usual types (float, double, wwrFloatComplex, wwrDoubleComplex) and
+ * half-precision types (wwrHalf, wwrBfloat16).
  */
 template<typename T>
 concept usual_and_half_fp = usual_fp<T> || half_fp<T>;
@@ -86,23 +86,23 @@ concept usual_and_half_fp = usual_fp<T> || half_fp<T>;
 
 /**
  * @brief Maps a real_fp type to its corresponding GPU complex type.
- *   float  -> gpuFloatComplex
- *   double -> gpuDoubleComplex
+ *   float  -> wwrFloatComplex
+ *   double -> wwrDoubleComplex
  */
 template<real_fp T>
 using RealToComplexType =
-    std::conditional_t<std::is_same_v<T, float>, gpuFloatComplex, gpuDoubleComplex>;
+    std::conditional_t<std::is_same_v<T, float>, wwrFloatComplex, wwrDoubleComplex>;
 
 /**
  * @brief Maps a usual_fp type to its underlying real scalar type.
  *   float           -> float
  *   double          -> double
- *   gpuFloatComplex  -> float
- *   gpuDoubleComplex -> double
+ *   wwrFloatComplex  -> float
+ *   wwrDoubleComplex -> double
  */
 template<usual_fp T>
 using ComplexToRealType =
-    std::conditional_t<std::is_same_v<T, float> || std::is_same_v<T, gpuFloatComplex>, float,
+    std::conditional_t<std::is_same_v<T, float> || std::is_same_v<T, wwrFloatComplex>, float,
                        double>;
 
 // ========================================================================
@@ -111,8 +111,8 @@ using ComplexToRealType =
 
 /**
  * @brief Maps a half_fp type to its corresponding single-precision type.
- *   gpuHalf     -> float
- *   gpuBfloat16 -> float
+ *   wwrHalf     -> float
+ *   wwrBfloat16 -> float
  */
 template<half_fp T>
 using HalfToFloatType = float;

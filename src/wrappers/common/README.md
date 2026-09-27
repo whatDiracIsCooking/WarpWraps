@@ -12,8 +12,8 @@ backend.
 **Import:** `import wwr.wrappers.common;`
 **Namespace:** `wwr`
 
-> The wrappers here take the raw vendor handle (`gpublasHandle_t`, …) and return
-> the raw vendor status (`gpublasStatus_t`, …); this module carries no
+> The wrappers here take the raw vendor handle (`wwrblasHandle_t`, …) and return
+> the raw vendor status (`wwrblasStatus_t`, …); this module carries no
 > error-handling or RAII layer of its own. Typed error policies —
 > `error_code`, `error_policy`, `default_error_policy`, `gpu_check` — live in
 > `wwr.extension.common`, and the `BaseHandle` CRTP base lives in
@@ -26,26 +26,26 @@ backend.
 
 C++20 concepts and type mappings for the floating-point types used across GPU
 BLAS and solver operations. The complex and half-precision types are `src`'s
-backend-neutral aliases: `gpuFloatComplex` is `cuFloatComplex` on a CUDA build
+backend-neutral aliases: `wwrFloatComplex` is `cuFloatComplex` on a CUDA build
 and `hipFloatComplex` on a HIP build, and so on.
 
 | Concept | Matches |
 |---|---|
 | `real_fp<T>` | `float`, `double` |
-| `complex_fp<T>` | `gpuFloatComplex`, `gpuDoubleComplex` |
+| `complex_fp<T>` | `wwrFloatComplex`, `wwrDoubleComplex` |
 | `usual_fp<T>` | `real_fp<T>` or `complex_fp<T>` |
-| `half_fp<T>` | `gpuHalf`, `gpuBfloat16` |
+| `half_fp<T>` | `wwrHalf`, `wwrBfloat16` |
 | `usual_and_half_fp<T>` | `usual_fp<T>` or `half_fp<T>` |
 
 Also exports:
 
 ```cpp
-template<real_fp T>  using RealToComplexType = ...;  // float -> gpuFloatComplex, double -> gpuDoubleComplex
+template<real_fp T>  using RealToComplexType = ...;  // float -> wwrFloatComplex, double -> wwrDoubleComplex
 template<usual_fp T> using ComplexToRealType = ...;  // T -> its real scalar component type
 template<half_fp T>  using HalfToFloatType   = float;
 ```
 
-`gpuFloatComplex`, `gpuDoubleComplex`, and `gpuComplex` are re-exported from this
+`wwrFloatComplex`, `wwrDoubleComplex`, and `wwrComplex` are re-exported from this
 partition for convenience.
 
 The cuBLAS/cuSOLVER `dispatch_macros` header is not shared from here — it

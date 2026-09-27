@@ -1,6 +1,6 @@
 /**
  * @file rand_state_bridge.h
- * @brief wwr::gpurandState for translation units that cannot `import`
+ * @brief wwr::wwrrandState for translation units that cannot `import`
  *
  * gpu_stream_bridge.h's counterpart for the one other type that crosses a
  * host/device boundary by pointer. Same reach -- a .cpp, a .cppm's global
@@ -8,7 +8,7 @@
  * selected_backend.h.
  *
  * It forward-declares the vendor struct and stops. A caller that only passes
- * gpurandState* through needs the type declared, not complete, which keeps
+ * wwrrandState* through needs the type declared, not complete, which keeps
  * curand_kernel.h and hiprand/hiprand_kernel.h (the latter drags in the whole
  * rocRAND device generator machinery) out of every host compile.
  *
@@ -26,7 +26,7 @@
 struct curandStateXORWOW;
 
 namespace wwr {
-using gpurandState = ::curandStateXORWOW;
+using wwrrandState = ::curandStateXORWOW;
 } // namespace wwr
 
 #else
@@ -34,7 +34,7 @@ using gpurandState = ::curandStateXORWOW;
 struct hiprandState;
 
 namespace wwr {
-using gpurandState = ::hiprandState;
+using wwrrandState = ::hiprandState;
 } // namespace wwr
 
 #endif

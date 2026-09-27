@@ -2,7 +2,7 @@
  * @file gpu_graph.cppm
  * @brief RAII wrapper for GPU graph handles
  *
- * Provides GpuGraph, an RAII wrapper for gpuGraph_t -- the mutable DAG that is
+ * Provides GpuGraph, an RAII wrapper for wwrGraph_t -- the mutable DAG that is
  * instantiated into an executable graph (GpuGraphExec).
  */
 
@@ -23,21 +23,21 @@ export namespace wwr::extension {
  * Supports move semantics for transferring ownership.
  *
  * @note A graph is NOT device-bound, so this sits on BaseHandle rather than
- *       DeviceBoundHandle: gpuGraphCreate takes no device, and a graph is a
+ *       DeviceBoundHandle: wwrGraphCreate takes no device, and a graph is a
  *       description of work whose nodes may target different devices. There is
  *       no device index to record. See device_bound_handle.cppm.
  *
- * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<gpuError_t>)
+ * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<wwrError_t>)
  * @tparam P_destroy Error policy type for destruction (defaults to P_create)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
-template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
-         nothrow_error_policy<gpuError_t> P_destroy = P_create>
+template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
+         nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuGraphWrapper
-    : public BaseHandle<gpuGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create, P_destroy> {
+    : public BaseHandle<wwrGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create, P_destroy> {
 private:
-  using Base = BaseHandle<gpuGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create, P_destroy>;
+  using Base = BaseHandle<wwrGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 protected:
   // Construct without creating a handle; used by adopt() below.
@@ -46,15 +46,15 @@ protected:
 public:
   // The default/policy constructors, inherited from BaseHandle; each routes
   // through create() below to build an empty graph.
-  using BaseHandle<gpuGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create,
+  using BaseHandle<wwrGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create,
                       P_destroy>::BaseHandle;
 
   /// @brief Take ownership of an already-created raw graph handle.
   ///
   /// The handle is not created here -- it is one the runtime produced, e.g. by
-  /// gpuStreamEndCapture. The returned wrapper owns it and destroys it with
-  /// gpuGraphDestroy like any other GpuGraph. Used by GpuStream::end_capture.
-  static GpuGraphWrapper adopt(gpuGraph_t raw) noexcept {
+  /// wwrStreamEndCapture. The returned wrapper owns it and destroys it with
+  /// wwrGraphDestroy like any other GpuGraph. Used by GpuStream::end_capture.
+  static GpuGraphWrapper adopt(wwrGraph_t raw) noexcept {
     GpuGraphWrapper graph{typename Base::skip_default_create_t{}};
     graph.handle_ = raw;
     return graph;
@@ -63,9 +63,9 @@ public:
   /// @brief Create an empty graph
   /// @param handle Output parameter for the created graph
   /// @param location Source location where creation was requested
-  void create(gpuGraph_t *handle, std::source_location location) {
-    // gpuGraphCreate's flags parameter is reserved and must be 0.
-    gpu_check(gpuGraphCreate(handle, 0), this->policy_create_, location);
+  void create(wwrGraph_t *handle, std::source_location location) {
+    // wwrGraphCreate's flags parameter is reserved and must be 0.
+    gpu_check(wwrGraphCreate(handle, 0), this->policy_create_, location);
   }
 
   /// @brief Instantiate this graph into an executable graph
@@ -80,9 +80,9 @@ public:
 
   /// @brief Destroy the graph
   /// @param handle The graph to destroy
-  void destroy(gpuGraph_t handle) {
+  void destroy(wwrGraph_t handle) {
     if (handle != nullptr) {
-      gpu_check(gpuGraphDestroy(handle), this->policy_destroy_);
+      gpu_check(wwrGraphDestroy(handle), this->policy_destroy_);
     }
   }
 };

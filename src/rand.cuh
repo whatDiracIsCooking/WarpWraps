@@ -18,7 +18,7 @@
  * These are __device__-only, so they can only be called from device code --
  * e.g. a parallel_for functor's __device__ operator().
  *
- * On HIP, gpurandState and gpurandStateXORWOW are distinct types; on CUDA they
+ * On HIP, wwrrandState and wwrrandStateXORWOW are distinct types; on CUDA they
  * are one. See docs/architecture.md, sections 1 and 4.
  */
 
@@ -53,61 +53,61 @@ namespace wwr {
 // Generator state types
 //
 // The same types rand.cppm exports under these names, spelled without
-// modules. A gpurandState* allocated host-side and a gpurandState* named in
+// modules. A wwrrandState* allocated host-side and a wwrrandState* named in
 // a kernel here are the same type, so the kernel signature mangles to match.
 // ========================================================================
 
 #if defined(WWR_SELECTED_CUDA)
 
 // Pseudorandom generators
-using gpurandStateXORWOW = ::curandStateXORWOW;
-using gpurandStateXORWOW_t = ::curandStateXORWOW_t;
-using gpurandStateMRG32k3a = ::curandStateMRG32k3a;
-using gpurandStateMRG32k3a_t = ::curandStateMRG32k3a_t;
-using gpurandStateMtgp32 = ::curandStateMtgp32;
-using gpurandStateMtgp32_t = ::curandStateMtgp32_t;
-using gpurandStatePhilox4_32_10 = ::curandStatePhilox4_32_10;
-using gpurandStatePhilox4_32_10_t = ::curandStatePhilox4_32_10_t;
+using wwrrandStateXORWOW = ::curandStateXORWOW;
+using wwrrandStateXORWOW_t = ::curandStateXORWOW_t;
+using wwrrandStateMRG32k3a = ::curandStateMRG32k3a;
+using wwrrandStateMRG32k3a_t = ::curandStateMRG32k3a_t;
+using wwrrandStateMtgp32 = ::curandStateMtgp32;
+using wwrrandStateMtgp32_t = ::curandStateMtgp32_t;
+using wwrrandStatePhilox4_32_10 = ::curandStatePhilox4_32_10;
+using wwrrandStatePhilox4_32_10_t = ::curandStatePhilox4_32_10_t;
 
 // Quasirandom generators
-using gpurandStateSobol32 = ::curandStateSobol32;
-using gpurandStateSobol32_t = ::curandStateSobol32_t;
-using gpurandStateScrambledSobol32 = ::curandStateScrambledSobol32;
-using gpurandStateScrambledSobol32_t = ::curandStateScrambledSobol32_t;
-using gpurandStateSobol64 = ::curandStateSobol64;
-using gpurandStateSobol64_t = ::curandStateSobol64_t;
-using gpurandStateScrambledSobol64 = ::curandStateScrambledSobol64;
-using gpurandStateScrambledSobol64_t = ::curandStateScrambledSobol64_t;
+using wwrrandStateSobol32 = ::curandStateSobol32;
+using wwrrandStateSobol32_t = ::curandStateSobol32_t;
+using wwrrandStateScrambledSobol32 = ::curandStateScrambledSobol32;
+using wwrrandStateScrambledSobol32_t = ::curandStateScrambledSobol32_t;
+using wwrrandStateSobol64 = ::curandStateSobol64;
+using wwrrandStateSobol64_t = ::curandStateSobol64_t;
+using wwrrandStateScrambledSobol64 = ::curandStateScrambledSobol64;
+using wwrrandStateScrambledSobol64_t = ::curandStateScrambledSobol64_t;
 
-// Default state -- IS gpurandStateXORWOW here, unlike HIP
-using gpurandState = ::curandState;
-using gpurandState_t = ::curandState_t;
+// Default state -- IS wwrrandStateXORWOW here, unlike HIP
+using wwrrandState = ::curandState;
+using wwrrandState_t = ::curandState_t;
 
 #else
 
 // Pseudorandom generators
-using gpurandStateXORWOW = ::hiprandStateXORWOW;
-using gpurandStateXORWOW_t = ::hiprandStateXORWOW_t;
-using gpurandStateMRG32k3a = ::hiprandStateMRG32k3a;
-using gpurandStateMRG32k3a_t = ::hiprandStateMRG32k3a_t;
-using gpurandStateMtgp32 = ::hiprandStateMtgp32;
-using gpurandStateMtgp32_t = ::hiprandStateMtgp32_t;
-using gpurandStatePhilox4_32_10 = ::hiprandStatePhilox4_32_10;
-using gpurandStatePhilox4_32_10_t = ::hiprandStatePhilox4_32_10_t;
+using wwrrandStateXORWOW = ::hiprandStateXORWOW;
+using wwrrandStateXORWOW_t = ::hiprandStateXORWOW_t;
+using wwrrandStateMRG32k3a = ::hiprandStateMRG32k3a;
+using wwrrandStateMRG32k3a_t = ::hiprandStateMRG32k3a_t;
+using wwrrandStateMtgp32 = ::hiprandStateMtgp32;
+using wwrrandStateMtgp32_t = ::hiprandStateMtgp32_t;
+using wwrrandStatePhilox4_32_10 = ::hiprandStatePhilox4_32_10;
+using wwrrandStatePhilox4_32_10_t = ::hiprandStatePhilox4_32_10_t;
 
 // Quasirandom generators
-using gpurandStateSobol32 = ::hiprandStateSobol32;
-using gpurandStateSobol32_t = ::hiprandStateSobol32_t;
-using gpurandStateScrambledSobol32 = ::hiprandStateScrambledSobol32;
-using gpurandStateScrambledSobol32_t = ::hiprandStateScrambledSobol32_t;
-using gpurandStateSobol64 = ::hiprandStateSobol64;
-using gpurandStateSobol64_t = ::hiprandStateSobol64_t;
-using gpurandStateScrambledSobol64 = ::hiprandStateScrambledSobol64;
-using gpurandStateScrambledSobol64_t = ::hiprandStateScrambledSobol64_t;
+using wwrrandStateSobol32 = ::hiprandStateSobol32;
+using wwrrandStateSobol32_t = ::hiprandStateSobol32_t;
+using wwrrandStateScrambledSobol32 = ::hiprandStateScrambledSobol32;
+using wwrrandStateScrambledSobol32_t = ::hiprandStateScrambledSobol32_t;
+using wwrrandStateSobol64 = ::hiprandStateSobol64;
+using wwrrandStateSobol64_t = ::hiprandStateSobol64_t;
+using wwrrandStateScrambledSobol64 = ::hiprandStateScrambledSobol64;
+using wwrrandStateScrambledSobol64_t = ::hiprandStateScrambledSobol64_t;
 
-// Default state -- its own struct here, NOT gpurandStateXORWOW
-using gpurandState = ::hiprandState;
-using gpurandState_t = ::hiprandState_t;
+// Default state -- its own struct here, NOT wwrrandStateXORWOW
+using wwrrandState = ::hiprandState;
+using wwrrandState_t = ::hiprandState_t;
 
 #endif
 
@@ -136,7 +136,7 @@ using gpurandState_t = ::hiprandState_t;
 /// @param offset How far into this state's sequence to start
 /// @param state [out] The state to initialize
 template<typename State>
-__device__ __forceinline__ void gpurand_init(const unsigned long long seed,
+__device__ __forceinline__ void wwrrand_init(const unsigned long long seed,
                                              const unsigned long long sequence,
                                              const unsigned long long offset, State *state) {
 #if defined(WWR_SELECTED_CUDA)
@@ -148,7 +148,7 @@ __device__ __forceinline__ void gpurand_init(const unsigned long long seed,
 
 /// @brief Draw one float from the standard normal distribution (mean 0, stddev 1)
 template<typename State>
-__device__ __forceinline__ float gpurand_normal(State *state) {
+__device__ __forceinline__ float wwrrand_normal(State *state) {
 #if defined(WWR_SELECTED_CUDA)
   return ::curand_normal(state);
 #else
@@ -158,10 +158,10 @@ __device__ __forceinline__ float gpurand_normal(State *state) {
 
 /// @brief Draw two independent standard normal floats at once
 ///
-/// Cheaper than two gpurand_normal calls: both backends generate normals in
+/// Cheaper than two wwrrand_normal calls: both backends generate normals in
 /// pairs (Box-Muller), so the single-value form discards one half.
 template<typename State>
-__device__ __forceinline__ float2 gpurand_normal2(State *state) {
+__device__ __forceinline__ float2 wwrrand_normal2(State *state) {
 #if defined(WWR_SELECTED_CUDA)
   return ::curand_normal2(state);
 #else
@@ -171,7 +171,7 @@ __device__ __forceinline__ float2 gpurand_normal2(State *state) {
 
 /// @brief Draw one double from the standard normal distribution
 template<typename State>
-__device__ __forceinline__ double gpurand_normal_double(State *state) {
+__device__ __forceinline__ double wwrrand_normal_double(State *state) {
 #if defined(WWR_SELECTED_CUDA)
   return ::curand_normal_double(state);
 #else
@@ -181,9 +181,9 @@ __device__ __forceinline__ double gpurand_normal_double(State *state) {
 
 /// @brief Draw two independent standard normal doubles at once
 ///
-/// See gpurand_normal2 for why the paired form is the cheaper one.
+/// See wwrrand_normal2 for why the paired form is the cheaper one.
 template<typename State>
-__device__ __forceinline__ double2 gpurand_normal2_double(State *state) {
+__device__ __forceinline__ double2 wwrrand_normal2_double(State *state) {
 #if defined(WWR_SELECTED_CUDA)
   return ::curand_normal2_double(state);
 #else

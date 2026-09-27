@@ -30,7 +30,7 @@
 namespace wwr::extension {
 
 // The customization point wwr looks for when WWR_DEFAULT_ERROR_POLICY_IMPL is
-// set. Generic over the error code type T (gpuError_t and each library status
+// set. Generic over the error code type T (wwrError_t and each library status
 // type), exactly like the built-in default it replaces.
 template <typename T>
 struct DefaultErrorPolicyImpl {

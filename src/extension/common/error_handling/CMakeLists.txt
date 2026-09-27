@@ -3,7 +3,7 @@
 # The extension layer's backend-neutral error-handling primitives, split out of
 # wwr.extension.common so the error+check machinery is one self-contained
 # unit. Imports only std -- no gpu* names, no runtime API.
-# wwr.extension.common re-exports it (and adds the gpuError_t specializations
+# wwr.extension.common re-exports it (and adds the wwrError_t specializations
 # in :gpu_error), so consumers reach these names through
 # `import wwr.extension.common;`.
 wwr_add_cxx_module_library(

@@ -14,16 +14,16 @@ import wwr.fft;
 namespace wwr {
 
 // Function: exec_c2c
-template gpufftResult_t exec_c2c<float>(gpufftHandle, gpufftComplex *, gpufftComplex *, int);
-template gpufftResult_t exec_c2c<double>(gpufftHandle, gpufftDoubleComplex *, gpufftDoubleComplex *,
+template wwrfftResult_t exec_c2c<float>(wwrfftHandle, wwrfftComplex *, wwrfftComplex *, int);
+template wwrfftResult_t exec_c2c<double>(wwrfftHandle, wwrfftDoubleComplex *, wwrfftDoubleComplex *,
                                          int);
 
 // Function: exec_r2c
-template gpufftResult_t exec_r2c<float>(gpufftHandle, float *, gpufftComplex *);
-template gpufftResult_t exec_r2c<double>(gpufftHandle, double *, gpufftDoubleComplex *);
+template wwrfftResult_t exec_r2c<float>(wwrfftHandle, float *, wwrfftComplex *);
+template wwrfftResult_t exec_r2c<double>(wwrfftHandle, double *, wwrfftDoubleComplex *);
 
 // Function: exec_c2r
-template gpufftResult_t exec_c2r<float>(gpufftHandle, gpufftComplex *, float *);
-template gpufftResult_t exec_c2r<double>(gpufftHandle, gpufftDoubleComplex *, double *);
+template wwrfftResult_t exec_c2r<float>(wwrfftHandle, wwrfftComplex *, float *);
+template wwrfftResult_t exec_c2r<double>(wwrfftHandle, wwrfftDoubleComplex *, double *);
 
 } // namespace wwr

@@ -43,7 +43,7 @@ private:
 };
 
 using HostPolicy = CountingPolicy<stdHostMemoryError_t>;
-using GpuPolicy = CountingPolicy<gpuError_t>;
+using GpuPolicy = CountingPolicy<wwrError_t>;
 
 template<typename T>
 using CountedHostBuffer = HostBufferWrapper<T, HostPolicy>;

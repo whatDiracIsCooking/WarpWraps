@@ -29,7 +29,7 @@ export namespace wwr {
  * @brief General matrix-matrix multiplication: C = alpha*op(A)*op(B) + beta*C
  *
  * @param handle GPU BLAS handle
- * @param transa Operation on matrix A (GPUBLAS_OP_N, GPUBLAS_OP_T, GPUBLAS_OP_C)
+ * @param transa Operation on matrix A (WWRBLAS_OP_N, WWRBLAS_OP_T, WWRBLAS_OP_C)
  * @param transb Operation on matrix B
  * @param m Number of rows of matrix op(A) and C
  * @param n Number of columns of matrix op(B) and C
@@ -44,7 +44,7 @@ export namespace wwr {
  * @param ldc Leading dimension of C
  */
 template<usual_fp T, int_type IntT>
-gpublasStatus_t gemm(gpublasHandle_t handle, gpublasOperation_t transa, gpublasOperation_t transb,
+wwrblasStatus_t gemm(wwrblasHandle_t handle, wwrblasOperation_t transa, wwrblasOperation_t transb,
                      IntT m, IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *B,
                      IntT ldb, const T *beta, T *C, IntT ldc) {
   WWR_USUAL_DISPATCH_64(T, IntT, gemm, handle, transa, transb, m, n, k, alpha, A, lda, B, ldb,
@@ -66,8 +66,8 @@ gpublasStatus_t gemm(gpublasHandle_t handle, gpublasOperation_t transa, gpublasO
  * @param batchCount Number of GEMM operations to perform
  */
 template<usual_fp T, int_type IntT>
-gpublasStatus_t gemmBatched(gpublasHandle_t handle, gpublasOperation_t transa,
-                            gpublasOperation_t transb, IntT m, IntT n, IntT k, const T *alpha,
+wwrblasStatus_t gemmBatched(wwrblasHandle_t handle, wwrblasOperation_t transa,
+                            wwrblasOperation_t transb, IntT m, IntT n, IntT k, const T *alpha,
                             const T *const Aarray[], IntT lda, const T *const Barray[], IntT ldb,
                             const T *beta, T *const Carray[], IntT ldc, IntT batchCount) {
   WWR_USUAL_DISPATCH_64(T, IntT, gemmBatched, handle, transa, transb, m, n, k, alpha, Aarray,
@@ -90,8 +90,8 @@ gpublasStatus_t gemmBatched(gpublasHandle_t handle, gpublasOperation_t transa,
  * @param batchCount Number of GEMM operations to perform
  */
 template<usual_fp T, int_type IntT>
-gpublasStatus_t gemmStridedBatched(gpublasHandle_t handle, gpublasOperation_t transa,
-                                   gpublasOperation_t transb, IntT m, IntT n, IntT k,
+wwrblasStatus_t gemmStridedBatched(wwrblasHandle_t handle, wwrblasOperation_t transa,
+                                   wwrblasOperation_t transb, IntT m, IntT n, IntT k,
                                    const T *alpha, const T *A, IntT lda, long long int strideA,
                                    const T *B, IntT ldb, long long int strideB, const T *beta, T *C,
                                    IntT ldc, long long int strideC, IntT batchCount) {
@@ -110,7 +110,7 @@ gpublasStatus_t gemmStridedBatched(gpublasHandle_t handle, gpublasOperation_t tr
  * @param uplo Specifies whether upper or lower triangular part of A is referenced
  */
 template<usual_fp T, int_type IntT>
-gpublasStatus_t symm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo, IntT m,
+wwrblasStatus_t symm(wwrblasHandle_t handle, wwrblasSideMode_t side, wwrblasFillMode_t uplo, IntT m,
                      IntT n, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                      const T *beta, T *C, IntT ldc) {
   WWR_USUAL_DISPATCH_64(T, IntT, symm, handle, side, uplo, m, n, alpha, A, lda, B, ldb, beta, C,
@@ -125,10 +125,10 @@ gpublasStatus_t symm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFill
  * @brief Symmetric rank-k update: C = alpha*op(A)*op(A)^T + beta*C
  *
  * @param uplo Specifies whether upper or lower triangular part of C is updated
- * @param trans Operation on matrix A (GPUBLAS_OP_N or GPUBLAS_OP_T)
+ * @param trans Operation on matrix A (WWRBLAS_OP_N or WWRBLAS_OP_T)
  */
 template<usual_fp T, int_type IntT>
-gpublasStatus_t syrk(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
+wwrblasStatus_t syrk(wwrblasHandle_t handle, wwrblasFillMode_t uplo, wwrblasOperation_t trans,
                      IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *beta, T *C,
                      IntT ldc) {
   WWR_USUAL_DISPATCH_64(T, IntT, syrk, handle, uplo, trans, n, k, alpha, A, lda, beta, C, ldc);
@@ -142,7 +142,7 @@ gpublasStatus_t syrk(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOper
  * @brief Symmetric rank-2k update: C = alpha*(op(A)*op(B)^T + op(B)*op(A)^T) + beta*C
  */
 template<usual_fp T, int_type IntT>
-gpublasStatus_t syr2k(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
+wwrblasStatus_t syr2k(wwrblasHandle_t handle, wwrblasFillMode_t uplo, wwrblasOperation_t trans,
                       IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                       const T *beta, T *C, IntT ldc) {
   WWR_USUAL_DISPATCH_64(T, IntT, syr2k, handle, uplo, trans, n, k, alpha, A, lda, B, ldb, beta,
@@ -157,7 +157,7 @@ gpublasStatus_t syr2k(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOpe
  * @brief Variant of symmetric rank-k update: C = alpha*op(A)*op(B)^T + beta*C
  */
 template<usual_fp T, int_type IntT>
-gpublasStatus_t syrkx(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
+wwrblasStatus_t syrkx(wwrblasHandle_t handle, wwrblasFillMode_t uplo, wwrblasOperation_t trans,
                       IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                       const T *beta, T *C, IntT ldc) {
   WWR_USUAL_DISPATCH_64(T, IntT, syrkx, handle, uplo, trans, n, k, alpha, A, lda, B, ldb, beta,
@@ -177,8 +177,8 @@ gpublasStatus_t syrkx(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOpe
  * @param diag Specifies whether A is unit triangular
  */
 template<usual_fp T, int_type IntT>
-gpublasStatus_t trmm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo,
-                     gpublasOperation_t trans, gpublasDiagType_t diag, IntT m, IntT n,
+wwrblasStatus_t trmm(wwrblasHandle_t handle, wwrblasSideMode_t side, wwrblasFillMode_t uplo,
+                     wwrblasOperation_t trans, wwrblasDiagType_t diag, IntT m, IntT n,
                      const T *alpha, const T *A, IntT lda, const T *B, IntT ldb, T *C, IntT ldc) {
   WWR_USUAL_DISPATCH_64(T, IntT, trmm, handle, side, uplo, trans, diag, m, n, alpha, A, lda, B,
                            ldb, C, ldc);
@@ -197,8 +197,8 @@ gpublasStatus_t trmm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFill
  * @param diag Specifies whether A is unit triangular
  */
 template<usual_fp T, int_type IntT>
-gpublasStatus_t trsm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo,
-                     gpublasOperation_t trans, gpublasDiagType_t diag, IntT m, IntT n,
+wwrblasStatus_t trsm(wwrblasHandle_t handle, wwrblasSideMode_t side, wwrblasFillMode_t uplo,
+                     wwrblasOperation_t trans, wwrblasDiagType_t diag, IntT m, IntT n,
                      const T *alpha, const T *A, IntT lda, T *B, IntT ldb) {
   WWR_USUAL_DISPATCH_64(T, IntT, trsm, handle, side, uplo, trans, diag, m, n, alpha, A, lda, B,
                            ldb);
@@ -214,8 +214,8 @@ gpublasStatus_t trsm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFill
  * Solves multiple independent triangular systems in a single call.
  */
 template<usual_fp T, int_type IntT>
-gpublasStatus_t trsmBatched(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo,
-                            gpublasOperation_t trans, gpublasDiagType_t diag, IntT m, IntT n,
+wwrblasStatus_t trsmBatched(wwrblasHandle_t handle, wwrblasSideMode_t side, wwrblasFillMode_t uplo,
+                            wwrblasOperation_t trans, wwrblasDiagType_t diag, IntT m, IntT n,
                             const T *alpha, const T *const A[], IntT lda, T *const B[], IntT ldb,
                             IntT batchCount) {
   WWR_USUAL_DISPATCH_64(T, IntT, trsmBatched, handle, side, uplo, trans, diag, m, n, alpha, A,
@@ -235,10 +235,10 @@ gpublasStatus_t trsmBatched(gpublasHandle_t handle, gpublasSideMode_t side, gpub
  * @param uplo Specifies whether upper or lower triangular part of A is referenced
  */
 template<complex_fp T, int_type IntT>
-gpublasStatus_t hemm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo, IntT m,
+wwrblasStatus_t hemm(wwrblasHandle_t handle, wwrblasSideMode_t side, wwrblasFillMode_t uplo, IntT m,
                      IntT n, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                      const T *beta, T *C, IntT ldc) {
-  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, hemm, handle, side, uplo, m, n, alpha, A, lda,
+  WWR_COMPLEX_DISPATCH_64(T, IntT, wwrblas, C, Z, hemm, handle, side, uplo, m, n, alpha, A, lda,
                              B, ldb, beta, C, ldc);
 }
 
@@ -252,13 +252,13 @@ gpublasStatus_t hemm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFill
  * Only available for complex types. Note that alpha and beta are real scalars.
  *
  * @param uplo Specifies whether upper or lower triangular part of C is updated
- * @param trans Operation on matrix A (GPUBLAS_OP_N or GPUBLAS_OP_C)
+ * @param trans Operation on matrix A (WWRBLAS_OP_N or WWRBLAS_OP_C)
  */
 template<complex_fp T, int_type IntT>
-gpublasStatus_t herk(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
+wwrblasStatus_t herk(wwrblasHandle_t handle, wwrblasFillMode_t uplo, wwrblasOperation_t trans,
                      IntT n, IntT k, const ComplexToRealType<T> *alpha, const T *A, IntT lda,
                      const ComplexToRealType<T> *beta, T *C, IntT ldc) {
-  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, herk, handle, uplo, trans, n, k, alpha, A, lda,
+  WWR_COMPLEX_DISPATCH_64(T, IntT, wwrblas, C, Z, herk, handle, uplo, trans, n, k, alpha, A, lda,
                              beta, C, ldc);
 }
 
@@ -272,10 +272,10 @@ gpublasStatus_t herk(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOper
  * Only available for complex types. Note that alpha is complex but beta is real.
  */
 template<complex_fp T, int_type IntT>
-gpublasStatus_t her2k(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
+wwrblasStatus_t her2k(wwrblasHandle_t handle, wwrblasFillMode_t uplo, wwrblasOperation_t trans,
                       IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                       const ComplexToRealType<T> *beta, T *C, IntT ldc) {
-  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, her2k, handle, uplo, trans, n, k, alpha, A,
+  WWR_COMPLEX_DISPATCH_64(T, IntT, wwrblas, C, Z, her2k, handle, uplo, trans, n, k, alpha, A,
                              lda, B, ldb, beta, C, ldc);
 }
 
@@ -289,10 +289,10 @@ gpublasStatus_t her2k(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOpe
  * Only available for complex types. Note that alpha is complex but beta is real.
  */
 template<complex_fp T, int_type IntT>
-gpublasStatus_t herkx(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
+wwrblasStatus_t herkx(wwrblasHandle_t handle, wwrblasFillMode_t uplo, wwrblasOperation_t trans,
                       IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                       const ComplexToRealType<T> *beta, T *C, IntT ldc) {
-  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, herkx, handle, uplo, trans, n, k, alpha, A,
+  WWR_COMPLEX_DISPATCH_64(T, IntT, wwrblas, C, Z, herkx, handle, uplo, trans, n, k, alpha, A,
                              lda, B, ldb, beta, C, ldc);
 }
 
@@ -300,480 +300,480 @@ gpublasStatus_t herkx(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOpe
 // Matching `template` instantiations live in instantiations.cpp.
 
 // Function: gemm
-extern template gpublasStatus_t gemm<float, int>(gpublasHandle_t, gpublasOperation_t,
-                                                 gpublasOperation_t, int, int, int, const float *,
+extern template wwrblasStatus_t gemm<float, int>(wwrblasHandle_t, wwrblasOperation_t,
+                                                 wwrblasOperation_t, int, int, int, const float *,
                                                  const float *, int, const float *, int,
                                                  const float *, float *, int);
-extern template gpublasStatus_t gemm<float, int64_t>(gpublasHandle_t, gpublasOperation_t,
-                                                     gpublasOperation_t, int64_t, int64_t, int64_t,
+extern template wwrblasStatus_t gemm<float, int64_t>(wwrblasHandle_t, wwrblasOperation_t,
+                                                     wwrblasOperation_t, int64_t, int64_t, int64_t,
                                                      const float *, const float *, int64_t,
                                                      const float *, int64_t, const float *, float *,
                                                      int64_t);
-extern template gpublasStatus_t gemm<double, int>(gpublasHandle_t, gpublasOperation_t,
-                                                  gpublasOperation_t, int, int, int, const double *,
+extern template wwrblasStatus_t gemm<double, int>(wwrblasHandle_t, wwrblasOperation_t,
+                                                  wwrblasOperation_t, int, int, int, const double *,
                                                   const double *, int, const double *, int,
                                                   const double *, double *, int);
-extern template gpublasStatus_t gemm<double, int64_t>(gpublasHandle_t, gpublasOperation_t,
-                                                      gpublasOperation_t, int64_t, int64_t, int64_t,
+extern template wwrblasStatus_t gemm<double, int64_t>(wwrblasHandle_t, wwrblasOperation_t,
+                                                      wwrblasOperation_t, int64_t, int64_t, int64_t,
                                                       const double *, const double *, int64_t,
                                                       const double *, int64_t, const double *,
                                                       double *, int64_t);
-extern template gpublasStatus_t
-gemm<gpuFloatComplex, int>(gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int, int, int,
-                           const gpuFloatComplex *, const gpuFloatComplex *, int,
-                           const gpuFloatComplex *, int, const gpuFloatComplex *, gpuFloatComplex *,
+extern template wwrblasStatus_t
+gemm<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int, int,
+                           const wwrFloatComplex *, const wwrFloatComplex *, int,
+                           const wwrFloatComplex *, int, const wwrFloatComplex *, wwrFloatComplex *,
                            int);
-extern template gpublasStatus_t
-gemm<gpuFloatComplex, int64_t>(gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int64_t,
-                               int64_t, int64_t, const gpuFloatComplex *, const gpuFloatComplex *,
-                               int64_t, const gpuFloatComplex *, int64_t, const gpuFloatComplex *,
-                               gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t
-gemm<gpuDoubleComplex, int>(gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int, int, int,
-                            const gpuDoubleComplex *, const gpuDoubleComplex *, int,
-                            const gpuDoubleComplex *, int, const gpuDoubleComplex *,
-                            gpuDoubleComplex *, int);
-extern template gpublasStatus_t
-gemm<gpuDoubleComplex, int64_t>(gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int64_t,
-                                int64_t, int64_t, const gpuDoubleComplex *,
-                                const gpuDoubleComplex *, int64_t, const gpuDoubleComplex *,
-                                int64_t, const gpuDoubleComplex *, gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t
+gemm<wwrFloatComplex, int64_t>(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int64_t,
+                               int64_t, int64_t, const wwrFloatComplex *, const wwrFloatComplex *,
+                               int64_t, const wwrFloatComplex *, int64_t, const wwrFloatComplex *,
+                               wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t
+gemm<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int, int,
+                            const wwrDoubleComplex *, const wwrDoubleComplex *, int,
+                            const wwrDoubleComplex *, int, const wwrDoubleComplex *,
+                            wwrDoubleComplex *, int);
+extern template wwrblasStatus_t
+gemm<wwrDoubleComplex, int64_t>(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int64_t,
+                                int64_t, int64_t, const wwrDoubleComplex *,
+                                const wwrDoubleComplex *, int64_t, const wwrDoubleComplex *,
+                                int64_t, const wwrDoubleComplex *, wwrDoubleComplex *, int64_t);
 
 // Function: gemmBatched
-extern template gpublasStatus_t gemmBatched<float, int>(gpublasHandle_t, gpublasOperation_t,
-                                                        gpublasOperation_t, int, int, int,
+extern template wwrblasStatus_t gemmBatched<float, int>(wwrblasHandle_t, wwrblasOperation_t,
+                                                        wwrblasOperation_t, int, int, int,
                                                         const float *, const float *const[], int,
                                                         const float *const[], int, const float *,
                                                         float *const[], int, int);
-extern template gpublasStatus_t
-gemmBatched<float, int64_t>(gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int64_t,
+extern template wwrblasStatus_t
+gemmBatched<float, int64_t>(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int64_t,
                             int64_t, int64_t, const float *, const float *const[], int64_t,
                             const float *const[], int64_t, const float *, float *const[], int64_t,
                             int64_t);
-extern template gpublasStatus_t gemmBatched<double, int>(gpublasHandle_t, gpublasOperation_t,
-                                                         gpublasOperation_t, int, int, int,
+extern template wwrblasStatus_t gemmBatched<double, int>(wwrblasHandle_t, wwrblasOperation_t,
+                                                         wwrblasOperation_t, int, int, int,
                                                          const double *, const double *const[], int,
                                                          const double *const[], int, const double *,
                                                          double *const[], int, int);
-extern template gpublasStatus_t
-gemmBatched<double, int64_t>(gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int64_t,
+extern template wwrblasStatus_t
+gemmBatched<double, int64_t>(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int64_t,
                              int64_t, int64_t, const double *, const double *const[], int64_t,
                              const double *const[], int64_t, const double *, double *const[],
                              int64_t, int64_t);
-extern template gpublasStatus_t
-gemmBatched<gpuFloatComplex, int>(gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int, int,
-                                  int, const gpuFloatComplex *, const gpuFloatComplex *const[], int,
-                                  const gpuFloatComplex *const[], int, const gpuFloatComplex *,
-                                  gpuFloatComplex *const[], int, int);
-extern template gpublasStatus_t gemmBatched<gpuFloatComplex, int64_t>(
-    gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int64_t, int64_t, int64_t,
-    const gpuFloatComplex *, const gpuFloatComplex *const[], int64_t,
-    const gpuFloatComplex *const[], int64_t, const gpuFloatComplex *, gpuFloatComplex *const[],
+extern template wwrblasStatus_t
+gemmBatched<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int,
+                                  int, const wwrFloatComplex *, const wwrFloatComplex *const[], int,
+                                  const wwrFloatComplex *const[], int, const wwrFloatComplex *,
+                                  wwrFloatComplex *const[], int, int);
+extern template wwrblasStatus_t gemmBatched<wwrFloatComplex, int64_t>(
+    wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int64_t, int64_t, int64_t,
+    const wwrFloatComplex *, const wwrFloatComplex *const[], int64_t,
+    const wwrFloatComplex *const[], int64_t, const wwrFloatComplex *, wwrFloatComplex *const[],
     int64_t, int64_t);
-extern template gpublasStatus_t gemmBatched<gpuDoubleComplex, int>(
-    gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int, int, int,
-    const gpuDoubleComplex *, const gpuDoubleComplex *const[], int, const gpuDoubleComplex *const[],
-    int, const gpuDoubleComplex *, gpuDoubleComplex *const[], int, int);
-extern template gpublasStatus_t gemmBatched<gpuDoubleComplex, int64_t>(
-    gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int64_t, int64_t, int64_t,
-    const gpuDoubleComplex *, const gpuDoubleComplex *const[], int64_t,
-    const gpuDoubleComplex *const[], int64_t, const gpuDoubleComplex *, gpuDoubleComplex *const[],
+extern template wwrblasStatus_t gemmBatched<wwrDoubleComplex, int>(
+    wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int, int,
+    const wwrDoubleComplex *, const wwrDoubleComplex *const[], int, const wwrDoubleComplex *const[],
+    int, const wwrDoubleComplex *, wwrDoubleComplex *const[], int, int);
+extern template wwrblasStatus_t gemmBatched<wwrDoubleComplex, int64_t>(
+    wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int64_t, int64_t, int64_t,
+    const wwrDoubleComplex *, const wwrDoubleComplex *const[], int64_t,
+    const wwrDoubleComplex *const[], int64_t, const wwrDoubleComplex *, wwrDoubleComplex *const[],
     int64_t, int64_t);
 
 // Function: gemmStridedBatched
-extern template gpublasStatus_t
-gemmStridedBatched<float, int>(gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int, int,
+extern template wwrblasStatus_t
+gemmStridedBatched<float, int>(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int,
                                int, const float *, const float *, int, long long int, const float *,
                                int, long long int, const float *, float *, int, long long int, int);
-extern template gpublasStatus_t
-gemmStridedBatched<float, int64_t>(gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int64_t,
+extern template wwrblasStatus_t
+gemmStridedBatched<float, int64_t>(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int64_t,
                                    int64_t, int64_t, const float *, const float *, int64_t,
                                    long long int, const float *, int64_t, long long int,
                                    const float *, float *, int64_t, long long int, int64_t);
-extern template gpublasStatus_t gemmStridedBatched<double, int>(gpublasHandle_t, gpublasOperation_t,
-                                                                gpublasOperation_t, int, int, int,
+extern template wwrblasStatus_t gemmStridedBatched<double, int>(wwrblasHandle_t, wwrblasOperation_t,
+                                                                wwrblasOperation_t, int, int, int,
                                                                 const double *, const double *, int,
                                                                 long long int, const double *, int,
                                                                 long long int, const double *,
                                                                 double *, int, long long int, int);
-extern template gpublasStatus_t
-gemmStridedBatched<double, int64_t>(gpublasHandle_t, gpublasOperation_t, gpublasOperation_t,
+extern template wwrblasStatus_t
+gemmStridedBatched<double, int64_t>(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t,
                                     int64_t, int64_t, int64_t, const double *, const double *,
                                     int64_t, long long int, const double *, int64_t, long long int,
                                     const double *, double *, int64_t, long long int, int64_t);
-extern template gpublasStatus_t gemmStridedBatched<gpuFloatComplex, int>(
-    gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int, int, int, const gpuFloatComplex *,
-    const gpuFloatComplex *, int, long long int, const gpuFloatComplex *, int, long long int,
-    const gpuFloatComplex *, gpuFloatComplex *, int, long long int, int);
-extern template gpublasStatus_t gemmStridedBatched<gpuFloatComplex, int64_t>(
-    gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int64_t, int64_t, int64_t,
-    const gpuFloatComplex *, const gpuFloatComplex *, int64_t, long long int,
-    const gpuFloatComplex *, int64_t, long long int, const gpuFloatComplex *, gpuFloatComplex *,
+extern template wwrblasStatus_t gemmStridedBatched<wwrFloatComplex, int>(
+    wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int, int, const wwrFloatComplex *,
+    const wwrFloatComplex *, int, long long int, const wwrFloatComplex *, int, long long int,
+    const wwrFloatComplex *, wwrFloatComplex *, int, long long int, int);
+extern template wwrblasStatus_t gemmStridedBatched<wwrFloatComplex, int64_t>(
+    wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int64_t, int64_t, int64_t,
+    const wwrFloatComplex *, const wwrFloatComplex *, int64_t, long long int,
+    const wwrFloatComplex *, int64_t, long long int, const wwrFloatComplex *, wwrFloatComplex *,
     int64_t, long long int, int64_t);
-extern template gpublasStatus_t gemmStridedBatched<gpuDoubleComplex, int>(
-    gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int, int, int,
-    const gpuDoubleComplex *, const gpuDoubleComplex *, int, long long int,
-    const gpuDoubleComplex *, int, long long int, const gpuDoubleComplex *, gpuDoubleComplex *, int,
+extern template wwrblasStatus_t gemmStridedBatched<wwrDoubleComplex, int>(
+    wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int, int,
+    const wwrDoubleComplex *, const wwrDoubleComplex *, int, long long int,
+    const wwrDoubleComplex *, int, long long int, const wwrDoubleComplex *, wwrDoubleComplex *, int,
     long long int, int);
-extern template gpublasStatus_t gemmStridedBatched<gpuDoubleComplex, int64_t>(
-    gpublasHandle_t, gpublasOperation_t, gpublasOperation_t, int64_t, int64_t, int64_t,
-    const gpuDoubleComplex *, const gpuDoubleComplex *, int64_t, long long int,
-    const gpuDoubleComplex *, int64_t, long long int, const gpuDoubleComplex *, gpuDoubleComplex *,
+extern template wwrblasStatus_t gemmStridedBatched<wwrDoubleComplex, int64_t>(
+    wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int64_t, int64_t, int64_t,
+    const wwrDoubleComplex *, const wwrDoubleComplex *, int64_t, long long int,
+    const wwrDoubleComplex *, int64_t, long long int, const wwrDoubleComplex *, wwrDoubleComplex *,
     int64_t, long long int, int64_t);
 
 // Function: symm
-extern template gpublasStatus_t symm<float, int>(gpublasHandle_t, gpublasSideMode_t,
-                                                 gpublasFillMode_t, int, int, const float *,
+extern template wwrblasStatus_t symm<float, int>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                 wwrblasFillMode_t, int, int, const float *,
                                                  const float *, int, const float *, int,
                                                  const float *, float *, int);
-extern template gpublasStatus_t symm<float, int64_t>(gpublasHandle_t, gpublasSideMode_t,
-                                                     gpublasFillMode_t, int64_t, int64_t,
+extern template wwrblasStatus_t symm<float, int64_t>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                     wwrblasFillMode_t, int64_t, int64_t,
                                                      const float *, const float *, int64_t,
                                                      const float *, int64_t, const float *, float *,
                                                      int64_t);
-extern template gpublasStatus_t symm<double, int>(gpublasHandle_t, gpublasSideMode_t,
-                                                  gpublasFillMode_t, int, int, const double *,
+extern template wwrblasStatus_t symm<double, int>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                  wwrblasFillMode_t, int, int, const double *,
                                                   const double *, int, const double *, int,
                                                   const double *, double *, int);
-extern template gpublasStatus_t symm<double, int64_t>(gpublasHandle_t, gpublasSideMode_t,
-                                                      gpublasFillMode_t, int64_t, int64_t,
+extern template wwrblasStatus_t symm<double, int64_t>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                      wwrblasFillMode_t, int64_t, int64_t,
                                                       const double *, const double *, int64_t,
                                                       const double *, int64_t, const double *,
                                                       double *, int64_t);
-extern template gpublasStatus_t
-symm<gpuFloatComplex, int>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t, int, int,
-                           const gpuFloatComplex *, const gpuFloatComplex *, int,
-                           const gpuFloatComplex *, int, const gpuFloatComplex *, gpuFloatComplex *,
+extern template wwrblasStatus_t
+symm<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t, int, int,
+                           const wwrFloatComplex *, const wwrFloatComplex *, int,
+                           const wwrFloatComplex *, int, const wwrFloatComplex *, wwrFloatComplex *,
                            int);
-extern template gpublasStatus_t
-symm<gpuFloatComplex, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t, int64_t,
-                               int64_t, const gpuFloatComplex *, const gpuFloatComplex *, int64_t,
-                               const gpuFloatComplex *, int64_t, const gpuFloatComplex *,
-                               gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t
-symm<gpuDoubleComplex, int>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t, int, int,
-                            const gpuDoubleComplex *, const gpuDoubleComplex *, int,
-                            const gpuDoubleComplex *, int, const gpuDoubleComplex *,
-                            gpuDoubleComplex *, int);
-extern template gpublasStatus_t
-symm<gpuDoubleComplex, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t, int64_t,
-                                int64_t, const gpuDoubleComplex *, const gpuDoubleComplex *,
-                                int64_t, const gpuDoubleComplex *, int64_t,
-                                const gpuDoubleComplex *, gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t
+symm<wwrFloatComplex, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t, int64_t,
+                               int64_t, const wwrFloatComplex *, const wwrFloatComplex *, int64_t,
+                               const wwrFloatComplex *, int64_t, const wwrFloatComplex *,
+                               wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t
+symm<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t, int, int,
+                            const wwrDoubleComplex *, const wwrDoubleComplex *, int,
+                            const wwrDoubleComplex *, int, const wwrDoubleComplex *,
+                            wwrDoubleComplex *, int);
+extern template wwrblasStatus_t
+symm<wwrDoubleComplex, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t, int64_t,
+                                int64_t, const wwrDoubleComplex *, const wwrDoubleComplex *,
+                                int64_t, const wwrDoubleComplex *, int64_t,
+                                const wwrDoubleComplex *, wwrDoubleComplex *, int64_t);
 
 // Function: syrk
-extern template gpublasStatus_t syrk<float, int>(gpublasHandle_t, gpublasFillMode_t,
-                                                 gpublasOperation_t, int, int, const float *,
+extern template wwrblasStatus_t syrk<float, int>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                 wwrblasOperation_t, int, int, const float *,
                                                  const float *, int, const float *, float *, int);
-extern template gpublasStatus_t syrk<float, int64_t>(gpublasHandle_t, gpublasFillMode_t,
-                                                     gpublasOperation_t, int64_t, int64_t,
+extern template wwrblasStatus_t syrk<float, int64_t>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                     wwrblasOperation_t, int64_t, int64_t,
                                                      const float *, const float *, int64_t,
                                                      const float *, float *, int64_t);
-extern template gpublasStatus_t syrk<double, int>(gpublasHandle_t, gpublasFillMode_t,
-                                                  gpublasOperation_t, int, int, const double *,
+extern template wwrblasStatus_t syrk<double, int>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                  wwrblasOperation_t, int, int, const double *,
                                                   const double *, int, const double *, double *,
                                                   int);
-extern template gpublasStatus_t syrk<double, int64_t>(gpublasHandle_t, gpublasFillMode_t,
-                                                      gpublasOperation_t, int64_t, int64_t,
+extern template wwrblasStatus_t syrk<double, int64_t>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                      wwrblasOperation_t, int64_t, int64_t,
                                                       const double *, const double *, int64_t,
                                                       const double *, double *, int64_t);
-extern template gpublasStatus_t
-syrk<gpuFloatComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                           const gpuFloatComplex *, const gpuFloatComplex *, int,
-                           const gpuFloatComplex *, gpuFloatComplex *, int);
-extern template gpublasStatus_t
-syrk<gpuFloatComplex, int64_t>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t,
-                               int64_t, const gpuFloatComplex *, const gpuFloatComplex *, int64_t,
-                               const gpuFloatComplex *, gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t
-syrk<gpuDoubleComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                            const gpuDoubleComplex *, const gpuDoubleComplex *, int,
-                            const gpuDoubleComplex *, gpuDoubleComplex *, int);
-extern template gpublasStatus_t
-syrk<gpuDoubleComplex, int64_t>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t,
-                                int64_t, const gpuDoubleComplex *, const gpuDoubleComplex *,
-                                int64_t, const gpuDoubleComplex *, gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t
+syrk<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                           const wwrFloatComplex *, const wwrFloatComplex *, int,
+                           const wwrFloatComplex *, wwrFloatComplex *, int);
+extern template wwrblasStatus_t
+syrk<wwrFloatComplex, int64_t>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t,
+                               int64_t, const wwrFloatComplex *, const wwrFloatComplex *, int64_t,
+                               const wwrFloatComplex *, wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t
+syrk<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                            const wwrDoubleComplex *, const wwrDoubleComplex *, int,
+                            const wwrDoubleComplex *, wwrDoubleComplex *, int);
+extern template wwrblasStatus_t
+syrk<wwrDoubleComplex, int64_t>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t,
+                                int64_t, const wwrDoubleComplex *, const wwrDoubleComplex *,
+                                int64_t, const wwrDoubleComplex *, wwrDoubleComplex *, int64_t);
 
 // Function: syr2k
-extern template gpublasStatus_t syr2k<float, int>(gpublasHandle_t, gpublasFillMode_t,
-                                                  gpublasOperation_t, int, int, const float *,
+extern template wwrblasStatus_t syr2k<float, int>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                  wwrblasOperation_t, int, int, const float *,
                                                   const float *, int, const float *, int,
                                                   const float *, float *, int);
-extern template gpublasStatus_t syr2k<float, int64_t>(gpublasHandle_t, gpublasFillMode_t,
-                                                      gpublasOperation_t, int64_t, int64_t,
+extern template wwrblasStatus_t syr2k<float, int64_t>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                      wwrblasOperation_t, int64_t, int64_t,
                                                       const float *, const float *, int64_t,
                                                       const float *, int64_t, const float *,
                                                       float *, int64_t);
-extern template gpublasStatus_t syr2k<double, int>(gpublasHandle_t, gpublasFillMode_t,
-                                                   gpublasOperation_t, int, int, const double *,
+extern template wwrblasStatus_t syr2k<double, int>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                   wwrblasOperation_t, int, int, const double *,
                                                    const double *, int, const double *, int,
                                                    const double *, double *, int);
-extern template gpublasStatus_t syr2k<double, int64_t>(gpublasHandle_t, gpublasFillMode_t,
-                                                       gpublasOperation_t, int64_t, int64_t,
+extern template wwrblasStatus_t syr2k<double, int64_t>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                       wwrblasOperation_t, int64_t, int64_t,
                                                        const double *, const double *, int64_t,
                                                        const double *, int64_t, const double *,
                                                        double *, int64_t);
-extern template gpublasStatus_t
-syr2k<gpuFloatComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                            const gpuFloatComplex *, const gpuFloatComplex *, int,
-                            const gpuFloatComplex *, int, const gpuFloatComplex *,
-                            gpuFloatComplex *, int);
-extern template gpublasStatus_t
-syr2k<gpuFloatComplex, int64_t>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t,
-                                int64_t, const gpuFloatComplex *, const gpuFloatComplex *, int64_t,
-                                const gpuFloatComplex *, int64_t, const gpuFloatComplex *,
-                                gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t
-syr2k<gpuDoubleComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                             const gpuDoubleComplex *, const gpuDoubleComplex *, int,
-                             const gpuDoubleComplex *, int, const gpuDoubleComplex *,
-                             gpuDoubleComplex *, int);
-extern template gpublasStatus_t
-syr2k<gpuDoubleComplex, int64_t>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t,
-                                 int64_t, const gpuDoubleComplex *, const gpuDoubleComplex *,
-                                 int64_t, const gpuDoubleComplex *, int64_t,
-                                 const gpuDoubleComplex *, gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t
+syr2k<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                            const wwrFloatComplex *, const wwrFloatComplex *, int,
+                            const wwrFloatComplex *, int, const wwrFloatComplex *,
+                            wwrFloatComplex *, int);
+extern template wwrblasStatus_t
+syr2k<wwrFloatComplex, int64_t>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t,
+                                int64_t, const wwrFloatComplex *, const wwrFloatComplex *, int64_t,
+                                const wwrFloatComplex *, int64_t, const wwrFloatComplex *,
+                                wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t
+syr2k<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                             const wwrDoubleComplex *, const wwrDoubleComplex *, int,
+                             const wwrDoubleComplex *, int, const wwrDoubleComplex *,
+                             wwrDoubleComplex *, int);
+extern template wwrblasStatus_t
+syr2k<wwrDoubleComplex, int64_t>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t,
+                                 int64_t, const wwrDoubleComplex *, const wwrDoubleComplex *,
+                                 int64_t, const wwrDoubleComplex *, int64_t,
+                                 const wwrDoubleComplex *, wwrDoubleComplex *, int64_t);
 
 // Function: syrkx
-extern template gpublasStatus_t syrkx<float, int>(gpublasHandle_t, gpublasFillMode_t,
-                                                  gpublasOperation_t, int, int, const float *,
+extern template wwrblasStatus_t syrkx<float, int>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                  wwrblasOperation_t, int, int, const float *,
                                                   const float *, int, const float *, int,
                                                   const float *, float *, int);
-extern template gpublasStatus_t syrkx<float, int64_t>(gpublasHandle_t, gpublasFillMode_t,
-                                                      gpublasOperation_t, int64_t, int64_t,
+extern template wwrblasStatus_t syrkx<float, int64_t>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                      wwrblasOperation_t, int64_t, int64_t,
                                                       const float *, const float *, int64_t,
                                                       const float *, int64_t, const float *,
                                                       float *, int64_t);
-extern template gpublasStatus_t syrkx<double, int>(gpublasHandle_t, gpublasFillMode_t,
-                                                   gpublasOperation_t, int, int, const double *,
+extern template wwrblasStatus_t syrkx<double, int>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                   wwrblasOperation_t, int, int, const double *,
                                                    const double *, int, const double *, int,
                                                    const double *, double *, int);
-extern template gpublasStatus_t syrkx<double, int64_t>(gpublasHandle_t, gpublasFillMode_t,
-                                                       gpublasOperation_t, int64_t, int64_t,
+extern template wwrblasStatus_t syrkx<double, int64_t>(wwrblasHandle_t, wwrblasFillMode_t,
+                                                       wwrblasOperation_t, int64_t, int64_t,
                                                        const double *, const double *, int64_t,
                                                        const double *, int64_t, const double *,
                                                        double *, int64_t);
-extern template gpublasStatus_t
-syrkx<gpuFloatComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                            const gpuFloatComplex *, const gpuFloatComplex *, int,
-                            const gpuFloatComplex *, int, const gpuFloatComplex *,
-                            gpuFloatComplex *, int);
-extern template gpublasStatus_t
-syrkx<gpuFloatComplex, int64_t>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t,
-                                int64_t, const gpuFloatComplex *, const gpuFloatComplex *, int64_t,
-                                const gpuFloatComplex *, int64_t, const gpuFloatComplex *,
-                                gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t
-syrkx<gpuDoubleComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                             const gpuDoubleComplex *, const gpuDoubleComplex *, int,
-                             const gpuDoubleComplex *, int, const gpuDoubleComplex *,
-                             gpuDoubleComplex *, int);
-extern template gpublasStatus_t
-syrkx<gpuDoubleComplex, int64_t>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t,
-                                 int64_t, const gpuDoubleComplex *, const gpuDoubleComplex *,
-                                 int64_t, const gpuDoubleComplex *, int64_t,
-                                 const gpuDoubleComplex *, gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t
+syrkx<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                            const wwrFloatComplex *, const wwrFloatComplex *, int,
+                            const wwrFloatComplex *, int, const wwrFloatComplex *,
+                            wwrFloatComplex *, int);
+extern template wwrblasStatus_t
+syrkx<wwrFloatComplex, int64_t>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t,
+                                int64_t, const wwrFloatComplex *, const wwrFloatComplex *, int64_t,
+                                const wwrFloatComplex *, int64_t, const wwrFloatComplex *,
+                                wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t
+syrkx<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                             const wwrDoubleComplex *, const wwrDoubleComplex *, int,
+                             const wwrDoubleComplex *, int, const wwrDoubleComplex *,
+                             wwrDoubleComplex *, int);
+extern template wwrblasStatus_t
+syrkx<wwrDoubleComplex, int64_t>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t,
+                                 int64_t, const wwrDoubleComplex *, const wwrDoubleComplex *,
+                                 int64_t, const wwrDoubleComplex *, int64_t,
+                                 const wwrDoubleComplex *, wwrDoubleComplex *, int64_t);
 
 // Function: trmm
-extern template gpublasStatus_t trmm<float, int>(gpublasHandle_t, gpublasSideMode_t,
-                                                 gpublasFillMode_t, gpublasOperation_t,
-                                                 gpublasDiagType_t, int, int, const float *,
+extern template wwrblasStatus_t trmm<float, int>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                 wwrblasFillMode_t, wwrblasOperation_t,
+                                                 wwrblasDiagType_t, int, int, const float *,
                                                  const float *, int, const float *, int, float *,
                                                  int);
-extern template gpublasStatus_t trmm<float, int64_t>(gpublasHandle_t, gpublasSideMode_t,
-                                                     gpublasFillMode_t, gpublasOperation_t,
-                                                     gpublasDiagType_t, int64_t, int64_t,
+extern template wwrblasStatus_t trmm<float, int64_t>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                     wwrblasFillMode_t, wwrblasOperation_t,
+                                                     wwrblasDiagType_t, int64_t, int64_t,
                                                      const float *, const float *, int64_t,
                                                      const float *, int64_t, float *, int64_t);
-extern template gpublasStatus_t trmm<double, int>(gpublasHandle_t, gpublasSideMode_t,
-                                                  gpublasFillMode_t, gpublasOperation_t,
-                                                  gpublasDiagType_t, int, int, const double *,
+extern template wwrblasStatus_t trmm<double, int>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                  wwrblasFillMode_t, wwrblasOperation_t,
+                                                  wwrblasDiagType_t, int, int, const double *,
                                                   const double *, int, const double *, int,
                                                   double *, int);
-extern template gpublasStatus_t trmm<double, int64_t>(gpublasHandle_t, gpublasSideMode_t,
-                                                      gpublasFillMode_t, gpublasOperation_t,
-                                                      gpublasDiagType_t, int64_t, int64_t,
+extern template wwrblasStatus_t trmm<double, int64_t>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                      wwrblasFillMode_t, wwrblasOperation_t,
+                                                      wwrblasDiagType_t, int64_t, int64_t,
                                                       const double *, const double *, int64_t,
                                                       const double *, int64_t, double *, int64_t);
-extern template gpublasStatus_t
-trmm<gpuFloatComplex, int>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                           gpublasOperation_t, gpublasDiagType_t, int, int, const gpuFloatComplex *,
-                           const gpuFloatComplex *, int, const gpuFloatComplex *, int,
-                           gpuFloatComplex *, int);
-extern template gpublasStatus_t
-trmm<gpuFloatComplex, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                               gpublasOperation_t, gpublasDiagType_t, int64_t, int64_t,
-                               const gpuFloatComplex *, const gpuFloatComplex *, int64_t,
-                               const gpuFloatComplex *, int64_t, gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t
-trmm<gpuDoubleComplex, int>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                            gpublasOperation_t, gpublasDiagType_t, int, int,
-                            const gpuDoubleComplex *, const gpuDoubleComplex *, int,
-                            const gpuDoubleComplex *, int, gpuDoubleComplex *, int);
-extern template gpublasStatus_t
-trmm<gpuDoubleComplex, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                                gpublasOperation_t, gpublasDiagType_t, int64_t, int64_t,
-                                const gpuDoubleComplex *, const gpuDoubleComplex *, int64_t,
-                                const gpuDoubleComplex *, int64_t, gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t
+trmm<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                           wwrblasOperation_t, wwrblasDiagType_t, int, int, const wwrFloatComplex *,
+                           const wwrFloatComplex *, int, const wwrFloatComplex *, int,
+                           wwrFloatComplex *, int);
+extern template wwrblasStatus_t
+trmm<wwrFloatComplex, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                               wwrblasOperation_t, wwrblasDiagType_t, int64_t, int64_t,
+                               const wwrFloatComplex *, const wwrFloatComplex *, int64_t,
+                               const wwrFloatComplex *, int64_t, wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t
+trmm<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                            wwrblasOperation_t, wwrblasDiagType_t, int, int,
+                            const wwrDoubleComplex *, const wwrDoubleComplex *, int,
+                            const wwrDoubleComplex *, int, wwrDoubleComplex *, int);
+extern template wwrblasStatus_t
+trmm<wwrDoubleComplex, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                                wwrblasOperation_t, wwrblasDiagType_t, int64_t, int64_t,
+                                const wwrDoubleComplex *, const wwrDoubleComplex *, int64_t,
+                                const wwrDoubleComplex *, int64_t, wwrDoubleComplex *, int64_t);
 
 // Function: trsm
-extern template gpublasStatus_t trsm<float, int>(gpublasHandle_t, gpublasSideMode_t,
-                                                 gpublasFillMode_t, gpublasOperation_t,
-                                                 gpublasDiagType_t, int, int, const float *,
+extern template wwrblasStatus_t trsm<float, int>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                 wwrblasFillMode_t, wwrblasOperation_t,
+                                                 wwrblasDiagType_t, int, int, const float *,
                                                  const float *, int, float *, int);
-extern template gpublasStatus_t trsm<float, int64_t>(gpublasHandle_t, gpublasSideMode_t,
-                                                     gpublasFillMode_t, gpublasOperation_t,
-                                                     gpublasDiagType_t, int64_t, int64_t,
+extern template wwrblasStatus_t trsm<float, int64_t>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                     wwrblasFillMode_t, wwrblasOperation_t,
+                                                     wwrblasDiagType_t, int64_t, int64_t,
                                                      const float *, const float *, int64_t, float *,
                                                      int64_t);
-extern template gpublasStatus_t trsm<double, int>(gpublasHandle_t, gpublasSideMode_t,
-                                                  gpublasFillMode_t, gpublasOperation_t,
-                                                  gpublasDiagType_t, int, int, const double *,
+extern template wwrblasStatus_t trsm<double, int>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                  wwrblasFillMode_t, wwrblasOperation_t,
+                                                  wwrblasDiagType_t, int, int, const double *,
                                                   const double *, int, double *, int);
-extern template gpublasStatus_t trsm<double, int64_t>(gpublasHandle_t, gpublasSideMode_t,
-                                                      gpublasFillMode_t, gpublasOperation_t,
-                                                      gpublasDiagType_t, int64_t, int64_t,
+extern template wwrblasStatus_t trsm<double, int64_t>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                      wwrblasFillMode_t, wwrblasOperation_t,
+                                                      wwrblasDiagType_t, int64_t, int64_t,
                                                       const double *, const double *, int64_t,
                                                       double *, int64_t);
-extern template gpublasStatus_t
-trsm<gpuFloatComplex, int>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                           gpublasOperation_t, gpublasDiagType_t, int, int, const gpuFloatComplex *,
-                           const gpuFloatComplex *, int, gpuFloatComplex *, int);
-extern template gpublasStatus_t
-trsm<gpuFloatComplex, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                               gpublasOperation_t, gpublasDiagType_t, int64_t, int64_t,
-                               const gpuFloatComplex *, const gpuFloatComplex *, int64_t,
-                               gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t trsm<gpuDoubleComplex, int>(
-    gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t, gpublasOperation_t, gpublasDiagType_t,
-    int, int, const gpuDoubleComplex *, const gpuDoubleComplex *, int, gpuDoubleComplex *, int);
-extern template gpublasStatus_t
-trsm<gpuDoubleComplex, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                                gpublasOperation_t, gpublasDiagType_t, int64_t, int64_t,
-                                const gpuDoubleComplex *, const gpuDoubleComplex *, int64_t,
-                                gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t
+trsm<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                           wwrblasOperation_t, wwrblasDiagType_t, int, int, const wwrFloatComplex *,
+                           const wwrFloatComplex *, int, wwrFloatComplex *, int);
+extern template wwrblasStatus_t
+trsm<wwrFloatComplex, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                               wwrblasOperation_t, wwrblasDiagType_t, int64_t, int64_t,
+                               const wwrFloatComplex *, const wwrFloatComplex *, int64_t,
+                               wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t trsm<wwrDoubleComplex, int>(
+    wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t, wwrblasOperation_t, wwrblasDiagType_t,
+    int, int, const wwrDoubleComplex *, const wwrDoubleComplex *, int, wwrDoubleComplex *, int);
+extern template wwrblasStatus_t
+trsm<wwrDoubleComplex, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                                wwrblasOperation_t, wwrblasDiagType_t, int64_t, int64_t,
+                                const wwrDoubleComplex *, const wwrDoubleComplex *, int64_t,
+                                wwrDoubleComplex *, int64_t);
 
 // Function: trsmBatched
-extern template gpublasStatus_t trsmBatched<float, int>(gpublasHandle_t, gpublasSideMode_t,
-                                                        gpublasFillMode_t, gpublasOperation_t,
-                                                        gpublasDiagType_t, int, int, const float *,
+extern template wwrblasStatus_t trsmBatched<float, int>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                        wwrblasFillMode_t, wwrblasOperation_t,
+                                                        wwrblasDiagType_t, int, int, const float *,
                                                         const float *const[], int, float *const[],
                                                         int, int);
-extern template gpublasStatus_t
-trsmBatched<float, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                            gpublasOperation_t, gpublasDiagType_t, int64_t, int64_t, const float *,
+extern template wwrblasStatus_t
+trsmBatched<float, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                            wwrblasOperation_t, wwrblasDiagType_t, int64_t, int64_t, const float *,
                             const float *const[], int64_t, float *const[], int64_t, int64_t);
-extern template gpublasStatus_t trsmBatched<double, int>(gpublasHandle_t, gpublasSideMode_t,
-                                                         gpublasFillMode_t, gpublasOperation_t,
-                                                         gpublasDiagType_t, int, int,
+extern template wwrblasStatus_t trsmBatched<double, int>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                         wwrblasFillMode_t, wwrblasOperation_t,
+                                                         wwrblasDiagType_t, int, int,
                                                          const double *, const double *const[], int,
                                                          double *const[], int, int);
-extern template gpublasStatus_t trsmBatched<double, int64_t>(gpublasHandle_t, gpublasSideMode_t,
-                                                             gpublasFillMode_t, gpublasOperation_t,
-                                                             gpublasDiagType_t, int64_t, int64_t,
+extern template wwrblasStatus_t trsmBatched<double, int64_t>(wwrblasHandle_t, wwrblasSideMode_t,
+                                                             wwrblasFillMode_t, wwrblasOperation_t,
+                                                             wwrblasDiagType_t, int64_t, int64_t,
                                                              const double *, const double *const[],
                                                              int64_t, double *const[], int64_t,
                                                              int64_t);
-extern template gpublasStatus_t
-trsmBatched<gpuFloatComplex, int>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                                  gpublasOperation_t, gpublasDiagType_t, int, int,
-                                  const gpuFloatComplex *, const gpuFloatComplex *const[], int,
-                                  gpuFloatComplex *const[], int, int);
-extern template gpublasStatus_t
-trsmBatched<gpuFloatComplex, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                                      gpublasOperation_t, gpublasDiagType_t, int64_t, int64_t,
-                                      const gpuFloatComplex *, const gpuFloatComplex *const[],
-                                      int64_t, gpuFloatComplex *const[], int64_t, int64_t);
-extern template gpublasStatus_t
-trsmBatched<gpuDoubleComplex, int>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                                   gpublasOperation_t, gpublasDiagType_t, int, int,
-                                   const gpuDoubleComplex *, const gpuDoubleComplex *const[], int,
-                                   gpuDoubleComplex *const[], int, int);
-extern template gpublasStatus_t
-trsmBatched<gpuDoubleComplex, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t,
-                                       gpublasOperation_t, gpublasDiagType_t, int64_t, int64_t,
-                                       const gpuDoubleComplex *, const gpuDoubleComplex *const[],
-                                       int64_t, gpuDoubleComplex *const[], int64_t, int64_t);
+extern template wwrblasStatus_t
+trsmBatched<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                                  wwrblasOperation_t, wwrblasDiagType_t, int, int,
+                                  const wwrFloatComplex *, const wwrFloatComplex *const[], int,
+                                  wwrFloatComplex *const[], int, int);
+extern template wwrblasStatus_t
+trsmBatched<wwrFloatComplex, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                                      wwrblasOperation_t, wwrblasDiagType_t, int64_t, int64_t,
+                                      const wwrFloatComplex *, const wwrFloatComplex *const[],
+                                      int64_t, wwrFloatComplex *const[], int64_t, int64_t);
+extern template wwrblasStatus_t
+trsmBatched<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                                   wwrblasOperation_t, wwrblasDiagType_t, int, int,
+                                   const wwrDoubleComplex *, const wwrDoubleComplex *const[], int,
+                                   wwrDoubleComplex *const[], int, int);
+extern template wwrblasStatus_t
+trsmBatched<wwrDoubleComplex, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t,
+                                       wwrblasOperation_t, wwrblasDiagType_t, int64_t, int64_t,
+                                       const wwrDoubleComplex *, const wwrDoubleComplex *const[],
+                                       int64_t, wwrDoubleComplex *const[], int64_t, int64_t);
 
 // Function: hemm
-extern template gpublasStatus_t
-hemm<gpuFloatComplex, int>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t, int, int,
-                           const gpuFloatComplex *, const gpuFloatComplex *, int,
-                           const gpuFloatComplex *, int, const gpuFloatComplex *, gpuFloatComplex *,
+extern template wwrblasStatus_t
+hemm<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t, int, int,
+                           const wwrFloatComplex *, const wwrFloatComplex *, int,
+                           const wwrFloatComplex *, int, const wwrFloatComplex *, wwrFloatComplex *,
                            int);
-extern template gpublasStatus_t
-hemm<gpuFloatComplex, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t, int64_t,
-                               int64_t, const gpuFloatComplex *, const gpuFloatComplex *, int64_t,
-                               const gpuFloatComplex *, int64_t, const gpuFloatComplex *,
-                               gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t
-hemm<gpuDoubleComplex, int>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t, int, int,
-                            const gpuDoubleComplex *, const gpuDoubleComplex *, int,
-                            const gpuDoubleComplex *, int, const gpuDoubleComplex *,
-                            gpuDoubleComplex *, int);
-extern template gpublasStatus_t
-hemm<gpuDoubleComplex, int64_t>(gpublasHandle_t, gpublasSideMode_t, gpublasFillMode_t, int64_t,
-                                int64_t, const gpuDoubleComplex *, const gpuDoubleComplex *,
-                                int64_t, const gpuDoubleComplex *, int64_t,
-                                const gpuDoubleComplex *, gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t
+hemm<wwrFloatComplex, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t, int64_t,
+                               int64_t, const wwrFloatComplex *, const wwrFloatComplex *, int64_t,
+                               const wwrFloatComplex *, int64_t, const wwrFloatComplex *,
+                               wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t
+hemm<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t, int, int,
+                            const wwrDoubleComplex *, const wwrDoubleComplex *, int,
+                            const wwrDoubleComplex *, int, const wwrDoubleComplex *,
+                            wwrDoubleComplex *, int);
+extern template wwrblasStatus_t
+hemm<wwrDoubleComplex, int64_t>(wwrblasHandle_t, wwrblasSideMode_t, wwrblasFillMode_t, int64_t,
+                                int64_t, const wwrDoubleComplex *, const wwrDoubleComplex *,
+                                int64_t, const wwrDoubleComplex *, int64_t,
+                                const wwrDoubleComplex *, wwrDoubleComplex *, int64_t);
 
 // Function: herk
-extern template gpublasStatus_t
-herk<gpuFloatComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                           const ComplexToRealType<gpuFloatComplex> *, const gpuFloatComplex *, int,
-                           const ComplexToRealType<gpuFloatComplex> *, gpuFloatComplex *, int);
-extern template gpublasStatus_t herk<gpuFloatComplex, int64_t>(
-    gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t, int64_t,
-    const ComplexToRealType<gpuFloatComplex> *, const gpuFloatComplex *, int64_t,
-    const ComplexToRealType<gpuFloatComplex> *, gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t
-herk<gpuDoubleComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                            const ComplexToRealType<gpuDoubleComplex> *, const gpuDoubleComplex *,
-                            int, const ComplexToRealType<gpuDoubleComplex> *, gpuDoubleComplex *,
+extern template wwrblasStatus_t
+herk<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                           const ComplexToRealType<wwrFloatComplex> *, const wwrFloatComplex *, int,
+                           const ComplexToRealType<wwrFloatComplex> *, wwrFloatComplex *, int);
+extern template wwrblasStatus_t herk<wwrFloatComplex, int64_t>(
+    wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t, int64_t,
+    const ComplexToRealType<wwrFloatComplex> *, const wwrFloatComplex *, int64_t,
+    const ComplexToRealType<wwrFloatComplex> *, wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t
+herk<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                            const ComplexToRealType<wwrDoubleComplex> *, const wwrDoubleComplex *,
+                            int, const ComplexToRealType<wwrDoubleComplex> *, wwrDoubleComplex *,
                             int);
-extern template gpublasStatus_t herk<gpuDoubleComplex, int64_t>(
-    gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t, int64_t,
-    const ComplexToRealType<gpuDoubleComplex> *, const gpuDoubleComplex *, int64_t,
-    const ComplexToRealType<gpuDoubleComplex> *, gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t herk<wwrDoubleComplex, int64_t>(
+    wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t, int64_t,
+    const ComplexToRealType<wwrDoubleComplex> *, const wwrDoubleComplex *, int64_t,
+    const ComplexToRealType<wwrDoubleComplex> *, wwrDoubleComplex *, int64_t);
 
 // Function: her2k
-extern template gpublasStatus_t
-her2k<gpuFloatComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                            const gpuFloatComplex *, const gpuFloatComplex *, int,
-                            const gpuFloatComplex *, int,
-                            const ComplexToRealType<gpuFloatComplex> *, gpuFloatComplex *, int);
-extern template gpublasStatus_t her2k<gpuFloatComplex, int64_t>(
-    gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t, int64_t,
-    const gpuFloatComplex *, const gpuFloatComplex *, int64_t, const gpuFloatComplex *, int64_t,
-    const ComplexToRealType<gpuFloatComplex> *, gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t
-her2k<gpuDoubleComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                             const gpuDoubleComplex *, const gpuDoubleComplex *, int,
-                             const gpuDoubleComplex *, int,
-                             const ComplexToRealType<gpuDoubleComplex> *, gpuDoubleComplex *, int);
-extern template gpublasStatus_t her2k<gpuDoubleComplex, int64_t>(
-    gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t, int64_t,
-    const gpuDoubleComplex *, const gpuDoubleComplex *, int64_t, const gpuDoubleComplex *, int64_t,
-    const ComplexToRealType<gpuDoubleComplex> *, gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t
+her2k<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                            const wwrFloatComplex *, const wwrFloatComplex *, int,
+                            const wwrFloatComplex *, int,
+                            const ComplexToRealType<wwrFloatComplex> *, wwrFloatComplex *, int);
+extern template wwrblasStatus_t her2k<wwrFloatComplex, int64_t>(
+    wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t, int64_t,
+    const wwrFloatComplex *, const wwrFloatComplex *, int64_t, const wwrFloatComplex *, int64_t,
+    const ComplexToRealType<wwrFloatComplex> *, wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t
+her2k<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                             const wwrDoubleComplex *, const wwrDoubleComplex *, int,
+                             const wwrDoubleComplex *, int,
+                             const ComplexToRealType<wwrDoubleComplex> *, wwrDoubleComplex *, int);
+extern template wwrblasStatus_t her2k<wwrDoubleComplex, int64_t>(
+    wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t, int64_t,
+    const wwrDoubleComplex *, const wwrDoubleComplex *, int64_t, const wwrDoubleComplex *, int64_t,
+    const ComplexToRealType<wwrDoubleComplex> *, wwrDoubleComplex *, int64_t);
 
 // Function: herkx
-extern template gpublasStatus_t
-herkx<gpuFloatComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                            const gpuFloatComplex *, const gpuFloatComplex *, int,
-                            const gpuFloatComplex *, int,
-                            const ComplexToRealType<gpuFloatComplex> *, gpuFloatComplex *, int);
-extern template gpublasStatus_t herkx<gpuFloatComplex, int64_t>(
-    gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t, int64_t,
-    const gpuFloatComplex *, const gpuFloatComplex *, int64_t, const gpuFloatComplex *, int64_t,
-    const ComplexToRealType<gpuFloatComplex> *, gpuFloatComplex *, int64_t);
-extern template gpublasStatus_t
-herkx<gpuDoubleComplex, int>(gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int, int,
-                             const gpuDoubleComplex *, const gpuDoubleComplex *, int,
-                             const gpuDoubleComplex *, int,
-                             const ComplexToRealType<gpuDoubleComplex> *, gpuDoubleComplex *, int);
-extern template gpublasStatus_t herkx<gpuDoubleComplex, int64_t>(
-    gpublasHandle_t, gpublasFillMode_t, gpublasOperation_t, int64_t, int64_t,
-    const gpuDoubleComplex *, const gpuDoubleComplex *, int64_t, const gpuDoubleComplex *, int64_t,
-    const ComplexToRealType<gpuDoubleComplex> *, gpuDoubleComplex *, int64_t);
+extern template wwrblasStatus_t
+herkx<wwrFloatComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                            const wwrFloatComplex *, const wwrFloatComplex *, int,
+                            const wwrFloatComplex *, int,
+                            const ComplexToRealType<wwrFloatComplex> *, wwrFloatComplex *, int);
+extern template wwrblasStatus_t herkx<wwrFloatComplex, int64_t>(
+    wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t, int64_t,
+    const wwrFloatComplex *, const wwrFloatComplex *, int64_t, const wwrFloatComplex *, int64_t,
+    const ComplexToRealType<wwrFloatComplex> *, wwrFloatComplex *, int64_t);
+extern template wwrblasStatus_t
+herkx<wwrDoubleComplex, int>(wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int, int,
+                             const wwrDoubleComplex *, const wwrDoubleComplex *, int,
+                             const wwrDoubleComplex *, int,
+                             const ComplexToRealType<wwrDoubleComplex> *, wwrDoubleComplex *, int);
+extern template wwrblasStatus_t herkx<wwrDoubleComplex, int64_t>(
+    wwrblasHandle_t, wwrblasFillMode_t, wwrblasOperation_t, int64_t, int64_t,
+    const wwrDoubleComplex *, const wwrDoubleComplex *, int64_t, const wwrDoubleComplex *, int64_t,
+    const ComplexToRealType<wwrDoubleComplex> *, wwrDoubleComplex *, int64_t);
 
 } // namespace wwr

@@ -13,18 +13,18 @@
  * Usage:
  *   import wwr.runtime_api;
  *
- *   gpuStream_t stream;
- *   if (gpuStreamCreate(&stream) != gpuSuccess) { ... }
+ *   wwrStream_t stream;
+ *   if (wwrStreamCreate(&stream) != wwrSuccess) { ... }
  */
 
 module;
 
 #include "gpu_backend.h"
 
-// Runtime API: gpuX -> cudaX / hipX
-#define WWR_RT_TYPE(x) WWR_TYPE(gpu##x, cuda##x, hip##x)
-#define WWR_RT_VALUE(x) WWR_VALUE(gpu##x, cuda##x, hip##x)
-#define WWR_RT_FUNCTION(x) WWR_FUNCTION(gpu##x, cuda##x, hip##x)
+// Runtime API: wwrX -> cudaX / hipX
+#define WWR_RT_TYPE(x) WWR_TYPE(wwr##x, cuda##x, hip##x)
+#define WWR_RT_VALUE(x) WWR_VALUE(wwr##x, cuda##x, hip##x)
+#define WWR_RT_FUNCTION(x) WWR_FUNCTION(wwr##x, cuda##x, hip##x)
 
 export module wwr.runtime_api;
 
@@ -48,7 +48,7 @@ WWR_RT_TYPE(Error_t)
 // version-renames hipDeviceProp_t to hipDeviceProp_tR0600, and that macro is
 // not in scope here (this unit imports the HIP module, not its header), so the
 // versioned spelling is what the module actually exports.
-WWR_TYPE(gpuDeviceProp, cudaDeviceProp, hipDeviceProp_tR0600)
+WWR_TYPE(wwrDeviceProp, cudaDeviceProp, hipDeviceProp_tR0600)
 
 WWR_RT_TYPE(Stream_t)
 WWR_RT_TYPE(StreamCaptureMode)
@@ -90,9 +90,9 @@ WWR_RT_VALUE(MemcpyDefault)
 // Pinned host allocation flags. hip_runtime_api.h spells these hipHostMalloc*
 // (its hipHostAlloc* macros are equal-valued aliases the raw module does not
 // re-export).
-WWR_VALUE(gpuHostAllocDefault, cudaHostAllocDefault, hipHostMallocDefault)
-WWR_VALUE(gpuHostAllocMapped, cudaHostAllocMapped, hipHostMallocMapped)
-WWR_VALUE(gpuHostAllocWriteCombined, cudaHostAllocWriteCombined, hipHostMallocWriteCombined)
+WWR_VALUE(wwrHostAllocDefault, cudaHostAllocDefault, hipHostMallocDefault)
+WWR_VALUE(wwrHostAllocMapped, cudaHostAllocMapped, hipHostMallocMapped)
+WWR_VALUE(wwrHostAllocWriteCombined, cudaHostAllocWriteCombined, hipHostMallocWriteCombined)
 
 // Managed memory attach flags
 WWR_RT_VALUE(MemAttachGlobal)
@@ -116,9 +116,9 @@ WWR_RT_FUNCTION(GetLastError)
 // Device
 WWR_RT_FUNCTION(GetDevice)
 WWR_RT_FUNCTION(SetDevice)
-// Like gpuDeviceProp above, HIP version-renames the entry point
+// Like wwrDeviceProp above, HIP version-renames the entry point
 // (hipGetDeviceProperties -> hipGetDevicePropertiesR0600), so spell it out.
-WWR_FUNCTION(gpuGetDeviceProperties, cudaGetDeviceProperties, hipGetDevicePropertiesR0600)
+WWR_FUNCTION(wwrGetDeviceProperties, cudaGetDeviceProperties, hipGetDevicePropertiesR0600)
 
 // Streams
 WWR_RT_FUNCTION(StreamCreate)
@@ -152,7 +152,7 @@ WWR_RT_FUNCTION(GraphExecDestroy)
 WWR_RT_FUNCTION(GraphLaunch)
 WWR_RT_FUNCTION(GraphUpload)
 
-// gpuGraphInstantiate is a hand-written forwarding function, not a
+// wwrGraphInstantiate is a hand-written forwarding function, not a
 // WWR_RT_FUNCTION reference, because the backends' plain *Instantiate entry
 // points disagree on signature beyond the cuda/hip prefix:
 //   CUDA 12+: cudaGraphInstantiate(GraphExec_t*, Graph_t, unsigned long long flags)
@@ -164,7 +164,7 @@ WWR_RT_FUNCTION(GraphUpload)
 // that signature. A WWR_FUNCTION reference cannot do this: it can bind neither
 // two differently-named backend functions nor a default argument. See
 // docs/architecture.md section 4.
-inline gpuError_t gpuGraphInstantiate(gpuGraphExec_t *exec, gpuGraph_t graph,
+inline wwrError_t wwrGraphInstantiate(wwrGraphExec_t *exec, wwrGraph_t graph,
                                       unsigned long long flags = 0) {
   return WWR_SELECT(cudaGraphInstantiate, hipGraphInstantiateWithFlags)(exec, graph, flags);
 }
@@ -174,7 +174,7 @@ inline gpuError_t gpuGraphInstantiate(gpuGraphExec_t *exec, gpuGraph_t graph,
 // hip_runtime_api.h overloads hipMalloc with a template<class T>
 // hipMalloc(T**, size_t), so a plain function reference cannot name it; bind
 // the void** overload explicitly (on both backends, for one signature).
-inline constexpr gpuError_t (&gpuMalloc)(void **, std::size_t) = WWR_SELECT(cudaMalloc,
+inline constexpr wwrError_t (&wwrMalloc)(void **, std::size_t) = WWR_SELECT(cudaMalloc,
                                                                                hipMalloc);
 WWR_RT_FUNCTION(Free)
 WWR_RT_FUNCTION(Memcpy)
@@ -192,15 +192,15 @@ WWR_RT_FUNCTION(MemsetAsync)
 //
 // hipHostAlloc is an overload set like hipMalloc (plus a template<class T>
 // hipHostAlloc(T**, size_t, unsigned)); bind the void** overload. There is no
-// gpuMallocHost: hipMallocHost is deprecated, and cudaMallocHost is documented
+// wwrMallocHost: hipMallocHost is deprecated, and cudaMallocHost is documented
 // as cudaHostAlloc with cudaHostAllocDefault, which is what callers write.
-inline constexpr gpuError_t (&gpuHostAlloc)(void **, std::size_t,
+inline constexpr wwrError_t (&wwrHostAlloc)(void **, std::size_t,
                                             unsigned int) = WWR_SELECT(cudaHostAlloc,
                                                                           hipHostAlloc);
 WWR_RT_FUNCTION(FreeHost)
 
 // Managed memory -- hipMallocManaged is an overload set too.
-inline constexpr gpuError_t (&gpuMallocManaged)(void **, std::size_t,
+inline constexpr wwrError_t (&wwrMallocManaged)(void **, std::size_t,
                                                 unsigned int) = WWR_SELECT(cudaMallocManaged,
                                                                               hipMallocManaged);
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

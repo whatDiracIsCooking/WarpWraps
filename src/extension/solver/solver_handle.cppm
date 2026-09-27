@@ -2,7 +2,7 @@
  * @file solver_handle.cppm
  * @brief RAII wrapper for a GPU solver handle
  *
- * Provides GpusolverDnHandle class for automatic GPU solver handle management.
+ * Provides WwrsolverDnHandle class for automatic GPU solver handle management.
  */
 
 export module wwr.extension.solver:solver_handle;
@@ -24,38 +24,38 @@ export namespace wwr::extension {
  * there, and records it -- read it back with dev_idx(). Destroys the handle on
  * destruction; supports move semantics, copy is deleted.
  *
- * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<gpusolverStatus_t>)
+ * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<wwrsolverStatus_t>)
  * @tparam P_destroy Error policy type for destruction (defaults to P_create)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
-template<error_policy<gpusolverStatus_t> P_create = DefaultErrorPolicy<gpusolverStatus_t>,
-         nothrow_error_policy<gpusolverStatus_t> P_destroy = P_create>
-class GpusolverDnHandleWrapper
-    : public DeviceBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>,
+template<error_policy<wwrsolverStatus_t> P_create = DefaultErrorPolicy<wwrsolverStatus_t>,
+         nothrow_error_policy<wwrsolverStatus_t> P_destroy = P_create>
+class WwrsolverDnHandleWrapper
+    : public DeviceBoundHandle<wwrsolverDnHandle_t, WwrsolverDnHandleWrapper<P_create, P_destroy>,
                             P_create, P_destroy> {
 private:
-  using Base = DeviceBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>,
+  using Base = DeviceBoundHandle<wwrsolverDnHandle_t, WwrsolverDnHandleWrapper<P_create, P_destroy>,
                               P_create, P_destroy>;
 
 public:
-  // The `GpusolverDnHandle(int dev_idx = 0)` default/per-device constructor,
+  // The `WwrsolverDnHandle(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
-  using DeviceBoundHandle<gpusolverDnHandle_t, GpusolverDnHandleWrapper<P_create, P_destroy>, P_create,
+  using DeviceBoundHandle<wwrsolverDnHandle_t, WwrsolverDnHandleWrapper<P_create, P_destroy>, P_create,
                        P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU solver handle
   /// @param handle Output parameter for the created handle
   /// @param location Source location where creation was requested
-  void create(gpusolverDnHandle_t *handle, std::source_location location) {
-    gpu_check(gpusolverDnCreate(handle), this->policy_create_, location);
+  void create(wwrsolverDnHandle_t *handle, std::source_location location) {
+    gpu_check(wwrsolverDnCreate(handle), this->policy_create_, location);
   }
 
   /// @brief Destroy a GPU solver handle
   /// @param handle The handle to destroy
-  void destroy(gpusolverDnHandle_t handle) {
+  void destroy(wwrsolverDnHandle_t handle) {
     if (handle != nullptr) {
-      gpu_check(gpusolverDnDestroy(handle), this->policy_destroy_);
+      gpu_check(wwrsolverDnDestroy(handle), this->policy_destroy_);
     }
   }
 };

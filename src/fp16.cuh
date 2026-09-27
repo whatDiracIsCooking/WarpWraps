@@ -2,7 +2,7 @@
  * @file fp16.cuh
  * @brief Half type and float conversions for device-compiled TUs
  *
- * The device-compile counterpart to fp16.cppm: gpuHalf and the float<->half
+ * The device-compile counterpart to fp16.cppm: wwrHalf and the float<->half
  * conversions. Link wwr.device. Companion to bf16.cuh and complex.cuh.
  *
  * The type is the SAME one fp16.cppm exports under this name, so a host-allocated
@@ -10,7 +10,7 @@
  * in a .cppm links against a definition compiled in a .cu.
  *
  * Only the conversions are wrapped. Half carries its arithmetic operators on both
- * backends, so `x + y` on two gpuHalf values is already backend-neutral code
+ * backends, so `x + y` on two wwrHalf values is already backend-neutral code
  * naming no vendor symbol -- there is nothing for a wrapper to make portable.
  * Only the float<->half conversions, which no operator performs, are here.
  * bfloat16 is the same shape and lives in bf16.cuh; complex diverges the other
@@ -51,15 +51,15 @@ namespace wwr {
 // Type -- the same one fp16.cppm exports
 // ========================================================================
 
-using gpuHalf = ::__half;
+using wwrHalf = ::__half;
 
 /// @brief Convert a float to half precision (round to nearest even)
-__device__ __forceinline__ gpuHalf gpuFloat2Half(const float value) {
+__device__ __forceinline__ wwrHalf wwrFloat2Half(const float value) {
   return ::__float2half(value);
 }
 
 /// @brief Widen a half-precision value back to float (exact)
-__device__ __forceinline__ float gpuHalf2Float(const gpuHalf value) {
+__device__ __forceinline__ float wwrHalf2Float(const wwrHalf value) {
   return ::__half2float(value);
 }
 

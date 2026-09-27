@@ -69,7 +69,7 @@ public:
   using storage_type = std::conditional_t<std::same_as<T, void>, std::byte, T>;
 
   // Every buffer here holds raw storage that it fills and copies bytewise
-  // (memset/memcpy, or gpuMemcpy for device kinds) and never constructs a T.
+  // (memset/memcpy, or wwrMemcpy for device kinds) and never constructs a T.
   // A non-trivially-copyable element type would leave zeroed bytes masquerading
   // as live objects, so reject it at construction - as std::atomic does.
   static_assert(std::is_trivially_copyable_v<storage_type>,

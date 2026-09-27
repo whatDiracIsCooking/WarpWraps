@@ -6,9 +6,9 @@
  * (cuSPARSE or hipSPARSE, per WWR_GPU_BACKEND). The type-safe dispatch
  * wrappers built on top of it live separately in wwr.wrappers.sparse. It
  * aggregates:
- * - :sparse_error - Error code specializations for gpusparseStatus_t
- * - :sparse_handle - RAII wrapper for gpusparseHandle_t
- * - :convenience_sparse - Default-policy aliases (GpusparseHandle, GpusparseHandleView)
+ * - :sparse_error - Error code specializations for wwrsparseStatus_t
+ * - :sparse_handle - RAII wrapper for wwrsparseHandle_t
+ * - :convenience_sparse - Default-policy aliases (WwrsparseHandle, WwrsparseHandleView)
  *
  * Usage:
  *   import wwr.extension.sparse;
@@ -19,8 +19,8 @@ export module wwr.extension.sparse;
 
 import std;
 
-// Re-export the vendor sparse module: gpusparseHandle_t is the return type of
-// GpusparseHandle::get() and its conversion operator, so a consumer can name it
+// Re-export the vendor sparse module: wwrsparseHandle_t is the return type of
+// WwrsparseHandle::get() and its conversion operator, so a consumer can name it
 // without importing wwr.sparse separately.
 export import wwr.sparse;
 export import :sparse_error;

@@ -5,9 +5,9 @@
  * This module provides RAII-based memory buffer management for different
  * memory kinds with automatic allocation and deallocation. It aggregates
  * all buffer types:
- * - :device_buffer - GPU device memory buffers (gpuMallocFromPoolAsync/gpuFreeAsync)
- * - :pinned_buffer - Pinned host memory buffers (gpuHostAlloc/gpuFreeHost)
- * - :unified_buffer - Unified memory buffers (gpuMallocManaged)
+ * - :device_buffer - GPU device memory buffers (wwrMallocFromPoolAsync/wwrFreeAsync)
+ * - :pinned_buffer - Pinned host memory buffers (wwrHostAlloc/wwrFreeHost)
+ * - :unified_buffer - Unified memory buffers (wwrMallocManaged)
  * - :host_buffer - Standard host memory buffers (std::malloc/std::free)
  * - :convenience_memory_buffer - Default-policy aliases (DeviceBuffer, HostBuffer, PinnedBuffer, UnifiedBuffer, and views)
  *

@@ -3,17 +3,17 @@
  * @brief Type-based dispatch to S/D/C/Z-prefixed entry points, prefix-agnostic
  *
  * WWR_REAL_DISPATCH and WWR_COMPLEX_DISPATCH pick a typed vendor entry point by the C++
- * element type: float/double select the S/D real letters, gpuComplex/
- * gpuDoubleComplex the C/Z complex letters. The prefix and basename are
+ * element type: float/double select the S/D real letters, wwrComplex/
+ * wwrDoubleComplex the C/Z complex letters. The prefix and basename are
  * caller-supplied, so the same two macros serve any library whose typed API
- * spells its functions <prefix><letter><basename> -- gpublas* and gpusolverDn*
+ * spells its functions <prefix><letter><basename> -- wwrblas* and wwrsolverDn*
  * alike. Families that need more build on these in their own dispatch_macros.h
  * (BLAS's _64 index variants and WWR_USUAL_DISPATCH convenience); FFT pastes the
  * type letter as a suffix rather than the middle, so it does not use these.
  *
  * Prerequisites (must be provided by the including file):
  * - std::is_same_v (via `import std;` or equivalent)
- * - gpuComplex, gpuDoubleComplex (wwr.complex) for WWR_COMPLEX_DISPATCH
+ * - wwrComplex, wwrDoubleComplex (wwr.complex) for WWR_COMPLEX_DISPATCH
  */
 
 #pragma once
@@ -26,10 +26,10 @@
     return prefix##D##basename(__VA_ARGS__);                                                       \
   }
 
-/// @brief Macro for dispatching to gpuComplex and gpuDoubleComplex.
+/// @brief Macro for dispatching to wwrComplex and wwrDoubleComplex.
 #define WWR_COMPLEX_DISPATCH(T, prefix, C, Z, basename, ...)                                    \
-  if constexpr (std::is_same_v<T, gpuComplex>) {                                                   \
+  if constexpr (std::is_same_v<T, wwrComplex>) {                                                   \
     return prefix##C##basename(__VA_ARGS__);                                                       \
-  } else if constexpr (std::is_same_v<T, gpuDoubleComplex>) {                                      \
+  } else if constexpr (std::is_same_v<T, wwrDoubleComplex>) {                                      \
     return prefix##Z##basename(__VA_ARGS__);                                                       \
   }

@@ -34,44 +34,44 @@ SCRIPT = Path(__file__).resolve().parent / "dispatch.py"
 
 # A two-backend WWR_FUNCTION table, as src/blas.cppm spells it.
 GPU_SOURCE = """\
-WWR_FUNCTION(gpublasSaxpy, cublasSaxpy_v2, hipblasSaxpy)
-WWR_FUNCTION(gpublasDaxpy, cublasDaxpy_v2, hipblasDaxpy)
-WWR_FUNCTION(gpublasSscal, cublasSscal_v2, hipblasSscal)
+WWR_FUNCTION(wwrblasSaxpy, cublasSaxpy_v2, hipblasSaxpy)
+WWR_FUNCTION(wwrblasDaxpy, cublasDaxpy_v2, hipblasDaxpy)
+WWR_FUNCTION(wwrblasSscal, cublasSscal_v2, hipblasSscal)
 // Not a dispatch target: the wrong prefix, and it must be ignored.
-WWR_FUNCTION(gpusolverDnCreate, cusolverDnCreate, hipsolverDnCreate)
+WWR_FUNCTION(wwrsolverDnCreate, cusolverDnCreate, hipsolverDnCreate)
 // Many-to-one, exactly as src/blas.cppm does it: hipBLAS has a single
 // status-to-string entry point where cuBLAS has two.
-WWR_FUNCTION(gpublasGetStatusName, cublasGetStatusName, hipblasStatusToString)
-WWR_FUNCTION(gpublasGetStatusString, cublasGetStatusString, hipblasStatusToString)
+WWR_FUNCTION(wwrblasGetStatusName, cublasGetStatusName, hipblasStatusToString)
+WWR_FUNCTION(wwrblasGetStatusString, cublasGetStatusString, hipblasStatusToString)
 """
 
 TABLE = """\
 [check]
 module = "wwr.wrappers.blas"
-prefix = "gpublas"
+prefix = "wwrblas"
 forwarder_module = "wwr.blas"
 
 [type_names.CUDA]
-float2 = "gpuComplex"
+float2 = "wwrComplex"
 long = "int64_t"
 
 [type_names.HIP]
-"HIP_vector_type<float, 2u>" = "gpuComplex"
+"HIP_vector_type<float, 2u>" = "wwrComplex"
 long = "int64_t"
 
 [dispatch]
-"axpy<float, int>" = ["gpublasSaxpy"]
-"axpy<double, int>" = ["gpublasDaxpy"]
+"axpy<float, int>" = ["wwrblasSaxpy"]
+"axpy<double, int>" = ["wwrblasDaxpy"]
 """
 
 # Appended to TABLE for the overload cases: one key, two functions.
-OVERLOAD_ENTRY = '"scal<gpuComplex, int>" = ["gpublasSscal", "gpublasSaxpy"]\n'
+OVERLOAD_ENTRY = '"scal<wwrComplex, int>" = ["wwrblasSscal", "wwrblasSaxpy"]\n'
 
 
 def _wrapper(name, targs, namespace="wwr"):
     """A wrapper as llvm-cxxfilt prints it."""
     return (
-        f"gpublasStatus_t {namespace}::{name}"
+        f"wwrblasStatus_t {namespace}::{name}"
         f"@wwr.wrappers.blas<{targs}>(int)"
     )
 
@@ -212,7 +212,7 @@ def test_wrong_function_fails(env):
         _wrapper("axpy", "double, int"): ["cublasDaxpy_v2"],
     })
     assert r.returncode == 1
-    assert "axpy<float, int>: calls gpublasDaxpy, expected gpublasSaxpy" in r.stderr
+    assert "axpy<float, int>: calls wwrblasDaxpy, expected wwrblasSaxpy" in r.stderr
     # Exactly one: the double instantiation beside it was read and accepted.
     assert len(_problems(r.stderr)) == 1
 
@@ -255,7 +255,7 @@ def test_wrapper_absent_from_the_table_fails(env):
         _wrapper("scal", "float, int"): ["cublasSscal_v2"],
     })
     assert r.returncode == 1
-    assert "scal<float, int>: calls gpublasSscal but has no entry" in r.stderr
+    assert "scal<float, int>: calls wwrblasSscal but has no entry" in r.stderr
     assert len(_problems(r.stderr)) == 1
 
 
@@ -266,10 +266,10 @@ def test_unknown_type_does_not_silently_match(env):
         _wrapper("axpy", "float2, int"): ["cublasSaxpy_v2"],
         _wrapper("axpy", "double, int"): ["cublasDaxpy_v2"],
     })
-    # float2 IS in [type_names.CUDA], so it normalises to gpuComplex -- which
+    # float2 IS in [type_names.CUDA], so it normalises to wwrComplex -- which
     # the table does not list.
     assert r.returncode == 1
-    assert "axpy<gpuComplex, int>" in r.stderr
+    assert "axpy<wwrComplex, int>" in r.stderr
     assert "axpy<float, int>: no instantiation" in r.stderr
     assert len(_problems(r.stderr)) == 2
 
@@ -296,7 +296,7 @@ def test_overload_pair_fails_when_both_call_the_same_one(env):
         _wrapper("scal", "float2, int") + " #2": ["cublasSscal_v2"],
     })
     assert r.returncode == 1
-    assert "scal<gpuComplex, int>: calls gpublasSscal gpublasSscal" in r.stderr
+    assert "scal<wwrComplex, int>: calls wwrblasSscal wwrblasSscal" in r.stderr
     assert len(_problems(r.stderr)) == 1
 
 
@@ -304,7 +304,7 @@ def test_overload_pair_fails_when_both_call_the_same_one(env):
 
 def test_uninlined_forwarder_counts_as_its_alias(env):
     r = env({
-        _wrapper("axpy", "float, int"): ["gpublasSaxpy@wwr.blas(int)"],
+        _wrapper("axpy", "float, int"): ["wwrblasSaxpy@wwr.blas(int)"],
         _wrapper("axpy", "double, int"): ["cublasDaxpy_v2"],
     })
     assert r.returncode == 0, r.stderr
@@ -313,7 +313,7 @@ def test_uninlined_forwarder_counts_as_its_alias(env):
 def test_forwarder_is_not_recognised_without_the_key(env):
     env.table.write_text(TABLE.replace('forwarder_module = "wwr.blas"\n', ""))
     r = env({
-        _wrapper("axpy", "float, int"): ["gpublasSaxpy@wwr.blas(int)"],
+        _wrapper("axpy", "float, int"): ["wwrblasSaxpy@wwr.blas(int)"],
         _wrapper("axpy", "double, int"): ["cublasDaxpy_v2"],
     })
     assert r.returncode == 1
@@ -336,7 +336,7 @@ def test_template_argument_spacing_is_forgiving(env):
     ("mangle", "message"),
     [
         (lambda t: t.replace("[check]\n", ""), "missing [check] table"),
-        (lambda t: t.replace('prefix = "gpublas"\n', ""), "needs a string 'prefix'"),
+        (lambda t: t.replace('prefix = "wwrblas"\n', ""), "needs a string 'prefix'"),
         (lambda t: t.replace("[dispatch]\n", "[dispatch]\nx = 1\n"),
          "is not a non-empty list"),
         (lambda t: t.replace('"axpy<float, int>"', '"axpy"'), "is not name<targs>"),
@@ -352,18 +352,18 @@ def test_malformed_table_is_rejected(env, mangle, message):
 
 
 def test_duplicate_key_after_canonicalisation_is_rejected(env):
-    env.table.write_text(TABLE + '"axpy<float,int>" = ["gpublasSaxpy"]\n')
+    env.table.write_text(TABLE + '"axpy<float,int>" = ["wwrblasSaxpy"]\n')
     r = env({_wrapper("axpy", "float, int"): ["cublasSaxpy_v2"]})
     assert r.returncode != 0
     assert "duplicates" in r.stderr
 
 
 def test_gpu_source_without_the_prefix_is_rejected(env, tmp_path):
-    """A table pointed at the wrong gpu* module says so, rather than
+    """A table pointed at the wrong wwr* module says so, rather than
     reporting every wrapper as calling nothing."""
     empty = tmp_path / "solver.cppm"
     empty.write_text(
-        "WWR_FUNCTION(gpusolverDnCreate, cusolverDnCreate, hipsolverDnCreate)\n"
+        "WWR_FUNCTION(wwrsolverDnCreate, cusolverDnCreate, hipsolverDnCreate)\n"
     )
     r = subprocess.run(
         [sys.executable, str(SCRIPT), "--objdump", "/bin/true", "--cxxfilt",
@@ -372,7 +372,7 @@ def test_gpu_source_without_the_prefix_is_rejected(env, tmp_path):
         capture_output=True, text=True,
     )
     assert r.returncode != 0
-    assert "no WWR_FUNCTION(gpublas...) lines found" in r.stderr
+    assert "no WWR_FUNCTION(wwrblas...) lines found" in r.stderr
 
 
 # ---- --print -------------------------------------------------------------
@@ -386,9 +386,9 @@ def test_print_emits_a_pasteable_dispatch_block(env):
     assert r.returncode == 0, r.stderr
     assert r.stdout == textwrap.dedent("""\
         [dispatch]
-        "axpy<double, int>"     = ["gpublasDaxpy"]
-        "axpy<float, int>"      = ["gpublasSaxpy"]
-        "scal<gpuComplex, int>" = ["gpublasSscal"]
+        "axpy<double, int>"     = ["wwrblasDaxpy"]
+        "axpy<float, int>"      = ["wwrblasSaxpy"]
+        "scal<wwrComplex, int>" = ["wwrblasSscal"]
         """)
 
 
@@ -398,7 +398,7 @@ def test_print_keeps_a_repeated_callee_twice(env):
         _wrapper("axpy", "float, int") + " #1": ["cublasSaxpy_v2"],
         _wrapper("axpy", "float, int") + " #2": ["cublasSaxpy_v2"],
     }, extra=("--print",))
-    assert '["gpublasSaxpy", "gpublasSaxpy"]' in r.stdout
+    assert '["wwrblasSaxpy", "wwrblasSaxpy"]' in r.stdout
 
 
 # ---- template arguments that contain commas --------------------------------
@@ -407,12 +407,12 @@ def test_nested_template_argument_is_not_split(env):
     """HIP's complex type is spelled HIP_vector_type<float, 2u>.
 
     split_targs exists solely because a plain str.split(",") tears that in two,
-    turning scal<gpuComplex, int> into a three-argument key that matches nothing
+    turning scal<wwrComplex, int> into a three-argument key that matches nothing
     -- and the failure would read as a missing instantiation, pointing nowhere
     near the parser. It is the only hazard dispatch.py documents that nothing
     used to exercise end to end: every other HIP case here uses scalar types.
     """
-    env.table.write_text(TABLE + '"scal<gpuComplex, int>" = ["gpublasSscal"]\n')
+    env.table.write_text(TABLE + '"scal<wwrComplex, int>" = ["wwrblasSscal"]\n')
     r = env({
         _wrapper("axpy", "float, int"): ["hipblasSaxpy"],
         _wrapper("axpy", "double, int"): ["hipblasDaxpy"],
@@ -432,8 +432,8 @@ def test_namespace_override_is_honoured(env):
     """
     env.table.write_text(
         TABLE.replace(
-            'prefix = "gpublas"',
-            'prefix = "gpublas"\nnamespace = "wwr::other"',
+            'prefix = "wwrblas"',
+            'prefix = "wwrblas"\nnamespace = "wwr::other"',
         )
     )
     ns = {"namespace": "wwr::other"}
@@ -452,7 +452,7 @@ def test_namespace_override_is_honoured(env):
     assert len(_problems(r.stderr)) == 2
 
 
-# ---- one symbol, several gpu* names ---------------------------------------
+# ---- one symbol, several wwr* names ---------------------------------------
 
 def test_merged_backend_symbol_resolves_to_the_expected_name(env):
     """On HIP both status functions ARE hipblasStatusToString -- one symbol.
@@ -462,7 +462,7 @@ def test_merged_backend_symbol_resolves_to_the_expected_name(env):
     last silently won, so the same object could fail or pass depending on the
     order of two unrelated lines in src/blas.cppm.
     """
-    for expected in ("gpublasGetStatusName", "gpublasGetStatusString"):
+    for expected in ("wwrblasGetStatusName", "wwrblasGetStatusString"):
         env.table.write_text(TABLE + f'"name<int, int>" = ["{expected}"]\n')
         r = env({
             _wrapper("axpy", "float, int"): ["hipblasSaxpy"],
@@ -474,7 +474,7 @@ def test_merged_backend_symbol_resolves_to_the_expected_name(env):
 
 def test_merged_backend_symbol_is_reported_when_unresolvable(env):
     """If the expectation names neither, there is a real question -- say so."""
-    env.table.write_text(TABLE + '"name<int, int>" = ["gpublasSaxpy"]\n')
+    env.table.write_text(TABLE + '"name<int, int>" = ["wwrblasSaxpy"]\n')
     r = env({
         _wrapper("axpy", "float, int"): ["hipblasSaxpy"],
         _wrapper("axpy", "double, int"): ["hipblasDaxpy"],
@@ -482,19 +482,19 @@ def test_merged_backend_symbol_is_reported_when_unresolvable(env):
     }, backend="HIP")
     assert r.returncode == 1
     assert "cannot distinguish them" in r.stderr
-    assert "gpublasGetStatusName and gpublasGetStatusString" in r.stderr
+    assert "wwrblasGetStatusName and wwrblasGetStatusString" in r.stderr
 
 
 def test_cuda_keeps_the_two_names_apart(env):
     """The same table under CUDA has two distinct symbols and must not merge."""
-    env.table.write_text(TABLE + '"name<int, int>" = ["gpublasGetStatusName"]\n')
+    env.table.write_text(TABLE + '"name<int, int>" = ["wwrblasGetStatusName"]\n')
     r = env({
         _wrapper("axpy", "float, int"): ["cublasSaxpy_v2"],
         _wrapper("axpy", "double, int"): ["cublasDaxpy_v2"],
         _wrapper("name", "int, int"): ["cublasGetStatusString"],
     })
     assert r.returncode == 1
-    assert "calls gpublasGetStatusString, expected gpublasGetStatusName" in r.stderr
+    assert "calls wwrblasGetStatusString, expected wwrblasGetStatusName" in r.stderr
     assert len(_problems(r.stderr)) == 1
 
 
@@ -797,11 +797,11 @@ def test_shipped_tables_load(table_path, gpu_source):
 
 @pytest.mark.parametrize(("table_path", "gpu_source"), SHIPPED_CHECKS)
 def test_shipped_tables_name_real_functions(table_path, gpu_source):
-    """Every gpu* function a table expects must exist in its gpu* module.
+    """Every wwr* function a table expects must exist in its wwr* module.
 
     The tables are hand-written on purpose, which is exactly why a typo in one
-    is plausible. Left to the build, `gpublasIsamx` surfaces as "calls
-    gpublasIsamax, expected gpublasIsamx" after several minutes of compiling --
+    is plausible. Left to the build, `wwrblasIsamx` surfaces as "calls
+    wwrblasIsamax, expected wwrblasIsamx" after several minutes of compiling --
     a message that reads like a dispatch bug rather than a spelling mistake.
     Both backends' columns are checked, so a HIP-only typo is caught on a CUDA
     box and vice versa.

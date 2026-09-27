@@ -2,7 +2,7 @@
  * @file convenience_solver.cppm
  * @brief Default-policy aliases for the GPU solver handle / params wrappers
  *
- * `GpusolverDnHandle` / `GpusolverDnHandleView` / `GpusolverDnParams` bind the
+ * `WwrsolverDnHandle` / `WwrsolverDnHandleView` / `WwrsolverDnParams` bind the
  * solver wrappers to the default error policy. This partition is the curated home
  * for those default bindings; alternative-policy aliases belong here too.
  */
@@ -18,25 +18,25 @@ import wwr.extension.handle;
 export namespace wwr::extension {
 
 /**
- * @brief Convenient alias for GpusolverDnHandleWrapper with default error policies
+ * @brief Convenient alias for WwrsolverDnHandleWrapper with default error policies
  *
  * Usage:
- *   GpusolverDnHandle handle;  // Instead of GpusolverDnHandleWrapper<>
+ *   WwrsolverDnHandle handle;  // Instead of WwrsolverDnHandleWrapper<>
  */
-using GpusolverDnHandle = GpusolverDnHandleWrapper<>;
+using WwrsolverDnHandle = WwrsolverDnHandleWrapper<>;
 
 /// @brief Non-owning, copyable view of a solver handle, carrying its device index.
-///        Returned by GpusolverDnHandle::view(); converts to gpusolverDnHandle_t
-///        for the gpusolverDn* wrappers, so a borrowed handle can be used without
+///        Returned by WwrsolverDnHandle::view(); converts to wwrsolverDnHandle_t
+///        for the wwrsolverDn* wrappers, so a borrowed handle can be used without
 ///        owning it.
-using GpusolverDnHandleView = DeviceBoundHandleView<gpusolverDnHandle_t>;
+using WwrsolverDnHandleView = DeviceBoundHandleView<wwrsolverDnHandle_t>;
 
 /**
- * @brief Convenient alias for GpusolverDnParamsWrapper with default error policies
+ * @brief Convenient alias for WwrsolverDnParamsWrapper with default error policies
  *
  * Usage:
- *   GpusolverDnParams params;  // Instead of GpusolverDnParamsWrapper<>
+ *   WwrsolverDnParams params;  // Instead of WwrsolverDnParamsWrapper<>
  */
-using GpusolverDnParams = GpusolverDnParamsWrapper<>;
+using WwrsolverDnParams = WwrsolverDnParamsWrapper<>;
 
 } // namespace wwr::extension

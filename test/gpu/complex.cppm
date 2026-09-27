@@ -24,22 +24,22 @@ using namespace wwr;
 
 using namespace wwr::cuda;
 
-WWR_SAME_TYPE(gpuFloatComplex, cuFloatComplex)
-WWR_SAME_TYPE(gpuDoubleComplex, cuDoubleComplex)
-WWR_SAME_TYPE(gpuComplex, cuComplex)
+WWR_SAME_TYPE(wwrFloatComplex, cuFloatComplex)
+WWR_SAME_TYPE(wwrDoubleComplex, cuDoubleComplex)
+WWR_SAME_TYPE(wwrComplex, cuComplex)
 
 #else
 
 using namespace wwr::hip;
 
-WWR_SAME_TYPE(gpuFloatComplex, hipFloatComplex)
-WWR_SAME_TYPE(gpuDoubleComplex, hipDoubleComplex)
-WWR_SAME_TYPE(gpuComplex, hipComplex)
+WWR_SAME_TYPE(wwrFloatComplex, hipFloatComplex)
+WWR_SAME_TYPE(wwrDoubleComplex, hipDoubleComplex)
+WWR_SAME_TYPE(wwrComplex, hipComplex)
 
 #endif
 
-// Backend-independent: gpuComplex is the single-precision complex type.
-static_assert(std::is_same_v<gpuComplex, gpuFloatComplex>);
+// Backend-independent: wwrComplex is the single-precision complex type.
+static_assert(std::is_same_v<wwrComplex, wwrFloatComplex>);
 
 // The host construction and arithmetic wrappers are forwarding functions, not
 // WWR_FUNCTION reference bindings, so &gpu != &backend and WWR_SAME_FUNCTION cannot
@@ -48,21 +48,21 @@ static_assert(std::is_same_v<gpuComplex, gpuFloatComplex>);
 // device-side counterparts in complex.cuh are proved separately by complex.cu.
 WWR_LINK_CHECK(make_gpuFloatComplex)
 WWR_LINK_CHECK(make_gpuDoubleComplex)
-WWR_LINK_CHECK(gpuCrealf)
-WWR_LINK_CHECK(gpuCimagf)
-WWR_LINK_CHECK(gpuCreal)
-WWR_LINK_CHECK(gpuCimag)
-WWR_LINK_CHECK(gpuCabsf)
-WWR_LINK_CHECK(gpuCabs)
-WWR_LINK_CHECK(gpuConjf)
-WWR_LINK_CHECK(gpuConj)
-WWR_LINK_CHECK(gpuCaddf)
-WWR_LINK_CHECK(gpuCsubf)
-WWR_LINK_CHECK(gpuCmulf)
-WWR_LINK_CHECK(gpuCdivf)
-WWR_LINK_CHECK(gpuCadd)
-WWR_LINK_CHECK(gpuCsub)
-WWR_LINK_CHECK(gpuCmul)
-WWR_LINK_CHECK(gpuCdiv)
+WWR_LINK_CHECK(wwrCrealf)
+WWR_LINK_CHECK(wwrCimagf)
+WWR_LINK_CHECK(wwrCreal)
+WWR_LINK_CHECK(wwrCimag)
+WWR_LINK_CHECK(wwrCabsf)
+WWR_LINK_CHECK(wwrCabs)
+WWR_LINK_CHECK(wwrConjf)
+WWR_LINK_CHECK(wwrConj)
+WWR_LINK_CHECK(wwrCaddf)
+WWR_LINK_CHECK(wwrCsubf)
+WWR_LINK_CHECK(wwrCmulf)
+WWR_LINK_CHECK(wwrCdivf)
+WWR_LINK_CHECK(wwrCadd)
+WWR_LINK_CHECK(wwrCsub)
+WWR_LINK_CHECK(wwrCmul)
+WWR_LINK_CHECK(wwrCdiv)
 
 } // namespace wwr::test

@@ -1,6 +1,6 @@
 /**
  * @file fp16.cppm
- * @brief Backend-neutral half-precision type: gpuHalf for __half
+ * @brief Backend-neutral half-precision type: wwrHalf for __half
  *
  * Both backends spell the type __half (cuda_fp16.h / hip_fp16.h); the alias
  * exists so code above src names every backend type the same way.
@@ -37,15 +37,15 @@ import wwr.hip.hip_fp16;
 
 export namespace wwr {
 
-WWR_TYPE(gpuHalf, __half, __half)
+WWR_TYPE(wwrHalf, __half, __half)
 
 /// @brief Convert a float to half precision (round to nearest even)
-inline gpuHalf gpuFloat2Half(const float value) {
+inline wwrHalf wwrFloat2Half(const float value) {
   return ::__float2half(value);
 }
 
 /// @brief Widen a half-precision value back to float (exact)
-inline float gpuHalf2Float(const gpuHalf value) {
+inline float wwrHalf2Float(const wwrHalf value) {
   return ::__half2float(value);
 }
 

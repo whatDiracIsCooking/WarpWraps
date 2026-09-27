@@ -20,15 +20,15 @@ export namespace wwr {
 
 /**
  * @brief The FFT library's complex element type for a real precision T.
- *   float  -> gpufftComplex
- *   double -> gpufftDoubleComplex
+ *   float  -> wwrfftComplex
+ *   double -> wwrfftDoubleComplex
  *
- * Named after the FFT library's own types (gpufftComplex), not the shared
- * gpuFloatComplex/gpuDoubleComplex: on HIP hipfftComplex is a distinct type
- * from hipComplex, and the gpufftExec* signatures name the former -- so the
+ * Named after the FFT library's own types (wwrfftComplex), not the shared
+ * wwrFloatComplex/wwrDoubleComplex: on HIP hipfftComplex is a distinct type
+ * from hipComplex, and the wwrfftExec* signatures name the former -- so the
  * wrappers over them must too, or the call fails to type-check on HIP.
  */
 template<real_fp T>
-using FftComplex = std::conditional_t<std::is_same_v<T, float>, gpufftComplex, gpufftDoubleComplex>;
+using FftComplex = std::conditional_t<std::is_same_v<T, float>, wwrfftComplex, wwrfftDoubleComplex>;
 
 } // namespace wwr

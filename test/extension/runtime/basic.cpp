@@ -30,12 +30,12 @@ TEST(GpuStreamTests, DefaultConstructor) {
   // Default-constructed streams are non-blocking: they do not serialize against
   // the legacy default stream (0).
   unsigned int flags = 0;
-  ASSERT_EQ(gpuStreamGetFlags(stream.get(), &flags), gpuSuccess);
-  EXPECT_EQ(flags & gpuStreamNonBlocking, gpuStreamNonBlocking);
+  ASSERT_EQ(wwrStreamGetFlags(stream.get(), &flags), wwrSuccess);
+  EXPECT_EQ(flags & wwrStreamNonBlocking, wwrStreamNonBlocking);
 }
 
 TEST(GpuStreamTests, WithFlags) {
-  GpuStream stream(0, gpuStreamNonBlocking);
+  GpuStream stream(0, wwrStreamNonBlocking);
   EXPECT_NE(stream.get(), nullptr);
 }
 
@@ -45,7 +45,7 @@ TEST(GpuStreamTests, RecordsCreationDevice) {
   EXPECT_EQ(stream.dev_idx(), 0);
 
   // The (dev_idx, flags) constructor records the device it was told to use.
-  GpuStream flagged(0, gpuStreamNonBlocking);
+  GpuStream flagged(0, wwrStreamNonBlocking);
   EXPECT_EQ(flagged.dev_idx(), 0);
 }
 
@@ -67,7 +67,7 @@ TEST(GpuStreamTests, MovePreservesDevice) {
 
 TEST(GpuStreamTests, MoveConstructor) {
   GpuStream stream1;
-  gpuStream_t handle = stream1.get();
+  wwrStream_t handle = stream1.get();
 
   GpuStream stream2(std::move(stream1));
   EXPECT_EQ(stream2.get(), handle);
@@ -77,7 +77,7 @@ TEST(GpuStreamTests, MoveConstructor) {
 TEST(GpuStreamTests, MoveAssignment) {
   GpuStream stream1;
   GpuStream stream2;
-  gpuStream_t handle1 = stream1.get();
+  wwrStream_t handle1 = stream1.get();
 
   stream2 = std::move(stream1);
   EXPECT_EQ(stream2.get(), handle1);
@@ -91,18 +91,18 @@ TEST(GpuStreamTests, CaptureToGraph) {
   GpuStream stream;
 
   void *buf = nullptr;
-  ASSERT_EQ(gpuMalloc(&buf, sizeof(int)), gpuSuccess);
+  ASSERT_EQ(wwrMalloc(&buf, sizeof(int)), wwrSuccess);
 
-  ASSERT_EQ(stream.begin_capture(), gpuSuccess);
-  ASSERT_EQ(gpuMemsetAsync(buf, 0, sizeof(int), stream.get()), gpuSuccess);
+  ASSERT_EQ(stream.begin_capture(), wwrSuccess);
+  ASSERT_EQ(wwrMemsetAsync(buf, 0, sizeof(int), stream.get()), wwrSuccess);
   GpuGraph graph = stream.end_capture();
   EXPECT_NE(graph.get(), nullptr);
 
   GpuGraphExec exec = graph.instantiate();
-  ASSERT_EQ(exec.launch(stream.get()), gpuSuccess);
-  EXPECT_EQ(stream.sync(), gpuSuccess);
+  ASSERT_EQ(exec.launch(stream.get()), wwrSuccess);
+  EXPECT_EQ(stream.sync(), wwrSuccess);
 
-  EXPECT_EQ(gpuFree(buf), gpuSuccess);
+  EXPECT_EQ(wwrFree(buf), wwrSuccess);
 }
 
 TEST(GpuStreamTests, WaitEventOrdersWorkAcrossStreams) {
@@ -116,16 +116,16 @@ TEST(GpuStreamTests, WaitEventOrdersWorkAcrossStreams) {
   GpuEvent event;
 
   void *buf = nullptr;
-  ASSERT_EQ(gpuMalloc(&buf, sizeof(int)), gpuSuccess);
+  ASSERT_EQ(wwrMalloc(&buf, sizeof(int)), wwrSuccess);
 
-  ASSERT_EQ(gpuMemsetAsync(buf, 0, sizeof(int), producer.get()), gpuSuccess);
-  ASSERT_EQ(event.record(producer.get()), gpuSuccess);
-  EXPECT_EQ(consumer.wait_event(event.get()), gpuSuccess);
-  ASSERT_EQ(gpuMemsetAsync(buf, 1, sizeof(int), consumer.get()), gpuSuccess);
-  EXPECT_EQ(consumer.sync(), gpuSuccess);
-  EXPECT_EQ(producer.sync(), gpuSuccess);
+  ASSERT_EQ(wwrMemsetAsync(buf, 0, sizeof(int), producer.get()), wwrSuccess);
+  ASSERT_EQ(event.record(producer.get()), wwrSuccess);
+  EXPECT_EQ(consumer.wait_event(event.get()), wwrSuccess);
+  ASSERT_EQ(wwrMemsetAsync(buf, 1, sizeof(int), consumer.get()), wwrSuccess);
+  EXPECT_EQ(consumer.sync(), wwrSuccess);
+  EXPECT_EQ(producer.sync(), wwrSuccess);
 
-  EXPECT_EQ(gpuFree(buf), gpuSuccess);
+  EXPECT_EQ(wwrFree(buf), wwrSuccess);
 }
 
 // The handle views are proven to compile and convert in
@@ -142,9 +142,9 @@ TEST(GpuStreamTests, ViewBorrowsHandleAndDrivesWork) {
   ASSERT_EQ(view.dev_idx(), stream.dev_idx());
 
   GpuEvent event;
-  ASSERT_EQ(event.record(stream.get()), gpuSuccess);
-  EXPECT_EQ(view.wait_event(event.get()), gpuSuccess);
-  EXPECT_EQ(view.sync(), gpuSuccess);
+  ASSERT_EQ(event.record(stream.get()), wwrSuccess);
+  EXPECT_EQ(view.wait_event(event.get()), wwrSuccess);
+  EXPECT_EQ(view.sync(), wwrSuccess);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -157,7 +157,7 @@ TEST(GpuEventTests, DefaultConstructor) {
 }
 
 TEST(GpuEventTests, WithFlags) {
-  GpuEvent event(0, gpuEventDisableTiming);
+  GpuEvent event(0, wwrEventDisableTiming);
   EXPECT_NE(event.get(), nullptr);
 }
 
@@ -167,7 +167,7 @@ TEST(GpuEventTests, RecordsCreationDevice) {
   EXPECT_EQ(event.dev_idx(), 0);
 
   // The (dev_idx, flags) constructor records the device it was told to use.
-  GpuEvent flagged(0, gpuEventDisableTiming);
+  GpuEvent flagged(0, wwrEventDisableTiming);
   EXPECT_EQ(flagged.dev_idx(), 0);
 }
 
@@ -180,7 +180,7 @@ TEST(GpuEventTests, ConstructOnDevice) {
 
 TEST(GpuEventTests, MoveConstructor) {
   GpuEvent event1;
-  gpuEvent_t handle = event1.get();
+  wwrEvent_t handle = event1.get();
 
   GpuEvent event2(std::move(event1));
   EXPECT_EQ(event2.get(), handle);
@@ -190,7 +190,7 @@ TEST(GpuEventTests, MoveConstructor) {
 TEST(GpuEventTests, MoveAssignment) {
   GpuEvent event1;
   GpuEvent event2;
-  gpuEvent_t handle1 = event1.get();
+  wwrEvent_t handle1 = event1.get();
 
   event2 = std::move(event1);
   EXPECT_EQ(event2.get(), handle1);
@@ -202,10 +202,10 @@ TEST(GpuEventTests, RecordAndSynchronize) {
   GpuEvent event;
 
   // Record event on stream
-  ASSERT_EQ(gpuEventRecord(event.get(), stream.get()), gpuSuccess);
+  ASSERT_EQ(wwrEventRecord(event.get(), stream.get()), wwrSuccess);
 
   // Synchronize on event
-  EXPECT_EQ(gpuEventSynchronize(event.get()), gpuSuccess);
+  EXPECT_EQ(wwrEventSynchronize(event.get()), wwrSuccess);
 }
 
 TEST(GpuEventTests, QueryEvent) {
@@ -213,13 +213,13 @@ TEST(GpuEventTests, QueryEvent) {
   GpuEvent event;
 
   // Record event on stream
-  ASSERT_EQ(gpuEventRecord(event.get(), stream.get()), gpuSuccess);
+  ASSERT_EQ(wwrEventRecord(event.get(), stream.get()), wwrSuccess);
 
   // Wait for event to complete
-  ASSERT_EQ(gpuEventSynchronize(event.get()), gpuSuccess);
+  ASSERT_EQ(wwrEventSynchronize(event.get()), wwrSuccess);
 
   // Query should now return success
-  EXPECT_EQ(gpuEventQuery(event.get()), gpuSuccess);
+  EXPECT_EQ(wwrEventQuery(event.get()), wwrSuccess);
 }
 
 TEST(GpuEventTests, MemberRecordAndSync) {
@@ -229,11 +229,11 @@ TEST(GpuEventTests, MemberRecordAndSync) {
   GpuStream stream;
   GpuEvent event;
 
-  ASSERT_EQ(event.record(stream.get()), gpuSuccess);
-  EXPECT_EQ(event.sync(), gpuSuccess);
+  ASSERT_EQ(event.record(stream.get()), wwrSuccess);
+  EXPECT_EQ(event.sync(), wwrSuccess);
 
-  ASSERT_EQ(event.record(stream.get(), 0), gpuSuccess);
-  EXPECT_EQ(event.sync(), gpuSuccess);
+  ASSERT_EQ(event.record(stream.get(), 0), wwrSuccess);
+  EXPECT_EQ(event.sync(), wwrSuccess);
 }
 
 TEST(GpuEventTests, ViewBorrowsHandleAndDrivesWork) {
@@ -245,8 +245,8 @@ TEST(GpuEventTests, ViewBorrowsHandleAndDrivesWork) {
   ASSERT_EQ(view.get(), event.get());
   ASSERT_EQ(view.dev_idx(), event.dev_idx());
 
-  ASSERT_EQ(view.record(stream.get()), gpuSuccess);
-  EXPECT_EQ(view.sync(), gpuSuccess);
+  ASSERT_EQ(view.record(stream.get()), wwrSuccess);
+  EXPECT_EQ(view.sync(), wwrSuccess);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -260,7 +260,7 @@ TEST(GpuGraphTests, DefaultConstructor) {
 
 TEST(GpuGraphTests, MoveConstructor) {
   GpuGraph graph1;
-  gpuGraph_t handle = graph1.get();
+  wwrGraph_t handle = graph1.get();
 
   GpuGraph graph2(std::move(graph1));
   EXPECT_EQ(graph2.get(), handle);
@@ -270,7 +270,7 @@ TEST(GpuGraphTests, MoveConstructor) {
 TEST(GpuGraphTests, MoveAssignment) {
   GpuGraph graph1;
   GpuGraph graph2;
-  gpuGraph_t handle1 = graph1.get();
+  wwrGraph_t handle1 = graph1.get();
 
   graph2 = std::move(graph1);
   EXPECT_EQ(graph2.get(), handle1);
@@ -305,7 +305,7 @@ TEST(GpuGraphExecTests, ConstructFromGraph) {
 TEST(GpuGraphExecTests, MoveConstructor) {
   GpuGraph graph;
   GpuGraphExec exec1(graph.get());
-  gpuGraphExec_t handle = exec1.get();
+  wwrGraphExec_t handle = exec1.get();
 
   GpuGraphExec exec2(std::move(exec1));
   EXPECT_EQ(exec2.get(), handle);
@@ -317,7 +317,7 @@ TEST(GpuGraphExecTests, MoveAssignment) {
   GpuGraph graph2;
   GpuGraphExec exec1(graph1.get());
   GpuGraphExec exec2(graph2.get());
-  gpuGraphExec_t handle1 = exec1.get();
+  wwrGraphExec_t handle1 = exec1.get();
 
   exec2 = std::move(exec1);
   EXPECT_EQ(exec2.get(), handle1);
@@ -331,8 +331,8 @@ TEST(GpuGraphExecTests, LaunchEmptyGraph) {
   GpuGraph graph;
   GpuGraphExec exec = graph.instantiate();
 
-  ASSERT_EQ(exec.launch(stream.get()), gpuSuccess);
-  EXPECT_EQ(stream.sync(), gpuSuccess);
+  ASSERT_EQ(exec.launch(stream.get()), wwrSuccess);
+  EXPECT_EQ(stream.sync(), wwrSuccess);
 }
 
 TEST(GpuGraphExecTests, UploadThenLaunch) {
@@ -343,9 +343,9 @@ TEST(GpuGraphExecTests, UploadThenLaunch) {
   GpuGraph graph;
   GpuGraphExec exec = graph.instantiate();
 
-  ASSERT_EQ(exec.upload(stream.get()), gpuSuccess);
-  ASSERT_EQ(exec.launch(stream.get()), gpuSuccess);
-  EXPECT_EQ(stream.sync(), gpuSuccess);
+  ASSERT_EQ(exec.upload(stream.get()), wwrSuccess);
+  ASSERT_EQ(exec.launch(stream.get()), wwrSuccess);
+  EXPECT_EQ(stream.sync(), wwrSuccess);
 }
 
 TEST(GpuGraphExecTests, ViewBorrowsHandleAndDrivesWork) {
@@ -357,8 +357,8 @@ TEST(GpuGraphExecTests, ViewBorrowsHandleAndDrivesWork) {
   GpuGraphExecView view = exec.view();
   ASSERT_EQ(view.get(), exec.get());
 
-  ASSERT_EQ(view.launch(stream.get()), gpuSuccess);
-  EXPECT_EQ(stream.sync(), gpuSuccess);
+  ASSERT_EQ(view.launch(stream.get()), wwrSuccess);
+  EXPECT_EQ(stream.sync(), wwrSuccess);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -387,10 +387,10 @@ TEST(GpuMemPoolTests, ConstructWithReleaseThreshold) {
 }
 
 TEST(GpuMemPoolTests, ConstructFromProps) {
-  gpuMemPoolProps props = {};
-  props.allocType = gpuMemAllocationTypePinned;
-  props.handleTypes = gpuMemHandleTypeNone;
-  props.location.type = gpuMemLocationTypeDevice;
+  wwrMemPoolProps props = {};
+  props.allocType = wwrMemAllocationTypePinned;
+  props.handleTypes = wwrMemHandleTypeNone;
+  props.location.type = wwrMemLocationTypeDevice;
   props.location.id = 0;
 
   GpuMemPool pool(props);
@@ -400,7 +400,7 @@ TEST(GpuMemPoolTests, ConstructFromProps) {
 
 TEST(GpuMemPoolTests, MoveConstructor) {
   GpuMemPool pool1;
-  gpuMemPool_t handle = pool1.get();
+  wwrMemPool_t handle = pool1.get();
 
   GpuMemPool pool2(std::move(pool1));
   EXPECT_EQ(pool2.get(), handle);
@@ -410,7 +410,7 @@ TEST(GpuMemPoolTests, MoveConstructor) {
 TEST(GpuMemPoolTests, MoveAssignment) {
   GpuMemPool pool1;
   GpuMemPool pool2;
-  gpuMemPool_t handle1 = pool1.get();
+  wwrMemPool_t handle1 = pool1.get();
 
   pool2 = std::move(pool1);
   EXPECT_EQ(pool2.get(), handle1);
@@ -433,12 +433,12 @@ TEST(GpuMemPoolTests, StreamOrderedAllocationRoundTrips) {
   GpuStream stream;
 
   void *ptr = nullptr;
-  ASSERT_EQ(gpuMallocFromPoolAsync(&ptr, 1024, pool.get(), stream.get()), gpuSuccess);
-  ASSERT_EQ(stream.sync(), gpuSuccess);
+  ASSERT_EQ(wwrMallocFromPoolAsync(&ptr, 1024, pool.get(), stream.get()), wwrSuccess);
+  ASSERT_EQ(stream.sync(), wwrSuccess);
   EXPECT_NE(ptr, nullptr);
 
-  ASSERT_EQ(gpuFreeAsync(ptr, stream.get()), gpuSuccess);
-  EXPECT_EQ(stream.sync(), gpuSuccess);
+  ASSERT_EQ(wwrFreeAsync(ptr, stream.get()), wwrSuccess);
+  EXPECT_EQ(stream.sync(), wwrSuccess);
 }
 
 TEST(GpuMemPoolTests, ViewBorrowsHandle) {
@@ -473,7 +473,7 @@ TEST(StreamEventPairTests, DefaultConstructor) {
 TEST(StreamEventPairTests, ConstructWithStreamFlags) {
   StreamEventConfig cfg;
   cfg.device = 0;
-  cfg.stream_flags = gpuStreamNonBlocking;
+  cfg.stream_flags = wwrStreamNonBlocking;
 
   StreamEventPair pair(cfg);
   EXPECT_NE(pair.stream_raw(), nullptr);
@@ -494,7 +494,7 @@ TEST(StreamEventPairTests, ConstructWithStreamPriority) {
 TEST(StreamEventPairTests, ConstructWithEventFlags) {
   StreamEventConfig cfg;
   cfg.device = 0;
-  cfg.event_flags = gpuEventDisableTiming;
+  cfg.event_flags = wwrEventDisableTiming;
 
   StreamEventPair pair(cfg);
   EXPECT_NE(pair.stream_raw(), nullptr);
@@ -509,24 +509,24 @@ TEST(StreamEventPairTests, AccessorsMatchRawGetters) {
 
 TEST(StreamEventPairTests, RecordAndSync) {
   StreamEventPair pair;
-  ASSERT_EQ(pair.record(), gpuSuccess);
-  EXPECT_EQ(pair.event_sync(), gpuSuccess);
-  EXPECT_EQ(pair.stream_sync(), gpuSuccess);
+  ASSERT_EQ(pair.record(), wwrSuccess);
+  EXPECT_EQ(pair.event_sync(), wwrSuccess);
+  EXPECT_EQ(pair.stream_sync(), wwrSuccess);
 }
 
 TEST(StreamEventPairTests, RecordWithFlagsAndSync) {
   // The flagged record(flags) overload, which routes to the event's two-arg
   // record; flag 0 is always valid.
   StreamEventPair pair;
-  ASSERT_EQ(pair.record(0), gpuSuccess);
-  EXPECT_EQ(pair.event_sync(), gpuSuccess);
-  EXPECT_EQ(pair.stream_sync(), gpuSuccess);
+  ASSERT_EQ(pair.record(0), wwrSuccess);
+  EXPECT_EQ(pair.event_sync(), wwrSuccess);
+  EXPECT_EQ(pair.stream_sync(), wwrSuccess);
 }
 
 TEST(StreamEventPairTests, MoveConstructor) {
   StreamEventPair pair1;
-  gpuStream_t stream = pair1.stream_raw();
-  gpuEvent_t event = pair1.event_raw();
+  wwrStream_t stream = pair1.stream_raw();
+  wwrEvent_t event = pair1.event_raw();
 
   StreamEventPair pair2(std::move(pair1));
   EXPECT_EQ(pair2.stream_raw(), stream);
@@ -538,8 +538,8 @@ TEST(StreamEventPairTests, MoveConstructor) {
 TEST(StreamEventPairTests, MoveAssignment) {
   StreamEventPair pair1;
   StreamEventPair pair2;
-  gpuStream_t stream = pair1.stream_raw();
-  gpuEvent_t event = pair1.event_raw();
+  wwrStream_t stream = pair1.stream_raw();
+  wwrEvent_t event = pair1.event_raw();
 
   pair2 = std::move(pair1);
   EXPECT_EQ(pair2.stream_raw(), stream);
@@ -562,7 +562,7 @@ TEST(StreamEventPairTests, MoveAssignment) {
 
 TEST(DeviceScopeTests, RecordsOriginalDevice) {
   int before = -1;
-  ASSERT_EQ(gpuGetDevice(&before), gpuSuccess);
+  ASSERT_EQ(wwrGetDevice(&before), wwrSuccess);
 
   DeviceScope scope(before);
   EXPECT_EQ(scope.original_idx, before);
@@ -572,42 +572,42 @@ TEST(DeviceScopeTests, MakesTargetCurrent) {
   DeviceScope scope(0);
 
   int current = -1;
-  ASSERT_EQ(gpuGetDevice(&current), gpuSuccess);
+  ASSERT_EQ(wwrGetDevice(&current), wwrSuccess);
   EXPECT_EQ(current, 0);
 }
 
 TEST(DeviceScopeTests, RestoresPreviousDeviceOnDestruction) {
   int before = -1;
-  ASSERT_EQ(gpuGetDevice(&before), gpuSuccess);
+  ASSERT_EQ(wwrGetDevice(&before), wwrSuccess);
 
   {
     DeviceScope scope(before);
   }
 
   int after = -1;
-  ASSERT_EQ(gpuGetDevice(&after), gpuSuccess);
+  ASSERT_EQ(wwrGetDevice(&after), wwrSuccess);
   EXPECT_EQ(after, before);
 }
 
 TEST(DeviceScopeTests, NestedScopesRestore) {
   int before = -1;
-  ASSERT_EQ(gpuGetDevice(&before), gpuSuccess);
+  ASSERT_EQ(wwrGetDevice(&before), wwrSuccess);
 
   {
     DeviceScope outer(before);
     {
       DeviceScope inner(before);
       int inside = -1;
-      ASSERT_EQ(gpuGetDevice(&inside), gpuSuccess);
+      ASSERT_EQ(wwrGetDevice(&inside), wwrSuccess);
       EXPECT_EQ(inside, before);
     }
     int after_inner = -1;
-    ASSERT_EQ(gpuGetDevice(&after_inner), gpuSuccess);
+    ASSERT_EQ(wwrGetDevice(&after_inner), wwrSuccess);
     EXPECT_EQ(after_inner, before);
   }
 
   int after_outer = -1;
-  ASSERT_EQ(gpuGetDevice(&after_outer), gpuSuccess);
+  ASSERT_EQ(wwrGetDevice(&after_outer), wwrSuccess);
   EXPECT_EQ(after_outer, before);
 }
 
@@ -623,8 +623,8 @@ TEST(DeviceScopeTests, NestedScopesRestore) {
 // The policy records to statics because the flag constructors default-construct
 // it (there is no flags+policy overload) and the wrapper exposes no accessor to
 // read an instance back. DefaultErrorPolicy aborts, so it cannot observe the
-// path. An invalid creation-flag mask forces gpuEventCreateWithFlags to return
-// gpuErrorInvalidValue -- a recoverable error that allocates nothing, so unlike
+// path. An invalid creation-flag mask forces wwrEventCreateWithFlags to return
+// wwrErrorInvalidValue -- a recoverable error that allocates nothing, so unlike
 // the memory allocation-failure suite this needs no no_sanitizer label.
 
 template<typename T>
@@ -644,20 +644,20 @@ public:
 };
 
 TEST(RuntimePolicyTests, CreationFailureFiresCreatePolicy) {
-  ProbePolicy<gpuError_t>::reset();
+  ProbePolicy<wwrError_t>::reset();
   {
     // 0xFFFFFFFF is not a valid event-creation flag mask, so
-    // gpuEventCreateWithFlags fails and leaves the handle null -- the
+    // wwrEventCreateWithFlags fails and leaves the handle null -- the
     // destructor then frees nothing, and only the create policy fires.
-    GpuEventWrapper<ProbePolicy<gpuError_t>> event(0, 0xFFFFFFFFu);
+    GpuEventWrapper<ProbePolicy<wwrError_t>> event(0, 0xFFFFFFFFu);
     EXPECT_EQ(event.get(), nullptr);
   }
-  EXPECT_GE(ProbePolicy<gpuError_t>::count, std::size_t{1});
-  EXPECT_EQ(ProbePolicy<gpuError_t>::last, gpuErrorInvalidValue);
+  EXPECT_GE(ProbePolicy<wwrError_t>::count, std::size_t{1});
+  EXPECT_EQ(ProbePolicy<wwrError_t>::last, wwrErrorInvalidValue);
 
   // The failed create left a sticky error; clear it so later tests see a clean
   // context (as the memory allocation-failure suite does).
-  static_cast<void>(gpuGetLastError());
+  static_cast<void>(wwrGetLastError());
 }
 
 } // namespace wwr::extension::test

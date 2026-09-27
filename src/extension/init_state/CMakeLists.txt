@@ -4,7 +4,7 @@
 #
 # Split, with wwr.extension.random_normal, out of the single
 # wwr.extension.rand module (two partitions, one device library). Nothing
-# here couples the two: they share only gpurandState, which comes from
+# here couples the two: they share only wwrrandState, which comes from
 # wwr.rand.
 
 # The device-kernel library (wwr_add_gpu_device_library handles the
@@ -34,8 +34,8 @@ wwr_add_gpu_device_library(
 #
 # LINK_PRIVATE wwr_backend is for the two bridges init_state_bridge.h pulls
 # in there (extension/bridge/gpu_stream_bridge.h,
-# extension/bridge/rand_state_bridge.h): a GMF cannot `import`, so gpuStream_t
-# and gpurandState have to arrive by #include, and selected_backend.h behind
+# extension/bridge/rand_state_bridge.h): a GMF cannot `import`, so wwrStream_t
+# and wwrrandState have to arrive by #include, and selected_backend.h behind
 # them reads WWR_GPU_BACKEND_{CUDA,HIP} when there is no device-compile pass
 # to read __CUDACC__/__HIP__ from. PRIVATE, so the define reaches this module
 # unit and nothing that imports it.

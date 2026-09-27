@@ -73,7 +73,7 @@ static_assert(std::is_same_v<hiprandStateScrambledSobol64_t, hiprandStateScrambl
 // that merely share a base. Pinned here deliberately: if a future ROCm
 // release collapses them into an alias, THIS assert fails and says so, which
 // is what lets src/rand.cppm and src/rand.cuh keep treating
-// gpurandState as its own type rather than quietly assuming otherwise.
+// wwrrandState as its own type rather than quietly assuming otherwise.
 // ────────────────────────────────────────────────────────────────────────
 
 static_assert(!std::is_same_v<hiprandState, hiprandStateXORWOW>);

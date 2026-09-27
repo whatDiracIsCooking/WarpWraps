@@ -49,7 +49,7 @@ public:
   int index() const noexcept { return index_; }
 
   /// @brief This device's static properties, queried once at construction
-  const gpuDeviceProp &props() const noexcept { return props_; }
+  const wwrDeviceProp &props() const noexcept { return props_; }
 
   /// @brief The default allocation stream, created on this device at construction
   GpuStream &alloc_stream() noexcept { return alloc_stream_; }
@@ -63,14 +63,14 @@ public:
 
 private:
   /// @brief Query one device's properties, aborting on failure
-  static gpuDeviceProp query_props(int index, std::source_location location) {
-    gpuDeviceProp prop{};
-    gpu_check(gpuGetDeviceProperties(&prop, index), location);
+  static wwrDeviceProp query_props(int index, std::source_location location) {
+    wwrDeviceProp prop{};
+    gpu_check(wwrGetDeviceProperties(&prop, index), location);
     return prop;
   }
 
   int index_ = 0;
-  gpuDeviceProp props_{};
+  wwrDeviceProp props_{};
   GpuStream alloc_stream_;
   GpuMemPool mem_pool_;
 };

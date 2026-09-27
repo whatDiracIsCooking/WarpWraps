@@ -16,12 +16,12 @@
  *
  * | Output type      | Drawn with                                        |
  * |------------------|---------------------------------------------------|
- * | float            | gpurand_normal                                    |
- * | double           | gpurand_normal_double                             |
- * | gpuFloatComplex  | gpurand_normal2                                   |
- * | gpuDoubleComplex | gpurand_normal2_double                            |
- * | gpuHalf          | gpurand_normal, converted                         |
- * | gpuBfloat16      | gpurand_normal, converted                         |
+ * | float            | wwrrand_normal                                    |
+ * | double           | wwrrand_normal_double                             |
+ * | wwrFloatComplex  | wwrrand_normal2                                   |
+ * | wwrDoubleComplex | wwrrand_normal2_double                            |
+ * | wwrHalf          | wwrrand_normal, converted                         |
+ * | wwrBfloat16      | wwrrand_normal, converted                         |
  *
  * Each complex component is drawn as an independent standard normal, so a
  * complex value has component variance 1 and magnitude variance 2 -- it is not
@@ -37,7 +37,7 @@
  *
  *   auto device = std::make_shared<DeviceHandle>();
  *   auto stream = device->alloc_stream().get();
- *   DeviceBuffer<gpurandState> states(n, device);
+ *   DeviceBuffer<wwrrandState> states(n, device);
  *   DeviceBuffer<float> values(n, device);
  *   init_state(stream, n, states.data(), seed);
  *   random_normal(stream, n, states.data(), values.data());
@@ -88,7 +88,7 @@ namespace wwr::extension {
  *              each value by the complex `scale`.
  */
 export template<typename T>
-void random_normal(const gpuStream_t stream, const std::size_t count, gpurandState *states,
+void random_normal(const wwrStream_t stream, const std::size_t count, wwrrandState *states,
                    T *output, const T scale = T{1.0f}) {
   // device:: is load-bearing -- without it this names itself.
   device::random_normal(stream, count, states, output, scale);
@@ -97,16 +97,16 @@ void random_normal(const gpuStream_t stream, const std::size_t count, gpurandSta
 // Instantiated once in instantiations.cpp, not at every call site. The
 // definitions these resolve to are in random_normal.cu, compiled as device
 // code -- see random_normal_bridge.h for why that boundary is untyped.
-extern template void random_normal<float>(gpuStream_t, std::size_t, gpurandState *, float *, float);
-extern template void random_normal<double>(gpuStream_t, std::size_t, gpurandState *, double *,
+extern template void random_normal<float>(wwrStream_t, std::size_t, wwrrandState *, float *, float);
+extern template void random_normal<double>(wwrStream_t, std::size_t, wwrrandState *, double *,
                                            double);
-extern template void random_normal<gpuFloatComplex>(gpuStream_t, std::size_t, gpurandState *,
-                                                    gpuFloatComplex *, gpuFloatComplex);
-extern template void random_normal<gpuDoubleComplex>(gpuStream_t, std::size_t, gpurandState *,
-                                                     gpuDoubleComplex *, gpuDoubleComplex);
-extern template void random_normal<gpuHalf>(gpuStream_t, std::size_t, gpurandState *, gpuHalf *,
-                                            gpuHalf);
-extern template void random_normal<gpuBfloat16>(gpuStream_t, std::size_t, gpurandState *,
-                                                gpuBfloat16 *, gpuBfloat16);
+extern template void random_normal<wwrFloatComplex>(wwrStream_t, std::size_t, wwrrandState *,
+                                                    wwrFloatComplex *, wwrFloatComplex);
+extern template void random_normal<wwrDoubleComplex>(wwrStream_t, std::size_t, wwrrandState *,
+                                                     wwrDoubleComplex *, wwrDoubleComplex);
+extern template void random_normal<wwrHalf>(wwrStream_t, std::size_t, wwrrandState *, wwrHalf *,
+                                            wwrHalf);
+extern template void random_normal<wwrBfloat16>(wwrStream_t, std::size_t, wwrrandState *,
+                                                wwrBfloat16 *, wwrBfloat16);
 
 } // namespace wwr::extension

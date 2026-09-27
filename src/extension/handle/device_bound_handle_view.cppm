@@ -4,13 +4,13 @@
  *
  * Provides DeviceBoundHandleView, the copyable twin of DeviceBoundHandle: a
  * HandleView that additionally records the device index the borrowed handle
- * belongs to. A bare gpuStream_t/gpuEvent_t has lost that information; a view
+ * belongs to. A bare wwrStream_t/wwrEvent_t has lost that information; a view
  * keeps it so a borrowed handle can still answer dev_idx().
  *
  * Usage:
  *   import wwr.extension.handle;
  *
- *   class GpuEventView : public DeviceBoundHandleView<gpuEvent_t>, ... { ... };
+ *   class GpuEventView : public DeviceBoundHandleView<wwrEvent_t>, ... { ... };
  */
 
 export module wwr.extension.handle:device_bound_handle_view;
@@ -21,7 +21,7 @@ import std;
 export namespace wwr::extension {
 
 /// @brief Non-owning view over a device-bound handle, carrying its device index
-/// @tparam T The underlying GPU handle type (e.g., gpuEvent_t)
+/// @tparam T The underlying GPU handle type (e.g., wwrEvent_t)
 ///
 /// Mirrors DeviceBoundHandle's role over BaseHandle: it adds the recorded device
 /// index and nothing else. Unlike the owner, the view never queries the runtime

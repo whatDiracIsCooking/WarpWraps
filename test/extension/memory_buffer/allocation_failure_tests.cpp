@@ -51,7 +51,7 @@ TEST(AllocationFailureTests, FailedDeviceAllocationLeavesCoherentEmptyBuffer) {
   EXPECT_EQ(buf.num_elements(), std::size_t{0});
 
   // Clear the sticky error so later tests see a clean context.
-  static_cast<void>(gpuGetLastError());
+  static_cast<void>(wwrGetLastError());
 }
 
 } // namespace wwr::extension::test

@@ -79,7 +79,7 @@ __global__ void warp_reduce_sum_kernel(const float *input, std::size_t count, fl
 
 } // namespace
 
-void warp_reduce_sum(const gpuStream_t stream, const std::size_t count, const float *input,
+void warp_reduce_sum(const wwrStream_t stream, const std::size_t count, const float *input,
                      float *output) {
   warp_reduce_sum_kernel<<<1, kBlockSize, 0, stream>>>(input, count, output);
 }

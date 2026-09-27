@@ -2,7 +2,7 @@
 //
 // FftPlan derives from DeviceBoundHandle like the other library handles, but it is
 // the one handle whose liveness cannot ride the base's null sentinel:
-// gpufftHandle is an integer on CUDA (cufftHandle is `int`) with no reserved
+// wwrfftHandle is an integer on CUDA (cufftHandle is `int`) with no reserved
 // invalid value. BaseHandle handles that by tracking ownership with an
 // explicit flag for handle types with no in-band null, so a moved-from plan is
 // left owning nothing while its integer handle is unchanged -- indistinguishable
@@ -16,12 +16,12 @@
 //
 // So these cases assert the destroy-exactly-once contract directly, through a
 // counting error policy substituted for the default one. gpu_check routes a
-// failing gpufftDestroy to the policy instead of a return value, so a
+// failing wwrfftDestroy to the policy instead of a return value, so a
 // double-free (the source re-destroying a plan already freed by the
-// destination) surfaces as GPUFFT_INVALID_PLAN and bumps the counter. errors
+// destination) surfaces as WWRFFT_INVALID_PLAN and bumps the counter. errors
 // staying 0 across a move-then-destroy is the proof the move cleared ownership.
 //
-// Runtime, device-requiring: gpufftCreate needs a live GPU context.
+// Runtime, device-requiring: wwrfftCreate needs a live GPU context.
 // Backend-neutral -- built and run for either WWR_GPU_BACKEND.
 
 #include <gtest/gtest.h>
@@ -29,7 +29,7 @@
 import std;
 import wwr.extension.common; // the error_policy concept, for the counting policy
 import wwr.extension.handle; // BaseHandle, DeviceBoundHandle
-import wwr.extension.fft; // re-exports wwr.fft: gpufftHandle, gpufftResult_t, GPUFFT_SUCCESS
+import wwr.extension.fft; // re-exports wwr.fft: wwrfftHandle, wwrfftResult_t, WWRFFT_SUCCESS
 
 namespace wwr::extension::test {
 
@@ -37,13 +37,13 @@ namespace wwr::extension::test {
 // aborting, so a botched destroy is observable after the objects are gone
 // rather than terminating the process (which DefaultErrorPolicy would).
 struct CountingErrorPolicy {
-  using error_type = gpufftResult_t;
+  using error_type = wwrfftResult_t;
   int *errors = nullptr;
 
   CountingErrorPolicy() = default;
   explicit CountingErrorPolicy(int *counter) : errors(counter) {}
 
-  void handle_error(gpufftResult_t, std::source_location) noexcept {
+  void handle_error(wwrfftResult_t, std::source_location) noexcept {
     if (errors != nullptr) {
       ++*errors;
     }
@@ -66,11 +66,11 @@ TEST(FftPlanTests, ConstructAndDestroyReportNoError) {
 }
 
 TEST(FftPlanTests, ImplicitConversionMatchesGet) {
-  // The raw gpufftMakePlan/gpufftExec* calls documented in fft_plan.cppm rely on
-  // operator gpufftHandle(); the blas/solver/sparse handles all pin this and fft
+  // The raw wwrfftMakePlan/wwrfftExec* calls documented in fft_plan.cppm rely on
+  // operator wwrfftHandle(); the blas/solver/sparse handles all pin this and fft
   // did not. Only get() was exercised here before.
   FftPlan plan;
-  gpufftHandle raw = plan; // operator gpufftHandle()
+  wwrfftHandle raw = plan; // operator wwrfftHandle()
   EXPECT_EQ(raw, plan.get());
 }
 
@@ -78,13 +78,13 @@ TEST(FftPlanTests, MoveConstructorTransfersOwnershipAndFreesOnce) {
   int errors = 0;
   {
     CountingPlan source{CountingErrorPolicy{&errors}};
-    gpufftHandle raw = source.get();
+    wwrfftHandle raw = source.get();
 
     CountingPlan dest(std::move(source));
     EXPECT_EQ(dest.get(), raw); // the plan handle moved across
   }
   // A move that failed to clear the source's ownership would destroy the same
-  // plan twice; the second gpufftDestroy fails and the policy counts it.
+  // plan twice; the second wwrfftDestroy fails and the policy counts it.
   EXPECT_EQ(errors, 0);
 }
 
@@ -93,7 +93,7 @@ TEST(FftPlanTests, MoveAssignmentTransfersOwnershipAndFreesOnce) {
   {
     CountingPlan source{CountingErrorPolicy{&errors}};
     CountingPlan dest{CountingErrorPolicy{&errors}};
-    gpufftHandle raw = source.get();
+    wwrfftHandle raw = source.get();
 
     // dest's original plan is freed here (exactly once), then dest adopts
     // source's plan and source is left owning nothing.
@@ -108,7 +108,7 @@ TEST(FftPlanTests, MoveAssignmentTransfersOwnershipAndFreesOnce) {
 // full construct -> move-assign -> destroy lifecycle with two distinct counters
 // proves both are stored and moved independently and that the clean path touches
 // neither. (On the success path the two cannot be told apart -- distinguishing
-// them would need a forced failure, which a live gpufft has no cheap way to
+// them would need a forced failure, which a live wwrfft has no cheap way to
 // produce.)
 TEST(FftPlanTests, TwoPolicyConstructorThreadsBothPolicies) {
   using TwoPolicyPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy>;
@@ -117,7 +117,7 @@ TEST(FftPlanTests, TwoPolicyConstructorThreadsBothPolicies) {
   {
     TwoPolicyPlan source{CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
     TwoPolicyPlan dest{CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
-    const gpufftHandle raw = source.get();
+    const wwrfftHandle raw = source.get();
 
     dest = std::move(source); // frees dest's original plan through policy_destroy_
     EXPECT_EQ(dest.get(), raw);
@@ -130,7 +130,7 @@ TEST(FftPlanTests, SelfMoveAssignmentIsSafe) {
   int errors = 0;
   {
     CountingPlan plan{CountingErrorPolicy{&errors}};
-    gpufftHandle raw = plan.get();
+    wwrfftHandle raw = plan.get();
 
     plan = std::move(plan); // guarded self-assign: must not free itself
     EXPECT_EQ(plan.get(), raw);

@@ -1,4 +1,4 @@
-# Bridge headers -- carry gpuStream_t / gpurandState across the host/device
+# Bridge headers -- carry wwrStream_t / wwrrandState across the host/device
 # boundary by #include, for translation units that cannot `import`.
 #
 # gpu_stream_bridge.h and rand_state_bridge.h each forward-declare (or minimally

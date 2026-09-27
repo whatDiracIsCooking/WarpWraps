@@ -29,10 +29,10 @@ export namespace wwr::extension {
  * for buffer management.
  */
 enum class MemoryKind {
-  Device, ///< GPU device memory (supports async operations via gpuMallocAsync/gpuFreeAsync)
+  Device, ///< GPU device memory (supports async operations via wwrMallocAsync/wwrFreeAsync)
   Pinned, ///< Page-locked host memory (faster DMA transfers, no async support)
   Host,   ///< Standard host memory via std::malloc/std::free (no async support)
-  Unified ///< Managed memory accessible from both CPU and GPU via gpuMallocManaged
+  Unified ///< Managed memory accessible from both CPU and GPU via wwrMallocManaged
 };
 
 // ============================================================================
@@ -47,12 +47,12 @@ struct MemoryErrorType {
 // Specializations for each memory kind
 template<>
 struct MemoryErrorType<MemoryKind::Device> {
-  using type = gpuError_t;
+  using type = wwrError_t;
 };
 
 template<>
 struct MemoryErrorType<MemoryKind::Pinned> {
-  using type = gpuError_t;
+  using type = wwrError_t;
 };
 
 template<>
@@ -62,7 +62,7 @@ struct MemoryErrorType<MemoryKind::Host> {
 
 template<>
 struct MemoryErrorType<MemoryKind::Unified> {
-  using type = gpuError_t;
+  using type = wwrError_t;
 };
 
 // ============================================================================
@@ -81,17 +81,17 @@ struct MemoryInvalidValue;
 
 template<>
 struct MemoryInvalidValue<MemoryKind::Device> {
-  static constexpr gpuError_t value = gpuErrorInvalidValue;
+  static constexpr wwrError_t value = wwrErrorInvalidValue;
 };
 
 template<>
 struct MemoryInvalidValue<MemoryKind::Pinned> {
-  static constexpr gpuError_t value = gpuErrorInvalidValue;
+  static constexpr wwrError_t value = wwrErrorInvalidValue;
 };
 
 template<>
 struct MemoryInvalidValue<MemoryKind::Unified> {
-  static constexpr gpuError_t value = gpuErrorInvalidValue;
+  static constexpr wwrError_t value = wwrErrorInvalidValue;
 };
 
 template<>

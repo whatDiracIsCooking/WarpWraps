@@ -4,7 +4,7 @@
  *
  * Included by main.cpp (an ordinary host compile) and by warp_reduce.cu (a
  * device pass), so it must compile in both modes -- which is what the
- * `_bridge` suffix marks. gpuStream_t therefore arrives by #include rather
+ * `_bridge` suffix marks. wwrStream_t therefore arrives by #include rather
  * than by import; see src/README.md ("The switch points").
  *
  * Usage:
@@ -30,6 +30,6 @@ namespace wwr::example {
 /// @param count Number of elements to reduce
 /// @param input Device array of at least @p count elements, read only
 /// @param output Device pointer to one writable element
-void warp_reduce_sum(gpuStream_t stream, std::size_t count, const float *input, float *output);
+void warp_reduce_sum(wwrStream_t stream, std::size_t count, const float *input, float *output);
 
 } // namespace wwr::example

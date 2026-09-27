@@ -20,28 +20,28 @@ export namespace wwr::extension {
  * Automatically creates a GPU memory pool on construction and destroys it on destruction.
  * Supports move semantics for transferring ownership.
  *
- * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<gpuError_t>)
+ * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<wwrError_t>)
  * @tparam P_destroy Error policy type for destruction (defaults to P_create)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
-template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
-         nothrow_error_policy<gpuError_t> P_destroy = P_create>
+template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
+         nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuMemPoolWrapper
-    : public DeviceBoundHandle<gpuMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create,
+    : public DeviceBoundHandle<wwrMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create,
                             P_destroy> {
 private:
   using Base =
-      DeviceBoundHandle<gpuMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create, P_destroy>;
+      DeviceBoundHandle<wwrMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
   /// @note Use 1MB as default release threshold
   static constexpr unsigned int default_threshold = 1024u * 1024u; // 1MB in bytes
 
-  static gpuMemPoolProps make_default_props(int dev_idx) {
-    gpuMemPoolProps props = {};
-    props.allocType = gpuMemAllocationTypePinned;
-    props.handleTypes = gpuMemHandleTypeNone;
-    props.location.type = gpuMemLocationTypeDevice;
+  static wwrMemPoolProps make_default_props(int dev_idx) {
+    wwrMemPoolProps props = {};
+    props.allocType = wwrMemAllocationTypePinned;
+    props.handleTypes = wwrMemHandleTypeNone;
+    props.location.type = wwrMemLocationTypeDevice;
     props.location.id = dev_idx;
     return props;
   }
@@ -51,7 +51,7 @@ public:
   // from DeviceBoundHandle. With dev_idx as the mandatory first argument there is no
   // longer any collision with the `(dev_idx, release_threshold)` overload below,
   // so the base's device-index constructor is inherited like GpuStream/GpuEvent.
-  using DeviceBoundHandle<gpuMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create,
+  using DeviceBoundHandle<wwrMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create,
                        P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU memory pool on `dev_idx` with default properties and a custom release threshold
@@ -63,9 +63,9 @@ public:
       : Base(typename Base::skip_default_create_t{}) {
     Base::select_device(dev_idx, location);
     const auto props = make_default_props(dev_idx);
-    gpu_check(gpuMemPoolCreate(&this->handle_, &props), this->policy_create_, location);
+    gpu_check(wwrMemPoolCreate(&this->handle_, &props), this->policy_create_, location);
     const unsigned int threshold = release_threshold;
-    gpu_check(gpuMemPoolSetAttribute(this->handle_, gpuMemPoolAttrReleaseThreshold,
+    gpu_check(wwrMemPoolSetAttribute(this->handle_, wwrMemPoolAttrReleaseThreshold,
                                      static_cast<void *>(const_cast<unsigned int *>(&threshold))),
               this->policy_create_, location);
     this->record_device();
@@ -75,16 +75,16 @@ public:
   /// @param props Properties for memory pool creation; props.location.id names the device
   /// @param release_threshold Maximum bytes to hold in pool before returning memory to the OS
   /// @param location Source location where creation was requested
-  GpuMemPoolWrapper(const gpuMemPoolProps &props,
+  GpuMemPoolWrapper(const wwrMemPoolProps &props,
                     const unsigned int release_threshold = default_threshold,
                     std::source_location location = std::source_location::current())
       : Base(typename Base::skip_default_create_t{}) {
     // Select the device the props name before creating, so the pool's device
     // and the current device stay consistent -- as the other constructors do.
     Base::select_device(props.location.id, location);
-    gpu_check(gpuMemPoolCreate(&this->handle_, &props), this->policy_create_, location);
+    gpu_check(wwrMemPoolCreate(&this->handle_, &props), this->policy_create_, location);
     const unsigned int threshold = release_threshold;
-    gpu_check(gpuMemPoolSetAttribute(this->handle_, gpuMemPoolAttrReleaseThreshold,
+    gpu_check(wwrMemPoolSetAttribute(this->handle_, wwrMemPoolAttrReleaseThreshold,
                                      static_cast<void *>(const_cast<unsigned int *>(&threshold))),
               this->policy_create_, location);
     this->record_device();
@@ -93,24 +93,24 @@ public:
   /// @brief Create a GPU memory pool (default properties)
   /// @param handle Output parameter for the created memory pool
   /// @param location Source location where creation was requested
-  void create(gpuMemPool_t *handle, std::source_location location) {
+  void create(wwrMemPool_t *handle, std::source_location location) {
     // Reached through DeviceBoundHandle's default create path, which has already
     // made dev_idx the current device; read it back so props names it.
     int dev_idx = 0;
-    gpuGetDevice(&dev_idx);
+    wwrGetDevice(&dev_idx);
     auto props = make_default_props(dev_idx);
-    gpu_check(gpuMemPoolCreate(handle, &props), this->policy_create_, location);
+    gpu_check(wwrMemPoolCreate(handle, &props), this->policy_create_, location);
     const unsigned int threshold = default_threshold;
-    gpu_check(gpuMemPoolSetAttribute(*handle, gpuMemPoolAttrReleaseThreshold,
+    gpu_check(wwrMemPoolSetAttribute(*handle, wwrMemPoolAttrReleaseThreshold,
                                      static_cast<void *>(const_cast<unsigned int *>(&threshold))),
               this->policy_create_, location);
   }
 
   /// @brief Destroy a GPU memory pool
   /// @param handle The memory pool to destroy
-  void destroy(gpuMemPool_t handle) {
+  void destroy(wwrMemPool_t handle) {
     if (handle != nullptr) {
-      gpu_check(gpuMemPoolDestroy(handle), this->policy_destroy_);
+      gpu_check(wwrMemPoolDestroy(handle), this->policy_destroy_);
     }
   }
 };

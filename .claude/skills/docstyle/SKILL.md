@@ -103,7 +103,7 @@ tell whether it still holds, and it silently rots. Dated in
 **Quoted compiler diagnostics.** State the rule ("`warpSize` is not a constant
 expression on either backend"); the transcript goes in `architecture.md`.
 
-**Changelog.** `gpuStream_t is no longer defined here: it moved to…` — git
+**Changelog.** `wwrStream_t is no longer defined here: it moved to…` — git
 knows. A reader never told it used to be here does not need to be told it left.
 Write the present tense.
 
@@ -116,8 +116,8 @@ tempting to stop at namespace cg = ... and be done. That is not done here, for
 two reasons`), dramatization (`which is the one thing this directory exists to
 prevent`). State the rule; trust the reader.
 
-**Second-person exhortation.** `Never treat a gpurandState* and a
-gpurandStateXORWOW* as interchangeable`. Prefer the declarative: "On HIP these
+**Second-person exhortation.** `Never treat a wwrrandState* and a
+wwrrandStateXORWOW* as interchangeable`. Prefer the declarative: "On HIP these
 are distinct types; on CUDA they are one." Where the rule is load-bearing a
 `static_assert` outranks any amount of prose — `runtime.cuh`'s
 power-of-two check on `WWR_WARP_SIZE` is the right pattern.

@@ -1,12 +1,12 @@
 // Compile-time test for src/wmma.cuh, the include switch plus one
-// namespace alias. The header defines a single name, wwr::gpuwmma, and has no
+// namespace alias. The header defines a single name, wwr::wwrwmma, and has no
 // in-tree caller yet, so without this TU nothing compiles it and a break on one
 // backend would ship unseen -- <mma.h> and <rocwmma/rocwmma.hpp> are separate
 // implementations of a shared spelling, not one header behind two paths, which
 // is a weaker guarantee than cooperative_groups.cuh's.
 //
 // Building this .cu under the selected backend's device pass IS the test: every
-// gpuwmma entity named below has to resolve on both backends. The kernels are
+// wwrwmma entity named below has to resolve on both backends. The kernels are
 // never launched -- WMMA is arch-gated (sm_70+, and a gfx11/gfx12/CDNA part on
 // the AMD side) and this tier configures with no device. Reached through
 // wwr.device, exactly as a real device consumer reaches the header.
@@ -22,7 +22,7 @@
 
 namespace {
 
-namespace w = wwr::gpuwmma;
+namespace w = wwr::wwrwmma;
 
 // Local rather than <type_traits>: a device TU here imports no modules and
 // pulls no standard library it does not need, and this is two lines.
@@ -38,11 +38,11 @@ struct same_type<A, A> {
 // The one portable tile. 16x16x16 is the whole intersection: CUDA's 32x8x16 and
 // 8x32x16 have no rocWMMA counterpart on RDNA, where the shape fails to
 // instantiate rather than falling back.
-using FragA = w::fragment<w::matrix_a, 16, 16, 16, wwr::gpuHalf, w::row_major>;
-using FragB = w::fragment<w::matrix_b, 16, 16, 16, wwr::gpuHalf, w::col_major>;
+using FragA = w::fragment<w::matrix_a, 16, 16, 16, wwr::wwrHalf, w::row_major>;
+using FragB = w::fragment<w::matrix_b, 16, 16, 16, wwr::wwrHalf, w::col_major>;
 using FragC = w::fragment<w::accumulator, 16, 16, 16, float>;
 
-// gpuHalf is the portable element type: __half on both backends, and rocWMMA
+// wwrHalf is the portable element type: __half on both backends, and rocWMMA
 // spells its own hfloat16_t the same way. Half of the element-type
 // asymmetry -- the bf16 half is pinned in the second kernel below.
 static_assert(same_type<FragC::element_type, float>::value,
@@ -87,7 +87,7 @@ static_assert(FragA::num_elements != 16,
 // The portable half-in, float-out tile: fill, load both operands, accumulate,
 // store. Every entry point of the shared surface, in the order a real kernel
 // calls them, plus the layout_t enumerator store_matrix_sync takes.
-__global__ void wwr_wmma_tile(const wwr::gpuHalf *a, const wwr::gpuHalf *b, float *c) {
+__global__ void wwr_wmma_tile(const wwr::wwrHalf *a, const wwr::wwrHalf *b, float *c) {
   FragA fa;
   FragB fb;
   FragC acc;
@@ -109,19 +109,19 @@ __global__ void wwr_wmma_tile(const wwr::gpuHalf *a, const wwr::gpuHalf *b, floa
 
 // bfloat16 is where the element type stops being portable, and it is a silent
 // trap rather than a missing feature: both backends do 16x16x16 bf16, but
-// wwr::gpuBfloat16 is __nv_bfloat16 on CUDA and __hip_bfloat16 on HIP, and
+// wwr::wwrBfloat16 is __nv_bfloat16 on CUDA and __hip_bfloat16 on HIP, and
 // rocWMMA knows only the older hip_bfloat16 that its own bfloat16_t names. So
 // the type bf16.cuh hands a kernel works on one backend and fails to instantiate
 // PackTraits on the other, which is why this kernel needs the #if that the tile
 // above does not.
 #if defined(WWR_SELECTED_CUDA)
-using WmmaBf16 = wwr::gpuBfloat16;
-static_assert(same_type<WmmaBf16, wwr::gpuBfloat16>::value,
-              "on CUDA the wmma bf16 element type IS gpuBfloat16");
+using WmmaBf16 = wwr::wwrBfloat16;
+static_assert(same_type<WmmaBf16, wwr::wwrBfloat16>::value,
+              "on CUDA the wmma bf16 element type IS wwrBfloat16");
 #else
 using WmmaBf16 = w::bfloat16_t;
-static_assert(!same_type<WmmaBf16, wwr::gpuBfloat16>::value,
-              "rocWMMA's bfloat16_t is still expected to differ from gpuBfloat16; "
+static_assert(!same_type<WmmaBf16, wwr::wwrBfloat16>::value,
+              "rocWMMA's bfloat16_t is still expected to differ from wwrBfloat16; "
               "if ROCm has unified them, wmma.cuh needs updating");
 #endif
 

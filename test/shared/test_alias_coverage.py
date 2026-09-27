@@ -1,4 +1,4 @@
-"""Tests for alias_coverage.py, the gpu* layer alias-coverage guard.
+"""Tests for alias_coverage.py, the wwr* layer alias-coverage guard.
 
 A coverage checker's failure mode is passing when it should fail -- a parser that
 silently matches nothing reports "all covered". So beyond asserting the real tree
@@ -17,35 +17,35 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_real_tree_is_fully_covered():
     modules = ac.discover_modules(ROOT)
-    assert modules, "discovered no gpu modules -- alias parser is broken"
+    assert modules, "discovered no wwr modules -- alias parser is broken"
     gaps = {m: ac.check_module(ROOT, m) for m in modules}
     uncovered = {m: g for m, g in gaps.items() if g}
-    assert not uncovered, f"uncovered gpu* aliases: {uncovered}"
+    assert not uncovered, f"uncovered wwr* aliases: {uncovered}"
 
 
 def test_parses_gpu_function():
-    src = "WWR_FUNCTION(gpublasSgemm, cublasSgemm_v2, hipblasSgemm)\n"
-    assert ac.parse_aliases(src) == {"gpublasSgemm"}
+    src = "WWR_FUNCTION(wwrblasSgemm, cublasSgemm_v2, hipblasSgemm)\n"
+    assert ac.parse_aliases(src) == {"wwrblasSgemm"}
 
 
 def test_parses_gpu_rt_function_prefix_paste():
-    # WWR_RT_FUNCTION(StreamCreate) -> alias gpuStreamCreate
+    # WWR_RT_FUNCTION(StreamCreate) -> alias wwrStreamCreate
     src = "WWR_RT_FUNCTION(StreamCreate)\n"
-    assert ac.parse_aliases(src) == {"gpuStreamCreate"}
+    assert ac.parse_aliases(src) == {"wwrStreamCreate"}
 
 
 def test_skips_macro_definition_lines():
     # The #define lines are not invocations and must not be read as aliases.
     src = (
-        "#define WWR_FUNCTION(gpu_name, cuda_name, hip_name) ...\n"
-        "#define WWR_RT_FUNCTION(x) WWR_FUNCTION(gpu##x, cuda##x, hip##x)\n"
+        "#define WWR_FUNCTION(wwr_name, cuda_name, hip_name) ...\n"
+        "#define WWR_RT_FUNCTION(x) WWR_FUNCTION(wwr##x, cuda##x, hip##x)\n"
     )
     assert ac.parse_aliases(src) == set()
 
 
 def test_parses_same_function():
-    test = "WWR_SAME_FUNCTION(gpublasCreate, cublasCreate_v2)\n"
-    assert ac.parse_same_functions(test) == {"gpublasCreate"}
+    test = "WWR_SAME_FUNCTION(wwrblasCreate, cublasCreate_v2)\n"
+    assert ac.parse_same_functions(test) == {"wwrblasCreate"}
 
 
 def test_parses_same_function_not_on_first_line():
@@ -54,32 +54,32 @@ def test_parses_same_function_not_on_first_line():
     text = (
         "// header comment\n"
         "\n"
-        "WWR_SAME_FUNCTION(gpublasCreate, cublasCreate_v2)\n"
-        "WWR_SAME_FUNCTION(gpublasDestroy, hipblasDestroy)\n"
+        "WWR_SAME_FUNCTION(wwrblasCreate, cublasCreate_v2)\n"
+        "WWR_SAME_FUNCTION(wwrblasDestroy, hipblasDestroy)\n"
     )
-    assert ac.parse_same_functions(text) == {"gpublasCreate", "gpublasDestroy"}
+    assert ac.parse_same_functions(text) == {"wwrblasCreate", "wwrblasDestroy"}
 
 
 def test_parses_toml_targets_nested():
-    data = {"dispatch": {"gemm<float, int>": ["gpublasSgemm"],
-                         "asum<double, int>": ["gpublasDasum"]},
-            "type_names": {"CUDA": {"float2": "gpuComplex"}}}
+    data = {"dispatch": {"gemm<float, int>": ["wwrblasSgemm"],
+                         "asum<double, int>": ["wwrblasDasum"]},
+            "type_names": {"CUDA": {"float2": "wwrComplex"}}}
     targets = ac.parse_toml_targets(data)
-    assert {"gpublasSgemm", "gpublasDasum"} <= targets
+    assert {"wwrblasSgemm", "wwrblasDasum"} <= targets
 
 
 def test_gap_flags_uncovered_alias():
-    aliases = {"gpublasSgemm", "gpublasDasum"}
-    same = {"gpublasSgemm"}
+    aliases = {"wwrblasSgemm", "wwrblasDasum"}
+    same = {"wwrblasSgemm"}
     toml_targets: set[str] = set()
-    assert ac.coverage_gap(aliases, same, toml_targets) == {"gpublasDasum"}
+    assert ac.coverage_gap(aliases, same, toml_targets) == {"wwrblasDasum"}
 
 
 def test_gap_accepts_same_function_coverage():
-    aliases = {"gpublasCreate"}
-    assert ac.coverage_gap(aliases, {"gpublasCreate"}, set()) == set()
+    aliases = {"wwrblasCreate"}
+    assert ac.coverage_gap(aliases, {"wwrblasCreate"}, set()) == set()
 
 
 def test_gap_accepts_toml_coverage():
-    aliases = {"gpublasSgemm"}
-    assert ac.coverage_gap(aliases, set(), {"gpublasSgemm"}) == set()
+    aliases = {"wwrblasSgemm"}
+    assert ac.coverage_gap(aliases, set(), {"wwrblasSgemm"}) == set()

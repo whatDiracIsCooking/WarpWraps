@@ -59,33 +59,33 @@ stdHostMemoryError_t memset(B &buf, const int value) noexcept {
 
 /**
  * @brief Stream-ordered async memset for full buffer
- * @note Uses gpuMemsetAsync; works for all GPU-accessible buffer kinds
+ * @note Uses wwrMemsetAsync; works for all GPU-accessible buffer kinds
  * @param buf Buffer to fill
  * @param value Byte value to fill with
  * @param stream GPU stream for the operation (use stream 0 for default stream)
- * @return gpuError_t from gpuMemsetAsync
+ * @return wwrError_t from wwrMemsetAsync
  */
 template<buffer_base B>
-gpuError_t memset(B &buf, const int value, const gpuStream_t stream) noexcept {
-  return gpuMemsetAsync(buf.data(), value, buf.size_bytes(), stream);
+wwrError_t memset(B &buf, const int value, const wwrStream_t stream) noexcept {
+  return wwrMemsetAsync(buf.data(), value, buf.size_bytes(), stream);
 }
 
 /**
  * @brief Stream-ordered async memset with offset and count
- * @note Uses gpuMemsetAsync; works for all GPU-accessible buffer kinds
+ * @note Uses wwrMemsetAsync; works for all GPU-accessible buffer kinds
  * @param buf Buffer to fill
  * @param offset Offset in buffer (in elements)
  * @param count Number of elements to fill
  * @param value Byte value to fill with
  * @param stream GPU stream for the operation (use stream 0 for default stream)
- * @return gpuError_t from gpuMemsetAsync, or gpuErrorInvalidValue if validation fails
+ * @return wwrError_t from wwrMemsetAsync, or wwrErrorInvalidValue if validation fails
  */
 template<buffer_base B>
-gpuError_t memset(B &buf, const std::size_t offset, const std::size_t count, const int value,
-                  const gpuStream_t stream) noexcept {
+wwrError_t memset(B &buf, const std::size_t offset, const std::size_t count, const int value,
+                  const wwrStream_t stream) noexcept {
   if (!validate_memset(buf, offset, count))
-    return gpuErrorInvalidValue;
-  return gpuMemsetAsync(static_cast<typename B::storage_type *>(buf.data()) + offset, value,
+    return wwrErrorInvalidValue;
+  return wwrMemsetAsync(static_cast<typename B::storage_type *>(buf.data()) + offset, value,
                         count * B::element_size, stream);
 }
 

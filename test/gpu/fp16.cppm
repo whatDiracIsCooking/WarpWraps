@@ -1,6 +1,6 @@
 // fp16.cppm - Compile-time tests for wwr.fp16
 //
-// gpuHalf is the backend's own __half. See gpu_check_macros.h.
+// wwrHalf is the backend's own __half. See gpu_check_macros.h.
 
 module;
 
@@ -21,9 +21,9 @@ namespace wwr::test {
 using namespace wwr;
 
 #if defined(WWR_GPU_BACKEND_CUDA)
-WWR_SAME_TYPE(wwr::gpuHalf, wwr::cuda::__half)
+WWR_SAME_TYPE(wwr::wwrHalf, wwr::cuda::__half)
 #else
-WWR_SAME_TYPE(wwr::gpuHalf, wwr::hip::__half)
+WWR_SAME_TYPE(wwr::wwrHalf, wwr::hip::__half)
 #endif
 
 // The host conversion wrappers are forwarding functions, not WWR_FUNCTION
@@ -31,7 +31,7 @@ WWR_SAME_TYPE(wwr::gpuHalf, wwr::hip::__half)
 // WWR_LINK_CHECK from this importing TU is the build-time claim: the exported inline
 // wrapper is reachable by name across the import and links. The device-side
 // conversions in fp16.cuh are proved separately by fp16.cu.
-WWR_LINK_CHECK(gpuFloat2Half)
-WWR_LINK_CHECK(gpuHalf2Float)
+WWR_LINK_CHECK(wwrFloat2Half)
+WWR_LINK_CHECK(wwrHalf2Float)
 
 } // namespace wwr::test

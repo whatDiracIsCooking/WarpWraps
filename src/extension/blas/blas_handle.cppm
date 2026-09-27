@@ -2,7 +2,7 @@
  * @file blas_handle.cppm
  * @brief RAII wrapper for a GPU BLAS handle
  *
- * Provides GpublasHandle class for automatic GPU BLAS handle management.
+ * Provides WwrblasHandle class for automatic GPU BLAS handle management.
  */
 
 export module wwr.extension.blas:blas_handle;
@@ -24,38 +24,38 @@ export namespace wwr::extension {
  * records it -- read it back with dev_idx(). Destroys the handle on
  * destruction; supports move semantics, copy is deleted.
  *
- * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<gpublasStatus_t>)
+ * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<wwrblasStatus_t>)
  * @tparam P_destroy Error policy type for destruction (defaults to P_create)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
-template<error_policy<gpublasStatus_t> P_create = DefaultErrorPolicy<gpublasStatus_t>,
-         nothrow_error_policy<gpublasStatus_t> P_destroy = P_create>
-class GpublasHandleWrapper
-    : public DeviceBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
+template<error_policy<wwrblasStatus_t> P_create = DefaultErrorPolicy<wwrblasStatus_t>,
+         nothrow_error_policy<wwrblasStatus_t> P_destroy = P_create>
+class WwrblasHandleWrapper
+    : public DeviceBoundHandle<wwrblasHandle_t, WwrblasHandleWrapper<P_create, P_destroy>, P_create,
                             P_destroy> {
 private:
-  using Base = DeviceBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
+  using Base = DeviceBoundHandle<wwrblasHandle_t, WwrblasHandleWrapper<P_create, P_destroy>, P_create,
                               P_destroy>;
 
 public:
-  // The `GpublasHandle(int dev_idx = 0)` default/per-device constructor,
+  // The `WwrblasHandle(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
-  using DeviceBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
+  using DeviceBoundHandle<wwrblasHandle_t, WwrblasHandleWrapper<P_create, P_destroy>, P_create,
                        P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU BLAS handle
   /// @param handle Output parameter for the created handle
   /// @param location Source location where creation was requested
-  void create(gpublasHandle_t *handle, std::source_location location) {
-    gpu_check(gpublasCreate(handle), this->policy_create_, location);
+  void create(wwrblasHandle_t *handle, std::source_location location) {
+    gpu_check(wwrblasCreate(handle), this->policy_create_, location);
   }
 
   /// @brief Destroy a GPU BLAS handle
   /// @param handle The handle to destroy
-  void destroy(gpublasHandle_t handle) {
+  void destroy(wwrblasHandle_t handle) {
     if (handle != nullptr) {
-      gpu_check(gpublasDestroy(handle), this->policy_destroy_);
+      gpu_check(wwrblasDestroy(handle), this->policy_destroy_);
     }
   }
 };

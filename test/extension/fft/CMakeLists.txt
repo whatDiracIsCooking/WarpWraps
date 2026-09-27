@@ -1,6 +1,6 @@
 # wwr.extension.fft RAII plan tests
 #
-# Runtime only: gpufftCreate needs a live GPU context. Same shape as
+# Runtime only: wwrfftCreate needs a live GPU context. Same shape as
 # test/extension/blas -- one plain .cpp, one ctest entry per suite. Links
 # wwr.extension.common as well, since the test substitutes its own
 # a counting policy for the default one to observe destroy-exactly-once.

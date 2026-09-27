@@ -10,7 +10,7 @@
  * Usage:
  *   import wwr.extension.handle;
  *
- *   void wait(HandleView<gpuStream_t> s) { gpuStreamSynchronize(s); }
+ *   void wait(HandleView<wwrStream_t> s) { wwrStreamSynchronize(s); }
  */
 
 export module wwr.extension.handle:handle_view;

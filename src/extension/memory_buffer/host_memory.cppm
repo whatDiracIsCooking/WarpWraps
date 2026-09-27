@@ -2,7 +2,7 @@
  * @file host_memory.cppm
  * @brief Error codes for standard host memory operations
  *
- * Provides error status codes analogous to gpuError_t for host memory
+ * Provides error status codes analogous to wwrError_t for host memory
  * allocation and deallocation operations.
  *
  * Usage:
@@ -24,7 +24,7 @@ export namespace wwr::extension {
 /**
  * @brief Error codes for standard host memory operations
  *
- * Provides error status codes analogous to gpuError_t for host memory
+ * Provides error status codes analogous to wwrError_t for host memory
  * allocation and deallocation operations.
  */
 enum class stdHostMemoryError_t {

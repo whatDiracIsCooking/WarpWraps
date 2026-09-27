@@ -2,9 +2,9 @@
  * @file interface.cppm
  * @brief Primary interface for wwr.wrappers.tx
  *
- * Type-safe, backend-neutral profiler annotations over the gputx* marker/range
+ * Type-safe, backend-neutral profiler annotations over the wwrtx* marker/range
  * names (wwr.tx -> NVTX or rocTX, per WWR_GPU_BACKEND). It adds the C++
- * ergonomics the raw gputx* layer does not: named free functions and a
+ * ergonomics the raw wwrtx* layer does not: named free functions and a
  * ScopedRange RAII guard that pushes a nested range on construction and pops it
  * on destruction, so a range cannot be left open on an early return or a throw.
  *
@@ -42,7 +42,7 @@ export namespace wwr::tx {
 // ========================================================================
 
 /// @brief Record an instantaneous marker carrying an ASCII message.
-void mark(const char *message) { gputxMarkA(message); }
+void mark(const char *message) { wwrtxMarkA(message); }
 
 // ========================================================================
 // Ranges -- nested (stack) push/pop on the calling thread
@@ -50,21 +50,21 @@ void mark(const char *message) { gputxMarkA(message); }
 
 /// @brief Begin a nested range on the calling thread.
 /// @return the zero-based nesting depth begun, or a negative value on error.
-int range_push(const char *message) { return gputxRangePushA(message); }
+int range_push(const char *message) { return wwrtxRangePushA(message); }
 
 /// @brief End the innermost nested range on the calling thread.
 /// @return the depth of the range ended, or a negative value on error.
-int range_pop() { return gputxRangePop(); }
+int range_pop() { return wwrtxRangePop(); }
 
 // ========================================================================
 // Ranges -- process-wide asynchronous start/stop
 // ========================================================================
 
 /// @brief Begin an asynchronous range; pass the returned id to range_stop.
-gputxRangeId_t range_start(const char *message) { return gputxRangeStartA(message); }
+wwrtxRangeId_t range_start(const char *message) { return wwrtxRangeStartA(message); }
 
 /// @brief End the asynchronous range identified by id.
-void range_stop(gputxRangeId_t id) { gputxRangeStop(id); }
+void range_stop(wwrtxRangeId_t id) { wwrtxRangeStop(id); }
 
 // ========================================================================
 // RAII nested-range guard

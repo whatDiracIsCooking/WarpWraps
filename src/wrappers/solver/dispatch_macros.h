@@ -1,18 +1,18 @@
 /**
  * @file dispatch_macros.h
- * @brief Type-based dispatch for the gpusolverDn* typed API
+ * @brief Type-based dispatch for the wwrsolverDn* typed API
  *
- * The gpusolverDn* legacy typed API spells its functions
- * gpusolverDn<letter><basename>, so it dispatches with the shared, prefix-
+ * The wwrsolverDn* legacy typed API spells its functions
+ * wwrsolverDn<letter><basename>, so it dispatches with the shared, prefix-
  * agnostic WWR_REAL_DISPATCH / WWR_COMPLEX_DISPATCH from wrappers/common/dispatch_sdcz.h and
  * needs nothing more. No _64 variants: neither cuSOLVER's nor hipSOLVER's
  * legacy typed API has an int64_t-index sibling entry point -- the 64-bit
  * dimensions only appear in the modern (X-prefixed) API, which takes a runtime
- * gpusolverDataType_t instead of a compile-time type suffix.
+ * wwrsolverDataType_t instead of a compile-time type suffix.
  *
  * Prerequisites (must be provided by the including file):
  * - std::is_same_v (via `import std;` or equivalent)
- * - gpuComplex, gpuDoubleComplex and the gpusolverDn* functions
+ * - wwrComplex, wwrDoubleComplex and the wwrsolverDn* functions
  *   (wwr.complex, wwr.solver)
  */
 

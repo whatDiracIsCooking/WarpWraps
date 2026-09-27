@@ -35,10 +35,10 @@ constexpr std::size_t kCount = 1'000'000;
 } // namespace
 
 int main() {
-  // gpuGetDevice, not a device COUNT: the gpu* layer re-exports the former
+  // wwrGetDevice, not a device COUNT: the gpu* layer re-exports the former
   // and not the latter, and one reachable device is the whole question here.
   int device = 0;
-  if (gpuGetDevice(&device) != gpuSuccess) {
+  if (wwrGetDevice(&device) != wwrSuccess) {
     std::println(stderr, "no GPU available -- this example needs a device to RUN, "
                          "though building it is what proves it compiles");
     return 77; // ctest's conventional "skipped"
@@ -56,18 +56,18 @@ int main() {
   ext::DeviceBuffer<float> output(1, device_handle);
   ext::HostBuffer<float> result(1);
 
-  if (ext::copy(input, host, stream.get()) != gpuSuccess) {
+  if (ext::copy(input, host, stream.get()) != wwrSuccess) {
     std::println(stderr, "host -> device copy failed");
     return 1;
   }
 
   example::warp_reduce_sum(stream.get(), kCount, input.data(), output.data());
 
-  if (ext::copy(result, output, stream.get()) != gpuSuccess) {
+  if (ext::copy(result, output, stream.get()) != wwrSuccess) {
     std::println(stderr, "device -> host copy failed");
     return 1;
   }
-  if (stream.sync() != gpuSuccess) {
+  if (stream.sync() != wwrSuccess) {
     std::println(stderr, "stream synchronize failed -- the kernel did not run");
     return 1;
   }

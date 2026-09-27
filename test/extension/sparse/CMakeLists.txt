@@ -1,6 +1,6 @@
 # wwr.extension.sparse RAII handle tests
 #
-# Runtime only: gpusparseCreate needs a live GPU context. Same shape as
+# Runtime only: wwrsparseCreate needs a live GPU context. Same shape as
 # test/extension/blas -- one plain .cpp, one ctest entry per suite.
 
 wwr_add_gtest_executable(
@@ -19,7 +19,7 @@ wwr_add_gtest_suite_tests(
   TARGET
   extension_sparse_tests
   SUITES
-  GpusparseHandleTests
+  WwrsparseHandleTests
   TIMEOUT
   30
   REQUIRES_GPU

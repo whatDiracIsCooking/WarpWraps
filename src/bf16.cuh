@@ -2,7 +2,7 @@
  * @file bf16.cuh
  * @brief bfloat16 type and float conversions for device-compiled TUs
  *
- * The device-compile counterpart to bf16.cppm: gpuBfloat16 and the
+ * The device-compile counterpart to bf16.cppm: wwrBfloat16 and the
  * float<->bfloat16 conversions. Link wwr.device. Companion to fp16.cuh.
  *
  * The type is the SAME one bf16.cppm exports under this name, so a host-allocated
@@ -10,7 +10,7 @@
  * in a .cppm links against a definition compiled in a .cu.
  *
  * Only the conversions are wrapped. bfloat16 carries its arithmetic operators on
- * both backends, so `x + y` on two gpuBfloat16 values is already backend-neutral
+ * both backends, so `x + y` on two wwrBfloat16 values is already backend-neutral
  * code naming no vendor symbol -- there is nothing for a wrapper to make portable.
  * Only the float<->bfloat16 conversions, which no operator performs, are here.
  * Half is the same shape and lives in fp16.cuh; complex diverges the other way --
@@ -53,21 +53,21 @@ namespace wwr {
 
 #if defined(WWR_SELECTED_CUDA)
 
-using gpuBfloat16 = ::__nv_bfloat16;
+using wwrBfloat16 = ::__nv_bfloat16;
 
 #else
 
-using gpuBfloat16 = ::__hip_bfloat16;
+using wwrBfloat16 = ::__hip_bfloat16;
 
 #endif
 
 /// @brief Convert a float to bfloat16 (round to nearest even)
-__device__ __forceinline__ gpuBfloat16 gpuFloat2Bfloat16(const float value) {
+__device__ __forceinline__ wwrBfloat16 wwrFloat2Bfloat16(const float value) {
   return ::__float2bfloat16(value);
 }
 
 /// @brief Widen a bfloat16 value back to float (exact)
-__device__ __forceinline__ float gpuBfloat162Float(const gpuBfloat16 value) {
+__device__ __forceinline__ float wwrBfloat162Float(const wwrBfloat16 value) {
   return ::__bfloat162float(value);
 }
 

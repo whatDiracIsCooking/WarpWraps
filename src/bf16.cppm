@@ -1,6 +1,6 @@
 /**
  * @file bf16.cppm
- * @brief Backend-neutral bfloat16 type: gpuBfloat16 for __nv_bfloat16 / __hip_bfloat16
+ * @brief Backend-neutral bfloat16 type: wwrBfloat16 for __nv_bfloat16 / __hip_bfloat16
  *
  * See gpu_backend.h.
  *
@@ -35,15 +35,15 @@ import wwr.hip.hip_bf16;
 
 export namespace wwr {
 
-WWR_TYPE(gpuBfloat16, __nv_bfloat16, __hip_bfloat16)
+WWR_TYPE(wwrBfloat16, __nv_bfloat16, __hip_bfloat16)
 
 /// @brief Convert a float to bfloat16 (round to nearest even)
-inline gpuBfloat16 gpuFloat2Bfloat16(const float value) {
+inline wwrBfloat16 wwrFloat2Bfloat16(const float value) {
   return ::__float2bfloat16(value);
 }
 
 /// @brief Widen a bfloat16 value back to float (exact)
-inline float gpuBfloat162Float(const gpuBfloat16 value) {
+inline float wwrBfloat162Float(const wwrBfloat16 value) {
   return ::__bfloat162float(value);
 }
 

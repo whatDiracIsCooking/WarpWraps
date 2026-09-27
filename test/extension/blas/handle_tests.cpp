@@ -1,6 +1,6 @@
-// handle_tests.cpp - RAII contract of wwr.extension.blas's GpublasHandle
+// handle_tests.cpp - RAII contract of wwr.extension.blas's WwrblasHandle
 //
-// GpublasHandle is a DeviceBoundHandle specialisation over gpublasHandle_t, so its
+// WwrblasHandle is a DeviceBoundHandle specialisation over wwrblasHandle_t, so its
 // whole behaviour is that layer's: create a live cuBLAS/hipBLAS handle on the
 // selected device (recorded as dev_idx()), hand ownership across on move
 // (leaving the source null and dev_idx() == -1 so its destructor is a no-op),
@@ -9,7 +9,7 @@
 // nulling on the moved-from object is what proves the destructor will not
 // double-free.
 //
-// Runtime, device-requiring: gpublasCreate needs a live GPU context, so there
+// Runtime, device-requiring: wwrblasCreate needs a live GPU context, so there
 // is no compile-time half. Backend-neutral -- built and run for either
 // WWR_GPU_BACKEND.
 
@@ -18,7 +18,7 @@
 import std;
 import wwr.extension.common; // the error_policy concept, for the counting policy
 import wwr.extension.handle; // DeviceBoundHandle(View)
-import wwr.extension.blas; // re-exports wwr.blas, so gpublasHandle_t is in scope
+import wwr.extension.blas; // re-exports wwr.blas, so wwrblasHandle_t is in scope
 
 namespace wwr::extension::test {
 
@@ -29,99 +29,99 @@ namespace wwr::extension::test {
 // failures instead of aborting (DefaultErrorPolicy would terminate the process),
 // so a botched destroy is observable after the objects are gone.
 struct CountingBlasPolicy {
-  using error_type = gpublasStatus_t;
+  using error_type = wwrblasStatus_t;
   static inline int errors = 0;
   static void reset() { errors = 0; }
-  void handle_error(gpublasStatus_t, std::source_location) noexcept { ++errors; }
+  void handle_error(wwrblasStatus_t, std::source_location) noexcept { ++errors; }
 };
-using CountingBlasHandle = GpublasHandleWrapper<CountingBlasPolicy>;
+using CountingBlasHandle = WwrblasHandleWrapper<CountingBlasPolicy>;
 
 // Copy is deleted at the base; a copyable RAII handle would double-free.
-static_assert(!std::is_copy_constructible_v<GpublasHandle>);
-static_assert(!std::is_copy_assignable_v<GpublasHandle>);
-static_assert(std::is_nothrow_move_constructible_v<GpublasHandle>);
-static_assert(std::is_nothrow_move_assignable_v<GpublasHandle>);
+static_assert(!std::is_copy_constructible_v<WwrblasHandle>);
+static_assert(!std::is_copy_assignable_v<WwrblasHandle>);
+static_assert(std::is_nothrow_move_constructible_v<WwrblasHandle>);
+static_assert(std::is_nothrow_move_assignable_v<WwrblasHandle>);
 
-TEST(GpublasHandleTests, DefaultConstructorCreatesHandle) {
-  GpublasHandle handle;
+TEST(WwrblasHandleTests, DefaultConstructorCreatesHandle) {
+  WwrblasHandle handle;
   EXPECT_NE(handle.get(), nullptr);
 }
 
-TEST(GpublasHandleTests, ImplicitConversionMatchesGet) {
-  GpublasHandle handle;
-  gpublasHandle_t raw = handle; // operator gpublasHandle_t()
+TEST(WwrblasHandleTests, ImplicitConversionMatchesGet) {
+  WwrblasHandle handle;
+  wwrblasHandle_t raw = handle; // operator wwrblasHandle_t()
   EXPECT_EQ(raw, handle.get());
 }
 
-TEST(GpublasHandleTests, MoveConstructorTransfersOwnership) {
-  GpublasHandle handle1;
-  gpublasHandle_t raw = handle1.get();
+TEST(WwrblasHandleTests, MoveConstructorTransfersOwnership) {
+  WwrblasHandle handle1;
+  wwrblasHandle_t raw = handle1.get();
 
-  GpublasHandle handle2(std::move(handle1));
+  WwrblasHandle handle2(std::move(handle1));
   EXPECT_EQ(handle2.get(), raw);
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
-TEST(GpublasHandleTests, MoveAssignmentTransfersOwnership) {
-  GpublasHandle handle1;
-  GpublasHandle handle2;
-  gpublasHandle_t raw = handle1.get();
+TEST(WwrblasHandleTests, MoveAssignmentTransfersOwnership) {
+  WwrblasHandle handle1;
+  WwrblasHandle handle2;
+  wwrblasHandle_t raw = handle1.get();
 
   handle2 = std::move(handle1);
   EXPECT_EQ(handle2.get(), raw);
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
-TEST(GpublasHandleTests, SelfMoveAssignmentKeepsHandle) {
-  GpublasHandle handle;
-  gpublasHandle_t raw = handle.get();
+TEST(WwrblasHandleTests, SelfMoveAssignmentKeepsHandle) {
+  WwrblasHandle handle;
+  wwrblasHandle_t raw = handle.get();
 
   handle = std::move(handle);
   EXPECT_EQ(handle.get(), raw);
 }
 
-TEST(GpublasHandleTests, RecordsCreationDevice) {
+TEST(WwrblasHandleTests, RecordsCreationDevice) {
   // The default constructor creates on device 0.
-  GpublasHandle handle;
+  WwrblasHandle handle;
   EXPECT_EQ(handle.dev_idx(), 0);
 
   // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
-  GpublasHandle on0(0);
+  WwrblasHandle on0(0);
   EXPECT_EQ(on0.dev_idx(), 0);
 }
 
-TEST(GpublasHandleTests, MovePreservesDevice) {
-  GpublasHandle handle1;
+TEST(WwrblasHandleTests, MovePreservesDevice) {
+  WwrblasHandle handle1;
   const int dev = handle1.dev_idx();
 
-  GpublasHandle handle2(std::move(handle1));
+  WwrblasHandle handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
 }
 
-TEST(GpublasHandleTests, ViewMirrorsOwnerHandleAndDevice) {
+TEST(WwrblasHandleTests, ViewMirrorsOwnerHandleAndDevice) {
   // view() is inherited from DeviceBoundHandle and only compile-tested elsewhere
   // (test/extension/build_time/handle_view.cppm); nothing constructs a live
-  // handle and reads the borrowed handle/device back. GpublasHandleView is a
+  // handle and reads the borrowed handle/device back. WwrblasHandleView is a
   // bare DeviceBoundHandleView with no borrow-safe ops of its own -- a cuBLAS call
   // consumes the raw handle -- so mirroring get()/dev_idx() is its whole job.
-  GpublasHandle handle;
-  const GpublasHandleView view = handle.view();
+  WwrblasHandle handle;
+  const WwrblasHandleView view = handle.view();
   EXPECT_EQ(view.get(), handle.get());
   EXPECT_EQ(view.dev_idx(), handle.dev_idx());
 }
 
-TEST(GpublasHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
+TEST(WwrblasHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
   // Substitutes a counting policy for the default (aborting) one, proving the
   // custom P_create/P_destroy actually compile into and thread through the
   // handle, and that a move-then-destroy frees exactly once: a double-free
   // (source re-destroying a handle already freed by dest) would route a failing
-  // gpublasDestroy through the policy and bump the counter. The existing move
+  // wwrblasDestroy through the policy and bump the counter. The existing move
   // tests only check get() == nullptr as an indirect proxy for this.
   CountingBlasPolicy::reset();
   {
     CountingBlasHandle source;
-    const gpublasHandle_t raw = source.get();
+    const wwrblasHandle_t raw = source.get();
 
     CountingBlasHandle dest(std::move(source));
     EXPECT_EQ(dest.get(), raw);

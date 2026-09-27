@@ -1,6 +1,6 @@
 /**
  * @file gpu_stream_bridge.h
- * @brief wwr::gpuStream_t for translation units that cannot `import`
+ * @brief wwr::wwrStream_t for translation units that cannot `import`
  *
  * A bridge header: it carries a declaration across the host/device boundary,
  * so it compiles in both a host compile and a device pass. Include it from a
@@ -24,7 +24,7 @@
 #include <cuda_runtime_api.h>
 
 namespace wwr {
-using gpuStream_t = cudaStream_t;
+using wwrStream_t = cudaStream_t;
 } // namespace wwr
 
 #else
@@ -32,7 +32,7 @@ using gpuStream_t = cudaStream_t;
 #include <hip/hip_runtime_api.h>
 
 namespace wwr {
-using gpuStream_t = hipStream_t;
+using wwrStream_t = hipStream_t;
 } // namespace wwr
 
 #endif

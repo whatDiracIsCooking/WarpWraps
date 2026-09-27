@@ -64,7 +64,7 @@ using HostBufferView = BufferViewWrapper<T, MemoryKind::Host>;
  *
  * Usage:
  *   PinnedBuffer<float> buffer(1024);  // Allocate 1024 floats in pinned memory
- *   PinnedBuffer<float> mapped_buffer(1024, gpuHostAllocMapped);  // With flags
+ *   PinnedBuffer<float> mapped_buffer(1024, wwrHostAllocMapped);  // With flags
  */
 template<typename T>
 using PinnedBuffer = PinnedBufferWrapper<T>;
@@ -84,7 +84,7 @@ using PinnedBufferView = BufferViewWrapper<T, MemoryKind::Pinned>;
  *
  * Usage:
  *   UnifiedBuffer<float> buffer(1024);  // Allocate 1024 floats in unified memory
- *   UnifiedBuffer<float> host_buffer(1024, gpuMemAttachHost);  // With flags
+ *   UnifiedBuffer<float> host_buffer(1024, wwrMemAttachHost);  // With flags
  */
 template<typename T>
 using UnifiedBuffer = UnifiedBufferWrapper<T>;

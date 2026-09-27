@@ -48,7 +48,7 @@ using GpuMemPool = GpuMemPoolWrapper<>;
 /// @brief Non-owning, copyable view of a memory pool handle (carries its device
 ///        index). Returned by GpuMemPool::view(); has no borrow-safe operations
 ///        of its own -- a pool handle is consumed by allocation calls.
-using GpuMemPoolView = DeviceBoundHandleView<gpuMemPool_t>;
+using GpuMemPoolView = DeviceBoundHandleView<wwrMemPool_t>;
 
 /**
  * @brief Convenient alias for GpuGraphWrapper with default error policies
@@ -61,7 +61,7 @@ using GpuGraph = GpuGraphWrapper<>;
 /// @brief Non-owning, copyable view of a graph handle. Returned by
 ///        GpuGraph::view(); a graph is not device-bound, so it carries no device
 ///        index, and instantiate() stays on the owner (it produces an owned exec).
-using GpuGraphView = HandleView<gpuGraph_t>;
+using GpuGraphView = HandleView<wwrGraph_t>;
 
 /**
  * @brief Convenient alias for GpuGraphExecWrapper with default error policies

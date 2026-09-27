@@ -6,8 +6,8 @@ common in a single generic C++ template function. Callers write `bsrmv<float>(..
 instead of `cusparseSbsrmv(...)` / `hipsparseSbsrmv(...)`; the correct typed
 function is selected at compile time via `if constexpr` dispatch.
 
-It is backend-neutral: written once against `src/sparse`'s `gpusparse*` names
-(`gpusparseSbsrmv` is `cusparseSbsrmv` on a CUDA build and `hipsparseSbsrmv` on a
+It is backend-neutral: written once against `src/sparse`'s `wwrsparse*` names
+(`wwrsparseSbsrmv` is `cusparseSbsrmv` on a CUDA build and `hipsparseSbsrmv` on a
 HIP build), so the same source builds for either `WWR_GPU_BACKEND`.
 
 **Import:** `import wwr.wrappers.sparse;`
@@ -33,7 +33,7 @@ It is fully usable directly from `wwr.sparse` / the raw vendor modules.
 Almost all live in `src/sparse.cppm`, not here:
 
 - **Names.** `cusparse<X><name>` and `hipsparse<X><name>` both map to
-  `gpusparse<X><name>`.
+  `wwrsparse<X><name>`.
 - **`gebsr2gebsc_bufferSize` / `csr2gebsr_bufferSize` buffer size.** cuSPARSE
   writes the byte count as `int*`, hipSPARSE as `size_t*`. The wrappers here take
   `size_t*` on both backends; `src/sparse.cppm` forwards through an `int` on
@@ -41,11 +41,11 @@ Almost all live in `src/sparse.cppm`, not here:
 - **cuSPARSE-only / hipSPARSE-only functions.** Not wrapped here or in
   `src/sparse`; see that module's file header.
 
-The wrappers take the raw `gpusparseHandle_t` and return the raw
-`gpusparseStatus_t` — a caller creates, destroys and error-checks the handle
+The wrappers take the raw `wwrsparseHandle_t` and return the raw
+`wwrsparseStatus_t` — a caller creates, destroys and error-checks the handle
 itself. RAII ownership and typed error handling live in the sibling
-`wwr.extension.sparse` module (`:sparse_handle` wraps `gpusparseHandle_t`;
-`:sparse_error` specialises the error policy for `gpusparseStatus_t`).
+`wwr.extension.sparse` module (`:sparse_handle` wraps `wwrsparseHandle_t`;
+`:sparse_error` specialises the error policy for `wwrsparseStatus_t`).
 
 ## Module Partitions
 
@@ -85,7 +85,7 @@ module (it takes no element type, so there is nothing to dispatch).
 ## Template Instantiation
 
 Explicit instantiations are written by hand for the type set (`float`, `double`,
-`gpuFloatComplex`, `gpuDoubleComplex`). The `extern template` declarations live
+`wwrFloatComplex`, `wwrDoubleComplex`). The `extern template` declarations live
 next to each function in `level_2.cppm`, `solvers.cppm`, `extra.cppm` and
 `conversion.cppm`; the matching `template` instantiations live in
 `instantiations.cpp`. A new instantiation also needs its entry in
@@ -95,7 +95,7 @@ next to each function in `level_2.cppm`, `solvers.cppm`, `extra.cppm` and
 
 - `test/wrappers/sparse/sparse_dispatch.toml` — build-time, both backends, no
   GPU: `test/shared/dispatch.py` disassembles this target's objects and checks
-  that every explicit instantiation calls exactly the `gpusparse*` function the
+  that every explicit instantiation calls exactly the `wwrsparse*` function the
   table names. Catches a basename mixed up with one of the same signature
   (`gtsv2`/`gtsv2_nopivot`, `bsrmv` vs another BSR routine) or a dispatch branch
   missing.
@@ -119,6 +119,6 @@ wwr_add_cxx_module_library(
 )
 ```
 
-`dispatch_macros.h` (the `gpusparse`-prefixed `WWR_USUAL_DISPATCH`) sits next to the
+`dispatch_macros.h` (the `wwrsparse`-prefixed `WWR_USUAL_DISPATCH`) sits next to the
 sources and is included same-dir; it builds on the prefix-agnostic
 `WWR_REAL_DISPATCH` / `WWR_COMPLEX_DISPATCH` cores shared from `wrappers/common/dispatch_sdcz.h`.

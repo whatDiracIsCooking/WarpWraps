@@ -1,8 +1,8 @@
 /**
  * @file sparse.cppm
- * @brief Backend-neutral sparse: gpusparse* names for cuSPARSE / hipSPARSE
+ * @brief Backend-neutral sparse: wwrsparse* names for cuSPARSE / hipSPARSE
  *
- * gpusparse<X><name> stands for cusparse<X><name> on a CUDA build and
+ * wwrsparse<X><name> stands for cusparse<X><name> on a CUDA build and
  * hipsparse<X><name> on a HIP build. See gpu_backend.h.
  *
  * Only the names src/wrappers/sparse uses are listed, plus the handle, stream,
@@ -24,8 +24,8 @@
  * Usage:
  *   import wwr.sparse;
  *
- *   gpusparseHandle_t handle;
- *   gpusparseCreate(&handle);
+ *   wwrsparseHandle_t handle;
+ *   wwrsparseCreate(&handle);
  */
 
 module;
@@ -48,227 +48,227 @@ export namespace wwr {
 // Types
 // ========================================================================
 
-WWR_TYPE(gpusparseHandle_t, cusparseHandle_t, hipsparseHandle_t)
-WWR_TYPE(gpusparseStatus_t, cusparseStatus_t, hipsparseStatus_t)
-WWR_TYPE(gpusparseMatDescr_t, cusparseMatDescr_t, hipsparseMatDescr_t)
-WWR_TYPE(gpusparseOperation_t, cusparseOperation_t, hipsparseOperation_t)
-WWR_TYPE(gpusparseDirection_t, cusparseDirection_t, hipsparseDirection_t)
-WWR_TYPE(gpusparseAction_t, cusparseAction_t, hipsparseAction_t)
-WWR_TYPE(gpusparseIndexBase_t, cusparseIndexBase_t, hipsparseIndexBase_t)
-WWR_TYPE(gpusparseMatrixType_t, cusparseMatrixType_t, hipsparseMatrixType_t)
-WWR_TYPE(gpusparseFillMode_t, cusparseFillMode_t, hipsparseFillMode_t)
-WWR_TYPE(gpusparseDiagType_t, cusparseDiagType_t, hipsparseDiagType_t)
-WWR_TYPE(gpusparsePointerMode_t, cusparsePointerMode_t, hipsparsePointerMode_t)
+WWR_TYPE(wwrsparseHandle_t, cusparseHandle_t, hipsparseHandle_t)
+WWR_TYPE(wwrsparseStatus_t, cusparseStatus_t, hipsparseStatus_t)
+WWR_TYPE(wwrsparseMatDescr_t, cusparseMatDescr_t, hipsparseMatDescr_t)
+WWR_TYPE(wwrsparseOperation_t, cusparseOperation_t, hipsparseOperation_t)
+WWR_TYPE(wwrsparseDirection_t, cusparseDirection_t, hipsparseDirection_t)
+WWR_TYPE(wwrsparseAction_t, cusparseAction_t, hipsparseAction_t)
+WWR_TYPE(wwrsparseIndexBase_t, cusparseIndexBase_t, hipsparseIndexBase_t)
+WWR_TYPE(wwrsparseMatrixType_t, cusparseMatrixType_t, hipsparseMatrixType_t)
+WWR_TYPE(wwrsparseFillMode_t, cusparseFillMode_t, hipsparseFillMode_t)
+WWR_TYPE(wwrsparseDiagType_t, cusparseDiagType_t, hipsparseDiagType_t)
+WWR_TYPE(wwrsparsePointerMode_t, cusparsePointerMode_t, hipsparsePointerMode_t)
 
 // ========================================================================
 // Constants
 // ========================================================================
 
-WWR_VALUE(GPUSPARSE_STATUS_SUCCESS, CUSPARSE_STATUS_SUCCESS, HIPSPARSE_STATUS_SUCCESS)
+WWR_VALUE(WWRSPARSE_STATUS_SUCCESS, CUSPARSE_STATUS_SUCCESS, HIPSPARSE_STATUS_SUCCESS)
 
-WWR_VALUE(GPUSPARSE_OPERATION_NON_TRANSPOSE, CUSPARSE_OPERATION_NON_TRANSPOSE,
+WWR_VALUE(WWRSPARSE_OPERATION_NON_TRANSPOSE, CUSPARSE_OPERATION_NON_TRANSPOSE,
              HIPSPARSE_OPERATION_NON_TRANSPOSE)
-WWR_VALUE(GPUSPARSE_OPERATION_TRANSPOSE, CUSPARSE_OPERATION_TRANSPOSE,
+WWR_VALUE(WWRSPARSE_OPERATION_TRANSPOSE, CUSPARSE_OPERATION_TRANSPOSE,
              HIPSPARSE_OPERATION_TRANSPOSE)
-WWR_VALUE(GPUSPARSE_OPERATION_CONJUGATE_TRANSPOSE, CUSPARSE_OPERATION_CONJUGATE_TRANSPOSE,
+WWR_VALUE(WWRSPARSE_OPERATION_CONJUGATE_TRANSPOSE, CUSPARSE_OPERATION_CONJUGATE_TRANSPOSE,
              HIPSPARSE_OPERATION_CONJUGATE_TRANSPOSE)
 
-WWR_VALUE(GPUSPARSE_DIRECTION_ROW, CUSPARSE_DIRECTION_ROW, HIPSPARSE_DIRECTION_ROW)
-WWR_VALUE(GPUSPARSE_DIRECTION_COLUMN, CUSPARSE_DIRECTION_COLUMN, HIPSPARSE_DIRECTION_COLUMN)
+WWR_VALUE(WWRSPARSE_DIRECTION_ROW, CUSPARSE_DIRECTION_ROW, HIPSPARSE_DIRECTION_ROW)
+WWR_VALUE(WWRSPARSE_DIRECTION_COLUMN, CUSPARSE_DIRECTION_COLUMN, HIPSPARSE_DIRECTION_COLUMN)
 
-WWR_VALUE(GPUSPARSE_ACTION_SYMBOLIC, CUSPARSE_ACTION_SYMBOLIC, HIPSPARSE_ACTION_SYMBOLIC)
-WWR_VALUE(GPUSPARSE_ACTION_NUMERIC, CUSPARSE_ACTION_NUMERIC, HIPSPARSE_ACTION_NUMERIC)
+WWR_VALUE(WWRSPARSE_ACTION_SYMBOLIC, CUSPARSE_ACTION_SYMBOLIC, HIPSPARSE_ACTION_SYMBOLIC)
+WWR_VALUE(WWRSPARSE_ACTION_NUMERIC, CUSPARSE_ACTION_NUMERIC, HIPSPARSE_ACTION_NUMERIC)
 
-WWR_VALUE(GPUSPARSE_INDEX_BASE_ZERO, CUSPARSE_INDEX_BASE_ZERO, HIPSPARSE_INDEX_BASE_ZERO)
-WWR_VALUE(GPUSPARSE_INDEX_BASE_ONE, CUSPARSE_INDEX_BASE_ONE, HIPSPARSE_INDEX_BASE_ONE)
+WWR_VALUE(WWRSPARSE_INDEX_BASE_ZERO, CUSPARSE_INDEX_BASE_ZERO, HIPSPARSE_INDEX_BASE_ZERO)
+WWR_VALUE(WWRSPARSE_INDEX_BASE_ONE, CUSPARSE_INDEX_BASE_ONE, HIPSPARSE_INDEX_BASE_ONE)
 
-WWR_VALUE(GPUSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_GENERAL,
+WWR_VALUE(WWRSPARSE_MATRIX_TYPE_GENERAL, CUSPARSE_MATRIX_TYPE_GENERAL,
              HIPSPARSE_MATRIX_TYPE_GENERAL)
-WWR_VALUE(GPUSPARSE_MATRIX_TYPE_SYMMETRIC, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
+WWR_VALUE(WWRSPARSE_MATRIX_TYPE_SYMMETRIC, CUSPARSE_MATRIX_TYPE_SYMMETRIC,
              HIPSPARSE_MATRIX_TYPE_SYMMETRIC)
-WWR_VALUE(GPUSPARSE_MATRIX_TYPE_HERMITIAN, CUSPARSE_MATRIX_TYPE_HERMITIAN,
+WWR_VALUE(WWRSPARSE_MATRIX_TYPE_HERMITIAN, CUSPARSE_MATRIX_TYPE_HERMITIAN,
              HIPSPARSE_MATRIX_TYPE_HERMITIAN)
-WWR_VALUE(GPUSPARSE_MATRIX_TYPE_TRIANGULAR, CUSPARSE_MATRIX_TYPE_TRIANGULAR,
+WWR_VALUE(WWRSPARSE_MATRIX_TYPE_TRIANGULAR, CUSPARSE_MATRIX_TYPE_TRIANGULAR,
              HIPSPARSE_MATRIX_TYPE_TRIANGULAR)
 
-WWR_VALUE(GPUSPARSE_FILL_MODE_LOWER, CUSPARSE_FILL_MODE_LOWER, HIPSPARSE_FILL_MODE_LOWER)
-WWR_VALUE(GPUSPARSE_FILL_MODE_UPPER, CUSPARSE_FILL_MODE_UPPER, HIPSPARSE_FILL_MODE_UPPER)
+WWR_VALUE(WWRSPARSE_FILL_MODE_LOWER, CUSPARSE_FILL_MODE_LOWER, HIPSPARSE_FILL_MODE_LOWER)
+WWR_VALUE(WWRSPARSE_FILL_MODE_UPPER, CUSPARSE_FILL_MODE_UPPER, HIPSPARSE_FILL_MODE_UPPER)
 
-WWR_VALUE(GPUSPARSE_DIAG_TYPE_NON_UNIT, CUSPARSE_DIAG_TYPE_NON_UNIT,
+WWR_VALUE(WWRSPARSE_DIAG_TYPE_NON_UNIT, CUSPARSE_DIAG_TYPE_NON_UNIT,
              HIPSPARSE_DIAG_TYPE_NON_UNIT)
-WWR_VALUE(GPUSPARSE_DIAG_TYPE_UNIT, CUSPARSE_DIAG_TYPE_UNIT, HIPSPARSE_DIAG_TYPE_UNIT)
+WWR_VALUE(WWRSPARSE_DIAG_TYPE_UNIT, CUSPARSE_DIAG_TYPE_UNIT, HIPSPARSE_DIAG_TYPE_UNIT)
 
-WWR_VALUE(GPUSPARSE_POINTER_MODE_HOST, CUSPARSE_POINTER_MODE_HOST, HIPSPARSE_POINTER_MODE_HOST)
-WWR_VALUE(GPUSPARSE_POINTER_MODE_DEVICE, CUSPARSE_POINTER_MODE_DEVICE,
+WWR_VALUE(WWRSPARSE_POINTER_MODE_HOST, CUSPARSE_POINTER_MODE_HOST, HIPSPARSE_POINTER_MODE_HOST)
+WWR_VALUE(WWRSPARSE_POINTER_MODE_DEVICE, CUSPARSE_POINTER_MODE_DEVICE,
              HIPSPARSE_POINTER_MODE_DEVICE)
 
 // ========================================================================
 // Handle, stream, pointer mode, error strings
 // ========================================================================
 
-WWR_FUNCTION(gpusparseCreate, cusparseCreate, hipsparseCreate)
-WWR_FUNCTION(gpusparseDestroy, cusparseDestroy, hipsparseDestroy)
-WWR_FUNCTION(gpusparseSetStream, cusparseSetStream, hipsparseSetStream)
-WWR_FUNCTION(gpusparseGetStream, cusparseGetStream, hipsparseGetStream)
-WWR_FUNCTION(gpusparseSetPointerMode, cusparseSetPointerMode, hipsparseSetPointerMode)
-WWR_FUNCTION(gpusparseGetPointerMode, cusparseGetPointerMode, hipsparseGetPointerMode)
-WWR_FUNCTION(gpusparseGetErrorName, cusparseGetErrorName, hipsparseGetErrorName)
-WWR_FUNCTION(gpusparseGetErrorString, cusparseGetErrorString, hipsparseGetErrorString)
+WWR_FUNCTION(wwrsparseCreate, cusparseCreate, hipsparseCreate)
+WWR_FUNCTION(wwrsparseDestroy, cusparseDestroy, hipsparseDestroy)
+WWR_FUNCTION(wwrsparseSetStream, cusparseSetStream, hipsparseSetStream)
+WWR_FUNCTION(wwrsparseGetStream, cusparseGetStream, hipsparseGetStream)
+WWR_FUNCTION(wwrsparseSetPointerMode, cusparseSetPointerMode, hipsparseSetPointerMode)
+WWR_FUNCTION(wwrsparseGetPointerMode, cusparseGetPointerMode, hipsparseGetPointerMode)
+WWR_FUNCTION(wwrsparseGetErrorName, cusparseGetErrorName, hipsparseGetErrorName)
+WWR_FUNCTION(wwrsparseGetErrorString, cusparseGetErrorString, hipsparseGetErrorString)
 
 // ========================================================================
 // Matrix descriptor (legacy helper routines)
 // ========================================================================
 
-WWR_FUNCTION(gpusparseCreateMatDescr, cusparseCreateMatDescr, hipsparseCreateMatDescr)
-WWR_FUNCTION(gpusparseDestroyMatDescr, cusparseDestroyMatDescr, hipsparseDestroyMatDescr)
-WWR_FUNCTION(gpusparseSetMatType, cusparseSetMatType, hipsparseSetMatType)
-WWR_FUNCTION(gpusparseGetMatType, cusparseGetMatType, hipsparseGetMatType)
-WWR_FUNCTION(gpusparseSetMatFillMode, cusparseSetMatFillMode, hipsparseSetMatFillMode)
-WWR_FUNCTION(gpusparseGetMatFillMode, cusparseGetMatFillMode, hipsparseGetMatFillMode)
-WWR_FUNCTION(gpusparseSetMatDiagType, cusparseSetMatDiagType, hipsparseSetMatDiagType)
-WWR_FUNCTION(gpusparseGetMatDiagType, cusparseGetMatDiagType, hipsparseGetMatDiagType)
-WWR_FUNCTION(gpusparseSetMatIndexBase, cusparseSetMatIndexBase, hipsparseSetMatIndexBase)
-WWR_FUNCTION(gpusparseGetMatIndexBase, cusparseGetMatIndexBase, hipsparseGetMatIndexBase)
+WWR_FUNCTION(wwrsparseCreateMatDescr, cusparseCreateMatDescr, hipsparseCreateMatDescr)
+WWR_FUNCTION(wwrsparseDestroyMatDescr, cusparseDestroyMatDescr, hipsparseDestroyMatDescr)
+WWR_FUNCTION(wwrsparseSetMatType, cusparseSetMatType, hipsparseSetMatType)
+WWR_FUNCTION(wwrsparseGetMatType, cusparseGetMatType, hipsparseGetMatType)
+WWR_FUNCTION(wwrsparseSetMatFillMode, cusparseSetMatFillMode, hipsparseSetMatFillMode)
+WWR_FUNCTION(wwrsparseGetMatFillMode, cusparseGetMatFillMode, hipsparseGetMatFillMode)
+WWR_FUNCTION(wwrsparseSetMatDiagType, cusparseSetMatDiagType, hipsparseSetMatDiagType)
+WWR_FUNCTION(wwrsparseGetMatDiagType, cusparseGetMatDiagType, hipsparseGetMatDiagType)
+WWR_FUNCTION(wwrsparseSetMatIndexBase, cusparseSetMatIndexBase, hipsparseSetMatIndexBase)
+WWR_FUNCTION(wwrsparseGetMatIndexBase, cusparseGetMatIndexBase, hipsparseGetMatIndexBase)
 
 // ────────────────────────────────────────────────────────────────────────
 // Level 2 -- BSR matrix-vector multiply
 // ────────────────────────────────────────────────────────────────────────
 
-WWR_FUNCTION(gpusparseSbsrmv, cusparseSbsrmv, hipsparseSbsrmv)
-WWR_FUNCTION(gpusparseDbsrmv, cusparseDbsrmv, hipsparseDbsrmv)
-WWR_FUNCTION(gpusparseCbsrmv, cusparseCbsrmv, hipsparseCbsrmv)
-WWR_FUNCTION(gpusparseZbsrmv, cusparseZbsrmv, hipsparseZbsrmv)
+WWR_FUNCTION(wwrsparseSbsrmv, cusparseSbsrmv, hipsparseSbsrmv)
+WWR_FUNCTION(wwrsparseDbsrmv, cusparseDbsrmv, hipsparseDbsrmv)
+WWR_FUNCTION(wwrsparseCbsrmv, cusparseCbsrmv, hipsparseCbsrmv)
+WWR_FUNCTION(wwrsparseZbsrmv, cusparseZbsrmv, hipsparseZbsrmv)
 
 // ────────────────────────────────────────────────────────────────────────
 // Tridiagonal / pentadiagonal batch solvers (gtsv2 / gpsvInterleavedBatch)
 // ────────────────────────────────────────────────────────────────────────
 
-WWR_FUNCTION(gpusparseSgtsv2_bufferSizeExt, cusparseSgtsv2_bufferSizeExt,
+WWR_FUNCTION(wwrsparseSgtsv2_bufferSizeExt, cusparseSgtsv2_bufferSizeExt,
                 hipsparseSgtsv2_bufferSizeExt)
-WWR_FUNCTION(gpusparseDgtsv2_bufferSizeExt, cusparseDgtsv2_bufferSizeExt,
+WWR_FUNCTION(wwrsparseDgtsv2_bufferSizeExt, cusparseDgtsv2_bufferSizeExt,
                 hipsparseDgtsv2_bufferSizeExt)
-WWR_FUNCTION(gpusparseCgtsv2_bufferSizeExt, cusparseCgtsv2_bufferSizeExt,
+WWR_FUNCTION(wwrsparseCgtsv2_bufferSizeExt, cusparseCgtsv2_bufferSizeExt,
                 hipsparseCgtsv2_bufferSizeExt)
-WWR_FUNCTION(gpusparseZgtsv2_bufferSizeExt, cusparseZgtsv2_bufferSizeExt,
+WWR_FUNCTION(wwrsparseZgtsv2_bufferSizeExt, cusparseZgtsv2_bufferSizeExt,
                 hipsparseZgtsv2_bufferSizeExt)
 
-WWR_FUNCTION(gpusparseSgtsv2, cusparseSgtsv2, hipsparseSgtsv2)
-WWR_FUNCTION(gpusparseDgtsv2, cusparseDgtsv2, hipsparseDgtsv2)
-WWR_FUNCTION(gpusparseCgtsv2, cusparseCgtsv2, hipsparseCgtsv2)
-WWR_FUNCTION(gpusparseZgtsv2, cusparseZgtsv2, hipsparseZgtsv2)
+WWR_FUNCTION(wwrsparseSgtsv2, cusparseSgtsv2, hipsparseSgtsv2)
+WWR_FUNCTION(wwrsparseDgtsv2, cusparseDgtsv2, hipsparseDgtsv2)
+WWR_FUNCTION(wwrsparseCgtsv2, cusparseCgtsv2, hipsparseCgtsv2)
+WWR_FUNCTION(wwrsparseZgtsv2, cusparseZgtsv2, hipsparseZgtsv2)
 
-WWR_FUNCTION(gpusparseSgtsv2_nopivot_bufferSizeExt, cusparseSgtsv2_nopivot_bufferSizeExt,
+WWR_FUNCTION(wwrsparseSgtsv2_nopivot_bufferSizeExt, cusparseSgtsv2_nopivot_bufferSizeExt,
                 hipsparseSgtsv2_nopivot_bufferSizeExt)
-WWR_FUNCTION(gpusparseDgtsv2_nopivot_bufferSizeExt, cusparseDgtsv2_nopivot_bufferSizeExt,
+WWR_FUNCTION(wwrsparseDgtsv2_nopivot_bufferSizeExt, cusparseDgtsv2_nopivot_bufferSizeExt,
                 hipsparseDgtsv2_nopivot_bufferSizeExt)
-WWR_FUNCTION(gpusparseCgtsv2_nopivot_bufferSizeExt, cusparseCgtsv2_nopivot_bufferSizeExt,
+WWR_FUNCTION(wwrsparseCgtsv2_nopivot_bufferSizeExt, cusparseCgtsv2_nopivot_bufferSizeExt,
                 hipsparseCgtsv2_nopivot_bufferSizeExt)
-WWR_FUNCTION(gpusparseZgtsv2_nopivot_bufferSizeExt, cusparseZgtsv2_nopivot_bufferSizeExt,
+WWR_FUNCTION(wwrsparseZgtsv2_nopivot_bufferSizeExt, cusparseZgtsv2_nopivot_bufferSizeExt,
                 hipsparseZgtsv2_nopivot_bufferSizeExt)
 
-WWR_FUNCTION(gpusparseSgtsv2_nopivot, cusparseSgtsv2_nopivot, hipsparseSgtsv2_nopivot)
-WWR_FUNCTION(gpusparseDgtsv2_nopivot, cusparseDgtsv2_nopivot, hipsparseDgtsv2_nopivot)
-WWR_FUNCTION(gpusparseCgtsv2_nopivot, cusparseCgtsv2_nopivot, hipsparseCgtsv2_nopivot)
-WWR_FUNCTION(gpusparseZgtsv2_nopivot, cusparseZgtsv2_nopivot, hipsparseZgtsv2_nopivot)
+WWR_FUNCTION(wwrsparseSgtsv2_nopivot, cusparseSgtsv2_nopivot, hipsparseSgtsv2_nopivot)
+WWR_FUNCTION(wwrsparseDgtsv2_nopivot, cusparseDgtsv2_nopivot, hipsparseDgtsv2_nopivot)
+WWR_FUNCTION(wwrsparseCgtsv2_nopivot, cusparseCgtsv2_nopivot, hipsparseCgtsv2_nopivot)
+WWR_FUNCTION(wwrsparseZgtsv2_nopivot, cusparseZgtsv2_nopivot, hipsparseZgtsv2_nopivot)
 
-WWR_FUNCTION(gpusparseSgtsv2StridedBatch_bufferSizeExt, cusparseSgtsv2StridedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseSgtsv2StridedBatch_bufferSizeExt, cusparseSgtsv2StridedBatch_bufferSizeExt,
                 hipsparseSgtsv2StridedBatch_bufferSizeExt)
-WWR_FUNCTION(gpusparseDgtsv2StridedBatch_bufferSizeExt, cusparseDgtsv2StridedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseDgtsv2StridedBatch_bufferSizeExt, cusparseDgtsv2StridedBatch_bufferSizeExt,
                 hipsparseDgtsv2StridedBatch_bufferSizeExt)
-WWR_FUNCTION(gpusparseCgtsv2StridedBatch_bufferSizeExt, cusparseCgtsv2StridedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseCgtsv2StridedBatch_bufferSizeExt, cusparseCgtsv2StridedBatch_bufferSizeExt,
                 hipsparseCgtsv2StridedBatch_bufferSizeExt)
-WWR_FUNCTION(gpusparseZgtsv2StridedBatch_bufferSizeExt, cusparseZgtsv2StridedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseZgtsv2StridedBatch_bufferSizeExt, cusparseZgtsv2StridedBatch_bufferSizeExt,
                 hipsparseZgtsv2StridedBatch_bufferSizeExt)
 
-WWR_FUNCTION(gpusparseSgtsv2StridedBatch, cusparseSgtsv2StridedBatch,
+WWR_FUNCTION(wwrsparseSgtsv2StridedBatch, cusparseSgtsv2StridedBatch,
                 hipsparseSgtsv2StridedBatch)
-WWR_FUNCTION(gpusparseDgtsv2StridedBatch, cusparseDgtsv2StridedBatch,
+WWR_FUNCTION(wwrsparseDgtsv2StridedBatch, cusparseDgtsv2StridedBatch,
                 hipsparseDgtsv2StridedBatch)
-WWR_FUNCTION(gpusparseCgtsv2StridedBatch, cusparseCgtsv2StridedBatch,
+WWR_FUNCTION(wwrsparseCgtsv2StridedBatch, cusparseCgtsv2StridedBatch,
                 hipsparseCgtsv2StridedBatch)
-WWR_FUNCTION(gpusparseZgtsv2StridedBatch, cusparseZgtsv2StridedBatch,
+WWR_FUNCTION(wwrsparseZgtsv2StridedBatch, cusparseZgtsv2StridedBatch,
                 hipsparseZgtsv2StridedBatch)
 
-WWR_FUNCTION(gpusparseSgtsvInterleavedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseSgtsvInterleavedBatch_bufferSizeExt,
                 cusparseSgtsvInterleavedBatch_bufferSizeExt,
                 hipsparseSgtsvInterleavedBatch_bufferSizeExt)
-WWR_FUNCTION(gpusparseDgtsvInterleavedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseDgtsvInterleavedBatch_bufferSizeExt,
                 cusparseDgtsvInterleavedBatch_bufferSizeExt,
                 hipsparseDgtsvInterleavedBatch_bufferSizeExt)
-WWR_FUNCTION(gpusparseCgtsvInterleavedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseCgtsvInterleavedBatch_bufferSizeExt,
                 cusparseCgtsvInterleavedBatch_bufferSizeExt,
                 hipsparseCgtsvInterleavedBatch_bufferSizeExt)
-WWR_FUNCTION(gpusparseZgtsvInterleavedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseZgtsvInterleavedBatch_bufferSizeExt,
                 cusparseZgtsvInterleavedBatch_bufferSizeExt,
                 hipsparseZgtsvInterleavedBatch_bufferSizeExt)
 
-WWR_FUNCTION(gpusparseSgtsvInterleavedBatch, cusparseSgtsvInterleavedBatch,
+WWR_FUNCTION(wwrsparseSgtsvInterleavedBatch, cusparseSgtsvInterleavedBatch,
                 hipsparseSgtsvInterleavedBatch)
-WWR_FUNCTION(gpusparseDgtsvInterleavedBatch, cusparseDgtsvInterleavedBatch,
+WWR_FUNCTION(wwrsparseDgtsvInterleavedBatch, cusparseDgtsvInterleavedBatch,
                 hipsparseDgtsvInterleavedBatch)
-WWR_FUNCTION(gpusparseCgtsvInterleavedBatch, cusparseCgtsvInterleavedBatch,
+WWR_FUNCTION(wwrsparseCgtsvInterleavedBatch, cusparseCgtsvInterleavedBatch,
                 hipsparseCgtsvInterleavedBatch)
-WWR_FUNCTION(gpusparseZgtsvInterleavedBatch, cusparseZgtsvInterleavedBatch,
+WWR_FUNCTION(wwrsparseZgtsvInterleavedBatch, cusparseZgtsvInterleavedBatch,
                 hipsparseZgtsvInterleavedBatch)
 
-WWR_FUNCTION(gpusparseSgpsvInterleavedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseSgpsvInterleavedBatch_bufferSizeExt,
                 cusparseSgpsvInterleavedBatch_bufferSizeExt,
                 hipsparseSgpsvInterleavedBatch_bufferSizeExt)
-WWR_FUNCTION(gpusparseDgpsvInterleavedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseDgpsvInterleavedBatch_bufferSizeExt,
                 cusparseDgpsvInterleavedBatch_bufferSizeExt,
                 hipsparseDgpsvInterleavedBatch_bufferSizeExt)
-WWR_FUNCTION(gpusparseCgpsvInterleavedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseCgpsvInterleavedBatch_bufferSizeExt,
                 cusparseCgpsvInterleavedBatch_bufferSizeExt,
                 hipsparseCgpsvInterleavedBatch_bufferSizeExt)
-WWR_FUNCTION(gpusparseZgpsvInterleavedBatch_bufferSizeExt,
+WWR_FUNCTION(wwrsparseZgpsvInterleavedBatch_bufferSizeExt,
                 cusparseZgpsvInterleavedBatch_bufferSizeExt,
                 hipsparseZgpsvInterleavedBatch_bufferSizeExt)
 
-WWR_FUNCTION(gpusparseSgpsvInterleavedBatch, cusparseSgpsvInterleavedBatch,
+WWR_FUNCTION(wwrsparseSgpsvInterleavedBatch, cusparseSgpsvInterleavedBatch,
                 hipsparseSgpsvInterleavedBatch)
-WWR_FUNCTION(gpusparseDgpsvInterleavedBatch, cusparseDgpsvInterleavedBatch,
+WWR_FUNCTION(wwrsparseDgpsvInterleavedBatch, cusparseDgpsvInterleavedBatch,
                 hipsparseDgpsvInterleavedBatch)
-WWR_FUNCTION(gpusparseCgpsvInterleavedBatch, cusparseCgpsvInterleavedBatch,
+WWR_FUNCTION(wwrsparseCgpsvInterleavedBatch, cusparseCgpsvInterleavedBatch,
                 hipsparseCgpsvInterleavedBatch)
-WWR_FUNCTION(gpusparseZgpsvInterleavedBatch, cusparseZgpsvInterleavedBatch,
+WWR_FUNCTION(wwrsparseZgpsvInterleavedBatch, cusparseZgpsvInterleavedBatch,
                 hipsparseZgpsvInterleavedBatch)
 
 // ────────────────────────────────────────────────────────────────────────
 // Extra -- CSR matrix addition (csrgeam2)
 // ────────────────────────────────────────────────────────────────────────
 
-WWR_FUNCTION(gpusparseScsrgeam2_bufferSizeExt, cusparseScsrgeam2_bufferSizeExt,
+WWR_FUNCTION(wwrsparseScsrgeam2_bufferSizeExt, cusparseScsrgeam2_bufferSizeExt,
                 hipsparseScsrgeam2_bufferSizeExt)
-WWR_FUNCTION(gpusparseDcsrgeam2_bufferSizeExt, cusparseDcsrgeam2_bufferSizeExt,
+WWR_FUNCTION(wwrsparseDcsrgeam2_bufferSizeExt, cusparseDcsrgeam2_bufferSizeExt,
                 hipsparseDcsrgeam2_bufferSizeExt)
-WWR_FUNCTION(gpusparseCcsrgeam2_bufferSizeExt, cusparseCcsrgeam2_bufferSizeExt,
+WWR_FUNCTION(wwrsparseCcsrgeam2_bufferSizeExt, cusparseCcsrgeam2_bufferSizeExt,
                 hipsparseCcsrgeam2_bufferSizeExt)
-WWR_FUNCTION(gpusparseZcsrgeam2_bufferSizeExt, cusparseZcsrgeam2_bufferSizeExt,
+WWR_FUNCTION(wwrsparseZcsrgeam2_bufferSizeExt, cusparseZcsrgeam2_bufferSizeExt,
                 hipsparseZcsrgeam2_bufferSizeExt)
 
-WWR_FUNCTION(gpusparseScsrgeam2, cusparseScsrgeam2, hipsparseScsrgeam2)
-WWR_FUNCTION(gpusparseDcsrgeam2, cusparseDcsrgeam2, hipsparseDcsrgeam2)
-WWR_FUNCTION(gpusparseCcsrgeam2, cusparseCcsrgeam2, hipsparseCcsrgeam2)
-WWR_FUNCTION(gpusparseZcsrgeam2, cusparseZcsrgeam2, hipsparseZcsrgeam2)
+WWR_FUNCTION(wwrsparseScsrgeam2, cusparseScsrgeam2, hipsparseScsrgeam2)
+WWR_FUNCTION(wwrsparseDcsrgeam2, cusparseDcsrgeam2, hipsparseDcsrgeam2)
+WWR_FUNCTION(wwrsparseCcsrgeam2, cusparseCcsrgeam2, hipsparseCcsrgeam2)
+WWR_FUNCTION(wwrsparseZcsrgeam2, cusparseZcsrgeam2, hipsparseZcsrgeam2)
 
 // ────────────────────────────────────────────────────────────────────────
 // Conversion -- nnz, gebsr2gebsc, csr2gebsr
 // ────────────────────────────────────────────────────────────────────────
 
-WWR_FUNCTION(gpusparseSnnz, cusparseSnnz, hipsparseSnnz)
-WWR_FUNCTION(gpusparseDnnz, cusparseDnnz, hipsparseDnnz)
-WWR_FUNCTION(gpusparseCnnz, cusparseCnnz, hipsparseCnnz)
-WWR_FUNCTION(gpusparseZnnz, cusparseZnnz, hipsparseZnnz)
+WWR_FUNCTION(wwrsparseSnnz, cusparseSnnz, hipsparseSnnz)
+WWR_FUNCTION(wwrsparseDnnz, cusparseDnnz, hipsparseDnnz)
+WWR_FUNCTION(wwrsparseCnnz, cusparseCnnz, hipsparseCnnz)
+WWR_FUNCTION(wwrsparseZnnz, cusparseZnnz, hipsparseZnnz)
 
-WWR_FUNCTION(gpusparseSgebsr2gebsc, cusparseSgebsr2gebsc, hipsparseSgebsr2gebsc)
-WWR_FUNCTION(gpusparseDgebsr2gebsc, cusparseDgebsr2gebsc, hipsparseDgebsr2gebsc)
-WWR_FUNCTION(gpusparseCgebsr2gebsc, cusparseCgebsr2gebsc, hipsparseCgebsr2gebsc)
-WWR_FUNCTION(gpusparseZgebsr2gebsc, cusparseZgebsr2gebsc, hipsparseZgebsr2gebsc)
+WWR_FUNCTION(wwrsparseSgebsr2gebsc, cusparseSgebsr2gebsc, hipsparseSgebsr2gebsc)
+WWR_FUNCTION(wwrsparseDgebsr2gebsc, cusparseDgebsr2gebsc, hipsparseDgebsr2gebsc)
+WWR_FUNCTION(wwrsparseCgebsr2gebsc, cusparseCgebsr2gebsc, hipsparseCgebsr2gebsc)
+WWR_FUNCTION(wwrsparseZgebsr2gebsc, cusparseZgebsr2gebsc, hipsparseZgebsr2gebsc)
 
-WWR_FUNCTION(gpusparseScsr2gebsr, cusparseScsr2gebsr, hipsparseScsr2gebsr)
-WWR_FUNCTION(gpusparseDcsr2gebsr, cusparseDcsr2gebsr, hipsparseDcsr2gebsr)
-WWR_FUNCTION(gpusparseCcsr2gebsr, cusparseCcsr2gebsr, hipsparseCcsr2gebsr)
-WWR_FUNCTION(gpusparseZcsr2gebsr, cusparseZcsr2gebsr, hipsparseZcsr2gebsr)
+WWR_FUNCTION(wwrsparseScsr2gebsr, cusparseScsr2gebsr, hipsparseScsr2gebsr)
+WWR_FUNCTION(wwrsparseDcsr2gebsr, cusparseDcsr2gebsr, hipsparseDcsr2gebsr)
+WWR_FUNCTION(wwrsparseCcsr2gebsr, cusparseCcsr2gebsr, hipsparseCcsr2gebsr)
+WWR_FUNCTION(wwrsparseZcsr2gebsr, cusparseZcsr2gebsr, hipsparseZcsr2gebsr)
 
 // ────────────────────────────────────────────────────────────────────────
 // gebsr2gebsc_bufferSize / csr2gebsr_bufferSize: uniform std::size_t* buffer size
@@ -278,94 +278,94 @@ WWR_FUNCTION(gpusparseZcsr2gebsr, cusparseZcsr2gebsr, hipsparseZcsr2gebsr)
 // both backends, forwarding through an int on CUDA -- the mirror of blas's
 // getrsBatched const shims. A single WWR_FUNCTION line per name (in the #else
 // branch) names both vendor symbols so the dispatch check maps either backend's
-// call back to the gpusparse* alias, cuSPARSE's inlined-shim call included.
+// call back to the wwrsparse* alias, cuSPARSE's inlined-shim call included.
 // ────────────────────────────────────────────────────────────────────────
 
 #if defined(WWR_GPU_BACKEND_CUDA)
 
-inline gpusparseStatus_t gpusparseSgebsr2gebsc_bufferSize(
-    gpusparseHandle_t handle, int mb, int nb, int nnzb, const float *bsrVal, const int *bsrRowPtr,
+inline wwrsparseStatus_t wwrsparseSgebsr2gebsc_bufferSize(
+    wwrsparseHandle_t handle, int mb, int nb, int nnzb, const float *bsrVal, const int *bsrRowPtr,
     const int *bsrColInd, int rowBlockDim, int colBlockDim, std::size_t *pBufferSizeInBytes) {
   int bytes = 0;
-  gpusparseStatus_t status = ::wwr::cuda::cusparseSgebsr2gebsc_bufferSize(
+  wwrsparseStatus_t status = ::wwr::cuda::cusparseSgebsr2gebsc_bufferSize(
       handle, mb, nb, nnzb, bsrVal, bsrRowPtr, bsrColInd, rowBlockDim, colBlockDim, &bytes);
   *pBufferSizeInBytes = static_cast<std::size_t>(bytes);
   return status;
 }
-inline gpusparseStatus_t gpusparseDgebsr2gebsc_bufferSize(
-    gpusparseHandle_t handle, int mb, int nb, int nnzb, const double *bsrVal, const int *bsrRowPtr,
+inline wwrsparseStatus_t wwrsparseDgebsr2gebsc_bufferSize(
+    wwrsparseHandle_t handle, int mb, int nb, int nnzb, const double *bsrVal, const int *bsrRowPtr,
     const int *bsrColInd, int rowBlockDim, int colBlockDim, std::size_t *pBufferSizeInBytes) {
   int bytes = 0;
-  gpusparseStatus_t status = ::wwr::cuda::cusparseDgebsr2gebsc_bufferSize(
+  wwrsparseStatus_t status = ::wwr::cuda::cusparseDgebsr2gebsc_bufferSize(
       handle, mb, nb, nnzb, bsrVal, bsrRowPtr, bsrColInd, rowBlockDim, colBlockDim, &bytes);
   *pBufferSizeInBytes = static_cast<std::size_t>(bytes);
   return status;
 }
-inline gpusparseStatus_t gpusparseCgebsr2gebsc_bufferSize(gpusparseHandle_t handle, int mb, int nb,
-                                                          int nnzb, const gpuFloatComplex *bsrVal,
+inline wwrsparseStatus_t wwrsparseCgebsr2gebsc_bufferSize(wwrsparseHandle_t handle, int mb, int nb,
+                                                          int nnzb, const wwrFloatComplex *bsrVal,
                                                           const int *bsrRowPtr,
                                                           const int *bsrColInd, int rowBlockDim,
                                                           int colBlockDim,
                                                           std::size_t *pBufferSizeInBytes) {
   int bytes = 0;
-  gpusparseStatus_t status = ::wwr::cuda::cusparseCgebsr2gebsc_bufferSize(
+  wwrsparseStatus_t status = ::wwr::cuda::cusparseCgebsr2gebsc_bufferSize(
       handle, mb, nb, nnzb, bsrVal, bsrRowPtr, bsrColInd, rowBlockDim, colBlockDim, &bytes);
   *pBufferSizeInBytes = static_cast<std::size_t>(bytes);
   return status;
 }
-inline gpusparseStatus_t gpusparseZgebsr2gebsc_bufferSize(gpusparseHandle_t handle, int mb, int nb,
-                                                          int nnzb, const gpuDoubleComplex *bsrVal,
+inline wwrsparseStatus_t wwrsparseZgebsr2gebsc_bufferSize(wwrsparseHandle_t handle, int mb, int nb,
+                                                          int nnzb, const wwrDoubleComplex *bsrVal,
                                                           const int *bsrRowPtr,
                                                           const int *bsrColInd, int rowBlockDim,
                                                           int colBlockDim,
                                                           std::size_t *pBufferSizeInBytes) {
   int bytes = 0;
-  gpusparseStatus_t status = ::wwr::cuda::cusparseZgebsr2gebsc_bufferSize(
+  wwrsparseStatus_t status = ::wwr::cuda::cusparseZgebsr2gebsc_bufferSize(
       handle, mb, nb, nnzb, bsrVal, bsrRowPtr, bsrColInd, rowBlockDim, colBlockDim, &bytes);
   *pBufferSizeInBytes = static_cast<std::size_t>(bytes);
   return status;
 }
 
-inline gpusparseStatus_t
-gpusparseScsr2gebsr_bufferSize(gpusparseHandle_t handle, gpusparseDirection_t dirA, int m, int n,
-                               const gpusparseMatDescr_t descrA, const float *csrVal,
+inline wwrsparseStatus_t
+wwrsparseScsr2gebsr_bufferSize(wwrsparseHandle_t handle, wwrsparseDirection_t dirA, int m, int n,
+                               const wwrsparseMatDescr_t descrA, const float *csrVal,
                                const int *csrRowPtr, const int *csrColInd, int rowBlockDim,
                                int colBlockDim, std::size_t *pBufferSizeInBytes) {
   int bytes = 0;
-  gpusparseStatus_t status = ::wwr::cuda::cusparseScsr2gebsr_bufferSize(
+  wwrsparseStatus_t status = ::wwr::cuda::cusparseScsr2gebsr_bufferSize(
       handle, dirA, m, n, descrA, csrVal, csrRowPtr, csrColInd, rowBlockDim, colBlockDim, &bytes);
   *pBufferSizeInBytes = static_cast<std::size_t>(bytes);
   return status;
 }
-inline gpusparseStatus_t
-gpusparseDcsr2gebsr_bufferSize(gpusparseHandle_t handle, gpusparseDirection_t dirA, int m, int n,
-                               const gpusparseMatDescr_t descrA, const double *csrVal,
+inline wwrsparseStatus_t
+wwrsparseDcsr2gebsr_bufferSize(wwrsparseHandle_t handle, wwrsparseDirection_t dirA, int m, int n,
+                               const wwrsparseMatDescr_t descrA, const double *csrVal,
                                const int *csrRowPtr, const int *csrColInd, int rowBlockDim,
                                int colBlockDim, std::size_t *pBufferSizeInBytes) {
   int bytes = 0;
-  gpusparseStatus_t status = ::wwr::cuda::cusparseDcsr2gebsr_bufferSize(
+  wwrsparseStatus_t status = ::wwr::cuda::cusparseDcsr2gebsr_bufferSize(
       handle, dirA, m, n, descrA, csrVal, csrRowPtr, csrColInd, rowBlockDim, colBlockDim, &bytes);
   *pBufferSizeInBytes = static_cast<std::size_t>(bytes);
   return status;
 }
-inline gpusparseStatus_t
-gpusparseCcsr2gebsr_bufferSize(gpusparseHandle_t handle, gpusparseDirection_t dirA, int m, int n,
-                               const gpusparseMatDescr_t descrA, const gpuFloatComplex *csrVal,
+inline wwrsparseStatus_t
+wwrsparseCcsr2gebsr_bufferSize(wwrsparseHandle_t handle, wwrsparseDirection_t dirA, int m, int n,
+                               const wwrsparseMatDescr_t descrA, const wwrFloatComplex *csrVal,
                                const int *csrRowPtr, const int *csrColInd, int rowBlockDim,
                                int colBlockDim, std::size_t *pBufferSizeInBytes) {
   int bytes = 0;
-  gpusparseStatus_t status = ::wwr::cuda::cusparseCcsr2gebsr_bufferSize(
+  wwrsparseStatus_t status = ::wwr::cuda::cusparseCcsr2gebsr_bufferSize(
       handle, dirA, m, n, descrA, csrVal, csrRowPtr, csrColInd, rowBlockDim, colBlockDim, &bytes);
   *pBufferSizeInBytes = static_cast<std::size_t>(bytes);
   return status;
 }
-inline gpusparseStatus_t
-gpusparseZcsr2gebsr_bufferSize(gpusparseHandle_t handle, gpusparseDirection_t dirA, int m, int n,
-                               const gpusparseMatDescr_t descrA, const gpuDoubleComplex *csrVal,
+inline wwrsparseStatus_t
+wwrsparseZcsr2gebsr_bufferSize(wwrsparseHandle_t handle, wwrsparseDirection_t dirA, int m, int n,
+                               const wwrsparseMatDescr_t descrA, const wwrDoubleComplex *csrVal,
                                const int *csrRowPtr, const int *csrColInd, int rowBlockDim,
                                int colBlockDim, std::size_t *pBufferSizeInBytes) {
   int bytes = 0;
-  gpusparseStatus_t status = ::wwr::cuda::cusparseZcsr2gebsr_bufferSize(
+  wwrsparseStatus_t status = ::wwr::cuda::cusparseZcsr2gebsr_bufferSize(
       handle, dirA, m, n, descrA, csrVal, csrRowPtr, csrColInd, rowBlockDim, colBlockDim, &bytes);
   *pBufferSizeInBytes = static_cast<std::size_t>(bytes);
   return status;
@@ -373,22 +373,22 @@ gpusparseZcsr2gebsr_bufferSize(gpusparseHandle_t handle, gpusparseDirection_t di
 
 #else
 
-WWR_FUNCTION(gpusparseSgebsr2gebsc_bufferSize, cusparseSgebsr2gebsc_bufferSize,
+WWR_FUNCTION(wwrsparseSgebsr2gebsc_bufferSize, cusparseSgebsr2gebsc_bufferSize,
                 hipsparseSgebsr2gebsc_bufferSize)
-WWR_FUNCTION(gpusparseDgebsr2gebsc_bufferSize, cusparseDgebsr2gebsc_bufferSize,
+WWR_FUNCTION(wwrsparseDgebsr2gebsc_bufferSize, cusparseDgebsr2gebsc_bufferSize,
                 hipsparseDgebsr2gebsc_bufferSize)
-WWR_FUNCTION(gpusparseCgebsr2gebsc_bufferSize, cusparseCgebsr2gebsc_bufferSize,
+WWR_FUNCTION(wwrsparseCgebsr2gebsc_bufferSize, cusparseCgebsr2gebsc_bufferSize,
                 hipsparseCgebsr2gebsc_bufferSize)
-WWR_FUNCTION(gpusparseZgebsr2gebsc_bufferSize, cusparseZgebsr2gebsc_bufferSize,
+WWR_FUNCTION(wwrsparseZgebsr2gebsc_bufferSize, cusparseZgebsr2gebsc_bufferSize,
                 hipsparseZgebsr2gebsc_bufferSize)
 
-WWR_FUNCTION(gpusparseScsr2gebsr_bufferSize, cusparseScsr2gebsr_bufferSize,
+WWR_FUNCTION(wwrsparseScsr2gebsr_bufferSize, cusparseScsr2gebsr_bufferSize,
                 hipsparseScsr2gebsr_bufferSize)
-WWR_FUNCTION(gpusparseDcsr2gebsr_bufferSize, cusparseDcsr2gebsr_bufferSize,
+WWR_FUNCTION(wwrsparseDcsr2gebsr_bufferSize, cusparseDcsr2gebsr_bufferSize,
                 hipsparseDcsr2gebsr_bufferSize)
-WWR_FUNCTION(gpusparseCcsr2gebsr_bufferSize, cusparseCcsr2gebsr_bufferSize,
+WWR_FUNCTION(wwrsparseCcsr2gebsr_bufferSize, cusparseCcsr2gebsr_bufferSize,
                 hipsparseCcsr2gebsr_bufferSize)
-WWR_FUNCTION(gpusparseZcsr2gebsr_bufferSize, cusparseZcsr2gebsr_bufferSize,
+WWR_FUNCTION(wwrsparseZcsr2gebsr_bufferSize, cusparseZcsr2gebsr_bufferSize,
                 hipsparseZcsr2gebsr_bufferSize)
 
 #endif

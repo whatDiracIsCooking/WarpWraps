@@ -43,7 +43,7 @@ private:
 
   static GpuStream make_stream(const StreamEventConfig &cfg) {
     if (cfg.stream_priority)
-      return GpuStream(cfg.device, cfg.stream_flags.value_or(gpuStreamDefault),
+      return GpuStream(cfg.device, cfg.stream_flags.value_or(wwrStreamDefault),
                        *cfg.stream_priority);
     if (cfg.stream_flags)
       return GpuStream(cfg.device, *cfg.stream_flags);
@@ -68,13 +68,13 @@ public:
   GpuEvent &gpu_event() { return event_; }
   const GpuEvent &gpu_event() const { return event_; }
 
-  gpuStream_t stream_raw() const { return stream_.get(); }
-  gpuEvent_t event_raw() const { return event_.get(); }
+  wwrStream_t stream_raw() const { return stream_.get(); }
+  wwrEvent_t event_raw() const { return event_.get(); }
 
-  gpuError_t record() { return event_.record(stream_.get()); }
-  gpuError_t record(const unsigned int flags) { return event_.record(stream_.get(), flags); }
-  gpuError_t stream_sync() { return stream_.sync(); }
-  gpuError_t event_sync() { return event_.sync(); }
+  wwrError_t record() { return event_.record(stream_.get()); }
+  wwrError_t record(const unsigned int flags) { return event_.record(stream_.get(), flags); }
+  wwrError_t stream_sync() { return stream_.sync(); }
+  wwrError_t event_sync() { return event_.sync(); }
 };
 
 } // namespace wwr::extension

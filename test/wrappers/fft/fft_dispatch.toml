@@ -1,10 +1,10 @@
 # Expected dispatch of wwr.wrappers.fft -- checked by test/shared/dispatch.py
 #
-# [dispatch] is one key per exec_*<T>: the gpufftExec function its compiled code
-# must call. Names are gpufft aliases (src/fft.cppm), so this one table
+# [dispatch] is one key per exec_*<T>: the wwrfftExec function its compiled code
+# must call. Names are wwrfft aliases (src/fft.cppm), so this one table
 # checks a CUDA and a HIP build alike.
 #
-# The rule is gpufftExec<kind>, where <kind> is the precision-specific transform:
+# The rule is wwrfftExec<kind>, where <kind> is the precision-specific transform:
 # float -> C2C / R2C / C2R, double -> Z2Z / D2Z / Z2D. There are no _64 variants
 # -- an FFT's size goes to the *Many64 plan functions, not an index-type suffix
 # on the exec call (src/wrappers/fft/dispatch_macros.h).
@@ -16,7 +16,7 @@
 
 [check]
 module = "wwr.wrappers.fft"
-prefix = "gpufft"
+prefix = "wwrfft"
 # wwr.fft is pure WWR_FUNCTION aliases -- no inline forwarders to
 # recognise, unlike wwr.blas -- so there is no forwarder_module here. The
 # exec wrappers are templated on precision alone (float/double), so no
@@ -25,9 +25,9 @@ prefix = "gpufft"
 [dispatch]
 
 # ---- src/wrappers/fft/exec.cppm ----
-"exec_c2c<float>"  = ["gpufftExecC2C"]
-"exec_c2c<double>" = ["gpufftExecZ2Z"]
-"exec_r2c<float>"  = ["gpufftExecR2C"]
-"exec_r2c<double>" = ["gpufftExecD2Z"]
-"exec_c2r<float>"  = ["gpufftExecC2R"]
-"exec_c2r<double>" = ["gpufftExecZ2D"]
+"exec_c2c<float>"  = ["wwrfftExecC2C"]
+"exec_c2c<double>" = ["wwrfftExecZ2Z"]
+"exec_r2c<float>"  = ["wwrfftExecR2C"]
+"exec_r2c<double>" = ["wwrfftExecD2Z"]
+"exec_c2r<float>"  = ["wwrfftExecC2R"]
+"exec_c2r<double>" = ["wwrfftExecZ2D"]
