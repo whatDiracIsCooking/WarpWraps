@@ -8,13 +8,13 @@
 // suite (allocation_failure_tests.cpp) use it, so it lives here rather than in
 // either TU.
 //
-// This header references types from gpumod.extension.memory_buffer and the std
+// This header references types from wwr.extension.memory_buffer and the std
 // module, so it must be included AFTER those imports -- the failure-path TUs
 // are plain .cpp files, not module units, so there is no global module fragment
 // to include it into. It pulls in no headers of its own, so nothing here
 // conflicts with `import std;`.
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Test error policy
@@ -52,4 +52,4 @@ using CountedDeviceBuffer = DeviceBufferWrapper<T, GpuPolicy>;
 template<typename T>
 using CountedHostView = BufferViewWrapper<T, MemoryKind::Host, HostPolicy>;
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

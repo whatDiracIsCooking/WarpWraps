@@ -1,30 +1,30 @@
-// hip_bf16.cppm - Compile-time tests for gpumod.hip.hip_bf16
+// hip_bf16.cppm - Compile-time tests for wwr.hip.hip_bf16
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_bf16;
+export module wwr.test.hip.hip_bf16;
 
 import std;
-import gpumod.hip.hip_bf16;
+import wwr.hip.hip_bf16;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_bf16
+// Compile-time tests for wwr.hip.hip_bf16
 //
 // Mirrors test/cuda/cuda_bf16.cppm: __hip_bfloat16/__hip_bfloat162 are
 // re-exported by `using` declaration only; their arithmetic/comparison
 // operators are ordinary `static inline` free functions in
 // amd_hip_bf16.h's global namespace, so hip_bf16.cppm provides thin
-// forwarding operators in gpumod::hip (parity with cuda_bf16.cppm's
+// forwarding operators in wwr::hip (parity with cuda_bf16.cppm's
 // treatment of cuda_bf16.h). Whether those forwarders are actually reachable
 // and correct at run time is out of scope for this compile-time-only
 // directory (parity with cuda_bf16.cppm); this file covers the layout and alias guarantees that static_assert can reach.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ──────────────────────────────────────────────────────────────────────
 // Struct traits: C-interop guarantees
@@ -43,4 +43,4 @@ static_assert(std::is_standard_layout_v<__hip_bfloat162>);
 static_assert(sizeof(__hip_bfloat16) == 2);
 static_assert(sizeof(__hip_bfloat162) == 4);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

@@ -5,15 +5,15 @@
  * Provides GpusparseHandle class for automatic GPU sparse handle management.
  */
 
-export module gpumod.extension.sparse:sparse_handle;
+export module wwr.extension.sparse:sparse_handle;
 
 import :sparse_error;
-import gpumod.sparse;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.sparse;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief RAII wrapper for a GPU sparse handle
@@ -60,4 +60,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

@@ -4,7 +4,7 @@
  *
  * Wraps hip/hip_fp8.h for C++23 module-based code: 8-bit floating-point types,
  * enumerations, storage typedefs and host-accessible conversion functions.
- * CUDA counterpart: gpumod.cuda.cuda_fp8.
+ * CUDA counterpart: wwr.cuda.cuda_fp8.
  *
  * HIP defines FOUR struct formats where CUDA's cuda_fp8.h has three: OCP
  * e4m3/e5m2 and AMD's original fnuz-encoded e4m3/e5m2, each with x2/x4 vector
@@ -20,7 +20,7 @@
  * different reasons -- docs/architecture.md, sections 9 and 10.
  *
  * Usage:
- *   import gpumod.hip.hip_fp8;
+ *   import wwr.hip.hip_fp8;
  */
 
 module;
@@ -33,9 +33,9 @@ module;
 #include <algorithm>
 #include <hip/hip_fp8.h>
 
-export module gpumod.hip.hip_fp8;
+export module wwr.hip.hip_fp8;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Storage Typedefs
@@ -112,7 +112,7 @@ using ::__hip_bfloat16_raw;
 // The following functions are defined as static inline in the global
 // namespace in amd_hip_fp8.h and cannot be re-exported via using
 // declarations. Thin inline wrappers are provided here so that callers
-// importing this module can access them by name within gpumod::hip.
+// importing this module can access them by name within wwr::hip.
 
 // -- Narrowing conversions (to fp8 storage) -------------------------------
 
@@ -174,4 +174,4 @@ inline __half2_raw __hip_cvt_fp8x2_to_halfraw2(const __hip_fp8x2_storage_t x,
   return ::__hip_cvt_fp8x2_to_halfraw2(x, interp);
 }
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

@@ -1,27 +1,27 @@
 /**
  * @file nvjpeg.cppm
- * @brief Primary interface for gpumod.cuda.nvjpeg
+ * @brief Primary interface for wwr.cuda.nvjpeg
  *
  * This module wraps the nvJPEG API and exports types, constants,
  * and functions for GPU-accelerated JPEG encoding and decoding.
  *
  * Usage:
- *   import gpumod.cuda.nvjpeg;
+ *   import wwr.cuda.nvjpeg;
  */
 
 module;
 
 #include <nvjpeg.h>
 
-export module gpumod.cuda.nvjpeg;
+export module wwr.cuda.nvjpeg;
 
 import std;
 
 // ========================================================================
-// Export all nvJPEG types and functions in gpumod namespace
+// Export all nvJPEG types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Status Codes
@@ -341,4 +341,4 @@ using ::nvjpegDecodeJpegTransferToDevice;
 using ::nvjpegEncoderParamsCopyMetadata;
 using ::nvjpegEncoderParamsCopyQuantizationTables;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

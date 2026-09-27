@@ -1,16 +1,16 @@
-// cuda_fp16.cppm - Compile-time tests for gpumod.cuda.cuda_fp16
+// cuda_fp16.cppm - Compile-time tests for wwr.cuda.cuda_fp16
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cuda_fp16;
+export module wwr.test.cuda.cuda_fp16;
 
 import std;
-import gpumod.cuda.cuda_fp16;
+import wwr.cuda.cuda_fp16;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Tests for gpumod.cuda.cuda_fp16
+// Tests for wwr.cuda.cuda_fp16
 //
 // The module re-exports __half/__half2 by `using` declaration only; their
 // arithmetic/comparison operators are free functions defined in the module's
@@ -22,9 +22,9 @@ import gpumod.cuda.cuda_fp16;
 // reach.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Struct traits: C-interop guarantees
@@ -52,4 +52,4 @@ static_assert(std::is_same_v<__nv_half2, __half2>);
 static_assert(std::is_same_v<nv_half, __half>);
 static_assert(std::is_same_v<nv_half2, __half2>);
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

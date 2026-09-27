@@ -1,15 +1,15 @@
 // handle_view.cppm - Compile-time tests for the non-owning GPU handle views
 
-export module gpumod.test.extension.handle_view;
+export module wwr.test.extension.handle_view;
 
 import std;
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.handle;
-import gpumod.extension.runtime;
-import gpumod.extension.blas;
-import gpumod.extension.solver;
-import gpumod.extension.sparse;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.handle;
+import wwr.extension.runtime;
+import wwr.extension.blas;
+import wwr.extension.solver;
+import wwr.extension.sparse;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Compile-time contract of the handle views
@@ -32,7 +32,7 @@ import gpumod.extension.sparse;
 // These are compile-time contracts; the runtime tests live beside the wrappers.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // A view is a freely copyable, trivially destructible value -- the whole point.
 template<typename View>
@@ -116,4 +116,4 @@ static_assert(
   (void)exec.launch(raw_stream); // owner shares the mixin
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

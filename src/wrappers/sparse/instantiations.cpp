@@ -6,13 +6,13 @@
  * code bloat from implicit instantiation at every call site.
  */
 
-module gpumod.wrappers.sparse;
+module wwr.wrappers.sparse;
 
-import gpumod.sparse;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.sparse;
+import wwr.complex;
+import wwr.wrappers.common;
 
-namespace gpumod {
+namespace wwr {
 
 // Function: bsrmv
 template gpusparseStatus_t bsrmv<float>(gpusparseHandle_t, gpusparseDirection_t,
@@ -341,4 +341,4 @@ template gpusparseStatus_t csr2gebsr<gpuDoubleComplex>(gpusparseHandle_t, gpuspa
                                                        gpuDoubleComplex *, int *, int *, int, int,
                                                        void *);
 
-} // namespace gpumod
+} // namespace wwr

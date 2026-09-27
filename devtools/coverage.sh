@@ -7,7 +7,7 @@
 #
 # This is the coverage counterpart to devtools/cpp-tier.sh: it configures and
 # builds the tree with instrumentation (the `coverage` preset sets
-# GPUMOD_COVERAGE=ON, which adds -fprofile-instr-generate -fcoverage-mapping to
+# WWR_COVERAGE=ON, which adds -fprofile-instr-generate -fcoverage-mapping to
 # CXX only -- nvcc's .cu units are untouched, exactly as ASAN is), runs ctest so
 # the instrumented binaries drop .profraw files, then merges them with
 # llvm-profdata and reports with llvm-cov.
@@ -37,7 +37,7 @@
 # Flags:
 #   --preset NAME   configure/build/test preset (default: COVERAGE_PRESET from
 #                   devtools/config.sh -- `coverage`). Any preset works, but it
-#                   must have GPUMOD_COVERAGE=ON or there is nothing to collect.
+#                   must have WWR_COVERAGE=ON or there is nothing to collect.
 #   --fresh         wipe the CMake cache first (`--fresh`).
 #   --html          also write a browsable HTML report under the build dir
 #                   (build-coverage/coverage/html/index.html).
@@ -144,7 +144,7 @@ raws=("$raw_dir"/*.profraw)
 shopt -u nullglob
 [ "${#raws[@]}" -gt 0 ] || {
   echo "coverage: no .profraw produced -- did any instrumented binary run?" >&2
-  echo "  (a preset without GPUMOD_COVERAGE=ON collects nothing.)" >&2
+  echo "  (a preset without WWR_COVERAGE=ON collects nothing.)" >&2
   exit 1
 }
 echo "coverage: ${#raws[@]} .profraw file(s)"

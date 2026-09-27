@@ -70,7 +70,7 @@ parent_of() {
 }
 
 # The tags each image gets. `cuda` gets :latest as well, because that is what
-# docker/compose.yaml and README.md name (GPUMOD_IMAGE defaults to it) -- the
+# docker/compose.yaml and README.md name (WWR_IMAGE defaults to it) -- the
 # CUDA image is the default backend.
 tags_of() {
   case $1 in

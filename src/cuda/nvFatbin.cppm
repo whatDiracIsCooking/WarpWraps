@@ -1,24 +1,24 @@
 /**
  * @file nvFatbin.cppm
- * @brief Primary interface for gpumod.cuda.nvFatbin
+ * @brief Primary interface for wwr.cuda.nvFatbin
  *
  * This module wraps the nvFatbin (NVIDIA Fatbinary Creation) API and exports
  * types, enumerators, and functions for constructing CUDA fatbinary images
  * from PTX, cubin, LTOIR, and relocatable object inputs at runtime.
  *
  * Usage:
- *   import gpumod.cuda.nvFatbin;
+ *   import wwr.cuda.nvFatbin;
  */
 
 module;
 
 #include <nvFatbin.h>
 
-export module gpumod.cuda.nvFatbin;
+export module wwr.cuda.nvFatbin;
 
 import std;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Result / Status Type
@@ -83,4 +83,4 @@ using ::nvFatbinSize;
 // ========================================================================
 using ::nvFatbinVersion;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

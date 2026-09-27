@@ -6,17 +6,17 @@
  * for different allocation strategies.
  *
  * Usage:
- *   import gpumod.extension.memory_buffer;
- *   using namespace gpumod::extension;
+ *   import wwr.extension.memory_buffer;
+ *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.memory_buffer:memory_kind;
+export module wwr.extension.memory_buffer:memory_kind;
 
 import std;
-import gpumod.runtime_api;
+import wwr.runtime_api;
 import :host_memory;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Memory Kind Enumeration
@@ -99,4 +99,4 @@ struct MemoryInvalidValue<MemoryKind::Host> {
   static constexpr stdHostMemoryError_t value = stdHostMemInvalidValue;
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

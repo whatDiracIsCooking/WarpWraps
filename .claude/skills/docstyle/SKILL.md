@@ -120,10 +120,10 @@ prevent`). State the rule; trust the reader.
 gpurandStateXORWOW* as interchangeable`. Prefer the declarative: "On HIP these
 are distinct types; on CUDA they are one." Where the rule is load-bearing a
 `static_assert` outranks any amount of prose — `runtime.cuh`'s
-power-of-two check on `GPUMOD_WARP_SIZE` is the right pattern.
+power-of-two check on `WWR_WARP_SIZE` is the right pattern.
 
 **Prose inside a section banner.** A bare `// ===` / `// Types` / `// ===`
-divider is *fine* — in a 600-line list of `GPUMOD_FUNCTION` entries it is
+divider is *fine* — in a 600-line list of `WWR_FUNCTION` entries it is
 navigation. What is banned is the paragraph some of them wrapped. Title plus at
 most one line.
 
@@ -154,10 +154,10 @@ For each paragraph in an over-budget header, ask: **is this a constraint on the
 caller, or is it the story of how we found out?** Keep the constraint, one
 line. Move the story.
 
-Before — `runtime.cuh`, ~40 lines on `GPUMOD_WARP_SIZE` alone:
+Before — `runtime.cuh`, ~40 lines on `WWR_WARP_SIZE` alone:
 
 ```
- *   GPUMOD_WARP_SIZE                     the warp/wavefront size, as an integer
+ *   WWR_WARP_SIZE                     the warp/wavefront size, as an integer
  *   [...] which is worth recording so it is not rediscovered:
  *     - `warpSize` is NOT a constant expression [...] nvcc 13.0: "the value
  *       of variable warpSize ... cannot be used as a constant". clang 20
@@ -169,8 +169,8 @@ Before — `runtime.cuh`, ~40 lines on `GPUMOD_WARP_SIZE` alone:
 After — 2 lines:
 
 ```cpp
- *   GPUMOD_WARP_SIZE       warp/wavefront size, as a constant expression. Set
- *                       with -DGPUMOD_WARP_SIZE (default 32; 64 for CDNA)
+ *   WWR_WARP_SIZE       warp/wavefront size, as a constant expression. Set
+ *                       with -DWWR_WARP_SIZE (default 32; 64 for CDNA)
 ```
 
 …plus one `See docs/architecture.md (warp size)` at the foot of the header. The
@@ -242,7 +242,7 @@ leading `#` header held to the same 25-line prose budget:
 What breaks the budget here is identical to what broke it in the C++ headers,
 and the worst offenders show every banned construct at once:
 
-- `cmake/gpumod_add_gpu_device_library.cmake` — 67% comment, opening with
+- `cmake/wwr_add_gpu_device_library.cmake` — 67% comment, opening with
   rhetorical banners (`# What this replaced`, `# What this deliberately does NOT
   take`), a staged reveal (`there is a trap in the obvious fix`), and a
   verification transcript (`verified by compiling a kernel ... under nvcc

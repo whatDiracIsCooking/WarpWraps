@@ -6,13 +6,13 @@
  * code bloat from implicit instantiation at every call site.
  */
 
-module gpumod.wrappers.blas;
+module wwr.wrappers.blas;
 
-import gpumod.blas;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.blas;
+import wwr.complex;
+import wwr.wrappers.common;
 
-namespace gpumod {
+namespace wwr {
 
 // Function: iamax
 template gpublasStatus_t iamax<float, int>(gpublasHandle_t, int, const float *, int, int *);
@@ -1499,4 +1499,4 @@ template gpublasStatus_t gelsBatched<gpuDoubleComplex>(gpublasHandle_t, gpublasO
                                                        gpuDoubleComplex *const[], int, int *, int *,
                                                        int);
 
-} // namespace gpumod
+} // namespace wwr

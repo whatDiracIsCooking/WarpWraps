@@ -9,7 +9,7 @@
  * has no generic X-prefixed eigenvalue/SVD API at all; this legacy-typed API is
  * the only eigenvalue/SVD surface here. The modern-only cuSOLVER functions
  * (Xgeev, Xgesvd, Xgesvdp, Xgesvdr, Xsyevd, Xsyevdx, XsyevBatched) are not
- * wrapped -- call them through gpumod.cuda.cusolverDn.
+ * wrapped -- call them through wwr.cuda.cusolverDn.
  *
  * Legacy API characteristics:
  * - int for all dimensions, not int64_t
@@ -22,8 +22,8 @@
  * unmodified; they alias each backend's own name (see src/solver.cppm).
  *
  * Usage:
- *   import gpumod.wrappers.solver;
- *   using namespace gpumod;
+ *   import wwr.wrappers.solver;
+ *   using namespace wwr;
  *
  *   // Query workspace size
  *   int lwork;
@@ -39,15 +39,15 @@ module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.solver:eigen_solver_legacy;
+export module wwr.wrappers.solver:eigen_solver_legacy;
 
-import gpumod.solver;
-import gpumod.blas;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.solver;
+import wwr.blas;
+import wwr.complex;
+import wwr.wrappers.common;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // Singular Value Decomposition (gesvd)
@@ -68,8 +68,8 @@ export namespace gpumod {
  */
 template<usual_fp T>
 gpusolverStatus_t gesvd_bufferSize(gpusolverDnHandle_t handle, int m, int n, int *lwork) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, gesvd_bufferSize, handle, m, n, lwork);
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvd_bufferSize, handle, m, n, lwork);
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvd_bufferSize, handle, m, n, lwork);
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvd_bufferSize, handle, m, n, lwork);
 }
 
 /**
@@ -109,9 +109,9 @@ template<usual_fp T>
 gpusolverStatus_t gesvd(gpusolverDnHandle_t handle, signed char jobu, signed char jobvt, int m,
                         int n, T *A, int lda, ComplexToRealType<T> *S, T *U, int ldu, T *VT,
                         int ldvt, T *work, int lwork, ComplexToRealType<T> *rwork, int *devInfo) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, gesvd, handle, jobu, jobvt, m, n, A, lda, S, U, ldu,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvd, handle, jobu, jobvt, m, n, A, lda, S, U, ldu,
                        VT, ldvt, work, lwork, rwork, devInfo);
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvd, handle, jobu, jobvt, m, n, A, lda, S, U, ldu,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvd, handle, jobu, jobvt, m, n, A, lda, S, U, ldu,
                           VT, ldvt, work, lwork, rwork, devInfo);
 }
 
@@ -142,7 +142,7 @@ template<real_fp T>
 gpusolverStatus_t syevd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
                                    gpublasFillMode_t uplo, int n, const T *A, int lda, const T *W,
                                    int *lwork) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, syevd_bufferSize, handle, jobz, uplo, n, A, lda, W,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevd_bufferSize, handle, jobz, uplo, n, A, lda, W,
                        lwork);
 }
 
@@ -171,7 +171,7 @@ gpusolverStatus_t syevd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_
 template<real_fp T>
 gpusolverStatus_t syevd(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpublasFillMode_t uplo,
                         int n, T *A, int lda, T *W, T *work, int lwork, int *devInfo) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, syevd, handle, jobz, uplo, n, A, lda, W, work, lwork,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevd, handle, jobz, uplo, n, A, lda, W, work, lwork,
                        devInfo);
 }
 
@@ -211,7 +211,7 @@ gpusolverStatus_t syevdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode
                                     gpusolverEigRange_t range, gpublasFillMode_t uplo, int n,
                                     const T *A, int lda, T vl, T vu, int il, int iu, int *meig,
                                     const T *W, int *lwork) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, syevdx_bufferSize, handle, jobz, range, uplo, n, A,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevdx_bufferSize, handle, jobz, range, uplo, n, A,
                        lda, vl, vu, il, iu, meig, W, lwork);
 }
 
@@ -249,7 +249,7 @@ gpusolverStatus_t syevdx(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
                          gpusolverEigRange_t range, gpublasFillMode_t uplo, int n, T *A, int lda,
                          T vl, T vu, int il, int iu, int *meig, T *W, T *work, int lwork,
                          int *info) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, syevdx, handle, jobz, range, uplo, n, A, lda, vl, vu,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevdx, handle, jobz, range, uplo, n, A, lda, vl, vu,
                        il, iu, meig, W, work, lwork, info);
 }
 
@@ -282,7 +282,7 @@ template<complex_fp T>
 gpusolverStatus_t heevd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
                                    gpublasFillMode_t uplo, int n, const T *A, int lda,
                                    const ComplexToRealType<T> *W, int *lwork) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevd_bufferSize, handle, jobz, uplo, n, A, lda, W,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevd_bufferSize, handle, jobz, uplo, n, A, lda, W,
                           lwork);
 }
 
@@ -314,7 +314,7 @@ template<complex_fp T>
 gpusolverStatus_t heevd(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpublasFillMode_t uplo,
                         int n, T *A, int lda, ComplexToRealType<T> *W, T *work, int lwork,
                         int *devInfo) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevd, handle, jobz, uplo, n, A, lda, W, work,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevd, handle, jobz, uplo, n, A, lda, W, work,
                           lwork, devInfo);
 }
 
@@ -357,7 +357,7 @@ gpusolverStatus_t heevdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode
                                     const T *A, int lda, ComplexToRealType<T> vl,
                                     ComplexToRealType<T> vu, int il, int iu, int *meig,
                                     const ComplexToRealType<T> *W, int *lwork) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevdx_bufferSize, handle, jobz, range, uplo, n, A,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevdx_bufferSize, handle, jobz, range, uplo, n, A,
                           lda, vl, vu, il, iu, meig, W, lwork);
 }
 
@@ -397,7 +397,7 @@ gpusolverStatus_t heevdx(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
                          gpusolverEigRange_t range, gpublasFillMode_t uplo, int n, T *A, int lda,
                          ComplexToRealType<T> vl, ComplexToRealType<T> vu, int il, int iu,
                          int *meig, ComplexToRealType<T> *W, T *work, int lwork, int *info) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevdx, handle, jobz, range, uplo, n, A, lda, vl,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevdx, handle, jobz, range, uplo, n, A, lda, vl,
                           vu, il, iu, meig, W, work, lwork, info);
 }
 
@@ -428,7 +428,7 @@ template<real_fp T>
 gpusolverStatus_t sytrd_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *D, const T *E, const T *tau,
                                    int *lwork) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, sytrd_bufferSize, handle, uplo, n, A, lda, D, E, tau,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sytrd_bufferSize, handle, uplo, n, A, lda, D, E, tau,
                        lwork);
 }
 
@@ -455,7 +455,7 @@ gpusolverStatus_t sytrd_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
 template<real_fp T>
 gpusolverStatus_t sytrd(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
                         T *D, T *E, T *tau, T *work, int lwork, int *devInfo) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, sytrd, handle, uplo, n, A, lda, D, E, tau, work, lwork,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sytrd, handle, uplo, n, A, lda, D, E, tau, work, lwork,
                        devInfo);
 }
 
@@ -481,7 +481,7 @@ template<complex_fp T>
 gpusolverStatus_t hetrd_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n,
                                    const T *A, int lda, const ComplexToRealType<T> *D,
                                    const ComplexToRealType<T> *E, const T *tau, int *lwork) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hetrd_bufferSize, handle, uplo, n, A, lda, D, E,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hetrd_bufferSize, handle, uplo, n, A, lda, D, E,
                           tau, lwork);
 }
 
@@ -509,7 +509,7 @@ template<complex_fp T>
 gpusolverStatus_t hetrd(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
                         ComplexToRealType<T> *D, ComplexToRealType<T> *E, T *tau, T *work,
                         int lwork, int *devInfo) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hetrd, handle, uplo, n, A, lda, D, E, tau, work,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hetrd, handle, uplo, n, A, lda, D, E, tau, work,
                           lwork, devInfo);
 }
 
@@ -533,7 +533,7 @@ gpusolverStatus_t hetrd(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
 template<real_fp T>
 gpusolverStatus_t orgtr_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *tau, int *lwork) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, orgtr_bufferSize, handle, uplo, n, A, lda, tau, lwork);
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, orgtr_bufferSize, handle, uplo, n, A, lda, tau, lwork);
 }
 
 /**
@@ -557,7 +557,7 @@ gpusolverStatus_t orgtr_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
 template<real_fp T>
 gpusolverStatus_t orgtr(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
                         const T *tau, T *work, int lwork, int *devInfo) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, orgtr, handle, uplo, n, A, lda, tau, work, lwork,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, orgtr, handle, uplo, n, A, lda, tau, work, lwork,
                        devInfo);
 }
 
@@ -577,7 +577,7 @@ gpusolverStatus_t orgtr(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int 
 template<complex_fp T>
 gpusolverStatus_t ungtr_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *tau, int *lwork) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, ungtr_bufferSize, handle, uplo, n, A, lda, tau,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, ungtr_bufferSize, handle, uplo, n, A, lda, tau,
                           lwork);
 }
 
@@ -602,7 +602,7 @@ gpusolverStatus_t ungtr_bufferSize(gpusolverDnHandle_t handle, gpublasFillMode_t
 template<complex_fp T>
 gpusolverStatus_t ungtr(gpusolverDnHandle_t handle, gpublasFillMode_t uplo, int n, T *A, int lda,
                         const T *tau, T *work, int lwork, int *devInfo) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, ungtr, handle, uplo, n, A, lda, tau, work, lwork,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, ungtr, handle, uplo, n, A, lda, tau, work, lwork,
                           devInfo);
 }
 
@@ -633,7 +633,7 @@ gpusolverStatus_t ormtr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t
                                    gpublasFillMode_t uplo, gpublasOperation_t trans, int m, int n,
                                    const T *A, int lda, const T *tau, const T *C, int ldc,
                                    int *lwork) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, ormtr_bufferSize, handle, side, uplo, trans, m, n, A,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, ormtr_bufferSize, handle, side, uplo, trans, m, n, A,
                        lda, tau, C, ldc, lwork);
 }
 
@@ -663,7 +663,7 @@ template<real_fp T>
 gpusolverStatus_t ormtr(gpusolverDnHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo,
                         gpublasOperation_t trans, int m, int n, T *A, int lda, T *tau, T *C,
                         int ldc, T *work, int lwork, int *devInfo) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, ormtr, handle, side, uplo, trans, m, n, A, lda, tau, C,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, ormtr, handle, side, uplo, trans, m, n, A, lda, tau, C,
                        ldc, work, lwork, devInfo);
 }
 
@@ -690,7 +690,7 @@ gpusolverStatus_t unmtr_bufferSize(gpusolverDnHandle_t handle, gpublasSideMode_t
                                    gpublasFillMode_t uplo, gpublasOperation_t trans, int m, int n,
                                    const T *A, int lda, const T *tau, const T *C, int ldc,
                                    int *lwork) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, unmtr_bufferSize, handle, side, uplo, trans, m, n,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, unmtr_bufferSize, handle, side, uplo, trans, m, n,
                           A, lda, tau, C, ldc, lwork);
 }
 
@@ -720,7 +720,7 @@ template<complex_fp T>
 gpusolverStatus_t unmtr(gpusolverDnHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo,
                         gpublasOperation_t trans, int m, int n, T *A, int lda, T *tau, T *C,
                         int ldc, T *work, int lwork, int *devInfo) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, unmtr, handle, side, uplo, trans, m, n, A, lda, tau,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, unmtr, handle, side, uplo, trans, m, n, A, lda, tau,
                           C, ldc, work, lwork, devInfo);
 }
 
@@ -748,7 +748,7 @@ template<real_fp T>
 gpusolverStatus_t syevj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
                                    gpublasFillMode_t uplo, int n, const T *A, int lda, const T *W,
                                    int *lwork, gpusolverSyevjInfo_t params) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, syevj_bufferSize, handle, jobz, uplo, n, A, lda, W,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevj_bufferSize, handle, jobz, uplo, n, A, lda, W,
                        lwork, params);
 }
 
@@ -773,7 +773,7 @@ template<real_fp T>
 gpusolverStatus_t syevj(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpublasFillMode_t uplo,
                         int n, T *A, int lda, T *W, T *work, int lwork, int *info,
                         gpusolverSyevjInfo_t params) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, syevj, handle, jobz, uplo, n, A, lda, W, work, lwork,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevj, handle, jobz, uplo, n, A, lda, W, work, lwork,
                        info, params);
 }
 
@@ -798,7 +798,7 @@ gpusolverStatus_t syevjBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverE
                                           gpublasFillMode_t uplo, int n, const T *A, int lda,
                                           const T *W, int *lwork, gpusolverSyevjInfo_t params,
                                           int batchSize) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, syevjBatched_bufferSize, handle, jobz, uplo, n, A, lda,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevjBatched_bufferSize, handle, jobz, uplo, n, A, lda,
                        W, lwork, params, batchSize);
 }
 
@@ -824,7 +824,7 @@ template<real_fp T>
 gpusolverStatus_t syevjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz,
                                gpublasFillMode_t uplo, int n, T *A, int lda, T *W, T *work,
                                int lwork, int *info, gpusolverSyevjInfo_t params, int batchSize) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, syevjBatched, handle, jobz, uplo, n, A, lda, W, work,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, syevjBatched, handle, jobz, uplo, n, A, lda, W, work,
                        lwork, info, params, batchSize);
 }
 
@@ -852,7 +852,7 @@ gpusolverStatus_t heevj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_
                                    gpublasFillMode_t uplo, int n, const T *A, int lda,
                                    const ComplexToRealType<T> *W, int *lwork,
                                    gpusolverSyevjInfo_t params) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevj_bufferSize, handle, jobz, uplo, n, A, lda, W,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevj_bufferSize, handle, jobz, uplo, n, A, lda, W,
                           lwork, params);
 }
 
@@ -877,7 +877,7 @@ template<complex_fp T>
 gpusolverStatus_t heevj(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, gpublasFillMode_t uplo,
                         int n, T *A, int lda, ComplexToRealType<T> *W, T *work, int lwork,
                         int *info, gpusolverSyevjInfo_t params) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevj, handle, jobz, uplo, n, A, lda, W, work,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevj, handle, jobz, uplo, n, A, lda, W, work,
                           lwork, info, params);
 }
 
@@ -902,7 +902,7 @@ gpusolverStatus_t heevjBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverE
                                           gpublasFillMode_t uplo, int n, const T *A, int lda,
                                           const ComplexToRealType<T> *W, int *lwork,
                                           gpusolverSyevjInfo_t params, int batchSize) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevjBatched_bufferSize, handle, jobz, uplo, n, A,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevjBatched_bufferSize, handle, jobz, uplo, n, A,
                           lda, W, lwork, params, batchSize);
 }
 
@@ -929,7 +929,7 @@ gpusolverStatus_t heevjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jo
                                gpublasFillMode_t uplo, int n, T *A, int lda,
                                ComplexToRealType<T> *W, T *work, int lwork, int *info,
                                gpusolverSyevjInfo_t params, int batchSize) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevjBatched, handle, jobz, uplo, n, A, lda, W,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, heevjBatched, handle, jobz, uplo, n, A, lda, W,
                           work, lwork, info, params, batchSize);
 }
 
@@ -962,9 +962,9 @@ gpusolverStatus_t gesvdj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode
                                     int m, int n, const T *A, int lda,
                                     const ComplexToRealType<T> *S, const T *U, int ldu, const T *V,
                                     int ldv, int *lwork, gpusolverGesvdjInfo_t params) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdj_bufferSize, handle, jobz, econ, m, n, A, lda, S,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdj_bufferSize, handle, jobz, econ, m, n, A, lda, S,
                        U, ldu, V, ldv, lwork, params);
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdj_bufferSize, handle, jobz, econ, m, n, A, lda,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdj_bufferSize, handle, jobz, econ, m, n, A, lda,
                           S, U, ldu, V, ldv, lwork, params);
 }
 
@@ -994,9 +994,9 @@ template<usual_fp T>
 gpusolverStatus_t gesvdj(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, int econ, int m,
                          int n, T *A, int lda, ComplexToRealType<T> *S, T *U, int ldu, T *V,
                          int ldv, T *work, int lwork, int *info, gpusolverGesvdjInfo_t params) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdj, handle, jobz, econ, m, n, A, lda, S, U, ldu, V,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdj, handle, jobz, econ, m, n, A, lda, S, U, ldu, V,
                        ldv, work, lwork, info, params);
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdj, handle, jobz, econ, m, n, A, lda, S, U, ldu,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdj, handle, jobz, econ, m, n, A, lda, S, U, ldu,
                           V, ldv, work, lwork, info, params);
 }
 
@@ -1026,9 +1026,9 @@ gpusolverStatus_t gesvdjBatched_bufferSize(gpusolverDnHandle_t handle, gpusolver
                                            const ComplexToRealType<T> *S, const T *U, int ldu,
                                            const T *V, int ldv, int *lwork,
                                            gpusolverGesvdjInfo_t params, int batchSize) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdjBatched_bufferSize, handle, jobz, m, n, A, lda,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdjBatched_bufferSize, handle, jobz, m, n, A, lda,
                        S, U, ldu, V, ldv, lwork, params, batchSize);
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdjBatched_bufferSize, handle, jobz, m, n, A,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdjBatched_bufferSize, handle, jobz, m, n, A,
                           lda, S, U, ldu, V, ldv, lwork, params, batchSize);
 }
 
@@ -1059,9 +1059,9 @@ gpusolverStatus_t gesvdjBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t j
                                 T *A, int lda, ComplexToRealType<T> *S, T *U, int ldu, T *V,
                                 int ldv, T *work, int lwork, int *info,
                                 gpusolverGesvdjInfo_t params, int batchSize) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdjBatched, handle, jobz, m, n, A, lda, S, U, ldu,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdjBatched, handle, jobz, m, n, A, lda, S, U, ldu,
                        V, ldv, work, lwork, info, params, batchSize);
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdjBatched, handle, jobz, m, n, A, lda, S, U,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdjBatched, handle, jobz, m, n, A, lda, S, U,
                           ldu, V, ldv, work, lwork, info, params, batchSize);
 }
 
@@ -1091,7 +1091,7 @@ gpusolverStatus_t sygvd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_
                                    gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *B, int ldb, const T *W,
                                    int *lwork) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, sygvd_bufferSize, handle, itype, jobz, uplo, n, A, lda,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvd_bufferSize, handle, itype, jobz, uplo, n, A, lda,
                        B, ldb, W, lwork);
 }
 
@@ -1118,7 +1118,7 @@ template<real_fp T>
 gpusolverStatus_t sygvd(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
                         gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n, T *A, int lda, T *B,
                         int ldb, T *W, T *work, int lwork, int *info) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, sygvd, handle, itype, jobz, uplo, n, A, lda, B, ldb, W,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvd, handle, itype, jobz, uplo, n, A, lda, B, ldb, W,
                        work, lwork, info);
 }
 
@@ -1157,7 +1157,7 @@ gpusolverStatus_t sygvdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType
                                     gpublasFillMode_t uplo, int n, const T *A, int lda, const T *B,
                                     int ldb, T vl, T vu, int il, int iu, int *meig, const T *W,
                                     int *lwork) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, sygvdx_bufferSize, handle, itype, jobz, range, uplo, n,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvdx_bufferSize, handle, itype, jobz, range, uplo, n,
                        A, lda, B, ldb, vl, vu, il, iu, meig, W, lwork);
 }
 
@@ -1193,7 +1193,7 @@ gpusolverStatus_t sygvdx(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
                          gpusolverEigMode_t jobz, gpusolverEigRange_t range, gpublasFillMode_t uplo,
                          int n, T *A, int lda, T *B, int ldb, T vl, T vu, int il, int iu, int *meig,
                          T *W, T *work, int lwork, int *info) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, sygvdx, handle, itype, jobz, range, uplo, n, A, lda, B,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvdx, handle, itype, jobz, range, uplo, n, A, lda, B,
                        ldb, vl, vu, il, iu, meig, W, work, lwork, info);
 }
 
@@ -1223,7 +1223,7 @@ gpusolverStatus_t hegvd_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_
                                    gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *B, int ldb,
                                    const ComplexToRealType<T> *W, int *lwork) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvd_bufferSize, handle, itype, jobz, uplo, n, A,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvd_bufferSize, handle, itype, jobz, uplo, n, A,
                           lda, B, ldb, W, lwork);
 }
 
@@ -1250,7 +1250,7 @@ template<complex_fp T>
 gpusolverStatus_t hegvd(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
                         gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n, T *A, int lda, T *B,
                         int ldb, ComplexToRealType<T> *W, T *work, int lwork, int *info) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvd, handle, itype, jobz, uplo, n, A, lda, B, ldb,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvd, handle, itype, jobz, uplo, n, A, lda, B, ldb,
                           W, work, lwork, info);
 }
 
@@ -1289,7 +1289,7 @@ hegvdx_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_t itype, gpusolve
                   gpusolverEigRange_t range, gpublasFillMode_t uplo, int n, const T *A, int lda,
                   const T *B, int ldb, ComplexToRealType<T> vl, ComplexToRealType<T> vu, int il,
                   int iu, int *meig, const ComplexToRealType<T> *W, int *lwork) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvdx_bufferSize, handle, itype, jobz, range, uplo,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvdx_bufferSize, handle, itype, jobz, range, uplo,
                           n, A, lda, B, ldb, vl, vu, il, iu, meig, W, lwork);
 }
 
@@ -1326,7 +1326,7 @@ gpusolverStatus_t hegvdx(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
                          int n, T *A, int lda, T *B, int ldb, ComplexToRealType<T> vl,
                          ComplexToRealType<T> vu, int il, int iu, int *meig,
                          ComplexToRealType<T> *W, T *work, int lwork, int *info) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvdx, handle, itype, jobz, range, uplo, n, A, lda,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvdx, handle, itype, jobz, range, uplo, n, A, lda,
                           B, ldb, vl, vu, il, iu, meig, W, work, lwork, info);
 }
 
@@ -1357,7 +1357,7 @@ gpusolverStatus_t sygvj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_
                                    gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n,
                                    const T *A, int lda, const T *B, int ldb, const T *W, int *lwork,
                                    gpusolverSyevjInfo_t params) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, sygvj_bufferSize, handle, itype, jobz, uplo, n, A, lda,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvj_bufferSize, handle, itype, jobz, uplo, n, A, lda,
                        B, ldb, W, lwork, params);
 }
 
@@ -1385,7 +1385,7 @@ template<real_fp T>
 gpusolverStatus_t sygvj(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
                         gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n, T *A, int lda, T *B,
                         int ldb, T *W, T *work, int lwork, int *info, gpusolverSyevjInfo_t params) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, sygvj, handle, itype, jobz, uplo, n, A, lda, B, ldb, W,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, sygvj, handle, itype, jobz, uplo, n, A, lda, B, ldb, W,
                        work, lwork, info, params);
 }
 
@@ -1416,7 +1416,7 @@ gpusolverStatus_t
 hegvj_bufferSize(gpusolverDnHandle_t handle, gpusolverEigType_t itype, gpusolverEigMode_t jobz,
                  gpublasFillMode_t uplo, int n, const T *A, int lda, const T *B, int ldb,
                  const ComplexToRealType<T> *W, int *lwork, gpusolverSyevjInfo_t params) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvj_bufferSize, handle, itype, jobz, uplo, n, A,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvj_bufferSize, handle, itype, jobz, uplo, n, A,
                           lda, B, ldb, W, lwork, params);
 }
 
@@ -1445,7 +1445,7 @@ gpusolverStatus_t hegvj(gpusolverDnHandle_t handle, gpusolverEigType_t itype,
                         gpusolverEigMode_t jobz, gpublasFillMode_t uplo, int n, T *A, int lda, T *B,
                         int ldb, ComplexToRealType<T> *W, T *work, int lwork, int *info,
                         gpusolverSyevjInfo_t params) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvj, handle, itype, jobz, uplo, n, A, lda, B, ldb,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, hegvj, handle, itype, jobz, uplo, n, A, lda, B, ldb,
                           W, work, lwork, info, params);
 }
 
@@ -1488,10 +1488,10 @@ gesvdaStridedBatched_bufferSize(gpusolverDnHandle_t handle, gpusolverEigMode_t j
                                 const ComplexToRealType<T> *d_S, long long int strideS,
                                 const T *d_U, int ldu, long long int strideU, const T *d_V, int ldv,
                                 long long int strideV, int *lwork, int batchSize) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdaStridedBatched_bufferSize, handle, jobz, rank, m,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdaStridedBatched_bufferSize, handle, jobz, rank, m,
                        n, d_A, lda, strideA, d_S, strideS, d_U, ldu, strideU, d_V, ldv, strideV,
                        lwork, batchSize);
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdaStridedBatched_bufferSize, handle, jobz, rank,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdaStridedBatched_bufferSize, handle, jobz, rank,
                           m, n, d_A, lda, strideA, d_S, strideS, d_U, ldu, strideU, d_V, ldv,
                           strideV, lwork, batchSize);
 }
@@ -1535,10 +1535,10 @@ gesvdaStridedBatched(gpusolverDnHandle_t handle, gpusolverEigMode_t jobz, int ra
                      long long int strideS, T *d_U, int ldu, long long int strideU, T *d_V, int ldv,
                      long long int strideV, T *d_work, int lwork, int *d_info, double *h_R_nrmF,
                      int batchSize) {
-  GPUMOD_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdaStridedBatched, handle, jobz, rank, m, n, d_A,
+  WWR_REAL_DISPATCH(T, gpusolverDn, S, D, gesvdaStridedBatched, handle, jobz, rank, m, n, d_A,
                        lda, strideA, d_S, strideS, d_U, ldu, strideU, d_V, ldv, strideV, d_work,
                        lwork, d_info, h_R_nrmF, batchSize);
-  GPUMOD_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdaStridedBatched, handle, jobz, rank, m, n, d_A,
+  WWR_COMPLEX_DISPATCH(T, gpusolverDn, C, Z, gesvdaStridedBatched, handle, jobz, rank, m, n, d_A,
                           lda, strideA, d_S, strideS, d_U, ldu, strideU, d_V, ldv, strideV, d_work,
                           lwork, d_info, h_R_nrmF, batchSize);
 }
@@ -1612,4 +1612,4 @@ extern template gpusolverStatus_t syevdx<double>(gpusolverDnHandle_t, gpusolverE
                                                  double *, int, double, double, int, int, int *,
                                                  double *, double *, int, int *);
 
-} // namespace gpumod
+} // namespace wwr

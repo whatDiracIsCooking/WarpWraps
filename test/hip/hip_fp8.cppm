@@ -1,28 +1,28 @@
-// hip_fp8.cppm - Compile-time tests for gpumod.hip.hip_fp8
+// hip_fp8.cppm - Compile-time tests for wwr.hip.hip_fp8
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_fp8;
+export module wwr.test.hip.hip_fp8;
 
 import std;
-import gpumod.hip.hip_fp8;
+import wwr.hip.hip_fp8;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_fp8
+// Compile-time tests for wwr.hip.hip_fp8
 //
 // Mirrors test/cuda/cuda_fp8.cppm's structure. Unlike CUDA (e4m3/e5m2/e8m0),
 // HIP defines four struct formats: OCP e4m3/e5m2 and AMD fnuz-encoded
 // e4m3/e5m2, each with x2/x4 vector variants -- no e8m0 counterpart exists
 // here. The __hip_cvt_* conversion wrappers are exported as inline functions
 // (not separately linkable symbols), so std::is_invocable_v verifies their
-// signatures at compile time instead of GPUMOD_LINK_CHECK.
+// signatures at compile time instead of WWR_LINK_CHECK.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Storage typedef sizes
@@ -114,7 +114,7 @@ static_assert(std::is_standard_layout_v<__hip_fp8x4_e5m2_fnuz>);
 
 // ────────────────────────────────────────────────────────────────────────
 // Inline wrapper function invocability checks
-// GPUMOD_LINK_CHECK is not applicable for inline functions (no external symbol).
+// WWR_LINK_CHECK is not applicable for inline functions (no external symbol).
 // ────────────────────────────────────────────────────────────────────────
 
 // Narrowing conversions (to fp8 storage)
@@ -168,4 +168,4 @@ static_assert(
                                         __hip_fp8x2_storage_t, __hip_fp8_interpretation_t>,
                    __half2_raw>);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

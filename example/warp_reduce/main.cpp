@@ -19,12 +19,12 @@
 
 import std;
 
-import gpumod.runtime_api;
-import gpumod.extension.runtime;
-import gpumod.extension.memory_buffer;
+import wwr.runtime_api;
+import wwr.extension.runtime;
+import wwr.extension.memory_buffer;
 
-using namespace gpumod;
-namespace ext = gpumod::extension;
+using namespace wwr;
+namespace ext = wwr::extension;
 
 namespace {
 

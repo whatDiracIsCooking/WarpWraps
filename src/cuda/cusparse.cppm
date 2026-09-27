@@ -1,21 +1,21 @@
 /**
  * @file cusparse.cppm
- * @brief Primary interface for gpumod.cuda.cusparse
+ * @brief Primary interface for wwr.cuda.cusparse
  *
  * This module wraps the native cuSPARSE API and exports types, constants,
  * and functions for cuSPARSE library management and operations.
  *
  * Usage:
- *   import gpumod.cuda.cusparse;
+ *   import wwr.cuda.cusparse;
  */
 
 module;
 
 #include <cusparse.h>
 
-export module gpumod.cuda.cusparse;
+export module wwr.cuda.cusparse;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Opaque Handle Types
@@ -566,4 +566,4 @@ using ::cusparseSpMMOp;
 using ::cusparseSpMMOp_createPlan;
 using ::cusparseSpMMOp_destroyPlan;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

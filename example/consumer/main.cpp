@@ -1,13 +1,13 @@
 // main.cpp -- what using an installed gpumod actually looks like.
 //
 // This consumes ONLY the parts of gpumod that the package installs: the
-// backend-neutral gpu* layer (gpumod.runtime_api, gpumod.blas) and the wrappers
-// (gpumod.wrappers.* -- the dispatch wrappers, plus the untyped tools-extension
-// wrapper gpumod.wrappers.tx). It deliberately does NOT touch
-// the extension layer (gpumod.extension.*, the RAII handle / buffer / error
+// backend-neutral gpu* layer (wwr.runtime_api, wwr.blas) and the wrappers
+// (wwr.wrappers.* -- the dispatch wrappers, plus the untyped tools-extension
+// wrapper wwr.wrappers.tx). It deliberately does NOT touch
+// the extension layer (wwr.extension.*, the RAII handle / buffer / error
 // abstractions) -- that layer is built in-tree but is not part of the installed
 // package, so a find_package consumer cannot see it. Restoring it to the
-// package is a separate decision (a GPUMOD_BUILD_EXTENSION opt-in); until then
+// package is a separate decision (a WWR_BUILD_EXTENSION opt-in); until then
 // an installed consumer manages its own device memory and handles, exactly as
 // this file does.
 //
@@ -18,7 +18,7 @@
 //     module package ships sources -- a BMI is not portable -- and this build
 //     compiles them). Each wrapper's units #include "wrappers/.../dispatch_*.h"
 //     from their global module fragment, so those headers had to travel next to
-//     the sources; gpumod.wrappers.sparse also needs the GPUMOD_GPU_BACKEND_*
+//     the sources; wwr.wrappers.sparse also needs the WWR_GPU_BACKEND_*
 //     define at install-compile time. Taking the address of one instantiation
 //     per wrapper (solver/fft/sparse below) forces each to resolve and link
 //     without running a kernel -- so this half needs no GPU.
@@ -37,18 +37,18 @@
 
 import std;
 
-import gpumod.runtime_api; // gpuMalloc, gpuMemcpy, gpuGetDevice, gpuSuccess
-import gpumod.blas;        // gpublasHandle_t, gpublasCreate, GPUBLAS_OP_N
-import gpumod.wrappers.blas;
-import gpumod.wrappers.solver;
-import gpumod.wrappers.fft;
-import gpumod.wrappers.sparse;
-import gpumod.wrappers.tx; // gpumod::tx::mark, ScopedRange, range_start/stop
+import wwr.runtime_api; // gpuMalloc, gpuMemcpy, gpuGetDevice, gpuSuccess
+import wwr.blas;        // gpublasHandle_t, gpublasCreate, GPUBLAS_OP_N
+import wwr.wrappers.blas;
+import wwr.wrappers.solver;
+import wwr.wrappers.fft;
+import wwr.wrappers.sparse;
+import wwr.wrappers.tx; // wwr::tx::mark, ScopedRange, range_start/stop
 
 // The gpu* names (gpuSuccess, gpuMalloc, GPUBLAS_OP_N, ...) and the wrappers
-// (gemm, potri, ...) are all exported in namespace gpumod. A consumer is not
+// (gemm, potri, ...) are all exported in namespace wwr. A consumer is not
 // inside it, so unlike this project's own tests it has to say so.
-using namespace gpumod;
+using namespace wwr;
 
 namespace {
 
@@ -142,9 +142,9 @@ bool multiply_square(const int n) {
 // compiler from folding the reads away.
 bool wrappers_link() {
   static const void *volatile sink[] = {
-      reinterpret_cast<const void *>(&potri<float>),    // gpumod.wrappers.solver
-      reinterpret_cast<const void *>(&exec_c2c<float>), // gpumod.wrappers.fft
-      reinterpret_cast<const void *>(&bsrmv<float>),    // gpumod.wrappers.sparse
+      reinterpret_cast<const void *>(&potri<float>),    // wwr.wrappers.solver
+      reinterpret_cast<const void *>(&exec_c2c<float>), // wwr.wrappers.fft
+      reinterpret_cast<const void *>(&bsrmv<float>),    // wwr.wrappers.sparse
   };
   for (const void *volatile p : sink) {
     if (p == nullptr)
@@ -157,10 +157,10 @@ bool wrappers_link() {
 } // namespace
 
 int main() {
-  // gpumod.wrappers.tx is host-side profiler annotation -- it needs no device,
+  // wwr.wrappers.tx is host-side profiler annotation -- it needs no device,
   // so exercising the whole surface here (marker, RAII push/pop via ScopedRange,
-  // async start/stop) proves the tx wrapper chain -- gpumod.wrappers.tx ->
-  // gpumod.tx -> the backend's NVTX/rocTX module -- installs, compiles, links
+  // async start/stop) proves the tx wrapper chain -- wwr.wrappers.tx ->
+  // wwr.tx -> the backend's NVTX/rocTX module -- installs, compiles, links
   // AND runs, regardless of whether a GPU is present. The ScopedRange guards the
   // rest of main, so it pops on every return path below.
   tx::mark("consumer start");

@@ -10,7 +10,7 @@
  * Usage:
  *   #include "warp_reduce_bridge.h"
  *
- *   gpumod::example::warp_reduce_sum(stream.get(), n, input, output);
+ *   wwr::example::warp_reduce_sum(stream.get(), n, input, output);
  */
 
 #pragma once
@@ -19,7 +19,7 @@
 
 #include <cstddef>
 
-namespace gpumod::example {
+namespace wwr::example {
 
 /// @brief Sum `[input, input + count)` into `output[0]`
 ///
@@ -32,4 +32,4 @@ namespace gpumod::example {
 /// @param output Device pointer to one writable element
 void warp_reduce_sum(gpuStream_t stream, std::size_t count, const float *input, float *output);
 
-} // namespace gpumod::example
+} // namespace wwr::example

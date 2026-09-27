@@ -8,14 +8,14 @@
  * partition, template here.
  */
 
-module gpumod.wrappers.solver;
+module wwr.wrappers.solver;
 
-import gpumod.solver;
-import gpumod.blas;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.solver;
+import wwr.blas;
+import wwr.complex;
+import wwr.wrappers.common;
 
-namespace gpumod {
+namespace wwr {
 
 // Function: potrf_bufferSize
 template gpusolverStatus_t potrf_bufferSize<float>(gpusolverDnHandle_t, gpublasFillMode_t, int,
@@ -915,4 +915,4 @@ template gpusolverStatus_t unmtr<gpuDoubleComplex>(gpusolverDnHandle_t, gpublasS
                                                    gpuDoubleComplex *, int, gpuDoubleComplex *, int,
                                                    int *);
 
-} // namespace gpumod
+} // namespace wwr

@@ -17,9 +17,9 @@
  *
  * The two pointer types come from the gpu* layer's include-only bridge headers
  * rather than an `import`, since a GMF cannot import. They are the SAME types
- * gpumod.runtime_api / gpumod.rand export, so the wrapper passes its arguments
+ * wwr.runtime_api / wwr.rand export, so the wrapper passes its arguments
  * straight through and the device side needs no cast. Reading the backend
- * define they depend on is why this module links gpumod_backend PRIVATE -- see
+ * define they depend on is why this module links wwr_backend PRIVATE -- see
  * this directory's CMakeLists.txt.
  */
 
@@ -30,11 +30,11 @@
 
 #include <cstddef>
 
-namespace gpumod::extension::device {
+namespace wwr::extension::device {
 
 /// @brief Initialize `count` generator states, one per element
 void init_state(gpuStream_t stream, std::size_t count, gpurandState *states,
                 unsigned long long seed, unsigned long long sequence_offset,
                 unsigned long long offset);
 
-} // namespace gpumod::extension::device
+} // namespace wwr::extension::device

@@ -1,16 +1,16 @@
-// nvFatbin.cppm - Compile-time tests for gpumod.cuda.nvFatbin
+// nvFatbin.cppm - Compile-time tests for wwr.cuda.nvFatbin
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.nvFatbin;
+export module wwr.test.cuda.nvFatbin;
 
 import std;
-import gpumod.cuda.nvFatbin;
+import wwr.cuda.nvFatbin;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.nvFatbin
+// Compile-time tests for wwr.cuda.nvFatbin
 //
 // The module is a pure re-export (using declarations).
 // We verify at compile-time that:
@@ -19,9 +19,9 @@ import gpumod.cuda.nvFatbin;
 //   3. The nvFatbinHandle handle is a pointer type
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type check
@@ -67,24 +67,24 @@ static_assert(std::is_pointer_v<nvFatbinHandle>);
 // ────────────────────────────────────────────────────────────────────────
 
 // Error handling
-GPUMOD_LINK_CHECK(nvFatbinGetErrorString)
+WWR_LINK_CHECK(nvFatbinGetErrorString)
 
 // Handle lifecycle
-GPUMOD_LINK_CHECK(nvFatbinCreate)
-GPUMOD_LINK_CHECK(nvFatbinDestroy)
+WWR_LINK_CHECK(nvFatbinCreate)
+WWR_LINK_CHECK(nvFatbinDestroy)
 
 // Content addition
-GPUMOD_LINK_CHECK(nvFatbinAddPTX)
-GPUMOD_LINK_CHECK(nvFatbinAddCubin)
-GPUMOD_LINK_CHECK(nvFatbinAddLTOIR)
-GPUMOD_LINK_CHECK(nvFatbinAddIndex)
-GPUMOD_LINK_CHECK(nvFatbinAddReloc)
+WWR_LINK_CHECK(nvFatbinAddPTX)
+WWR_LINK_CHECK(nvFatbinAddCubin)
+WWR_LINK_CHECK(nvFatbinAddLTOIR)
+WWR_LINK_CHECK(nvFatbinAddIndex)
+WWR_LINK_CHECK(nvFatbinAddReloc)
 
 // Fatbinary retrieval
-GPUMOD_LINK_CHECK(nvFatbinSize)
-GPUMOD_LINK_CHECK(nvFatbinGet)
+WWR_LINK_CHECK(nvFatbinSize)
+WWR_LINK_CHECK(nvFatbinGet)
 
 // Version query
-GPUMOD_LINK_CHECK(nvFatbinVersion)
+WWR_LINK_CHECK(nvFatbinVersion)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

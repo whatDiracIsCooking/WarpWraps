@@ -1,16 +1,16 @@
-// hip_fp16.cppm - Compile-time tests for gpumod.hip.hip_fp16
+// hip_fp16.cppm - Compile-time tests for wwr.hip.hip_fp16
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_fp16;
+export module wwr.test.hip.hip_fp16;
 
 import std;
-import gpumod.hip.hip_fp16;
+import wwr.hip.hip_fp16;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_fp16
+// Compile-time tests for wwr.hip.hip_fp16
 //
 // The module re-exports __half/__half2 by `using` declaration only. As
 // src/hip/hip_fp16.cppm's doc comment explains, this project's plain C++23
@@ -18,14 +18,14 @@ import gpumod.hip.hip_fp16;
 // always predefines `__GNUC__`, and `__HIP__` is never defined without
 // `-x hip`), which pulls in hip_fp16_gcc.h -- a portable `__half`/`__half2`
 // with NO arithmetic/comparison operators of their own (only an implicit
-// `operator float()`). There is nothing to GPUMOD_LINK_CHECK or ADL-test for
+// `operator float()`). There is nothing to WWR_LINK_CHECK or ADL-test for
 // operators that do not exist on this code path; this file covers the
 // layout and alias guarantees that static_assert can reach.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ──────────────────────────────────────────────────────────────────────
 // Struct traits: C-interop guarantees
@@ -51,4 +51,4 @@ static_assert(sizeof(__half2) == 4);
 static_assert(std::is_same_v<half, __half>);
 static_assert(std::is_same_v<half2, __half2>);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

@@ -7,7 +7,7 @@
  * streams, events, and error handling.
  *
  * Usage:
- *   import gpumod.cuda.cuda_runtime_api;
+ *   import wwr.cuda.cuda_runtime_api;
  *
  * Note: This uses cuda_runtime_api.h (not cuda_runtime.h) because:
  *   - cuda_runtime_api.h contains only extern function declarations
@@ -49,13 +49,13 @@ static_assert(cudaMemAttachHost == 0x02, "cudaMemAttachHost value mismatch");
 #undef cudaMemAttachGlobal
 #undef cudaMemAttachHost
 
-export module gpumod.cuda.cuda_runtime_api;
+export module wwr.cuda.cuda_runtime_api;
 
 // ========================================================================
-// Export all CUDA types, functions, and constants in gpumod namespace
+// Export all CUDA types, functions, and constants in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Constexpr wrappers for CUDA flag macros
@@ -990,4 +990,4 @@ using ::cudaGetDriverEntryPoint;
 using ::cudaGetDriverEntryPointByVersion;
 using ::cudaGetExportTable;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

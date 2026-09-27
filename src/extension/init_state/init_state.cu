@@ -1,6 +1,6 @@
 // init_state.cu
 //
-// The device-kernel half of gpumod.extension.init_state. Shared unchanged
+// The device-kernel half of wwr.extension.init_state. Shared unchanged
 // between both backends: under CUDA the .cu extension is all CMake needs, under
 // HIP this directory's CMakeLists.txt forces LANGUAGE CXX back on and links
 // hip::device PRIVATE so clang compiles it with `-x hip`. The extension matches
@@ -17,7 +17,7 @@
 
 #include <cstddef>
 
-namespace gpumod::extension::device {
+namespace wwr::extension::device {
 
 namespace {
 
@@ -53,4 +53,4 @@ void init_state(const gpuStream_t stream, const std::size_t count, gpurandState 
   parallel_for(stream, count, functor);
 }
 
-} // namespace gpumod::extension::device
+} // namespace wwr::extension::device

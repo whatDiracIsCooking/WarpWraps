@@ -1,9 +1,9 @@
 # The error-handling and RAII-plan layer for GPU FFT. The execution wrappers
-# that once shared this module were split out to gpumod.wrappers.fft; what is
+# that once shared this module were split out to wwr.wrappers.fft; what is
 # left here is fft_error + fft_plan, aggregated by interface.cppm.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
-  gpumod.extension.fft
+  wwr.extension.fft
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
@@ -11,8 +11,8 @@ gpumod_add_cxx_module_library(
   fft_plan.cppm
   convenience_fft.cppm
   LINK_PUBLIC
-  gpumod.fft
-  gpumod.extension.common
-  gpumod.extension.handle
+  wwr.fft
+  wwr.extension.common
+  wwr.extension.handle
   IMPORT_STD
 )

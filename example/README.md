@@ -9,7 +9,7 @@ Two different things, and only one of them is part of this build.
 
 `consumer/` has its own `project()` call and is not added by
 `example/CMakeLists.txt`: the whole point is that it knows nothing about this
-source tree and reaches gpumod only through `find_package(gpumod)`.
+source tree and reaches gpumod only through `find_package(wwr)`.
 
 ## `warp_reduce/` — an exemplar, not a library
 
@@ -19,11 +19,11 @@ One block of four warps, each thread cascading over the whole array, then a
 `count` is reduced by one kernel with no second pass and no cooperative launch.
 The cost is occupancy: one block occupies one SM / CU.
 
-It ships as an example rather than a `gpumod.extension.*` module on purpose. A
+It ships as an example rather than a `wwr.extension.*` module on purpose. A
 reduction has no single right shape — single-block versus two-pass, the
 operator, the accumulator type, whether the answer is bit-reproducible — so a
 shipped one would be a set of choices the caller cannot revisit. As source to
-copy, the choices are theirs. `gpumod.extension.parallel_for` is what a
+copy, the choices are theirs. `wwr.extension.parallel_for` is what a
 reduction *would* be built on, and it stays a library because an
 index-per-thread map has no such choices in it.
 
@@ -38,7 +38,7 @@ Needs a real device. Building it does not — that is what
 
 ```bash
 devtools/cpp-tier.sh                    # or any preset that builds the tree
-./build/example/warp_reduce/gpumod.example.warp_reduce
+./build/example/warp_reduce/wwr.example.warp_reduce
 ```
 
 Exit status is 0 on success, 1 on a wrong answer, and 77 (ctest's "skipped")

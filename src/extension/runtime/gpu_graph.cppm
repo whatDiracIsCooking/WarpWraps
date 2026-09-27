@@ -6,15 +6,15 @@
  * instantiated into an executable graph (GpuGraphExec).
  */
 
-export module gpumod.extension.runtime:gpu_graph;
+export module wwr.extension.runtime:gpu_graph;
 
 import :gpu_graph_exec;
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief RAII wrapper for a GPU graph
@@ -87,4 +87,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

@@ -1,9 +1,9 @@
-// memory_buffer.cppm - Compile-time tests for gpumod.extension.memory_buffer
+// memory_buffer.cppm - Compile-time tests for wwr.extension.memory_buffer
 
-export module gpumod.test.extension.memory_buffer;
+export module wwr.test.extension.memory_buffer;
 
 import std;
-import gpumod.extension.memory_buffer;
+import wwr.extension.memory_buffer;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Compile-time contract of the buffer types
@@ -14,7 +14,7 @@ import gpumod.extension.memory_buffer;
 // runtime tests.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 static_assert(!std::is_copy_constructible_v<HostBuffer<float>>);
 static_assert(!std::is_copy_assignable_v<HostBuffer<float>>);
@@ -52,4 +52,4 @@ static_assert(std::same_as<decltype(reinterpret_buffer_view<std::byte>(
                                std::declval<HostBuffer<float> &>())),
                            HostBufferView<std::byte>>);
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

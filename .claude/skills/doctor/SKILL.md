@@ -56,7 +56,7 @@ which side you ran on, and what the other side would cover.
 means a container without the `.git` bind mount: a worktree's `.git` is a file
 pointing outside the workspace folder, so `.devcontainer/<variant>/devcontainer.json`
 mounts the main checkout's `.git` common dir inside. `devtools/devcontainer.sh`
-injects that host path as `GPUMOD_GIT_DIR` on `up`/`rebuild`, so the usual cause
+injects that host path as `WWR_GIT_DIR` on `up`/`rebuild`, so the usual cause
 is a container brought up another way (a direct `devcontainer up`, or VS Code
 "Reopen in Container" with the fallback path unedited). Bring it up with
 `devtools/devcontainer.sh rebuild`; `up` will not apply the mount change.
@@ -71,7 +71,7 @@ one out agree with `PROJECT_NAME` in `devtools/config.sh`.
 
 **`[warn] cannot resolve this repo's git dir for the container .git mount`** —
 `doctor` ran somewhere `git rev-parse --path-format=absolute --git-common-dir`
-returns nothing, so the path `devcontainer.sh` would inject as `GPUMOD_GIT_DIR`
+returns nothing, so the path `devcontainer.sh` would inject as `WWR_GIT_DIR`
 is empty and the container's `.git` mount would fail. Run doctor from inside the
 gpumod checkout.
 

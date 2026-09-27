@@ -5,13 +5,13 @@
  * Provides specializations of error handling templates for gpusolverStatus_t.
  */
 
-export module gpumod.extension.solver:solver_error;
+export module wwr.extension.solver:solver_error;
 
-import gpumod.solver;
-import gpumod.extension.common;
+import wwr.solver;
+import wwr.extension.common;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Success Code Specialization
@@ -79,4 +79,4 @@ template bool gpu_check<gpusolverStatus_t, DefaultErrorPolicy<gpusolverStatus_t>
     const gpusolverStatus_t error, DefaultErrorPolicy<gpusolverStatus_t> &policy,
     std::source_location location);
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

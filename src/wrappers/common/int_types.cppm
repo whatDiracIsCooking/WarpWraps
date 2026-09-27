@@ -6,15 +6,15 @@
  * to integer types commonly used in GPU BLAS/solver libraries.
  *
  * Usage:
- *   import gpumod.wrappers.common;
- *   using namespace gpumod;
+ *   import wwr.wrappers.common;
+ *   using namespace wwr;
  */
 
-export module gpumod.wrappers.common:int_types;
+export module wwr.wrappers.common:int_types;
 
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // Integer Types
@@ -44,4 +44,4 @@ using std::size_t;
 template<typename T>
 concept int_type = std::is_same_v<T, int> || std::is_same_v<T, int64_t>;
 
-} // namespace gpumod
+} // namespace wwr

@@ -1,4 +1,4 @@
-// plan_tests.cpp - RAII contract of gpumod.extension.fft's FftPlan
+// plan_tests.cpp - RAII contract of wwr.extension.fft's FftPlan
 //
 // FftPlan derives from DeviceBoundHandle like the other library handles, but it is
 // the one handle whose liveness cannot ride the base's null sentinel:
@@ -22,16 +22,16 @@
 // staying 0 across a move-then-destroy is the proof the move cleared ownership.
 //
 // Runtime, device-requiring: gpufftCreate needs a live GPU context.
-// Backend-neutral -- built and run for either GPUMOD_GPU_BACKEND.
+// Backend-neutral -- built and run for either WWR_GPU_BACKEND.
 
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.handle; // BaseHandle, DeviceBoundHandle
-import gpumod.extension.fft; // re-exports gpumod.fft: gpufftHandle, gpufftResult_t, GPUFFT_SUCCESS
+import wwr.extension.common; // the error_policy concept, for the counting policy
+import wwr.extension.handle; // BaseHandle, DeviceBoundHandle
+import wwr.extension.fft; // re-exports wwr.fft: gpufftHandle, gpufftResult_t, GPUFFT_SUCCESS
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // An error policy that tallies failures into an external counter instead of
 // aborting, so a botched destroy is observable after the objects are gone
@@ -157,4 +157,4 @@ TEST(FftPlanTests, MovePreservesDevice) {
   EXPECT_EQ(plan1.dev_idx(), -1);
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

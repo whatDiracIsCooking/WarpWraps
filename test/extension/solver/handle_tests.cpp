@@ -1,4 +1,4 @@
-// handle_tests.cpp - RAII contract of gpumod.extension.solver's two wrappers
+// handle_tests.cpp - RAII contract of wwr.extension.solver's two wrappers
 //
 // GpusolverDnHandle is a DeviceBoundHandle specialisation (over
 // gpusolverDnHandle_t): it records the device it was created on, since a
@@ -9,16 +9,16 @@
 // type the solver module owns, so it gets the same RAII contract as the handle.
 //
 // Runtime, device-requiring: gpusolverDnCreate needs a live GPU context.
-// Backend-neutral -- built and run for either GPUMOD_GPU_BACKEND.
+// Backend-neutral -- built and run for either WWR_GPU_BACKEND.
 
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.handle; // BaseHandle, DeviceBoundHandle(View)
-import gpumod.extension.solver; // re-exports gpumod.solver, so the raw handle/params types are in scope
+import wwr.extension.common; // the error_policy concept, for the counting policy
+import wwr.extension.handle; // BaseHandle, DeviceBoundHandle(View)
+import wwr.extension.solver; // re-exports wwr.solver, so the raw handle/params types are in scope
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // A counting policy for the destroy-exactly-once check below; see
 // test/extension/blas/handle_tests.cpp for why the counter is a static (the
@@ -171,4 +171,4 @@ TEST(GpusolverDnParamsTests, SelfMoveAssignmentKeepsParams) {
   EXPECT_EQ(params.get(), raw);
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

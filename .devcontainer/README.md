@@ -49,9 +49,9 @@ The three GPU variants differ in `"build".target` and in `runArgs`, and the
   permission error.
 
 **You should not have to edit those gids.** They are written as
-`${localEnv:GPUMOD_RENDER_GID:109}`: `devtools/devcontainer.sh up|rebuild`
+`${localEnv:WWR_RENDER_GID:109}`: `devtools/devcontainer.sh up|rebuild`
 resolves `ROCM_GROUPS` (`devtools/config.sh`) with `getent` and exports one
-`GPUMOD_<NAME>_GID` per group, so any host gets its own host's ids — the same
+`WWR_<NAME>_GID` per group, so any host gets its own host's ids — the same
 resolution `cpp-tier.sh --rocm` does. The literal after the colon is only the
 fallback for opening a config **without** that script (a VS Code "Reopen in
 Container", a bare `devcontainer up`); it is a last-known-good host gid rather
@@ -158,7 +158,7 @@ what to check by hand.
    the one that drifted; while they disagree, every worktree you tear down leaks
    its whole set of volumes.
 The **`.git` bind mount** used to be a fourth. It is now injected: the mount
-source reads `${localEnv:GPUMOD_GIT_DIR}`, and `devtools/devcontainer.sh`
+source reads `${localEnv:WWR_GIT_DIR}`, and `devtools/devcontainer.sh`
 resolves your main checkout's `.git` common dir with `git rev-parse` and exports
 it on `up`/`rebuild`, so no host path is written into the tracked JSON. A
 worktree's `.git` is a *file* pointing into `.git/worktrees/<name>`, outside the

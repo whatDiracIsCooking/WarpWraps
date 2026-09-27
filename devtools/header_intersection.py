@@ -3,7 +3,7 @@
 
 A ``src/<m>.cppm`` gpu* module is only as complete as the intersection of the two
 vendor APIs it bridges: every symbol that BOTH cuRAND and hipRAND expose is a
-symbol ``gpumod.rand`` could carry a ``gpu*`` name for, and any it skips is a
+symbol ``wwr.rand`` could carry a ``gpu*`` name for, and any it skips is a
 coverage hole. This script computes that intersection straight from the vendor
 ``.h`` files, so "did we cover everything the two backends agree on?" becomes a
 diff instead of a manual read of two headers.
@@ -45,7 +45,7 @@ compiler are for.
 module's CONTRACT, which comes in two kinds.
 
 A WHOLE-SURFACE module (rand, fft, tx) promises to wrap everything the two
-backends share and spells both names out (``GPUMOD_FUNCTION(gpu, cu, hip)``).
+backends share and spells both names out (``WWR_FUNCTION(gpu, cu, hip)``).
 For these ``--coverage`` is the real completeness gate: a nonempty "missing" is a
 genuine hole (or a documented omission the module names in its header).
 

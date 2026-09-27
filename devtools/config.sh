@@ -130,7 +130,7 @@ CTEST_PRESET=${CTEST_PRESET:-default}
 
 # Which preset devtools/coverage.sh configures, builds and runs ctest under to
 # collect clang source-based coverage. Its own build directory (build-coverage/)
-# and GPUMOD_COVERAGE=ON live in CMakePresets.json; only the CHOICE lives here.
+# and WWR_COVERAGE=ON live in CMakePresets.json; only the CHOICE lives here.
 # The report and merged .profdata are written under that build dir, so they are
 # covered by the /build*/ line in .gitignore and need no cleanup of their own.
 COVERAGE_PRESET=${COVERAGE_PRESET:-coverage}
@@ -191,18 +191,18 @@ CROSS_CHECK_BUILD_DIR=${CROSS_CHECK_BUILD_DIR:-build-cross-check}
 
 # The device-kernel libraries, one per line -- what --device-only builds when
 # you want the 3s check instead of the 11s one. These are the targets holding
-# .cu sources, i.e. every gpumod_add_gpu_device_library() call site. A module
+# .cu sources, i.e. every wwr_add_gpu_device_library() call site. A module
 # added with a .cu and left out of this list is still covered by the default
 # (whole-tier) run; it only loses the narrow mode. An entry naming a target that
 # does NOT exist, on the other hand, fails the whole --device-only run with
 # ninja's `unknown target`. Keep this list matched to test/gpu/CMakeLists.txt;
 # nothing checks it automatically.
-CROSS_CHECK_DEVICE_TARGETS=${CROSS_CHECK_DEVICE_TARGETS:-"gpumod.test.gpu.cooperative_groups.device
-gpumod.test.gpu.wmma.device
-gpumod.test.gpu.complex.device
-gpumod.test.gpu.fp16.device
-gpumod.test.gpu.bf16.device
-gpumod.test.gpu.atomics.device"}
+CROSS_CHECK_DEVICE_TARGETS=${CROSS_CHECK_DEVICE_TARGETS:-"wwr.test.gpu.cooperative_groups.device
+wwr.test.gpu.wmma.device
+wwr.test.gpu.complex.device
+wwr.test.gpu.fp16.device
+wwr.test.gpu.bf16.device
+wwr.test.gpu.atomics.device"}
 
 # --- the ROCm runtime tier -------------------------------------------------
 #
@@ -237,7 +237,7 @@ ROCM_DEVICES=${ROCM_DEVICES:-"/dev/kfd
 #
 # cpp-tier.sh --rocm builds its own --group-add args from this list, and fails
 # loudly when a name does not resolve. devcontainer.sh instead exports one
-# GPUMOD_<NAME>_GID per entry (render -> GPUMOD_RENDER_GID) for the
+# WWR_<NAME>_GID per entry (render -> WWR_RENDER_GID) for the
 # ${localEnv:...} references in the hip/combined runArgs, and only warns: the
 # json carries a fallback gid so that opening it WITHOUT this script still
 # passes something. Adding a name here reaches the first automatically; the

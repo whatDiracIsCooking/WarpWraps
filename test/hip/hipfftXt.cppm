@@ -1,21 +1,21 @@
-// hipfftXt.cppm - Compile-time tests for gpumod.hip.hipfftXt
+// hipfftXt.cppm - Compile-time tests for wwr.hip.hipfftXt
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hipfftXt;
+export module wwr.test.hip.hipfftXt;
 
 import std;
-import gpumod.hip.hipfftXt;
+import wwr.hip.hipfftXt;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hipfftXt
+// Compile-time tests for wwr.hip.hipfftXt
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -75,50 +75,50 @@ static_assert(std::is_standard_layout_v<hipXtDesc_t>);
 static_assert(std::is_standard_layout_v<hipLibXtDesc_t>);
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: callback registration
+// WWR_LINK_CHECK: callback registration
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftXtSetCallback)
-GPUMOD_LINK_CHECK(hipfftXtClearCallback)
-GPUMOD_LINK_CHECK(hipfftXtSetCallbackSharedSize)
+WWR_LINK_CHECK(hipfftXtSetCallback)
+WWR_LINK_CHECK(hipfftXtClearCallback)
+WWR_LINK_CHECK(hipfftXtSetCallbackSharedSize)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: extended plan creation and size query
+// WWR_LINK_CHECK: extended plan creation and size query
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftXtMakePlanMany)
-GPUMOD_LINK_CHECK(hipfftXtGetSizeMany)
+WWR_LINK_CHECK(hipfftXtMakePlanMany)
+WWR_LINK_CHECK(hipfftXtGetSizeMany)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: generic execution
+// WWR_LINK_CHECK: generic execution
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftXtExec)
+WWR_LINK_CHECK(hipfftXtExec)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: multi-GPU setup
+// WWR_LINK_CHECK: multi-GPU setup
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftXtSetGPUs)
+WWR_LINK_CHECK(hipfftXtSetGPUs)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: multi-GPU memory management
+// WWR_LINK_CHECK: multi-GPU memory management
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftXtMalloc)
-GPUMOD_LINK_CHECK(hipfftXtMemcpy)
-GPUMOD_LINK_CHECK(hipfftXtFree)
+WWR_LINK_CHECK(hipfftXtMalloc)
+WWR_LINK_CHECK(hipfftXtMemcpy)
+WWR_LINK_CHECK(hipfftXtFree)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: multi-GPU execution (descriptor-based, typed)
+// WWR_LINK_CHECK: multi-GPU execution (descriptor-based, typed)
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftXtExecDescriptorC2C)
-GPUMOD_LINK_CHECK(hipfftXtExecDescriptorR2C)
-GPUMOD_LINK_CHECK(hipfftXtExecDescriptorC2R)
-GPUMOD_LINK_CHECK(hipfftXtExecDescriptorZ2Z)
-GPUMOD_LINK_CHECK(hipfftXtExecDescriptorD2Z)
-GPUMOD_LINK_CHECK(hipfftXtExecDescriptorZ2D)
-GPUMOD_LINK_CHECK(hipfftXtExecDescriptor)
+WWR_LINK_CHECK(hipfftXtExecDescriptorC2C)
+WWR_LINK_CHECK(hipfftXtExecDescriptorR2C)
+WWR_LINK_CHECK(hipfftXtExecDescriptorC2R)
+WWR_LINK_CHECK(hipfftXtExecDescriptorZ2Z)
+WWR_LINK_CHECK(hipfftXtExecDescriptorD2Z)
+WWR_LINK_CHECK(hipfftXtExecDescriptorZ2D)
+WWR_LINK_CHECK(hipfftXtExecDescriptor)
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

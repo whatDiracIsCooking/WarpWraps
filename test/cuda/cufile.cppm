@@ -1,16 +1,16 @@
-// cufile.cppm - Compile-time tests for gpumod.cuda.cufile
+// cufile.cppm - Compile-time tests for wwr.cuda.cufile
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cufile;
+export module wwr.test.cuda.cufile;
 
 import std;
-import gpumod.cuda.cufile;
+import wwr.cuda.cufile;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cufile
+// Compile-time tests for wwr.cuda.cufile
 //
 // The module is a pure re-export (using declarations + constexpr flag values).
 // We verify at compile-time that:
@@ -20,9 +20,9 @@ import gpumod.cuda.cufile;
 //   4. Struct/handle type traits (trivially copyable, standard layout, pointer)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Constexpr call-site flag values
@@ -224,68 +224,68 @@ static_assert(std::is_trivially_copyable_v<CUfileStatsLevel3_t>);
 // ────────────────────────────────────────────────────────────────────────
 
 // File Handle Registration / Deregistration
-GPUMOD_LINK_CHECK(cuFileHandleRegister)
-GPUMOD_LINK_CHECK(cuFileHandleDeregister)
+WWR_LINK_CHECK(cuFileHandleRegister)
+WWR_LINK_CHECK(cuFileHandleDeregister)
 
 // Buffer Registration / Deregistration
-GPUMOD_LINK_CHECK(cuFileBufRegister)
-GPUMOD_LINK_CHECK(cuFileBufDeregister)
+WWR_LINK_CHECK(cuFileBufRegister)
+WWR_LINK_CHECK(cuFileBufDeregister)
 
 // Synchronous I/O
-GPUMOD_LINK_CHECK(cuFileRead)
-GPUMOD_LINK_CHECK(cuFileWrite)
+WWR_LINK_CHECK(cuFileRead)
+WWR_LINK_CHECK(cuFileWrite)
 
 // Driver Lifecycle
-GPUMOD_LINK_CHECK(cuFileDriverOpen)
+WWR_LINK_CHECK(cuFileDriverOpen)
 // cuFileDriverClose is exported as cuFileDriverClose_v2 (the header macro renames it)
-GPUMOD_LINK_CHECK(cuFileDriverClose_v2)
-GPUMOD_LINK_CHECK(cuFileUseCount)
+WWR_LINK_CHECK(cuFileDriverClose_v2)
+WWR_LINK_CHECK(cuFileUseCount)
 
 // Driver Property Functions
-GPUMOD_LINK_CHECK(cuFileDriverGetProperties)
-GPUMOD_LINK_CHECK(cuFileDriverSetPollMode)
-GPUMOD_LINK_CHECK(cuFileDriverSetMaxDirectIOSize)
-GPUMOD_LINK_CHECK(cuFileDriverSetMaxCacheSize)
-GPUMOD_LINK_CHECK(cuFileDriverSetMaxPinnedMemSize)
+WWR_LINK_CHECK(cuFileDriverGetProperties)
+WWR_LINK_CHECK(cuFileDriverSetPollMode)
+WWR_LINK_CHECK(cuFileDriverSetMaxDirectIOSize)
+WWR_LINK_CHECK(cuFileDriverSetMaxCacheSize)
+WWR_LINK_CHECK(cuFileDriverSetMaxPinnedMemSize)
 
 // Batch I/O Functions
-GPUMOD_LINK_CHECK(cuFileBatchIOSetUp)
-GPUMOD_LINK_CHECK(cuFileBatchIOSubmit)
-GPUMOD_LINK_CHECK(cuFileBatchIOGetStatus)
-GPUMOD_LINK_CHECK(cuFileBatchIOCancel)
-GPUMOD_LINK_CHECK(cuFileBatchIODestroy)
+WWR_LINK_CHECK(cuFileBatchIOSetUp)
+WWR_LINK_CHECK(cuFileBatchIOSubmit)
+WWR_LINK_CHECK(cuFileBatchIOGetStatus)
+WWR_LINK_CHECK(cuFileBatchIOCancel)
+WWR_LINK_CHECK(cuFileBatchIODestroy)
 
 // Async (Stream-based) I/O Functions
-GPUMOD_LINK_CHECK(cuFileReadAsync)
-GPUMOD_LINK_CHECK(cuFileWriteAsync)
-GPUMOD_LINK_CHECK(cuFileStreamRegister)
-GPUMOD_LINK_CHECK(cuFileStreamDeregister)
+WWR_LINK_CHECK(cuFileReadAsync)
+WWR_LINK_CHECK(cuFileWriteAsync)
+WWR_LINK_CHECK(cuFileStreamRegister)
+WWR_LINK_CHECK(cuFileStreamDeregister)
 
 // Version Query
-GPUMOD_LINK_CHECK(cuFileGetVersion)
+WWR_LINK_CHECK(cuFileGetVersion)
 
 // Configuration Get / Set Functions
-GPUMOD_LINK_CHECK(cuFileGetParameterSizeT)
-GPUMOD_LINK_CHECK(cuFileGetParameterBool)
-GPUMOD_LINK_CHECK(cuFileGetParameterString)
-GPUMOD_LINK_CHECK(cuFileGetParameterMinMaxValue)
-GPUMOD_LINK_CHECK(cuFileSetParameterSizeT)
-GPUMOD_LINK_CHECK(cuFileSetParameterBool)
-GPUMOD_LINK_CHECK(cuFileSetParameterString)
-GPUMOD_LINK_CHECK(cuFileSetParameterPosixPoolSlabArray)
-GPUMOD_LINK_CHECK(cuFileGetParameterPosixPoolSlabArray)
+WWR_LINK_CHECK(cuFileGetParameterSizeT)
+WWR_LINK_CHECK(cuFileGetParameterBool)
+WWR_LINK_CHECK(cuFileGetParameterString)
+WWR_LINK_CHECK(cuFileGetParameterMinMaxValue)
+WWR_LINK_CHECK(cuFileSetParameterSizeT)
+WWR_LINK_CHECK(cuFileSetParameterBool)
+WWR_LINK_CHECK(cuFileSetParameterString)
+WWR_LINK_CHECK(cuFileSetParameterPosixPoolSlabArray)
+WWR_LINK_CHECK(cuFileGetParameterPosixPoolSlabArray)
 
 // Statistics Functions
-GPUMOD_LINK_CHECK(cuFileSetStatsLevel)
-GPUMOD_LINK_CHECK(cuFileGetStatsLevel)
-GPUMOD_LINK_CHECK(cuFileStatsStart)
-GPUMOD_LINK_CHECK(cuFileStatsStop)
-GPUMOD_LINK_CHECK(cuFileStatsReset)
-GPUMOD_LINK_CHECK(cuFileGetStatsL1)
-GPUMOD_LINK_CHECK(cuFileGetStatsL2)
-GPUMOD_LINK_CHECK(cuFileGetStatsL3)
+WWR_LINK_CHECK(cuFileSetStatsLevel)
+WWR_LINK_CHECK(cuFileGetStatsLevel)
+WWR_LINK_CHECK(cuFileStatsStart)
+WWR_LINK_CHECK(cuFileStatsStop)
+WWR_LINK_CHECK(cuFileStatsReset)
+WWR_LINK_CHECK(cuFileGetStatsL1)
+WWR_LINK_CHECK(cuFileGetStatsL2)
+WWR_LINK_CHECK(cuFileGetStatsL3)
 
 // Hardware Query Functions
-GPUMOD_LINK_CHECK(cuFileGetBARSizeInKB)
+WWR_LINK_CHECK(cuFileGetBARSizeInKB)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

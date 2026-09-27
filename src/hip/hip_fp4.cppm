@@ -4,9 +4,9 @@
  *
  * Wraps hip/hip_fp4.h for C++23 module-based code: 4-bit floating-point types,
  * enumerations, storage typedefs and host-accessible conversion functions.
- * CUDA counterpart: gpumod.cuda.cuda_fp4.
+ * CUDA counterpart: wwr.cuda.cuda_fp4.
  *
- * IMPORTANT: this module and gpumod.hip.hip_fp6 must never appear in the same
+ * IMPORTANT: this module and wwr.hip.hip_fp6 must never appear in the same
  * translation unit's global module fragment -- both vendor headers define the
  * same internal:: helpers as non-inline statics. See docs/architecture.md,
  * section 11. This .cppm includes only hip_fp4.h; keep it that way.
@@ -20,7 +20,7 @@
  * 12. The struct types' converting constructors work via ADL once exported.
  *
  * Usage:
- *   import gpumod.hip.hip_fp4;
+ *   import wwr.hip.hip_fp4;
  */
 
 module;
@@ -30,9 +30,9 @@ module;
 #include <array>
 #include <hip/hip_fp4.h>
 
-export module gpumod.hip.hip_fp4;
+export module wwr.hip.hip_fp4;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Storage Typedefs
@@ -85,7 +85,7 @@ using ::__hip_bfloat16_raw;
 // The following functions are defined as static inline in the global
 // namespace in amd_hip_fp4.h and cannot be re-exported via using
 // declarations. Thin inline wrappers are provided here so that callers
-// importing this module can access them by name within gpumod::hip.
+// importing this module can access them by name within wwr::hip.
 
 // -- Narrowing conversions (to fp4 storage) -------------------------------
 
@@ -150,4 +150,4 @@ inline __half2_raw __hip_cvt_fp4x2_to_halfraw2(const __hip_fp4x2_storage_t x,
   return ::__hip_cvt_fp4x2_to_halfraw2(x, interp);
 }
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

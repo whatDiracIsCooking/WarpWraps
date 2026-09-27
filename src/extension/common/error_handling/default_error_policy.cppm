@@ -3,16 +3,16 @@
  * @brief Default error policy implementation
  *
  * Usage:
- *   import gpumod.extension.common;
- *   using namespace gpumod::extension;
+ *   import wwr.extension.common;
+ *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.common.error_handling:default_error_policy;
+export module wwr.extension.common.error_handling:default_error_policy;
 
 import std;
 import :error_code;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Default Error Policy
@@ -48,4 +48,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

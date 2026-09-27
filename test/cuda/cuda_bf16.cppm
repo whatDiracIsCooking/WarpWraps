@@ -1,16 +1,16 @@
-// cuda_bf16.cppm - Compile-time tests for gpumod.cuda.cuda_bf16
+// cuda_bf16.cppm - Compile-time tests for wwr.cuda.cuda_bf16
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cuda_bf16;
+export module wwr.test.cuda.cuda_bf16;
 
 import std;
-import gpumod.cuda.cuda_bf16;
+import wwr.cuda.cuda_bf16;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Tests for gpumod.cuda.cuda_bf16
+// Tests for wwr.cuda.cuda_bf16
 //
 // Mirrors cuda_fp16.cppm: __nv_bfloat16/__nv_bfloat162 are re-exported by
 // `using` declaration only, and their arithmetic/comparison operators are
@@ -22,9 +22,9 @@ import gpumod.cuda.cuda_bf16;
 // guarantees that static_assert can reach.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Struct traits: C-interop guarantees
@@ -48,4 +48,4 @@ static_assert(sizeof(__nv_bfloat162) == 4);
 static_assert(std::is_same_v<nv_bfloat16, __nv_bfloat16>);
 static_assert(std::is_same_v<nv_bfloat162, __nv_bfloat162>);
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

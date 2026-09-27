@@ -1,16 +1,16 @@
-// cuda_fp6.cppm - Compile-time tests for gpumod.cuda.cuda_fp6
+// cuda_fp6.cppm - Compile-time tests for wwr.cuda.cuda_fp6
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cuda_fp6;
+export module wwr.test.cuda.cuda_fp6;
 
 import std;
-import gpumod.cuda.cuda_fp6;
+import wwr.cuda.cuda_fp6;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cuda_fp6
+// Compile-time tests for wwr.cuda.cuda_fp6
 //
 // We verify at compile-time that:
 //   1. Storage typedef sizes match documented byte widths
@@ -24,8 +24,8 @@ import gpumod.cuda.cuda_fp6;
 //   8. Return types of inline wrapper functions are correct
 //
 // Note: The conversion wrappers (__nv_cvt_*) are exported as inline
-// functions in the gpumod namespace. Because they are inline (not
-// separately linkable symbols), GPUMOD_LINK_CHECK is not applicable; instead
+// functions in the wwr namespace. Because they are inline (not
+// separately linkable symbols), WWR_LINK_CHECK is not applicable; instead
 // std::is_invocable_v verifies the signatures at compile time.
 //
 // Note: The C++ fp6 struct types (__nv_fp6_e3m2, etc.) have user-defined
@@ -38,9 +38,9 @@ import gpumod.cuda.cuda_fp6;
 // has two enumerators: __NV_E2M3 (0) and __NV_E3M2 (1).
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Storage typedef sizes
@@ -123,8 +123,8 @@ static_assert(std::is_standard_layout_v<__nv_fp6x4_e2m3>);
 // Inline wrapper function invocability checks
 //
 // Each static_assert confirms that the exported inline wrapper in the
-// gpumod namespace is callable with the expected argument types.
-// GPUMOD_LINK_CHECK is not applicable for inline functions (no external symbol).
+// wwr namespace is callable with the expected argument types.
+// WWR_LINK_CHECK is not applicable for inline functions (no external symbol).
 //
 // All narrowing conversions take: (source_type, __nv_fp6_interpretation_t,
 //   cudaRoundMode) — note no saturation parameter (unlike fp8).
@@ -195,4 +195,4 @@ static_assert(std::is_same_v<std::invoke_result_t<decltype(__nv_cvt_fp6x2_to_hal
                                                   __nv_fp6x2_storage_t, __nv_fp6_interpretation_t>,
                              __half2_raw>);
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

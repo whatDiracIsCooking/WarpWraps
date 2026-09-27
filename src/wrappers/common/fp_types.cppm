@@ -9,26 +9,26 @@
  * hipComplex/__hip_bfloat16 on a HIP build.
  *
  * Usage:
- *   import gpumod.wrappers.common;
- *   using namespace gpumod;
+ *   import wwr.wrappers.common;
+ *   using namespace wwr;
  */
 
-export module gpumod.wrappers.common:fp_types;
+export module wwr.wrappers.common:fp_types;
 
 import std;
-import gpumod.complex;
-import gpumod.fp16;
-import gpumod.bf16;
+import wwr.complex;
+import wwr.fp16;
+import wwr.bf16;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // GPU Complex Types
 // ========================================================================
 
-using gpumod::gpuComplex;
-using gpumod::gpuDoubleComplex;
-using gpumod::gpuFloatComplex;
+using wwr::gpuComplex;
+using wwr::gpuDoubleComplex;
+using wwr::gpuFloatComplex;
 
 // ========================================================================
 // Floating-Point Type Concepts
@@ -117,4 +117,4 @@ using ComplexToRealType =
 template<half_fp T>
 using HalfToFloatType = float;
 
-} // namespace gpumod
+} // namespace wwr

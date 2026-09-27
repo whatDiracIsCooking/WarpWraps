@@ -3,7 +3,7 @@
  * @brief rocTX (ROCm Tracing Extension) marker/range API module wrapper
  *
  * Wraps roctracer/roctx.h -- rocTX, the HIP counterpart to NVTX (see
- * gpumod.cuda.nvToolsExt). This is nearly the whole of the classic roctx.h,
+ * wwr.cuda.nvToolsExt). This is nearly the whole of the classic roctx.h,
  * scoped to the marker-and-range surface both backends share, so a neutral
  * gpu* layer can sit on exactly this set.
  *
@@ -32,16 +32,16 @@
  *     roctxNameHsaAgent, roctxGetThreadId.
  *
  * Usage:
- *   import gpumod.hip.roctx;
+ *   import wwr.hip.roctx;
  */
 
 module;
 
 #include <roctracer/roctx.h>
 
-export module gpumod.hip.roctx;
+export module wwr.hip.roctx;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Types
@@ -70,4 +70,4 @@ using ::roctxRangePushA;
 using ::roctxRangeStartA;
 using ::roctxRangeStop;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

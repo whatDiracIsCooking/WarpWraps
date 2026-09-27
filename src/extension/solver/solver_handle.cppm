@@ -5,15 +5,15 @@
  * Provides GpusolverDnHandle class for automatic GPU solver handle management.
  */
 
-export module gpumod.extension.solver:solver_handle;
+export module wwr.extension.solver:solver_handle;
 
 import :solver_error;
-import gpumod.solver;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.solver;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief RAII wrapper for a GPU solver handle
@@ -60,4 +60,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

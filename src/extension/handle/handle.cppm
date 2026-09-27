@@ -6,18 +6,18 @@
  * with automatic resource cleanup.
  *
  * Usage:
- *   import gpumod.extension.handle;
+ *   import wwr.extension.handle;
  *
  *   class GpuStream : public BaseHandle<gpuStream_t, GpuStream, ...> { ... };
  */
 
-export module gpumod.extension.handle:handle;
+export module wwr.extension.handle:handle;
 
-import gpumod.extension.common; // BaseErrorPolicy, NonCopyable
+import wwr.extension.common; // BaseErrorPolicy, NonCopyable
 import :handle_view;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // RAII Handle Wrapper
@@ -164,4 +164,4 @@ public:
   HandleView<T> view() && = delete;
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

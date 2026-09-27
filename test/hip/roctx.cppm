@@ -1,16 +1,16 @@
-// roctx.cppm - Compile-time tests for gpumod.hip.roctx
+// roctx.cppm - Compile-time tests for wwr.hip.roctx
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.roctx;
+export module wwr.test.hip.roctx;
 
 import std;
-import gpumod.hip.roctx;
+import wwr.hip.roctx;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.roctx
+// Compile-time tests for wwr.hip.roctx
 //
 // The module is pure re-export (using-declarations -- roctx.h is a plain
 // extern "C" API in libroctx64, with none of the convenience-template
@@ -19,9 +19,9 @@ import gpumod.hip.roctx;
 //   2. Link-time symbol resolution for every exported function (libroctx64)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ──────────────────────────────────────────────────────────────────────
 // Type shape
@@ -34,10 +34,10 @@ static_assert(std::is_same_v<roctx_range_id_t, std::uint64_t>);
 // Link-time symbol resolution
 // ──────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(roctxMarkA)
-GPUMOD_LINK_CHECK(roctxRangePushA)
-GPUMOD_LINK_CHECK(roctxRangePop)
-GPUMOD_LINK_CHECK(roctxRangeStartA)
-GPUMOD_LINK_CHECK(roctxRangeStop)
+WWR_LINK_CHECK(roctxMarkA)
+WWR_LINK_CHECK(roctxRangePushA)
+WWR_LINK_CHECK(roctxRangePop)
+WWR_LINK_CHECK(roctxRangeStartA)
+WWR_LINK_CHECK(roctxRangeStop)
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

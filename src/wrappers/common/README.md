@@ -1,7 +1,7 @@
 # src/wrappers/common — Shared Extension Utilities
 
 This directory provides the foundational C++23 module
-`gpumod.wrappers.common` that is imported by every other extension
+`wwr.wrappers.common` that is imported by every other extension
 module. It is the shared **type vocabulary** the four extensions (blas, solver,
 sparse, fft) are written against — the floating-point and index-width concepts
 and the real/complex/half type maps — and nothing more. It aggregates two module
@@ -9,15 +9,15 @@ partitions. It is backend-neutral: it imports only `std` and `src` (never
 `src/cuda` or `src/hip`), so the same source builds for the CUDA and the HIP
 backend.
 
-**Import:** `import gpumod.wrappers.common;`
-**Namespace:** `gpumod`
+**Import:** `import wwr.wrappers.common;`
+**Namespace:** `wwr`
 
 > The wrappers here take the raw vendor handle (`gpublasHandle_t`, …) and return
 > the raw vendor status (`gpublasStatus_t`, …); this module carries no
 > error-handling or RAII layer of its own. Typed error policies —
 > `error_code`, `error_policy`, `default_error_policy`, `gpu_check` — live in
-> `gpumod.extension.common`, and the `BaseHandle` CRTP base lives in
-> `gpumod.extension.handle`; each extension's `:*_error` / `:*_handle`
+> `wwr.extension.common`, and the `BaseHandle` CRTP base lives in
+> `wwr.extension.handle`; each extension's `:*_error` / `:*_handle`
 > partitions build on them.
 
 ## Module Partitions
@@ -54,7 +54,7 @@ copy next to its sources, in `src/wrappers/blas/dispatch_macros.h` and
 `src/wrappers/solver/dispatch_macros.h`.
 
 What stayed is `dispatch_sdcz.h` — the prefix-agnostic
-`GPUMOD_REAL_DISPATCH` / `GPUMOD_COMPLEX_DISPATCH` cores those per-wrapper
+`WWR_REAL_DISPATCH` / `WWR_COMPLEX_DISPATCH` cores those per-wrapper
 headers build on. It is a non-module header, so those wrappers reach it by the
 owned-header spelling `#include "wrappers/common/dispatch_sdcz.h"`, resolved
 through the `src/` include root this target exports (see `CMakeLists.txt`).
@@ -74,11 +74,11 @@ would match neither branch and expand the wrapper body to nothing. See #58.
 ## Build
 
 ```
-gpumod_add_cxx_module_library(
-  NAME gpumod.wrappers.common
+wwr_add_cxx_module_library(
+  NAME wwr.wrappers.common
   PRIMARY_INTERFACE interface.cppm
   PARTITIONS fp_types.cppm int_types.cppm
-  LINK_PUBLIC gpumod.complex gpumod.fp16 gpumod.bf16
+  LINK_PUBLIC wwr.complex wwr.fp16 wwr.bf16
   IMPORT_STD
 )
 ```

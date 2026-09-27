@@ -3,7 +3,7 @@
  * @brief bfloat16 type and float conversions for device-compiled TUs
  *
  * The device-compile counterpart to bf16.cppm: gpuBfloat16 and the
- * float<->bfloat16 conversions. Link gpumod.device. Companion to fp16.cuh.
+ * float<->bfloat16 conversions. Link wwr.device. Companion to fp16.cuh.
  *
  * The type is the SAME one bf16.cppm exports under this name, so a host-allocated
  * buffer and a kernel parameter named here agree, and an extern template declared
@@ -24,11 +24,11 @@
 
 #pragma once
 
-// GPUMOD_SELECTED_CUDA / GPUMOD_SELECTED_HIP, and #errors outside a device pass;
+// WWR_SELECTED_CUDA / WWR_SELECTED_HIP, and #errors outside a device pass;
 // these vendor headers are device-only.
 #include "device_guard.h"
 
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
 
 #include <cuda_bf16.h>
 
@@ -45,13 +45,13 @@
 
 #endif
 
-namespace gpumod {
+namespace wwr {
 
 // ========================================================================
 // Type -- the same one bf16.cppm exports
 // ========================================================================
 
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
 
 using gpuBfloat16 = ::__nv_bfloat16;
 
@@ -71,4 +71,4 @@ __device__ __forceinline__ float gpuBfloat162Float(const gpuBfloat16 value) {
   return ::__bfloat162float(value);
 }
 
-} // namespace gpumod
+} // namespace wwr

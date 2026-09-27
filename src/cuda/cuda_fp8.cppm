@@ -7,7 +7,7 @@
  * host-accessible conversion functions.
  *
  * Usage:
- *   import gpumod.cuda.cuda_fp8;
+ *   import wwr.cuda.cuda_fp8;
  *
  * Note: cuda_fp8.h includes cuda_fp16.h and cuda_bf16.h internally, so the
  * raw storage types from those headers (__half_raw, __nv_bfloat16_raw, etc.)
@@ -28,11 +28,11 @@ module;
 
 #include <cuda_fp8.h>
 
-export module gpumod.cuda.cuda_fp8;
+export module wwr.cuda.cuda_fp8;
 
 import std;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Storage Typedefs
@@ -139,7 +139,7 @@ using ::cudaRoundZero;
 // The following functions are defined as static inline in the global namespace
 // in cuda_fp8.h and cannot be re-exported via using declarations. Thin inline
 // wrappers are provided here so that callers importing this module can access
-// them by name within the gpumod namespace.
+// them by name within the wwr namespace.
 
 // ── Narrowing conversions (to fp8 storage) ───────────────────────────────
 
@@ -249,4 +249,4 @@ inline __nv_bfloat162_raw __nv_cvt_e8m0x2_to_bf162raw(const __nv_fp8x2_storage_t
   return ::__nv_cvt_e8m0x2_to_bf162raw(x);
 }
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

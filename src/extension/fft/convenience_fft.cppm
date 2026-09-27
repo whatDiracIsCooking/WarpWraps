@@ -7,12 +7,12 @@
  * here too.
  */
 
-export module gpumod.extension.fft:convenience_fft;
+export module wwr.extension.fft:convenience_fft;
 
 import :fft_plan;
-import gpumod.extension.common;
+import wwr.extension.common;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Convenient alias for FftPlanWrapper with default error policies
@@ -22,4 +22,4 @@ export namespace gpumod::extension {
  */
 using FftPlan = FftPlanWrapper<>;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

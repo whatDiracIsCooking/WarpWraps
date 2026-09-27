@@ -5,7 +5,7 @@
 // selected backend IS the assertion. The kernels are never launched: every name
 // below just has to compile through the one include switch on both backends
 // (nvcc and clang's -x hip disagree on more than the include path). Reached
-// through gpumod.device, exactly as a real device consumer reaches the
+// through wwr.device, exactly as a real device consumer reaches the
 // header.
 //
 // The static_asserts turn the §3 divergence complex.cuh is built around into a
@@ -14,7 +14,7 @@
 // functions rather than operators. Pinning the aggregate/class split per backend
 // makes a vendor closing that gap -- or this header switching to a complex type
 // with different layout -- fail the build instead of drifting silently. Backend
-// is selected on GPUMOD_SELECTED_CUDA, the device-pass macro the header itself
+// is selected on WWR_SELECTED_CUDA, the device-pass macro the header itself
 // switches on, consistent across both of HIP's compile passes.
 #include "complex.cuh"
 
@@ -22,8 +22,8 @@
 // HIP). complex.cuh pulls only the complex type header, not the runtime, so this
 // kernel TU names it itself rather than lean on a transitive include. nvcc
 // supplies <cuda_runtime.h> for a .cu implicitly; spell both for a self-contained
-// TU. GPUMOD_SELECTED_* comes from complex.cuh (via device_guard.h).
-#if defined(GPUMOD_SELECTED_CUDA)
+// TU. WWR_SELECTED_* comes from complex.cuh (via device_guard.h).
+#if defined(WWR_SELECTED_CUDA)
 #include <cuda_runtime.h>
 #else
 #include <hip/hip_runtime.h>
@@ -31,7 +31,7 @@
 
 #include <type_traits>
 
-namespace gpumod {
+namespace wwr {
 namespace {
 
 // ---------------------------------------------------------------------------
@@ -56,7 +56,7 @@ static_assert(std::is_trivially_copyable_v<gpuDoubleComplex>,
 // aggregate with no operators, hipComplex is a class that defines them. Pinning
 // it per backend documents why gpuC* arithmetic is functional and traps a
 // vendor changing the type category out from under that choice.
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
 static_assert(std::is_aggregate_v<gpuFloatComplex>,
               "CUDA cuFloatComplex is expected to be an aggregate (float2) with "
               "no arithmetic operators");
@@ -72,7 +72,7 @@ static_assert(!std::is_aggregate_v<gpuFloatComplex>,
 // and the four arithmetic operations -- the whole gpuC*f surface, which is the
 // only portable spelling because cuFloatComplex has no operator* (see the
 // static_assert above).
-__global__ void gpumod_fp_complex_float(float *out) {
+__global__ void wwr_fp_complex_float(float *out) {
   const gpuFloatComplex a = make_gpuFloatComplex(1.0f, 2.0f);
   const gpuFloatComplex b = make_gpuFloatComplex(3.0f, -1.0f);
 
@@ -90,7 +90,7 @@ __global__ void gpumod_fp_complex_float(float *out) {
 }
 
 // Double-precision complex: the same surface over gpuDoubleComplex.
-__global__ void gpumod_fp_complex_double(double *out) {
+__global__ void wwr_fp_complex_double(double *out) {
   const gpuDoubleComplex a = make_gpuDoubleComplex(1.0, 2.0);
   const gpuDoubleComplex b = make_gpuDoubleComplex(3.0, -1.0);
 
@@ -111,7 +111,7 @@ __global__ void gpumod_fp_complex_double(double *out) {
 // conversions -- the portable functions the vendors name with the bare Complex
 // token. FloatToDouble widens, DoubleToFloat narrows; the round trip exercises
 // both, fed by the alias constructor.
-__global__ void gpumod_fp_complex_convert(double *out) {
+__global__ void wwr_fp_complex_convert(double *out) {
   const gpuComplex c = make_gpuComplex(1.5f, -2.5f);
   const gpuDoubleComplex wide = gpuComplexFloatToDouble(c);
   const gpuFloatComplex narrow = gpuComplexDoubleToFloat(wide);
@@ -121,4 +121,4 @@ __global__ void gpumod_fp_complex_convert(double *out) {
   out[0] = acc;
 }
 
-} // namespace gpumod
+} // namespace wwr

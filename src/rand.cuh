@@ -7,10 +7,10 @@
  * Together they cover what curand.h + curand_kernel.h cover, split by
  * execution space rather than by header.
  *
- * Link gpumod.rand.device -- separate from gpumod.device, which a
+ * Link wwr.rand.device -- separate from wwr.device, which a
  * device TU using this almost certainly also wants.
  *
- * Each name is a thin __device__ forwarding template, not a GPUMOD_FUNCTION
+ * Each name is a thin __device__ forwarding template, not a WWR_FUNCTION
  * reference: the generators are an overload set on CUDA and a function
  * template on hipRAND, and a reference can name neither. The state type is
  * deduced, so a call is written once and compiles on both.
@@ -24,11 +24,11 @@
 
 #pragma once
 
-// GPUMOD_SELECTED_CUDA / GPUMOD_SELECTED_HIP, and #errors outside a device pass;
+// WWR_SELECTED_CUDA / WWR_SELECTED_HIP, and #errors outside a device pass;
 // these vendor headers are device-only.
 #include "device_guard.h"
 
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
 
 #include <curand_kernel.h>
 
@@ -47,7 +47,7 @@
 
 #endif
 
-namespace gpumod {
+namespace wwr {
 
 // ========================================================================
 // Generator state types
@@ -57,7 +57,7 @@ namespace gpumod {
 // a kernel here are the same type, so the kernel signature mangles to match.
 // ========================================================================
 
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
 
 // Pseudorandom generators
 using gpurandStateXORWOW = ::curandStateXORWOW;
@@ -115,7 +115,7 @@ using gpurandState_t = ::hiprandState_t;
 // Device functions
 //
 // One forwarding template per name; see this file's header for why these
-// cannot be GPUMOD_FUNCTION-style references. The `State` parameter is deduced
+// cannot be WWR_FUNCTION-style references. The `State` parameter is deduced
 // from the argument, so a call reads identically on both backends.
 //
 // Return types are spelled with the vector types both backends define
@@ -139,7 +139,7 @@ template<typename State>
 __device__ __forceinline__ void gpurand_init(const unsigned long long seed,
                                              const unsigned long long sequence,
                                              const unsigned long long offset, State *state) {
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
   ::curand_init(seed, sequence, offset, state);
 #else
   ::hiprand_init(seed, sequence, offset, state);
@@ -149,7 +149,7 @@ __device__ __forceinline__ void gpurand_init(const unsigned long long seed,
 /// @brief Draw one float from the standard normal distribution (mean 0, stddev 1)
 template<typename State>
 __device__ __forceinline__ float gpurand_normal(State *state) {
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
   return ::curand_normal(state);
 #else
   return ::hiprand_normal(state);
@@ -162,7 +162,7 @@ __device__ __forceinline__ float gpurand_normal(State *state) {
 /// pairs (Box-Muller), so the single-value form discards one half.
 template<typename State>
 __device__ __forceinline__ float2 gpurand_normal2(State *state) {
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
   return ::curand_normal2(state);
 #else
   return ::hiprand_normal2(state);
@@ -172,7 +172,7 @@ __device__ __forceinline__ float2 gpurand_normal2(State *state) {
 /// @brief Draw one double from the standard normal distribution
 template<typename State>
 __device__ __forceinline__ double gpurand_normal_double(State *state) {
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
   return ::curand_normal_double(state);
 #else
   return ::hiprand_normal_double(state);
@@ -184,11 +184,11 @@ __device__ __forceinline__ double gpurand_normal_double(State *state) {
 /// See gpurand_normal2 for why the paired form is the cheaper one.
 template<typename State>
 __device__ __forceinline__ double2 gpurand_normal2_double(State *state) {
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
   return ::curand_normal2_double(state);
 #else
   return ::hiprand_normal2_double(state);
 #endif
 }
 
-} // namespace gpumod
+} // namespace wwr

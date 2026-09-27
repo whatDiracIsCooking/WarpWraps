@@ -80,7 +80,7 @@ docker/build.sh base        # just the toolchain -> gpumod:base
 ```
 
 It takes the tag prefix from `PROJECT_NAME` in `devtools/config.sh`, so
-`gpumod:latest` — what `GPUMOD_IMAGE` below defaults to — is always one of the
+`gpumod:latest` — what `WWR_IMAGE` below defaults to — is always one of the
 two tags the CUDA image gets. Run it from anywhere; the context is always the
 repo root, because the files read `pyproject.toml`, `uv.lock` and
 `docker/install-{cuda,rocm}.sh` relative to it.
@@ -126,7 +126,7 @@ IMAGE_TAG_SUFFIX=-ci IMAGE_REGISTRY=ghcr.io/<owner> BUILD_PUSH=1 \
 | `BUILD_PUSH=1` | pushes the **final target's** registry tags, not its parents' |
 
 `:latest` is dropped when a suffix is set — `gpumod:latest-ci` would be a lie,
-since `latest` is what `GPUMOD_IMAGE` resolves to and must keep meaning the
+since `latest` is what `WWR_IMAGE` resolves to and must keep meaning the
 full CUDA dev image. Parents are not pushed because a child image is
 self-contained; publishing `:base` too would upload 1.45GB nothing pulls.
 
@@ -174,7 +174,7 @@ BUILD_ONLY=1 dc build
 
 | Env Var | Effect |
 |---------|--------|
-| `GPUMOD_IMAGE` | Docker image to use (default: `gpumod:latest`) |
+| `WWR_IMAGE` | Docker image to use (default: `gpumod:latest`) |
 | `BUILD_PRESET` | Select cmake preset: `default` (Release), `debug`, `asan` (default: `default`) |
 | `CLEAN=1` | Remove compiled objects before building |
 | `RECONFIGURE=1` | Wipe cmake cache and reconfigure from scratch |

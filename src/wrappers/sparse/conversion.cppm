@@ -6,28 +6,28 @@
  * transpose (gebsr2gebsc) and CSR to general-BSR conversion (csr2gebsr), each
  * with its companion buffer-size query where one exists. (The untyped structure
  * queries Xcsr2gebsrNnz / Xcoo2csr / ... are called directly through the raw
- * module in gpumod.sparse.)
+ * module in wwr.sparse.)
  *
  * The two *_bufferSize queries take a size_t* byte count on the neutral API:
- * cuSPARSE spells this parameter int*, hipSPARSE size_t*, and gpumod.sparse
+ * cuSPARSE spells this parameter int*, hipSPARSE size_t*, and wwr.sparse
  * reconciles the two -- see its file header.
  *
  * Usage:
- *   import gpumod.wrappers.sparse;
+ *   import wwr.wrappers.sparse;
  */
 
 module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.sparse:conversion;
+export module wwr.wrappers.sparse:conversion;
 
-import gpumod.sparse;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.sparse;
+import wwr.complex;
+import wwr.wrappers.common;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // nnz: count nonzeros per row/column and in total, from a dense matrix
@@ -37,7 +37,7 @@ template<usual_fp T>
 gpusparseStatus_t nnz(gpusparseHandle_t handle, gpusparseDirection_t dirA, int m, int n,
                       const gpusparseMatDescr_t descrA, const T *A, int lda, int *nnzPerRowCol,
                       int *nnzTotalDevHostPtr) {
-  GPUMOD_USUAL_DISPATCH(T, nnz, handle, dirA, m, n, descrA, A, lda, nnzPerRowCol,
+  WWR_USUAL_DISPATCH(T, nnz, handle, dirA, m, n, descrA, A, lda, nnzPerRowCol,
                         nnzTotalDevHostPtr);
 }
 
@@ -50,7 +50,7 @@ gpusparseStatus_t gebsr2gebsc_bufferSize(gpusparseHandle_t handle, int mb, int n
                                          const T *bsrVal, const int *bsrRowPtr,
                                          const int *bsrColInd, int rowBlockDim, int colBlockDim,
                                          size_t *pBufferSizeInBytes) {
-  GPUMOD_USUAL_DISPATCH(T, gebsr2gebsc_bufferSize, handle, mb, nb, nnzb, bsrVal, bsrRowPtr,
+  WWR_USUAL_DISPATCH(T, gebsr2gebsc_bufferSize, handle, mb, nb, nnzb, bsrVal, bsrRowPtr,
                         bsrColInd, rowBlockDim, colBlockDim, pBufferSizeInBytes);
 }
 
@@ -60,7 +60,7 @@ gpusparseStatus_t gebsr2gebsc(gpusparseHandle_t handle, int mb, int nb, int nnzb
                               int colBlockDim, T *bscVal, int *bscRowInd, int *bscColPtr,
                               gpusparseAction_t copyValues, gpusparseIndexBase_t idxBase,
                               void *pBuffer) {
-  GPUMOD_USUAL_DISPATCH(T, gebsr2gebsc, handle, mb, nb, nnzb, bsrVal, bsrRowPtr, bsrColInd,
+  WWR_USUAL_DISPATCH(T, gebsr2gebsc, handle, mb, nb, nnzb, bsrVal, bsrRowPtr, bsrColInd,
                         rowBlockDim, colBlockDim, bscVal, bscRowInd, bscColPtr, copyValues, idxBase,
                         pBuffer);
 }
@@ -75,7 +75,7 @@ gpusparseStatus_t csr2gebsr_bufferSize(gpusparseHandle_t handle, gpusparseDirect
                                        const T *csrSortedValA, const int *csrSortedRowPtrA,
                                        const int *csrSortedColIndA, int rowBlockDim,
                                        int colBlockDim, size_t *pBufferSizeInBytes) {
-  GPUMOD_USUAL_DISPATCH(T, csr2gebsr_bufferSize, handle, dirA, m, n, descrA, csrSortedValA,
+  WWR_USUAL_DISPATCH(T, csr2gebsr_bufferSize, handle, dirA, m, n, descrA, csrSortedValA,
                         csrSortedRowPtrA, csrSortedColIndA, rowBlockDim, colBlockDim,
                         pBufferSizeInBytes);
 }
@@ -87,7 +87,7 @@ gpusparseStatus_t csr2gebsr(gpusparseHandle_t handle, gpusparseDirection_t dirA,
                             const gpusparseMatDescr_t descrC, T *bsrSortedValC,
                             int *bsrSortedRowPtrC, int *bsrSortedColIndC, int rowBlockDim,
                             int colBlockDim, void *pBuffer) {
-  GPUMOD_USUAL_DISPATCH(T, csr2gebsr, handle, dirA, m, n, descrA, csrSortedValA, csrSortedRowPtrA,
+  WWR_USUAL_DISPATCH(T, csr2gebsr, handle, dirA, m, n, descrA, csrSortedValA, csrSortedRowPtrA,
                         csrSortedColIndA, descrC, bsrSortedValC, bsrSortedRowPtrC, bsrSortedColIndC,
                         rowBlockDim, colBlockDim, pBuffer);
 }
@@ -183,4 +183,4 @@ csr2gebsr<gpuDoubleComplex>(gpusparseHandle_t, gpusparseDirection_t, int, int,
                             const int *, const gpusparseMatDescr_t, gpuDoubleComplex *, int *,
                             int *, int, int, void *);
 
-} // namespace gpumod
+} // namespace wwr

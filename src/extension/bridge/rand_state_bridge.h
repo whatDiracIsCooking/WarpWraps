@@ -1,6 +1,6 @@
 /**
  * @file rand_state_bridge.h
- * @brief gpumod::gpurandState for translation units that cannot `import`
+ * @brief wwr::gpurandState for translation units that cannot `import`
  *
  * gpu_stream_bridge.h's counterpart for the one other type that crosses a
  * host/device boundary by pointer. Same reach -- a .cpp, a .cppm's global
@@ -21,20 +21,20 @@
 
 #include "selected_backend.h"
 
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
 
 struct curandStateXORWOW;
 
-namespace gpumod {
+namespace wwr {
 using gpurandState = ::curandStateXORWOW;
-} // namespace gpumod
+} // namespace wwr
 
 #else
 
 struct hiprandState;
 
-namespace gpumod {
+namespace wwr {
 using gpurandState = ::hiprandState;
-} // namespace gpumod
+} // namespace wwr
 
 #endif

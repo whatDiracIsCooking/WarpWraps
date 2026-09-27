@@ -63,7 +63,7 @@ CheckOptions:
   # The neutral gpu* layer names everything gpuCamelCase to mirror the vendor
   # entry point it fronts -- deliberately NOT the snake_case/lower_case cases
   # above. It surfaces as two identifier kinds: real functions (gpuGraphInstantiate,
-  # gpuFloat2Half) and the constexpr aliases GPUMOD_FUNCTION/GPUMOD_VALUE generate
+  # gpuFloat2Half) and the constexpr aliases WWR_FUNCTION/WWR_VALUE generate
   # (gpuMalloc, gpuHostAllocDefault). Exempt the prefix for both rather than
   # annotate each site. Wrapper functions that mirror a non-prefixed vendor name
   # (gemm, getrfBatched) are handled by src/wrappers/.clang-tidy instead.

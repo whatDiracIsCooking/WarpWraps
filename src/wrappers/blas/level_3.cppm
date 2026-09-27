@@ -5,21 +5,21 @@
  * This module provides type-safe wrappers for GPU BLAS Level 3 BLAS operations.
  *
  * Usage:
- *   import gpumod.wrappers.blas;
+ *   import wwr.wrappers.blas;
  */
 
 module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.blas:level_3;
+export module wwr.wrappers.blas:level_3;
 
-import gpumod.blas;
-import gpumod.complex;
+import wwr.blas;
+import wwr.complex;
 import :type_traits;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // General Matrix-Matrix Multiplication (GEMM)
@@ -47,7 +47,7 @@ template<usual_fp T, int_type IntT>
 gpublasStatus_t gemm(gpublasHandle_t handle, gpublasOperation_t transa, gpublasOperation_t transb,
                      IntT m, IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *B,
                      IntT ldb, const T *beta, T *C, IntT ldc) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, gemm, handle, transa, transb, m, n, k, alpha, A, lda, B, ldb,
+  WWR_USUAL_DISPATCH_64(T, IntT, gemm, handle, transa, transb, m, n, k, alpha, A, lda, B, ldb,
                            beta, C, ldc);
 }
 
@@ -70,7 +70,7 @@ gpublasStatus_t gemmBatched(gpublasHandle_t handle, gpublasOperation_t transa,
                             gpublasOperation_t transb, IntT m, IntT n, IntT k, const T *alpha,
                             const T *const Aarray[], IntT lda, const T *const Barray[], IntT ldb,
                             const T *beta, T *const Carray[], IntT ldc, IntT batchCount) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, gemmBatched, handle, transa, transb, m, n, k, alpha, Aarray,
+  WWR_USUAL_DISPATCH_64(T, IntT, gemmBatched, handle, transa, transb, m, n, k, alpha, Aarray,
                            lda, Barray, ldb, beta, Carray, ldc, batchCount);
 }
 
@@ -95,7 +95,7 @@ gpublasStatus_t gemmStridedBatched(gpublasHandle_t handle, gpublasOperation_t tr
                                    const T *alpha, const T *A, IntT lda, long long int strideA,
                                    const T *B, IntT ldb, long long int strideB, const T *beta, T *C,
                                    IntT ldc, long long int strideC, IntT batchCount) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, gemmStridedBatched, handle, transa, transb, m, n, k, alpha, A,
+  WWR_USUAL_DISPATCH_64(T, IntT, gemmStridedBatched, handle, transa, transb, m, n, k, alpha, A,
                            lda, strideA, B, ldb, strideB, beta, C, ldc, strideC, batchCount);
 }
 
@@ -113,7 +113,7 @@ template<usual_fp T, int_type IntT>
 gpublasStatus_t symm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo, IntT m,
                      IntT n, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                      const T *beta, T *C, IntT ldc) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, symm, handle, side, uplo, m, n, alpha, A, lda, B, ldb, beta, C,
+  WWR_USUAL_DISPATCH_64(T, IntT, symm, handle, side, uplo, m, n, alpha, A, lda, B, ldb, beta, C,
                            ldc);
 }
 
@@ -131,7 +131,7 @@ template<usual_fp T, int_type IntT>
 gpublasStatus_t syrk(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
                      IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *beta, T *C,
                      IntT ldc) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, syrk, handle, uplo, trans, n, k, alpha, A, lda, beta, C, ldc);
+  WWR_USUAL_DISPATCH_64(T, IntT, syrk, handle, uplo, trans, n, k, alpha, A, lda, beta, C, ldc);
 }
 
 // ========================================================================
@@ -145,7 +145,7 @@ template<usual_fp T, int_type IntT>
 gpublasStatus_t syr2k(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
                       IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                       const T *beta, T *C, IntT ldc) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, syr2k, handle, uplo, trans, n, k, alpha, A, lda, B, ldb, beta,
+  WWR_USUAL_DISPATCH_64(T, IntT, syr2k, handle, uplo, trans, n, k, alpha, A, lda, B, ldb, beta,
                            C, ldc);
 }
 
@@ -160,7 +160,7 @@ template<usual_fp T, int_type IntT>
 gpublasStatus_t syrkx(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
                       IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                       const T *beta, T *C, IntT ldc) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, syrkx, handle, uplo, trans, n, k, alpha, A, lda, B, ldb, beta,
+  WWR_USUAL_DISPATCH_64(T, IntT, syrkx, handle, uplo, trans, n, k, alpha, A, lda, B, ldb, beta,
                            C, ldc);
 }
 
@@ -180,7 +180,7 @@ template<usual_fp T, int_type IntT>
 gpublasStatus_t trmm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo,
                      gpublasOperation_t trans, gpublasDiagType_t diag, IntT m, IntT n,
                      const T *alpha, const T *A, IntT lda, const T *B, IntT ldb, T *C, IntT ldc) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, trmm, handle, side, uplo, trans, diag, m, n, alpha, A, lda, B,
+  WWR_USUAL_DISPATCH_64(T, IntT, trmm, handle, side, uplo, trans, diag, m, n, alpha, A, lda, B,
                            ldb, C, ldc);
 }
 
@@ -200,7 +200,7 @@ template<usual_fp T, int_type IntT>
 gpublasStatus_t trsm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo,
                      gpublasOperation_t trans, gpublasDiagType_t diag, IntT m, IntT n,
                      const T *alpha, const T *A, IntT lda, T *B, IntT ldb) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, trsm, handle, side, uplo, trans, diag, m, n, alpha, A, lda, B,
+  WWR_USUAL_DISPATCH_64(T, IntT, trsm, handle, side, uplo, trans, diag, m, n, alpha, A, lda, B,
                            ldb);
 }
 
@@ -218,7 +218,7 @@ gpublasStatus_t trsmBatched(gpublasHandle_t handle, gpublasSideMode_t side, gpub
                             gpublasOperation_t trans, gpublasDiagType_t diag, IntT m, IntT n,
                             const T *alpha, const T *const A[], IntT lda, T *const B[], IntT ldb,
                             IntT batchCount) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, trsmBatched, handle, side, uplo, trans, diag, m, n, alpha, A,
+  WWR_USUAL_DISPATCH_64(T, IntT, trsmBatched, handle, side, uplo, trans, diag, m, n, alpha, A,
                            lda, B, ldb, batchCount);
 }
 
@@ -238,7 +238,7 @@ template<complex_fp T, int_type IntT>
 gpublasStatus_t hemm(gpublasHandle_t handle, gpublasSideMode_t side, gpublasFillMode_t uplo, IntT m,
                      IntT n, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                      const T *beta, T *C, IntT ldc) {
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, hemm, handle, side, uplo, m, n, alpha, A, lda,
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, hemm, handle, side, uplo, m, n, alpha, A, lda,
                              B, ldb, beta, C, ldc);
 }
 
@@ -258,7 +258,7 @@ template<complex_fp T, int_type IntT>
 gpublasStatus_t herk(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
                      IntT n, IntT k, const ComplexToRealType<T> *alpha, const T *A, IntT lda,
                      const ComplexToRealType<T> *beta, T *C, IntT ldc) {
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, herk, handle, uplo, trans, n, k, alpha, A, lda,
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, herk, handle, uplo, trans, n, k, alpha, A, lda,
                              beta, C, ldc);
 }
 
@@ -275,7 +275,7 @@ template<complex_fp T, int_type IntT>
 gpublasStatus_t her2k(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
                       IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                       const ComplexToRealType<T> *beta, T *C, IntT ldc) {
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, her2k, handle, uplo, trans, n, k, alpha, A,
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, her2k, handle, uplo, trans, n, k, alpha, A,
                              lda, B, ldb, beta, C, ldc);
 }
 
@@ -292,7 +292,7 @@ template<complex_fp T, int_type IntT>
 gpublasStatus_t herkx(gpublasHandle_t handle, gpublasFillMode_t uplo, gpublasOperation_t trans,
                       IntT n, IntT k, const T *alpha, const T *A, IntT lda, const T *B, IntT ldb,
                       const ComplexToRealType<T> *beta, T *C, IntT ldc) {
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, herkx, handle, uplo, trans, n, k, alpha, A,
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, herkx, handle, uplo, trans, n, k, alpha, A,
                              lda, B, ldb, beta, C, ldc);
 }
 
@@ -776,4 +776,4 @@ extern template gpublasStatus_t herkx<gpuDoubleComplex, int64_t>(
     const gpuDoubleComplex *, const gpuDoubleComplex *, int64_t, const gpuDoubleComplex *, int64_t,
     const ComplexToRealType<gpuDoubleComplex> *, gpuDoubleComplex *, int64_t);
 
-} // namespace gpumod
+} // namespace wwr

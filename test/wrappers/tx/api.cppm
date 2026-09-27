@@ -1,10 +1,10 @@
-// api.cppm - Compile-time tests for gpumod.wrappers.tx's API shape
+// api.cppm - Compile-time tests for wwr.wrappers.tx's API shape
 
-export module gpumod.test.wrappers.tx_api;
+export module wwr.test.wrappers.tx_api;
 
 import std;
-import gpumod.tx;
-import gpumod.wrappers.tx;
+import wwr.tx;
+import wwr.wrappers.tx;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // The tx wrapper is untyped -- no dispatch table, no type map -- so what it can
@@ -17,9 +17,9 @@ import gpumod.wrappers.tx;
 // test/gpu/tx.cppm.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::test {
+namespace wwr::test {
 
-using namespace gpumod;
+using namespace wwr;
 
 // ──────────────────────────────────────────────────────────────────────
 // Free-function signatures
@@ -44,4 +44,4 @@ static_assert(!std::is_copy_assignable_v<tx::ScopedRange>);
 static_assert(!std::is_move_assignable_v<tx::ScopedRange>);
 static_assert(std::is_nothrow_destructible_v<tx::ScopedRange>);
 
-} // namespace gpumod::test
+} // namespace wwr::test

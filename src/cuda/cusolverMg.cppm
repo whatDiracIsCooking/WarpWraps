@@ -1,27 +1,27 @@
 /**
  * @file cusolverMg.cppm
- * @brief Primary interface for gpumod.cuda.cusolverMg
+ * @brief Primary interface for wwr.cuda.cusolverMg
  *
  * This module wraps the cuSOLVER Multi-GPU API and exports types, constants,
  * and functions for multi-GPU dense linear algebra operations.
  *
  * Usage:
- *   import gpumod.cuda.cusolverMg;
+ *   import wwr.cuda.cusolverMg;
  */
 
 module;
 
 #include <cusolverMg.h>
 
-export module gpumod.cuda.cusolverMg;
+export module wwr.cuda.cusolverMg;
 
 import std;
 
 // ========================================================================
-// Export all cuSOLVER Multi-GPU types and functions in gpumod namespace
+// Export all cuSOLVER Multi-GPU types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Core Types
@@ -143,4 +143,4 @@ using ::cusolverMgPotrs_bufferSize;
 using ::cusolverMgPotri;
 using ::cusolverMgPotri_bufferSize;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

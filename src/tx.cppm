@@ -9,10 +9,10 @@
  * the marker/range surface both vendors share (see src/cuda/nvToolsExt.cppm and
  * src/hip/roctx.cppm for what is deliberately left out of that surface).
  *
- * Each GPUMOD_FUNCTION is written out in full, one per line -- no local
+ * Each WWR_FUNCTION is written out in full, one per line -- no local
  * prefix-pasting helper -- because test/shared/alias_coverage.py reads these
- * lines to enforce that every alias has a GPUMOD_SAME_FUNCTION restatement in
- * test/gpu/tx.cppm, and it only recognises literal GPUMOD_FUNCTION invocations.
+ * lines to enforce that every alias has a WWR_SAME_FUNCTION restatement in
+ * test/gpu/tx.cppm, and it only recognises literal WWR_FUNCTION invocations.
  *
  * Two backend differences are resolved here, not above -- the same way
  * blas.cppm resolves its own:
@@ -27,7 +27,7 @@
  * variant at this layer for the suffix to distinguish against.
  *
  * Usage:
- *   import gpumod.tx;
+ *   import wwr.tx;
  *
  *   gputxRangePushA("phase 1");
  *   // ... work ...
@@ -38,15 +38,15 @@ module;
 
 #include "gpu_backend.h"
 
-export module gpumod.tx;
+export module wwr.tx;
 
-#if defined(GPUMOD_GPU_BACKEND_CUDA)
-import gpumod.cuda.nvToolsExt;
+#if defined(WWR_GPU_BACKEND_CUDA)
+import wwr.cuda.nvToolsExt;
 #else
-import gpumod.hip.roctx;
+import wwr.hip.roctx;
 #endif
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // Types
@@ -54,29 +54,29 @@ export namespace gpumod {
 
 // Opaque handle identifying a process-wide asynchronous range (uint64_t). The
 // HIP name differs beyond the nvtx/roctx prefix (roctx_range_id_t).
-GPUMOD_TYPE(gputxRangeId_t, nvtxRangeId_t, roctx_range_id_t)
+WWR_TYPE(gputxRangeId_t, nvtxRangeId_t, roctx_range_id_t)
 
 // ========================================================================
 // Markers -- an instantaneous event at a point in time
 // ========================================================================
 
-GPUMOD_FUNCTION(gputxMarkA, nvtxMarkA, roctxMarkA)
+WWR_FUNCTION(gputxMarkA, nvtxMarkA, roctxMarkA)
 
 // ========================================================================
 // Ranges -- nested (stack) push/pop on the calling thread
 // ========================================================================
 
-GPUMOD_FUNCTION(gputxRangePushA, nvtxRangePushA, roctxRangePushA)
-GPUMOD_FUNCTION(gputxRangePop, nvtxRangePop, roctxRangePop)
+WWR_FUNCTION(gputxRangePushA, nvtxRangePushA, roctxRangePushA)
+WWR_FUNCTION(gputxRangePop, nvtxRangePop, roctxRangePop)
 
 // ========================================================================
 // Ranges -- process-wide asynchronous start/stop
 // ========================================================================
 
-GPUMOD_FUNCTION(gputxRangeStartA, nvtxRangeStartA, roctxRangeStartA)
+WWR_FUNCTION(gputxRangeStartA, nvtxRangeStartA, roctxRangeStartA)
 
 // Async-range terminator. The CUDA name is nvtxRangeEnd, not nvtxRangeStop --
 // the one name that does not prefix-swap.
-GPUMOD_FUNCTION(gputxRangeStop, nvtxRangeEnd, roctxRangeStop)
+WWR_FUNCTION(gputxRangeStop, nvtxRangeEnd, roctxRangeStop)
 
-} // namespace gpumod
+} // namespace wwr

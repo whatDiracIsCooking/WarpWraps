@@ -1,16 +1,16 @@
-// nvToolsExt.cppm - Compile-time tests for gpumod.cuda.nvToolsExt
+// nvToolsExt.cppm - Compile-time tests for wwr.cuda.nvToolsExt
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.nvToolsExt;
+export module wwr.test.cuda.nvToolsExt;
 
 import std;
-import gpumod.cuda.nvToolsExt;
+import wwr.cuda.nvToolsExt;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.nvToolsExt
+// Compile-time tests for wwr.cuda.nvToolsExt
 //
 // The module wraps NVTX's static-inline marker/range core through thin
 // forwarding functions (nvToolsExt.h has internal linkage, so it cannot be
@@ -23,9 +23,9 @@ import gpumod.cuda.nvToolsExt;
 //      header-only NVTX implementation it forwards to
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ──────────────────────────────────────────────────────────────────────
 // Type shape
@@ -48,10 +48,10 @@ static_assert(std::is_same_v<decltype(nvtxRangeEnd), void(nvtxRangeId_t)>);
 // Link-time symbol resolution
 // ──────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(nvtxMarkA)
-GPUMOD_LINK_CHECK(nvtxRangePushA)
-GPUMOD_LINK_CHECK(nvtxRangePop)
-GPUMOD_LINK_CHECK(nvtxRangeStartA)
-GPUMOD_LINK_CHECK(nvtxRangeEnd)
+WWR_LINK_CHECK(nvtxMarkA)
+WWR_LINK_CHECK(nvtxRangePushA)
+WWR_LINK_CHECK(nvtxRangePop)
+WWR_LINK_CHECK(nvtxRangeStartA)
+WWR_LINK_CHECK(nvtxRangeEnd)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

@@ -1,6 +1,6 @@
-// hip_fp6.cppm - Compile-time tests for gpumod.hip.hip_fp6
+// hip_fp6.cppm - Compile-time tests for wwr.hip.hip_fp6
 //
-// IMPORTANT: do not add `import gpumod.hip.hip_fp4;` to this file -- see
+// IMPORTANT: do not add `import wwr.hip.hip_fp4;` to this file -- see
 // src/hip/hip_fp6.cppm's file header and src/hip/README.md for why hip_fp4
 // and hip_fp6 must never land in the same translation unit.
 
@@ -8,13 +8,13 @@ module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_fp6;
+export module wwr.test.hip.hip_fp6;
 
 import std;
-import gpumod.hip.hip_fp6;
+import wwr.hip.hip_fp6;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_fp6
+// Compile-time tests for wwr.hip.hip_fp6
 //
 // Mirrors test/cuda/cuda_fp6.cppm. HIP's fp6 conversion functions take an
 // enum hipRoundMode parameter (not cudaRoundMode) -- see src/hip/hip_fp6.cppm.
@@ -26,9 +26,9 @@ import gpumod.hip.hip_fp6;
 // __NV_E3M2 (1), verified against amd_hip_fp6.h directly.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Storage typedef sizes
@@ -92,7 +92,7 @@ static_assert(std::is_standard_layout_v<__hip_fp6x4_e2m3>);
 
 // ────────────────────────────────────────────────────────────────────────
 // Inline wrapper function invocability checks
-// GPUMOD_LINK_CHECK is not applicable for inline functions (no external symbol).
+// WWR_LINK_CHECK is not applicable for inline functions (no external symbol).
 // ────────────────────────────────────────────────────────────────────────
 
 // Narrowing conversions (to fp6 storage)
@@ -148,4 +148,4 @@ static_assert(
                                         __hip_fp6x2_storage_t, __hip_fp6_interpretation_t>,
                    __half2_raw>);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

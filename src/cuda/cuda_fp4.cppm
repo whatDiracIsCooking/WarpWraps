@@ -7,7 +7,7 @@
  * host-accessible conversion functions.
  *
  * Usage:
- *   import gpumod.cuda.cuda_fp4;
+ *   import wwr.cuda.cuda_fp4;
  *
  * Note: cuda_fp4.h includes cuda_fp6.h which includes cuda_fp8.h, so the raw
  * storage and half-precision types (__half_raw, __nv_bfloat16_raw, etc.) are
@@ -30,11 +30,11 @@ module;
 
 #include <cuda_fp4.h>
 
-export module gpumod.cuda.cuda_fp4;
+export module wwr.cuda.cuda_fp4;
 
 import std;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Storage Typedefs
@@ -113,7 +113,7 @@ using ::cudaRoundZero;
 // The following functions are defined as static inline in the global namespace
 // in cuda_fp4.h (via cuda_fp4.hpp) and cannot be re-exported via using
 // declarations. Thin inline wrappers are provided here so that callers
-// importing this module can access them by name within the gpumod namespace.
+// importing this module can access them by name within the wwr namespace.
 //
 // Note: Unlike the fp8 narrowing conversion functions (which take
 // __nv_saturation_t), the fp4 conversion functions take a cudaRoundMode
@@ -184,4 +184,4 @@ inline __half2_raw __nv_cvt_fp4x2_to_halfraw2(const __nv_fp4x2_storage_t x,
   return ::__nv_cvt_fp4x2_to_halfraw2(x, fp4_interpretation);
 }
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

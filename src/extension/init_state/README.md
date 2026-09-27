@@ -1,13 +1,13 @@
-# gpumod.extension.init_state
+# wwr.extension.init_state
 
 Backend-neutral parallel initialization of cuRAND / hipRAND **device**-API
 generator states: one state per element, each seeded onto its own subsequence,
 ready for a kernel to draw an independent stream per thread.
 
 ```cpp
-import gpumod.extension.init_state;
-import gpumod.extension.random_normal;
-using namespace gpumod::extension;
+import wwr.extension.init_state;
+import wwr.extension.random_normal;
+using namespace wwr::extension;
 
 auto device = std::make_shared<DeviceHandle>();
 auto stream = device->alloc_stream().get();
@@ -34,13 +34,13 @@ for exactly that).
 
 Because the caller holds the states:
 
-- a `random_normal` (see `gpumod.extension.random_normal`) advances the states
+- a `random_normal` (see `wwr.extension.random_normal`) advances the states
   as it draws, so a second draw on the same array **continues** the streams
   rather than repeating them (`RandTests.StatesAdvanceAcrossCalls`);
 - one array can be shared by several kernels;
 - `sequence_offset` carves further disjoint blocks out of one seed.
 
-`gpurandState` comes from `gpumod.rand`. Note that it is `gpurandStateXORWOW`
+`gpurandState` comes from `wwr.rand`. Note that it is `gpurandStateXORWOW`
 on CUDA and a *distinct type* on HIP — see `src/README.md`.
 
 ## How it is built, and why it is shaped this way
@@ -61,7 +61,7 @@ either. CMake maps `.cu` to CUDA on its own; under HIP the `LANGUAGE` is
 overridden back to `CXX` (a HIP build enables no CUDA language at all) and
 `hip::device` is linked, into a small dedicated static library so those flags
 never reach the module unit. All of that lives in
-`gpumod_add_gpu_device_library` (`cmake/`), which this `CMakeLists.txt` calls.
+`wwr_add_gpu_device_library` (`cmake/`), which this `CMakeLists.txt` calls.
 There is no per-backend `#if` in the source: `src/rand.cuh` and
 `src/fp_types.cuh` resolve every difference, so the functor is written once.
 
@@ -73,12 +73,12 @@ Two things in here are worth knowing before editing:
 
 - **`init_state_bridge.h` declares the device half in the module's GLOBAL MODULE
   FRAGMENT.** Forced: a name declared in a module's *purview* has module linkage
-  — clang mangles it `f@gpumod.extension.init_state` and it can never resolve to
+  — clang mangles it `f@wwr.extension.init_state` and it can never resolve to
   a definition from a plain TU, which is what `init_state.cu` is. A GMF can
   `#include` but not `import`, so the two types in the signature come from
   `src/gpu_stream_bridge.h` and `src/rand_state_bridge.h` rather than from
-  `import gpumod.rand` — they are the same types, so nothing is cast anywhere.
-  Reading the define those bridges need is why this module links `gpumod_backend`
+  `import wwr.rand` — they are the same types, so nothing is cast anywhere.
+  Reading the define those bridges need is why this module links `wwr_backend`
   PRIVATE.
 - **The device-side function is `device::init_state`** — same name as the
   exported wrapper, one namespace down. Keep the `device::` qualification at the
@@ -86,8 +86,8 @@ Two things in here are worth knowing before editing:
 
 ## Relation to what it replaced
 
-This and `gpumod.extension.random_normal` were split out of the single
-`gpumod.extension.rand` module, which had them as two partitions
+This and `wwr.extension.random_normal` were split out of the single
+`wwr.extension.rand` module, which had them as two partitions
 (`:init_state`, `:random_normal`) over one device library. That module was the
-port of the CUDA-only `gpumod.extension.curand.*` (removed;
+port of the CUDA-only `wwr.extension.curand.*` (removed;
 `src/cuda/extension/curand`).

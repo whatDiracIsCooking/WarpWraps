@@ -3,7 +3,7 @@
  * @brief RAII guard that makes a device current and restores the previous one
  *
  * Usage:
- *   import gpumod.extension.common;
+ *   import wwr.extension.common;
  *
  *   {
  *     DeviceScope scope{target_idx};  // target_idx is now current
@@ -11,9 +11,9 @@
  *   }                                 // previous device restored
  */
 
-export module gpumod.extension.common:device_scope;
+export module wwr.extension.common:device_scope;
 
-import gpumod.extension.common.error_handling;
+import wwr.extension.common.error_handling;
 // gpu_check here uses the default DefaultErrorPolicy<gpuError_t>, which odr-uses
 // success_code<gpuError_t>() (and error_name/error_string). That specialization
 // lives in :gpu_error; without it reachable the compiler falls back to the
@@ -22,10 +22,10 @@ import gpumod.extension.common.error_handling;
 // chain.
 import :gpu_error;
 import :noncopyable;
-import gpumod.runtime_api;
+import wwr.runtime_api;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Make `target_idx` the current device for the guard's lifetime
@@ -58,4 +58,4 @@ struct DeviceScope : private NonCopyable {
   // non-movable as well.
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

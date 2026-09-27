@@ -3,18 +3,18 @@
  * @brief Success code utilities for error handling
  *
  * Provides template function declarations to retrieve success codes for various error types.
- * The gpuError_t specializations live in gpumod.extension.common:gpu_error (they
+ * The gpuError_t specializations live in wwr.extension.common:gpu_error (they
  * back the device-bound handle base); library status types are specialized in
  * their own extension modules.
  *
  * Usage:
- *   import gpumod.extension.common;  // gpuError_t specializations come with it
+ *   import wwr.extension.common;  // gpuError_t specializations come with it
  *   auto success = success_code<gpuError_t>();
  */
 
-export module gpumod.extension.common.error_handling:error_code;
+export module wwr.extension.common.error_handling:error_code;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Success Code Template
@@ -63,4 +63,4 @@ const char *error_name(T code) noexcept;
 template<typename T>
 const char *error_string(T code) noexcept;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

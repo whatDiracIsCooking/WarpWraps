@@ -1,27 +1,27 @@
-// cusolverMg.cppm - Compile-time tests for gpumod.cuda.cusolverMg
+// cusolverMg.cppm - Compile-time tests for wwr.cuda.cusolverMg
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cusolverMg;
+export module wwr.test.cuda.cusolverMg;
 
 import std;
-import gpumod.cuda.cusolverMg;
+import wwr.cuda.cusolverMg;
 
 // ========================================================================
-// Compile-time tests for gpumod.cuda.cusolverMg
+// Compile-time tests for wwr.cuda.cusolverMg
 //
 // We verify at compile-time that:
 //   1. Key enum types exist (std::is_enum_v)
 //   2. Key enum enumerator values with stable ABI values are correct
 //   3. Opaque handle types are pointers
-//   4. GPUMOD_LINK_CHECK for all exported functions
+//   4. WWR_LINK_CHECK for all exported functions
 // ========================================================================
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -79,74 +79,74 @@ static_assert(std::is_pointer_v<cudaLibMgMatrixDesc_t>);
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: handle management
+// WWR_LINK_CHECK: handle management
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cusolverMgCreate)
-GPUMOD_LINK_CHECK(cusolverMgDestroy)
+WWR_LINK_CHECK(cusolverMgCreate)
+WWR_LINK_CHECK(cusolverMgDestroy)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: device selection
+// WWR_LINK_CHECK: device selection
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cusolverMgDeviceSelect)
+WWR_LINK_CHECK(cusolverMgDeviceSelect)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: grid management
+// WWR_LINK_CHECK: grid management
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cusolverMgCreateDeviceGrid)
-GPUMOD_LINK_CHECK(cusolverMgDestroyGrid)
+WWR_LINK_CHECK(cusolverMgCreateDeviceGrid)
+WWR_LINK_CHECK(cusolverMgDestroyGrid)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: matrix descriptor management
+// WWR_LINK_CHECK: matrix descriptor management
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cusolverMgCreateMatrixDesc)
-GPUMOD_LINK_CHECK(cusolverMgDestroyMatrixDesc)
+WWR_LINK_CHECK(cusolverMgCreateMatrixDesc)
+WWR_LINK_CHECK(cusolverMgDestroyMatrixDesc)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: symmetric eigenvalue (SYEVD)
+// WWR_LINK_CHECK: symmetric eigenvalue (SYEVD)
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cusolverMgSyevd_bufferSize)
-GPUMOD_LINK_CHECK(cusolverMgSyevd)
+WWR_LINK_CHECK(cusolverMgSyevd_bufferSize)
+WWR_LINK_CHECK(cusolverMgSyevd)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: LU factorization (GETRF)
+// WWR_LINK_CHECK: LU factorization (GETRF)
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cusolverMgGetrf_bufferSize)
-GPUMOD_LINK_CHECK(cusolverMgGetrf)
+WWR_LINK_CHECK(cusolverMgGetrf_bufferSize)
+WWR_LINK_CHECK(cusolverMgGetrf)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: LU solve (GETRS)
+// WWR_LINK_CHECK: LU solve (GETRS)
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cusolverMgGetrs_bufferSize)
-GPUMOD_LINK_CHECK(cusolverMgGetrs)
+WWR_LINK_CHECK(cusolverMgGetrs_bufferSize)
+WWR_LINK_CHECK(cusolverMgGetrs)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: Cholesky factorization (POTRF)
+// WWR_LINK_CHECK: Cholesky factorization (POTRF)
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cusolverMgPotrf_bufferSize)
-GPUMOD_LINK_CHECK(cusolverMgPotrf)
+WWR_LINK_CHECK(cusolverMgPotrf_bufferSize)
+WWR_LINK_CHECK(cusolverMgPotrf)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: Cholesky solve (POTRS)
+// WWR_LINK_CHECK: Cholesky solve (POTRS)
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cusolverMgPotrs_bufferSize)
-GPUMOD_LINK_CHECK(cusolverMgPotrs)
+WWR_LINK_CHECK(cusolverMgPotrs_bufferSize)
+WWR_LINK_CHECK(cusolverMgPotrs)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: Cholesky inverse (POTRI)
+// WWR_LINK_CHECK: Cholesky inverse (POTRI)
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cusolverMgPotri_bufferSize)
-GPUMOD_LINK_CHECK(cusolverMgPotri)
+WWR_LINK_CHECK(cusolverMgPotri_bufferSize)
+WWR_LINK_CHECK(cusolverMgPotri)
 
 #pragma clang diagnostic pop
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

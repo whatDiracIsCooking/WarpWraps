@@ -51,7 +51,7 @@
   //
   // devtools/devcontainer.sh resolves them for you: on `up` and `rebuild` it
   // runs `getent group` over ROCM_GROUPS (config.sh) and exports one
-  // GPUMOD_<NAME>_GID per group, which is what ${localEnv:...} reads here --
+  // WWR_<NAME>_GID per group, which is what ${localEnv:...} reads here --
   // the same resolution cpp-tier.sh --rocm does.
   //
   // The value AFTER THE COLON is the fallback when that variable is not set,
@@ -67,8 +67,8 @@
   "runArgs": [
     "--device=/dev/kfd",
     "--device=/dev/dri",
-    "--group-add", "${localEnv:GPUMOD_RENDER_GID:109}",        // EDIT: fallback gid
-    "--group-add", "${localEnv:GPUMOD_VIDEO_GID:44}",          // EDIT: fallback gid
+    "--group-add", "${localEnv:WWR_RENDER_GID:109}",        // EDIT: fallback gid
+    "--group-add", "${localEnv:WWR_VIDEO_GID:44}",          // EDIT: fallback gid
     "--security-opt", "seccomp=unconfined"
   ],
 
@@ -95,11 +95,11 @@
     "source=gpumod-claude-plugins-${localWorkspaceFolderBasename},target=/home/ubuntu/.claude/plugins,type=volume",  // EDIT
     "source=gpumod-claude-backups-${localWorkspaceFolderBasename},target=/home/ubuntu/.claude/backups,type=volume",  // EDIT
     "source=gpumod-pytest-tmp-${localWorkspaceFolderBasename},target=/tmp/pytest-of-ubuntu,type=volume",             // EDIT
-    // Host path injected as GPUMOD_GIT_DIR by devtools/devcontainer.sh (up /
+    // Host path injected as WWR_GIT_DIR by devtools/devcontainer.sh (up /
     // rebuild); the literal after the colon is only a fallback for opening this
     // config directly (VS Code "Reopen in Container"), which you then edit to
     // your own checkout's .git common dir. See ../README.md, "Per-project edits".
-    "source=${localEnv:GPUMOD_GIT_DIR:/absolute/path/to/your-root/main/.git},target=${localEnv:GPUMOD_GIT_DIR:/absolute/path/to/your-root/main/.git},type=bind"
+    "source=${localEnv:WWR_GIT_DIR:/absolute/path/to/your-root/main/.git},target=${localEnv:WWR_GIT_DIR:/absolute/path/to/your-root/main/.git},type=bind"
   ],
 
   "remoteUser": "ubuntu",

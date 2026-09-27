@@ -15,14 +15,14 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.runtime;
-import gpumod.extension.memory_buffer;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.runtime;
+import wwr.extension.memory_buffer;
 
 #include "counting_policy.h"
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Allocation failure: the alloc passes the size check but cannot succeed
@@ -54,4 +54,4 @@ TEST(AllocationFailureTests, FailedDeviceAllocationLeavesCoherentEmptyBuffer) {
   static_cast<void>(gpuGetLastError());
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

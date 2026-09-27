@@ -5,15 +5,15 @@
  * Provides GpublasHandle class for automatic GPU BLAS handle management.
  */
 
-export module gpumod.extension.blas:blas_handle;
+export module wwr.extension.blas:blas_handle;
 
 import :blas_error;
-import gpumod.blas;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.blas;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief RAII wrapper for a GPU BLAS handle
@@ -60,4 +60,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

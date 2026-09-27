@@ -1,21 +1,21 @@
-// hipfft.cppm - Compile-time tests for gpumod.hip.hipfft
+// hipfft.cppm - Compile-time tests for wwr.hip.hipfft
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hipfft;
+export module wwr.test.hip.hipfft;
 
 import std;
-import gpumod.hip.hipfft;
+import wwr.hip.hipfft;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hipfft
+// Compile-time tests for wwr.hip.hipfft
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Constexpr call-site flag values
@@ -73,71 +73,71 @@ static_assert(static_cast<int>(HIPFFT_MINOR_VERSION) == 1);
 static_assert(static_cast<int>(HIPFFT_PATCH_LEVEL) == 2);
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: plan creation
+// WWR_LINK_CHECK: plan creation
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftPlan1d)
-GPUMOD_LINK_CHECK(hipfftPlan2d)
-GPUMOD_LINK_CHECK(hipfftPlan3d)
-GPUMOD_LINK_CHECK(hipfftPlanMany)
+WWR_LINK_CHECK(hipfftPlan1d)
+WWR_LINK_CHECK(hipfftPlan2d)
+WWR_LINK_CHECK(hipfftPlan3d)
+WWR_LINK_CHECK(hipfftPlanMany)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: plan make (two-step)
+// WWR_LINK_CHECK: plan make (two-step)
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftCreate)
-GPUMOD_LINK_CHECK(hipfftExtPlanScaleFactor)
-GPUMOD_LINK_CHECK(hipfftMakePlan1d)
-GPUMOD_LINK_CHECK(hipfftMakePlan2d)
-GPUMOD_LINK_CHECK(hipfftMakePlan3d)
-GPUMOD_LINK_CHECK(hipfftMakePlanMany)
-GPUMOD_LINK_CHECK(hipfftMakePlanMany64)
+WWR_LINK_CHECK(hipfftCreate)
+WWR_LINK_CHECK(hipfftExtPlanScaleFactor)
+WWR_LINK_CHECK(hipfftMakePlan1d)
+WWR_LINK_CHECK(hipfftMakePlan2d)
+WWR_LINK_CHECK(hipfftMakePlan3d)
+WWR_LINK_CHECK(hipfftMakePlanMany)
+WWR_LINK_CHECK(hipfftMakePlanMany64)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: work size estimation
+// WWR_LINK_CHECK: work size estimation
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftEstimate1d)
-GPUMOD_LINK_CHECK(hipfftEstimate2d)
-GPUMOD_LINK_CHECK(hipfftEstimate3d)
-GPUMOD_LINK_CHECK(hipfftEstimateMany)
+WWR_LINK_CHECK(hipfftEstimate1d)
+WWR_LINK_CHECK(hipfftEstimate2d)
+WWR_LINK_CHECK(hipfftEstimate3d)
+WWR_LINK_CHECK(hipfftEstimateMany)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: work size query
+// WWR_LINK_CHECK: work size query
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftGetSize1d)
-GPUMOD_LINK_CHECK(hipfftGetSize2d)
-GPUMOD_LINK_CHECK(hipfftGetSize3d)
-GPUMOD_LINK_CHECK(hipfftGetSizeMany)
-GPUMOD_LINK_CHECK(hipfftGetSizeMany64)
-GPUMOD_LINK_CHECK(hipfftGetSize)
+WWR_LINK_CHECK(hipfftGetSize1d)
+WWR_LINK_CHECK(hipfftGetSize2d)
+WWR_LINK_CHECK(hipfftGetSize3d)
+WWR_LINK_CHECK(hipfftGetSizeMany)
+WWR_LINK_CHECK(hipfftGetSizeMany64)
+WWR_LINK_CHECK(hipfftGetSize)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: work area management
+// WWR_LINK_CHECK: work area management
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftSetWorkArea)
-GPUMOD_LINK_CHECK(hipfftSetAutoAllocation)
+WWR_LINK_CHECK(hipfftSetWorkArea)
+WWR_LINK_CHECK(hipfftSetAutoAllocation)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: execution
+// WWR_LINK_CHECK: execution
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftExecC2C)
-GPUMOD_LINK_CHECK(hipfftExecR2C)
-GPUMOD_LINK_CHECK(hipfftExecC2R)
-GPUMOD_LINK_CHECK(hipfftExecZ2Z)
-GPUMOD_LINK_CHECK(hipfftExecD2Z)
-GPUMOD_LINK_CHECK(hipfftExecZ2D)
+WWR_LINK_CHECK(hipfftExecC2C)
+WWR_LINK_CHECK(hipfftExecR2C)
+WWR_LINK_CHECK(hipfftExecC2R)
+WWR_LINK_CHECK(hipfftExecZ2Z)
+WWR_LINK_CHECK(hipfftExecD2Z)
+WWR_LINK_CHECK(hipfftExecZ2D)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: utility / lifecycle
+// WWR_LINK_CHECK: utility / lifecycle
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipfftSetStream)
-GPUMOD_LINK_CHECK(hipfftDestroy)
-GPUMOD_LINK_CHECK(hipfftGetVersion)
-GPUMOD_LINK_CHECK(hipfftGetProperty)
+WWR_LINK_CHECK(hipfftSetStream)
+WWR_LINK_CHECK(hipfftDestroy)
+WWR_LINK_CHECK(hipfftGetVersion)
+WWR_LINK_CHECK(hipfftGetProperty)
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

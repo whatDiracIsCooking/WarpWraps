@@ -6,21 +6,21 @@
  * (pentadiagonal) direct solvers, each with its companion buffer-size query.
  *
  * Usage:
- *   import gpumod.wrappers.sparse;
+ *   import wwr.wrappers.sparse;
  */
 
 module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.sparse:solvers;
+export module wwr.wrappers.sparse:solvers;
 
-import gpumod.sparse;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.sparse;
+import wwr.complex;
+import wwr.wrappers.common;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // gtsv2: tridiagonal solve A*X = B (dense RHS)
@@ -30,13 +30,13 @@ template<usual_fp T>
 gpusparseStatus_t gtsv2_bufferSizeExt(gpusparseHandle_t handle, int m, int n, const T *dl,
                                       const T *d, const T *du, const T *B, int ldb,
                                       size_t *bufferSizeInBytes) {
-  GPUMOD_USUAL_DISPATCH(T, gtsv2_bufferSizeExt, handle, m, n, dl, d, du, B, ldb, bufferSizeInBytes);
+  WWR_USUAL_DISPATCH(T, gtsv2_bufferSizeExt, handle, m, n, dl, d, du, B, ldb, bufferSizeInBytes);
 }
 
 template<usual_fp T>
 gpusparseStatus_t gtsv2(gpusparseHandle_t handle, int m, int n, const T *dl, const T *d,
                         const T *du, T *B, int ldb, void *pBuffer) {
-  GPUMOD_USUAL_DISPATCH(T, gtsv2, handle, m, n, dl, d, du, B, ldb, pBuffer);
+  WWR_USUAL_DISPATCH(T, gtsv2, handle, m, n, dl, d, du, B, ldb, pBuffer);
 }
 
 // ========================================================================
@@ -47,14 +47,14 @@ template<usual_fp T>
 gpusparseStatus_t gtsv2_nopivot_bufferSizeExt(gpusparseHandle_t handle, int m, int n, const T *dl,
                                               const T *d, const T *du, const T *B, int ldb,
                                               size_t *bufferSizeInBytes) {
-  GPUMOD_USUAL_DISPATCH(T, gtsv2_nopivot_bufferSizeExt, handle, m, n, dl, d, du, B, ldb,
+  WWR_USUAL_DISPATCH(T, gtsv2_nopivot_bufferSizeExt, handle, m, n, dl, d, du, B, ldb,
                         bufferSizeInBytes);
 }
 
 template<usual_fp T>
 gpusparseStatus_t gtsv2_nopivot(gpusparseHandle_t handle, int m, int n, const T *dl, const T *d,
                                 const T *du, T *B, int ldb, void *pBuffer) {
-  GPUMOD_USUAL_DISPATCH(T, gtsv2_nopivot, handle, m, n, dl, d, du, B, ldb, pBuffer);
+  WWR_USUAL_DISPATCH(T, gtsv2_nopivot, handle, m, n, dl, d, du, B, ldb, pBuffer);
 }
 
 // ========================================================================
@@ -66,7 +66,7 @@ gpusparseStatus_t gtsv2StridedBatch_bufferSizeExt(gpusparseHandle_t handle, int 
                                                   const T *d, const T *du, const T *x,
                                                   int batchCount, int batchStride,
                                                   size_t *bufferSizeInBytes) {
-  GPUMOD_USUAL_DISPATCH(T, gtsv2StridedBatch_bufferSizeExt, handle, m, dl, d, du, x, batchCount,
+  WWR_USUAL_DISPATCH(T, gtsv2StridedBatch_bufferSizeExt, handle, m, dl, d, du, x, batchCount,
                         batchStride, bufferSizeInBytes);
 }
 
@@ -74,7 +74,7 @@ template<usual_fp T>
 gpusparseStatus_t gtsv2StridedBatch(gpusparseHandle_t handle, int m, const T *dl, const T *d,
                                     const T *du, T *x, int batchCount, int batchStride,
                                     void *pBuffer) {
-  GPUMOD_USUAL_DISPATCH(T, gtsv2StridedBatch, handle, m, dl, d, du, x, batchCount, batchStride,
+  WWR_USUAL_DISPATCH(T, gtsv2StridedBatch, handle, m, dl, d, du, x, batchCount, batchStride,
                         pBuffer);
 }
 
@@ -88,14 +88,14 @@ gpusparseStatus_t gtsvInterleavedBatch_bufferSizeExt(gpusparseHandle_t handle, i
                                                      const T *dl, const T *d, const T *du,
                                                      const T *x, int batchCount,
                                                      size_t *pBufferSizeInBytes) {
-  GPUMOD_USUAL_DISPATCH(T, gtsvInterleavedBatch_bufferSizeExt, handle, algo, m, dl, d, du, x,
+  WWR_USUAL_DISPATCH(T, gtsvInterleavedBatch_bufferSizeExt, handle, algo, m, dl, d, du, x,
                         batchCount, pBufferSizeInBytes);
 }
 
 template<usual_fp T>
 gpusparseStatus_t gtsvInterleavedBatch(gpusparseHandle_t handle, int algo, int m, T *dl, T *d,
                                        T *du, T *x, int batchCount, void *pBuffer) {
-  GPUMOD_USUAL_DISPATCH(T, gtsvInterleavedBatch, handle, algo, m, dl, d, du, x, batchCount,
+  WWR_USUAL_DISPATCH(T, gtsvInterleavedBatch, handle, algo, m, dl, d, du, x, batchCount,
                         pBuffer);
 }
 
@@ -109,14 +109,14 @@ gpusparseStatus_t gpsvInterleavedBatch_bufferSizeExt(gpusparseHandle_t handle, i
                                                      const T *ds, const T *dl, const T *d,
                                                      const T *du, const T *dw, const T *x,
                                                      int batchCount, size_t *pBufferSizeInBytes) {
-  GPUMOD_USUAL_DISPATCH(T, gpsvInterleavedBatch_bufferSizeExt, handle, algo, m, ds, dl, d, du, dw,
+  WWR_USUAL_DISPATCH(T, gpsvInterleavedBatch_bufferSizeExt, handle, algo, m, ds, dl, d, du, dw,
                         x, batchCount, pBufferSizeInBytes);
 }
 
 template<usual_fp T>
 gpusparseStatus_t gpsvInterleavedBatch(gpusparseHandle_t handle, int algo, int m, T *ds, T *dl,
                                        T *d, T *du, T *dw, T *x, int batchCount, void *pBuffer) {
-  GPUMOD_USUAL_DISPATCH(T, gpsvInterleavedBatch, handle, algo, m, ds, dl, d, du, dw, x, batchCount,
+  WWR_USUAL_DISPATCH(T, gpsvInterleavedBatch, handle, algo, m, ds, dl, d, du, dw, x, batchCount,
                         pBuffer);
 }
 
@@ -290,4 +290,4 @@ gpsvInterleavedBatch<gpuDoubleComplex>(gpusparseHandle_t, int, int, gpuDoubleCom
                                        gpuDoubleComplex *, gpuDoubleComplex *, gpuDoubleComplex *,
                                        gpuDoubleComplex *, gpuDoubleComplex *, int, void *);
 
-} // namespace gpumod
+} // namespace wwr

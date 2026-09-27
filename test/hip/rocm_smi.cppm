@@ -1,16 +1,16 @@
-// rocm_smi.cppm - Compile-time tests for gpumod.hip.rocm_smi
+// rocm_smi.cppm - Compile-time tests for wwr.hip.rocm_smi
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.rocm_smi;
+export module wwr.test.hip.rocm_smi;
 
 import std;
-import gpumod.hip.rocm_smi;
+import wwr.hip.rocm_smi;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.rocm_smi
+// Compile-time tests for wwr.hip.rocm_smi
 //
 // The module is pure re-export (using declarations only -- rocm_smi.h is a
 // plain extern "C" API, no convenience-template collisions like hip_runtime_api.h).
@@ -24,9 +24,9 @@ import gpumod.hip.rocm_smi;
 //   5. Link-time symbol resolution for every exported function
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -391,163 +391,163 @@ static_assert(sizeof(rsmi_bit_field_t) == sizeof(std::uint64_t));
 // ────────────────────────────────────────────────────────────────────────
 
 // Initialization and Shutdown
-GPUMOD_LINK_CHECK(rsmi_init)
-GPUMOD_LINK_CHECK(rsmi_shut_down)
+WWR_LINK_CHECK(rsmi_init)
+WWR_LINK_CHECK(rsmi_shut_down)
 
 // Identifier Queries
-GPUMOD_LINK_CHECK(rsmi_num_monitor_devices)
-GPUMOD_LINK_CHECK(rsmi_dev_id_get)
-GPUMOD_LINK_CHECK(rsmi_dev_revision_get)
-GPUMOD_LINK_CHECK(rsmi_dev_sku_get)
-GPUMOD_LINK_CHECK(rsmi_dev_vendor_id_get)
-GPUMOD_LINK_CHECK(rsmi_dev_name_get)
-GPUMOD_LINK_CHECK(rsmi_dev_brand_get)
-GPUMOD_LINK_CHECK(rsmi_dev_vendor_name_get)
-GPUMOD_LINK_CHECK(rsmi_dev_market_name_get)
-GPUMOD_LINK_CHECK(rsmi_dev_vram_vendor_get)
-GPUMOD_LINK_CHECK(rsmi_dev_serial_number_get)
-GPUMOD_LINK_CHECK(rsmi_dev_subsystem_id_get)
-GPUMOD_LINK_CHECK(rsmi_dev_subsystem_name_get)
-GPUMOD_LINK_CHECK(rsmi_dev_drm_render_minor_get)
-GPUMOD_LINK_CHECK(rsmi_dev_subsystem_vendor_id_get)
-GPUMOD_LINK_CHECK(rsmi_dev_unique_id_get)
-GPUMOD_LINK_CHECK(rsmi_dev_xgmi_physical_id_get)
-GPUMOD_LINK_CHECK(rsmi_dev_guid_get)
-GPUMOD_LINK_CHECK(rsmi_dev_node_id_get)
-GPUMOD_LINK_CHECK(rsmi_dev_device_identifiers_get)
+WWR_LINK_CHECK(rsmi_num_monitor_devices)
+WWR_LINK_CHECK(rsmi_dev_id_get)
+WWR_LINK_CHECK(rsmi_dev_revision_get)
+WWR_LINK_CHECK(rsmi_dev_sku_get)
+WWR_LINK_CHECK(rsmi_dev_vendor_id_get)
+WWR_LINK_CHECK(rsmi_dev_name_get)
+WWR_LINK_CHECK(rsmi_dev_brand_get)
+WWR_LINK_CHECK(rsmi_dev_vendor_name_get)
+WWR_LINK_CHECK(rsmi_dev_market_name_get)
+WWR_LINK_CHECK(rsmi_dev_vram_vendor_get)
+WWR_LINK_CHECK(rsmi_dev_serial_number_get)
+WWR_LINK_CHECK(rsmi_dev_subsystem_id_get)
+WWR_LINK_CHECK(rsmi_dev_subsystem_name_get)
+WWR_LINK_CHECK(rsmi_dev_drm_render_minor_get)
+WWR_LINK_CHECK(rsmi_dev_subsystem_vendor_id_get)
+WWR_LINK_CHECK(rsmi_dev_unique_id_get)
+WWR_LINK_CHECK(rsmi_dev_xgmi_physical_id_get)
+WWR_LINK_CHECK(rsmi_dev_guid_get)
+WWR_LINK_CHECK(rsmi_dev_node_id_get)
+WWR_LINK_CHECK(rsmi_dev_device_identifiers_get)
 
 // PCIe Queries
-GPUMOD_LINK_CHECK(rsmi_dev_pci_bandwidth_get)
-GPUMOD_LINK_CHECK(rsmi_dev_pci_id_get)
-GPUMOD_LINK_CHECK(rsmi_topo_numa_affinity_get)
-GPUMOD_LINK_CHECK(rsmi_dev_pci_throughput_get)
-GPUMOD_LINK_CHECK(rsmi_dev_pci_replay_counter_get)
+WWR_LINK_CHECK(rsmi_dev_pci_bandwidth_get)
+WWR_LINK_CHECK(rsmi_dev_pci_id_get)
+WWR_LINK_CHECK(rsmi_topo_numa_affinity_get)
+WWR_LINK_CHECK(rsmi_dev_pci_throughput_get)
+WWR_LINK_CHECK(rsmi_dev_pci_replay_counter_get)
 
 // PCIe Control
-GPUMOD_LINK_CHECK(rsmi_dev_pci_bandwidth_set)
+WWR_LINK_CHECK(rsmi_dev_pci_bandwidth_set)
 
 // Power Queries
-GPUMOD_LINK_CHECK(rsmi_dev_power_ave_get)
-GPUMOD_LINK_CHECK(rsmi_dev_current_socket_power_get)
-GPUMOD_LINK_CHECK(rsmi_dev_power_get)
-GPUMOD_LINK_CHECK(rsmi_dev_energy_count_get)
-GPUMOD_LINK_CHECK(rsmi_dev_power_cap_get)
-GPUMOD_LINK_CHECK(rsmi_dev_power_cap_default_get)
-GPUMOD_LINK_CHECK(rsmi_dev_power_cap_range_get)
+WWR_LINK_CHECK(rsmi_dev_power_ave_get)
+WWR_LINK_CHECK(rsmi_dev_current_socket_power_get)
+WWR_LINK_CHECK(rsmi_dev_power_get)
+WWR_LINK_CHECK(rsmi_dev_energy_count_get)
+WWR_LINK_CHECK(rsmi_dev_power_cap_get)
+WWR_LINK_CHECK(rsmi_dev_power_cap_default_get)
+WWR_LINK_CHECK(rsmi_dev_power_cap_range_get)
 
 // Power Control
-GPUMOD_LINK_CHECK(rsmi_dev_power_cap_set)
-GPUMOD_LINK_CHECK(rsmi_dev_power_profile_set)
+WWR_LINK_CHECK(rsmi_dev_power_cap_set)
+WWR_LINK_CHECK(rsmi_dev_power_profile_set)
 
 // Memory Queries
-GPUMOD_LINK_CHECK(rsmi_dev_memory_total_get)
-GPUMOD_LINK_CHECK(rsmi_dev_memory_usage_get)
-GPUMOD_LINK_CHECK(rsmi_dev_memory_busy_percent_get)
-GPUMOD_LINK_CHECK(rsmi_dev_memory_reserved_pages_get)
+WWR_LINK_CHECK(rsmi_dev_memory_total_get)
+WWR_LINK_CHECK(rsmi_dev_memory_usage_get)
+WWR_LINK_CHECK(rsmi_dev_memory_busy_percent_get)
+WWR_LINK_CHECK(rsmi_dev_memory_reserved_pages_get)
 
 // Physical State Queries
-GPUMOD_LINK_CHECK(rsmi_dev_fan_rpms_get)
-GPUMOD_LINK_CHECK(rsmi_dev_fan_speed_get)
-GPUMOD_LINK_CHECK(rsmi_dev_fan_speed_max_get)
-GPUMOD_LINK_CHECK(rsmi_dev_temp_metric_get)
-GPUMOD_LINK_CHECK(rsmi_dev_volt_metric_get)
+WWR_LINK_CHECK(rsmi_dev_fan_rpms_get)
+WWR_LINK_CHECK(rsmi_dev_fan_speed_get)
+WWR_LINK_CHECK(rsmi_dev_fan_speed_max_get)
+WWR_LINK_CHECK(rsmi_dev_temp_metric_get)
+WWR_LINK_CHECK(rsmi_dev_volt_metric_get)
 
 // Physical State Control
-GPUMOD_LINK_CHECK(rsmi_dev_fan_reset)
-GPUMOD_LINK_CHECK(rsmi_dev_fan_speed_set)
+WWR_LINK_CHECK(rsmi_dev_fan_reset)
+WWR_LINK_CHECK(rsmi_dev_fan_speed_set)
 
 // Clock, Power and Performance Queries
-GPUMOD_LINK_CHECK(rsmi_dev_busy_percent_get)
-GPUMOD_LINK_CHECK(rsmi_utilization_count_get)
-GPUMOD_LINK_CHECK(rsmi_dev_activity_metric_get)
-GPUMOD_LINK_CHECK(rsmi_dev_activity_avg_mm_get)
-GPUMOD_LINK_CHECK(rsmi_dev_perf_level_get)
-GPUMOD_LINK_CHECK(rsmi_perf_determinism_mode_set)
-GPUMOD_LINK_CHECK(rsmi_dev_overdrive_level_get)
-GPUMOD_LINK_CHECK(rsmi_dev_mem_overdrive_level_get)
-GPUMOD_LINK_CHECK(rsmi_dev_gpu_clk_freq_get)
-GPUMOD_LINK_CHECK(rsmi_dev_gpu_reset)
-GPUMOD_LINK_CHECK(rsmi_dev_od_volt_info_get)
-GPUMOD_LINK_CHECK(rsmi_dev_gpu_metrics_info_get)
-GPUMOD_LINK_CHECK(rsmi_dev_clk_range_set)
-GPUMOD_LINK_CHECK(rsmi_dev_clk_extremum_set)
-GPUMOD_LINK_CHECK(rsmi_dev_od_clk_info_set)
-GPUMOD_LINK_CHECK(rsmi_dev_od_volt_info_set)
-GPUMOD_LINK_CHECK(rsmi_dev_od_volt_curve_regions_get)
-GPUMOD_LINK_CHECK(rsmi_dev_power_profile_presets_get)
+WWR_LINK_CHECK(rsmi_dev_busy_percent_get)
+WWR_LINK_CHECK(rsmi_utilization_count_get)
+WWR_LINK_CHECK(rsmi_dev_activity_metric_get)
+WWR_LINK_CHECK(rsmi_dev_activity_avg_mm_get)
+WWR_LINK_CHECK(rsmi_dev_perf_level_get)
+WWR_LINK_CHECK(rsmi_perf_determinism_mode_set)
+WWR_LINK_CHECK(rsmi_dev_overdrive_level_get)
+WWR_LINK_CHECK(rsmi_dev_mem_overdrive_level_get)
+WWR_LINK_CHECK(rsmi_dev_gpu_clk_freq_get)
+WWR_LINK_CHECK(rsmi_dev_gpu_reset)
+WWR_LINK_CHECK(rsmi_dev_od_volt_info_get)
+WWR_LINK_CHECK(rsmi_dev_gpu_metrics_info_get)
+WWR_LINK_CHECK(rsmi_dev_clk_range_set)
+WWR_LINK_CHECK(rsmi_dev_clk_extremum_set)
+WWR_LINK_CHECK(rsmi_dev_od_clk_info_set)
+WWR_LINK_CHECK(rsmi_dev_od_volt_info_set)
+WWR_LINK_CHECK(rsmi_dev_od_volt_curve_regions_get)
+WWR_LINK_CHECK(rsmi_dev_power_profile_presets_get)
 
 // Clock, Power and Performance Control
-GPUMOD_LINK_CHECK(rsmi_dev_perf_level_set)
-GPUMOD_LINK_CHECK(rsmi_dev_perf_level_set_v1)
-GPUMOD_LINK_CHECK(rsmi_dev_overdrive_level_set)
-GPUMOD_LINK_CHECK(rsmi_dev_overdrive_level_set_v1)
-GPUMOD_LINK_CHECK(rsmi_dev_gpu_clk_freq_set)
+WWR_LINK_CHECK(rsmi_dev_perf_level_set)
+WWR_LINK_CHECK(rsmi_dev_perf_level_set_v1)
+WWR_LINK_CHECK(rsmi_dev_overdrive_level_set)
+WWR_LINK_CHECK(rsmi_dev_overdrive_level_set_v1)
+WWR_LINK_CHECK(rsmi_dev_gpu_clk_freq_set)
 
 // Version Queries
-GPUMOD_LINK_CHECK(rsmi_version_get)
-GPUMOD_LINK_CHECK(rsmi_version_str_get)
-GPUMOD_LINK_CHECK(rsmi_dev_vbios_version_get)
-GPUMOD_LINK_CHECK(rsmi_dev_firmware_version_get)
-GPUMOD_LINK_CHECK(rsmi_dev_target_graphics_version_get)
+WWR_LINK_CHECK(rsmi_version_get)
+WWR_LINK_CHECK(rsmi_version_str_get)
+WWR_LINK_CHECK(rsmi_dev_vbios_version_get)
+WWR_LINK_CHECK(rsmi_dev_firmware_version_get)
+WWR_LINK_CHECK(rsmi_dev_target_graphics_version_get)
 
 // Error Queries
-GPUMOD_LINK_CHECK(rsmi_dev_ecc_count_get)
-GPUMOD_LINK_CHECK(rsmi_dev_ecc_enabled_get)
-GPUMOD_LINK_CHECK(rsmi_dev_ecc_status_get)
-GPUMOD_LINK_CHECK(rsmi_status_string)
+WWR_LINK_CHECK(rsmi_dev_ecc_count_get)
+WWR_LINK_CHECK(rsmi_dev_ecc_enabled_get)
+WWR_LINK_CHECK(rsmi_dev_ecc_status_get)
+WWR_LINK_CHECK(rsmi_status_string)
 
 // Performance Counter Functions
-GPUMOD_LINK_CHECK(rsmi_dev_counter_group_supported)
-GPUMOD_LINK_CHECK(rsmi_dev_counter_create)
-GPUMOD_LINK_CHECK(rsmi_dev_counter_destroy)
-GPUMOD_LINK_CHECK(rsmi_counter_control)
-GPUMOD_LINK_CHECK(rsmi_counter_read)
-GPUMOD_LINK_CHECK(rsmi_counter_available_counters_get)
+WWR_LINK_CHECK(rsmi_dev_counter_group_supported)
+WWR_LINK_CHECK(rsmi_dev_counter_create)
+WWR_LINK_CHECK(rsmi_dev_counter_destroy)
+WWR_LINK_CHECK(rsmi_counter_control)
+WWR_LINK_CHECK(rsmi_counter_read)
+WWR_LINK_CHECK(rsmi_counter_available_counters_get)
 
 // System Information Functions
-GPUMOD_LINK_CHECK(rsmi_compute_process_info_get)
-GPUMOD_LINK_CHECK(rsmi_compute_process_info_by_pid_get)
-GPUMOD_LINK_CHECK(rsmi_compute_process_gpus_get)
-GPUMOD_LINK_CHECK(rsmi_compute_process_info_by_device_get)
+WWR_LINK_CHECK(rsmi_compute_process_info_get)
+WWR_LINK_CHECK(rsmi_compute_process_info_by_pid_get)
+WWR_LINK_CHECK(rsmi_compute_process_gpus_get)
+WWR_LINK_CHECK(rsmi_compute_process_info_by_device_get)
 
 // XGMI Functions
-GPUMOD_LINK_CHECK(rsmi_dev_xgmi_error_status)
-GPUMOD_LINK_CHECK(rsmi_dev_xgmi_error_reset)
-GPUMOD_LINK_CHECK(rsmi_dev_xgmi_hive_id_get)
+WWR_LINK_CHECK(rsmi_dev_xgmi_error_status)
+WWR_LINK_CHECK(rsmi_dev_xgmi_error_reset)
+WWR_LINK_CHECK(rsmi_dev_xgmi_hive_id_get)
 
 // Hardware Topology Functions
-GPUMOD_LINK_CHECK(rsmi_topo_get_numa_node_number)
-GPUMOD_LINK_CHECK(rsmi_topo_get_link_weight)
-GPUMOD_LINK_CHECK(rsmi_minmax_bandwidth_get)
-GPUMOD_LINK_CHECK(rsmi_topo_get_link_type)
-GPUMOD_LINK_CHECK(rsmi_is_P2P_accessible)
+WWR_LINK_CHECK(rsmi_topo_get_numa_node_number)
+WWR_LINK_CHECK(rsmi_topo_get_link_weight)
+WWR_LINK_CHECK(rsmi_minmax_bandwidth_get)
+WWR_LINK_CHECK(rsmi_topo_get_link_type)
+WWR_LINK_CHECK(rsmi_is_P2P_accessible)
 
 // Compute Partition Functions
-GPUMOD_LINK_CHECK(rsmi_dev_compute_partition_get)
-GPUMOD_LINK_CHECK(rsmi_dev_compute_partition_set)
-GPUMOD_LINK_CHECK(rsmi_dev_partition_id_get)
+WWR_LINK_CHECK(rsmi_dev_compute_partition_get)
+WWR_LINK_CHECK(rsmi_dev_compute_partition_set)
+WWR_LINK_CHECK(rsmi_dev_partition_id_get)
 
 // The Memory Partition Functions
-GPUMOD_LINK_CHECK(rsmi_dev_memory_partition_get)
-GPUMOD_LINK_CHECK(rsmi_dev_memory_partition_capabilities_get)
-GPUMOD_LINK_CHECK(rsmi_dev_memory_partition_set)
+WWR_LINK_CHECK(rsmi_dev_memory_partition_get)
+WWR_LINK_CHECK(rsmi_dev_memory_partition_capabilities_get)
+WWR_LINK_CHECK(rsmi_dev_memory_partition_set)
 
 // Supported Functions
-GPUMOD_LINK_CHECK(rsmi_dev_supported_func_iterator_open)
-GPUMOD_LINK_CHECK(rsmi_dev_supported_variant_iterator_open)
-GPUMOD_LINK_CHECK(rsmi_func_iter_next)
-GPUMOD_LINK_CHECK(rsmi_dev_supported_func_iterator_close)
-GPUMOD_LINK_CHECK(rsmi_func_iter_value_get)
+WWR_LINK_CHECK(rsmi_dev_supported_func_iterator_open)
+WWR_LINK_CHECK(rsmi_dev_supported_variant_iterator_open)
+WWR_LINK_CHECK(rsmi_func_iter_next)
+WWR_LINK_CHECK(rsmi_dev_supported_func_iterator_close)
+WWR_LINK_CHECK(rsmi_func_iter_value_get)
 
 // Event Notification Functions
-GPUMOD_LINK_CHECK(rsmi_event_notification_init)
-GPUMOD_LINK_CHECK(rsmi_event_notification_mask_set)
-GPUMOD_LINK_CHECK(rsmi_event_notification_get)
-GPUMOD_LINK_CHECK(rsmi_event_notification_stop)
+WWR_LINK_CHECK(rsmi_event_notification_init)
+WWR_LINK_CHECK(rsmi_event_notification_mask_set)
+WWR_LINK_CHECK(rsmi_event_notification_get)
+WWR_LINK_CHECK(rsmi_event_notification_stop)
 
 // Metric Functions
-GPUMOD_LINK_CHECK(rsmi_dev_metrics_header_info_get)
-GPUMOD_LINK_CHECK(rsmi_dev_metrics_xcd_counter_get)
-GPUMOD_LINK_CHECK(rsmi_dev_metrics_log_get)
+WWR_LINK_CHECK(rsmi_dev_metrics_header_info_get)
+WWR_LINK_CHECK(rsmi_dev_metrics_xcd_counter_get)
+WWR_LINK_CHECK(rsmi_dev_metrics_log_get)
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

@@ -7,20 +7,20 @@
  * handle) was created on.
  *
  * Usage:
- *   import gpumod.extension.handle;
+ *   import wwr.extension.handle;
  *
  *   class GpuStream : public DeviceBoundHandle<gpuStream_t, GpuStream, ...> { ... };
  */
 
-export module gpumod.extension.handle:device_bound_handle;
+export module wwr.extension.handle:device_bound_handle;
 
 import :handle;
 import :device_bound_handle_view;
-import gpumod.extension.common; // gpu_check, error_policy
-import gpumod.runtime_api;
+import wwr.extension.common; // gpu_check, error_policy
+import wwr.runtime_api;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief CRTP layer over BaseHandle for handles bound to one physical device
@@ -143,4 +143,4 @@ public:
   DeviceBoundHandleView<T> view() && = delete;
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

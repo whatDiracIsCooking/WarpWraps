@@ -1,10 +1,10 @@
 // conversions.cpp - host runtime tests for the fp16 / bf16 host conversion
-// wrappers (gpumod.fp16, gpumod.bf16).
+// wrappers (wwr.fp16, wwr.bf16).
 //
 // These wrappers run on the CPU -- unlike the __device__ conversions in
 // fp16.cuh / bf16.cuh, which fp16.cu / bf16.cu prove by compiling -- so they can
 // be exercised for real with no GPU. The compile-time fp16.cppm / bf16.cppm
-// module tests prove the wrappers are reachable and link (GPUMOD_LINK_CHECK); this
+// module tests prove the wrappers are reachable and link (WWR_LINK_CHECK); this
 // proves they compute.
 //
 // Every value here is chosen to make == exact, with no vendor-library
@@ -15,15 +15,15 @@
 // KeepsHalfPrecision and NarrowsBelowBfloat16Precision would flip.
 #include <gtest/gtest.h>
 
-import gpumod.fp16;
-import gpumod.bf16;
+import wwr.fp16;
+import wwr.bf16;
 
 namespace {
 
-using gpumod::gpuBfloat162Float;
-using gpumod::gpuFloat2Bfloat16;
-using gpumod::gpuFloat2Half;
-using gpumod::gpuHalf2Float;
+using wwr::gpuBfloat162Float;
+using wwr::gpuFloat2Bfloat16;
+using wwr::gpuFloat2Half;
+using wwr::gpuHalf2Float;
 
 // Representable in both formats -> the round trip is lossless either way.
 constexpr float kExact = 1.5f;

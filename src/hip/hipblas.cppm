@@ -2,7 +2,7 @@
  * @file hipblas.cppm
  * @brief hipBLAS API module wrapper for gpumod project
  *
- * Wraps hipblas/hipblas.h. CUDA counterpart: gpumod.cuda.cublas_v2.
+ * Wraps hipblas/hipblas.h. CUDA counterpart: wwr.cuda.cublas_v2.
  *
  * hipBLAS carries no "_v2" naming split -- every function is declared once
  * under its final name -- so this module needs none of the #undef dance or the
@@ -19,7 +19,7 @@
  * authoritative and tractable.
  *
  * Usage:
- *   import gpumod.hip.hipblas;
+ *   import wwr.hip.hipblas;
  */
 
 module;
@@ -39,11 +39,11 @@ module;
 #include <array>
 #include <hipblas/hipblas.h>
 
-export module gpumod.hip.hipblas;
+export module wwr.hip.hipblas;
 
 import std;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Core Types
@@ -1363,4 +1363,4 @@ using ::hipblasNrm2Ex;
 using ::hipblasNrm2Ex_64;
 using ::hipblasNrm2StridedBatchedEx;
 using ::hipblasNrm2StridedBatchedEx_64;
-} // namespace gpumod::hip
+} // namespace wwr::hip

@@ -1,29 +1,29 @@
 // main.cpp - Shared test runner for compile-time module tests
 
 import std;
-import gpumod.test.cuda.cuda_runtime_api;
-import gpumod.test.cuda.cuComplex;
-import gpumod.test.cuda.cuda_fp16;
-import gpumod.test.cuda.cuda_bf16;
-import gpumod.test.cuda.cublasLt;
-import gpumod.test.cuda.cublasXt;
-import gpumod.test.cuda.cufft;
-import gpumod.test.cuda.cufftXt;
-import gpumod.test.cuda.cusparse;
-import gpumod.test.cuda.cuda_fp4;
-import gpumod.test.cuda.cuda_fp6;
-import gpumod.test.cuda.cuda_fp8;
-import gpumod.test.cuda.cuda_h;
-import gpumod.test.cuda.cusolverMg;
-import gpumod.test.cuda.cupti;
-import gpumod.test.cuda.cuda_profiler_api;
-import gpumod.test.cuda.cusolverSp;
-import gpumod.test.cuda.nvFatbin;
-import gpumod.test.cuda.cufile;
-import gpumod.test.cuda.nvJitLink;
-import gpumod.test.cuda.nvjpeg;
-import gpumod.test.cuda.nvml;
-import gpumod.test.cuda.nvrtc;
+import wwr.test.cuda.cuda_runtime_api;
+import wwr.test.cuda.cuComplex;
+import wwr.test.cuda.cuda_fp16;
+import wwr.test.cuda.cuda_bf16;
+import wwr.test.cuda.cublasLt;
+import wwr.test.cuda.cublasXt;
+import wwr.test.cuda.cufft;
+import wwr.test.cuda.cufftXt;
+import wwr.test.cuda.cusparse;
+import wwr.test.cuda.cuda_fp4;
+import wwr.test.cuda.cuda_fp6;
+import wwr.test.cuda.cuda_fp8;
+import wwr.test.cuda.cuda_h;
+import wwr.test.cuda.cusolverMg;
+import wwr.test.cuda.cupti;
+import wwr.test.cuda.cuda_profiler_api;
+import wwr.test.cuda.cusolverSp;
+import wwr.test.cuda.nvFatbin;
+import wwr.test.cuda.cufile;
+import wwr.test.cuda.nvJitLink;
+import wwr.test.cuda.nvjpeg;
+import wwr.test.cuda.nvml;
+import wwr.test.cuda.nvrtc;
 
 int main() {
   // Nothing to check here at run time: the tests in this binary are the

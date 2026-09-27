@@ -9,7 +9,7 @@
 /// `#include`d directly into a .cu (CUDA) or `-x hip` device-compiled (HIP)
 /// translation unit, so it reaches the backend through the gpu* layer's
 /// runtime.cuh rather than gpu_backend.h: there is no module involved at
-/// the point of use. Link `gpumod.device`.
+/// the point of use. Link `wwr.device`.
 ///
 /// A functor's `operator()` is plain `__device__` on both backends. Its
 /// callability is constrained on the kernel template below -- a device entity,
@@ -24,20 +24,20 @@
 #include <cstdint>
 #include <type_traits>
 
-// GPUMOD_GRID_CONSTANT and GPUMOD_WARP_SIZE, then gpuStream_t for
+// WWR_GRID_CONSTANT and WWR_WARP_SIZE, then gpuStream_t for
 // the signature below. Both are the gpu* layer's, reached bare through
-// gpumod.device's include path. runtime.cuh is also the device-pass
+// wwr.device's include path. runtime.cuh is also the device-pass
 // gate: it #errors outside a CUDA or HIP device compile, so this header carries
 // no guard of its own.
 #include "extension/bridge/gpu_stream_bridge.h"
 #include "runtime.cuh"
 
-namespace gpumod::extension {
+namespace wwr::extension {
 
 /// @brief Constraint for an immutable, trivially-copyable callable invoked per thread index
 ///
 /// The functor must not be mutable: under CUDA the kernel receives it via
-/// `GPUMOD_GRID_CONSTANT` (constant memory shared across the grid), and writes to
+/// `WWR_GRID_CONSTANT` (constant memory shared across the grid), and writes to
 /// constant memory are undefined behaviour on either backend. The
 /// `!is_copy_assignable` check is the compile-time proxy for that -- a const
 /// member deletes the implicit copy-assignment operator.
@@ -69,7 +69,7 @@ template<typename Functor, typename IndexType>
   requires requires(const Functor f, const IndexType i) {
     { f(i) } -> std::same_as<void>;
   }
-__global__ void parallel_for_kernel(GPUMOD_GRID_CONSTANT const Functor f, IndexType count) {
+__global__ void parallel_for_kernel(WWR_GRID_CONSTANT const Functor f, IndexType count) {
   const IndexType i = static_cast<IndexType>(blockIdx.x) * blockDim.x + threadIdx.x;
   if (i < count) {
     f(i);
@@ -91,20 +91,20 @@ void parallel_for(gpuStream_t stream, const IndexType count, Functor functor) {
     return;
   }
 
-  // 4 warps per block. GPUMOD_WARP_SIZE (runtime.cuh) is a configure-time
-  // value -- -DGPUMOD_WARP_SIZE, default 32, so this is 128 unless a
+  // 4 warps per block. WWR_WARP_SIZE (runtime.cuh) is a configure-time
+  // value -- -DWWR_WARP_SIZE, default 32, so this is 128 unless a
   // CDNA build sets 64 and makes it 256. Neither backend offers a warp size
   // that can be used in a constant expression, and HIP's one compile-time
   // spelling differs between its host and device passes; that header's
-  // GPUMOD_WARP_SIZE entry has the transcript.
-  constexpr uint32_t kBlockSize = 4 * GPUMOD_WARP_SIZE;
+  // WWR_WARP_SIZE entry has the transcript.
+  constexpr uint32_t kBlockSize = 4 * WWR_WARP_SIZE;
   static_assert(kBlockSize <= 1024,
                 "block size exceeds the 1024 threads/block both backends cap at -- "
-                "GPUMOD_WARP_SIZE is too large");
+                "WWR_WARP_SIZE is too large");
 
   const uint32_t num_blocks = static_cast<uint32_t>((count + kBlockSize - 1) / kBlockSize);
 
   device::parallel_for_kernel<<<num_blocks, kBlockSize, 0, stream>>>(functor, count);
 }
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

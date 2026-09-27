@@ -7,15 +7,15 @@
  * for those default bindings; alternative-policy aliases belong here too.
  */
 
-export module gpumod.extension.solver:convenience_solver;
+export module wwr.extension.solver:convenience_solver;
 
 import :solver_handle;
 import :solver_params;
-import gpumod.solver;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.solver;
+import wwr.extension.common;
+import wwr.extension.handle;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Convenient alias for GpusolverDnHandleWrapper with default error policies
@@ -39,4 +39,4 @@ using GpusolverDnHandleView = DeviceBoundHandleView<gpusolverDnHandle_t>;
  */
 using GpusolverDnParams = GpusolverDnParamsWrapper<>;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

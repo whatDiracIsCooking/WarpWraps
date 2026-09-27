@@ -1,6 +1,6 @@
 # src/wrappers/blas — Type-Safe GPU BLAS Extension
 
-This directory provides the C++23 module `gpumod.wrappers.blas`, which
+This directory provides the C++23 module `wwr.wrappers.blas`, which
 wraps every BLAS operation cuBLAS and hipBLAS have in common in a single
 generic C++ template function. Callers write `gemm<float>(...)` instead of
 `cublasSgemm_v2(...)` / `hipblasSgemm(...)`; the correct typed function is
@@ -8,10 +8,10 @@ selected at compile time via `if constexpr` dispatch.
 
 It is backend-neutral: written once against `src/blas`'s `gpublas*` names
 (`gpublasSgemm` is `cublasSgemm_v2` on a CUDA build and `hipblasSgemm` on a HIP
-build), so the same source builds for either `GPUMOD_GPU_BACKEND`.
+build), so the same source builds for either `WWR_GPU_BACKEND`.
 
-**Import:** `import gpumod.wrappers.blas;`
-**Namespace:** `gpumod`
+**Import:** `import wwr.wrappers.blas;`
+**Namespace:** `wwr`
 
 ## Backend differences, and where they are resolved
 
@@ -29,12 +29,12 @@ None of them are resolved here -- all live in `src/blas.cppm`:
 - **cuBLAS-only functions.** `gemm3m`, `gemmGroupedBatched`, `matinvBatched`,
   `tpttr` and `trttp` have no hipBLAS counterpart, so they are not wrapped here
   or anywhere — this module adapts what both vendors offer. Call them through
-  `import gpumod.cuda.cublas_v2;`, which exposes the whole cuBLAS API on a CUDA
+  `import wwr.cuda.cublas_v2;`, which exposes the whole cuBLAS API on a CUDA
   build. The repository README lists them under "Vendor-only functions".
 
 The wrappers take the raw `gpublasHandle_t` and return the raw `gpublasStatus_t`
 — a caller creates, destroys and error-checks the handle itself. RAII ownership
-and typed error handling live in the sibling `gpumod.extension.blas` module
+and typed error handling live in the sibling `wwr.extension.blas` module
 (`:blas_handle` wraps `gpublasHandle_t`; `:blas_error` specialises the error
 policy for `gpublasStatus_t`).
 
@@ -42,7 +42,7 @@ policy for `gpublasStatus_t`).
 
 ### `:type_traits` — `type_traits.cppm`
 
-Re-exports concepts from `gpumod.wrappers.common` and adds:
+Re-exports concepts from `wwr.wrappers.common` and adds:
 
 ```cpp
 // Constrains IntT to int, int64_t, or anything convertible to either
@@ -172,19 +172,19 @@ device.
 ## Build
 
 ```
-gpumod_add_cxx_module_library(
-  NAME gpumod.wrappers.blas
+wwr_add_cxx_module_library(
+  NAME wwr.wrappers.blas
   PRIMARY_INTERFACE interface.cppm
   PARTITIONS type_traits.cppm
              level_1.cppm level_2.cppm level_3.cppm extension.cppm
   IMPLEMENTATION instantiations.cpp
-  LINK_PUBLIC gpumod.blas gpumod.complex gpumod.fp16
-              gpumod.bf16 gpumod.wrappers.common
+  LINK_PUBLIC wwr.blas wwr.complex wwr.fp16
+              wwr.bf16 wwr.wrappers.common
   IMPORT_STD
 )
 ```
 
-`dispatch_macros.h` (the `gpublas`-prefixed `GPUMOD_USUAL_DISPATCH` plus the `_64`
+`dispatch_macros.h` (the `gpublas`-prefixed `WWR_USUAL_DISPATCH` plus the `_64`
 index variants) sits next to the sources and is included same-dir; it
-builds on the prefix-agnostic `GPUMOD_REAL_DISPATCH` / `GPUMOD_COMPLEX_DISPATCH` cores shared
+builds on the prefix-agnostic `WWR_REAL_DISPATCH` / `WWR_COMPLEX_DISPATCH` cores shared
 from `wrappers/common/dispatch_sdcz.h`.

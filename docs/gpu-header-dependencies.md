@@ -16,11 +16,11 @@ has this shape; this file only states *what* it is.
 reach it through `device_guard.h`, which adds the "must be a device pass"
 `#error` guard a bridge must not have. Four reach `device_guard.h` directly;
 `cooperative_groups.cuh` and `wmma.cuh` reach it through `runtime.cuh`,
-whose `GPUMOD_WARP_SIZE` they also want — a portable tile size for one, a wave
+whose `WWR_WARP_SIZE` they also want — a portable tile size for one, a wave
 index for the other, both because the API is a whole-warp collective.
 **No bridge includes another bridge, and every `.cuh`-to-`.cuh` edge stays
 inside a single target** — both are into `runtime.cuh`, and all three
-files are `gpumod.device`, so neither leaks an include path across targets,
+files are `wwr.device`, so neither leaks an include path across targets,
 which is the concern that keeps every other `.cuh` rooted directly at
 `device_guard.h`.
 
@@ -28,7 +28,7 @@ The two bridges — `gpu_stream_bridge.h` and `rand_state_bridge.h` — reach
 `selected_backend.h` *directly*, not through `device_guard.h`: a bridge compiles
 in a host TU and so must not carry the "must be a device pass" `#error`. They
 appear below as leaves of `selected_backend.h` alongside `device_guard.h`. Both
-live in `src/extension/bridge/` and are carried by the `gpumod.extension.bridge`
+live in `src/extension/bridge/` and are carried by the `wwr.extension.bridge`
 INTERFACE target; their consumers are `extension/parallel_for/parallel_for.cuh`,
 `extension/init_state/init_state_bridge.h` and
 `extension/random_normal/random_normal_bridge.h`.
@@ -51,8 +51,8 @@ selected_backend.h        no #includes — the leaf the switch/bridge layer rest
 gpu_backend.h             no #includes — independent; consumed only by the .cppm modules
 ```
 
-The two columns after each `+` are the CUDA branch (`GPUMOD_SELECTED_CUDA`) and
-the HIP branch (`GPUMOD_SELECTED_HIP` / the `#else`); a translation unit sees
+The two columns after each `+` are the CUDA branch (`WWR_SELECTED_CUDA`) and
+the HIP branch (`WWR_SELECTED_HIP` / the `#else`); a translation unit sees
 exactly one. `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `runtime.cuh`,
 `cooperative_groups.cuh`, `wmma.cuh`, `rand.cuh` and `gpu_stream_bridge.h` pull
 vendor headers; `rand_state_bridge.h` pulls none (it forward-declares the vendor
@@ -75,18 +75,18 @@ in `src/extension/bridge/`.
 | `selected_backend.h` | (internal — `device_guard.h`; and the two bridges) | — (header-only, no target of its own) |
 | `device_guard.h` | (internal only — `runtime.cuh`, `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `rand.cuh`) | — (header-only, rides each `.cuh`'s target) |
 | `gpu_backend.h` | `blas.cppm`, `bf16.cppm`, `complex.cppm`, `fp16.cppm`, `rand.cppm`, `runtime_api.cppm`, `solver.cppm` | each module's own target |
-| `gpu_stream_bridge.h` | `extension/parallel_for/parallel_for.cuh`, `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h` | `gpumod.extension.bridge` |
-| `rand_state_bridge.h` | `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h` | `gpumod.extension.bridge` |
-| `runtime.cuh` | `extension/parallel_for/parallel_for.cuh` (and, internally, `cooperative_groups.cuh`) | `gpumod.device` |
-| `cooperative_groups.cuh` | (none yet — the warp-reduction example will be its first caller) | `gpumod.device` |
-| `wmma.cuh` | (none yet — only `test/gpu/wmma.cu` compiles it) | `gpumod.device` |
-| `complex.cuh` | `extension/random_normal/random_normal.cu` | `gpumod.device` |
-| `fp16.cuh` | `extension/random_normal/random_normal.cu` | `gpumod.device` |
-| `bf16.cuh` | `extension/random_normal/random_normal.cu` | `gpumod.device` |
-| `rand.cuh` | `extension/init_state/init_state.cu`, `extension/random_normal/random_normal.cu` | `gpumod.rand.device` |
+| `gpu_stream_bridge.h` | `extension/parallel_for/parallel_for.cuh`, `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h` | `wwr.extension.bridge` |
+| `rand_state_bridge.h` | `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h` | `wwr.extension.bridge` |
+| `runtime.cuh` | `extension/parallel_for/parallel_for.cuh` (and, internally, `cooperative_groups.cuh`) | `wwr.device` |
+| `cooperative_groups.cuh` | (none yet — the warp-reduction example will be its first caller) | `wwr.device` |
+| `wmma.cuh` | (none yet — only `test/gpu/wmma.cu` compiles it) | `wwr.device` |
+| `complex.cuh` | `extension/random_normal/random_normal.cu` | `wwr.device` |
+| `fp16.cuh` | `extension/random_normal/random_normal.cu` | `wwr.device` |
+| `bf16.cuh` | `extension/random_normal/random_normal.cu` | `wwr.device` |
+| `rand.cuh` | `extension/init_state/init_state.cu`, `extension/random_normal/random_normal.cu` | `wwr.rand.device` |
 
 `runtime.cuh`, `cooperative_groups.cuh`, `wmma.cuh`, `complex.cuh`, `fp16.cuh` and
-`bf16.cuh` share the `gpumod.device` target; `rand.cuh` sits in a separate `gpumod.rand.device`
+`bf16.cuh` share the `wwr.device` target; `rand.cuh` sits in a separate `wwr.rand.device`
 target on purpose (an RNG device TU should not be forced to carry the
 runtime/warp-size machinery). That target split is why `device_guard.h` — not
 `runtime.cuh` — is where the shared guard lives: it carries only the guard
@@ -95,5 +95,5 @@ each `.cuh` can include it without one target's include path or vendor headers
 leaking into another's consumers. Routing a `.cuh` in one target through a `.cuh`
 in another would do exactly that leaking, which is why every cross-target pair is
 kept apart. The two `.cuh`-to-`.cuh` edges, `cooperative_groups.cuh` and `wmma.cuh` →
-`runtime.cuh`, are within `gpumod.device`, so they carry no such leak: a
+`runtime.cuh`, are within `wwr.device`, so they carry no such leak: a
 consumer of any of the three already links that one target.

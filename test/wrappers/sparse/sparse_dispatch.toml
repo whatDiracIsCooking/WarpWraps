@@ -1,4 +1,4 @@
-# Expected dispatch of gpumod.wrappers.sparse -- checked by test/shared/dispatch.py
+# Expected dispatch of wwr.wrappers.sparse -- checked by test/shared/dispatch.py
 #
 # [dispatch] is one key per wrapper<T>: the gpusparse function its compiled code
 # must call. Names are gpusparse aliases (src/sparse.cppm), so this one table
@@ -13,13 +13,13 @@
 # typed cuSPARSE/hipSPARSE functions take a single index width.
 
 [check]
-module = "gpumod.wrappers.sparse"
+module = "wwr.wrappers.sparse"
 prefix = "gpusparse"
-# gpumod.sparse defines the CUDA gebsr2gebsc_bufferSize / csr2gebsr_bufferSize
+# wwr.sparse defines the CUDA gebsr2gebsc_bufferSize / csr2gebsr_bufferSize
 # shims (cuSPARSE spells the byte count int*, hipSPARSE size_t*) as ordinary
-# inline functions next to its GPUMOD_FUNCTION aliases; one that is not inlined is
+# inline functions next to its WWR_FUNCTION aliases; one that is not inlined is
 # called by name, so the check has to recognise it as a dispatch target too.
-forwarder_module = "gpumod.sparse"
+forwarder_module = "wwr.sparse"
 
 # How the demangler spells each template argument, mapped to the name this table
 # uses. gpuComplex and gpuFloatComplex are the same underlying vendor type, so

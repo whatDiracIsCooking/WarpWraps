@@ -1,25 +1,25 @@
-// hiprand_kernel.cppm - Compile-time tests for gpumod.hip.hiprand_kernel
+// hiprand_kernel.cppm - Compile-time tests for wwr.hip.hiprand_kernel
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hiprand_kernel;
+export module wwr.test.hip.hiprand_kernel;
 
 import std;
-import gpumod.hip.hiprand_kernel;
+import wwr.hip.hiprand_kernel;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hiprand_kernel
+// Compile-time tests for wwr.hip.hiprand_kernel
 //
 // No LINK_CHECKs: this module exports types only, never a function. See
 // src/hip/hiprand_kernel.cppm for why the device functions are absent (they
 // are __device__-qualified and a module unit is host code).
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Every state type is a complete class type
@@ -81,4 +81,4 @@ static_assert(sizeof(hiprandState) == sizeof(hiprandStateXORWOW));
 static_assert(std::is_base_of_v<hiprandState::base, hiprandState>);
 static_assert(std::is_same_v<hiprandState::base, hiprandStateXORWOW::base>);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

@@ -7,17 +7,17 @@ CMake modules for C++23 module libraries and testing.
 ```
 cmake/
 ├── README.md                                                  # This file
-├── gpumod_add_gpu_device_library.cmake                  # Macro for creating backend-neutral device-kernel static libraries
-├── gpumod_add_cxx_module_library.cmake                  # Macro for creating C++23 module libraries
-├── gpumod_add_dispatch_check.cmake                      # Build-time check that wrappers call the vendor functions their TOML table names
-├── gpumod_add_gtest_executable.cmake                    # Consolidates GoogleTest executable boilerplate
-├── gpumod_add_gtest_suite_tests.cmake                   # Registers a GoogleTest binary with ctest, one entry per suite
-├── gpumod_add_interface_library.cmake                   # Macro for creating INTERFACE libraries
-├── gpumod_add_test_executable.cmake                     # Plain (non-GoogleTest) ctest-registered executables
-├── gpumod_check_gtest_suites.cmake                      # Script mode: fails when a suite in the binary is missing from the CMake list
-├── gpumod_install.cmake                                 # Install rules, the export set and the CMake package
-├── gpumodConfig.cmake.in                                # Template for the installed gpumodConfig.cmake
-└── gpumod_internal_helpers.cmake                        # Internal helper functions (alias creation, include dirs, linking)
+├── wwr_add_gpu_device_library.cmake                  # Macro for creating backend-neutral device-kernel static libraries
+├── wwr_add_cxx_module_library.cmake                  # Macro for creating C++23 module libraries
+├── wwr_add_dispatch_check.cmake                      # Build-time check that wrappers call the vendor functions their TOML table names
+├── wwr_add_gtest_executable.cmake                    # Consolidates GoogleTest executable boilerplate
+├── wwr_add_gtest_suite_tests.cmake                   # Registers a GoogleTest binary with ctest, one entry per suite
+├── wwr_add_interface_library.cmake                   # Macro for creating INTERFACE libraries
+├── wwr_add_test_executable.cmake                     # Plain (non-GoogleTest) ctest-registered executables
+├── wwr_check_gtest_suites.cmake                      # Script mode: fails when a suite in the binary is missing from the CMake list
+├── wwr_install.cmake                                 # Install rules, the export set and the CMake package
+├── wwrConfig.cmake.in                                # Template for the installed wwrConfig.cmake
+└── wwr_internal_helpers.cmake                        # Internal helper functions (alias creation, include dirs, linking)
 ```
 
 ---
@@ -50,16 +50,16 @@ forth, a full rebuild each way.
 
 ---
 
-## `gpumod_add_gpu_device_library`
+## `wwr_add_gpu_device_library`
 
-Creates the STATIC library that holds a module's device-kernel `.cu` sources, compiled for **whichever backend the build selected**. Every module that owns a kernel declares one next to its `gpumod_add_cxx_module_library()` call.
+Creates the STATIC library that holds a module's device-kernel `.cu` sources, compiled for **whichever backend the build selected**. Every module that owns a kernel declares one next to its `wwr_add_cxx_module_library()` call.
 
 A `.cu` in this tree means "device pass", not "nvcc" — the same sense as the `.cuh` headers it includes. Compiling one needs a language decision and, under HIP, two driver flags; a C++23 module interface unit must get neither, being an ordinary host CXX compile. Keeping the device sources in their own library is what keeps the two sets of flags apart.
 
 ### Usage
 
 ```cmake
-gpumod_add_gpu_device_library(
+wwr_add_gpu_device_library(
   NAME library_name
   SOURCES file1.cu [file2.cu ...]
   [LINK_PRIVATE lib1 lib2 ...]
@@ -82,31 +82,31 @@ gpumod_add_gpu_device_library(
 
 ### What it deliberately does not take
 
-No `LINK_PUBLIC`, no `INCLUDE_DIRS_*`, no separable-compilation switch — each absence is a project invariant, not an oversight. Links are PRIVATE always (a device library's usage requirements are device-code include paths and `-x hip`; nothing linking it should inherit either), include directories arrive by linking `gpumod.extension.parallel_for`, and separable compilation is OFF on every target in this tree. The macro's own header comment has the reasoning. Add a parameter when a real call site needs one.
+No `LINK_PUBLIC`, no `INCLUDE_DIRS_*`, no separable-compilation switch — each absence is a project invariant, not an oversight. Links are PRIVATE always (a device library's usage requirements are device-code include paths and `-x hip`; nothing linking it should inherit either), include directories arrive by linking `wwr.extension.parallel_for`, and separable compilation is OFF on every target in this tree. The macro's own header comment has the reasoning. Add a parameter when a real call site needs one.
 
 It also creates no `::` alias, unlike the two macros below — its call site had none before the macro existed.
 
 ### Example
 
 ```cmake
-gpumod_add_gpu_device_library(
-  NAME gpumod.extension.random_normal.device
+wwr_add_gpu_device_library(
+  NAME wwr.extension.random_normal.device
   SOURCES random_normal.cu
-  LINK_PRIVATE gpumod.extension.parallel_for gpumod.rand.device)
+  LINK_PRIVATE wwr.extension.parallel_for wwr.rand.device)
 ```
 
-> This replaced `GPUMOD_ADD_CUDA_LIBRARY` (removed), a CUDA-only macro inherited from the template this repo grew from. It could not serve either call site — no HIP branch at all, and `CUDA_SEPARABLE_COMPILATION ON` — which is why it had no call sites while `rand` and `fill` hand-rolled 25 identical lines each.
+> This replaced `WWR_ADD_CUDA_LIBRARY` (removed), a CUDA-only macro inherited from the template this repo grew from. It could not serve either call site — no HIP branch at all, and `CUDA_SEPARABLE_COMPILATION ON` — which is why it had no call sites while `rand` and `fill` hand-rolled 25 identical lines each.
 
 ---
 
-## `GPUMOD_ADD_INTERFACE_LIBRARY`
+## `WWR_ADD_INTERFACE_LIBRARY`
 
 Creates an INTERFACE library that exposes header files (`.h`/`.cuh`) to consumers. Automatically adds the standard project include directories and creates a `::` alias.
 
 ### Usage
 
 ```cmake
-GPUMOD_ADD_INTERFACE_LIBRARY(
+WWR_ADD_INTERFACE_LIBRARY(
   NAME library_name
 )
 ```
@@ -121,25 +121,25 @@ GPUMOD_ADD_INTERFACE_LIBRARY(
 
 - `add_library(${NAME} INTERFACE)`
 - Include dirs: `INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>` + `$<INSTALL_INTERFACE:include>`
-- `::` alias via `_gpumod_create_alias`
+- `::` alias via `_wwr_create_alias`
 
 ### Example
 
 ```cmake
-GPUMOD_ADD_INTERFACE_LIBRARY(
-  NAME gpumod.core.parallel_for)
+WWR_ADD_INTERFACE_LIBRARY(
+  NAME wwr.core.parallel_for)
 ```
 
 ---
 
-## `GPUMOD_ADD_CXX_MODULE_LIBRARY`
+## `WWR_ADD_CXX_MODULE_LIBRARY`
 
 Consolidates the common boilerplate for creating a C++23 module library.
 
 ### Usage
 
 ```cmake
-GPUMOD_ADD_CXX_MODULE_LIBRARY(
+WWR_ADD_CXX_MODULE_LIBRARY(
   NAME my_library
   PRIMARY_INTERFACE my_module.cppm
   [PARTITIONS partition1.cppm partition2.cppm ...]
@@ -171,7 +171,7 @@ GPUMOD_ADD_CXX_MODULE_LIBRARY(
 ### Example
 
 ```cmake
-GPUMOD_ADD_CXX_MODULE_LIBRARY(
+WWR_ADD_CXX_MODULE_LIBRARY(
   NAME my_module.math.set_val
   PRIMARY_INTERFACE set_val.cppm
   IMPLEMENTATION set_val.cpp
@@ -185,9 +185,9 @@ GPUMOD_ADD_CXX_MODULE_LIBRARY(
 
 ## Install and the CMake package
 
-`gpumod_install.cmake` emits every install rule and generates the package that
-`find_package(gpumod)` finds. The top-level `CMakeLists.txt` calls
-`gpumod_install_package()` once, last, when `GPUMOD_INSTALL` is on — which it is
+`wwr_install.cmake` emits every install rule and generates the package that
+`find_package(wwr)` finds. The top-level `CMakeLists.txt` calls
+`wwr_install_package()` once, last, when `WWR_INSTALL` is on — which it is
 for a top-level build and is not when gpumod is embedded via `add_subdirectory`
 or `FetchContent`.
 
@@ -225,7 +225,7 @@ make the force survive `install(EXPORT)`:
   hand-written form is copied into the export file unevaluated, and
   `$<TARGET_FILE:>` of a target the consumer does not have resolves to nothing.
 - Spell the target **both** ways — `$<BUILD_INTERFACE:…tgt>` and
-  `$<INSTALL_INTERFACE:…gpumod::tgt>`. CMake does not namespace the name inside
+  `$<INSTALL_INTERFACE:…wwr::tgt>`. CMake does not namespace the name inside
   `LINK_LIBRARY` when it writes the export (it does for ordinary link entries), so
   the bare name matches nothing in the consumer and degrades to a plain `-ltgt`
   the linker cannot find.
@@ -240,19 +240,19 @@ what catches a regression here.
 
 Three macros, and which you want depends on whether the test *runs*.
 
-`gpumod_add_test_executable` builds a plain ctest-registered executable — used
+`wwr_add_test_executable` builds a plain ctest-registered executable — used
 by the compile-time tiers (`test/cuda`, `test/hip`, `test/gpu`), where the proof
 is that the translation unit compiled and linked at all.
 
-`gpumod_add_gtest_executable` builds a GoogleTest binary, consolidating the
+`wwr_add_gtest_executable` builds a GoogleTest binary, consolidating the
 module properties, the shared `main.cpp` link list and libstdc++.
 
-`gpumod_add_gtest_suite_tests` registers that binary with ctest as **one entry
+`wwr_add_gtest_suite_tests` registers that binary with ctest as **one entry
 per suite**, plus a `SuiteListIsComplete` guard test that fails when a suite
 exists in the binary but is missing from the CMake list. The list is
 hand-maintained; the guard is what keeps it honest, so when it fails, add the
 suite rather than deleting the guard. It runs
-`gpumod_check_gtest_suites.cmake`, whose path is resolved from
+`wwr_check_gtest_suites.cmake`, whose path is resolved from
 `${CMAKE_SOURCE_DIR}/cmake/`.
 
 **Why per suite, not per binary or per case.** Measured on the math suite (276
@@ -277,7 +277,7 @@ Nothing invokes a test binary by path any more — `docker/compose.yaml` drives
 
 ### `REQUIRES_GPU`, and the `gpu` label
 
-`gpumod_add_gtest_suite_tests(... REQUIRES_GPU)` puts the `gpu` ctest label on
+`wwr_add_gtest_suite_tests(... REQUIRES_GPU)` puts the `gpu` ctest label on
 every entry it registers. Pass it when the binary needs a live device — it
 allocates device memory, launches a kernel, or creates a vendor-library handle.
 Seven targets do (`test/extension/{memory_buffer,runtime,rand,blas,solver,fft,
@@ -317,7 +317,7 @@ Two things to get right when adding one:
 `cuda_compile_tests` is the one entry whose label depends on a cache variable,
 for a reason unrelated to devices — it links the CUDA driver stubs and cannot
 *load* without `libcuda.so.1`. It carries `gpu` by default, and with
-`GPUMOD_CUDA_DRIVER_STUBS=ON` (the `ci-cuda` preset) it instead gets the
+`WWR_CUDA_DRIVER_STUBS=ON` (the `ci-cuda` preset) it instead gets the
 toolkit's stubs on `LD_LIBRARY_PATH` for that one test and runs. Its own
 CMakeLists has the why, including why the stubs go in the build directory and
 why `ENVIRONMENT_MODIFICATION` rather than `ENVIRONMENT`.

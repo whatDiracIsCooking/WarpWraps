@@ -6,16 +6,16 @@
  * Device memory resides on the GPU and is accessible only by device code.
  */
 
-export module gpumod.extension.memory_buffer:device_buffer;
+export module wwr.extension.memory_buffer:device_buffer;
 
 import :base_buffer;
 import :memory_kind;
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.runtime;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.runtime;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief RAII wrapper for GPU device memory buffer
@@ -163,4 +163,4 @@ private:
   std::shared_ptr<DeviceHandle> handle_;
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

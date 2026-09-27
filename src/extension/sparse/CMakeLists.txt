@@ -1,10 +1,10 @@
 # The error-handling and RAII-handle layer for GPU sparse linear algebra. The
 # dispatch wrappers that once shared this module were split out to
-# gpumod.wrappers.sparse; what is left here is sparse_error + sparse_handle,
+# wwr.wrappers.sparse; what is left here is sparse_error + sparse_handle,
 # aggregated by interface.cppm.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
-  gpumod.extension.sparse
+  wwr.extension.sparse
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
@@ -12,8 +12,8 @@ gpumod_add_cxx_module_library(
   sparse_handle.cppm
   convenience_sparse.cppm
   LINK_PUBLIC
-  gpumod.sparse
-  gpumod.extension.common
-  gpumod.extension.handle
+  wwr.sparse
+  wwr.extension.common
+  wwr.extension.handle
   IMPORT_STD
 )

@@ -1,24 +1,24 @@
 /**
  * @file nvrtc.cppm
- * @brief Primary interface for gpumod.cuda.nvrtc
+ * @brief Primary interface for wwr.cuda.nvrtc
  *
  * This module wraps the NVRTC (NVIDIA Runtime Compilation) API and exports
  * types, constants, and functions for runtime compilation of CUDA source code
  * into PTX, CUBIN, or LTO IR at runtime.
  *
  * Usage:
- *   import gpumod.cuda.nvrtc;
+ *   import wwr.cuda.nvrtc;
  */
 
 module;
 
 #include <nvrtc.h>
 
-export module gpumod.cuda.nvrtc;
+export module wwr.cuda.nvrtc;
 
 import std;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Result / Status Type
@@ -124,4 +124,4 @@ using ::nvrtcSetPCHHeapSize;
 // ========================================================================
 using ::nvrtcSetFlowCallback;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

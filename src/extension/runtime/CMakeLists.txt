@@ -1,6 +1,6 @@
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
-  gpumod.extension.runtime
+  wwr.extension.runtime
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
@@ -13,8 +13,8 @@ gpumod_add_cxx_module_library(
   device_handle.cppm
   convenience_runtime.cppm
   LINK_PUBLIC
-  gpumod.runtime_api
-  gpumod.extension.common
-  gpumod.extension.handle
+  wwr.runtime_api
+  wwr.extension.common
+  wwr.extension.handle
   IMPORT_STD
 )

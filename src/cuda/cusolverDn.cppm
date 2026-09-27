@@ -1,27 +1,27 @@
 /**
  * @file cusolverDn.cppm
- * @brief Primary interface for gpumod.cuda.cusolverDn
+ * @brief Primary interface for wwr.cuda.cusolverDn
  *
  * This module wraps the native cuSOLVER Dense API and exports types, constants,
  * and functions for cuSOLVER library management and linear algebra operations.
  *
  * Usage:
- *   import gpumod.cuda.cusolverDn;
+ *   import wwr.cuda.cusolverDn;
  */
 
 module;
 
 #include <cusolverDn.h>
 
-export module gpumod.cuda.cusolverDn;
+export module wwr.cuda.cusolverDn;
 
 import std;
 
 // ========================================================================
-// Export all cuSOLVER Dense types and functions in gpumod namespace
+// Export all cuSOLVER Dense types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Core Types
@@ -691,4 +691,4 @@ using ::cusolverDnDlaswp;
 using ::cusolverDnSlaswp;
 using ::cusolverDnZlaswp;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

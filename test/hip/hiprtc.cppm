@@ -1,16 +1,16 @@
-// hiprtc.cppm - Compile-time tests for gpumod.hip.hiprtc
+// hiprtc.cppm - Compile-time tests for wwr.hip.hiprtc
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hiprtc;
+export module wwr.test.hip.hiprtc;
 
 import std;
-import gpumod.hip.hiprtc;
+import wwr.hip.hiprtc;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hiprtc
+// Compile-time tests for wwr.hip.hiprtc
 //
 // Mirrors test/cuda/nvrtc.cppm. The module is a pure re-export (using
 // declarations). We verify at compile-time that:
@@ -20,9 +20,9 @@ import gpumod.hip.hiprtc;
 //   4. Every re-exported function resolves to a linkable external symbol
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type check
@@ -72,37 +72,37 @@ static_assert(std::is_enum_v<hipJitInputType>);
 // ────────────────────────────────────────────────────────────────────────
 
 // Error handling
-GPUMOD_LINK_CHECK(hiprtcGetErrorString)
+WWR_LINK_CHECK(hiprtcGetErrorString)
 
 // General information query
-GPUMOD_LINK_CHECK(hiprtcVersion)
+WWR_LINK_CHECK(hiprtcVersion)
 
 // Program lifecycle
-GPUMOD_LINK_CHECK(hiprtcCreateProgram)
-GPUMOD_LINK_CHECK(hiprtcDestroyProgram)
+WWR_LINK_CHECK(hiprtcCreateProgram)
+WWR_LINK_CHECK(hiprtcDestroyProgram)
 
 // Compilation
-GPUMOD_LINK_CHECK(hiprtcCompileProgram)
+WWR_LINK_CHECK(hiprtcCompileProgram)
 
 // Code / bitcode retrieval
-GPUMOD_LINK_CHECK(hiprtcGetCodeSize)
-GPUMOD_LINK_CHECK(hiprtcGetCode)
-GPUMOD_LINK_CHECK(hiprtcGetBitcodeSize)
-GPUMOD_LINK_CHECK(hiprtcGetBitcode)
+WWR_LINK_CHECK(hiprtcGetCodeSize)
+WWR_LINK_CHECK(hiprtcGetCode)
+WWR_LINK_CHECK(hiprtcGetBitcodeSize)
+WWR_LINK_CHECK(hiprtcGetBitcode)
 
 // Compilation log retrieval
-GPUMOD_LINK_CHECK(hiprtcGetProgramLogSize)
-GPUMOD_LINK_CHECK(hiprtcGetProgramLog)
+WWR_LINK_CHECK(hiprtcGetProgramLogSize)
+WWR_LINK_CHECK(hiprtcGetProgramLog)
 
 // Name expression (symbol mangling)
-GPUMOD_LINK_CHECK(hiprtcAddNameExpression)
-GPUMOD_LINK_CHECK(hiprtcGetLoweredName)
+WWR_LINK_CHECK(hiprtcAddNameExpression)
+WWR_LINK_CHECK(hiprtcGetLoweredName)
 
 // Linking
-GPUMOD_LINK_CHECK(hiprtcLinkCreate)
-GPUMOD_LINK_CHECK(hiprtcLinkAddFile)
-GPUMOD_LINK_CHECK(hiprtcLinkAddData)
-GPUMOD_LINK_CHECK(hiprtcLinkComplete)
-GPUMOD_LINK_CHECK(hiprtcLinkDestroy)
+WWR_LINK_CHECK(hiprtcLinkCreate)
+WWR_LINK_CHECK(hiprtcLinkAddFile)
+WWR_LINK_CHECK(hiprtcLinkAddData)
+WWR_LINK_CHECK(hiprtcLinkComplete)
+WWR_LINK_CHECK(hiprtcLinkDestroy)
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

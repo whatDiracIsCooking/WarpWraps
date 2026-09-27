@@ -1,6 +1,6 @@
-// hip_fp4.cppm - Compile-time tests for gpumod.hip.hip_fp4
+// hip_fp4.cppm - Compile-time tests for wwr.hip.hip_fp4
 //
-// IMPORTANT: do not add `import gpumod.hip.hip_fp6;` to this file -- see
+// IMPORTANT: do not add `import wwr.hip.hip_fp6;` to this file -- see
 // src/hip/hip_fp4.cppm's file header and src/hip/README.md for why hip_fp4
 // and hip_fp6 must never land in the same translation unit.
 
@@ -8,13 +8,13 @@ module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_fp4;
+export module wwr.test.hip.hip_fp4;
 
 import std;
-import gpumod.hip.hip_fp4;
+import wwr.hip.hip_fp4;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_fp4
+// Compile-time tests for wwr.hip.hip_fp4
 //
 // Mirrors test/cuda/cuda_fp4.cppm. HIP's fp4 conversion functions take an
 // enum hipRoundMode parameter (not cudaRoundMode) -- see src/hip/hip_fp4.cppm.
@@ -24,9 +24,9 @@ import gpumod.hip.hip_fp4;
 // as CUDA's fp4 storage sizes.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Storage typedef sizes
@@ -80,7 +80,7 @@ static_assert(std::is_standard_layout_v<__hip_fp4x4_e2m1>);
 
 // ────────────────────────────────────────────────────────────────────────
 // Inline wrapper function invocability checks
-// GPUMOD_LINK_CHECK is not applicable for inline functions (no external symbol).
+// WWR_LINK_CHECK is not applicable for inline functions (no external symbol).
 // ────────────────────────────────────────────────────────────────────────
 
 // Narrowing conversions (to fp4 storage)
@@ -136,4 +136,4 @@ static_assert(
                                         __hip_fp4x2_storage_t, __hip_fp4_interpretation_t>,
                    __half2_raw>);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

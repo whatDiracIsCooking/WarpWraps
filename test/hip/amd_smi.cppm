@@ -1,16 +1,16 @@
-// amd_smi.cppm - Compile-time tests for gpumod.hip.amd_smi
+// amd_smi.cppm - Compile-time tests for wwr.hip.amd_smi
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.amd_smi;
+export module wwr.test.hip.amd_smi;
 
 import std;
-import gpumod.hip.amd_smi;
+import wwr.hip.amd_smi;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.amd_smi
+// Compile-time tests for wwr.hip.amd_smi
 //
 // The module is pure re-export (using declarations only -- amdsmi.h is a plain
 // extern "C" API, no convenience-template collisions like hip_runtime_api.h).
@@ -24,9 +24,9 @@ import gpumod.hip.amd_smi;
 //   5. Link-time symbol resolution for every exported function
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -721,211 +721,211 @@ static_assert(sizeof(amdsmi_bit_field_t) == sizeof(std::uint64_t));
 // ────────────────────────────────────────────────────────────────────────
 
 // Initialization and Shutdown
-GPUMOD_LINK_CHECK(amdsmi_init)
-GPUMOD_LINK_CHECK(amdsmi_shut_down)
+WWR_LINK_CHECK(amdsmi_init)
+WWR_LINK_CHECK(amdsmi_shut_down)
 
 // Discovery Queries
-GPUMOD_LINK_CHECK(amdsmi_get_socket_handles)
-GPUMOD_LINK_CHECK(amdsmi_get_socket_info)
-GPUMOD_LINK_CHECK(amdsmi_get_processor_handles)
-GPUMOD_LINK_CHECK(amdsmi_get_node_handle)
-GPUMOD_LINK_CHECK(amdsmi_get_processor_type)
-GPUMOD_LINK_CHECK(amdsmi_get_processor_handle_from_bdf)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_device_bdf)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_device_uuid)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_enumeration_info)
-GPUMOD_LINK_CHECK(amdsmi_get_cpu_affinity_with_scope)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_virtualization_mode)
+WWR_LINK_CHECK(amdsmi_get_socket_handles)
+WWR_LINK_CHECK(amdsmi_get_socket_info)
+WWR_LINK_CHECK(amdsmi_get_processor_handles)
+WWR_LINK_CHECK(amdsmi_get_node_handle)
+WWR_LINK_CHECK(amdsmi_get_processor_type)
+WWR_LINK_CHECK(amdsmi_get_processor_handle_from_bdf)
+WWR_LINK_CHECK(amdsmi_get_gpu_device_bdf)
+WWR_LINK_CHECK(amdsmi_get_gpu_device_uuid)
+WWR_LINK_CHECK(amdsmi_get_gpu_enumeration_info)
+WWR_LINK_CHECK(amdsmi_get_cpu_affinity_with_scope)
+WWR_LINK_CHECK(amdsmi_get_gpu_virtualization_mode)
 
 // Identifier Queries
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_id)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_revision)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_vendor_name)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_vram_vendor)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_subsystem_id)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_subsystem_name)
+WWR_LINK_CHECK(amdsmi_get_gpu_id)
+WWR_LINK_CHECK(amdsmi_get_gpu_revision)
+WWR_LINK_CHECK(amdsmi_get_gpu_vendor_name)
+WWR_LINK_CHECK(amdsmi_get_gpu_vram_vendor)
+WWR_LINK_CHECK(amdsmi_get_gpu_subsystem_id)
+WWR_LINK_CHECK(amdsmi_get_gpu_subsystem_name)
 
 // PCIe Queries
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_pci_bandwidth)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_bdf_id)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_topo_numa_affinity)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_pci_throughput)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_pci_replay_counter)
+WWR_LINK_CHECK(amdsmi_get_gpu_pci_bandwidth)
+WWR_LINK_CHECK(amdsmi_get_gpu_bdf_id)
+WWR_LINK_CHECK(amdsmi_get_gpu_topo_numa_affinity)
+WWR_LINK_CHECK(amdsmi_get_gpu_pci_throughput)
+WWR_LINK_CHECK(amdsmi_get_gpu_pci_replay_counter)
 
 // PCIe Control
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_pci_bandwidth)
+WWR_LINK_CHECK(amdsmi_set_gpu_pci_bandwidth)
 
 // Power Queries
-GPUMOD_LINK_CHECK(amdsmi_get_energy_count)
+WWR_LINK_CHECK(amdsmi_get_energy_count)
 
 // Power Control
-GPUMOD_LINK_CHECK(amdsmi_set_power_cap)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_power_profile)
-GPUMOD_LINK_CHECK(amdsmi_get_supported_power_cap)
-GPUMOD_LINK_CHECK(amdsmi_get_cpu_socket_power)
-GPUMOD_LINK_CHECK(amdsmi_get_cpu_socket_power_cap)
-GPUMOD_LINK_CHECK(amdsmi_get_cpu_socket_power_cap_max)
-GPUMOD_LINK_CHECK(amdsmi_get_cpu_pwr_svi_telemetry_all_rails)
-GPUMOD_LINK_CHECK(amdsmi_set_cpu_socket_power_cap)
-GPUMOD_LINK_CHECK(amdsmi_set_cpu_pwr_efficiency_mode)
+WWR_LINK_CHECK(amdsmi_set_power_cap)
+WWR_LINK_CHECK(amdsmi_set_gpu_power_profile)
+WWR_LINK_CHECK(amdsmi_get_supported_power_cap)
+WWR_LINK_CHECK(amdsmi_get_cpu_socket_power)
+WWR_LINK_CHECK(amdsmi_get_cpu_socket_power_cap)
+WWR_LINK_CHECK(amdsmi_get_cpu_socket_power_cap_max)
+WWR_LINK_CHECK(amdsmi_get_cpu_pwr_svi_telemetry_all_rails)
+WWR_LINK_CHECK(amdsmi_set_cpu_socket_power_cap)
+WWR_LINK_CHECK(amdsmi_set_cpu_pwr_efficiency_mode)
 
 // Memory Queries
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_memory_total)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_memory_usage)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_bad_page_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_bad_page_threshold)
-GPUMOD_LINK_CHECK(amdsmi_gpu_validate_ras_eeprom)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_ras_block_features_enabled)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_memory_reserved_pages)
+WWR_LINK_CHECK(amdsmi_get_gpu_memory_total)
+WWR_LINK_CHECK(amdsmi_get_gpu_memory_usage)
+WWR_LINK_CHECK(amdsmi_get_gpu_bad_page_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_bad_page_threshold)
+WWR_LINK_CHECK(amdsmi_gpu_validate_ras_eeprom)
+WWR_LINK_CHECK(amdsmi_get_gpu_ras_block_features_enabled)
+WWR_LINK_CHECK(amdsmi_get_gpu_memory_reserved_pages)
 
 // Physical State Queries
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_fan_rpms)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_fan_speed)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_fan_speed_max)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_cache_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_volt_metric)
+WWR_LINK_CHECK(amdsmi_get_gpu_fan_rpms)
+WWR_LINK_CHECK(amdsmi_get_gpu_fan_speed)
+WWR_LINK_CHECK(amdsmi_get_gpu_fan_speed_max)
+WWR_LINK_CHECK(amdsmi_get_gpu_cache_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_volt_metric)
 
 // Physical State Control
-GPUMOD_LINK_CHECK(amdsmi_reset_gpu_fan)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_fan_speed)
+WWR_LINK_CHECK(amdsmi_reset_gpu_fan)
+WWR_LINK_CHECK(amdsmi_set_gpu_fan_speed)
 
 // Clock, Power and Performance Queries
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_busy_percent)
-GPUMOD_LINK_CHECK(amdsmi_get_utilization_count)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_perf_level)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_perf_determinism_mode)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_overdrive_level)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_mem_overdrive_level)
-GPUMOD_LINK_CHECK(amdsmi_get_clk_freq)
-GPUMOD_LINK_CHECK(amdsmi_reset_gpu)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_od_volt_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_metrics_header_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_metrics_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_partition_metrics_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_pm_metrics_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_reg_table_info)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_clk_range)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_clk_limit)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_od_clk_info)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_od_volt_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_od_volt_curve_regions)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_power_profile_presets)
+WWR_LINK_CHECK(amdsmi_get_gpu_busy_percent)
+WWR_LINK_CHECK(amdsmi_get_utilization_count)
+WWR_LINK_CHECK(amdsmi_get_gpu_perf_level)
+WWR_LINK_CHECK(amdsmi_set_gpu_perf_determinism_mode)
+WWR_LINK_CHECK(amdsmi_get_gpu_overdrive_level)
+WWR_LINK_CHECK(amdsmi_get_gpu_mem_overdrive_level)
+WWR_LINK_CHECK(amdsmi_get_clk_freq)
+WWR_LINK_CHECK(amdsmi_reset_gpu)
+WWR_LINK_CHECK(amdsmi_get_gpu_od_volt_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_metrics_header_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_metrics_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_partition_metrics_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_pm_metrics_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_reg_table_info)
+WWR_LINK_CHECK(amdsmi_set_gpu_clk_range)
+WWR_LINK_CHECK(amdsmi_set_gpu_clk_limit)
+WWR_LINK_CHECK(amdsmi_set_gpu_od_clk_info)
+WWR_LINK_CHECK(amdsmi_set_gpu_od_volt_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_od_volt_curve_regions)
+WWR_LINK_CHECK(amdsmi_get_gpu_power_profile_presets)
 
 // Clock, Power and Performance Control
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_perf_level)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_overdrive_level)
-GPUMOD_LINK_CHECK(amdsmi_set_clk_freq)
-GPUMOD_LINK_CHECK(amdsmi_get_soc_pstate)
-GPUMOD_LINK_CHECK(amdsmi_set_soc_pstate)
-GPUMOD_LINK_CHECK(amdsmi_get_xgmi_plpd)
-GPUMOD_LINK_CHECK(amdsmi_set_xgmi_plpd)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_process_isolation)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_process_isolation)
-GPUMOD_LINK_CHECK(amdsmi_clean_gpu_local_data)
+WWR_LINK_CHECK(amdsmi_set_gpu_perf_level)
+WWR_LINK_CHECK(amdsmi_set_gpu_overdrive_level)
+WWR_LINK_CHECK(amdsmi_set_clk_freq)
+WWR_LINK_CHECK(amdsmi_get_soc_pstate)
+WWR_LINK_CHECK(amdsmi_set_soc_pstate)
+WWR_LINK_CHECK(amdsmi_get_xgmi_plpd)
+WWR_LINK_CHECK(amdsmi_set_xgmi_plpd)
+WWR_LINK_CHECK(amdsmi_get_gpu_process_isolation)
+WWR_LINK_CHECK(amdsmi_set_gpu_process_isolation)
+WWR_LINK_CHECK(amdsmi_clean_gpu_local_data)
 
 // Version Queries
-GPUMOD_LINK_CHECK(amdsmi_get_lib_version)
+WWR_LINK_CHECK(amdsmi_get_lib_version)
 
 // ECC Information
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_ecc_count)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_ecc_enabled)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_total_ecc_count)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_cper_entries)
+WWR_LINK_CHECK(amdsmi_get_gpu_ecc_count)
+WWR_LINK_CHECK(amdsmi_get_gpu_ecc_enabled)
+WWR_LINK_CHECK(amdsmi_get_gpu_total_ecc_count)
+WWR_LINK_CHECK(amdsmi_get_gpu_cper_entries)
 
 // RAS information
-GPUMOD_LINK_CHECK(amdsmi_get_afids_from_cper)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_ras_feature_info)
+WWR_LINK_CHECK(amdsmi_get_afids_from_cper)
+WWR_LINK_CHECK(amdsmi_get_gpu_ras_feature_info)
 
 // Error Queries
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_ecc_status)
-GPUMOD_LINK_CHECK(amdsmi_status_code_to_string)
+WWR_LINK_CHECK(amdsmi_get_gpu_ecc_status)
+WWR_LINK_CHECK(amdsmi_status_code_to_string)
 
 // Performance Counter Functions
-GPUMOD_LINK_CHECK(amdsmi_gpu_counter_group_supported)
-GPUMOD_LINK_CHECK(amdsmi_gpu_create_counter)
-GPUMOD_LINK_CHECK(amdsmi_gpu_destroy_counter)
-GPUMOD_LINK_CHECK(amdsmi_gpu_control_counter)
-GPUMOD_LINK_CHECK(amdsmi_gpu_read_counter)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_available_counters)
+WWR_LINK_CHECK(amdsmi_gpu_counter_group_supported)
+WWR_LINK_CHECK(amdsmi_gpu_create_counter)
+WWR_LINK_CHECK(amdsmi_gpu_destroy_counter)
+WWR_LINK_CHECK(amdsmi_gpu_control_counter)
+WWR_LINK_CHECK(amdsmi_gpu_read_counter)
+WWR_LINK_CHECK(amdsmi_get_gpu_available_counters)
 
 // System Information Functions
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_compute_process_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_compute_process_info_by_pid)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_compute_process_gpus)
+WWR_LINK_CHECK(amdsmi_get_gpu_compute_process_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_compute_process_info_by_pid)
+WWR_LINK_CHECK(amdsmi_get_gpu_compute_process_gpus)
 
 // XGMI Functions
-GPUMOD_LINK_CHECK(amdsmi_gpu_xgmi_error_status)
-GPUMOD_LINK_CHECK(amdsmi_reset_gpu_xgmi_error)
-GPUMOD_LINK_CHECK(amdsmi_get_xgmi_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_xgmi_link_status)
+WWR_LINK_CHECK(amdsmi_gpu_xgmi_error_status)
+WWR_LINK_CHECK(amdsmi_reset_gpu_xgmi_error)
+WWR_LINK_CHECK(amdsmi_get_xgmi_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_xgmi_link_status)
 
 // Hardware Topology Functions
-GPUMOD_LINK_CHECK(amdsmi_get_link_metrics)
-GPUMOD_LINK_CHECK(amdsmi_topo_get_numa_node_number)
-GPUMOD_LINK_CHECK(amdsmi_topo_get_link_weight)
-GPUMOD_LINK_CHECK(amdsmi_get_minmax_bandwidth_between_processors)
-GPUMOD_LINK_CHECK(amdsmi_topo_get_link_type)
-GPUMOD_LINK_CHECK(amdsmi_get_link_topology_nearest)
-GPUMOD_LINK_CHECK(amdsmi_is_P2P_accessible)
-GPUMOD_LINK_CHECK(amdsmi_topo_get_p2p_status)
+WWR_LINK_CHECK(amdsmi_get_link_metrics)
+WWR_LINK_CHECK(amdsmi_topo_get_numa_node_number)
+WWR_LINK_CHECK(amdsmi_topo_get_link_weight)
+WWR_LINK_CHECK(amdsmi_get_minmax_bandwidth_between_processors)
+WWR_LINK_CHECK(amdsmi_topo_get_link_type)
+WWR_LINK_CHECK(amdsmi_get_link_topology_nearest)
+WWR_LINK_CHECK(amdsmi_is_P2P_accessible)
+WWR_LINK_CHECK(amdsmi_topo_get_p2p_status)
 
 // Compute Partition Functions
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_compute_partition)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_compute_partition)
+WWR_LINK_CHECK(amdsmi_get_gpu_compute_partition)
+WWR_LINK_CHECK(amdsmi_set_gpu_compute_partition)
 
 // Memory Partition Functions
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_memory_partition)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_memory_partition)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_memory_partition_config)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_memory_partition_mode)
+WWR_LINK_CHECK(amdsmi_get_gpu_memory_partition)
+WWR_LINK_CHECK(amdsmi_set_gpu_memory_partition)
+WWR_LINK_CHECK(amdsmi_get_gpu_memory_partition_config)
+WWR_LINK_CHECK(amdsmi_set_gpu_memory_partition_mode)
 
 // Accelerator Partition Profile Functions
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_accelerator_partition_profile_config)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_accelerator_partition_profile)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_accelerator_partition_profile)
+WWR_LINK_CHECK(amdsmi_get_gpu_accelerator_partition_profile_config)
+WWR_LINK_CHECK(amdsmi_get_gpu_accelerator_partition_profile)
+WWR_LINK_CHECK(amdsmi_set_gpu_accelerator_partition_profile)
 
 // Event Notification Functions
-GPUMOD_LINK_CHECK(amdsmi_init_gpu_event_notification)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_event_notification_mask)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_event_notification)
-GPUMOD_LINK_CHECK(amdsmi_stop_gpu_event_notification)
+WWR_LINK_CHECK(amdsmi_init_gpu_event_notification)
+WWR_LINK_CHECK(amdsmi_set_gpu_event_notification_mask)
+WWR_LINK_CHECK(amdsmi_get_gpu_event_notification)
+WWR_LINK_CHECK(amdsmi_stop_gpu_event_notification)
 
 // Software Version Information
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_driver_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_driver_info)
 
 // ASIC & Board Static Information
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_asic_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_kfd_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_vram_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_board_info)
-GPUMOD_LINK_CHECK(amdsmi_get_power_cap_info)
-GPUMOD_LINK_CHECK(amdsmi_get_pcie_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_xcd_counter)
-GPUMOD_LINK_CHECK(amdsmi_get_npm_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_asic_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_kfd_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_vram_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_board_info)
+WWR_LINK_CHECK(amdsmi_get_power_cap_info)
+WWR_LINK_CHECK(amdsmi_get_pcie_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_xcd_counter)
+WWR_LINK_CHECK(amdsmi_get_npm_info)
 
 // Firmware & VBIOS queries
-GPUMOD_LINK_CHECK(amdsmi_get_fw_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_vbios_info)
+WWR_LINK_CHECK(amdsmi_get_fw_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_vbios_info)
 
 // GPU Monitoring
-GPUMOD_LINK_CHECK(amdsmi_get_temp_metric)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_activity)
-GPUMOD_LINK_CHECK(amdsmi_get_power_info)
-GPUMOD_LINK_CHECK(amdsmi_is_gpu_power_management_enabled)
-GPUMOD_LINK_CHECK(amdsmi_get_clock_info)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_vram_usage)
-GPUMOD_LINK_CHECK(amdsmi_get_violation_status)
+WWR_LINK_CHECK(amdsmi_get_temp_metric)
+WWR_LINK_CHECK(amdsmi_get_gpu_activity)
+WWR_LINK_CHECK(amdsmi_get_power_info)
+WWR_LINK_CHECK(amdsmi_is_gpu_power_management_enabled)
+WWR_LINK_CHECK(amdsmi_get_clock_info)
+WWR_LINK_CHECK(amdsmi_get_gpu_vram_usage)
+WWR_LINK_CHECK(amdsmi_get_violation_status)
 
 // Process information
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_process_list)
+WWR_LINK_CHECK(amdsmi_get_gpu_process_list)
 
 // Driver control mechanisms
-GPUMOD_LINK_CHECK(amdsmi_gpu_driver_reload)
+WWR_LINK_CHECK(amdsmi_gpu_driver_reload)
 
 // Peak Tops Limiter
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_ptl_state)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_ptl_state)
-GPUMOD_LINK_CHECK(amdsmi_get_gpu_ptl_formats)
-GPUMOD_LINK_CHECK(amdsmi_set_gpu_ptl_formats)
+WWR_LINK_CHECK(amdsmi_get_gpu_ptl_state)
+WWR_LINK_CHECK(amdsmi_set_gpu_ptl_state)
+WWR_LINK_CHECK(amdsmi_get_gpu_ptl_formats)
+WWR_LINK_CHECK(amdsmi_set_gpu_ptl_formats)
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

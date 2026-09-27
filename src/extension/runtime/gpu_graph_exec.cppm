@@ -6,14 +6,14 @@
  * graph produced by instantiating a gpuGraph_t.
  */
 
-export module gpumod.extension.runtime:gpu_graph_exec;
+export module wwr.extension.runtime:gpu_graph_exec;
 
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Borrow-safe executable-graph operations, shared by the owner and view
@@ -108,4 +108,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

@@ -7,18 +7,18 @@
  * variants covering all buffer kind combinations.
  *
  * Usage:
- *   import gpumod.extension.memory_buffer;
- *   using namespace gpumod::extension;
+ *   import wwr.extension.memory_buffer;
+ *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.memory_buffer:memset;
+export module wwr.extension.memory_buffer:memset;
 
 import std;
 import :base_buffer;
 import :host_memory;
-import gpumod.runtime_api;
+import wwr.runtime_api;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Validate buffer memset parameters
@@ -89,4 +89,4 @@ gpuError_t memset(B &buf, const std::size_t offset, const std::size_t count, con
                         count * B::element_size, stream);
 }
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

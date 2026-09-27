@@ -20,7 +20,7 @@
 
 #pragma once
 
-// GPUMOD_SELECTED_CUDA / GPUMOD_SELECTED_HIP.
+// WWR_SELECTED_CUDA / WWR_SELECTED_HIP.
 #include "selected_backend.h"
 
 #if !defined(__CUDACC__) && !defined(__HIP__) && !defined(__HIPCC__)

@@ -14,7 +14,7 @@
 # dependabot cannot read. LLVM_VERSION, CMAKE_VERSION, NINJA_VERSION and
 # UBUNTU_TAG are build ARGs in docker/Dockerfile.base; ROCM_VERSION and
 # GPU_TARGETS are declared in BOTH Dockerfile.hip and Dockerfile.combined (bump
-# them together); GoogleTest is GPUMOD_GOOGLETEST_TAG in deps/CMakeLists.txt.
+# them together); GoogleTest is WWR_GOOGLETEST_TAG in deps/CMakeLists.txt.
 #
 # The `docker` ecosystem is deliberately absent rather than merely unused: the
 # three child Dockerfiles are `FROM ${PARENT_IMAGE}` and the base is

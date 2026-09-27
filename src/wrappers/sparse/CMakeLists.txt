@@ -1,10 +1,10 @@
 # GPU sparse extension - type-safe wrappers over the legacy typed (S/D/C/Z)
-# gpusparse* functions cuSPARSE and hipSPARSE share (per GPUMOD_GPU_BACKEND).
+# gpusparse* functions cuSPARSE and hipSPARSE share (per WWR_GPU_BACKEND).
 # dispatch_macros.h sits next to the sources and is #include'd by relative
 # path, so it needs no include directory.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
-  gpumod.wrappers.sparse
+  wwr.wrappers.sparse
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
@@ -15,8 +15,8 @@ gpumod_add_cxx_module_library(
   IMPLEMENTATION
   instantiations.cpp
   LINK_PUBLIC
-  gpumod.sparse
-  gpumod.complex
-  gpumod.wrappers.common
+  wwr.sparse
+  wwr.complex
+  wwr.wrappers.common
   IMPORT_STD
 )

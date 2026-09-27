@@ -1,21 +1,21 @@
-// hiprand.cppm - Compile-time tests for gpumod.hip.hiprand
+// hiprand.cppm - Compile-time tests for wwr.hip.hiprand
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hiprand;
+export module wwr.test.hip.hiprand;
 
 import std;
-import gpumod.hip.hiprand;
+import wwr.hip.hiprand;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hiprand
+// Compile-time tests for wwr.hip.hiprand
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -97,58 +97,58 @@ static_assert(std::is_pointer_v<hiprandGenerator_t>);
 static_assert(std::is_pointer_v<hiprandDiscreteDistribution_t>);
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: generator management
+// WWR_LINK_CHECK: generator management
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hiprandCreateGenerator)
-GPUMOD_LINK_CHECK(hiprandCreateGeneratorHost)
-GPUMOD_LINK_CHECK(hiprandDestroyGenerator)
-GPUMOD_LINK_CHECK(hiprandGetVersion)
+WWR_LINK_CHECK(hiprandCreateGenerator)
+WWR_LINK_CHECK(hiprandCreateGeneratorHost)
+WWR_LINK_CHECK(hiprandDestroyGenerator)
+WWR_LINK_CHECK(hiprandGetVersion)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: generator configuration
+// WWR_LINK_CHECK: generator configuration
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hiprandSetStream)
-GPUMOD_LINK_CHECK(hiprandSetPseudoRandomGeneratorSeed)
-GPUMOD_LINK_CHECK(hiprandSetGeneratorOffset)
-GPUMOD_LINK_CHECK(hiprandSetGeneratorOrdering)
-GPUMOD_LINK_CHECK(hiprandSetQuasiRandomGeneratorDimensions)
-GPUMOD_LINK_CHECK(hiprandGenerateSeeds)
+WWR_LINK_CHECK(hiprandSetStream)
+WWR_LINK_CHECK(hiprandSetPseudoRandomGeneratorSeed)
+WWR_LINK_CHECK(hiprandSetGeneratorOffset)
+WWR_LINK_CHECK(hiprandSetGeneratorOrdering)
+WWR_LINK_CHECK(hiprandSetQuasiRandomGeneratorDimensions)
+WWR_LINK_CHECK(hiprandGenerateSeeds)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: generation functions
+// WWR_LINK_CHECK: generation functions
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hiprandGenerate)
-GPUMOD_LINK_CHECK(hiprandGenerateChar)
-GPUMOD_LINK_CHECK(hiprandGenerateShort)
-GPUMOD_LINK_CHECK(hiprandGenerateLongLong)
-GPUMOD_LINK_CHECK(hiprandGenerateUniform)
-GPUMOD_LINK_CHECK(hiprandGenerateUniformDouble)
-GPUMOD_LINK_CHECK(hiprandGenerateUniformHalf)
-GPUMOD_LINK_CHECK(hiprandGenerateNormal)
-GPUMOD_LINK_CHECK(hiprandGenerateNormalDouble)
-GPUMOD_LINK_CHECK(hiprandGenerateNormalHalf)
-GPUMOD_LINK_CHECK(hiprandGenerateLogNormal)
-GPUMOD_LINK_CHECK(hiprandGenerateLogNormalDouble)
-GPUMOD_LINK_CHECK(hiprandGenerateLogNormalHalf)
-GPUMOD_LINK_CHECK(hiprandGeneratePoisson)
+WWR_LINK_CHECK(hiprandGenerate)
+WWR_LINK_CHECK(hiprandGenerateChar)
+WWR_LINK_CHECK(hiprandGenerateShort)
+WWR_LINK_CHECK(hiprandGenerateLongLong)
+WWR_LINK_CHECK(hiprandGenerateUniform)
+WWR_LINK_CHECK(hiprandGenerateUniformDouble)
+WWR_LINK_CHECK(hiprandGenerateUniformHalf)
+WWR_LINK_CHECK(hiprandGenerateNormal)
+WWR_LINK_CHECK(hiprandGenerateNormalDouble)
+WWR_LINK_CHECK(hiprandGenerateNormalHalf)
+WWR_LINK_CHECK(hiprandGenerateLogNormal)
+WWR_LINK_CHECK(hiprandGenerateLogNormalDouble)
+WWR_LINK_CHECK(hiprandGenerateLogNormalHalf)
+WWR_LINK_CHECK(hiprandGeneratePoisson)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: discrete distribution management
+// WWR_LINK_CHECK: discrete distribution management
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hiprandCreatePoissonDistribution)
-GPUMOD_LINK_CHECK(hiprandDestroyDistribution)
+WWR_LINK_CHECK(hiprandCreatePoissonDistribution)
+WWR_LINK_CHECK(hiprandDestroyDistribution)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: direction vectors and scramble constants
+// WWR_LINK_CHECK: direction vectors and scramble constants
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hiprandGetDirectionVectors32)
-GPUMOD_LINK_CHECK(hiprandGetDirectionVectors64)
-GPUMOD_LINK_CHECK(hiprandGetScrambleConstants32)
-GPUMOD_LINK_CHECK(hiprandGetScrambleConstants64)
+WWR_LINK_CHECK(hiprandGetDirectionVectors32)
+WWR_LINK_CHECK(hiprandGetDirectionVectors64)
+WWR_LINK_CHECK(hiprandGetScrambleConstants32)
+WWR_LINK_CHECK(hiprandGetScrambleConstants64)
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

@@ -1,16 +1,16 @@
-// cuComplex.cppm - Compile-time tests for gpumod.cuda.cuComplex
+// cuComplex.cppm - Compile-time tests for wwr.cuda.cuComplex
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cuComplex;
+export module wwr.test.cuda.cuComplex;
 
 import std;
-import gpumod.cuda.cuComplex;
+import wwr.cuda.cuComplex;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Tests for gpumod.cuda.cuComplex
+// Tests for wwr.cuda.cuComplex
 //
 // Unlike the rest of src/cuda, this module is NOT a pure re-export: cuComplex.h
 // functions have `static inline` linkage, so the wrapper provides thin
@@ -21,9 +21,9 @@ import gpumod.cuda.cuComplex;
 // directory cannot do.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Struct traits: C-interop guarantees
@@ -43,26 +43,26 @@ static_assert(sizeof(cuDoubleComplex) == 2 * sizeof(double));
 // catching missing or unresolvable exports that type-only checks miss.
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(make_cuFloatComplex)
-GPUMOD_LINK_CHECK(make_cuDoubleComplex)
-GPUMOD_LINK_CHECK(make_cuComplex)
-GPUMOD_LINK_CHECK(cuCrealf)
-GPUMOD_LINK_CHECK(cuCimagf)
-GPUMOD_LINK_CHECK(cuCreal)
-GPUMOD_LINK_CHECK(cuCimag)
-GPUMOD_LINK_CHECK(cuCaddf)
-GPUMOD_LINK_CHECK(cuCsubf)
-GPUMOD_LINK_CHECK(cuCmulf)
-GPUMOD_LINK_CHECK(cuCdivf)
-GPUMOD_LINK_CHECK(cuCabsf)
-GPUMOD_LINK_CHECK(cuConjf)
-GPUMOD_LINK_CHECK(cuCadd)
-GPUMOD_LINK_CHECK(cuCsub)
-GPUMOD_LINK_CHECK(cuCmul)
-GPUMOD_LINK_CHECK(cuCdiv)
-GPUMOD_LINK_CHECK(cuCabs)
-GPUMOD_LINK_CHECK(cuConj)
-GPUMOD_LINK_CHECK(cuComplexDoubleToFloat)
-GPUMOD_LINK_CHECK(cuComplexFloatToDouble)
+WWR_LINK_CHECK(make_cuFloatComplex)
+WWR_LINK_CHECK(make_cuDoubleComplex)
+WWR_LINK_CHECK(make_cuComplex)
+WWR_LINK_CHECK(cuCrealf)
+WWR_LINK_CHECK(cuCimagf)
+WWR_LINK_CHECK(cuCreal)
+WWR_LINK_CHECK(cuCimag)
+WWR_LINK_CHECK(cuCaddf)
+WWR_LINK_CHECK(cuCsubf)
+WWR_LINK_CHECK(cuCmulf)
+WWR_LINK_CHECK(cuCdivf)
+WWR_LINK_CHECK(cuCabsf)
+WWR_LINK_CHECK(cuConjf)
+WWR_LINK_CHECK(cuCadd)
+WWR_LINK_CHECK(cuCsub)
+WWR_LINK_CHECK(cuCmul)
+WWR_LINK_CHECK(cuCdiv)
+WWR_LINK_CHECK(cuCabs)
+WWR_LINK_CHECK(cuConj)
+WWR_LINK_CHECK(cuComplexDoubleToFloat)
+WWR_LINK_CHECK(cuComplexFloatToDouble)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

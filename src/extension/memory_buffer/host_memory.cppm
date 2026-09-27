@@ -6,16 +6,16 @@
  * allocation and deallocation operations.
  *
  * Usage:
- *   import gpumod.extension.memory_buffer;
- *   using namespace gpumod::extension;
+ *   import wwr.extension.memory_buffer;
+ *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.memory_buffer:host_memory;
+export module wwr.extension.memory_buffer:host_memory;
 
-import gpumod.extension.common;
+import wwr.extension.common;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Error Code Enumeration
@@ -179,4 +179,4 @@ template bool gpu_check<stdHostMemoryError_t, DefaultErrorPolicy<stdHostMemoryEr
     const stdHostMemoryError_t error, DefaultErrorPolicy<stdHostMemoryError_t> &policy,
     std::source_location location);
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

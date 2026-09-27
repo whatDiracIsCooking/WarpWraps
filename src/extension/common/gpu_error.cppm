@@ -11,13 +11,13 @@
  * makes the device-bound base self-sufficient for all of its users.
  */
 
-export module gpumod.extension.common:gpu_error;
+export module wwr.extension.common:gpu_error;
 
-import gpumod.extension.common.error_handling;
-import gpumod.runtime_api;
+import wwr.extension.common.error_handling;
+import wwr.runtime_api;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Success Code Specialization
@@ -76,4 +76,4 @@ template bool gpu_check<gpuError_t>(const gpuError_t error, std::source_location
 template bool gpu_check<gpuError_t, DefaultErrorPolicy<gpuError_t>>(
     const gpuError_t error, DefaultErrorPolicy<gpuError_t> &policy, std::source_location location);
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

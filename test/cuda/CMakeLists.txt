@@ -3,7 +3,7 @@
 #
 # Compile-time only: a failing static_assert fails the build of that module, so
 # building these targets IS running the tests. This directory is added even
-# under GPUMOD_COMPILE_TIME_ONLY; build just it with
+# under WWR_COMPILE_TIME_ONLY; build just it with
 #   cmake --build build --target compile_time_tests
 #
 # cuda_compile_tests below is the one thing that runs (ctest label
@@ -11,11 +11,11 @@
 # module compiled and the executable linked.
 # Expected exit code: 0
 #
-# Each CUDA library gets one gpumod.test.cuda.<name> module wrapping its
+# Each CUDA library gets one wwr.test.cuda.<name> module wrapping its
 # compile-time test (<name>.cppm) in an identical shape -- a foreach builds them
-# all rather than repeating a 10-line gpumod_add_cxx_module_library() block for
+# all rather than repeating a 10-line wwr_add_cxx_module_library() block for
 # each. cuda.cppm is the one irregular name: its module is cuda_h (matching
-# the wrapped module gpumod.cuda.cuda_h -- "cuda" on its own collides
+# the wrapped module wwr.cuda.cuda_h -- "cuda" on its own collides
 # with this project's own top-level namespace).
 
 set(CUDA_TEST_LIBRARIES
@@ -52,19 +52,19 @@ foreach(_lib IN LISTS CUDA_TEST_LIBRARIES)
     set(_source "${_lib}.cppm")
   endif()
 
-  gpumod_add_cxx_module_library(
+  wwr_add_cxx_module_library(
     NAME
-    gpumod.test.cuda.${_lib}
+    wwr.test.cuda.${_lib}
     IMPORT_STD
     NO_CUDA_DEVICE_LINKING
     PRIMARY_INTERFACE
     ${_source}
     LINK_PUBLIC
-    gpumod.cuda.${_lib}
+    wwr.cuda.${_lib}
     INCLUDE_DIRS_PRIVATE
     ${CMAKE_SOURCE_DIR}
   )
-  add_dependencies(compile_time_tests gpumod.test.cuda.${_lib})
+  add_dependencies(compile_time_tests wwr.test.cuda.${_lib})
 endforeach()
 
 # Create test executable with main.cpp entry point.
@@ -78,10 +78,10 @@ endforeach()
 # CUDA/thrust); libstdc++ must be linked explicitly after all CUDA libraries
 set(_cuda_test_targets "")
 foreach(_lib IN LISTS CUDA_TEST_LIBRARIES)
-  list(APPEND _cuda_test_targets gpumod.test.cuda.${_lib})
+  list(APPEND _cuda_test_targets wwr.test.cuda.${_lib})
 endforeach()
 
-gpumod_add_test_executable(
+wwr_add_test_executable(
   NAME
   cuda_compile_tests
   TIMEOUT
@@ -105,13 +105,13 @@ add_dependencies(compile_time_tests cuda_compile_tests)
 #
 # Two ways to cope, and the option picks between them.
 #
-# GPUMOD_CUDA_DRIVER_STUBS=OFF (default) -- carry the `gpu` label and be
+# WWR_CUDA_DRIVER_STUBS=OFF (default) -- carry the `gpu` label and be
 # excluded by `ctest -LE gpu`. Excluding it costs little: a compile error fails
 # the build, and so does an undefined symbol, because reaching main() is
 # exactly "it linked". Only the loader check is lost, and that is precisely
 # what a driverless box cannot answer honestly.
 #
-# GPUMOD_CUDA_DRIVER_STUBS=ON (the ci-cuda preset) -- point the test at the
+# WWR_CUDA_DRIVER_STUBS=ON (the ci-cuda preset) -- point the test at the
 # toolkit's own stubs and drop the label, so it RUNS. The binary never calls
 # the driver; its main() prints and exits. This recovers the loader check for
 # the other ~15 libraries, and makes the CUDA and HIP CI legs report the same
@@ -134,11 +134,11 @@ add_dependencies(compile_time_tests cuda_compile_tests)
 #   * The stub paths come from the cache variables FindCUDAToolkit already
 #     resolved, never from a constructed path -- the stubs sit under
 #     targets/<arch>-linux/lib/stubs, which is not where lib64 suggests.
-if(GPUMOD_CUDA_DRIVER_STUBS)
+if(WWR_CUDA_DRIVER_STUBS)
   if(NOT CUDA_cuda_driver_LIBRARY OR NOT CUDA_nvml_LIBRARY)
     message(
       FATAL_ERROR
-        "GPUMOD_CUDA_DRIVER_STUBS=ON but FindCUDAToolkit did not resolve the "
+        "WWR_CUDA_DRIVER_STUBS=ON but FindCUDAToolkit did not resolve the "
         "driver stubs (CUDA_cuda_driver_LIBRARY / CUDA_nvml_LIBRARY are "
         "empty). Turn the option off, or install the CUDA toolkit's stubs."
     )
@@ -146,20 +146,20 @@ if(GPUMOD_CUDA_DRIVER_STUBS)
 
   # SONAME-named symlinks to the stubs the linker already used. The loader
   # wants libcuda.so.1; the toolkit ships libcuda.so.
-  set(_gpumod_stub_dir "${CMAKE_CURRENT_BINARY_DIR}/driver-stubs")
-  file(MAKE_DIRECTORY "${_gpumod_stub_dir}")
+  set(_wwr_stub_dir "${CMAKE_CURRENT_BINARY_DIR}/driver-stubs")
+  file(MAKE_DIRECTORY "${_wwr_stub_dir}")
   file(CREATE_LINK "${CUDA_cuda_driver_LIBRARY}"
-       "${_gpumod_stub_dir}/libcuda.so.1" SYMBOLIC
+       "${_wwr_stub_dir}/libcuda.so.1" SYMBOLIC
   )
   file(CREATE_LINK "${CUDA_nvml_LIBRARY}"
-       "${_gpumod_stub_dir}/libnvidia-ml.so.1" SYMBOLIC
+       "${_wwr_stub_dir}/libnvidia-ml.so.1" SYMBOLIC
   )
 
   set_tests_properties(cuda_compile_tests PROPERTIES LABELS compile_time)
   set_tests_properties(
     cuda_compile_tests
     PROPERTIES ENVIRONMENT_MODIFICATION
-               "LD_LIBRARY_PATH=path_list_prepend:${_gpumod_stub_dir}"
+               "LD_LIBRARY_PATH=path_list_prepend:${_wwr_stub_dir}"
   )
 else()
   set_tests_properties(

@@ -1,6 +1,6 @@
 /**
  * @file cufftXt.cppm
- * @brief Primary interface for gpumod.cuda.cufftXt
+ * @brief Primary interface for wwr.cuda.cufftXt
  *
  * This module wraps the native cuFFT eXtended (cufftXt) API and exports
  * types, enums, and functions for multi-GPU FFT operations and callbacks.
@@ -8,20 +8,20 @@
  * transitively through cufftXt.h.
  *
  * Usage:
- *   import gpumod.cuda.cufftXt;
+ *   import wwr.cuda.cufftXt;
  */
 
 module;
 
 #include <cufftXt.h>
 
-export module gpumod.cuda.cufftXt;
+export module wwr.cuda.cufftXt;
 
 // ========================================================================
-// Export all cufftXt types and functions in gpumod namespace
+// Export all cufftXt types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Multi-GPU descriptor types (from cudalibxt.h, used in cufftXt signatures)
@@ -218,4 +218,4 @@ using ::cufftXtSetCallback;
 using ::cufftXtSetCallbackSharedSize;
 using ::cufftXtSetJITCallback;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

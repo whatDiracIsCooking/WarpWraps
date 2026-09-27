@@ -3,7 +3,7 @@
  * @brief NVTX (NVIDIA Tools Extension) marker/range API module wrapper
  *
  * Wraps the marker-and-range core of nvtx3/nvToolsExt.h -- the profiler
- * annotation surface that has a one-to-one HIP counterpart in gpumod.hip.roctx
+ * annotation surface that has a one-to-one HIP counterpart in wwr.hip.roctx
  * (rocTX). Scoped deliberately to what both backends share, so a neutral gpu*
  * layer can sit on exactly this set.
  *
@@ -31,16 +31,16 @@
  * nvtxRangeId_t (rocTX: roctx_range_id_t). Both are uint64_t.
  *
  * Usage:
- *   import gpumod.cuda.nvToolsExt;
+ *   import wwr.cuda.nvToolsExt;
  */
 
 module;
 
 #include <nvtx3/nvToolsExt.h>
 
-export module gpumod.cuda.nvToolsExt;
+export module wwr.cuda.nvToolsExt;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Types
@@ -90,4 +90,4 @@ void nvtxRangeEnd(nvtxRangeId_t id) {
   ::nvtxRangeEnd(id);
 }
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

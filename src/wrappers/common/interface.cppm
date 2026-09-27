@@ -1,6 +1,6 @@
 /**
  * @file interface.cppm
- * @brief Primary interface for gpumod.wrappers.common
+ * @brief Primary interface for wwr.wrappers.common
  *
  * This module provides the common, backend-neutral type vocabulary the four
  * extensions (blas, solver, sparse, fft) are written against. It aggregates:
@@ -8,11 +8,11 @@
  * - :int_types - The index-width concept the wrappers constrain IntT with
  *
  * Usage:
- *   import gpumod.wrappers.common;
- *   using namespace gpumod;
+ *   import wwr.wrappers.common;
+ *   using namespace wwr;
  */
 
-export module gpumod.wrappers.common;
+export module wwr.wrappers.common;
 
 import std;
 

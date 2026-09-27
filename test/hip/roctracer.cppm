@@ -1,16 +1,16 @@
-// roctracer.cppm - Compile-time tests for gpumod.hip.roctracer
+// roctracer.cppm - Compile-time tests for wwr.hip.roctracer
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.roctracer;
+export module wwr.test.hip.roctracer;
 
 import std;
-import gpumod.hip.roctracer;
+import wwr.hip.roctracer;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.roctracer
+// Compile-time tests for wwr.hip.roctracer
 //
 // The module is pure re-export (using declarations only -- roctracer.h and
 // the ext/prof_protocol.h types it pulls in are a plain extern "C" API, no
@@ -27,9 +27,9 @@ import gpumod.hip.roctracer;
 //   5. Link-time symbol resolution for every exported function
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ──────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -119,41 +119,41 @@ static_assert(std::is_void_v<roctracer_pool_t>);
 // ──────────────────────────────────────────────────────────────────────
 
 // Versioning and error reporting
-GPUMOD_LINK_CHECK(roctracer_version_major)
-GPUMOD_LINK_CHECK(roctracer_version_minor)
-GPUMOD_LINK_CHECK(roctracer_error_string)
+WWR_LINK_CHECK(roctracer_version_major)
+WWR_LINK_CHECK(roctracer_version_minor)
+WWR_LINK_CHECK(roctracer_error_string)
 
 // Domain queries and properties
-GPUMOD_LINK_CHECK(roctracer_op_string)
-GPUMOD_LINK_CHECK(roctracer_op_code)
-GPUMOD_LINK_CHECK(roctracer_set_properties)
+WWR_LINK_CHECK(roctracer_op_string)
+WWR_LINK_CHECK(roctracer_op_code)
+WWR_LINK_CHECK(roctracer_set_properties)
 
 // Callback API
-GPUMOD_LINK_CHECK(roctracer_enable_op_callback)
-GPUMOD_LINK_CHECK(roctracer_enable_domain_callback)
-GPUMOD_LINK_CHECK(roctracer_disable_op_callback)
-GPUMOD_LINK_CHECK(roctracer_disable_domain_callback)
+WWR_LINK_CHECK(roctracer_enable_op_callback)
+WWR_LINK_CHECK(roctracer_enable_domain_callback)
+WWR_LINK_CHECK(roctracer_disable_op_callback)
+WWR_LINK_CHECK(roctracer_disable_domain_callback)
 
 // Activity API: records and memory pools
-GPUMOD_LINK_CHECK(roctracer_next_record)
-GPUMOD_LINK_CHECK(roctracer_open_pool_expl)
-GPUMOD_LINK_CHECK(roctracer_open_pool)
-GPUMOD_LINK_CHECK(roctracer_close_pool_expl)
-GPUMOD_LINK_CHECK(roctracer_close_pool)
-GPUMOD_LINK_CHECK(roctracer_default_pool_expl)
-GPUMOD_LINK_CHECK(roctracer_default_pool)
+WWR_LINK_CHECK(roctracer_next_record)
+WWR_LINK_CHECK(roctracer_open_pool_expl)
+WWR_LINK_CHECK(roctracer_open_pool)
+WWR_LINK_CHECK(roctracer_close_pool_expl)
+WWR_LINK_CHECK(roctracer_close_pool)
+WWR_LINK_CHECK(roctracer_default_pool_expl)
+WWR_LINK_CHECK(roctracer_default_pool)
 
 // Activity API: enable/disable/flush
-GPUMOD_LINK_CHECK(roctracer_enable_op_activity_expl)
-GPUMOD_LINK_CHECK(roctracer_enable_op_activity)
-GPUMOD_LINK_CHECK(roctracer_enable_domain_activity_expl)
-GPUMOD_LINK_CHECK(roctracer_enable_domain_activity)
-GPUMOD_LINK_CHECK(roctracer_disable_op_activity)
-GPUMOD_LINK_CHECK(roctracer_disable_domain_activity)
-GPUMOD_LINK_CHECK(roctracer_flush_activity_expl)
-GPUMOD_LINK_CHECK(roctracer_flush_activity)
+WWR_LINK_CHECK(roctracer_enable_op_activity_expl)
+WWR_LINK_CHECK(roctracer_enable_op_activity)
+WWR_LINK_CHECK(roctracer_enable_domain_activity_expl)
+WWR_LINK_CHECK(roctracer_enable_domain_activity)
+WWR_LINK_CHECK(roctracer_disable_op_activity)
+WWR_LINK_CHECK(roctracer_disable_domain_activity)
+WWR_LINK_CHECK(roctracer_flush_activity_expl)
+WWR_LINK_CHECK(roctracer_flush_activity)
 
 // Timestamp
-GPUMOD_LINK_CHECK(roctracer_get_timestamp)
+WWR_LINK_CHECK(roctracer_get_timestamp)
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

@@ -1,11 +1,11 @@
-// type_traits.cppm - Compile-time tests for gpumod.wrappers.solver's type system
+// type_traits.cppm - Compile-time tests for wwr.wrappers.solver's type system
 
-export module gpumod.test.wrappers.solver_type_traits;
+export module wwr.test.wrappers.solver_type_traits;
 
 import std;
-import gpumod.solver;
-import gpumod.complex;
-import gpumod.wrappers.solver;
+import wwr.solver;
+import wwr.complex;
+import wwr.wrappers.solver;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // get_gpusolver_type<T>() and the concepts around it
@@ -19,7 +19,7 @@ import gpumod.wrappers.solver;
 // of the dispatch check.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::test {
+namespace wwr::test {
 
 static_assert(get_gpusolver_type<float>() == GPUSOLVER_R_32F);
 static_assert(get_gpusolver_type<double>() == GPUSOLVER_R_64F);
@@ -67,4 +67,4 @@ static_assert(std::is_same_v<ComplexToRealType<gpuDoubleComplex>, double>);
 static_assert(get_gpusolver_type<ComplexToRealType<gpuFloatComplex>>() == GPUSOLVER_R_32F);
 static_assert(get_gpusolver_type<ComplexToRealType<gpuDoubleComplex>>() == GPUSOLVER_R_64F);
 
-} // namespace gpumod::test
+} // namespace wwr::test

@@ -1,4 +1,4 @@
-# gpumod_add_gpu_device_library — a STATIC library of device-compiled `.cu`
+# wwr_add_gpu_device_library — a STATIC library of device-compiled `.cu`
 # sources, built for whichever backend the build selected.
 #
 # A `.cu` here means "device pass", not "nvcc". Keeping device sources in their
@@ -9,11 +9,11 @@
 # See cmake/README.md for the interface, what it deliberately omits, and what it
 # replaced; docs/architecture.md §17 for how a `.cu` is compiled under HIP.
 #
-# gpumod_add_gpu_device_library(
+# wwr_add_gpu_device_library(
 #   NAME    <target, by convention <module>.device>
 #   SOURCES <file.cu ...>
 #   [LINK_PRIVATE <lib ...>])
-macro(gpumod_add_gpu_device_library)
+macro(wwr_add_gpu_device_library)
   cmake_parse_arguments(
     _GDL
     ""
@@ -22,7 +22,7 @@ macro(gpumod_add_gpu_device_library)
     ${ARGN}
   )
 
-  _gpumod_require_args("gpumod_add_gpu_device_library" _GDL NAME SOURCES)
+  _wwr_require_args("wwr_add_gpu_device_library" _GDL NAME SOURCES)
 
   add_library(${_GDL_NAME} STATIC ${_GDL_SOURCES})
 
@@ -30,7 +30,7 @@ macro(gpumod_add_gpu_device_library)
     target_link_libraries(${_GDL_NAME} PRIVATE ${_GDL_LINK_PRIVATE})
   endif()
 
-  if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
+  if(WWR_GPU_BACKEND STREQUAL "CUDA")
     # .cu maps to CUDA by extension; nothing to set for the language. Separable
     # compilation OFF, device symbols unresolved to match —
     # docs/architecture.md §17.
@@ -40,7 +40,7 @@ macro(gpumod_add_gpu_device_library)
                  CUDA_STANDARD_REQUIRED ON
                  POSITION_INDEPENDENT_CODE ON
     )
-    _gpumod_disable_cuda_device_linking(${_GDL_NAME})
+    _wwr_disable_cuda_device_linking(${_GDL_NAME})
   else()
     # A HIP build enables no CUDA language, so .cu must be forced back to CXX;
     # that is also what lets hip::device's $<COMPILE_LANGUAGE:CXX>-gated

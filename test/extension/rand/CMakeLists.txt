@@ -1,4 +1,4 @@
-# gpumod.extension.init_state + gpumod.extension.random_normal tests
+# wwr.extension.init_state + wwr.extension.random_normal tests
 #
 # One integration suite over the pair: random_normal draws from states that
 # init_state seeds, so every case needs both modules.
@@ -13,26 +13,26 @@
 # src/extension/random_normal/random_normal.cu), so this test TU is an ordinary
 # host CXX compile that just imports them.
 
-gpumod_add_gtest_executable(
+wwr_add_gtest_executable(
   NAME
   extension_rand_tests
   SOURCES
   rand_tests.cpp
   LINK
-  gpumod.runtime_api
-  gpumod.rand
-  gpumod.complex
-  gpumod.fp16
-  gpumod.bf16
-  gpumod.extension.runtime
-  gpumod.extension.memory_buffer
-  gpumod.extension.init_state
-  gpumod.extension.random_normal
+  wwr.runtime_api
+  wwr.rand
+  wwr.complex
+  wwr.fp16
+  wwr.bf16
+  wwr.extension.runtime
+  wwr.extension.memory_buffer
+  wwr.extension.init_state
+  wwr.extension.random_normal
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test
 # file, or the SuiteListIsComplete guard test will fail and say so.
-gpumod_add_gtest_suite_tests(
+wwr_add_gtest_suite_tests(
   TARGET
   extension_rand_tests
   SUITES

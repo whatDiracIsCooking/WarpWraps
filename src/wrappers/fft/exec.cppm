@@ -10,8 +10,8 @@
  * signatures match the vendor functions on both backends.
  *
  * Usage:
- *   import gpumod.wrappers.fft;
- *   using namespace gpumod;
+ *   import wwr.wrappers.fft;
+ *   using namespace wwr;
  *
  *   FftPlan plan;
  *   gpufftMakePlan1d(plan, n, GPUFFT_C2C, 1, &work);
@@ -22,13 +22,13 @@ module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.fft:exec;
+export module wwr.wrappers.fft:exec;
 
-import gpumod.fft;
+import wwr.fft;
 import :type_traits;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // Complex-to-complex: C2C (float) / Z2Z (double)
@@ -47,7 +47,7 @@ export namespace gpumod {
 template<real_fp T>
 gpufftResult_t exec_c2c(gpufftHandle plan, FftComplex<T> *idata, FftComplex<T> *odata,
                         int direction) {
-  GPUMOD_FFT_EXEC_DISPATCH(T, C2C, Z2Z, plan, idata, odata, direction);
+  WWR_FFT_EXEC_DISPATCH(T, C2C, Z2Z, plan, idata, odata, direction);
 }
 
 // ========================================================================
@@ -65,7 +65,7 @@ gpufftResult_t exec_c2c(gpufftHandle plan, FftComplex<T> *idata, FftComplex<T> *
  */
 template<real_fp T>
 gpufftResult_t exec_r2c(gpufftHandle plan, T *idata, FftComplex<T> *odata) {
-  GPUMOD_FFT_EXEC_DISPATCH(T, R2C, D2Z, plan, idata, odata);
+  WWR_FFT_EXEC_DISPATCH(T, R2C, D2Z, plan, idata, odata);
 }
 
 // ========================================================================
@@ -83,7 +83,7 @@ gpufftResult_t exec_r2c(gpufftHandle plan, T *idata, FftComplex<T> *odata) {
  */
 template<real_fp T>
 gpufftResult_t exec_c2r(gpufftHandle plan, FftComplex<T> *idata, T *odata) {
-  GPUMOD_FFT_EXEC_DISPATCH(T, C2R, Z2D, plan, idata, odata);
+  WWR_FFT_EXEC_DISPATCH(T, C2R, Z2D, plan, idata, odata);
 }
 
 // ==================== Explicit Template Instantiations ====================
@@ -103,4 +103,4 @@ extern template gpufftResult_t exec_r2c<double>(gpufftHandle, double *, gpufftDo
 extern template gpufftResult_t exec_c2r<float>(gpufftHandle, gpufftComplex *, float *);
 extern template gpufftResult_t exec_c2r<double>(gpufftHandle, gpufftDoubleComplex *, double *);
 
-} // namespace gpumod
+} // namespace wwr

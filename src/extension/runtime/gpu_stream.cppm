@@ -5,15 +5,15 @@
  * Provides GpuStream class for automatic GPU stream management.
  */
 
-export module gpumod.extension.runtime:gpu_stream;
+export module wwr.extension.runtime:gpu_stream;
 
 import :gpu_graph;
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Borrow-safe stream operations, shared by the owner and the view
@@ -164,4 +164,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

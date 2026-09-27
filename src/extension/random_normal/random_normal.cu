@@ -1,6 +1,6 @@
 // random_normal.cu
 //
-// The device-kernel half of gpumod.extension.random_normal. Shared unchanged
+// The device-kernel half of wwr.extension.random_normal. Shared unchanged
 // between both backends -- see this directory's CMakeLists.txt for how it is
 // compiled as device code under each, why the extension is .cu on both, and why
 // there is no per-backend #if in it.
@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace gpumod::extension::device {
+namespace wwr::extension::device {
 
 namespace {
 
@@ -97,4 +97,4 @@ template void random_normal<gpuHalf>(gpuStream_t, std::size_t, gpurandState *, g
 template void random_normal<gpuBfloat16>(gpuStream_t, std::size_t, gpurandState *, gpuBfloat16 *,
                                          gpuBfloat16);
 
-} // namespace gpumod::extension::device
+} // namespace wwr::extension::device

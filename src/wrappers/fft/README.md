@@ -1,6 +1,6 @@
 # src/wrappers/fft — Type-Safe GPU FFT Extension
 
-This directory provides the C++23 module `gpumod.wrappers.fft`: type-safe
+This directory provides the C++23 module `wwr.wrappers.fft`: type-safe
 execution wrappers over the base (single-GPU) cuFFT /
 hipFFT API. Callers write `exec_c2c<float>(...)` instead of picking
 `cufftExecC2C` / `hipfftExecC2C` (or the `Z2Z` double-precision sibling); the
@@ -9,10 +9,10 @@ dispatch.
 
 It is backend-neutral: written once against `src/fft`'s `gpufft*` names
 (`gpufftExecC2C` is `cufftExecC2C` on a CUDA build and `hipfftExecC2C` on a HIP
-build), so the same source builds for either `GPUMOD_GPU_BACKEND`.
+build), so the same source builds for either `WWR_GPU_BACKEND`.
 
-**Import:** `import gpumod.wrappers.fft;`
-**Namespace:** `gpumod`
+**Import:** `import wwr.wrappers.fft;`
+**Namespace:** `wwr`
 
 ## Backend differences, and where they are resolved
 
@@ -22,20 +22,20 @@ and the hand-written status-string functions. See that file and
 `src/README.md`.
 
 The multi-GPU `Xt` surface (`cufftXt` / `hipfftXt`) is not wrapped by this
-module or `src/fft`; reach it through `gpumod.cuda.cufftXt` /
-`gpumod.hip.hipfftXt`.
+module or `src/fft`; reach it through `wwr.cuda.cufftXt` /
+`wwr.hip.hipfftXt`.
 
 The exec wrappers take the raw `gpufftHandle` plan and return the raw
 `gpufftResult_t` — a caller creates, configures, destroys and error-checks the
 plan itself. RAII ownership and typed error handling live in the sibling
-`gpumod.extension.fft` module (`:fft_plan` wraps `gpufftHandle`; `:fft_error`
+`wwr.extension.fft` module (`:fft_plan` wraps `gpufftHandle`; `:fft_error`
 specialises the error policy for `gpufftResult_t`).
 
 ## Module Partitions
 
 ### `:type_traits` — `type_traits.cppm`
 
-Re-exports `gpumod.wrappers.common` and adds `FftComplex<T>`, mapping a real
+Re-exports `wwr.wrappers.common` and adds `FftComplex<T>`, mapping a real
 precision (`float`/`double`) to the FFT library's own complex element type
 (`gpufftComplex`/`gpufftDoubleComplex`). It is `gpufftComplex`, not the shared
 `gpuFloatComplex`, on purpose: on HIP `hipfftComplex` is a distinct type from
@@ -82,12 +82,12 @@ device.
 ## Build
 
 ```
-gpumod_add_cxx_module_library(
-  NAME gpumod.wrappers.fft
+wwr_add_cxx_module_library(
+  NAME wwr.wrappers.fft
   PRIMARY_INTERFACE interface.cppm
   PARTITIONS type_traits.cppm exec.cppm
   IMPLEMENTATION instantiations.cpp
-  LINK_PUBLIC gpumod.fft gpumod.wrappers.common
+  LINK_PUBLIC wwr.fft wwr.wrappers.common
   IMPORT_STD
 )
 ```
