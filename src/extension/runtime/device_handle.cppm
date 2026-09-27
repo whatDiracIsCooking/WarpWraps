@@ -36,9 +36,6 @@ export namespace gpumod::extension {
  * The full cudaDeviceProp / hipDeviceProp_t is held directly and exposed via
  * props(); this class deliberately does not mirror individual fields (name,
  * total memory, compute capability) behind their own accessors.
- *
- * activate() makes this device current (gpuSetDevice) and does NOT restore: it
- * selects the device that GpuBoundHandles constructed afterwards land on.
  */
 class DeviceHandle {
 public:
@@ -46,11 +43,6 @@ public:
                         std::source_location location = std::source_location::current())
       : index_(index), props_(query_props(index, location)), alloc_stream_(index, location),
         mem_pool_(index, location) {}
-
-  /// @brief Make this device the current one (gpuSetDevice); does not restore
-  void activate(std::source_location location = std::source_location::current()) const {
-    gpu_check(gpuSetDevice(index_), location);
-  }
 
   int index() const noexcept { return index_; }
 
