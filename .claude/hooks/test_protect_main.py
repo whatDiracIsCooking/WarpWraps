@@ -124,6 +124,31 @@ BASH_CASES = [
     (False, "sed -i in a nested worktree", f"sed -i s/a/b/ {NESTED}/config.sh"),
     (False, "heredoc in a nested worktree", NESTED_HEREDOC),
     (False, "redirect into a nested worktree", f"echo hi > {NESTED}/out.txt"),
+
+    # Comments and quoted strings are not shell redirects. An arrow in prose
+    # ('squash -> SHAs') matched the old redirect regex as a '>' into a file,
+    # which denied the `/pr full` worktree teardown that carried the note, and a
+    # '>' inside a quoted argument denied read-only commands that merely quoted
+    # one. The teardown verbs themselves rewrite no tree, so they are allowed.
+    (False, "arrow in a trailing comment is not a redirect",
+     "git worktree remove .claude/worktrees/x\n"
+     "# squash merge -> SHAs differ, so -d refuses; -D is safe\n"
+     "git branch -D x"),
+    (False, "git worktree remove is not a tree rewrite",
+     "git worktree remove .claude/worktrees/x"),
+    (False, "git branch -D is a ref op, not a tree rewrite", "git branch -D topic"),
+    (False, "a gt inside a quoted argument is not a redirect", 'echo "a > b"'),
+    (False, "an arrow inside a quoted grep pattern is not a redirect",
+     'git log --grep "fix -> x"'),
+    (False, "a hash inside quotes is not a comment", 'echo "a # b"'),
+    # ...but a real mutation on the same line still lands. These pin that
+    # stripping is quote-aware (it did not eat the redirect after a quoted '#')
+    # and comment-aware (the redirect BEFORE a trailing comment survives).
+    (True, "a redirect before a trailing comment still denies",
+     "echo x > CLAUDE.md   # writes the file"),
+    (True, "a redirect after a quoted hash still denies",
+     'echo "a # b" > CLAUDE.md'),
+    (True, "a redirect to a quoted target still denies", 'echo x > "CLAUDE.md"'),
 ]
 
 # (deny?, label, file_path) -- the original Write/Edit contract.

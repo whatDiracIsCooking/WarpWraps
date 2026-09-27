@@ -115,8 +115,18 @@ GIT_MUTATING = {"apply", "rm", "mv", "restore", "clean", "stash", "checkout"}
 # pretending otherwise would be false confidence.
 GIT_RESET_DESTRUCTIVE = ("--hard", "--merge")
 
-# A `>` / `>>` redirect and its target, skipping fd dups (`2>&1`, `>&2`).
-REDIRECT = re.compile(r"(?<![0-9&])>>?\s*([^\s;|&<>()]+)")
+# Redirects (`>`, `>>`) are found by _redirect_targets, which tracks quote state
+# so a `>` inside a quoted argument is not read as one. A regex could not: it
+# matched any `>`, so `echo "a > b"` and `git log --grep "x -> y"` looked like
+# writes into files `b` / `y`. Comments are removed up front by _strip_comments
+# for the same reason -- an arrow in prose (`squash -> SHAs`) is not a redirect.
+
+# Word-boundary characters that let a following `#` begin a shell comment (plus
+# start-of-string and whitespace). A `#` mid-word or in quotes is not a comment.
+COMMENT_STARTERS = frozenset(";&|()")
+
+# Characters that terminate a bare (unquoted) shell token.
+TOKEN_ENDERS = frozenset(" \t;|&<>()")
 
 # Quoted strings, which is where a heredoc's paths live.
 QUOTED = re.compile(r"""['"]([^'"]{2,})['"]""")
@@ -218,6 +228,106 @@ def _words(segment: str) -> list[str]:
         return segment.split()
 
 
+def _strip_comments(command: str) -> str:
+    """Remove unquoted shell comments before analysis.
+
+    A `#` begins a comment when it is outside quotes and at the start of a word
+    -- start of the command, or right after whitespace or a `;`/`&`/`|`/`(`/`)`
+    separator. The shell never runs that text, but the guard used to read it: an
+    arrow in a trailing note (`squash -> SHAs differ`) matched the redirect scan
+    as a `>` into a file `SHAs`, denying the teardown that carried the comment.
+    A quoted or mid-word `#` (a URL fragment, ``"$#"``, ``a#b``) is not a comment
+    and is left untouched, so a real mutation on the line is never stripped."""
+    out: list[str] = []
+    quote: str | None = None
+    prev = ""
+    i, n = 0, len(command)
+    while i < n:
+        c = command[i]
+        if quote:
+            out.append(c)
+            if c == quote:
+                quote = None
+            prev = c
+        elif c in ("'", '"'):
+            quote = c
+            out.append(c)
+            prev = c
+        elif c == "#" and (prev == "" or prev.isspace() or prev in COMMENT_STARTERS):
+            nl = command.find("\n", i)
+            if nl == -1:
+                break
+            i = nl  # keep the newline; the next iteration appends it
+            prev = "\n"
+            continue
+        else:
+            out.append(c)
+            prev = c
+        i += 1
+    return "".join(out)
+
+
+def _read_token(s: str, j: int) -> tuple[str, int]:
+    """One shell token at index j -- a quoted string (unquoted) or a bare run up
+    to whitespace/metachar -- and the index just past it."""
+    n = len(s)
+    if j >= n:
+        return "", j
+    if s[j] in ("'", '"'):
+        q = s[j]
+        k = j + 1
+        while k < n and s[k] != q:
+            k += 1
+        return s[j + 1:k], (k + 1 if k < n else k)
+    k = j
+    while k < n and s[k] not in TOKEN_ENDERS:
+        k += 1
+    return s[j:k], k
+
+
+def _redirect_targets(segment: str) -> list[str]:
+    """Files a segment redirects into (`> f`, `>> f`), quote-aware.
+
+    Tracks quote state so a `>` inside a quoted argument (`echo "a > b"`,
+    `git log --grep "x -> y"`) is not a redirect -- the regex this replaced saw
+    every `>` and denied read-only commands that merely quoted one. The target
+    may itself be quoted (`> "my file"`), so it is read as a token, not a regex
+    run. fd forms are not file writes: a `>` right after a digit or `&` (`2>&1`,
+    `2> f`) is skipped, as is a `>&1` dup, mirroring the old scan."""
+    targets: list[str] = []
+    i, n = 0, len(segment)
+    quote: str | None = None
+    while i < n:
+        c = segment[i]
+        if quote:
+            if c == quote:
+                quote = None
+            i += 1
+        elif c in ("'", '"'):
+            quote = c
+            i += 1
+        elif c == ">":
+            prev = segment[i - 1] if i else ""
+            if prev.isdigit() or prev == "&":  # fd redirect/dup, not a file
+                i += 1
+                continue
+            j = i + 1
+            if j < n and segment[j] == ">":  # `>>`
+                j += 1
+            while j < n and segment[j] in " \t":
+                j += 1
+            if j < n and segment[j] == "&":  # `>&1` fd dup, not a file
+                i = j + 1
+                continue
+            tok, j = _read_token(segment, j)
+            if tok:
+                targets.append(tok)
+            i = j
+        else:
+            i += 1
+    return targets
+
+
 def _bash_targets(command: str) -> list[str] | None:
     """Paths a shell command would write, or None if it writes nothing.
 
@@ -240,9 +350,9 @@ def _bash_targets(command: str) -> list[str] | None:
         if not segment:
             continue
 
-        for m in REDIRECT.finditer(segment):
+        for tgt in _redirect_targets(segment):
             mutates = True
-            targets.append(m.group(1))
+            targets.append(tgt)
 
         words = _words(segment)
         if not words:
@@ -466,6 +576,10 @@ def main() -> None:
         command = ti.get("command")
         if not command:
             _allow()
+        # Shell comments never execute, so analysing them only invents targets
+        # (`# squash -> SHAs` read as a redirect into `SHAs`). Strip them once,
+        # before both the git-policy and the path passes see the command.
+        command = _strip_comments(command)
         try:
             main_root = _primary_worktree(cwd)
         except Exception:
