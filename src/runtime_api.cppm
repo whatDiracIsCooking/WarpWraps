@@ -124,6 +124,7 @@ GPUMOD_FUNCTION(gpuGetDeviceProperties, cudaGetDeviceProperties, hipGetDevicePro
 GPUMOD_RT_FUNCTION(StreamCreate)
 GPUMOD_RT_FUNCTION(StreamCreateWithFlags)
 GPUMOD_RT_FUNCTION(StreamCreateWithPriority)
+GPUMOD_RT_FUNCTION(StreamGetFlags)
 GPUMOD_RT_FUNCTION(StreamWaitEvent)
 GPUMOD_RT_FUNCTION(StreamSynchronize)
 GPUMOD_RT_FUNCTION(StreamDestroy)

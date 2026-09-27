@@ -25,6 +25,12 @@ namespace gpumod::extension::test {
 TEST(GpuStreamTests, DefaultConstructor) {
   GpuStream stream;
   EXPECT_NE(stream.get(), nullptr);
+
+  // Default-constructed streams are non-blocking: they do not serialize against
+  // the legacy default stream (0).
+  unsigned int flags = 0;
+  ASSERT_EQ(gpuStreamGetFlags(stream.get(), &flags), gpuSuccess);
+  EXPECT_EQ(flags & gpuStreamNonBlocking, gpuStreamNonBlocking);
 }
 
 TEST(GpuStreamTests, WithFlags) {
