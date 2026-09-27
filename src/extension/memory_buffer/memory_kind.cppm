@@ -72,7 +72,7 @@ struct MemoryErrorType<MemoryKind::Unified> {
 /**
  * @brief Maps a MemoryKind to the sentinel "invalid value" error code for that kind.
  *
- * Used by BufferBase to report out-of-bounds sub-view construction.
+ * Used by BaseBuffer to report out-of-bounds sub-view construction.
  *
  * @tparam K The memory kind
  */

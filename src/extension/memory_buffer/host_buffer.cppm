@@ -8,7 +8,7 @@
 
 export module gpumod.extension.memory_buffer:host_buffer;
 
-import :buffer_base;
+import :base_buffer;
 import :memory_kind;
 import :host_memory;
 import gpumod.extension.common;
@@ -34,16 +34,16 @@ template<typename T,
          error_policy<stdHostMemoryError_t> P_alloc = DefaultErrorPolicy<stdHostMemoryError_t>,
          nothrow_error_policy<stdHostMemoryError_t> P_free = P_alloc>
 class HostBufferWrapper
-    : public BufferBase<T, MemoryKind::Host, HostBufferWrapper<T, P_alloc, P_free>, P_alloc,
+    : public BaseBuffer<T, MemoryKind::Host, HostBufferWrapper<T, P_alloc, P_free>, P_alloc,
                         P_free> {
 private:
   using Base =
-      BufferBase<T, MemoryKind::Host, HostBufferWrapper<T, P_alloc, P_free>, P_alloc, P_free>;
+      BaseBuffer<T, MemoryKind::Host, HostBufferWrapper<T, P_alloc, P_free>, P_alloc, P_free>;
 
 public:
   // Inherit constructors from base
-  using BufferBase<T, MemoryKind::Host, HostBufferWrapper<T, P_alloc, P_free>, P_alloc,
-                   P_free>::BufferBase;
+  using BaseBuffer<T, MemoryKind::Host, HostBufferWrapper<T, P_alloc, P_free>, P_alloc,
+                   P_free>::BaseBuffer;
 
   /** @brief Releases the allocation while this object is still alive */
   ~HostBufferWrapper() { this->destroy_(); }
@@ -59,7 +59,7 @@ public:
      * @param policy Error policy for allocation
      * @param location Source location where allocation was requested
      *
-     * @note Static: it runs from a BufferBase constructor, before this object exists.
+     * @note Static: it runs from a BaseBuffer constructor, before this object exists.
      */
   static void allocate(T **ptr, std::size_t num_elements, P_alloc &policy,
                        std::source_location location) {
