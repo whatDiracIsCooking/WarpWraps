@@ -1066,6 +1066,11 @@ GPUMOD_LINK_CHECK(hipDrvGetErrorString)
 GPUMOD_LINK_CHECK(hipInit)
 GPUMOD_LINK_CHECK(hipDriverGetVersion)
 GPUMOD_LINK_CHECK(hipRuntimeGetVersion)
+
+// Deprecated by ROCm; re-exported with the [[deprecated]] attribute intact, so real
+// consumers are still warned. These checks only prove the symbols still link, so silence it.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 GPUMOD_LINK_CHECK(hipCtxCreate)
 GPUMOD_LINK_CHECK(hipCtxDestroy)
 GPUMOD_LINK_CHECK(hipCtxPopCurrent)
@@ -1087,6 +1092,7 @@ GPUMOD_LINK_CHECK(hipDevicePrimaryCtxRelease)
 GPUMOD_LINK_CHECK(hipDevicePrimaryCtxReset)
 GPUMOD_LINK_CHECK(hipDevicePrimaryCtxRetain)
 GPUMOD_LINK_CHECK(hipDevicePrimaryCtxSetFlags)
+#pragma clang diagnostic pop
 GPUMOD_LINK_CHECK(hipSetValidDevices)
 
 // Device Management
@@ -1137,7 +1143,11 @@ GPUMOD_LINK_CHECK(hipMallocMipmappedArray)
 GPUMOD_LINK_CHECK(hipMallocManaged)
 GPUMOD_LINK_CHECK(hipMallocAsync)
 GPUMOD_LINK_CHECK(hipMallocFromPoolAsync)
+// Deprecated by ROCm; re-exported [[deprecated]] (consumers still warned), linkage-only check.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 GPUMOD_LINK_CHECK(hipMallocHost)
+#pragma clang diagnostic pop
 GPUMOD_LINK_CHECK(hipExtMallocWithFlags)
 GPUMOD_LINK_CHECK(hipHostAlloc)
 GPUMOD_LINK_CHECK(hipHostMalloc)
@@ -1151,7 +1161,11 @@ GPUMOD_LINK_CHECK(hipFreeArray)
 GPUMOD_LINK_CHECK(hipFreeAsync)
 GPUMOD_LINK_CHECK(hipFreeMipmappedArray)
 GPUMOD_LINK_CHECK(hipFreeHost)
+// Deprecated by ROCm; re-exported [[deprecated]] (consumers still warned), linkage-only check.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 GPUMOD_LINK_CHECK(hipMemAllocHost)
+#pragma clang diagnostic pop
 GPUMOD_LINK_CHECK(hipMemAllocPitch)
 
 // Memory Management — Copy
@@ -1171,8 +1185,12 @@ GPUMOD_LINK_CHECK(hipMemcpy3DPeerAsync)
 GPUMOD_LINK_CHECK(hipMemcpy3DBatchAsync)
 GPUMOD_LINK_CHECK(hipMemcpyPeer)
 GPUMOD_LINK_CHECK(hipMemcpyPeerAsync)
+// Deprecated by ROCm; re-exported [[deprecated]] (consumers still warned), linkage-only checks.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 GPUMOD_LINK_CHECK(hipMemcpyToArray)
 GPUMOD_LINK_CHECK(hipMemcpyFromArray)
+#pragma clang diagnostic pop
 GPUMOD_LINK_CHECK(hipMemcpyToSymbol)
 GPUMOD_LINK_CHECK(hipMemcpyToSymbolAsync)
 GPUMOD_LINK_CHECK(hipMemcpyFromSymbol)
@@ -1517,13 +1535,20 @@ GPUMOD_LINK_CHECK(hipBindTexture2D)
 GPUMOD_LINK_CHECK(hipBindTextureToArray)
 GPUMOD_LINK_CHECK(hipBindTextureToMipmappedArray)
 GPUMOD_LINK_CHECK(hipUnbindTexture)
+// Deprecated by ROCm; re-exported [[deprecated]] (consumers still warned), linkage-only checks.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 GPUMOD_LINK_CHECK(hipGetTextureAlignmentOffset)
 GPUMOD_LINK_CHECK(hipGetTextureReference)
+#pragma clang diagnostic pop
 GPUMOD_LINK_CHECK(hipTexObjectCreate)
 GPUMOD_LINK_CHECK(hipTexObjectDestroy)
 GPUMOD_LINK_CHECK(hipTexObjectGetResourceDesc)
 GPUMOD_LINK_CHECK(hipTexObjectGetResourceViewDesc)
 GPUMOD_LINK_CHECK(hipTexObjectGetTextureDesc)
+// Deprecated by ROCm; re-exported [[deprecated]] (consumers still warned), linkage-only checks.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 GPUMOD_LINK_CHECK(hipTexRefGetAddress)
 GPUMOD_LINK_CHECK(hipTexRefGetAddressMode)
 GPUMOD_LINK_CHECK(hipTexRefGetArray)
@@ -1549,6 +1574,7 @@ GPUMOD_LINK_CHECK(hipTexRefSetMipmapFilterMode)
 GPUMOD_LINK_CHECK(hipTexRefSetMipmapLevelBias)
 GPUMOD_LINK_CHECK(hipTexRefSetMipmapLevelClamp)
 GPUMOD_LINK_CHECK(hipTexRefSetMipmappedArray)
+#pragma clang diagnostic pop
 
 // Graphics Interoperability
 GPUMOD_LINK_CHECK(hipGraphicsMapResources)
@@ -1562,7 +1588,11 @@ GPUMOD_LINK_CHECK(hipGetDriverEntryPoint)
 GPUMOD_LINK_CHECK(hipGetProcAddress)
 
 // Profiler Control
+// Deprecated by ROCm; re-exported [[deprecated]] (consumers still warned), linkage-only checks.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 GPUMOD_LINK_CHECK(hipProfilerStart)
 GPUMOD_LINK_CHECK(hipProfilerStop)
+#pragma clang diagnostic pop
 
 } // namespace gpumod::hip::test

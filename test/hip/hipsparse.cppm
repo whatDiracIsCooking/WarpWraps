@@ -134,7 +134,12 @@ static_assert(static_cast<int>(HIPSPARSE_FORMAT_COO) == 3);
 static_assert(static_cast<int>(HIPSPARSE_FORMAT_COO_AOS) == 4);
 static_assert(static_cast<int>(HIPSPARSE_FORMAT_BLOCKED_ELL) == 5);
 
+// HIPSPARSE_ORDER_COLUMN is deprecated in favor of HIPSPARSE_ORDER_COL (same value);
+// re-exported with the attribute intact, so this value check silences the warning locally.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 static_assert(static_cast<int>(HIPSPARSE_ORDER_COLUMN) == 1);
+#pragma clang diagnostic pop
 static_assert(static_cast<int>(HIPSPARSE_ORDER_COL) == 1);
 static_assert(static_cast<int>(HIPSPARSE_ORDER_ROW) == 2);
 
