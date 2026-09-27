@@ -163,24 +163,4 @@ private:
   std::shared_ptr<DeviceHandle> handle_;
 };
 
-/**
- * @brief Convenient alias for DeviceBufferWrapper with default error policies
- *
- * Usage:
- *   auto device = std::make_shared<DeviceHandle>(0);
- *   DeviceBuffer<float> buffer(1024, device);  // 1024 floats from the handle's pool
- */
-template<typename T>
-using DeviceBuffer = DeviceBufferWrapper<T>;
-
-/**
- * @brief Non-owning view alias for device memory
- *
- * Usage:
- *   DeviceBufferView<float> view(device_buffer);           // Full view
- *   DeviceBufferView<float> sub_view(device_buffer, 4, 8); // Sub-view: 8 elements starting at offset 4
- */
-template<typename T>
-using DeviceBufferView = BufferViewWrapper<T, MemoryKind::Device>;
-
 } // namespace gpumod::extension

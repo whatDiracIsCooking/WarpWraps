@@ -11,6 +11,7 @@ gpumod_add_cxx_module_library(
   gpu_graph.cppm
   stream_event_pair.cppm
   device_handle.cppm
+  convenience_runtime.cppm
   LINK_PUBLIC
   gpumod.runtime_api
   gpumod.extension.common

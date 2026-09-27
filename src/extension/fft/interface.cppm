@@ -7,6 +7,7 @@
  * live separately in gpumod.wrappers.fft. It aggregates:
  * - :fft_error - Error code specializations for gpufftResult_t
  * - :fft_plan - RAII wrapper for a GPU FFT plan handle
+ * - :convenience_fft - Default-policy alias (FftPlan)
  *
  * Usage:
  *   import gpumod.extension.fft;
@@ -23,3 +24,4 @@ import std;
 export import gpumod.fft;
 export import :fft_error;
 export import :fft_plan;
+export import :convenience_fft;

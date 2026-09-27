@@ -9,6 +9,7 @@
  * - :pinned_buffer - Pinned host memory buffers (gpuHostAlloc/gpuFreeHost)
  * - :unified_buffer - Unified memory buffers (gpuMallocManaged)
  * - :host_buffer - Standard host memory buffers (std::malloc/std::free)
+ * - :convenience_memory_buffer - Default-policy aliases (DeviceBuffer, HostBuffer, PinnedBuffer, UnifiedBuffer, and views)
  *
  * Usage:
  *   import gpumod.extension.memory_buffer;
@@ -39,6 +40,7 @@ export import :unified_buffer;
 export import :host_buffer;
 export import :copy;
 export import :memset;
+export import :convenience_memory_buffer;
 
 export namespace gpumod::extension {
 using gpumod::extension::buffer_base;

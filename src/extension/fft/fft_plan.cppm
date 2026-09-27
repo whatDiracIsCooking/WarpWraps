@@ -77,12 +77,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for FftPlanWrapper with default error policies
- *
- * Usage:
- *   FftPlan plan;  // Instead of FftPlanWrapper<>
- */
-using FftPlan = FftPlanWrapper<>;
-
 } // namespace gpumod::extension

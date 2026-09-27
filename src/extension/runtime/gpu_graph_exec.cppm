@@ -108,12 +108,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for GpuGraphExecWrapper with default error policies
- *
- * Usage:
- *   GpuGraphExec exec{graph};  // Instead of GpuGraphExecWrapper<>{graph}
- */
-using GpuGraphExec = GpuGraphExecWrapper<>;
-
 } // namespace gpumod::extension

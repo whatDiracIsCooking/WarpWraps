@@ -114,24 +114,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for UnifiedBufferWrapper with default error policies
- *
- * Usage:
- *   UnifiedBuffer<float> buffer(1024);  // Allocate 1024 floats in unified memory
- *   UnifiedBuffer<float> host_buffer(1024, gpuMemAttachHost);  // With flags
- */
-template<typename T>
-using UnifiedBuffer = UnifiedBufferWrapper<T>;
-
-/**
- * @brief Non-owning view alias for unified memory
- *
- * Usage:
- *   UnifiedBufferView<float> view(unified_buffer);           // Full view
- *   UnifiedBufferView<float> sub_view(unified_buffer, 4, 8); // Sub-view: 8 elements starting at offset 4
- */
-template<typename T>
-using UnifiedBufferView = BufferViewWrapper<T, MemoryKind::Unified>;
-
 } // namespace gpumod::extension

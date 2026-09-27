@@ -92,23 +92,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for HostBufferWrapper with default error policies
- *
- * Usage:
- *   HostBuffer<float> buffer(1024);  // Allocate 1024 floats in host memory
- */
-template<typename T>
-using HostBuffer = HostBufferWrapper<T>;
-
-/**
- * @brief Non-owning view alias for host memory
- *
- * Usage:
- *   HostBufferView<float> view(host_buffer);           // Full view
- *   HostBufferView<float> sub_view(host_buffer, 4, 8); // Sub-view: 8 elements starting at offset 4
- */
-template<typename T>
-using HostBufferView = BufferViewWrapper<T, MemoryKind::Host>;
-
 } // namespace gpumod::extension

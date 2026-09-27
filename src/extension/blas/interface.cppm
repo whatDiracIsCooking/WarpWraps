@@ -7,6 +7,7 @@
  * live separately in gpumod.wrappers.blas. It aggregates:
  * - :blas_error - Error code specializations for gpublasStatus_t
  * - :blas_handle - RAII wrapper for gpublasHandle_t
+ * - :convenience_blas - Default-policy aliases (GpublasHandle, GpublasHandleView)
  *
  * Usage:
  *   import gpumod.extension.blas;
@@ -23,3 +24,4 @@ import std;
 export import gpumod.blas;
 export import :blas_error;
 export import :blas_handle;
+export import :convenience_blas;

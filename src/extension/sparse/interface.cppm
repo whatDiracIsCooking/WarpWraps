@@ -8,6 +8,7 @@
  * aggregates:
  * - :sparse_error - Error code specializations for gpusparseStatus_t
  * - :sparse_handle - RAII wrapper for gpusparseHandle_t
+ * - :convenience_sparse - Default-policy aliases (GpusparseHandle, GpusparseHandleView)
  *
  * Usage:
  *   import gpumod.extension.sparse;
@@ -24,3 +25,4 @@ import std;
 export import gpumod.sparse;
 export import :sparse_error;
 export import :sparse_handle;
+export import :convenience_sparse;

@@ -56,12 +56,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for GpusolverDnParamsWrapper with default error policies
- *
- * Usage:
- *   GpusolverDnParams params;  // Instead of GpusolverDnParamsWrapper<>
- */
-using GpusolverDnParams = GpusolverDnParamsWrapper<>;
-
 } // namespace gpumod::extension

@@ -164,12 +164,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for GpuStreamWrapper with default error policies
- *
- * Usage:
- *   GpuStream stream;  // Instead of GpuStreamWrapper<>
- */
-using GpuStream = GpuStreamWrapper<>;
-
 } // namespace gpumod::extension
