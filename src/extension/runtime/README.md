@@ -45,7 +45,7 @@ using GpuStream = GpuStreamWrapper<>;
 ```
 
 Constructors:
-- Default — creates a stream with `gpuStreamCreate`
+- Default — creates a non-blocking stream (`gpuStreamCreateWithFlags` with `gpuStreamNonBlocking`), so it does not serialize against the legacy default stream (0)
 - `(unsigned int flags)` — creates with `gpuStreamCreateWithFlags`
 - `(unsigned int flags, int priority)` — creates with `gpuStreamCreateWithPriority`
 

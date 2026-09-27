@@ -115,11 +115,17 @@ public:
     this->record_device();
   }
 
-  /// @brief Create a GPU stream
+  /// @brief Create a GPU stream (non-blocking by default)
+  ///
+  /// Uses gpuStreamNonBlocking so a default-constructed stream does not
+  /// serialize against the legacy default stream (0). Callers that want the
+  /// legacy blocking behaviour construct with an explicit `flags` argument.
+  ///
   /// @param handle Output parameter for the created stream
   /// @param location Source location where creation was requested
   void create(gpuStream_t *handle, std::source_location location) {
-    gpu_check(gpuStreamCreate(handle), this->policy_create_, location);
+    gpu_check(gpuStreamCreateWithFlags(handle, gpuStreamNonBlocking), this->policy_create_,
+              location);
   }
 
   // wait_event()/begin_capture()/sync() come from GpuStreamAccess, shared with
