@@ -1,6 +1,6 @@
 // random_normal.cu
 //
-// The device-kernel half of gpumod.extension.random_normal. Shared unchanged
+// The device-kernel half of wwr.extension.random_normal. Shared unchanged
 // between both backends -- see this directory's CMakeLists.txt for how it is
 // compiled as device code under each, why the extension is .cu on both, and why
 // there is no per-backend #if in it.

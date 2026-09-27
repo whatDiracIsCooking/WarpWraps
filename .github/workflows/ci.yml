@@ -32,7 +32,7 @@
 #
 #   * two -- HalfConversion and Bfloat16Conversion -- actually compute
 #     something. They are host fp16/bf16 conversion, CPU work by design, and
-#     they are NOT backend-neutral in implementation: gpumod.fp16 / gpumod.bf16
+#     they are NOT backend-neutral in implementation: wwr.fp16 / wwr.bf16
 #     map onto the chosen backend's own types, so the two legs exercise
 #     different code and both are worth running.
 #   * one per device-dependent binary -- the <target>.SuiteListIsComplete

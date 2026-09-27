@@ -2,20 +2,20 @@
  * @file type_traits.cppm
  * @brief Type system for GPU solver operations
  *
- * Re-exports gpumod.wrappers.common (usual_fp/real_fp/complex_fp
+ * Re-exports wwr.wrappers.common (usual_fp/real_fp/complex_fp
  * concepts and ComplexToRealType, already backend-neutral over src's
  * gpu* complex types) and provides the gpusolverDataType_t mapping the
  * modern (X-prefixed) API needs.
  *
  * Usage:
- *   import gpumod.wrappers.solver;
+ *   import wwr.wrappers.solver;
  */
 
-export module gpumod.wrappers.solver:type_traits;
+export module wwr.wrappers.solver:type_traits;
 
-export import gpumod.wrappers.common;
-import gpumod.solver;
-import gpumod.complex;
+export import wwr.wrappers.common;
+import wwr.solver;
+import wwr.complex;
 import std;
 
 export namespace wwr {

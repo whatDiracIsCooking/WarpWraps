@@ -1,17 +1,17 @@
-// cuda.cppm - Compile-time tests for gpumod.cuda.cuda_h
+// cuda.cppm - Compile-time tests for wwr.cuda.cuda_h
 
 module;
 
 #include "test/shared/link_check.h"
 #include <cuda.h>
 
-export module gpumod.test.cuda.cuda_h;
+export module wwr.test.cuda.cuda_h;
 
 import std;
-import gpumod.cuda.cuda_h;
+import wwr.cuda.cuda_h;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cuda_h
+// Compile-time tests for wwr.cuda.cuda_h
 //
 // The module is pure re-export (using declarations).
 // Runtime tests for the underlying CUDA Driver API would just test CUDA itself.

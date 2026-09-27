@@ -1,18 +1,18 @@
-// hip_complex.cppm - Compile-time tests for gpumod.hip.hip_complex
+// hip_complex.cppm - Compile-time tests for wwr.hip.hip_complex
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_complex;
+export module wwr.test.hip.hip_complex;
 
 import std;
-import gpumod.hip.hip_complex;
+import wwr.hip.hip_complex;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_complex
+// Compile-time tests for wwr.hip.hip_complex
 //
-// Like gpumod.cuda.cuComplex, this module is NOT a pure re-export:
+// Like wwr.cuda.cuComplex, this module is NOT a pure re-export:
 // amd_hip_complex.h's functions have `static inline` linkage, so the wrapper
 // provides thin forwarding bodies. Runtime correctness of the forwarded
 // arithmetic is out of scope for this compile-time-only directory (parity

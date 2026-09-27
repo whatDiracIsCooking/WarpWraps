@@ -1,6 +1,6 @@
 /**
  * @file interface.cppm
- * @brief Primary interface for gpumod.extension.memory_buffer
+ * @brief Primary interface for wwr.extension.memory_buffer
  *
  * This module provides RAII-based memory buffer management for different
  * memory kinds with automatic allocation and deallocation. It aggregates
@@ -12,7 +12,7 @@
  * - :convenience_memory_buffer - Default-policy aliases (DeviceBuffer, HostBuffer, PinnedBuffer, UnifiedBuffer, and views)
  *
  * Usage:
- *   import gpumod.extension.memory_buffer;
+ *   import wwr.extension.memory_buffer;
  *   using namespace wwr::extension;
  *
  *   auto dev = std::make_shared<DeviceHandle>(0);
@@ -22,7 +22,7 @@
  *   HostBuffer<float> host_buf(1024);        // Standard host memory
  */
 
-export module gpumod.extension.memory_buffer;
+export module wwr.extension.memory_buffer;
 
 import std;
 

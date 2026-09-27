@@ -6,7 +6,7 @@
  * It exports types and host-side functions for complex number manipulation.
  *
  * Usage:
- *   import gpumod.cuda.cuComplex;
+ *   import wwr.cuda.cuComplex;
  *
  * Note: This module exports host-side complex number functions. Device-side
  * functions are available in device code via the native <cuComplex.h> header.
@@ -19,7 +19,7 @@ module;
 
 #include <cuComplex.h>
 
-export module gpumod.cuda.cuComplex;
+export module wwr.cuda.cuComplex;
 
 // ========================================================================
 // Export all cuComplex types and functions in wwr namespace

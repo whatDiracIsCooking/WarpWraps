@@ -9,19 +9,19 @@
  * signature by signature against hipsolver-dense.h. cuSOLVER's modern API
  * has a wider surface (larft, sytrs, trtri, plus the entire modern
  * eigenvalue/SVD API); those have no hipSOLVER counterpart, so they are not
- * wrapped -- call them through gpumod.cuda.cusolverDn directly.
+ * wrapped -- call them through wwr.cuda.cusolverDn directly.
  *
  * Usage:
- *   import gpumod.wrappers.solver;
+ *   import wwr.wrappers.solver;
  *   using namespace wwr;
  *
  *   potrf_bufferSize<float>(handle, params, uplo, n, A, lda, ...);
  */
 
-export module gpumod.wrappers.solver:linear_solver;
+export module wwr.wrappers.solver:linear_solver;
 
-import gpumod.solver;
-import gpumod.blas;
+import wwr.solver;
+import wwr.blas;
 import :type_traits;
 import std;
 

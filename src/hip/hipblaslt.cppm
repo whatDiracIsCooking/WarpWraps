@@ -2,7 +2,7 @@
  * @file hipblaslt.cppm
  * @brief hipBLASLt API module wrapper for gpumod project
  *
- * Wraps hipblaslt/hipblaslt.h. CUDA counterpart: gpumod.cuda.cublasLt.
+ * Wraps hipblaslt/hipblaslt.h. CUDA counterpart: wwr.cuda.cublasLt.
  *
  * hipBLASLt's public surface is much narrower than cuBLASLt's -- 24 functions:
  * library/handle management, matrix layout / matmul descriptor / preference
@@ -20,7 +20,7 @@
  * __HIP_PLATFORM_AMD__, which hip::host satisfies.
  *
  * Usage:
- *   import gpumod.hip.hipblaslt;
+ *   import wwr.hip.hipblaslt;
  */
 
 module;
@@ -35,7 +35,7 @@ module;
 #include <array>
 #include <hipblaslt/hipblaslt.h>
 
-export module gpumod.hip.hipblaslt;
+export module wwr.hip.hipblaslt;
 
 import std;
 

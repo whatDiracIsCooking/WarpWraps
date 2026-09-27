@@ -6,11 +6,11 @@
  * code bloat from implicit instantiation at every call site.
  */
 
-module gpumod.wrappers.sparse;
+module wwr.wrappers.sparse;
 
-import gpumod.sparse;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.sparse;
+import wwr.complex;
+import wwr.wrappers.common;
 
 namespace wwr {
 

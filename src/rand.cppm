@@ -24,7 +24,7 @@
  * sections 1 and 6.
  *
  * Usage:
- *   import gpumod.rand;
+ *   import wwr.rand;
  *
  *   gpurandGenerator_t gen;
  *   gpurandCreateGenerator(&gen, GPURAND_RNG_PSEUDO_DEFAULT);
@@ -34,13 +34,13 @@ module;
 
 #include "gpu_backend.h"
 
-export module gpumod.rand;
+export module wwr.rand;
 
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.curand;
+import wwr.cuda.curand;
 #else
-import gpumod.hip.hiprand;
-import gpumod.hip.hiprand_kernel;
+import wwr.hip.hiprand;
+import wwr.hip.hiprand_kernel;
 #endif
 
 export namespace wwr {

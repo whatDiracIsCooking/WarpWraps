@@ -4,7 +4,7 @@
  *
  * Wraps hip/hip_runtime_api.h. HIP does not split the driver API from the
  * runtime API the way CUDA does, so this one module covers what
- * gpumod.cuda.cuda_h + gpumod.cuda.cuda_runtime_api cover together. See
+ * wwr.cuda.cuda_h + wwr.cuda.cuda_runtime_api cover together. See
  * src/hip/README.md "Design decisions".
  *
  * Unlike CUDA, HIP keeps its templated convenience layer (hipMalloc<T>,
@@ -21,7 +21,7 @@
  * Nothing extra to include here.
  *
  * Usage:
- *   import gpumod.hip.hip_runtime_api;
+ *   import wwr.hip.hip_runtime_api;
  */
 
 module;
@@ -93,12 +93,12 @@ static_assert(hipMemAttachSingle == 0x04, "hipMemAttachSingle value mismatch");
 #undef hipMemAttachHost
 #undef hipMemAttachSingle
 
-export module gpumod.hip.hip_runtime_api;
+export module wwr.hip.hip_runtime_api;
 
 // ========================================================================
 // Export all HIP types, functions, and constants in wwr::hip
 // (NOT bare wwr -- see src/hip/README.md "Design decisions": a real
-// `half` collision with gpumod.cuda.cuda_fp16 if this were bare)
+// `half` collision with wwr.cuda.cuda_fp16 if this were bare)
 // ========================================================================
 
 export namespace wwr::hip {

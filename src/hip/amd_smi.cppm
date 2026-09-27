@@ -3,7 +3,7 @@
  * @brief AMD SMI (System Management Interface) module wrapper for gpumod project
  *
  * Wraps amd_smi/amdsmi.h -- the newer AMD device management library, meant to
- * eventually supersede gpumod.hip.rocm_smi. Both are real, independently
+ * eventually supersede wwr.hip.rocm_smi. Both are real, independently
  * usable libraries with overlapping but not identical surfaces, so each gets
  * its own module; see src/hip/README.md "Why nvml became two modules".
  *
@@ -18,14 +18,14 @@
  * exported.
  *
  * Usage:
- *   import gpumod.hip.amd_smi;
+ *   import wwr.hip.amd_smi;
  */
 
 module;
 
 #include <amd_smi/amdsmi.h>
 
-export module gpumod.hip.amd_smi;
+export module wwr.hip.amd_smi;
 
 export namespace wwr::hip {
 

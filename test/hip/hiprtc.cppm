@@ -1,16 +1,16 @@
-// hiprtc.cppm - Compile-time tests for gpumod.hip.hiprtc
+// hiprtc.cppm - Compile-time tests for wwr.hip.hiprtc
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hiprtc;
+export module wwr.test.hip.hiprtc;
 
 import std;
-import gpumod.hip.hiprtc;
+import wwr.hip.hiprtc;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hiprtc
+// Compile-time tests for wwr.hip.hiprtc
 //
 // Mirrors test/cuda/nvrtc.cppm. The module is a pure re-export (using
 // declarations). We verify at compile-time that:

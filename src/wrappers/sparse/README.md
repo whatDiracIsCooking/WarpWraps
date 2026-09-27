@@ -1,6 +1,6 @@
 # src/wrappers/sparse — Type-Safe GPU Sparse Extension
 
-This directory provides the C++23 module `gpumod.wrappers.sparse`, which wraps
+This directory provides the C++23 module `wwr.wrappers.sparse`, which wraps
 the legacy typed (S/D/C/Z) sparse operations cuSPARSE and hipSPARSE have in
 common in a single generic C++ template function. Callers write `bsrmv<float>(...)`
 instead of `cusparseSbsrmv(...)` / `hipsparseSbsrmv(...)`; the correct typed
@@ -10,7 +10,7 @@ It is backend-neutral: written once against `src/sparse`'s `gpusparse*` names
 (`gpusparseSbsrmv` is `cusparseSbsrmv` on a CUDA build and `hipsparseSbsrmv` on a
 HIP build), so the same source builds for either `WWR_GPU_BACKEND`.
 
-**Import:** `import gpumod.wrappers.sparse;`
+**Import:** `import wwr.wrappers.sparse;`
 **Namespace:** `gpumod`
 
 ## Scope: the shared typed API only
@@ -26,7 +26,7 @@ The **modern generic API** (`SpMV`, `SpMM`, `SpGEMM`, `SDDMM`, `SpSV`, `SpSM`,
 the descriptor-creation routines) is **not** wrapped here. Its element type is a
 runtime `cudaDataType`/`hipDataType` argument, not a name letter, so there is no
 S/D/C/Z entry point to dispatch to and nothing for a token-paste wrapper to add.
-It is fully usable directly from `gpumod.sparse` / the raw vendor modules.
+It is fully usable directly from `wwr.sparse` / the raw vendor modules.
 
 ## Backend differences, and where they are resolved
 
@@ -44,7 +44,7 @@ Almost all live in `src/sparse.cppm`, not here:
 The wrappers take the raw `gpusparseHandle_t` and return the raw
 `gpusparseStatus_t` — a caller creates, destroys and error-checks the handle
 itself. RAII ownership and typed error handling live in the sibling
-`gpumod.extension.sparse` module (`:sparse_handle` wraps `gpusparseHandle_t`;
+`wwr.extension.sparse` module (`:sparse_handle` wraps `gpusparseHandle_t`;
 `:sparse_error` specialises the error policy for `gpusparseStatus_t`).
 
 ## Module Partitions
@@ -110,11 +110,11 @@ device.
 
 ```
 wwr_add_cxx_module_library(
-  NAME gpumod.wrappers.sparse
+  NAME wwr.wrappers.sparse
   PRIMARY_INTERFACE interface.cppm
   PARTITIONS level_2.cppm solvers.cppm extra.cppm conversion.cppm
   IMPLEMENTATION instantiations.cpp
-  LINK_PUBLIC gpumod.sparse gpumod.complex gpumod.wrappers.common
+  LINK_PUBLIC wwr.sparse wwr.complex wwr.wrappers.common
   IMPORT_STD
 )
 ```

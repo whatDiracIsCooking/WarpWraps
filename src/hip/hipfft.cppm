@@ -2,7 +2,7 @@
  * @file hipfft.cppm
  * @brief hipFFT API module wrapper for gpumod project
  *
- * Wraps hipfft/hipfft.h. CUDA counterpart: gpumod.cuda.cufft.
+ * Wraps hipfft/hipfft.h. CUDA counterpart: wwr.cuda.cufft.
  *
  * hipFFT's call-site direction flags (HIPFFT_FORWARD / HIPFFT_BACKWARD) are
  * `#define`d plain ints, not enumerators -- parity with how cufft.cppm
@@ -12,7 +12,7 @@
  * naming, kept as-is rather than renamed to match cuFFT.
  *
  * Usage:
- *   import gpumod.hip.hipfft;
+ *   import wwr.hip.hipfft;
  */
 
 module;
@@ -35,7 +35,7 @@ static_assert(HIPFFT_BACKWARD == 1, "HIPFFT_BACKWARD value mismatch");
 #undef HIPFFT_FORWARD
 #undef HIPFFT_BACKWARD
 
-export module gpumod.hip.hipfft;
+export module wwr.hip.hipfft;
 
 import std;
 

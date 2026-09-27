@@ -1,16 +1,16 @@
-// cusparse.cppm - Compile-time tests for gpumod.cuda.cusparse
+// cusparse.cppm - Compile-time tests for wwr.cuda.cusparse
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cusparse;
+export module wwr.test.cuda.cusparse;
 
 import std;
-import gpumod.cuda.cusparse;
+import wwr.cuda.cusparse;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cusparse
+// Compile-time tests for wwr.cuda.cusparse
 //
 // The module is a pure re-export (using declarations).
 // We verify at compile-time that:

@@ -1,4 +1,4 @@
-// runtime_api.cppm - Compile-time tests for gpumod.runtime_api
+// runtime_api.cppm - Compile-time tests for wwr.runtime_api
 //
 // Every exported gpu* name is the backend's own entity. See gpu_check_macros.h.
 
@@ -6,14 +6,14 @@ module;
 
 #include "gpu_check_macros.h"
 
-export module gpumod.test.gpu.runtime_api;
+export module wwr.test.gpu.runtime_api;
 
 import std;
-import gpumod.runtime_api;
+import wwr.runtime_api;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cuda_runtime_api;
+import wwr.cuda.cuda_runtime_api;
 #else
-import gpumod.hip.hip_runtime_api;
+import wwr.hip.hip_runtime_api;
 #endif
 
 namespace wwr::test {

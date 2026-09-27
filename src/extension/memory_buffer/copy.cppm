@@ -6,16 +6,16 @@
  * bounds safety and parameter correctness.
  *
  * Usage:
- *   import gpumod.extension.memory_buffer;
+ *   import wwr.extension.memory_buffer;
  *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.memory_buffer:copy;
+export module wwr.extension.memory_buffer:copy;
 
 import std;
 import :base_buffer;
 import :host_memory;
-import gpumod.runtime_api;
+import wwr.runtime_api;
 
 export namespace wwr::extension {
 

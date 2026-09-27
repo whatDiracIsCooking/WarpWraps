@@ -6,13 +6,13 @@
  * Unified memory is accessible from both CPU and GPU with automatic migration.
  */
 
-export module gpumod.extension.memory_buffer:unified_buffer;
+export module wwr.extension.memory_buffer:unified_buffer;
 
 import :base_buffer;
 import :memory_kind;
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.runtime;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.runtime;
 import std;
 
 export namespace wwr::extension {

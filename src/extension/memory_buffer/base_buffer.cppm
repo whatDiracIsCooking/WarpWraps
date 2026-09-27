@@ -6,14 +6,14 @@
  * memory kinds (Device, Pinned, Host, Unified).
  *
  * Usage:
- *   import gpumod.extension.memory_buffer;
+ *   import wwr.extension.memory_buffer;
  *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.memory_buffer:base_buffer;
+export module wwr.extension.memory_buffer:base_buffer;
 
 import std;
-import gpumod.extension.common;
+import wwr.extension.common;
 import :memory_kind;
 
 export namespace wwr::extension {

@@ -1,10 +1,10 @@
-# gpumod.extension.runtime
+# wwr.extension.runtime
 
-C++23 module providing RAII wrappers and error handling utilities for the GPU runtime API. Backend-neutral: written against `gpumod.runtime_api`'s `gpu*` names, so the same source builds for the CUDA and the HIP backend (see `src/README.md`).
+C++23 module providing RAII wrappers and error handling utilities for the GPU runtime API. Backend-neutral: written against `wwr.runtime_api`'s `gpu*` names, so the same source builds for the CUDA and the HIP backend (see `src/README.md`).
 
 ## Module Name
 
-`gpumod.extension.runtime`
+`wwr.extension.runtime`
 
 ## Overview
 
@@ -26,7 +26,7 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 
 ### Error handling (`gpu_error`)
 
-Specializes three function templates from `gpumod.extension.common` for `gpuError_t`:
+Specializes three function templates from `wwr.extension.common` for `gpuError_t`:
 
 - `success_code<gpuError_t>()` — returns `gpuSuccess`
 - `error_name<gpuError_t>(error)` — delegates to `gpuGetErrorName`
@@ -117,7 +117,7 @@ Constructors:
 
 > Neither graph type is device-bound — both sit on `BaseHandle`, not `DeviceBoundHandle`. A graph describes work whose nodes may target different devices, and an executable graph runs on whatever device the stream passed to `launch()` belongs to, so there is no owning device to record.
 >
-> `gpuGraphInstantiate` is a hand-written forwarding function in `gpumod.runtime_api`, not a plain alias: the backends' plain `*Instantiate` entry points disagree on signature beyond the prefix (CUDA takes flags, HIP takes an error-node/log-buffer triple), so `gpuGraphInstantiate(exec, graph, flags = 0)` forwards to `cudaGraphInstantiate` on CUDA and `hipGraphInstantiateWithFlags` on HIP — both of which take `(GraphExec_t*, Graph_t, unsigned long long)`.
+> `gpuGraphInstantiate` is a hand-written forwarding function in `wwr.runtime_api`, not a plain alias: the backends' plain `*Instantiate` entry points disagree on signature beyond the prefix (CUDA takes flags, HIP takes an error-node/log-buffer triple), so `gpuGraphInstantiate(exec, graph, flags = 0)` forwards to `cudaGraphInstantiate` on CUDA and `hipGraphInstantiateWithFlags` on HIP — both of which take `(GraphExec_t*, Graph_t, unsigned long long)`.
 
 ### Device handle (`device_handle`)
 
@@ -133,7 +133,7 @@ Constructors:
 ## Usage
 
 ```cpp
-import gpumod.extension.runtime;
+import wwr.extension.runtime;
 using namespace wwr::extension;
 
 GpuStream stream;
@@ -150,5 +150,5 @@ auto ok = success_code<gpuError_t>();  // gpuSuccess
 
 ## Dependencies
 
-- `gpumod.runtime_api` (backend-neutral runtime API names)
-- `gpumod.extension.common` (error policy infrastructure)
+- `wwr.runtime_api` (backend-neutral runtime API names)
+- `wwr.extension.common` (error policy infrastructure)

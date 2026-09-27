@@ -5,7 +5,7 @@
  * #included directly into a .cu or -x hip device-compiled TU, which imports no
  * modules and so cannot use gpu_backend.h. The backend comes from the
  * compiler's own device-compile macro; #errors outside a device pass. Link
- * gpumod.device for the include path and the runtime headers.
+ * wwr.device for the include path and the runtime headers.
  *
  *   WWR_GRID_CONSTANT   __grid_constant__ under CUDA, empty under HIP
  *   WWR_WARP_SIZE       warp/wavefront size, as a constant expression. Set

@@ -6,11 +6,11 @@
  * to integer types commonly used in GPU BLAS/solver libraries.
  *
  * Usage:
- *   import gpumod.wrappers.common;
+ *   import wwr.wrappers.common;
  *   using namespace wwr;
  */
 
-export module gpumod.wrappers.common:int_types;
+export module wwr.wrappers.common:int_types;
 
 import std;
 

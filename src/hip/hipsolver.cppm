@@ -2,8 +2,8 @@
  * @file hipsolver.cppm
  * @brief hipSOLVER API module wrapper for gpumod project
  *
- * Wraps hipsolver/hipsolver.h. CUDA counterparts: gpumod.cuda.cusolverDn and
- * gpumod.cuda.cusolverSp together -- hipSOLVER's single umbrella header pulls
+ * Wraps hipsolver/hipsolver.h. CUDA counterparts: wwr.cuda.cusolverDn and
+ * wwr.cuda.cusolverSp together -- hipSOLVER's single umbrella header pulls
  * in both the Dn and Sp surfaces, so one module covers what CUDA splits in
  * two. See src/hip/README.md for the collapse-and-narrow writeup.
  *
@@ -24,7 +24,7 @@
  * cusolverDn.cppm; hipsolver's own aliases of them, and hipDataType, are.
  *
  * Usage:
- *   import gpumod.hip.hipsolver;
+ *   import wwr.hip.hipsolver;
  */
 
 module;
@@ -39,7 +39,7 @@ module;
 #include <array>
 #include <hipsolver/hipsolver.h>
 
-export module gpumod.hip.hipsolver;
+export module wwr.hip.hipsolver;
 
 import std;
 
@@ -119,7 +119,7 @@ using ::hipsolverDnFunction_t;
 
 // hipsolver's own names for the hipblas types used by the X-prefixed 64-bit
 // generic API (typedef aliases of hipblasOperation_t/FillMode_t/SideMode_t;
-// the underlying types and their enumerators are gpumod.hip.hipblas's
+// the underlying types and their enumerators are wwr.hip.hipblas's
 // to export, not re-exported redundantly here)
 using ::hipsolverFillMode_t;
 using ::hipsolverOperation_t;

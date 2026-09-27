@@ -1,6 +1,6 @@
 /**
  * @file interface.cppm
- * @brief Primary interface for gpumod.wrappers.blas
+ * @brief Primary interface for wwr.wrappers.blas
  *
  * This module provides type-safe C++ wrappers for GPU BLAS operations (cuBLAS or hipBLAS, per WWR_GPU_BACKEND).
  * It aggregates all BLAS level operations and extensions:
@@ -11,13 +11,13 @@
  * - :extension - BLAS-like extension operations
  *
  * Usage:
- *   import gpumod.wrappers.blas;
+ *   import wwr.wrappers.blas;
  *   using namespace wwr;
  */
 
 module;
 
-export module gpumod.wrappers.blas;
+export module wwr.wrappers.blas;
 
 import std;
 

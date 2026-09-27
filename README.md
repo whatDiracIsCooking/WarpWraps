@@ -55,24 +55,24 @@ cmake --install build --prefix /where/you/want/it
 ```
 
 ```cmake
-find_package(gpumod 0.1 REQUIRED)
+find_package(wwr 0.1 REQUIRED)
 
 add_executable(app main.cpp)
 target_link_libraries(app PRIVATE
-  gpumod::gpumod.wrappers.blas
-  gpumod::gpumod.extension.memory_buffer
+  wwr::wwr.wrappers.blas
+  wwr::wwr.extension.memory_buffer
 )
 ```
 
 ```cpp
-import gpumod.wrappers.blas;
-import gpumod.extension.memory_buffer;
+import wwr.wrappers.blas;
+import wwr.extension.memory_buffer;
 ```
 
 Configure with `-DCMAKE_PREFIX_PATH=/where/you/want/it` so `find_package` can see
 it. Every target in the [Modules](#modules) tables is exported under the
-`gpumod::` namespace, keeping its dotted name — `gpumod.wrappers.blas` is
-`gpumod::gpumod.wrappers.blas`. Linking one is what makes the corresponding
+`wwr::` namespace, keeping its dotted name — `wwr.wrappers.blas` is
+`wwr::wwr.wrappers.blas`. Linking one is what makes the corresponding
 `import` resolve; there is nothing else to configure.
 
 [`example/consumer/`](example/consumer/) is a complete, buildable version of the
@@ -104,7 +104,7 @@ The consequence is that a consumer's build is less "linking against gpumod" than
 - **CMake 4.2+**, and the CUDA Toolkit or ROCm that the install was built
   against.
 
-`gpumodConfig.cmake` checks what it can — it warns on a compiler or standard
+`wwrConfig.cmake` checks what it can — it warns on a compiler or standard
 library that does not match the one the package was built with, rather than
 letting the mismatch surface as a wall of errors inside gpumod's own sources.
 Silence those with `-DWWR_SKIP_TOOLCHAIN_CHECK=ON` if you know your toolchain
@@ -117,7 +117,7 @@ config as `WWR_GPU_BACKEND` along with `WWR_WARP_SIZE`. Requesting the
 other one is refused rather than half-satisfied:
 
 ```cmake
-find_package(gpumod REQUIRED COMPONENTS CUDA)   # fails on a HIP installation
+find_package(wwr REQUIRED COMPONENTS CUDA)   # fails on a HIP installation
 ```
 
 To use both, build and install gpumod twice, to two prefixes.
@@ -199,15 +199,15 @@ placed in the `gpumod` namespace.
 
 | Module | Import | Wraps |
 |--------|--------|-------|
-| `gpumod.cuda.cuda_runtime_api` | `import gpumod.cuda.cuda_runtime_api;` | `cuda_runtime_api.h` — full CUDA runtime API |
-| `gpumod.cuda.cublas_v2` | `import gpumod.cuda.cublas_v2;` | `cublas_v2.h` — complete cuBLAS API |
-| `gpumod.cuda.cusolverDn` | `import gpumod.cuda.cusolverDn;` | `cusolverDn.h` — complete cuSOLVER Dense API |
-| `gpumod.cuda.curand` | `import gpumod.cuda.curand;` | `curand.h` / `curand_kernel.h` |
-| `gpumod.cuda.cufft` | `import gpumod.cuda.cufft;` | `cufft.h` — complete cuFFT API |
-| `gpumod.cuda.cusparse` | `import gpumod.cuda.cusparse;` | `cusparse.h` — complete cuSPARSE API |
-| `gpumod.cuda.cuComplex` | `import gpumod.cuda.cuComplex;` | `cuComplex.h` (forwarding wrappers for `static inline` symbols) |
-| `gpumod.cuda.cuda_fp16` | `import gpumod.cuda.cuda_fp16;` | `cuda_fp16.h` — `__half`, `__half2` and operators |
-| `gpumod.cuda.cuda_bf16` | `import gpumod.cuda.cuda_bf16;` | `cuda_bf16.h` — `__nv_bfloat16` and operators |
+| `wwr.cuda.cuda_runtime_api` | `import wwr.cuda.cuda_runtime_api;` | `cuda_runtime_api.h` — full CUDA runtime API |
+| `wwr.cuda.cublas_v2` | `import wwr.cuda.cublas_v2;` | `cublas_v2.h` — complete cuBLAS API |
+| `wwr.cuda.cusolverDn` | `import wwr.cuda.cusolverDn;` | `cusolverDn.h` — complete cuSOLVER Dense API |
+| `wwr.cuda.curand` | `import wwr.cuda.curand;` | `curand.h` / `curand_kernel.h` |
+| `wwr.cuda.cufft` | `import wwr.cuda.cufft;` | `cufft.h` — complete cuFFT API |
+| `wwr.cuda.cusparse` | `import wwr.cuda.cusparse;` | `cusparse.h` — complete cuSPARSE API |
+| `wwr.cuda.cuComplex` | `import wwr.cuda.cuComplex;` | `cuComplex.h` (forwarding wrappers for `static inline` symbols) |
+| `wwr.cuda.cuda_fp16` | `import wwr.cuda.cuda_fp16;` | `cuda_fp16.h` — `__half`, `__half2` and operators |
+| `wwr.cuda.cuda_bf16` | `import wwr.cuda.cuda_bf16;` | `cuda_bf16.h` — `__nv_bfloat16` and operators |
 
 `src/hip` mirrors these against hipBLAS, hipSOLVER, hipRAND, hipFFT, hipSPARSE,
 rocm_smi/amd_smi and hiprtc.
@@ -219,30 +219,30 @@ Type-safe abstractions, RAII resource management and utility kernels, all in the
 written once against the gpu* layer's `gpu*` names and build for either backend.
 There is no per-backend extension tree.
 
-That is the layer's contract — `gpumod.wrappers.*` adapts the functions **both**
+That is the layer's contract — `wwr.wrappers.*` adapts the functions **both**
 vendors offer. See [Vendor-only functions](#vendor-only-functions) for the
 handful that only one does, and how to reach them.
 
 | Module | Purpose |
 |--------|---------|
-| `gpumod.wrappers.common` | FP concepts and integer utilities the generic wrappers build on |
-| `gpumod.extension.common` | Error handling (`gpu_check`, pluggable policy), `DeviceScope` |
-| `gpumod.extension.handle` | The RAII handle base (`BaseHandle`, `DeviceBoundHandle`) and the non-owning `HandleView` |
-| `gpumod.extension.runtime` | RAII stream, event, graph and memory pool |
-| `gpumod.wrappers.blas` | Generic templated BLAS (`gemm<float>(…)` rather than `cublasSgemm_v2` / `hipblasSgemm`), either backend |
-| `gpumod.wrappers.solver` | Generic templated dense solver, either backend |
-| `gpumod.wrappers.fft` | Generic templated FFT, transform kind selected at compile time, either backend |
-| `gpumod.wrappers.sparse` | Generic templated sparse over the shared legacy-typed API (`bsrmv<float>(…)`, `gtsv2`, `csrgeam2`, …), either backend |
-| `gpumod.extension.blas` / `.solver` / `.fft` / `.sparse` | RAII, device-bound vendor handles and the FFT plan, either backend |
-| `gpumod.extension.memory_buffer` | `DeviceBuffer<T>`, `PinnedBuffer<T>`, `UnifiedBuffer<T>`, `HostBuffer<T>` and the view types |
-| `gpumod.extension.init_state` | Per-thread RNG state initialization on the device API, either backend |
-| `gpumod.extension.random_normal` | Normal-distribution draws from those per-thread states, either backend |
-| `gpumod.fp16` / `gpumod.bf16` | Host-side fp16 / bf16 conversions, mapped onto the chosen backend's own type |
+| `wwr.wrappers.common` | FP concepts and integer utilities the generic wrappers build on |
+| `wwr.extension.common` | Error handling (`gpu_check`, pluggable policy), `DeviceScope` |
+| `wwr.extension.handle` | The RAII handle base (`BaseHandle`, `DeviceBoundHandle`) and the non-owning `HandleView` |
+| `wwr.extension.runtime` | RAII stream, event, graph and memory pool |
+| `wwr.wrappers.blas` | Generic templated BLAS (`gemm<float>(…)` rather than `cublasSgemm_v2` / `hipblasSgemm`), either backend |
+| `wwr.wrappers.solver` | Generic templated dense solver, either backend |
+| `wwr.wrappers.fft` | Generic templated FFT, transform kind selected at compile time, either backend |
+| `wwr.wrappers.sparse` | Generic templated sparse over the shared legacy-typed API (`bsrmv<float>(…)`, `gtsv2`, `csrgeam2`, …), either backend |
+| `wwr.extension.blas` / `.solver` / `.fft` / `.sparse` | RAII, device-bound vendor handles and the FFT plan, either backend |
+| `wwr.extension.memory_buffer` | `DeviceBuffer<T>`, `PinnedBuffer<T>`, `UnifiedBuffer<T>`, `HostBuffer<T>` and the view types |
+| `wwr.extension.init_state` | Per-thread RNG state initialization on the device API, either backend |
+| `wwr.extension.random_normal` | Normal-distribution draws from those per-thread states, either backend |
+| `wwr.fp16` / `wwr.bf16` | Host-side fp16 / bf16 conversions, mapped onto the chosen backend's own type |
 | `parallel_for` | header-only device-side parallel iteration helper, either backend |
 
 ### Vendor-only functions
 
-`gpumod.wrappers.*` is an adapter over the **intersection** of what the two
+`wwr.wrappers.*` is an adapter over the **intersection** of what the two
 vendors offer. A handful of cuBLAS and cuSOLVER entry points have no
 hipBLAS/hipSOLVER counterpart, so they get no backend-neutral wrapper — wrapping
 them would mean a module that compiles on one backend and not the other, which is
@@ -252,14 +252,14 @@ They are still reachable. Import the low-level module, which exposes the vendor'
 complete API 1:1, and call the typed entry point directly:
 
 ```cpp
-import gpumod.cuda.cublas_v2;   // the whole cuBLAS API; CUDA builds only
+import wwr.cuda.cublas_v2;   // the whole cuBLAS API; CUDA builds only
 cublasCgemm3m(handle, /* … */);
 ```
 
 The same applies in the other direction for rocBLAS/rocSOLVER calls cuBLAS and
-cuSOLVER lack (`import gpumod.hip.hipblas;`).
+cuSOLVER lack (`import wwr.hip.hipblas;`).
 
-**cuBLAS-only** — verified against `hipblas.h`. `gpumod.wrappers.blas` has
+**cuBLAS-only** — verified against `hipblas.h`. `wwr.wrappers.blas` has
 everything else:
 
 | Function | Operation |
@@ -289,12 +289,12 @@ everything else:
 
 hipsolverDn's eigenvalue/SVD surface is **legacy-typed only**, which is why the
 entire modern eigen/SVD API is on that list. The legacy-typed eigenvalue/SVD API
-is fully shared and *is* wrapped, as `gpumod.wrappers.solver`'s
+is fully shared and *is* wrapped, as `wwr.wrappers.solver`'s
 `:eigen_solver_legacy` partition (48 functions) — as are the 8 modern functions
 both backends do have (potrf/potrs/getrf/getrs/geqrf plus `_bufferSize`).
 
 **cuSPARSE / hipSPARSE** diverge more than the other pairs, so
-`gpumod.wrappers.sparse` wraps a deliberately narrow slice: the legacy typed
+`wwr.wrappers.sparse` wraps a deliberately narrow slice: the legacy typed
 (S/D/C/Z) functions both vendors still have and cuSPARSE has **not** removed —
 `bsrmv`, the `gtsv2`/`gpsvInterleavedBatch` batch solvers, `csrgeam2`, `nnz`,
 `gebsr2gebsc`, `csr2gebsr`. cuSPARSE removed most of its legacy typed API
@@ -303,8 +303,8 @@ those — though hipSPARSE keeps them — are out. The **modern generic API**
 (`SpMV`, `SpMM`, `SpGEMM`, `SDDMM`, `SpSV`, `SpSM`) *is* shared, but its element
 type is a runtime `cudaDataType`/`hipDataType` argument rather than a name
 letter, so there is no S/D/C/Z entry point to dispatch to; call it directly
-through `gpumod.sparse` or the raw `gpumod.cuda.cusparse` /
-`gpumod.hip.hipsparse` modules.
+through `wwr.sparse` or the raw `wwr.cuda.cusparse` /
+`wwr.hip.hipsparse` modules.
 
 ## Design
 
@@ -527,15 +527,15 @@ passes only when the call *failed*. Compare against `cudaSuccess` /
 
 ```cmake
 wwr_add_cxx_module_library(
-  NAME gpumod.wrappers.widget
+  NAME wwr.wrappers.widget
   PRIMARY_INTERFACE widget.cppm
   IMPORT_STD
-  LINK_PUBLIC gpumod.wrappers.common
+  LINK_PUBLIC wwr.wrappers.common
 )
 ```
 
-Target names use dots and are aliased to `::` — `gpumod.wrappers.widget` is
-consumable as `gpumod::widget`. For a `.cu` of device-kernel code
+Target names use dots and are aliased to `::` — `wwr.wrappers.widget` is
+consumable as `wwr::widget`. For a `.cu` of device-kernel code
 use `wwr_add_gpu_device_library`, which compiles it for whichever backend
 the build selected; for header-only code use `wwr_add_interface_library`.
 See [`cmake/README.md`](cmake/README.md).

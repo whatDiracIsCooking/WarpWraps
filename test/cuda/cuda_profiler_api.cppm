@@ -1,16 +1,16 @@
-// cuda_profiler_api.cppm - Compile-time tests for gpumod.cuda.cuda_profiler_api
+// cuda_profiler_api.cppm - Compile-time tests for wwr.cuda.cuda_profiler_api
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cuda_profiler_api;
+export module wwr.test.cuda.cuda_profiler_api;
 
 import std;
-import gpumod.cuda.cuda_profiler_api;
+import wwr.cuda.cuda_profiler_api;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cuda_profiler_api
+// Compile-time tests for wwr.cuda.cuda_profiler_api
 //
 // The API surface of cuda_profiler_api.h is intentionally minimal: it
 // declares exactly two functions — cudaProfilerStart and cudaProfilerStop —

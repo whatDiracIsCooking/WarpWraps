@@ -11,10 +11,10 @@
  * makes the device-bound base self-sufficient for all of its users.
  */
 
-export module gpumod.extension.common:gpu_error;
+export module wwr.extension.common:gpu_error;
 
-import gpumod.extension.common.error_handling;
-import gpumod.runtime_api;
+import wwr.extension.common.error_handling;
+import wwr.runtime_api;
 import std;
 
 export namespace wwr::extension {

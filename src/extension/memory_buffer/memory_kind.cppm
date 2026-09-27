@@ -6,14 +6,14 @@
  * for different allocation strategies.
  *
  * Usage:
- *   import gpumod.extension.memory_buffer;
+ *   import wwr.extension.memory_buffer;
  *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.memory_buffer:memory_kind;
+export module wwr.extension.memory_buffer:memory_kind;
 
 import std;
-import gpumod.runtime_api;
+import wwr.runtime_api;
 import :host_memory;
 
 export namespace wwr::extension {

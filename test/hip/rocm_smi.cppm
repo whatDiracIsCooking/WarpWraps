@@ -1,16 +1,16 @@
-// rocm_smi.cppm - Compile-time tests for gpumod.hip.rocm_smi
+// rocm_smi.cppm - Compile-time tests for wwr.hip.rocm_smi
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.rocm_smi;
+export module wwr.test.hip.rocm_smi;
 
 import std;
-import gpumod.hip.rocm_smi;
+import wwr.hip.rocm_smi;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.rocm_smi
+// Compile-time tests for wwr.hip.rocm_smi
 //
 // The module is pure re-export (using declarations only -- rocm_smi.h is a
 // plain extern "C" API, no convenience-template collisions like hip_runtime_api.h).

@@ -7,14 +7,14 @@
  * Hands failures to an error policy and returns bool indicating success.
  *
  * Usage:
- *   import gpumod.extension.common;
+ *   import wwr.extension.common;
  *
  *   if (!gpu_check(gpuStreamCreate(&stream))) {
  *       return;  // handle error
  *   }
  */
 
-export module gpumod.extension.common.error_handling:gpu_check;
+export module wwr.extension.common.error_handling:gpu_check;
 
 import :error_code;
 import :error_policy;

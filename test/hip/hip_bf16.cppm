@@ -1,16 +1,16 @@
-// hip_bf16.cppm - Compile-time tests for gpumod.hip.hip_bf16
+// hip_bf16.cppm - Compile-time tests for wwr.hip.hip_bf16
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_bf16;
+export module wwr.test.hip.hip_bf16;
 
 import std;
-import gpumod.hip.hip_bf16;
+import wwr.hip.hip_bf16;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_bf16
+// Compile-time tests for wwr.hip.hip_bf16
 //
 // Mirrors test/cuda/cuda_bf16.cppm: __hip_bfloat16/__hip_bfloat162 are
 // re-exported by `using` declaration only; their arithmetic/comparison

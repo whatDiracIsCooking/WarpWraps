@@ -3,9 +3,9 @@
  * @brief hipRAND API module wrapper for gpumod project
  *
  * Wraps hiprand/hiprand.h -- the hipRAND *host* API only. CUDA counterpart:
- * gpumod.cuda.curand, which additionally wraps curand_kernel.h for the
+ * wwr.cuda.curand, which additionally wraps curand_kernel.h for the
  * device-side generator state types. hipRAND's counterpart to that lives in
- * its own module, gpumod.hip.hiprand_kernel, so host-API consumers do not pay
+ * its own module, wwr.hip.hiprand_kernel, so host-API consumers do not pay
  * for the rocRAND device-generator implementation it drags in.
  *
  * hiprandDirectionVectors32_t / 64_t are plain C array typedefs on the AMD
@@ -16,14 +16,14 @@
  * incomplete struct types, exported the way cuRAND's equivalents are.
  *
  * Usage:
- *   import gpumod.hip.hiprand;
+ *   import wwr.hip.hiprand;
  */
 
 module;
 
 #include <hiprand/hiprand.h>
 
-export module gpumod.hip.hiprand;
+export module wwr.hip.hiprand;
 
 import std;
 

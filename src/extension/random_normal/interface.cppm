@@ -1,10 +1,10 @@
 /**
  * @file interface.cppm
- * @brief Primary interface for gpumod.extension.random_normal
+ * @brief Primary interface for wwr.extension.random_normal
  *
  * Parallel generation of standard-normal values into a typed device array, one
  * value per element, using an array of states already initialized by
- * gpumod.extension.init_state. Draws from the standard normal distribution
+ * wwr.extension.init_state. Draws from the standard normal distribution
  * (mean 0, standard deviation 1), optionally multiplied by a `scale` argument
  * that defaults to 1. The kernel lives in random_normal.cu, device-compiled
  * (see this directory's CMakeLists.txt).
@@ -31,8 +31,8 @@
  * generator.
  *
  * Usage:
- *   import gpumod.extension.init_state;
- *   import gpumod.extension.random_normal;
+ *   import wwr.extension.init_state;
+ *   import wwr.extension.random_normal;
  *   using namespace wwr::extension;
  *
  *   auto device = std::make_shared<DeviceHandle>();
@@ -42,23 +42,23 @@
  *   init_state(stream, n, states.data(), seed);
  *   random_normal(stream, n, states.data(), values.data());
  *
- * This and gpumod.extension.init_state were split out of the single
- * gpumod.extension.rand module (two partitions), itself the port of the
- * CUDA-only gpumod.extension.curand.* (removed).
+ * This and wwr.extension.init_state were split out of the single
+ * wwr.extension.rand module (two partitions), itself the port of the
+ * CUDA-only wwr.extension.curand.* (removed).
  */
 
 module;
 
 #include "extension/random_normal/random_normal_bridge.h"
 
-export module gpumod.extension.random_normal;
+export module wwr.extension.random_normal;
 
 import std;
-import gpumod.runtime_api;
-import gpumod.rand;
-import gpumod.complex;
-import gpumod.fp16;
-import gpumod.bf16;
+import wwr.runtime_api;
+import wwr.rand;
+import wwr.complex;
+import wwr.fp16;
+import wwr.bf16;
 
 // Not an `export namespace` block: an explicit instantiation declaration
 // (`extern template`) cannot be exported, so the template carries its own
@@ -72,7 +72,7 @@ namespace wwr::extension {
  * Consumes one state per element: `states[i]` advances as `output[i]` is
  * drawn, so the same array fed to a second call continues the streams rather
  * than repeating them. `states` must have been initialized by
- * gpumod.extension.init_state's init_state.
+ * wwr.extension.init_state's init_state.
  *
  * Returns immediately without launching anything when `count` is 0.
  *

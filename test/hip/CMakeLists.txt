@@ -36,17 +36,17 @@ set(HIP_TEST_LIBRARIES
 foreach(_lib IN LISTS HIP_TEST_LIBRARIES)
   wwr_add_cxx_module_library(
     NAME
-    gpumod.test.hip.${_lib}
+    wwr.test.hip.${_lib}
     IMPORT_STD
     NO_CUDA_DEVICE_LINKING
     PRIMARY_INTERFACE
     ${_lib}.cppm
     LINK_PUBLIC
-    gpumod.hip.${_lib}
+    wwr.hip.${_lib}
     INCLUDE_DIRS_PRIVATE
     ${CMAKE_SOURCE_DIR}
   )
-  add_dependencies(compile_time_tests gpumod.test.hip.${_lib})
+  add_dependencies(compile_time_tests wwr.test.hip.${_lib})
 endforeach()
 
 # Every test library is linked WHOLE_ARCHIVE. They are static archives and
@@ -55,7 +55,7 @@ endforeach()
 # derived from HIP_TEST_LIBRARIES so a new library cannot be forgotten.
 set(_hip_test_targets "")
 foreach(_lib IN LISTS HIP_TEST_LIBRARIES)
-  list(APPEND _hip_test_targets gpumod.test.hip.${_lib})
+  list(APPEND _hip_test_targets wwr.test.hip.${_lib})
 endforeach()
 
 wwr_add_test_executable(

@@ -1,16 +1,16 @@
-// nvml.cppm - Compile-time tests for gpumod.cuda.nvml
+// nvml.cppm - Compile-time tests for wwr.cuda.nvml
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.nvml;
+export module wwr.test.cuda.nvml;
 
 import std;
-import gpumod.cuda.nvml;
+import wwr.cuda.nvml;
 
 // ========================================================================
-// Compile-time tests for gpumod.cuda.nvml
+// Compile-time tests for wwr.cuda.nvml
 //
 // The module is a pure re-export (using declarations).
 // We verify at compile-time that:

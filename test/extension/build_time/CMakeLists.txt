@@ -14,31 +14,31 @@
 
 wwr_add_cxx_module_library(
   NAME
-  gpumod.test.extension.memory_buffer
+  wwr.test.extension.memory_buffer
   IMPORT_STD
   NO_CUDA_DEVICE_LINKING
   PRIMARY_INTERFACE
   memory_buffer.cppm
   LINK_PUBLIC
-  gpumod.extension.memory_buffer
+  wwr.extension.memory_buffer
 )
 
-add_dependencies(compile_time_tests gpumod.test.extension.memory_buffer)
+add_dependencies(compile_time_tests wwr.test.extension.memory_buffer)
 
 wwr_add_cxx_module_library(
   NAME
-  gpumod.test.extension.handle_view
+  wwr.test.extension.handle_view
   IMPORT_STD
   NO_CUDA_DEVICE_LINKING
   PRIMARY_INTERFACE
   handle_view.cppm
   LINK_PUBLIC
-  gpumod.extension.common
-  gpumod.extension.handle
-  gpumod.extension.runtime
-  gpumod.extension.blas
-  gpumod.extension.solver
-  gpumod.extension.sparse
+  wwr.extension.common
+  wwr.extension.handle
+  wwr.extension.runtime
+  wwr.extension.blas
+  wwr.extension.solver
+  wwr.extension.sparse
 )
 
-add_dependencies(compile_time_tests gpumod.test.extension.handle_view)
+add_dependencies(compile_time_tests wwr.test.extension.handle_view)

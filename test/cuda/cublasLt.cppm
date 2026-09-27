@@ -1,16 +1,16 @@
-// cublasLt.cppm - Compile-time tests for gpumod.cuda.cublasLt
+// cublasLt.cppm - Compile-time tests for wwr.cuda.cublasLt
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cublasLt;
+export module wwr.test.cuda.cublasLt;
 
 import std;
-import gpumod.cuda.cublasLt;
+import wwr.cuda.cublasLt;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cublasLt
+// Compile-time tests for wwr.cuda.cublasLt
 //
 // We verify at compile-time that:
 //   1. Constexpr numerical impl flag values are correct

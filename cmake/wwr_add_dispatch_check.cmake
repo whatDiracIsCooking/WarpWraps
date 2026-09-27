@@ -13,8 +13,8 @@
 # the details, and each table's header for the module's own naming rule.
 #
 #   wwr_add_dispatch_check(
-#     NAME       gpumod.test.wrappers.blas_dispatch  # the custom target
-#     TARGET     gpumod.wrappers.blas                # whose objects to read
+#     NAME       wwr.test.wrappers.blas_dispatch  # the custom target
+#     TARGET     wwr.wrappers.blas                # whose objects to read
 #     TABLE      blas_dispatch.toml                   # relative to this dir
 #     GPU_SOURCE src/blas.cppm                    # from PROJECT_SOURCE_DIR
 #   )

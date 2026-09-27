@@ -1,4 +1,4 @@
-// blas.cppm - Compile-time tests for gpumod.blas
+// blas.cppm - Compile-time tests for wwr.blas
 //
 // Types, constants, and the handle/stream/status functions are each checked
 // against the backend's own entity (see gpu_check_macros.h). The two places
@@ -9,7 +9,7 @@
 // blas.cppm writes each one out in full (WWR_FUNCTION(gpublasSgemm,
 // cublasSgemm_v2, hipblasSgemm)), not derived by a prefix-pasting macro, so a
 // line here would restate that line. A misspelled backend name does not
-// compile (gpumod.cuda.cublas_v2 exports only the _v2 spellings), and a
+// compile (wwr.cuda.cublas_v2 exports only the _v2 spellings), and a
 // wrong-but-existing one is a signature mismatch at the instantiation in
 // src/wrappers/blas/instantiations.cpp or a dispatch mismatch in the blas
 // dispatch check (test/wrappers/blas/blas_dispatch.toml). That every alias is
@@ -20,15 +20,15 @@ module;
 
 #include "gpu_check_macros.h"
 
-export module gpumod.test.gpu.blas;
+export module wwr.test.gpu.blas;
 
 import std;
-import gpumod.blas;
-import gpumod.complex;
+import wwr.blas;
+import wwr.complex;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cublas_v2;
+import wwr.cuda.cublas_v2;
 #else
-import gpumod.hip.hipblas;
+import wwr.hip.hipblas;
 #endif
 
 namespace wwr::test {

@@ -1,4 +1,4 @@
-// fft.cppm - Compile-time tests for gpumod.fft
+// fft.cppm - Compile-time tests for wwr.fft
 //
 // Every exported gpufft* name is checked against the backend's own entity: the
 // same type, the same constant (type and value), the same function (see
@@ -14,14 +14,14 @@ module;
 
 #include "gpu_check_macros.h"
 
-export module gpumod.test.gpu.fft;
+export module wwr.test.gpu.fft;
 
 import std;
-import gpumod.fft;
+import wwr.fft;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cufft;
+import wwr.cuda.cufft;
 #else
-import gpumod.hip.hipfft;
+import wwr.hip.hipfft;
 #endif
 
 namespace wwr::test {

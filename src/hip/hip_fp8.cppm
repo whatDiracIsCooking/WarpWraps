@@ -4,7 +4,7 @@
  *
  * Wraps hip/hip_fp8.h for C++23 module-based code: 8-bit floating-point types,
  * enumerations, storage typedefs and host-accessible conversion functions.
- * CUDA counterpart: gpumod.cuda.cuda_fp8.
+ * CUDA counterpart: wwr.cuda.cuda_fp8.
  *
  * HIP defines FOUR struct formats where CUDA's cuda_fp8.h has three: OCP
  * e4m3/e5m2 and AMD's original fnuz-encoded e4m3/e5m2, each with x2/x4 vector
@@ -20,7 +20,7 @@
  * different reasons -- docs/architecture.md, sections 9 and 10.
  *
  * Usage:
- *   import gpumod.hip.hip_fp8;
+ *   import wwr.hip.hip_fp8;
  */
 
 module;
@@ -33,7 +33,7 @@ module;
 #include <algorithm>
 #include <hip/hip_fp8.h>
 
-export module gpumod.hip.hip_fp8;
+export module wwr.hip.hip_fp8;
 
 export namespace wwr::hip {
 

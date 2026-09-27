@@ -6,7 +6,7 @@
  * It exports bfloat16 types and their operators for host-side code.
  *
  * Usage:
- *   import gpumod.cuda.cuda_bf16;
+ *   import wwr.cuda.cuda_bf16;
  *
  * Note: BFloat16 is a brain floating-point format with the same exponent range as
  * IEEE 754 single-precision (8 bits) but reduced mantissa precision (7 bits vs 23 bits).
@@ -24,7 +24,7 @@ module;
 
 #include <cuda_bf16.h>
 
-export module gpumod.cuda.cuda_bf16;
+export module wwr.cuda.cuda_bf16;
 
 // ========================================================================
 // Export all cuda_bf16 types in wwr namespace

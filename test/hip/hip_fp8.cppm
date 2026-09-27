@@ -1,16 +1,16 @@
-// hip_fp8.cppm - Compile-time tests for gpumod.hip.hip_fp8
+// hip_fp8.cppm - Compile-time tests for wwr.hip.hip_fp8
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_fp8;
+export module wwr.test.hip.hip_fp8;
 
 import std;
-import gpumod.hip.hip_fp8;
+import wwr.hip.hip_fp8;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_fp8
+// Compile-time tests for wwr.hip.hip_fp8
 //
 // Mirrors test/cuda/cuda_fp8.cppm's structure. Unlike CUDA (e4m3/e5m2/e8m0),
 // HIP defines four struct formats: OCP e4m3/e5m2 and AMD fnuz-encoded

@@ -9,7 +9,7 @@
 // gpuwmma entity named below has to resolve on both backends. The kernels are
 // never launched -- WMMA is arch-gated (sm_70+, and a gfx11/gfx12/CDNA part on
 // the AMD side) and this tier configures with no device. Reached through
-// gpumod.device, exactly as a real device consumer reaches the header.
+// wwr.device, exactly as a real device consumer reaches the header.
 //
 // The static_asserts turn the silent divergences the header documents into
 // compile-time tripwires. Backend is selected on WWR_SELECTED_CUDA -- the

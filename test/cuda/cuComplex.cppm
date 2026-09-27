@@ -1,16 +1,16 @@
-// cuComplex.cppm - Compile-time tests for gpumod.cuda.cuComplex
+// cuComplex.cppm - Compile-time tests for wwr.cuda.cuComplex
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cuComplex;
+export module wwr.test.cuda.cuComplex;
 
 import std;
-import gpumod.cuda.cuComplex;
+import wwr.cuda.cuComplex;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Tests for gpumod.cuda.cuComplex
+// Tests for wwr.cuda.cuComplex
 //
 // Unlike the rest of src/cuda, this module is NOT a pure re-export: cuComplex.h
 // functions have `static inline` linkage, so the wrapper provides thin

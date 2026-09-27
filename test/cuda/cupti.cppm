@@ -1,16 +1,16 @@
-// cupti.cppm - Compile-time tests for gpumod.cuda.cupti
+// cupti.cppm - Compile-time tests for wwr.cuda.cupti
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cupti;
+export module wwr.test.cuda.cupti;
 
 import std;
-import gpumod.cuda.cupti;
+import wwr.cuda.cupti;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cupti
+// Compile-time tests for wwr.cuda.cupti
 //
 // The module is a pure re-export (using declarations). We verify at
 // compile-time that:

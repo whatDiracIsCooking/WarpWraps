@@ -5,17 +5,17 @@
  * This module provides type-safe wrappers for GPU BLAS Level 1 BLAS operations.
  *
  * Usage:
- *   import gpumod.wrappers.blas;
+ *   import wwr.wrappers.blas;
  */
 
 module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.blas:level_1;
+export module wwr.wrappers.blas:level_1;
 
-import gpumod.blas;
-import gpumod.complex;
+import wwr.blas;
+import wwr.complex;
 import :type_traits;
 import std;
 

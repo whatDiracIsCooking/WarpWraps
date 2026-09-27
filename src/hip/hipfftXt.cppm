@@ -3,12 +3,12 @@
  * @brief hipFFT eXtended (hipfftXt) API module wrapper for gpumod project
  *
  * Wraps hipfft/hipfftXt.h, which itself includes hipfft/hipfft.h and
- * hipfft/hiplibxt.h. CUDA counterpart: gpumod.cuda.cufftXt.
+ * hipfft/hiplibxt.h. CUDA counterpart: wwr.cuda.cufftXt.
  *
  * Two modules, not one: unlike the hip_runtime_api and hipsolver collapses,
  * hipFFT keeps the exact two-header split CUDA does -- hipfft.h / hipfftXt.h
- * mirror cufft.h / cufftXt.h one for one. So gpumod.hip.hipfft and
- * gpumod.hip.hipfftXt stay separate.
+ * mirror cufft.h / cufftXt.h one for one. So wwr.hip.hipfft and
+ * wwr.hip.hipfftXt stay separate.
  *
  * hiplibxt.h's descriptor types are exported here alongside hipfftXt.h's own,
  * the way cufftXt.cppm exports cudalibxt.h's.
@@ -19,7 +19,7 @@
  * exists.
  *
  * Usage:
- *   import gpumod.hip.hipfftXt;
+ *   import wwr.hip.hipfftXt;
  */
 
 module;
@@ -34,7 +34,7 @@ module;
 #include <array>
 #include <hipfft/hipfftXt.h>
 
-export module gpumod.hip.hipfftXt;
+export module wwr.hip.hipfftXt;
 
 import std;
 

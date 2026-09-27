@@ -4,7 +4,7 @@
  *
  * gpufft<name> stands for cufft<name> on a CUDA build and hipfft<name> on a HIP
  * build. Only the base (single-GPU) API is wrapped here -- the multi-GPU
- * eXtended surface is reached through gpumod.cuda.cufftXt / gpumod.hip.hipfftXt
+ * eXtended surface is reached through wwr.cuda.cufftXt / wwr.hip.hipfftXt
  * directly. See gpu_backend.h.
  *
  * Backend differences resolved here, not above:
@@ -20,7 +20,7 @@
  * reach it through the raw module.
  *
  * Usage:
- *   import gpumod.fft;
+ *   import wwr.fft;
  *
  *   gpufftHandle plan;
  *   gpufftCreate(&plan);
@@ -30,12 +30,12 @@ module;
 
 #include "gpu_backend.h"
 
-export module gpumod.fft;
+export module wwr.fft;
 
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cufft;
+import wwr.cuda.cufft;
 #else
-import gpumod.hip.hipfft;
+import wwr.hip.hipfft;
 #endif
 
 export namespace wwr {

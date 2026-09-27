@@ -4,21 +4,21 @@
  *
  * Type-safe wrappers for C = alpha*A + beta*B on CSR matrices, with its
  * companion buffer-size query. (The structure query Xcsrgeam2Nnz is untyped and
- * so is called directly through gpumod.sparse's raw module.)
+ * so is called directly through wwr.sparse's raw module.)
  *
  * Usage:
- *   import gpumod.wrappers.sparse;
+ *   import wwr.wrappers.sparse;
  */
 
 module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.sparse:extra;
+export module wwr.wrappers.sparse:extra;
 
-import gpumod.sparse;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.sparse;
+import wwr.complex;
+import wwr.wrappers.common;
 import std;
 
 export namespace wwr {

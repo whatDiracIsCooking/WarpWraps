@@ -9,7 +9,7 @@
 // cooperative_groups entity named below has to resolve through the one include
 // switch on both backends. The kernels are never launched -- the shfl_down
 // ladder's answer is checked on a device by example/warp_reduce. Reached
-// through gpumod.device, exactly as a real device consumer reaches the header.
+// through wwr.device, exactly as a real device consumer reaches the header.
 //
 // The static_asserts turn the silent divergences the header documents into
 // compile-time tripwires: they name a difference that otherwise costs nothing to

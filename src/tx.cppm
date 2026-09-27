@@ -27,7 +27,7 @@
  * variant at this layer for the suffix to distinguish against.
  *
  * Usage:
- *   import gpumod.tx;
+ *   import wwr.tx;
  *
  *   gputxRangePushA("phase 1");
  *   // ... work ...
@@ -38,12 +38,12 @@ module;
 
 #include "gpu_backend.h"
 
-export module gpumod.tx;
+export module wwr.tx;
 
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.nvToolsExt;
+import wwr.cuda.nvToolsExt;
 #else
-import gpumod.hip.roctx;
+import wwr.hip.roctx;
 #endif
 
 export namespace wwr {

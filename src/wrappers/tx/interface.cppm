@@ -1,9 +1,9 @@
 /**
  * @file interface.cppm
- * @brief Primary interface for gpumod.wrappers.tx
+ * @brief Primary interface for wwr.wrappers.tx
  *
  * Type-safe, backend-neutral profiler annotations over the gputx* marker/range
- * names (gpumod.tx -> NVTX or rocTX, per WWR_GPU_BACKEND). It adds the C++
+ * names (wwr.tx -> NVTX or rocTX, per WWR_GPU_BACKEND). It adds the C++
  * ergonomics the raw gputx* layer does not: named free functions and a
  * ScopedRange RAII guard that pushes a nested range on construction and pops it
  * on destruction, so a range cannot be left open on an early return or a throw.
@@ -19,7 +19,7 @@
  * copy a std::string_view to guarantee termination.
  *
  * Usage:
- *   import gpumod.wrappers.tx;
+ *   import wwr.wrappers.tx;
  *
  *   wwr::tx::mark("checkpoint");
  *   {
@@ -30,9 +30,9 @@
 
 module;
 
-export module gpumod.wrappers.tx;
+export module wwr.wrappers.tx;
 
-import gpumod.tx;
+import wwr.tx;
 import std;
 
 export namespace wwr::tx {

@@ -47,9 +47,9 @@ WWR_FUNCTION(gpublasGetStatusString, cublasGetStatusString, hipblasStatusToStrin
 
 TABLE = """\
 [check]
-module = "gpumod.wrappers.blas"
+module = "wwr.wrappers.blas"
 prefix = "gpublas"
-forwarder_module = "gpumod.blas"
+forwarder_module = "wwr.blas"
 
 [type_names.CUDA]
 float2 = "gpuComplex"
@@ -72,7 +72,7 @@ def _wrapper(name, targs, namespace="wwr"):
     """A wrapper as llvm-cxxfilt prints it."""
     return (
         f"gpublasStatus_t {namespace}::{name}"
-        f"@gpumod.wrappers.blas<{targs}>(int)"
+        f"@wwr.wrappers.blas<{targs}>(int)"
     )
 
 
@@ -198,7 +198,7 @@ def test_non_wrapper_functions_are_ignored(env):
     r = env({
         _wrapper("axpy", "float, int"): ["cublasSaxpy_v2"],
         _wrapper("axpy", "double, int"): ["cublasDaxpy_v2"],
-        "char const* wwr::error_name@gpumod.wrappers.blas(int)": [],
+        "char const* wwr::error_name@wwr.wrappers.blas(int)": [],
         "void some::other::thing(int)": ["cublasSaxpy_v2"],
     })
     assert r.returncode == 0, r.stderr
@@ -304,16 +304,16 @@ def test_overload_pair_fails_when_both_call_the_same_one(env):
 
 def test_uninlined_forwarder_counts_as_its_alias(env):
     r = env({
-        _wrapper("axpy", "float, int"): ["gpublasSaxpy@gpumod.blas(int)"],
+        _wrapper("axpy", "float, int"): ["gpublasSaxpy@wwr.blas(int)"],
         _wrapper("axpy", "double, int"): ["cublasDaxpy_v2"],
     })
     assert r.returncode == 0, r.stderr
 
 
 def test_forwarder_is_not_recognised_without_the_key(env):
-    env.table.write_text(TABLE.replace('forwarder_module = "gpumod.blas"\n', ""))
+    env.table.write_text(TABLE.replace('forwarder_module = "wwr.blas"\n', ""))
     r = env({
-        _wrapper("axpy", "float, int"): ["gpublasSaxpy@gpumod.blas(int)"],
+        _wrapper("axpy", "float, int"): ["gpublasSaxpy@wwr.blas(int)"],
         _wrapper("axpy", "double, int"): ["cublasDaxpy_v2"],
     })
     assert r.returncode == 1
@@ -779,7 +779,7 @@ def test_shipped_tables_load(table_path, gpu_source):
     type_names = {}
     for backend in ("CUDA", "HIP"):
         table = dispatch.Table(str(table_path), backend)
-        assert table.module.startswith("gpumod.wrappers.")
+        assert table.module.startswith("wwr.wrappers.")
         assert table.expected
         type_names[backend] = table.type_names
 

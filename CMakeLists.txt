@@ -133,7 +133,7 @@ else()
 endif()
 
 project(
-  gpumod
+  wwr
   VERSION 0.1.0
   LANGUAGES ${_wwr_languages}
   DESCRIPTION "C++23 module wrappers for the CUDA and HIP GPU APIs"
@@ -210,7 +210,7 @@ else()
   find_package(rocm_smi CONFIG REQUIRED)
   find_package(amd_smi CONFIG REQUIRED)
   # hiprtc (HIP Runtime Compilation) ships as its own ROCm CMake package,
-  # separate from `hip` above -- gpumod.hip.hiprtc needs the hiprtc::hiprtc
+  # separate from `hip` above -- wwr.hip.hiprtc needs the hiprtc::hiprtc
   # imported target it provides. See src/hip/CMakeLists.txt.
   find_package(hiprtc CONFIG REQUIRED)
   # Library-linked module batch -- each of these is its own ROCm CMake package,
@@ -221,7 +221,7 @@ else()
   find_package(hipsolver CONFIG REQUIRED)
   find_package(hipsparse CONFIG REQUIRED)
   # hipfft also covers hipfftXt.h -- same package, same imported target;
-  # gpumod.hip.hipfftXt does not add a second find_package call.
+  # wwr.hip.hipfftXt does not add a second find_package call.
   find_package(hipfft CONFIG REQUIRED)
   find_package(hiprand CONFIG REQUIRED)
 endif()
@@ -270,15 +270,15 @@ include(cmake/wwr_add_dispatch_check.cmake)
 # defines the WWR_INSTALL_*DIR variables that src, src/wrappers and the
 # library macros reference in their $<INSTALL_INTERFACE:> include directories --
 # those have to be set before the add_subdirectory calls that read them.
-include(cmake/gpumod_install.cmake)
+include(cmake/wwr_install.cmake)
 
 # Common module compilation flags. Empty on purpose, and NOT removable:
 # src/cuda/CMakeLists.txt links it from three targets, so deleting it fails the
-# link with `cannot find -lgpumod_module_flags`. Do not add -fmodules /
+# link with `cannot find -lwwr_module_flags`. Do not add -fmodules /
 # -fimplicit-module-maps / -fbuiltin-module-map here: with clang 20+ they
 # collide with std module-map resolution when a CUDA header (e.g. cublas_v2.h)
 # pulls a standard header into its global module fragment.
-add_library(gpumod_module_flags INTERFACE)
+add_library(wwr_module_flags INTERFACE)
 
 # ========================================================================
 # AddressSanitizer (host code only)
@@ -323,7 +323,7 @@ endif()
 # Options
 # ========================================================================
 # Whether to generate install rules and the CMake package (see
-# cmake/gpumod_install.cmake). Defaults to ON for a top-level build and OFF when
+# cmake/wwr_install.cmake). Defaults to ON for a top-level build and OFF when
 # this project is pulled into another one with add_subdirectory or FetchContent:
 # a consumer embedding gpumod that way links its targets directly and has no use
 # for gpumod's install rules, while `make install` in the OUTER project would
@@ -385,9 +385,9 @@ enable_testing()
 # the wrappers -- which are backend-neutral in full: src/wrappers is written
 # once against the gpu* names and builds for either backend. There is no
 # per-backend wrapper tree -- neither src/hip/extension nor src/cuda/extension
-# exists. gpumod.wrappers.* adapts what both vendors offer, and a vendor-only
+# exists. wwr.wrappers.* adapts what both vendors offer, and a vendor-only
 # call goes through the
-# low-level module (gpumod.cuda.cublas_v2, gpumod.cuda.cusolverDn) directly.
+# low-level module (wwr.cuda.cublas_v2, wwr.cuda.cusolverDn) directly.
 add_subdirectory(src)
 
 # The in-tree examples, written against the gpu* and extension layers the same

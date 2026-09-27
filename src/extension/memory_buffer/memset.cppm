@@ -7,16 +7,16 @@
  * variants covering all buffer kind combinations.
  *
  * Usage:
- *   import gpumod.extension.memory_buffer;
+ *   import wwr.extension.memory_buffer;
  *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.memory_buffer:memset;
+export module wwr.extension.memory_buffer:memset;
 
 import std;
 import :base_buffer;
 import :host_memory;
-import gpumod.runtime_api;
+import wwr.runtime_api;
 
 export namespace wwr::extension {
 

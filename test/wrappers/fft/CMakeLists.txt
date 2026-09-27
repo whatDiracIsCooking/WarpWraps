@@ -10,9 +10,9 @@
 
 wwr_add_dispatch_check(
   NAME
-  gpumod.test.wrappers.fft_dispatch
+  wwr.test.wrappers.fft_dispatch
   TARGET
-  gpumod.wrappers.fft
+  wwr.wrappers.fft
   TABLE
   fft_dispatch.toml
   GPU_SOURCE

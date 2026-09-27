@@ -1,16 +1,16 @@
-// cusolverMg.cppm - Compile-time tests for gpumod.cuda.cusolverMg
+// cusolverMg.cppm - Compile-time tests for wwr.cuda.cusolverMg
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cusolverMg;
+export module wwr.test.cuda.cusolverMg;
 
 import std;
-import gpumod.cuda.cusolverMg;
+import wwr.cuda.cusolverMg;
 
 // ========================================================================
-// Compile-time tests for gpumod.cuda.cusolverMg
+// Compile-time tests for wwr.cuda.cusolverMg
 //
 // We verify at compile-time that:
 //   1. Key enum types exist (std::is_enum_v)

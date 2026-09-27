@@ -10,7 +10,7 @@
  * gpu_backend.h. Companion to fp16.cppm and bf16.cppm.
  *
  * Usage:
- *   import gpumod.complex;
+ *   import wwr.complex;
  *
  *   gpuDoubleComplex z = make_gpuDoubleComplex(1.0, 2.0);
  *
@@ -43,12 +43,12 @@ module;
 // Complex types: gpuX -> cuX / hipX
 #define WWR_COMPLEX_TYPE(x) WWR_TYPE(gpu##x, cu##x, hip##x)
 
-export module gpumod.complex;
+export module wwr.complex;
 
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cuComplex;
+import wwr.cuda.cuComplex;
 #else
-import gpumod.hip.hip_complex;
+import wwr.hip.hip_complex;
 #endif
 
 export namespace wwr {

@@ -8,9 +8,9 @@
 
 wwr_add_dispatch_check(
   NAME
-  gpumod.test.wrappers.blas_dispatch
+  wwr.test.wrappers.blas_dispatch
   TARGET
-  gpumod.wrappers.blas
+  wwr.wrappers.blas
   TABLE
   blas_dispatch.toml
   GPU_SOURCE

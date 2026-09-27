@@ -17,9 +17,9 @@
  *
  * The two pointer types come from the gpu* layer's include-only bridge headers
  * rather than an `import`, since a GMF cannot import. They are the SAME types
- * gpumod.runtime_api / gpumod.rand export, so the wrapper passes its arguments
+ * wwr.runtime_api / wwr.rand export, so the wrapper passes its arguments
  * straight through and the device side needs no cast. Reading the backend
- * define they depend on is why this module links gpumod_backend PRIVATE -- see
+ * define they depend on is why this module links wwr_backend PRIVATE -- see
  * this directory's CMakeLists.txt.
  */
 

@@ -6,13 +6,13 @@
 # dispatch_sdcz.h is reached by the owned-header spelling
 # `#include "wrappers/common/dispatch_sdcz.h"` -- not a `../common` relative
 # climb -- from any module that links this target (blas, sparse, solver).
-# BUILD_INTERFACE is src/; INSTALL_INTERFACE is include/gpumod, the mirror
-# gpumod_install.cmake ships src/'s shape under -- so the one spelling resolves
+# BUILD_INTERFACE is src/; INSTALL_INTERFACE is include/wwr, the mirror
+# wwr_install.cmake ships src/'s shape under -- so the one spelling resolves
 # both in-tree and for an installed consumer recompiling those module units.
 # This is the root the install file's rule-3 comment already documents.
 wwr_add_cxx_module_library(
   NAME
-  gpumod.wrappers.common
+  wwr.wrappers.common
   PRIMARY_INTERFACE
   interface.cppm
   INCLUDE_DIRS_PUBLIC
@@ -22,8 +22,8 @@ wwr_add_cxx_module_library(
   fp_types.cppm
   int_types.cppm
   LINK_PUBLIC
-  gpumod.complex
-  gpumod.fp16
-  gpumod.bf16
+  wwr.complex
+  wwr.fp16
+  wwr.bf16
   IMPORT_STD
 )

@@ -1,4 +1,4 @@
-# Expected dispatch of gpumod.wrappers.blas -- checked by test/shared/dispatch.py
+# Expected dispatch of wwr.wrappers.blas -- checked by test/shared/dispatch.py
 #
 # [dispatch] is one key per wrapper<T, IntT>: the gpublas function(s) its
 # compiled code must call. Names are gpublas aliases (src/blas.cppm), so this
@@ -15,12 +15,12 @@
 # complex input, and Cs/Zd for the real-scalar complex rot and scal overloads.
 
 [check]
-module = "gpumod.wrappers.blas"
+module = "wwr.wrappers.blas"
 prefix = "gpublas"
-# gpumod.blas defines the HIP getrs/getriBatched shims as ordinary inline
+# wwr.blas defines the HIP getrs/getriBatched shims as ordinary inline
 # functions next to its WWR_FUNCTION aliases; one that is not inlined is called
 # by name, so the check has to recognise it as a dispatch target too.
-forwarder_module = "gpumod.blas"
+forwarder_module = "wwr.blas"
 
 # How the demangler spells each template argument, mapped to the name this table
 # uses. gpuComplex and gpuFloatComplex are the same underlying vendor type, so

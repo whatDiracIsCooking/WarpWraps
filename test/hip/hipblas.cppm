@@ -1,16 +1,16 @@
-// hipblas.cppm - Compile-time tests for gpumod.hip.hipblas
+// hipblas.cppm - Compile-time tests for wwr.hip.hipblas
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hipblas;
+export module wwr.test.hip.hipblas;
 
 import std;
-import gpumod.hip.hipblas;
+import wwr.hip.hipblas;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hipblas
+// Compile-time tests for wwr.hip.hipblas
 //
 // WWR_LINK_CHECK covers all 1191 HIPBLAS_EXPORT functions declared by
 // hipblas/hipblas.h -- extracted directly from the header, not hand-copied,

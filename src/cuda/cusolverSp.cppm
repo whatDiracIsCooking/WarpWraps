@@ -1,19 +1,19 @@
 /**
  * @file cusolverSp.cppm
- * @brief Primary interface for gpumod.cuda.cusolverSp
+ * @brief Primary interface for wwr.cuda.cusolverSp
  *
  * This module wraps the native cuSOLVER Sparse API and exports types, constants,
  * and functions for sparse linear algebra operations.
  *
  * Usage:
- *   import gpumod.cuda.cusolverSp;
+ *   import wwr.cuda.cusolverSp;
  */
 
 module;
 
 #include <cusolverSp.h>
 
-export module gpumod.cuda.cusolverSp;
+export module wwr.cuda.cusolverSp;
 
 import std;
 

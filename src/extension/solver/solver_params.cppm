@@ -5,12 +5,12 @@
  * Provides GpusolverDnParams class for automatic GPU solver params management.
  */
 
-export module gpumod.extension.solver:solver_params;
+export module wwr.extension.solver:solver_params;
 
 import :solver_error;
-import gpumod.solver;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.solver;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
 export namespace wwr::extension {

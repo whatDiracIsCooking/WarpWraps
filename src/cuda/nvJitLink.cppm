@@ -1,20 +1,20 @@
 /**
  * @file nvJitLink.cppm
- * @brief Primary interface for gpumod.cuda.nvJitLink
+ * @brief Primary interface for wwr.cuda.nvJitLink
  *
  * This module wraps the nvJitLink (NVIDIA JIT Linking) API and exports
  * types, constants, and functions for JIT linking of CUDA device code
  * (CUBIN, PTX, LTO-IR, fatbin, and object files) at runtime.
  *
  * Usage:
- *   import gpumod.cuda.nvJitLink;
+ *   import wwr.cuda.nvJitLink;
  */
 
 module;
 
 #include <nvJitLink.h>
 
-export module gpumod.cuda.nvJitLink;
+export module wwr.cuda.nvJitLink;
 
 import std;
 

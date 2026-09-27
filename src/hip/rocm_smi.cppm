@@ -4,10 +4,10 @@
  *
  * This module wraps rocm_smi/rocm_smi.h -- the legacy/stable AMD GPU device
  * management and monitoring library. See src/hip/README.md "Why nvml became two
- * modules" for how this relates to gpumod.hip.amd_smi, the newer counterpart.
+ * modules" for how this relates to wwr.hip.amd_smi, the newer counterpart.
  *
  * Usage:
- *   import gpumod.hip.rocm_smi;
+ *   import wwr.hip.rocm_smi;
  *
  * rocm_smi.h is a pure C API (its whole body is wrapped in extern "C", including
  * the transitively-included <cstdint>). Every type, enumerator, and function it
@@ -19,7 +19,7 @@ module;
 
 #include <rocm_smi/rocm_smi.h>
 
-export module gpumod.hip.rocm_smi;
+export module wwr.hip.rocm_smi;
 
 export namespace wwr::hip {
 

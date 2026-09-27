@@ -3,7 +3,7 @@
  * @brief Half type and float conversions for device-compiled TUs
  *
  * The device-compile counterpart to fp16.cppm: gpuHalf and the float<->half
- * conversions. Link gpumod.device. Companion to bf16.cuh and complex.cuh.
+ * conversions. Link wwr.device. Companion to bf16.cuh and complex.cuh.
  *
  * The type is the SAME one fp16.cppm exports under this name, so a host-allocated
  * buffer and a kernel parameter named here agree, and an extern template declared

@@ -1,22 +1,22 @@
-// type_traits.cppm - Compile-time tests for gpumod.wrappers.common
+// type_traits.cppm - Compile-time tests for wwr.wrappers.common
 //
 // common is the type vocabulary the four extensions (blas, solver, sparse, fft)
 // are written against: the fp/int concepts and the real/complex/half type maps.
 // These were, for a long time, exercised only incidentally -- wherever a
 // downstream extension happened to use one. These checks import
-// gpumod.wrappers.common directly so they stand on their own: a wrong mapping
+// wwr.wrappers.common directly so they stand on their own: a wrong mapping
 // compiles clean and ships, and a static_assert is the only thing that sees it.
 //
-// This file asserts the type maps only. gpumod.wrappers.common carries no
-// error-policy or RAII-handle layer; that lives in gpumod.extension.common.
+// This file asserts the type maps only. wwr.wrappers.common carries no
+// error-policy or RAII-handle layer; that lives in wwr.extension.common.
 
-export module gpumod.test.wrappers.common_type_traits;
+export module wwr.test.wrappers.common_type_traits;
 
 import std;
-import gpumod.complex;
-import gpumod.fp16;
-import gpumod.bf16;
-import gpumod.wrappers.common;
+import wwr.complex;
+import wwr.fp16;
+import wwr.bf16;
+import wwr.wrappers.common;
 
 namespace wwr::test {
 

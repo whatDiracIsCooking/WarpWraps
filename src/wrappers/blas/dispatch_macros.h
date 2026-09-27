@@ -15,7 +15,7 @@
  * Prerequisites (must be provided by including file):
  * - std::is_same_v (via std import or equivalent)
  * - gpuComplex, gpuDoubleComplex and the gpublas* functions
- *   (gpumod.complex, gpumod.blas)
+ *   (wwr.complex, wwr.blas)
  */
 
 #pragma once

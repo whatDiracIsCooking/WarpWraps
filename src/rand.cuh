@@ -7,7 +7,7 @@
  * Together they cover what curand.h + curand_kernel.h cover, split by
  * execution space rather than by header.
  *
- * Link gpumod.rand.device -- separate from gpumod.device, which a
+ * Link wwr.rand.device -- separate from wwr.device, which a
  * device TU using this almost certainly also wants.
  *
  * Each name is a thin __device__ forwarding template, not a WWR_FUNCTION

@@ -1,20 +1,20 @@
 /**
  * @file interface.cppm
- * @brief Primary interface for gpumod.extension.init_state
+ * @brief Primary interface for wwr.extension.init_state
  *
  * Parallel initialization of an array of cuRAND / hipRAND DEVICE-API generator
  * states: one state per element, each seeded onto its own subsequence, so that
  * a later kernel can draw an independent stream of numbers per thread without
- * any coordination. Pairs with gpumod.extension.random_normal, which draws
+ * any coordination. Pairs with wwr.extension.random_normal, which draws
  * from the states this module initializes.
  *
- * The work is dispatched through gpumod.extension.parallel_for; the kernel
+ * The work is dispatched through wwr.extension.parallel_for; the kernel
  * itself lives in init_state.cu, device-compiled (see this directory's
  * CMakeLists.txt).
  *
  * Usage:
- *   import gpumod.extension.init_state;
- *   import gpumod.extension.random_normal;
+ *   import wwr.extension.init_state;
+ *   import wwr.extension.random_normal;
  *   using namespace wwr::extension;
  *
  *   auto device = std::make_shared<DeviceHandle>();
@@ -27,22 +27,22 @@
  *
  * The state array is the caller's: it is what makes a second call continue the
  * same streams instead of repeating them, and what lets one kernel's states be
- * reused by another. gpurandState comes from gpumod.rand.
+ * reused by another. gpurandState comes from wwr.rand.
  *
- * This and gpumod.extension.random_normal were split out of the single
- * gpumod.extension.rand module (two partitions), itself the port of the
- * CUDA-only gpumod.extension.curand.* (removed).
+ * This and wwr.extension.random_normal were split out of the single
+ * wwr.extension.rand module (two partitions), itself the port of the
+ * CUDA-only wwr.extension.curand.* (removed).
  */
 
 module;
 
 #include "extension/init_state/init_state_bridge.h"
 
-export module gpumod.extension.init_state;
+export module wwr.extension.init_state;
 
 import std;
-import gpumod.runtime_api;
-import gpumod.rand;
+import wwr.runtime_api;
+import wwr.rand;
 
 export namespace wwr::extension {
 

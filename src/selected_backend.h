@@ -9,14 +9,14 @@
  *
  * The ladder reads the compiler's device macros first, so a device pass never
  * depends on a CMake define, then falls back to WWR_GPU_BACKEND_* for a
- * host compile (link gpumod_backend PRIVATE to get it).
+ * host compile (link wwr_backend PRIVATE to get it).
  *
  * The legitimate readers are the switch points that include it: device_guard.h
  * directly, and the four .cuh headers transitively through it. The two bridges
  * (gpu_stream_bridge.h and rand_state_bridge.h, now in src/extension/bridge/)
  * include it directly too -- directly rather than through device_guard.h,
  * because a bridge compiles in a host TU and so must not carry its device-pass
- * #error. Linking gpumod_backend grants the ability to write a backend #if
+ * #error. Linking wwr_backend grants the ability to write a backend #if
  * above src and is not a licence to -- see src/README.md.
  */
 
@@ -32,5 +32,5 @@
 #define WWR_SELECTED_HIP 1
 #else
 #error                                                                                             \
-    "gpu/selected_backend.h: no backend selected -- link gpumod_backend PRIVATE (host compile), or include from a device pass"
+    "gpu/selected_backend.h: no backend selected -- link wwr_backend PRIVATE (host compile), or include from a device pass"
 #endif

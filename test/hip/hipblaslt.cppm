@@ -1,16 +1,16 @@
-// hipblaslt.cppm - Compile-time tests for gpumod.hip.hipblaslt
+// hipblaslt.cppm - Compile-time tests for wwr.hip.hipblaslt
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hipblaslt;
+export module wwr.test.hip.hipblaslt;
 
 import std;
-import gpumod.hip.hipblaslt;
+import wwr.hip.hipblaslt;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hipblaslt
+// Compile-time tests for wwr.hip.hipblaslt
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 namespace wwr::hip::test {

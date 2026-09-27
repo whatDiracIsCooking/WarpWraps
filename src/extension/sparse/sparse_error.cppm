@@ -5,10 +5,10 @@
  * Provides specializations of error handling templates for gpusparseStatus_t.
  */
 
-export module gpumod.extension.sparse:sparse_error;
+export module wwr.extension.sparse:sparse_error;
 
-import gpumod.sparse;
-import gpumod.extension.common;
+import wwr.sparse;
+import wwr.extension.common;
 import std;
 
 export namespace wwr::extension {

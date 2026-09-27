@@ -4,7 +4,7 @@
 # path, so it needs no include directory.
 wwr_add_cxx_module_library(
   NAME
-  gpumod.wrappers.sparse
+  wwr.wrappers.sparse
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
@@ -15,8 +15,8 @@ wwr_add_cxx_module_library(
   IMPLEMENTATION
   instantiations.cpp
   LINK_PUBLIC
-  gpumod.sparse
-  gpumod.complex
-  gpumod.wrappers.common
+  wwr.sparse
+  wwr.complex
+  wwr.wrappers.common
   IMPORT_STD
 )

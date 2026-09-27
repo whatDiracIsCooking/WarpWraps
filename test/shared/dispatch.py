@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that every wrapper in a gpumod.wrappers module calls the right gpu* function.
+"""Check that every wrapper in a wwr.wrappers module calls the right gpu* function.
 
 The wrappers pick their vendor function by token-pasting a type prefix (and, in
 BLAS, an optional _64 suffix) onto a basename -- see each module's
@@ -20,10 +20,10 @@ Everything module-specific lives in one TOML table file (--table), so this
 script is shared by every extension module that dispatches this way:
 
     [check]
-    module     = "gpumod.wrappers.blas"   # module name in the mangled symbols
+    module     = "wwr.wrappers.blas"   # module name in the mangled symbols
     prefix     = "gpublas"                 # the gpu* alias prefix to look for
     namespace  = "wwr"       # optional; this is the default
-    forwarder_module = "gpumod.blas"   # optional; see below
+    forwarder_module = "wwr.blas"   # optional; see below
 
     [type_names.CUDA]                      # demangled spelling -> table spelling
     float2 = "gpuComplex"
@@ -41,7 +41,7 @@ legacy and the modern API); each overload must call exactly one, and together
 they must call exactly the listed ones.
 
 `forwarder_module` is for gpu* modules that define ordinary inline functions
-alongside the WWR_FUNCTION aliases (gpumod.blas does, for the HIP
+alongside the WWR_FUNCTION aliases (wwr.blas does, for the HIP
 getrs/getriBatched shims). If one of those is not inlined, the wrapper calls it
 by name rather than the vendor symbol, and this is what recognises it. Omit the
 key for a module that has none.

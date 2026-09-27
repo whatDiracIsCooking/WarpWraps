@@ -10,14 +10,14 @@
 # "did not crash" -- and would add an entry to the `ctest -LE gpu` count for it.
 wwr_add_cxx_module_library(
   NAME
-  gpumod.test.wrappers.tx_api
+  wwr.test.wrappers.tx_api
   IMPORT_STD
   NO_CUDA_DEVICE_LINKING
   PRIMARY_INTERFACE
   api.cppm
   LINK_PUBLIC
-  gpumod.tx
-  gpumod.wrappers.tx
+  wwr.tx
+  wwr.wrappers.tx
 )
 
-add_dependencies(compile_time_tests gpumod.test.wrappers.tx_api)
+add_dependencies(compile_time_tests wwr.test.wrappers.tx_api)

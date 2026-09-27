@@ -1,12 +1,12 @@
 /**
  * @file interface.cppm
- * @brief Primary interface for gpumod.cuda.cublas_v2
+ * @brief Primary interface for wwr.cuda.cublas_v2
  *
  * This module wraps the native cuBLAS API and exports types, constants,
  * and functions for cuBLAS library management and operations.
  *
  * Usage:
- *   import gpumod.cuda.cublas_v2;
+ *   import wwr.cuda.cublas_v2;
  */
 
 module;
@@ -24,7 +24,7 @@ module;
 #undef cublasSetPointerMode
 #undef cublasGetPointerMode
 
-export module gpumod.cuda.cublas_v2;
+export module wwr.cuda.cublas_v2;
 
 import std;
 

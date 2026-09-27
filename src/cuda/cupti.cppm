@@ -1,6 +1,6 @@
 /**
  * @file cupti.cppm
- * @brief Primary interface for gpumod.cuda.cupti
+ * @brief Primary interface for wwr.cuda.cupti
  *
  * This module wraps the native CUPTI (CUDA Profiling Tools Interface) API
  * and exports all types, enumerations, structures, callback function types,
@@ -16,14 +16,14 @@
  *   - cupti_nvtx_cbid.h    : CUpti_nvtx_api_trace_cbid enum
  *
  * Usage:
- *   import gpumod.cuda.cupti;
+ *   import wwr.cuda.cupti;
  */
 
 module;
 
 #include <cupti.h>
 
-export module gpumod.cuda.cupti;
+export module wwr.cuda.cupti;
 
 // ========================================================================
 // Export all CUPTI types and functions in wwr namespace

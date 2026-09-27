@@ -1,14 +1,14 @@
 // main.cpp - Shared test runner for the src compile-time tests
 
 import std;
-import gpumod.test.gpu.runtime_api;
-import gpumod.test.gpu.complex;
-import gpumod.test.gpu.fp16;
-import gpumod.test.gpu.bf16;
-import gpumod.test.gpu.blas;
-import gpumod.test.gpu.solver;
-import gpumod.test.gpu.sparse;
-import gpumod.test.gpu.rand;
+import wwr.test.gpu.runtime_api;
+import wwr.test.gpu.complex;
+import wwr.test.gpu.fp16;
+import wwr.test.gpu.bf16;
+import wwr.test.gpu.blas;
+import wwr.test.gpu.solver;
+import wwr.test.gpu.sparse;
+import wwr.test.gpu.rand;
 
 int main() {
   // Nothing to check here at run time: the tests in this binary are the

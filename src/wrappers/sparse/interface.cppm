@@ -1,6 +1,6 @@
 /**
  * @file interface.cppm
- * @brief Primary interface for gpumod.wrappers.sparse
+ * @brief Primary interface for wwr.wrappers.sparse
  *
  * This module provides type-safe C++ wrappers for the legacy typed (S/D/C/Z)
  * GPU sparse operations cuSPARSE and hipSPARSE have in common (per
@@ -11,13 +11,13 @@
  * - :conversion - nnz, gebsr2gebsc, csr2gebsr
  *
  * Usage:
- *   import gpumod.wrappers.sparse;
+ *   import wwr.wrappers.sparse;
  *   using namespace wwr;
  */
 
 module;
 
-export module gpumod.wrappers.sparse;
+export module wwr.wrappers.sparse;
 
 import std;
 

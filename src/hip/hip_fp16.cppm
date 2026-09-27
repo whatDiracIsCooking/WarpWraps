@@ -4,7 +4,7 @@
  *
  * Wraps hip/hip_fp16.h for C++23 module-based code, exporting the
  * half-precision types for host-side code. CUDA counterpart:
- * gpumod.cuda.cuda_fp16.
+ * wwr.cuda.cuda_fp16.
  *
  * IMPORTANT -- __half here has NO arithmetic or comparison operators.
  * amd_hip_fp16.h selects its struct definition on __HIP__ vs __GNUC__, and a
@@ -23,7 +23,7 @@
  * section 9.
  *
  * Usage:
- *   import gpumod.hip.hip_fp16;
+ *   import wwr.hip.hip_fp16;
  */
 
 module;
@@ -33,12 +33,12 @@ module;
 #include <array>
 #include <hip/hip_fp16.h>
 
-export module gpumod.hip.hip_fp16;
+export module wwr.hip.hip_fp16;
 
 // ========================================================================
 // Export all hip_fp16 types in wwr::hip
 // (NOT bare wwr -- see src/hip/README.md "Design decisions": this is
-// the real `half` collision the README calls out against gpumod.cuda.cuda_fp16)
+// the real `half` collision the README calls out against wwr.cuda.cuda_fp16)
 // ========================================================================
 
 export namespace wwr::hip {

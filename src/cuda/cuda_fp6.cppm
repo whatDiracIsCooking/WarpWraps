@@ -7,7 +7,7 @@
  * host-accessible conversion functions.
  *
  * Usage:
- *   import gpumod.cuda.cuda_fp6;
+ *   import wwr.cuda.cuda_fp6;
  *
  * Note: cuda_fp6.h includes cuda_fp8.h internally (which in turn includes
  * cuda_fp16.h and cuda_bf16.h), so the raw storage types from those headers
@@ -28,7 +28,7 @@ module;
 
 #include <cuda_fp6.h>
 
-export module gpumod.cuda.cuda_fp6;
+export module wwr.cuda.cuda_fp6;
 
 import std;
 

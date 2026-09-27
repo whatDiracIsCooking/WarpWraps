@@ -1,16 +1,16 @@
-// cusolverSp.cppm - Compile-time tests for gpumod.cuda.cusolverSp
+// cusolverSp.cppm - Compile-time tests for wwr.cuda.cusolverSp
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cusolverSp;
+export module wwr.test.cuda.cusolverSp;
 
 import std;
-import gpumod.cuda.cusolverSp;
+import wwr.cuda.cusolverSp;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cusolverSp
+// Compile-time tests for wwr.cuda.cusolverSp
 //
 // The module is a pure re-export (using declarations).
 // We verify at compile-time that:

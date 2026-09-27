@@ -23,7 +23,7 @@
  * spelling, and MTGP32's host-side parameter types.
  *
  * Usage:
- *   import gpumod.hip.hiprand_kernel;
+ *   import wwr.hip.hiprand_kernel;
  *
  *   wwr::hip::hiprandState state;   // one per thread, allocated on device
  */
@@ -36,7 +36,7 @@ module;
 
 #include <hiprand/hiprand_kernel.h>
 
-export module gpumod.hip.hiprand_kernel;
+export module wwr.hip.hiprand_kernel;
 
 // ========================================================================
 // Export hipRAND device state types in wwr::hip

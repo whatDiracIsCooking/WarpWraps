@@ -8,9 +8,9 @@
 
 wwr_add_dispatch_check(
   NAME
-  gpumod.test.wrappers.sparse_dispatch
+  wwr.test.wrappers.sparse_dispatch
   TARGET
-  gpumod.wrappers.sparse
+  wwr.wrappers.sparse
   TABLE
   sparse_dispatch.toml
   GPU_SOURCE

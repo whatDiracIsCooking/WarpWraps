@@ -1,19 +1,19 @@
 /**
  * @file nvml.cppm
- * @brief Primary interface for gpumod.cuda.nvml
+ * @brief Primary interface for wwr.cuda.nvml
  *
  * This module wraps the NVML (NVIDIA Management Library) API and exports types,
  * constants, and functions for GPU management and monitoring.
  *
  * Usage:
- *   import gpumod.cuda.nvml;
+ *   import wwr.cuda.nvml;
  */
 
 module;
 
 #include <nvml.h>
 
-export module gpumod.cuda.nvml;
+export module wwr.cuda.nvml;
 
 import std;
 

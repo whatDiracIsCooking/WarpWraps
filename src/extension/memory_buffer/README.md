@@ -1,10 +1,10 @@
-# gpumod.extension.memory_buffer
+# wwr.extension.memory_buffer
 
 RAII-based memory buffer management for all GPU-relevant memory kinds. Provides strongly typed, move-only buffer wrappers with pluggable error policies, a unified copy API, and C++20 concepts for generic buffer programming.
 
 ## Module
 
-`gpumod.extension.memory_buffer`
+`wwr.extension.memory_buffer`
 
 ## Buffer Types
 
@@ -208,6 +208,6 @@ Each buffer type exposes `static constexpr MemoryKind memory_kind` and the boole
 
 | Dependency | Purpose |
 |---|---|
-| `gpumod.extension.common` | Error policy concepts, `gpu_check`, `DefaultErrorPolicy` |
-| `gpumod.extension.runtime` | `gpu_check` overloads for `gpuError_t` |
-| `gpumod.runtime_api` | gpu* memory allocation APIs (CUDA or HIP runtime) |
+| `wwr.extension.common` | Error policy concepts, `gpu_check`, `DefaultErrorPolicy` |
+| `wwr.extension.runtime` | `gpu_check` overloads for `gpuError_t` |
+| `wwr.runtime_api` | gpu* memory allocation APIs (CUDA or HIP runtime) |

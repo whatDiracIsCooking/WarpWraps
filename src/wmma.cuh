@@ -3,7 +3,7 @@
  * @brief The vendor warp-level MMA (tensor-core) API, for device-compiled TUs
  *
  * `#include`d into a .cu (CUDA) or `-x hip` device-compiled (HIP) TU; link
- * `gpumod.device`. Resolves the two things that differ -- `<mma.h>` against
+ * `wwr.device`. Resolves the two things that differ -- `<mma.h>` against
  * `<rocwmma/rocwmma.hpp>`, and `nvcuda::wmma` against `rocwmma` -- and defines
  * exactly one name, `wwr::gpuwmma`, aliasing whichever the build selected.
  * Inside it the spellings agree: `fragment`, `matrix_a`/`matrix_b`/

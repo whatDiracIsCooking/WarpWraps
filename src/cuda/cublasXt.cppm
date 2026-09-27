@@ -1,19 +1,19 @@
 /**
  * @file cublasXt.cppm
- * @brief Primary interface for gpumod.cuda.cublasXt
+ * @brief Primary interface for wwr.cuda.cublasXt
  *
  * This module wraps the native cuBLASXt API and exports types, constants,
  * and functions for the cuBLASXt multi-GPU BLAS extension library.
  *
  * Usage:
- *   import gpumod.cuda.cublasXt;
+ *   import wwr.cuda.cublasXt;
  */
 
 module;
 
 #include <cublasXt.h>
 
-export module gpumod.cuda.cublasXt;
+export module wwr.cuda.cublasXt;
 
 // ========================================================================
 // Export all cuBLASXt types and functions in wwr namespace

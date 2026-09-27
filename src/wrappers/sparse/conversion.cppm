@@ -6,25 +6,25 @@
  * transpose (gebsr2gebsc) and CSR to general-BSR conversion (csr2gebsr), each
  * with its companion buffer-size query where one exists. (The untyped structure
  * queries Xcsr2gebsrNnz / Xcoo2csr / ... are called directly through the raw
- * module in gpumod.sparse.)
+ * module in wwr.sparse.)
  *
  * The two *_bufferSize queries take a size_t* byte count on the neutral API:
- * cuSPARSE spells this parameter int*, hipSPARSE size_t*, and gpumod.sparse
+ * cuSPARSE spells this parameter int*, hipSPARSE size_t*, and wwr.sparse
  * reconciles the two -- see its file header.
  *
  * Usage:
- *   import gpumod.wrappers.sparse;
+ *   import wwr.wrappers.sparse;
  */
 
 module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.sparse:conversion;
+export module wwr.wrappers.sparse:conversion;
 
-import gpumod.sparse;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.sparse;
+import wwr.complex;
+import wwr.wrappers.common;
 import std;
 
 export namespace wwr {

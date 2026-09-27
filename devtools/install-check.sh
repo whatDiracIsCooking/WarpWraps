@@ -22,7 +22,7 @@
 # WHY THIS EXISTS AS ITS OWN TIER. devtools/cpp-tier.sh builds and ctests the
 # tree in place; nothing in it ever installs, so nothing in it can catch an
 # export-set regression. A module added to src/ is picked up by the install
-# sweep automatically (cmake/gpumod_install.cmake reads the buildsystem back),
+# sweep automatically (cmake/wwr_install.cmake reads the buildsystem back),
 # but a module added with a PRIVATE compile requirement is exactly the change
 # that passes cpp-tier.sh and breaks consumers. This is the tier that notices.
 #
@@ -128,8 +128,8 @@ echo "  $(find "$prefix" \( -name '*.h' -o -name '*.cuh' \) | wc -l) headers"
 # The package config is what a consumer finds first; if it is missing, nothing
 # downstream can work and the error there would not say so.
 for required in \
-  "lib/cmake/gpumod/gpumodConfig.cmake" \
-  "lib/cmake/gpumod/gpumod-targets.cmake"; do
+  "lib/cmake/wwr/wwrConfig.cmake" \
+  "lib/cmake/wwr/wwr-targets.cmake"; do
   if [ ! -f "$prefix/$required" ]; then
     echo "install-check.sh: FAIL -- $required was not installed" >&2
     exit 1

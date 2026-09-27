@@ -5,10 +5,10 @@
 # ScopedRange RAII guard. See src/wrappers/tx/interface.cppm.
 wwr_add_cxx_module_library(
   NAME
-  gpumod.wrappers.tx
+  wwr.wrappers.tx
   PRIMARY_INTERFACE
   interface.cppm
   LINK_PUBLIC
-  gpumod.tx
+  wwr.tx
   IMPORT_STD
 )

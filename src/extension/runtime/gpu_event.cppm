@@ -5,11 +5,11 @@
  * Provides GpuEvent class for automatic GPU event management.
  */
 
-export module gpumod.extension.runtime:gpu_event;
+export module wwr.extension.runtime:gpu_event;
 
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
 export namespace wwr::extension {

@@ -8,7 +8,7 @@
  * bindings; alternative-policy aliases belong here too.
  */
 
-export module gpumod.extension.memory_buffer:convenience_memory_buffer;
+export module wwr.extension.memory_buffer:convenience_memory_buffer;
 
 import :base_buffer;
 import :memory_kind;
@@ -16,7 +16,7 @@ import :device_buffer;
 import :host_buffer;
 import :pinned_buffer;
 import :unified_buffer;
-import gpumod.extension.common;
+import wwr.extension.common;
 
 export namespace wwr::extension {
 

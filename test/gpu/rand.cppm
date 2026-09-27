@@ -1,4 +1,4 @@
-// rand.cppm - Compile-time tests for gpumod.rand
+// rand.cppm - Compile-time tests for wwr.rand
 //
 // Every exported name is checked against the backend's own entity (see
 // gpu_check_macros.h) -- all of them, unlike test/gpu/blas.cppm and
@@ -20,15 +20,15 @@ module;
 
 #include "gpu_check_macros.h"
 
-export module gpumod.test.gpu.rand;
+export module wwr.test.gpu.rand;
 
 import std;
-import gpumod.rand;
+import wwr.rand;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.curand;
+import wwr.cuda.curand;
 #else
-import gpumod.hip.hiprand;
-import gpumod.hip.hiprand_kernel;
+import wwr.hip.hiprand;
+import wwr.hip.hiprand_kernel;
 #endif
 
 namespace wwr::test {
@@ -224,7 +224,7 @@ WWR_SAME_FUNCTION(gpurandGetScrambleConstants32, hiprandGetScrambleConstants32)
 WWR_SAME_FUNCTION(gpurandGetScrambleConstants64, hiprandGetScrambleConstants64)
 
 // Device generator state types (hiprand_kernel.h, via
-// gpumod.hip.hiprand_kernel -- a separate module here, unlike cuRAND)
+// wwr.hip.hiprand_kernel -- a separate module here, unlike cuRAND)
 WWR_SAME_TYPE(gpurandStateXORWOW, hiprandStateXORWOW)
 WWR_SAME_TYPE(gpurandStateXORWOW_t, hiprandStateXORWOW_t)
 WWR_SAME_TYPE(gpurandStateMRG32k3a, hiprandStateMRG32k3a)

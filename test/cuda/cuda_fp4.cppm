@@ -1,16 +1,16 @@
-// cuda_fp4.cppm - Compile-time tests for gpumod.cuda.cuda_fp4
+// cuda_fp4.cppm - Compile-time tests for wwr.cuda.cuda_fp4
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cuda_fp4;
+export module wwr.test.cuda.cuda_fp4;
 
 import std;
-import gpumod.cuda.cuda_fp4;
+import wwr.cuda.cuda_fp4;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cuda_fp4
+// Compile-time tests for wwr.cuda.cuda_fp4
 //
 // We verify at compile-time that:
 //   1. Storage typedef sizes match documented byte widths

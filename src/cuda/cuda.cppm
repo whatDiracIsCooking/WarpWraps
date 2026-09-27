@@ -6,7 +6,7 @@
  * from C++20/C++23 module-based code.
  *
  * Usage:
- *   import gpumod.cuda.cuda_h;
+ *   import wwr.cuda.cuda_h;
  *
  * Note: The CUDA Driver API uses low-level "cu" prefixed functions,
  * not the "cuda" prefixed Runtime API.
@@ -16,7 +16,7 @@ module;
 
 #include <cuda.h>
 
-export module gpumod.cuda.cuda_h;
+export module wwr.cuda.cuda_h;
 
 // Export the most commonly used CUDA driver API functions.
 // Many CUDA functions use macro-based versioning in the headers

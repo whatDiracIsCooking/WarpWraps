@@ -5,7 +5,7 @@
 // selected backend IS the assertion. The kernel is never launched: every name
 // below just has to compile through the one include switch on both backends
 // (nvcc and clang's -x hip disagree on more than the include path). Reached
-// through gpumod.device, exactly as a real device consumer reaches the
+// through wwr.device, exactly as a real device consumer reaches the
 // header.
 #include "bf16.cuh"
 

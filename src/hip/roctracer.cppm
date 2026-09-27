@@ -4,30 +4,30 @@
  *
  * Wraps roctracer/roctracer.h -- ROCm's runtime callback and
  * asynchronous-activity tracing API, HIP's rough counterpart to CUPTI (see
- * gpumod.cuda.cupti). roctracer.h includes ext/prof_protocol.h, so both
+ * wwr.cuda.cupti). roctracer.h includes ext/prof_protocol.h, so both
  * headers' declarations are exported together. Like the other src/hip
  * management headers it is a pure C API, re-exported by name.
  *
  * Deliberately out of scope:
  *   - roctracer_hip.h, which defines one enum (hip_op_id_t) but pulls in the
  *     entire HIP runtime plus the generated hip_prof_str.h to do it. That
- *     surface is already gpumod.hip.hip_runtime_api's.
+ *     surface is already wwr.hip.hip_runtime_api's.
  *   - roctracer_roctx.h, which types the ACTIVITY_DOMAIN_ROCTX callback
  *     payload but requires roctx.h -- a distinct marker API with its own
- *     library, wrapped separately in gpumod.hip.roctx (its NVTX counterpart is
- *     gpumod.cuda.nvToolsExt). The domain enumerator itself, from
+ *     library, wrapped separately in wwr.hip.roctx (its NVTX counterpart is
+ *     wwr.cuda.nvToolsExt). The domain enumerator itself, from
  *     prof_protocol.h, IS exported here; only the ROCTX-specific callback-data
  *     struct is absent.
  *
  * Usage:
- *   import gpumod.hip.roctracer;
+ *   import wwr.hip.roctracer;
  */
 
 module;
 
 #include <roctracer/roctracer.h>
 
-export module gpumod.hip.roctracer;
+export module wwr.hip.roctracer;
 
 export namespace wwr::hip {
 

@@ -5,11 +5,11 @@
  * Provides GpuMemPool class for automatic GPU memory pool management.
  */
 
-export module gpumod.extension.runtime:gpu_mem_pool;
+export module wwr.extension.runtime:gpu_mem_pool;
 
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
 export namespace wwr::extension {

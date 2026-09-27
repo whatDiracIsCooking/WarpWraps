@@ -16,7 +16,7 @@
  * - Pivot arrays use int* (not int64_t*)
  *
  * Usage:
- *   import gpumod.wrappers.solver;
+ *   import wwr.wrappers.solver;
  *   using namespace wwr;
  *
  *   // Query workspace size
@@ -33,12 +33,12 @@ module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.solver:linear_solver_legacy;
+export module wwr.wrappers.solver:linear_solver_legacy;
 
-import gpumod.solver;
-import gpumod.blas;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.solver;
+import wwr.blas;
+import wwr.complex;
+import wwr.wrappers.common;
 import std;
 
 export namespace wwr {

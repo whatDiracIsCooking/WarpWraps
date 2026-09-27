@@ -9,7 +9,7 @@
 /// `#include`d directly into a .cu (CUDA) or `-x hip` device-compiled (HIP)
 /// translation unit, so it reaches the backend through the gpu* layer's
 /// runtime.cuh rather than gpu_backend.h: there is no module involved at
-/// the point of use. Link `gpumod.device`.
+/// the point of use. Link `wwr.device`.
 ///
 /// A functor's `operator()` is plain `__device__` on both backends. Its
 /// callability is constrained on the kernel template below -- a device entity,
@@ -26,7 +26,7 @@
 
 // WWR_GRID_CONSTANT and WWR_WARP_SIZE, then gpuStream_t for
 // the signature below. Both are the gpu* layer's, reached bare through
-// gpumod.device's include path. runtime.cuh is also the device-pass
+// wwr.device's include path. runtime.cuh is also the device-pass
 // gate: it #errors outside a CUDA or HIP device compile, so this header carries
 // no guard of its own.
 #include "extension/bridge/gpu_stream_bridge.h"

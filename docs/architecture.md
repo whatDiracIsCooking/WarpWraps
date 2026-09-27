@@ -47,7 +47,7 @@ else.
 Forward-declaring is the vendor's own idiom on CUDA — `curand_kernel.h`
 declares `struct curandStateXORWOW;` itself before defining it. Both branches
 were checked to coexist with the same name arriving through
-`import gpumod.rand` in one TU: clang merges the two alias declarations
+`import wwr.rand` in one TU: clang merges the two alias declarations
 because both resolve to the same entity, the vendor struct, which lives in the
 global module either way. If a vendor renamed the underlying struct the two
 would name different types and clang would reject it as a typedef redefinition
@@ -141,7 +141,7 @@ to be reachable by `#include`, with the backend picked from the compiler's own
 device-compile macro rather than from a CMake define.
 
 The types are the **same types** the modules export under the same names, so a
-buffer allocated by host code that imports `gpumod.rand` is exactly what a
+buffer allocated by host code that imports `wwr.rand` is exactly what a
 kernel naming `gpurandState` expects, and an `extern template` declared in a
 `.cppm` links against a definition compiled in a `.cu`.
 
@@ -189,7 +189,7 @@ Both `amd_detail/amd_hip_fp4.h` and `amd_detail/amd_hip_fp6.h` define
 `static`** functions in the same `internal` namespace. Combining both headers
 in one TU is a redefinition error.
 
-So `gpumod.hip.hip_fp4` and `gpumod.hip.hip_fp6` must never appear in the same
+So `wwr.hip.hip_fp4` and `wwr.hip.hip_fp6` must never appear in the same
 translation unit's global module fragment. `hip_fp4.cppm` includes only
 `hip_fp4.h`; `hip_fp6.cppm` includes only `hip_fp6.h`.
 

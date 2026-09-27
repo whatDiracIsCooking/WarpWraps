@@ -3,7 +3,7 @@
 # #include'd by relative path, so it needs no include directory.
 wwr_add_cxx_module_library(
   NAME
-  gpumod.wrappers.fft
+  wwr.wrappers.fft
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
@@ -12,7 +12,7 @@ wwr_add_cxx_module_library(
   IMPLEMENTATION
   instantiations.cpp
   LINK_PUBLIC
-  gpumod.fft
-  gpumod.wrappers.common
+  wwr.fft
+  wwr.wrappers.common
   IMPORT_STD
 )

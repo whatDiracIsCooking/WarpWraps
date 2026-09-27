@@ -3,7 +3,7 @@
  * @brief The vendor cooperative-groups header, for device-compiled TUs
  *
  * `#include`d into a .cu (CUDA) or `-x hip` device-compiled (HIP) TU; link
- * `gpumod.device`. Resolves the one thing that differs,
+ * `wwr.device`. Resolves the one thing that differs,
  * `<cooperative_groups.h>` against `<hip/hip_cooperative_groups.h>`, and
  * defines no names of its own: both vendors use `namespace
  * cooperative_groups` and agree on the spellings inside it.

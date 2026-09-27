@@ -1,16 +1,16 @@
-// roctx.cppm - Compile-time tests for gpumod.hip.roctx
+// roctx.cppm - Compile-time tests for wwr.hip.roctx
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.roctx;
+export module wwr.test.hip.roctx;
 
 import std;
-import gpumod.hip.roctx;
+import wwr.hip.roctx;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.roctx
+// Compile-time tests for wwr.hip.roctx
 //
 // The module is pure re-export (using-declarations -- roctx.h is a plain
 // extern "C" API in libroctx64, with none of the convenience-template

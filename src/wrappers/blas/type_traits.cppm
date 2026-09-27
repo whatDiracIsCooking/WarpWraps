@@ -2,20 +2,20 @@
  * @file type_traits.cppm
  * @brief Type system for GPU BLAS operations
  *
- * Re-exports gpumod.wrappers.common (fp/int concepts and type mappings)
+ * Re-exports wwr.wrappers.common (fp/int concepts and type mappings)
  * and provides half-precision type traits for GPU BLAS.
  *
  * Usage:
- *   import gpumod.wrappers.blas;
+ *   import wwr.wrappers.blas;
  */
 
 module;
 
-export module gpumod.wrappers.blas:type_traits;
+export module wwr.wrappers.blas:type_traits;
 
-export import gpumod.wrappers.common;
-import gpumod.fp16;
-import gpumod.bf16;
+export import wwr.wrappers.common;
+import wwr.fp16;
+import wwr.bf16;
 
 export namespace wwr {
 

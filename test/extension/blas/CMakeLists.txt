@@ -1,4 +1,4 @@
-# gpumod.extension.blas RAII handle tests
+# wwr.extension.blas RAII handle tests
 #
 # Runtime only: gpublasCreate needs a live GPU context, so there is no
 # compile-time half to configure under WWR_COMPILE_TIME_ONLY. Same shape as
@@ -11,8 +11,8 @@ wwr_add_gtest_executable(
   SOURCES
   handle_tests.cpp
   LINK
-  gpumod.extension.blas
-  gpumod.extension.handle
+  wwr.extension.blas
+  wwr.extension.handle
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test file,

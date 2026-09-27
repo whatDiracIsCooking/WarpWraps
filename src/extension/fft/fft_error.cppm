@@ -5,10 +5,10 @@
  * Provides specializations of error handling templates for gpufftResult_t.
  */
 
-export module gpumod.extension.fft:fft_error;
+export module wwr.extension.fft:fft_error;
 
-import gpumod.fft;
-import gpumod.extension.common;
+import wwr.fft;
+import wwr.extension.common;
 import std;
 
 export namespace wwr::extension {

@@ -14,7 +14,7 @@
  * csr2gebsr). The modern generic API (SpMV, SpMM, SpGEMM, ...) is not wrapped
  * here -- its element type is a runtime cudaDataType/hipDataType argument rather
  * than a name letter, so it needs no S/D/C/Z dispatch; reach it through
- * gpumod.cuda.cusparse / gpumod.hip.hipsparse.
+ * wwr.cuda.cusparse / wwr.hip.hipsparse.
  *
  * cuSPARSE-only functions (the Preview SpMMOp API, CreateSlicedEll) and the
  * legacy typed functions cuSPARSE removed but hipSPARSE keeps (csrmv, csrsv2,
@@ -22,7 +22,7 @@
  * module adapts what both vendors offer, same policy as gpu.blas / gpu.solver.
  *
  * Usage:
- *   import gpumod.sparse;
+ *   import wwr.sparse;
  *
  *   gpusparseHandle_t handle;
  *   gpusparseCreate(&handle);
@@ -32,14 +32,14 @@ module;
 
 #include "gpu_backend.h"
 
-export module gpumod.sparse;
+export module wwr.sparse;
 
 import std;
-import gpumod.complex;
+import wwr.complex;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cusparse;
+import wwr.cuda.cusparse;
 #else
-import gpumod.hip.hipsparse;
+import wwr.hip.hipsparse;
 #endif
 
 export namespace wwr {

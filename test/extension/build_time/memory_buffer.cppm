@@ -1,9 +1,9 @@
-// memory_buffer.cppm - Compile-time tests for gpumod.extension.memory_buffer
+// memory_buffer.cppm - Compile-time tests for wwr.extension.memory_buffer
 
-export module gpumod.test.extension.memory_buffer;
+export module wwr.test.extension.memory_buffer;
 
 import std;
-import gpumod.extension.memory_buffer;
+import wwr.extension.memory_buffer;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Compile-time contract of the buffer types

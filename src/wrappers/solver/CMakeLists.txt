@@ -4,7 +4,7 @@
 # include directory.
 wwr_add_cxx_module_library(
   NAME
-  gpumod.wrappers.solver
+  wwr.wrappers.solver
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
@@ -15,9 +15,9 @@ wwr_add_cxx_module_library(
   IMPLEMENTATION
   instantiations.cpp
   LINK_PUBLIC
-  gpumod.solver
-  gpumod.blas
-  gpumod.complex
-  gpumod.wrappers.common
+  wwr.solver
+  wwr.blas
+  wwr.complex
+  wwr.wrappers.common
   IMPORT_STD
 )

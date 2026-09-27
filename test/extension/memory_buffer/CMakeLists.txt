@@ -21,10 +21,10 @@ wwr_add_gtest_executable(
   host_memory_tests.cpp
   allocation_failure_tests.cpp
   LINK
-  gpumod.runtime_api
-  gpumod.extension.common
-  gpumod.extension.runtime
-  gpumod.extension.memory_buffer
+  wwr.runtime_api
+  wwr.extension.common
+  wwr.extension.runtime
+  wwr.extension.memory_buffer
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test file,

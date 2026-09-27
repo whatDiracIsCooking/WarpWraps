@@ -1,4 +1,4 @@
-// buffer_tests.cpp - Tests for gpumod.extension.memory_buffer
+// buffer_tests.cpp - Tests for wwr.extension.memory_buffer
 //
 // Covers the RAII contract of every buffer kind, non-owning views, the
 // bounds/overflow rejection paths, and the stream-ordered allocate/free pairing
@@ -14,10 +14,10 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.runtime;
-import gpumod.extension.memory_buffer;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.runtime;
+import wwr.extension.memory_buffer;
 
 #include "counting_policy.h"
 

@@ -1,4 +1,4 @@
-# gpumod.extension.init_state + gpumod.extension.random_normal tests
+# wwr.extension.init_state + wwr.extension.random_normal tests
 #
 # One integration suite over the pair: random_normal draws from states that
 # init_state seeds, so every case needs both modules.
@@ -19,15 +19,15 @@ wwr_add_gtest_executable(
   SOURCES
   rand_tests.cpp
   LINK
-  gpumod.runtime_api
-  gpumod.rand
-  gpumod.complex
-  gpumod.fp16
-  gpumod.bf16
-  gpumod.extension.runtime
-  gpumod.extension.memory_buffer
-  gpumod.extension.init_state
-  gpumod.extension.random_normal
+  wwr.runtime_api
+  wwr.rand
+  wwr.complex
+  wwr.fp16
+  wwr.bf16
+  wwr.extension.runtime
+  wwr.extension.memory_buffer
+  wwr.extension.init_state
+  wwr.extension.random_normal
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test

@@ -13,7 +13,7 @@
  * Prerequisites (must be provided by the including file):
  * - std::is_same_v (via `import std;` or equivalent)
  * - gpuComplex, gpuDoubleComplex and the gpusolverDn* functions
- *   (gpumod.complex, gpumod.solver)
+ *   (wwr.complex, wwr.solver)
  */
 
 #pragma once

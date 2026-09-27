@@ -1,4 +1,4 @@
-// handle_tests.cpp - RAII contract of gpumod.extension.solver's two wrappers
+// handle_tests.cpp - RAII contract of wwr.extension.solver's two wrappers
 //
 // GpusolverDnHandle is a DeviceBoundHandle specialisation (over
 // gpusolverDnHandle_t): it records the device it was created on, since a
@@ -14,9 +14,9 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.handle; // BaseHandle, DeviceBoundHandle(View)
-import gpumod.extension.solver; // re-exports gpumod.solver, so the raw handle/params types are in scope
+import wwr.extension.common; // the error_policy concept, for the counting policy
+import wwr.extension.handle; // BaseHandle, DeviceBoundHandle(View)
+import wwr.extension.solver; // re-exports wwr.solver, so the raw handle/params types are in scope
 
 namespace wwr::extension::test {
 

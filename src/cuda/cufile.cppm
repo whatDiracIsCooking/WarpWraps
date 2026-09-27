@@ -1,13 +1,13 @@
 /**
  * @file cufile.cppm
- * @brief Primary interface for gpumod.cuda.cufile
+ * @brief Primary interface for wwr.cuda.cufile
  *
  * This module wraps the cuFile (GPUDirect Storage) C API and exports types,
  * constants, and functions for high-performance direct I/O between GPU memory
  * and NVMe storage without staging through host memory.
  *
  * Usage:
- *   import gpumod.cuda.cufile;
+ *   import wwr.cuda.cufile;
  */
 
 module;
@@ -52,7 +52,7 @@ static_assert(CUFILE_GPU_UUID_LEN == 16, "CUFILE_GPU_UUID_LEN value mismatch");
 #undef CU_FILE_STREAM_PAGE_ALIGNED_INPUTS
 #undef CUFILE_GPU_UUID_LEN
 
-export module gpumod.cuda.cufile;
+export module wwr.cuda.cufile;
 
 // ========================================================================
 // Export all cuFile types and functions in wwr namespace

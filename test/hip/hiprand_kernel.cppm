@@ -1,16 +1,16 @@
-// hiprand_kernel.cppm - Compile-time tests for gpumod.hip.hiprand_kernel
+// hiprand_kernel.cppm - Compile-time tests for wwr.hip.hiprand_kernel
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hiprand_kernel;
+export module wwr.test.hip.hiprand_kernel;
 
 import std;
-import gpumod.hip.hiprand_kernel;
+import wwr.hip.hiprand_kernel;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hiprand_kernel
+// Compile-time tests for wwr.hip.hiprand_kernel
 //
 // No LINK_CHECKs: this module exports types only, never a function. See
 // src/hip/hiprand_kernel.cppm for why the device functions are absent (they

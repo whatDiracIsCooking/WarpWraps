@@ -4,7 +4,7 @@
  *
  * Wraps hip/hip_complex.h for C++23 module-based code: types and host-side
  * functions for complex number manipulation. CUDA counterpart:
- * gpumod.cuda.cuComplex.
+ * wwr.cuda.cuComplex.
  *
  * Every function in amd_detail/amd_hip_complex.h is `static inline` in the
  * global namespace and so cannot be re-exported by a `using` declaration.
@@ -16,7 +16,7 @@
  * section 9.
  *
  * Usage:
- *   import gpumod.hip.hip_complex;
+ *   import wwr.hip.hip_complex;
  */
 
 module;
@@ -26,7 +26,7 @@ module;
 #include <array>
 #include <hip/hip_complex.h>
 
-export module gpumod.hip.hip_complex;
+export module wwr.hip.hip_complex;
 
 // ========================================================================
 // Export all hip_complex types and functions in wwr::hip

@@ -2,7 +2,7 @@
 
 wwr_add_cxx_module_library(
   NAME
-  gpumod.extension.memory_buffer
+  wwr.extension.memory_buffer
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
@@ -17,8 +17,8 @@ wwr_add_cxx_module_library(
   memset.cppm
   convenience_memory_buffer.cppm
   LINK_PUBLIC
-  gpumod.runtime_api
-  gpumod.extension.common
-  gpumod.extension.runtime
+  wwr.runtime_api
+  wwr.extension.common
+  wwr.extension.runtime
   IMPORT_STD
 )

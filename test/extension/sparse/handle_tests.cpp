@@ -1,4 +1,4 @@
-// handle_tests.cpp - RAII contract of gpumod.extension.sparse's GpusparseHandle
+// handle_tests.cpp - RAII contract of wwr.extension.sparse's GpusparseHandle
 //
 // GpusparseHandle is a DeviceBoundHandle specialisation over gpusparseHandle_t: it
 // records the device it was created on, since a cuSPARSE handle is
@@ -11,9 +11,9 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.handle; // DeviceBoundHandle(View)
-import gpumod.extension.sparse; // re-exports gpumod.sparse, so gpusparseHandle_t is in scope
+import wwr.extension.common; // the error_policy concept, for the counting policy
+import wwr.extension.handle; // DeviceBoundHandle(View)
+import wwr.extension.sparse; // re-exports wwr.sparse, so gpusparseHandle_t is in scope
 
 namespace wwr::extension::test {
 

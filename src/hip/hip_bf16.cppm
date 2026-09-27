@@ -4,7 +4,7 @@
  *
  * Wraps hip/hip_bf16.h for C++23 module-based code, exporting bfloat16 types
  * and their operators for host-side code. CUDA counterpart:
- * gpumod.cuda.cuda_bf16.
+ * wwr.cuda.cuda_bf16.
  *
  * HIP spells the types __hip_bfloat16 / __hip_bfloat162, distinct from CUDA's
  * __nv_bfloat16 / __nv_bfloat162, so there is no collision here the way
@@ -21,7 +21,7 @@
  * section 9.
  *
  * Usage:
- *   import gpumod.hip.hip_bf16;
+ *   import wwr.hip.hip_bf16;
  */
 
 module;
@@ -31,7 +31,7 @@ module;
 #include <array>
 #include <hip/hip_bf16.h>
 
-export module gpumod.hip.hip_bf16;
+export module wwr.hip.hip_bf16;
 
 // ========================================================================
 // Export all hip_bf16 types in wwr::hip

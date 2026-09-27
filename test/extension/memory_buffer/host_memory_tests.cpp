@@ -1,4 +1,4 @@
-// host_memory_tests.cpp - Tests for gpumod.extension.memory_buffer:host_memory
+// host_memory_tests.cpp - Tests for wwr.extension.memory_buffer:host_memory
 // and the common error-handling infrastructure it instantiates.
 //
 // Every suite here is host-only: stdHostMemoryError_t and std_malloc/std_free
@@ -15,8 +15,8 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.extension.common;
-import gpumod.extension.memory_buffer;
+import wwr.extension.common;
+import wwr.extension.memory_buffer;
 
 namespace wwr::extension::test {
 

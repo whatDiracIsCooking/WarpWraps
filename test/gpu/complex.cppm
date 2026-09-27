@@ -1,4 +1,4 @@
-// complex.cppm - Compile-time tests for gpumod.complex
+// complex.cppm - Compile-time tests for wwr.complex
 //
 // Every exported gpu* name is the backend's own type. See gpu_check_macros.h.
 
@@ -6,14 +6,14 @@ module;
 
 #include "gpu_check_macros.h"
 
-export module gpumod.test.gpu.complex;
+export module wwr.test.gpu.complex;
 
 import std;
-import gpumod.complex;
+import wwr.complex;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cuComplex;
+import wwr.cuda.cuComplex;
 #else
-import gpumod.hip.hip_complex;
+import wwr.hip.hip_complex;
 #endif
 
 namespace wwr::test {

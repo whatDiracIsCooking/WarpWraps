@@ -9,16 +9,16 @@
  * hipComplex/__hip_bfloat16 on a HIP build.
  *
  * Usage:
- *   import gpumod.wrappers.common;
+ *   import wwr.wrappers.common;
  *   using namespace wwr;
  */
 
-export module gpumod.wrappers.common:fp_types;
+export module wwr.wrappers.common:fp_types;
 
 import std;
-import gpumod.complex;
-import gpumod.fp16;
-import gpumod.bf16;
+import wwr.complex;
+import wwr.fp16;
+import wwr.bf16;
 
 export namespace wwr {
 

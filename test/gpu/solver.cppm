@@ -1,4 +1,4 @@
-// solver.cppm - Compile-time tests for gpumod.solver
+// solver.cppm - Compile-time tests for wwr.solver
 //
 // Types, constants, and the handle/params/Jacobi-info/stream functions are
 // each checked against the backend's own entity (see gpu_check_macros.h).
@@ -29,16 +29,16 @@ module;
 #include <hip/library_types.h>
 #endif
 
-export module gpumod.test.gpu.solver;
+export module wwr.test.gpu.solver;
 
 import std;
-import gpumod.solver;
-import gpumod.blas;
-import gpumod.complex;
+import wwr.solver;
+import wwr.blas;
+import wwr.complex;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cusolverDn;
+import wwr.cuda.cusolverDn;
 #else
-import gpumod.hip.hipsolver;
+import wwr.hip.hipsolver;
 #endif
 
 namespace wwr::test {

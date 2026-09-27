@@ -2,7 +2,7 @@
  * @file instantiations.cpp
  * @brief The one explicit instantiation of random_normal per supported type
  *
- * Implementation unit of gpumod.extension.random_normal. Pairs with the
+ * Implementation unit of wwr.extension.random_normal. Pairs with the
  * `extern template` declarations in interface.cppm: together they keep every
  * importer from instantiating the template again at each call site.
  *
@@ -13,17 +13,17 @@
  * added here without being added there links against nothing.
  */
 
-module gpumod.extension.random_normal;
+module wwr.extension.random_normal;
 
 // An implementation unit implicitly imports its primary interface, but an
 // import is not re-exported through it -- std::size_t in the signatures below
 // is not visible without this.
 import std;
-import gpumod.runtime_api;
-import gpumod.rand;
-import gpumod.complex;
-import gpumod.fp16;
-import gpumod.bf16;
+import wwr.runtime_api;
+import wwr.rand;
+import wwr.complex;
+import wwr.fp16;
+import wwr.bf16;
 
 namespace wwr::extension {
 

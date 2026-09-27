@@ -8,16 +8,16 @@
  * belong here too.
  */
 
-export module gpumod.extension.runtime:convenience_runtime;
+export module wwr.extension.runtime:convenience_runtime;
 
 import :gpu_stream;
 import :gpu_event;
 import :gpu_mem_pool;
 import :gpu_graph;
 import :gpu_graph_exec;
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.handle;
 
 export namespace wwr::extension {
 

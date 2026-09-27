@@ -6,13 +6,13 @@
  * allocation and deallocation operations.
  *
  * Usage:
- *   import gpumod.extension.memory_buffer;
+ *   import wwr.extension.memory_buffer;
  *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.memory_buffer:host_memory;
+export module wwr.extension.memory_buffer:host_memory;
 
-import gpumod.extension.common;
+import wwr.extension.common;
 import std;
 
 export namespace wwr::extension {

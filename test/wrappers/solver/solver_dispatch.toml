@@ -1,4 +1,4 @@
-# Expected dispatch of gpumod.wrappers.solver -- checked by test/shared/dispatch.py
+# Expected dispatch of wwr.wrappers.solver -- checked by test/shared/dispatch.py
 #
 # [dispatch] is one key per wrapper<T>: the gpusolverDn function its compiled
 # code must call. Names are gpusolver aliases (src/solver.cppm), so this one
@@ -31,10 +31,10 @@
 # by static_assert in type_traits.cppm next to this file instead.
 
 [check]
-module = "gpumod.wrappers.solver"
+module = "wwr.wrappers.solver"
 prefix = "gpusolver"
-# gpumod.solver is pure WWR_FUNCTION aliases -- no inline forwarders to
-# recognise, unlike gpumod.blas -- so there is no forwarder_module here.
+# wwr.solver is pure WWR_FUNCTION aliases -- no inline forwarders to
+# recognise, unlike wwr.blas -- so there is no forwarder_module here.
 
 # How the demangler spells each template argument, mapped to the name this table
 # uses. gpuComplex and gpuFloatComplex are the same underlying vendor type, so

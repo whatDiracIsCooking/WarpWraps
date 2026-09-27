@@ -197,12 +197,12 @@ CROSS_CHECK_BUILD_DIR=${CROSS_CHECK_BUILD_DIR:-build-cross-check}
 # does NOT exist, on the other hand, fails the whole --device-only run with
 # ninja's `unknown target`. Keep this list matched to test/gpu/CMakeLists.txt;
 # nothing checks it automatically.
-CROSS_CHECK_DEVICE_TARGETS=${CROSS_CHECK_DEVICE_TARGETS:-"gpumod.test.gpu.cooperative_groups.device
-gpumod.test.gpu.wmma.device
-gpumod.test.gpu.complex.device
-gpumod.test.gpu.fp16.device
-gpumod.test.gpu.bf16.device
-gpumod.test.gpu.atomics.device"}
+CROSS_CHECK_DEVICE_TARGETS=${CROSS_CHECK_DEVICE_TARGETS:-"wwr.test.gpu.cooperative_groups.device
+wwr.test.gpu.wmma.device
+wwr.test.gpu.complex.device
+wwr.test.gpu.fp16.device
+wwr.test.gpu.bf16.device
+wwr.test.gpu.atomics.device"}
 
 # --- the ROCm runtime tier -------------------------------------------------
 #

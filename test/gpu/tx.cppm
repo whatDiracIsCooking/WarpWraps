@@ -1,4 +1,4 @@
-// tx.cppm - Compile-time tests for gpumod.tx
+// tx.cppm - Compile-time tests for wwr.tx
 //
 // Every exported gputx* name is checked against the backend's own entity: the
 // same range-id type, and the same function (see gpu_check_macros.h). The
@@ -13,14 +13,14 @@ module;
 
 #include "gpu_check_macros.h"
 
-export module gpumod.test.gpu.tx;
+export module wwr.test.gpu.tx;
 
 import std;
-import gpumod.tx;
+import wwr.tx;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.nvToolsExt;
+import wwr.cuda.nvToolsExt;
 #else
-import gpumod.hip.roctx;
+import wwr.hip.roctx;
 #endif
 
 namespace wwr::test {

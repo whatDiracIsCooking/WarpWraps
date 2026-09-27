@@ -4,14 +4,14 @@
  *        default allocation stream and a default memory pool
  */
 
-export module gpumod.extension.runtime:device_handle;
+export module wwr.extension.runtime:device_handle;
 
 import :gpu_stream;
 import :gpu_mem_pool;
 import :convenience_runtime;
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
 export namespace wwr::extension {
@@ -32,7 +32,7 @@ export namespace wwr::extension {
  * Move-only, because it owns a GpuStream and a GpuMemPool: two DeviceHandle
  * instances must never both claim ownership of the same underlying stream or
  * pool. Every device-bound resource already takes its device by `int dev_idx`
- * (see DeviceBoundHandle in gpumod.extension.common) rather than by DeviceHandle,
+ * (see DeviceBoundHandle in wwr.extension.common) rather than by DeviceHandle,
  * so this bundles a device rather than gating access to one.
  *
  * The full cudaDeviceProp / hipDeviceProp_t is held directly and exposed via

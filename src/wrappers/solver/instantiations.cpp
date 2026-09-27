@@ -8,12 +8,12 @@
  * partition, template here.
  */
 
-module gpumod.wrappers.solver;
+module wwr.wrappers.solver;
 
-import gpumod.solver;
-import gpumod.blas;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.solver;
+import wwr.blas;
+import wwr.complex;
+import wwr.wrappers.common;
 
 namespace wwr {
 

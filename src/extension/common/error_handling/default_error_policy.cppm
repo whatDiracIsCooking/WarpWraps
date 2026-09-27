@@ -3,11 +3,11 @@
  * @brief Default error policy implementation
  *
  * Usage:
- *   import gpumod.extension.common;
+ *   import wwr.extension.common;
  *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.common.error_handling:default_error_policy;
+export module wwr.extension.common.error_handling:default_error_policy;
 
 import std;
 import :error_code;

@@ -3,7 +3,7 @@
  * @brief bfloat16 type and float conversions for device-compiled TUs
  *
  * The device-compile counterpart to bf16.cppm: gpuBfloat16 and the
- * float<->bfloat16 conversions. Link gpumod.device. Companion to fp16.cuh.
+ * float<->bfloat16 conversions. Link wwr.device. Companion to fp16.cuh.
  *
  * The type is the SAME one bf16.cppm exports under this name, so a host-allocated
  * buffer and a kernel parameter named here agree, and an extern template declared

@@ -1,5 +1,5 @@
-// rand_tests.cpp - Runtime tests for gpumod.extension.init_state and
-//                  gpumod.extension.random_normal
+// rand_tests.cpp - Runtime tests for wwr.extension.init_state and
+//                  wwr.extension.random_normal
 //
 // These two modules are one integration test on purpose: random_normal draws
 // from states that init_state seeds, so every case here needs both. It runs
@@ -31,15 +31,15 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.runtime_api;
-import gpumod.rand;
-import gpumod.complex;
-import gpumod.fp16;
-import gpumod.bf16;
-import gpumod.extension.runtime;
-import gpumod.extension.memory_buffer;
-import gpumod.extension.init_state;
-import gpumod.extension.random_normal;
+import wwr.runtime_api;
+import wwr.rand;
+import wwr.complex;
+import wwr.fp16;
+import wwr.bf16;
+import wwr.extension.runtime;
+import wwr.extension.memory_buffer;
+import wwr.extension.init_state;
+import wwr.extension.random_normal;
 
 namespace wwr::extension::test {
 

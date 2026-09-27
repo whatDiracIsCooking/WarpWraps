@@ -1,16 +1,16 @@
-// roctracer.cppm - Compile-time tests for gpumod.hip.roctracer
+// roctracer.cppm - Compile-time tests for wwr.hip.roctracer
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.roctracer;
+export module wwr.test.hip.roctracer;
 
 import std;
-import gpumod.hip.roctracer;
+import wwr.hip.roctracer;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.roctracer
+// Compile-time tests for wwr.hip.roctracer
 //
 // The module is pure re-export (using declarations only -- roctracer.h and
 // the ext/prof_protocol.h types it pulls in are a plain extern "C" API, no

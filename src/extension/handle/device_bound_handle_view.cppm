@@ -8,12 +8,12 @@
  * keeps it so a borrowed handle can still answer dev_idx().
  *
  * Usage:
- *   import gpumod.extension.handle;
+ *   import wwr.extension.handle;
  *
  *   class GpuEventView : public DeviceBoundHandleView<gpuEvent_t>, ... { ... };
  */
 
-export module gpumod.extension.handle:device_bound_handle_view;
+export module wwr.extension.handle:device_bound_handle_view;
 
 import :handle_view;
 import std;

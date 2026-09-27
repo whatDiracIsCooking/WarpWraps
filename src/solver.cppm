@@ -14,11 +14,11 @@
  * Xgetrs, Xgeqrf and their _bufferSize functions exist, and those 8 are what is
  * listed. The rest -- Xlarft, Xsytrs, Xtrtri and the whole modern
  * eigenvalue/SVD API -- has no hipSOLVER counterpart; reach it through
- * gpumod.cuda.cusolverDn on a CUDA build. gpusolverGetStatusName/String are
+ * wwr.cuda.cusolverDn on a CUDA build. gpusolverGetStatusName/String are
  * hand-written switches per backend -- docs/architecture.md, section 5.
  *
  * Usage:
- *   import gpumod.solver;
+ *   import wwr.solver;
  *
  *   gpusolverDnHandle_t handle;
  *   gpusolverDnCreate(&handle);
@@ -34,14 +34,14 @@ module;
 #include <hip/library_types.h>
 #endif
 
-export module gpumod.solver;
+export module wwr.solver;
 
-import gpumod.complex;
-import gpumod.blas;
+import wwr.complex;
+import wwr.blas;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cusolverDn;
+import wwr.cuda.cusolverDn;
 #else
-import gpumod.hip.hipsolver;
+import wwr.hip.hipsolver;
 #endif
 
 export namespace wwr {
@@ -78,7 +78,7 @@ WWR_VALUE(GPUSOLVER_EIG_TYPE_2, CUSOLVER_EIG_TYPE_2, HIPSOLVER_EIG_TYPE_2)
 WWR_VALUE(GPUSOLVER_EIG_TYPE_3, CUSOLVER_EIG_TYPE_3, HIPSOLVER_EIG_TYPE_3)
 
 // cudaDataType/hipDataType enumerators are plain C enum constants with no
-// wwr-namespaced alias (see gpumod.blas -- gpuFloatComplex
+// wwr-namespaced alias (see wwr.blas -- gpuFloatComplex
 // etc. are the closest precedent, but those DO have a namespaced alias via
 // WWR_COMPLEX_TYPE; these do not), so WWR_VALUE's ::wwr:: qualification
 // does not apply here -- write the #if directly instead.
@@ -644,7 +644,7 @@ WWR_FUNCTION(gpusolverDnZgesvdaStridedBatched, cusolverDnZgesvdaStridedBatched,
 // getrs, geqrf + _bufferSize where cuSOLVER has one). hipsolverDn has no
 // X-prefixed counterpart for anything else cuSOLVER's modern API offers
 // (larft, sytrs, trtri, and the entire modern eigenvalue/SVD surface); those
-// are unwrapped -- reach them through gpumod.cuda.cusolverDn directly.
+// are unwrapped -- reach them through wwr.cuda.cusolverDn directly.
 // ────────────────────────────────────────────────────────────────────────
 
 WWR_FUNCTION(gpusolverDnXpotrf_bufferSize, cusolverDnXpotrf_bufferSize,

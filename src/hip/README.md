@@ -13,9 +13,9 @@ section here once it exists.
 
 `src/cuda/cuda_fp16.cppm` exports `using ::half;` from CUDA's `cuda_fp16.h`.
 `hip/amd_detail/amd_hip_fp16.h` defines its own, distinct global `half`. A
-same-shaped bare-`wwr`-namespace `gpumod.hip.hip_fp16` module
+same-shaped bare-`wwr`-namespace `wwr.hip.hip_fp16` module
 would make `wwr::half` ambiguous the moment both it and
-`gpumod.cuda.cuda_fp16` are imported in one translation unit. So every
+`wwr.cuda.cuda_fp16` are imported in one translation unit. So every
 `src/hip` module exports into `wwr::hip`, never bare `wwr`,
 even where (like `hip_bf16` vs `cuda_bf16`'s `__nv_bfloat16`/`hip_bfloat16`)
 there happens to be no actual collision — the namespace choice doesn't depend
@@ -23,10 +23,10 @@ on checking each header case by case.
 
 ### `hip_runtime_api` collapses `cuda.cppm` + `cuda_runtime_api.cppm`
 
-CUDA splits the driver API (`cuda.h`, wrapped by `gpumod.cuda.cuda_h`)
+CUDA splits the driver API (`cuda.h`, wrapped by `wwr.cuda.cuda_h`)
 from the runtime API (`cuda_runtime_api.h`, wrapped by
-`gpumod.cuda.cuda_runtime_api`). HIP does not make this split —
-`hip/hip_runtime_api.h` covers both — so `gpumod.hip.hip_runtime_api` is
+`wwr.cuda.cuda_runtime_api`). HIP does not make this split —
+`hip/hip_runtime_api.h` covers both — so `wwr.hip.hip_runtime_api` is
 the one module covering what those two CUDA modules cover together.
 
 ### Link `hip::host`, never `hip::device`
@@ -82,9 +82,9 @@ targets exactly as `cuda_fp4.cppm`/`cuda_fp6.cppm` are — but do not merge them
 
 ## Modules
 
-### `gpumod.hip.hip_runtime_api`
+### `wwr.hip.hip_runtime_api`
 
-**Import:** `import gpumod.hip.hip_runtime_api;`
+**Import:** `import wwr.hip.hip_runtime_api;`
 
 Wraps `hip/hip_runtime_api.h`. Like `cuda_runtime_api.h`, the extern-`"C"`
 surface is declarations-only. The header also carries a handful of
@@ -109,7 +109,7 @@ each value before the `#undef`.
 
 ### Why nvml became two modules
 
-CUDA's `nvml` (`gpumod.cuda.nvml`) maps to *two* separate HIP libraries,
+CUDA's `nvml` (`wwr.cuda.nvml`) maps to *two* separate HIP libraries,
 not one: `rocm_smi` (`rocm_smi/rocm_smi.h`, the legacy/stable AMD GPU
 management and monitoring library) and `amd_smi` (`amd_smi/amdsmi.h`, the
 newer one, meant to eventually supersede rocm_smi). They are real,
@@ -124,9 +124,9 @@ vendor header actually presents. Each is exported faithfully as its own
 module instead, at the same 1:1-with-a-vendor-header granularity every other
 `src/cuda`/`src/hip` module uses.
 
-### `gpumod.hip.rocm_smi`
+### `wwr.hip.rocm_smi`
 
-**Import:** `import gpumod.hip.rocm_smi;`
+**Import:** `import wwr.hip.rocm_smi;`
 
 Wraps `rocm_smi/rocm_smi.h`. Like `rocm_smi.h` itself, this is a pure C API
 (its whole body, including the transitively-included `<cstdint>`, is wrapped
@@ -143,12 +143,12 @@ clock/performance-level control, versioning, error/RAS queries, performance
 counters, system info, XGMI, hardware topology, compute/memory partitioning,
 supported-function queries, and event notification.
 
-### `gpumod.hip.amd_smi`
+### `wwr.hip.amd_smi`
 
-**Import:** `import gpumod.hip.amd_smi;`
+**Import:** `import wwr.hip.amd_smi;`
 
 Wraps `amd_smi/amdsmi.h` -- see "Why nvml became two modules" above for how
-this relates to `gpumod.hip.rocm_smi`. Also a pure C `extern "C"` API,
+this relates to `wwr.hip.rocm_smi`. Also a pure C `extern "C"` API,
 exported the same way: every declared type, enumerator, and function via
 `using`.
 
@@ -171,12 +171,12 @@ info, XGMI, hardware topology, compute/memory/accelerator partitioning, event
 notification, firmware/VBIOS, board/ASIC info, and driver control function
 surface.
 
-### `gpumod.hip.roctracer`
+### `wwr.hip.roctracer`
 
-**Import:** `import gpumod.hip.roctracer;`
+**Import:** `import wwr.hip.roctracer;`
 
 Wraps `roctracer/roctracer.h` -- HIP's rough counterpart to CUPTI
-(`gpumod.cuda.cupti`): the generic, runtime-independent callback and
+(`wwr.cuda.cupti`): the generic, runtime-independent callback and
 asynchronous-activity tracing API. `roctracer.h` itself `#include`s
 `roctracer/ext/prof_protocol.h` (the domain/activity-record wire types), so
 both headers' declarations are exported together, at the same granularity as
@@ -189,13 +189,13 @@ callback-ID enum from `cupti_nvtx_cbid.h` without needing to wrap `nvtx.h`):
   for op IDs within the HIP async-activity domains, but pulls in the *entire*
   HIP runtime plus the large generated `hip/amd_detail/hip_prof_str.h`
   string-table header to do it. That surface already belongs to
-  `gpumod.hip.hip_runtime_api`; re-including it here for one enum would
+  `wwr.hip.hip_runtime_api`; re-including it here for one enum would
   make this module a redundant superset of that one.
 - `roctracer_roctx.h` -- exists only to type the callback `data` payload for
   `ACTIVITY_DOMAIN_ROCTX`, but doing so requires including `roctx.h`, a
   distinct marker/range-annotation API (AMD's analogue of NVTX) with its own
   library (`libroctx64`) and its own public function surface. That API is
-  wrapped separately as `gpumod.hip.roctx` (see below), so pulling in `roctx.h`
+  wrapped separately as `wwr.hip.roctx` (see below), so pulling in `roctx.h`
   *here* would only re-wrap it to get two small callback-payload types.
   `ACTIVITY_DOMAIN_ROCTX` itself (the domain enumerator) is still exported;
   only the ROCTX-specific callback-data struct is left out.
@@ -213,12 +213,12 @@ include path so `#include <roctracer/roctracer.h>` itself resolves --
 `find_path(ROCTRACER_INCLUDE_DIR roctracer/roctracer.h ...)` gets that without
 pulling in `hip::host` just for a side effect of linking it.
 
-### `gpumod.hip.roctx`
+### `wwr.hip.roctx`
 
-**Import:** `import gpumod.hip.roctx;`
+**Import:** `import wwr.hip.roctx;`
 
 Wraps `roctracer/roctx.h` -- rocTX, AMD's marker/range profiler-annotation API
-and the HIP counterpart to NVTX (`gpumod.cuda.nvToolsExt`). Scoped to the
+and the HIP counterpart to NVTX (`wwr.cuda.nvToolsExt`). Scoped to the
 marker-and-range surface both backends share -- markers (`roctxMarkA`), nested
 push/pop ranges (`roctxRangePushA` / `roctxRangePop`), asynchronous start/stop
 ranges (`roctxRangeStartA` / `roctxRangeStop`), and the range-id type
@@ -250,13 +250,13 @@ Deliberately out of scope:
   macro aliases for the A-suffixed functions, and macros do not cross a module
   boundary, so only the real A-suffixed functions are exported.
 
-### `gpumod.hip.hip_complex`
+### `wwr.hip.hip_complex`
 
-**Import:** `import gpumod.hip.hip_complex;`
+**Import:** `import wwr.hip.hip_complex;`
 
 Wraps `hip/hip_complex.h` (a thin platform-selector that, on the AMD platform
 `hip::host` configures for, includes `hip/amd_detail/amd_hip_complex.h`). Like
-CUDA's `cuComplex.h` (`gpumod.cuda.cuComplex`), every function is
+CUDA's `cuComplex.h` (`wwr.cuda.cuComplex`), every function is
 `static inline` in the global namespace -- internal linkage, unreachable via
 `using` -- so this module provides thin forwarding functions with the same
 names, exactly as `cuComplex.cppm` does. Verified by reading
@@ -266,13 +266,13 @@ it does. Two functions (`hipCsqabsf`/`hipCsqabs`, squared magnitude) have no
 public header surface, as are the fused multiply-add functions
 `hipCfmaf`/`hipCfma`.
 
-### `gpumod.hip.hip_fp16`
+### `wwr.hip.hip_fp16`
 
-**Import:** `import gpumod.hip.hip_fp16;`
+**Import:** `import wwr.hip.hip_fp16;`
 
 Wraps `hip/hip_fp16.h` -> `amd_detail/amd_hip_fp16.h`. This is the real
 `half` collision the "Namespace" design decision above warns about against
-`gpumod.cuda.cuda_fp16`.
+`wwr.cuda.cuda_fp16`.
 
 **Reading `amd_hip_fp16.h` in isolation is misleading here** -- what actually
 gets compiled depends on the preprocessor state, and it's not what a first
@@ -295,9 +295,9 @@ happens in full float precision via the implicit conversion, not as a
 half-precision operation. `hip_fp16.cppm` exports the types only; there is no
 operator to forward or claim ADL-reachability for on this code path.
 
-### `gpumod.hip.hip_bf16`
+### `wwr.hip.hip_bf16`
 
-**Import:** `import gpumod.hip.hip_bf16;`
+**Import:** `import wwr.hip.hip_bf16;`
 
 Wraps `hip/hip_bf16.h` -> `amd_detail/amd_hip_bf16.h`. HIP's bfloat16 type is
 `__hip_bfloat16`/`__hip_bfloat162` -- distinct names from CUDA's
@@ -308,9 +308,9 @@ operators are ordinary `static inline` free functions (verified directly --
 the two headers do not share the same shape), so this module needs thin
 forwarding operators, as `cuda_bf16.cppm` does for CUDA.
 
-### `gpumod.hip.hip_fp8`
+### `wwr.hip.hip_fp8`
 
-**Import:** `import gpumod.hip.hip_fp8;`
+**Import:** `import wwr.hip.hip_fp8;`
 
 Wraps `hip/hip_fp8.h` -> `amd_detail/amd_hip_fp8.h`. Unlike CUDA's
 `cuda_fp8.h` (e4m3/e5m2/e8m0), HIP's header defines four struct formats
@@ -336,7 +336,7 @@ here -- like the other deliberate absences on the CUDA side
 nobody re-investigates this later.
 No code follows from this -- it is a deliberate absence, not a gap to fill.
 
-### `gpumod.hip.hip_fp4` / `gpumod.hip.hip_fp6` -- blocked, not built
+### `wwr.hip.hip_fp4` / `wwr.hip.hip_fp6` -- blocked, not built
 
 `src/hip/hip_fp4.cppm` and `src/hip/hip_fp6.cppm` (with
 `test/hip/hip_fp4.cppm` / `test/hip/hip_fp6.cppm`) exist as complete,
@@ -393,12 +393,12 @@ each exclusion point (`src/hip/CMakeLists.txt`, `test/hip/CMakeLists.txt`,
 relaxes `amd_hip_ocp_types.h`'s guard for plain clang, or if this project
 ever has a reason to compile part of `src/hip` through real HIP device mode.
 
-### `gpumod.hip.hiprtc`
+### `wwr.hip.hiprtc`
 
-**Import:** `import gpumod.hip.hiprtc;`
+**Import:** `import wwr.hip.hiprtc;`
 
 Wraps `hip/hiprtc.h`, declarations-only `extern "C"` (parity with CUDA's
-`nvrtc.h` / `gpumod.cuda.nvrtc`). Needs its own library: `hiprtc` ships
+`nvrtc.h` / `wwr.cuda.nvrtc`). Needs its own library: `hiprtc` ships
 as a separate ROCm CMake package from `hip` (`find_package(hiprtc CONFIG
 REQUIRED)`, added alongside the existing `find_package(hip CONFIG REQUIRED)`
 in the top-level `CMakeLists.txt`, guarded by the same
@@ -412,11 +412,11 @@ types are exported since the `hiprtcLink*` function signatures need them.
 
 ## Library-linked module batch (issue #178)
 
-### `gpumod.hip.hipblas`
+### `wwr.hip.hipblas`
 
-**Import:** `import gpumod.hip.hipblas;`
+**Import:** `import wwr.hip.hipblas;`
 
-Wraps `hipblas/hipblas.h`. CUDA counterpart: `gpumod.cuda.cublas_v2`.
+Wraps `hipblas/hipblas.h`. CUDA counterpart: `wwr.cuda.cublas_v2`.
 `find_package(hipblas CONFIG REQUIRED)`, links `roc::hipblas` (which pulls in
 `hip::host` transitively, per `hipblas-targets.cmake`'s own
 `INTERFACE_LINK_LIBRARIES`).
@@ -437,11 +437,11 @@ hipBLAS's ~1200-function scale, grouping by the vendor's own section markers
 is both authoritative and tractable. Every one of the 1191 `HIPBLAS_EXPORT`
 declarations in the header is exported and `WWR_LINK_CHECK`'d.
 
-### `gpumod.hip.hipblaslt`
+### `wwr.hip.hipblaslt`
 
-**Import:** `import gpumod.hip.hipblaslt;`
+**Import:** `import wwr.hip.hipblaslt;`
 
-Wraps `hipblaslt/hipblaslt.h`. CUDA counterpart: `gpumod.cuda.cublasLt`.
+Wraps `hipblaslt/hipblaslt.h`. CUDA counterpart: `wwr.cuda.cublasLt`.
 `find_package(hipblaslt CONFIG REQUIRED)`, links `roc::hipblaslt` **and**
 `hip::host` explicitly -- unlike every other library in this batch,
 `roc::hipblaslt`'s own `INTERFACE_LINK_LIBRARIES` is just
@@ -464,12 +464,12 @@ constructed or queried the way `cublasLtMatmulAlgoInit`/`Check`/
 side. `hipblasLtGetGitRevision` and `hipblasLtGetArchName` are hipBLASLt's
 own additions with no cuBLASLt counterpart.
 
-### `gpumod.hip.hipsolver`
+### `wwr.hip.hipsolver`
 
-**Import:** `import gpumod.hip.hipsolver;`
+**Import:** `import wwr.hip.hipsolver;`
 
 Wraps `hipsolver/hipsolver.h`. CUDA counterparts: **both**
-`gpumod.cuda.cusolverDn` **and** `gpumod.cuda.cusolverSp`.
+`wwr.cuda.cusolverDn` **and** `wwr.cuda.cusolverSp`.
 `find_package(hipsolver CONFIG REQUIRED)`, links `roc::hipsolver` (which
 pulls in `hip::host` transitively).
 
@@ -515,7 +515,7 @@ full hipsolverDn header surface is in scope here, not just the CUDA-side
 shape. Net surface: 247 dense functions + 11 sparse functions = 258
 `WWR_LINK_CHECK`s total.
 
-Types owned by `gpumod.hip.hipblas` (`hipblasOperation_t`,
+Types owned by `wwr.hip.hipblas` (`hipblasOperation_t`,
 `hipblasFillMode_t`, `hipblasSideMode_t` -- used directly in most hipsolverDn
 signatures) are not re-exported here, mirroring `cusolverDn.cppm`'s own
 choice not to re-export `cublasOperation_t`/`cublasFillMode_t`. hipsolverDn's
@@ -528,11 +528,11 @@ exported here. `hipDataType` (used by the `Xgeqrf`/`Xgetrf`/`Xgetrs`/
 re-exported by both `cusolverDn.cppm` and `cusolverMg.cppm` on the CUDA
 side), so it is exported directly here too.
 
-### `gpumod.hip.hipsparse`
+### `wwr.hip.hipsparse`
 
-**Import:** `import gpumod.hip.hipsparse;`
+**Import:** `import wwr.hip.hipsparse;`
 
-Wraps `hipsparse/hipsparse.h`. CUDA counterpart: `gpumod.cuda.cusparse`.
+Wraps `hipsparse/hipsparse.h`. CUDA counterpart: `wwr.cuda.cusparse`.
 `find_package(hipsparse CONFIG REQUIRED)`, links `roc::hipsparse` (which
 pulls in `hip::host` transitively).
 
@@ -560,11 +560,11 @@ headers; nothing exists. Not stubbed, simply not exported. All 546
 `HIPSPARSE_EXPORT` declarations found across the header tree are exported
 and `WWR_LINK_CHECK`'d.
 
-### `gpumod.hip.hipfft`
+### `wwr.hip.hipfft`
 
-**Import:** `import gpumod.hip.hipfft;`
+**Import:** `import wwr.hip.hipfft;`
 
-Wraps `hipfft/hipfft.h`. CUDA counterpart: `gpumod.cuda.cufft`.
+Wraps `hipfft/hipfft.h`. CUDA counterpart: `wwr.cuda.cufft`.
 `find_package(hipfft CONFIG REQUIRED)`, links **`hip::hipfft`** -- note the
 namespace is `hip::`, *not* `roc::`, unlike every other library in this
 batch (verified directly from `hipfft-targets.cmake`; don't assume `roc::`
@@ -577,12 +577,12 @@ hipFFT's call-site direction flags (`HIPFFT_FORWARD`/`HIPFFT_BACKWARD`) are
 `constexpr` replacements. Note the second flag's name is `HIPFFT_BACKWARD`,
 not `CUFFT_INVERSE` -- hipFFT's own naming, kept as-is.
 
-### `gpumod.hip.hipfftXt`
+### `wwr.hip.hipfftXt`
 
-**Import:** `import gpumod.hip.hipfftXt;`
+**Import:** `import wwr.hip.hipfftXt;`
 
 Wraps `hipfft/hipfftXt.h` (which itself `#include`s `hipfft/hipfft.h` and
-`hipfft/hiplibxt.h`). CUDA counterpart: `gpumod.cuda.cufftXt`. Same
+`hipfft/hiplibxt.h`). CUDA counterpart: `wwr.cuda.cufftXt`. Same
 package as `hipfft` above (`find_package(hipfft ...)` already covers it, no
 second `find_package` call), same `hip::hipfft` imported target.
 
@@ -611,12 +611,12 @@ callback family exists. `hipfftXtSubFormat_t` also has no
 `CUFFT_XT_FORMAT_DISTRIBUTED_INPUT`/`DISTRIBUTED_OUTPUT` counterpart
 (multi-node distributed formats) -- hipFFT's enum is a strict subset.
 
-### `gpumod.hip.hiprand`
+### `wwr.hip.hiprand`
 
-**Import:** `import gpumod.hip.hiprand;`
+**Import:** `import wwr.hip.hiprand;`
 
 Wraps `hiprand/hiprand.h` -- the hipRAND *host* API only. CUDA counterpart:
-the host half of `gpumod.cuda.curand`. `find_package(hiprand CONFIG
+the host half of `wwr.cuda.curand`. `find_package(hiprand CONFIG
 REQUIRED)`, links **`hip::hiprand`** -- also `hip::`, not `roc::` (verified
 from `hiprand-targets.cmake`).
 
@@ -627,13 +627,13 @@ types the way `curandDirectionVectors32_t`/`64_t` might suggest -- verified
 by reading `hiprand_rocm.h` directly rather than assuming the shape carried
 over.
 
-### `gpumod.hip.hiprand_kernel`
+### `wwr.hip.hiprand_kernel`
 
-**Import:** `import gpumod.hip.hiprand_kernel;`
+**Import:** `import wwr.hip.hiprand_kernel;`
 
 Wraps `hiprand/hiprand_kernel.h` for the device-side generator **state types**
 (`hiprandState`, `hiprandStateXORWOW`, `hiprandStatePhilox4_32_10`, ...).
-CUDA counterpart: the "Device API Types" half of `gpumod.cuda.curand` --
+CUDA counterpart: the "Device API Types" half of `wwr.cuda.curand` --
 cuRAND wraps `curand.h` and `curand_kernel.h` in one module, hipRAND gets two.
 The split is the point: `hiprand.h` is a declarations-only `extern "C"`
 header, while `hiprand_kernel.h` drags in the per-platform rocRAND
@@ -675,8 +675,8 @@ state-construction API on either backend), and every device function.
 
 ### `hip_profile.h`: no module -- nothing to wrap
 
-`hip/hip_profile.h` was evaluated for a `gpumod.hip.hip_profile` module
-(CUDA counterpart: `gpumod.cuda.cuda_profiler_api`) and deliberately
+`hip/hip_profile.h` was evaluated for a `wwr.hip.hip_profile` module
+(CUDA counterpart: `wwr.cuda.cuda_profiler_api`) and deliberately
 skipped. In this ROCm version the entire header is three empty
 function-like macros -- `HIP_SCOPED_MARKER(markerName, group)`,
 `HIP_BEGIN_MARKER(markerName, group)`, `HIP_END_MARKER()` -- with no
@@ -684,7 +684,7 @@ function-like macros -- `HIP_SCOPED_MARKER(markerName, group)`,
 interface unit could `using`-declare or forward. The functions that actually
 correspond to CUDA's `cudaProfilerStart`/`cudaProfilerStop`,
 `hipProfilerStart`/`hipProfilerStop`, already live in `hip/hip_runtime_api.h`
-and are already exported and `WWR_LINK_CHECK`'d by `gpumod.hip.hip_runtime_api`
+and are already exported and `WWR_LINK_CHECK`'d by `wwr.hip.hip_runtime_api`
 (the PR #181 pilot module) -- see its `using ::hipProfilerStart;` /
 `using ::hipProfilerStop;` and `test/hip/hip_runtime_api.cppm`'s
 `WWR_LINK_CHECK(hipProfilerStart)` / `WWR_LINK_CHECK(hipProfilerStop)`. A module that
@@ -697,10 +697,10 @@ decision should be revisited.
 
 ## Extension modules
 
-### hipBLAS: `gpumod.wrappers.blas` (backend-neutral)
+### hipBLAS: `wwr.wrappers.blas` (backend-neutral)
 
 The hipBLAS wrappers are no longer a HIP-only mirror: `src/wrappers/blas`
-(`import gpumod.wrappers.blas;`) is written once against `src/blas`'s
+(`import wwr.wrappers.blas;`) is written once against `src/blas`'s
 `gpublas*` names and builds for either backend. The hipBLAS-vs-cuBLAS
 differences the old mirror documented -- no `_v2` suffix, a single
 `hipblasStatusToString`, `getrsBatched`/`getriBatched`'s non-const arrays, and
@@ -708,17 +708,17 @@ the five cuBLAS-only functions (`gemm3m`, `gemmGroupedBatched`,
 `matinvBatched`, `tpttr`, `trttp`) -- are now resolved in `src/blas.cppm`
 and `src/wrappers/blas/README.md`.
 
-### hipSOLVER: `gpumod.wrappers.solver` (backend-neutral)
+### hipSOLVER: `wwr.wrappers.solver` (backend-neutral)
 
 Also no longer a HIP-only mirror: `src/wrappers/solver`
-(`import gpumod.wrappers.solver;`) is written once against
+(`import wwr.wrappers.solver;`) is written once against
 `src/solver`'s `gpusolverDn*` names and builds for either backend, both
 legacy partitions (linear + eigen/SVD, 32 + 48 functions, fully shared) plus
 the 8 functions the two backends' modern (X-prefixed) APIs share. The
 cuSOLVER-only remainder (the rest of the modern API: `sytrs`/`trtri`/`larft`
 plus the entire modern eigenvalue/SVD surface, which hipsolverDn has no
 counterpart for at all) is not wrapped at all -- reach it through
-`gpumod.cuda.cusolverDn` on a CUDA build. Neither `src/hip/extension` nor
+`wwr.cuda.cusolverDn` on a CUDA build. Neither `src/hip/extension` nor
 `src/cuda/extension` exists: the extension layer is backend-neutral in full.
 
 ## Build

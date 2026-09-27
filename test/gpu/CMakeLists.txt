@@ -6,7 +6,7 @@
 # header comment for the WWR_LINK_CHECK/WHOLE_ARCHIVE rationale.
 #
 # Like the gpu* layer, unlike everything else above it, these tests name both
-# backends, so they link gpumod_backend PRIVATE for the backend
+# backends, so they link wwr_backend PRIVATE for the backend
 # define. They spell each expected backend name out in full instead of using
 # gpu_backend.h's macros, so a mistake there cannot be mirrored here.
 #
@@ -14,29 +14,29 @@
 # compile_time). Expected exit code: 0
 
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
-  set(_gpu_test_raw_runtime_api gpumod.cuda.cuda_runtime_api)
-  set(_gpu_test_raw_complex gpumod.cuda.cuComplex)
-  set(_gpu_test_raw_fp16 gpumod.cuda.cuda_fp16)
-  set(_gpu_test_raw_bf16 gpumod.cuda.cuda_bf16)
-  set(_gpu_test_raw_blas gpumod.cuda.cublas_v2)
-  set(_gpu_test_raw_solver gpumod.cuda.cusolverDn)
-  set(_gpu_test_raw_sparse gpumod.cuda.cusparse)
-  set(_gpu_test_raw_fft gpumod.cuda.cufft)
-  set(_gpu_test_raw_rand gpumod.cuda.curand)
-  set(_gpu_test_raw_tx gpumod.cuda.nvToolsExt)
+  set(_gpu_test_raw_runtime_api wwr.cuda.cuda_runtime_api)
+  set(_gpu_test_raw_complex wwr.cuda.cuComplex)
+  set(_gpu_test_raw_fp16 wwr.cuda.cuda_fp16)
+  set(_gpu_test_raw_bf16 wwr.cuda.cuda_bf16)
+  set(_gpu_test_raw_blas wwr.cuda.cublas_v2)
+  set(_gpu_test_raw_solver wwr.cuda.cusolverDn)
+  set(_gpu_test_raw_sparse wwr.cuda.cusparse)
+  set(_gpu_test_raw_fft wwr.cuda.cufft)
+  set(_gpu_test_raw_rand wwr.cuda.curand)
+  set(_gpu_test_raw_tx wwr.cuda.nvToolsExt)
 else()
-  set(_gpu_test_raw_runtime_api gpumod.hip.hip_runtime_api)
-  set(_gpu_test_raw_complex gpumod.hip.hip_complex)
-  set(_gpu_test_raw_fp16 gpumod.hip.hip_fp16)
-  set(_gpu_test_raw_bf16 gpumod.hip.hip_bf16)
-  set(_gpu_test_raw_blas gpumod.hip.hipblas)
-  set(_gpu_test_raw_solver gpumod.hip.hipsolver)
-  set(_gpu_test_raw_sparse gpumod.hip.hipsparse)
-  set(_gpu_test_raw_fft gpumod.hip.hipfft)
+  set(_gpu_test_raw_runtime_api wwr.hip.hip_runtime_api)
+  set(_gpu_test_raw_complex wwr.hip.hip_complex)
+  set(_gpu_test_raw_fp16 wwr.hip.hip_fp16)
+  set(_gpu_test_raw_bf16 wwr.hip.hip_bf16)
+  set(_gpu_test_raw_blas wwr.hip.hipblas)
+  set(_gpu_test_raw_solver wwr.hip.hipsolver)
+  set(_gpu_test_raw_sparse wwr.hip.hipsparse)
+  set(_gpu_test_raw_fft wwr.hip.hipfft)
   # Two, matching src/CMakeLists.txt: hipRAND's device state types live in
   # their own module, where cuRAND keeps them in curand.cppm.
-  set(_gpu_test_raw_rand gpumod.hip.hiprand gpumod.hip.hiprand_kernel)
-  set(_gpu_test_raw_tx gpumod.hip.roctx)
+  set(_gpu_test_raw_rand wwr.hip.hiprand wwr.hip.hiprand_kernel)
+  set(_gpu_test_raw_tx wwr.hip.roctx)
 endif()
 
 set(GPU_TEST_LIBRARIES
@@ -56,21 +56,21 @@ set(_gpu_test_targets "")
 foreach(_lib IN LISTS GPU_TEST_LIBRARIES)
   wwr_add_cxx_module_library(
     NAME
-    gpumod.test.gpu.${_lib}
+    wwr.test.gpu.${_lib}
     IMPORT_STD
     NO_CUDA_DEVICE_LINKING
     PRIMARY_INTERFACE
     ${_lib}.cppm
     LINK_PUBLIC
-    gpumod.${_lib}
+    wwr.${_lib}
     ${_gpu_test_raw_${_lib}}
     LINK_PRIVATE
-    gpumod_backend
+    wwr_backend
     INCLUDE_DIRS_PRIVATE
     ${CMAKE_SOURCE_DIR}
   )
-  add_dependencies(compile_time_tests gpumod.test.gpu.${_lib})
-  list(APPEND _gpu_test_targets gpumod.test.gpu.${_lib})
+  add_dependencies(compile_time_tests wwr.test.gpu.${_lib})
+  list(APPEND _gpu_test_targets wwr.test.gpu.${_lib})
 endforeach()
 
 wwr_add_test_executable(
@@ -95,18 +95,18 @@ set_tests_properties(gpu_compile_tests PROPERTIES LABELS compile_time)
 # claim, so the test is a device TU. Building it is the assertion: no ctest
 # entry, no launch (runtime validation is the warp-reduction example's, per
 # issue #37); if the header fails on a backend, that backend's compile-time tier
-# goes red. Its only include path is gpumod.device, which carries the
+# goes red. Its only include path is wwr.device, which carries the
 # header.
 wwr_add_gpu_device_library(
   NAME
-  gpumod.test.gpu.cooperative_groups.device
+  wwr.test.gpu.cooperative_groups.device
   SOURCES
   cooperative_groups.cu
   LINK_PRIVATE
-  gpumod.device
+  wwr.device
 )
 add_dependencies(
-  compile_time_tests gpumod.test.gpu.cooperative_groups.device
+  compile_time_tests wwr.test.gpu.cooperative_groups.device
 )
 
 # complex.cuh, fp16.cuh and bf16.cuh are the same shape of test for the same
@@ -115,37 +115,37 @@ add_dependencies(
 # every gpuC* / conversion resolving on both backends through one include
 # switch, plus (for complex) the §3 aggregate vs class divergence the header is
 # built around -- is a device-compile claim. Building them is the assertion; no
-# ctest entry, no launch. Reached through gpumod.device, the same include path a
+# ctest entry, no launch. Reached through wwr.device, the same include path a
 # real device consumer uses.
 wwr_add_gpu_device_library(
   NAME
-  gpumod.test.gpu.complex.device
+  wwr.test.gpu.complex.device
   SOURCES
   complex.cu
   LINK_PRIVATE
-  gpumod.device
+  wwr.device
 )
-add_dependencies(compile_time_tests gpumod.test.gpu.complex.device)
+add_dependencies(compile_time_tests wwr.test.gpu.complex.device)
 
 wwr_add_gpu_device_library(
   NAME
-  gpumod.test.gpu.fp16.device
+  wwr.test.gpu.fp16.device
   SOURCES
   fp16.cu
   LINK_PRIVATE
-  gpumod.device
+  wwr.device
 )
-add_dependencies(compile_time_tests gpumod.test.gpu.fp16.device)
+add_dependencies(compile_time_tests wwr.test.gpu.fp16.device)
 
 wwr_add_gpu_device_library(
   NAME
-  gpumod.test.gpu.bf16.device
+  wwr.test.gpu.bf16.device
   SOURCES
   bf16.cu
   LINK_PRIVATE
-  gpumod.device
+  wwr.device
 )
-add_dependencies(compile_time_tests gpumod.test.gpu.bf16.device)
+add_dependencies(compile_time_tests wwr.test.gpu.bf16.device)
 
 # wmma.cu is cooperative_groups.cu's shape with a weaker starting guarantee.
 # wmma.cuh exports one name -- the wwr::gpuwmma alias -- so there is still
@@ -156,18 +156,18 @@ add_dependencies(compile_time_tests gpumod.test.gpu.bf16.device)
 # rocWMMA, which merely agrees on the spellings -- so the claim that they stay
 # interchangeable is worth compiling on both backends rather than assuming.
 # Building it is the assertion: no ctest entry, no launch (WMMA is arch-gated
-# and this tier configures with no device). Its include path is gpumod.device,
+# and this tier configures with no device). Its include path is wwr.device,
 # which carries wmma.cuh along with the fp16.cuh/bf16.cuh it names element
 # types from.
 wwr_add_gpu_device_library(
   NAME
-  gpumod.test.gpu.wmma.device
+  wwr.test.gpu.wmma.device
   SOURCES
   wmma.cu
   LINK_PRIVATE
-  gpumod.device
+  wwr.device
 )
-add_dependencies(compile_time_tests gpumod.test.gpu.wmma.device)
+add_dependencies(compile_time_tests wwr.test.gpu.wmma.device)
 
 # atomics.cu tests the portable common atomics, which gpumod does NOT wrap:
 # atomicAdd/CAS/... are spelled identically on both backends and ride the vendor
@@ -175,18 +175,18 @@ add_dependencies(compile_time_tests gpumod.test.gpu.wmma.device)
 # to test. The claim it CAN break -- every operation resolving for the common
 # widths under BOTH front ends, nvcc being the permissive one -- is a
 # device-compile claim, so this is a device TU. Building it is the assertion; no
-# ctest entry, no launch. Reached through gpumod.device, which carries
+# ctest entry, no launch. Reached through wwr.device, which carries
 # runtime.cuh and the runtime header.
 wwr_add_gpu_device_library(
   NAME
-  gpumod.test.gpu.atomics.device
+  wwr.test.gpu.atomics.device
   SOURCES
   atomics.cu
   LINK_PRIVATE
-  gpumod.device
+  wwr.device
 )
 add_dependencies(
-  compile_time_tests gpumod.test.gpu.atomics.device
+  compile_time_tests wwr.test.gpu.atomics.device
 )
 
 # Guard: every gpu* function alias in the gpu* layer is independently verified
@@ -235,16 +235,16 @@ add_dependencies(compile_time_tests gpu_alias_coverage)
 if(NOT WWR_COMPILE_TIME_ONLY)
   wwr_add_gtest_executable(
     NAME
-    gpumod.test.gpu.conversions
+    wwr.test.gpu.conversions
     SOURCES
     conversions.cpp
     LINK
-    gpumod.fp16
-    gpumod.bf16
+    wwr.fp16
+    wwr.bf16
   )
   wwr_add_gtest_suite_tests(
     TARGET
-    gpumod.test.gpu.conversions
+    wwr.test.gpu.conversions
     SUITES
     HalfConversion
     Bfloat16Conversion

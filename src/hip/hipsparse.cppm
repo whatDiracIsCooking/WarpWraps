@@ -2,7 +2,7 @@
  * @file hipsparse.cppm
  * @brief hipSPARSE API module wrapper for gpumod project
  *
- * Wraps hipsparse/hipsparse.h. CUDA counterpart: gpumod.cuda.cusparse.
+ * Wraps hipsparse/hipsparse.h. CUDA counterpart: wwr.cuda.cusparse.
  *
  * hipsparse.h is an umbrella of #includes -- types, auxiliary, generic, and
  * one header per routine family under internal/{level1,level2,level3,extra,
@@ -19,7 +19,7 @@
  * not have. Not stubbed, simply not exported.
  *
  * Usage:
- *   import gpumod.hip.hipsparse;
+ *   import wwr.hip.hipsparse;
  */
 
 module;
@@ -34,7 +34,7 @@ module;
 #include <array>
 #include <hipsparse/hipsparse.h>
 
-export module gpumod.hip.hipsparse;
+export module wwr.hip.hipsparse;
 
 import std;
 

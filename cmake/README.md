@@ -15,8 +15,8 @@ cmake/
 ├── wwr_add_interface_library.cmake                   # Macro for creating INTERFACE libraries
 ├── wwr_add_test_executable.cmake                     # Plain (non-GoogleTest) ctest-registered executables
 ├── wwr_check_gtest_suites.cmake                      # Script mode: fails when a suite in the binary is missing from the CMake list
-├── gpumod_install.cmake                                 # Install rules, the export set and the CMake package
-├── gpumodConfig.cmake.in                                # Template for the installed gpumodConfig.cmake
+├── wwr_install.cmake                                 # Install rules, the export set and the CMake package
+├── wwrConfig.cmake.in                                # Template for the installed wwrConfig.cmake
 └── wwr_internal_helpers.cmake                        # Internal helper functions (alias creation, include dirs, linking)
 ```
 
@@ -82,7 +82,7 @@ wwr_add_gpu_device_library(
 
 ### What it deliberately does not take
 
-No `LINK_PUBLIC`, no `INCLUDE_DIRS_*`, no separable-compilation switch — each absence is a project invariant, not an oversight. Links are PRIVATE always (a device library's usage requirements are device-code include paths and `-x hip`; nothing linking it should inherit either), include directories arrive by linking `gpumod.extension.parallel_for`, and separable compilation is OFF on every target in this tree. The macro's own header comment has the reasoning. Add a parameter when a real call site needs one.
+No `LINK_PUBLIC`, no `INCLUDE_DIRS_*`, no separable-compilation switch — each absence is a project invariant, not an oversight. Links are PRIVATE always (a device library's usage requirements are device-code include paths and `-x hip`; nothing linking it should inherit either), include directories arrive by linking `wwr.extension.parallel_for`, and separable compilation is OFF on every target in this tree. The macro's own header comment has the reasoning. Add a parameter when a real call site needs one.
 
 It also creates no `::` alias, unlike the two macros below — its call site had none before the macro existed.
 
@@ -90,9 +90,9 @@ It also creates no `::` alias, unlike the two macros below — its call site had
 
 ```cmake
 wwr_add_gpu_device_library(
-  NAME gpumod.extension.random_normal.device
+  NAME wwr.extension.random_normal.device
   SOURCES random_normal.cu
-  LINK_PRIVATE gpumod.extension.parallel_for gpumod.rand.device)
+  LINK_PRIVATE wwr.extension.parallel_for wwr.rand.device)
 ```
 
 > This replaced `WWR_ADD_CUDA_LIBRARY` (removed), a CUDA-only macro inherited from the template this repo grew from. It could not serve either call site — no HIP branch at all, and `CUDA_SEPARABLE_COMPILATION ON` — which is why it had no call sites while `rand` and `fill` hand-rolled 25 identical lines each.
@@ -127,7 +127,7 @@ WWR_ADD_INTERFACE_LIBRARY(
 
 ```cmake
 WWR_ADD_INTERFACE_LIBRARY(
-  NAME gpumod.core.parallel_for)
+  NAME wwr.core.parallel_for)
 ```
 
 ---
@@ -185,8 +185,8 @@ WWR_ADD_CXX_MODULE_LIBRARY(
 
 ## Install and the CMake package
 
-`gpumod_install.cmake` emits every install rule and generates the package that
-`find_package(gpumod)` finds. The top-level `CMakeLists.txt` calls
+`wwr_install.cmake` emits every install rule and generates the package that
+`find_package(wwr)` finds. The top-level `CMakeLists.txt` calls
 `wwr_install_package()` once, last, when `WWR_INSTALL` is on — which it is
 for a top-level build and is not when gpumod is embedded via `add_subdirectory`
 or `FetchContent`.
@@ -225,7 +225,7 @@ make the force survive `install(EXPORT)`:
   hand-written form is copied into the export file unevaluated, and
   `$<TARGET_FILE:>` of a target the consumer does not have resolves to nothing.
 - Spell the target **both** ways — `$<BUILD_INTERFACE:…tgt>` and
-  `$<INSTALL_INTERFACE:…gpumod::tgt>`. CMake does not namespace the name inside
+  `$<INSTALL_INTERFACE:…wwr::tgt>`. CMake does not namespace the name inside
   `LINK_LIBRARY` when it writes the export (it does for ordinary link entries), so
   the bare name matches nothing in the consumer and degrades to a plain `-ltgt`
   the linker cannot find.

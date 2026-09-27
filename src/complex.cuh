@@ -5,7 +5,7 @@
  * The device-compile counterpart to complex.cppm: gpuFloatComplex /
  * gpuDoubleComplex / gpuComplex, make_gpu*Complex, the gpuC* arithmetic and
  * accessors, and the gpuComplexFloatToDouble / gpuComplexDoubleToFloat precision
- * conversions. Link gpumod.device. Companion to fp16.cuh and bf16.cuh.
+ * conversions. Link wwr.device. Companion to fp16.cuh and bf16.cuh.
  *
  * The types are the SAME ones complex.cppm exports under these names, so a
  * host-allocated buffer and a kernel parameter named here agree, and an extern

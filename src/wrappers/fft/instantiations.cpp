@@ -7,9 +7,9 @@
  * `extern template` declarations live in exec.cppm, next to each function.
  */
 
-module gpumod.wrappers.fft;
+module wwr.wrappers.fft;
 
-import gpumod.fft;
+import wwr.fft;
 
 namespace wwr {
 

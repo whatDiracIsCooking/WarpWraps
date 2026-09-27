@@ -5,13 +5,13 @@
  * Provides StreamEventPair class bundling a GpuStream and GpuEvent together.
  */
 
-export module gpumod.extension.runtime:stream_event_pair;
+export module wwr.extension.runtime:stream_event_pair;
 
 import :gpu_stream;
 import :gpu_event;
 import :convenience_runtime;
-import gpumod.extension.common;
-import gpumod.runtime_api;
+import wwr.extension.common;
+import wwr.runtime_api;
 import std;
 
 export namespace wwr::extension {

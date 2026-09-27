@@ -1,4 +1,4 @@
-# gpumod.extension.solver RAII handle tests
+# wwr.extension.solver RAII handle tests
 #
 # Runtime only: gpusolverDnCreate needs a live GPU context. Same shape as
 # test/extension/blas -- one plain .cpp, one ctest entry per suite. Two suites
@@ -10,8 +10,8 @@ wwr_add_gtest_executable(
   SOURCES
   handle_tests.cpp
   LINK
-  gpumod.extension.solver
-  gpumod.extension.handle
+  wwr.extension.solver
+  wwr.extension.handle
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test file,

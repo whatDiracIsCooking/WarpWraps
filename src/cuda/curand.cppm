@@ -7,7 +7,7 @@
  * and random number generation.
  *
  * Usage:
- *   import gpumod.cuda.curand;
+ *   import wwr.cuda.curand;
  *
  * Note: This module exports cuRAND host API functions for random number generation.
  */
@@ -17,7 +17,7 @@ module;
 #include <curand.h>
 #include <curand_kernel.h>
 
-export module gpumod.cuda.curand;
+export module wwr.cuda.curand;
 
 // ========================================================================
 // Export all cuRAND types and functions in wwr namespace

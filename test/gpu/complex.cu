@@ -5,7 +5,7 @@
 // selected backend IS the assertion. The kernels are never launched: every name
 // below just has to compile through the one include switch on both backends
 // (nvcc and clang's -x hip disagree on more than the include path). Reached
-// through gpumod.device, exactly as a real device consumer reaches the
+// through wwr.device, exactly as a real device consumer reaches the
 // header.
 //
 // The static_asserts turn the §3 divergence complex.cuh is built around into a

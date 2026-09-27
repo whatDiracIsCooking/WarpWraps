@@ -1,16 +1,16 @@
-// hipsolver.cppm - Compile-time tests for gpumod.hip.hipsolver
+// hipsolver.cppm - Compile-time tests for wwr.hip.hipsolver
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hipsolver;
+export module wwr.test.hip.hipsolver;
 
 import std;
-import gpumod.hip.hipsolver;
+import wwr.hip.hipsolver;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hipsolver
+// Compile-time tests for wwr.hip.hipsolver
 //
 // Covers both the dense (hipsolverDn*) and narrow sparse (hipsolverSp*)
 // surface this one module wraps -- see src/hip/hipsolver.cppm and

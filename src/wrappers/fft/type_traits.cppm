@@ -2,18 +2,18 @@
  * @file type_traits.cppm
  * @brief Type system for GPU FFT operations
  *
- * Re-exports gpumod.wrappers.common (the real_fp/complex_fp concepts and
+ * Re-exports wwr.wrappers.common (the real_fp/complex_fp concepts and
  * type mappings, already backend-neutral over src's gpu* types) and maps
  * an FFT real precision to the FFT library's own complex element type.
  *
  * Usage:
- *   import gpumod.wrappers.fft;
+ *   import wwr.wrappers.fft;
  */
 
-export module gpumod.wrappers.fft:type_traits;
+export module wwr.wrappers.fft:type_traits;
 
-export import gpumod.wrappers.common;
-import gpumod.fft;
+export import wwr.wrappers.common;
+import wwr.fft;
 import std;
 
 export namespace wwr {

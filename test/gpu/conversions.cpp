@@ -1,5 +1,5 @@
 // conversions.cpp - host runtime tests for the fp16 / bf16 host conversion
-// wrappers (gpumod.fp16, gpumod.bf16).
+// wrappers (wwr.fp16, wwr.bf16).
 //
 // These wrappers run on the CPU -- unlike the __device__ conversions in
 // fp16.cuh / bf16.cuh, which fp16.cu / bf16.cu prove by compiling -- so they can
@@ -15,8 +15,8 @@
 // KeepsHalfPrecision and NarrowsBelowBfloat16Precision would flip.
 #include <gtest/gtest.h>
 
-import gpumod.fp16;
-import gpumod.bf16;
+import wwr.fp16;
+import wwr.bf16;
 
 namespace {
 

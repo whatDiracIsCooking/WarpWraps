@@ -1,16 +1,16 @@
-// hip_runtime_api.cppm - Compile-time tests for gpumod.hip.hip_runtime_api
+// hip_runtime_api.cppm - Compile-time tests for wwr.hip.hip_runtime_api
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_runtime_api;
+export module wwr.test.hip.hip_runtime_api;
 
 import std;
-import gpumod.hip.hip_runtime_api;
+import wwr.hip.hip_runtime_api;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_runtime_api
+// Compile-time tests for wwr.hip.hip_runtime_api
 //
 // The module is pure re-export (using declarations + constexpr flag values +
 // a handful of one-line forwarding functions -- see hip_runtime_api.cppm's

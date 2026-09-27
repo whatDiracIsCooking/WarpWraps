@@ -4,7 +4,7 @@
 // -- the test is a device TU and building it under the selected backend IS the
 // assertion. The kernel is never launched: every name below just has to compile
 // through the one include switch on both backends (nvcc and clang's -x hip
-// disagree on more than the include path). Reached through gpumod.device,
+// disagree on more than the include path). Reached through wwr.device,
 // exactly as a real device consumer reaches the header.
 #include "fp16.cuh"
 

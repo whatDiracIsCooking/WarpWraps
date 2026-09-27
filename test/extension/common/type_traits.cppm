@@ -1,4 +1,4 @@
-// type_traits.cppm - Compile-time tests for gpumod.extension.common's
+// type_traits.cppm - Compile-time tests for wwr.extension.common's
 // error/handle layer
 //
 // static_asserts on the error policy and RAII handle base (error_code,
@@ -6,11 +6,11 @@
 // test: this file is a compile_time_tests dependency (see CMakeLists.txt). The
 // fp/int concept and type-map asserts live in test/wrappers/common.
 
-export module gpumod.test.extension.common_error_handle;
+export module wwr.test.extension.common_error_handle;
 
 import std;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.extension.common;
+import wwr.extension.handle;
 
 namespace wwr::extension::test {
 

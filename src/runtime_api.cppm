@@ -11,7 +11,7 @@
  * beyond the cuda/hip prefix gets its own explicit #if block.
  *
  * Usage:
- *   import gpumod.runtime_api;
+ *   import wwr.runtime_api;
  *
  *   gpuStream_t stream;
  *   if (gpuStreamCreate(&stream) != gpuSuccess) { ... }
@@ -26,12 +26,12 @@ module;
 #define WWR_RT_VALUE(x) WWR_VALUE(gpu##x, cuda##x, hip##x)
 #define WWR_RT_FUNCTION(x) WWR_FUNCTION(gpu##x, cuda##x, hip##x)
 
-export module gpumod.runtime_api;
+export module wwr.runtime_api;
 
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cuda_runtime_api;
+import wwr.cuda.cuda_runtime_api;
 #else
-import gpumod.hip.hip_runtime_api;
+import wwr.hip.hip_runtime_api;
 #endif
 import std;
 

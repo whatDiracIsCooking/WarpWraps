@@ -12,10 +12,10 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.runtime_api;
-import gpumod.extension.common;
-import gpumod.extension.handle;
-import gpumod.extension.runtime;
+import wwr.runtime_api;
+import wwr.extension.common;
+import wwr.extension.handle;
+import wwr.extension.runtime;
 
 namespace wwr::extension::test {
 
@@ -552,7 +552,7 @@ TEST(StreamEventPairTests, MoveAssignment) {
 // DeviceScope Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //
-// DeviceScope (gpumod.extension.common) makes a device current for its lifetime
+// DeviceScope (wwr.extension.common) makes a device current for its lifetime
 // and restores the previously-current device on destruction. These check the
 // three parts of that contract: the original device is recorded, the target
 // becomes current, and the original is restored. Device 0 always exists, so the

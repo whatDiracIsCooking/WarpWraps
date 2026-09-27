@@ -1,16 +1,16 @@
-// hip_fp16.cppm - Compile-time tests for gpumod.hip.hip_fp16
+// hip_fp16.cppm - Compile-time tests for wwr.hip.hip_fp16
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_fp16;
+export module wwr.test.hip.hip_fp16;
 
 import std;
-import gpumod.hip.hip_fp16;
+import wwr.hip.hip_fp16;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_fp16
+// Compile-time tests for wwr.hip.hip_fp16
 //
 // The module re-exports __half/__half2 by `using` declaration only. As
 // src/hip/hip_fp16.cppm's doc comment explains, this project's plain C++23

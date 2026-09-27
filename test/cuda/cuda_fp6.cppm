@@ -1,16 +1,16 @@
-// cuda_fp6.cppm - Compile-time tests for gpumod.cuda.cuda_fp6
+// cuda_fp6.cppm - Compile-time tests for wwr.cuda.cuda_fp6
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cuda_fp6;
+export module wwr.test.cuda.cuda_fp6;
 
 import std;
-import gpumod.cuda.cuda_fp6;
+import wwr.cuda.cuda_fp6;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cuda_fp6
+// Compile-time tests for wwr.cuda.cuda_fp6
 //
 // We verify at compile-time that:
 //   1. Storage typedef sizes match documented byte widths

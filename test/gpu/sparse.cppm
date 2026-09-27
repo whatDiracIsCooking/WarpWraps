@@ -1,4 +1,4 @@
-// sparse.cppm - Compile-time tests for gpumod.sparse
+// sparse.cppm - Compile-time tests for wwr.sparse
 //
 // Types, constants, and the handle/stream/pointer-mode/error-string and
 // matrix-descriptor functions are each checked against the backend's own entity
@@ -18,15 +18,15 @@ module;
 
 #include "gpu_check_macros.h"
 
-export module gpumod.test.gpu.sparse;
+export module wwr.test.gpu.sparse;
 
 import std;
-import gpumod.sparse;
-import gpumod.complex;
+import wwr.sparse;
+import wwr.complex;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cusparse;
+import wwr.cuda.cusparse;
 #else
-import gpumod.hip.hipsparse;
+import wwr.hip.hipsparse;
 #endif
 
 namespace wwr::test {

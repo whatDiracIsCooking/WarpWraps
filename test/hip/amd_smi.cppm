@@ -1,16 +1,16 @@
-// amd_smi.cppm - Compile-time tests for gpumod.hip.amd_smi
+// amd_smi.cppm - Compile-time tests for wwr.hip.amd_smi
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.amd_smi;
+export module wwr.test.hip.amd_smi;
 
 import std;
-import gpumod.hip.amd_smi;
+import wwr.hip.amd_smi;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.amd_smi
+// Compile-time tests for wwr.hip.amd_smi
 //
 // The module is pure re-export (using declarations only -- amdsmi.h is a plain
 // extern "C" API, no convenience-template collisions like hip_runtime_api.h).

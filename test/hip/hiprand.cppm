@@ -1,16 +1,16 @@
-// hiprand.cppm - Compile-time tests for gpumod.hip.hiprand
+// hiprand.cppm - Compile-time tests for wwr.hip.hiprand
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hiprand;
+export module wwr.test.hip.hiprand;
 
 import std;
-import gpumod.hip.hiprand;
+import wwr.hip.hiprand;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hiprand
+// Compile-time tests for wwr.hip.hiprand
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 namespace wwr::hip::test {

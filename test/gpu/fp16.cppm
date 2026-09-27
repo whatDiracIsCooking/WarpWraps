@@ -1,4 +1,4 @@
-// fp16.cppm - Compile-time tests for gpumod.fp16
+// fp16.cppm - Compile-time tests for wwr.fp16
 //
 // gpuHalf is the backend's own __half. See gpu_check_macros.h.
 
@@ -6,14 +6,14 @@ module;
 
 #include "gpu_check_macros.h"
 
-export module gpumod.test.gpu.fp16;
+export module wwr.test.gpu.fp16;
 
 import std;
-import gpumod.fp16;
+import wwr.fp16;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cuda_fp16;
+import wwr.cuda.cuda_fp16;
 #else
-import gpumod.hip.hip_fp16;
+import wwr.hip.hip_fp16;
 #endif
 
 namespace wwr::test {

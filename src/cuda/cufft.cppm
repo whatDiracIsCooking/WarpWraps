@@ -1,12 +1,12 @@
 /**
  * @file cufft.cppm
- * @brief Primary interface for gpumod.cuda.cufft
+ * @brief Primary interface for wwr.cuda.cufft
  *
  * This module wraps the native cuFFT API and exports types, constants,
  * and functions for cuFFT library management and FFT operations.
  *
  * Usage:
- *   import gpumod.cuda.cufft;
+ *   import wwr.cuda.cufft;
  */
 
 module;
@@ -28,7 +28,7 @@ static_assert(CUFFT_INVERSE == 1, "CUFFT_INVERSE value mismatch");
 #undef CUFFT_FORWARD
 #undef CUFFT_INVERSE
 
-export module gpumod.cuda.cufft;
+export module wwr.cuda.cufft;
 
 // ========================================================================
 // Export all cuFFT types and functions in wwr namespace

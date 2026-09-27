@@ -15,37 +15,37 @@
 #
 # NOTE: this replaced src/cuda/extension/parallel_for's CUDA-only,
 # Thrust-based `parallel_for` target (removed; last at tag `pre-split`). It is
-# named gpumod.extension.parallel_for, not bare `parallel_for`, because
+# named wwr.extension.parallel_for, not bare `parallel_for`, because
 # the two targets once coexisted in one CMake run and CMake target names are
 # global.
 
-add_library(gpumod.extension.parallel_for INTERFACE)
+add_library(wwr.extension.parallel_for INTERFACE)
 
 # The include root is src/ itself, not this directory: parallel_for.cuh is
 # reached as "extension/parallel_for/parallel_for.cuh" and pulls in the
 # src/-root header "runtime.cuh" alongside it. The installed tree mirrors src/
-# under include/gpumod/ for exactly that reason, so the spelling resolves
+# under include/wwr/ for exactly that reason, so the spelling resolves
 # unchanged
 # after install.
 target_include_directories(
-  gpumod.extension.parallel_for
+  wwr.extension.parallel_for
   INTERFACE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
             $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )
 
-# gpumod.device (src/CMakeLists.txt) carries runtime.cuh's
+# wwr.device (src/CMakeLists.txt) carries runtime.cuh's
 # include path plus the runtime-only libs (CUDA::cudart / hip::host, never
 # hip::device -- see that target's own comment). A real device-KERNEL
 # consumer of THIS library still links hip::device itself, scoped to a small
 # dedicated library holding only its own device-kernel source -- see
 # cmake/wwr_add_gpu_device_library.cmake, which is that pattern, and its
 # call sites in src/extension/init_state and src/extension/random_normal.
-target_link_libraries(gpumod.extension.parallel_for INTERFACE gpumod.device)
+target_link_libraries(wwr.extension.parallel_for INTERFACE wwr.device)
 
-# gpumod.extension.bridge carries the same src/ include root, named explicitly
+# wwr.extension.bridge carries the same src/ include root, named explicitly
 # because parallel_for.cuh includes "extension/bridge/gpu_stream_bridge.h": the
 # dependency on the bridge headers is real and should be declared, not left to
-# ride gpumod.device's include path.
+# ride wwr.device's include path.
 target_link_libraries(
-  gpumod.extension.parallel_for INTERFACE gpumod.extension.bridge
+  wwr.extension.parallel_for INTERFACE wwr.extension.bridge
 )

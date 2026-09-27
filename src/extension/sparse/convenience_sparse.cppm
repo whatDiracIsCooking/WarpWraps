@@ -7,12 +7,12 @@
  * bindings; alternative-policy aliases belong here too.
  */
 
-export module gpumod.extension.sparse:convenience_sparse;
+export module wwr.extension.sparse:convenience_sparse;
 
 import :sparse_handle;
-import gpumod.sparse;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.sparse;
+import wwr.extension.common;
+import wwr.extension.handle;
 
 export namespace wwr::extension {
 

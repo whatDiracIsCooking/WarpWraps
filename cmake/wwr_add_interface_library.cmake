@@ -9,7 +9,7 @@
 # Macro to create an INTERFACE library with standard boilerplate. Usage:
 # WWR_ADD_INTERFACE_LIBRARY( NAME library_name )
 #
-# Parameters: NAME - Target name (e.g. gpumod.core.parallel_for)
+# Parameters: NAME - Target name (e.g. wwr.core.parallel_for)
 macro(WWR_ADD_INTERFACE_LIBRARY)
   set(_single_opts "NAME")
   set(_multi_opts "LINK_PUBLIC")

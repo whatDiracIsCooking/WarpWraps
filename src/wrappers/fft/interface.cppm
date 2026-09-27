@@ -1,6 +1,6 @@
 /**
  * @file interface.cppm
- * @brief Primary interface for gpumod.wrappers.fft
+ * @brief Primary interface for wwr.wrappers.fft
  *
  * This module provides type-safe C++ wrappers for GPU FFT operations (cuFFT or
  * hipFFT, per WWR_GPU_BACKEND). It aggregates:
@@ -8,13 +8,13 @@
  * - :exec - Type-safe execution wrappers (exec_c2c / exec_r2c / exec_c2r)
  *
  * Usage:
- *   import gpumod.wrappers.fft;
+ *   import wwr.wrappers.fft;
  *   using namespace wwr;
  */
 
 module;
 
-export module gpumod.wrappers.fft;
+export module wwr.wrappers.fft;
 
 import std;
 

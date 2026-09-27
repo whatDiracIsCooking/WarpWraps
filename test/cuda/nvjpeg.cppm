@@ -1,16 +1,16 @@
-// nvjpeg.cppm - Compile-time tests for gpumod.cuda.nvjpeg
+// nvjpeg.cppm - Compile-time tests for wwr.cuda.nvjpeg
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.nvjpeg;
+export module wwr.test.cuda.nvjpeg;
 
 import std;
-import gpumod.cuda.nvjpeg;
+import wwr.cuda.nvjpeg;
 
 // ========================================================================
-// Compile-time tests for gpumod.cuda.nvjpeg
+// Compile-time tests for wwr.cuda.nvjpeg
 //
 // Verifies at compile-time that:
 //   - Enum types satisfy std::is_enum_v

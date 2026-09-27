@@ -1,16 +1,16 @@
-// nvJitLink.cppm - Compile-time tests for gpumod.cuda.nvJitLink
+// nvJitLink.cppm - Compile-time tests for wwr.cuda.nvJitLink
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.nvJitLink;
+export module wwr.test.cuda.nvJitLink;
 
 import std;
-import gpumod.cuda.nvJitLink;
+import wwr.cuda.nvJitLink;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.nvJitLink
+// Compile-time tests for wwr.cuda.nvJitLink
 //
 // The module is a pure re-export (using declarations).
 // We verify at compile-time that:

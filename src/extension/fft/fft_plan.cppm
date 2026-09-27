@@ -9,12 +9,12 @@
  * exec_c2c / exec_r2c / exec_c2r wrappers.
  */
 
-export module gpumod.extension.fft:fft_plan;
+export module wwr.extension.fft:fft_plan;
 
 import :fft_error;
-import gpumod.fft;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.fft;
+import wwr.extension.common;
+import wwr.extension.handle;
 import std;
 
 export namespace wwr::extension {

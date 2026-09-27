@@ -7,12 +7,12 @@
  * alternative-policy aliases (e.g. a throwing or logging policy) belong here too.
  */
 
-export module gpumod.extension.blas:convenience_blas;
+export module wwr.extension.blas:convenience_blas;
 
 import :blas_handle;
-import gpumod.blas;
-import gpumod.extension.common;
-import gpumod.extension.handle;
+import wwr.blas;
+import wwr.extension.common;
+import wwr.extension.handle;
 
 export namespace wwr::extension {
 

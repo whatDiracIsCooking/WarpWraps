@@ -9,17 +9,17 @@
  * - Triangular format conversions
  *
  * Usage:
- *   import gpumod.wrappers.blas;
+ *   import wwr.wrappers.blas;
  */
 
 module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.blas:extension;
+export module wwr.wrappers.blas:extension;
 
-import gpumod.blas;
-import gpumod.complex;
+import wwr.blas;
+import wwr.complex;
 import :type_traits;
 import std;
 

@@ -1,6 +1,6 @@
 /**
  * @file interface.cppm
- * @brief Primary interface for gpumod.extension.runtime
+ * @brief Primary interface for wwr.extension.runtime
  *
  * This module provides GPU runtime API extensions (backend-neutral) including:
  * - :gpu_stream - RAII wrapper for GPU streams
@@ -12,7 +12,7 @@
  * - :convenience_runtime - Default-policy aliases (GpuStream, GpuEvent, GpuMemPool, GpuGraph, GpuGraphExec, and views)
  *
  * Usage:
- *   import gpumod.extension.runtime;
+ *   import wwr.extension.runtime;
  *   using namespace wwr::extension;
  *
  *   GpuStream stream;
@@ -20,7 +20,7 @@
  *   GpuMemPool mem_pool;
  */
 
-export module gpumod.extension.runtime;
+export module wwr.extension.runtime;
 
 export import :gpu_stream;
 export import :gpu_event;

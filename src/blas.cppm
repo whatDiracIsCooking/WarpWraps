@@ -10,7 +10,7 @@
  * Only the names src/wrappers/blas uses are listed, plus the handle, stream
  * and pointer-mode calls a caller needs. cuBLAS-only functions (gemm3m,
  * gemmGroupedBatched, matinvBatched, tpttr, trttp) are absent; reach those
- * through gpumod.cuda.cublas_v2.
+ * through wwr.cuda.cublas_v2.
  *
  * Two backend differences are resolved here, not above: hipBLAS's one
  * status-to-string function backs both gpublasGetStatusName and
@@ -19,7 +19,7 @@
  * See docs/architecture.md, section 5.
  *
  * Usage:
- *   import gpumod.blas;
+ *   import wwr.blas;
  *
  *   gpublasHandle_t handle;
  *   gpublasCreate(&handle);
@@ -29,13 +29,13 @@ module;
 
 #include "gpu_backend.h"
 
-export module gpumod.blas;
+export module wwr.blas;
 
-import gpumod.complex;
+import wwr.complex;
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cublas_v2;
+import wwr.cuda.cublas_v2;
 #else
-import gpumod.hip.hipblas;
+import wwr.hip.hipblas;
 #endif
 
 export namespace wwr {

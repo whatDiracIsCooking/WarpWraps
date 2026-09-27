@@ -1,16 +1,16 @@
-// cufftXt.cppm - Compile-time tests for gpumod.cuda.cufftXt
+// cufftXt.cppm - Compile-time tests for wwr.cuda.cufftXt
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cufftXt;
+export module wwr.test.cuda.cufftXt;
 
 import std;
-import gpumod.cuda.cufftXt;
+import wwr.cuda.cufftXt;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cufftXt
+// Compile-time tests for wwr.cuda.cufftXt
 //
 // The module is a pure re-export (using declarations only; no macros are
 // used as call-site flags in cufftXt.h so no constexpr replacements are

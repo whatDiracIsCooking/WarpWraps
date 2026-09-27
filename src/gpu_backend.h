@@ -7,7 +7,7 @@
  * picks which backend's raw module those names refer to.
  *
  * Exactly one of WWR_GPU_BACKEND_CUDA / WWR_GPU_BACKEND_HIP is defined by
- * the gpumod_backend CMake target, PRIVATE to the src targets. Macros
+ * the wwr_backend CMake target, PRIVATE to the src targets. Macros
  * defined in a module unit do not leak to importers, so none of these are
  * visible outside src.
  *
@@ -25,7 +25,7 @@
 
 #if defined(WWR_GPU_BACKEND_CUDA) == defined(WWR_GPU_BACKEND_HIP)
 #error                                                                                             \
-    "Define exactly one of WWR_GPU_BACKEND_CUDA or WWR_GPU_BACKEND_HIP (link gpumod_backend)"
+    "Define exactly one of WWR_GPU_BACKEND_CUDA or WWR_GPU_BACKEND_HIP (link wwr_backend)"
 #endif
 
 // The raw CUDA modules (src/cuda) export into wwr::cuda, the raw HIP

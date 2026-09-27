@@ -4,7 +4,7 @@
  *
  * Wraps hip/hiprtc.h for C++23 module-based code: types, constants and
  * functions for compiling HIP source into code objects at runtime. CUDA
- * counterpart: gpumod.cuda.nvrtc. Like nvrtc.h it is declarations-only, so
+ * counterpart: wwr.cuda.nvrtc. Like nvrtc.h it is declarations-only, so
  * this is a pure re-export via `using` declarations.
  *
  * This module links hiprtc::hiprtc, from ROCm's own hiprtc find_package
@@ -18,14 +18,14 @@
  * need the real name.
  *
  * Usage:
- *   import gpumod.hip.hiprtc;
+ *   import wwr.hip.hiprtc;
  */
 
 module;
 
 #include <hip/hiprtc.h>
 
-export module gpumod.hip.hiprtc;
+export module wwr.hip.hiprtc;
 
 export namespace wwr::hip {
 

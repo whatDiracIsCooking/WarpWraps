@@ -5,10 +5,10 @@
  * Provides specializations of error handling templates for gpusolverStatus_t.
  */
 
-export module gpumod.extension.solver:solver_error;
+export module wwr.extension.solver:solver_error;
 
-import gpumod.solver;
-import gpumod.extension.common;
+import wwr.solver;
+import wwr.extension.common;
 import std;
 
 export namespace wwr::extension {

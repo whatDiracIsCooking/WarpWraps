@@ -6,18 +6,18 @@
  * (pentadiagonal) direct solvers, each with its companion buffer-size query.
  *
  * Usage:
- *   import gpumod.wrappers.sparse;
+ *   import wwr.wrappers.sparse;
  */
 
 module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.sparse:solvers;
+export module wwr.wrappers.sparse:solvers;
 
-import gpumod.sparse;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.sparse;
+import wwr.complex;
+import wwr.wrappers.common;
 import std;
 
 export namespace wwr {

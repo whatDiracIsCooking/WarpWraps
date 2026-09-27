@@ -9,7 +9,7 @@
  * has no generic X-prefixed eigenvalue/SVD API at all; this legacy-typed API is
  * the only eigenvalue/SVD surface here. The modern-only cuSOLVER functions
  * (Xgeev, Xgesvd, Xgesvdp, Xgesvdr, Xsyevd, Xsyevdx, XsyevBatched) are not
- * wrapped -- call them through gpumod.cuda.cusolverDn.
+ * wrapped -- call them through wwr.cuda.cusolverDn.
  *
  * Legacy API characteristics:
  * - int for all dimensions, not int64_t
@@ -22,7 +22,7 @@
  * unmodified; they alias each backend's own name (see src/solver.cppm).
  *
  * Usage:
- *   import gpumod.wrappers.solver;
+ *   import wwr.wrappers.solver;
  *   using namespace wwr;
  *
  *   // Query workspace size
@@ -39,12 +39,12 @@ module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.solver:eigen_solver_legacy;
+export module wwr.wrappers.solver:eigen_solver_legacy;
 
-import gpumod.solver;
-import gpumod.blas;
-import gpumod.complex;
-import gpumod.wrappers.common;
+import wwr.solver;
+import wwr.blas;
+import wwr.complex;
+import wwr.wrappers.common;
 import std;
 
 export namespace wwr {

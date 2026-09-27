@@ -1,6 +1,6 @@
-// hip_fp6.cppm - Compile-time tests for gpumod.hip.hip_fp6
+// hip_fp6.cppm - Compile-time tests for wwr.hip.hip_fp6
 //
-// IMPORTANT: do not add `import gpumod.hip.hip_fp4;` to this file -- see
+// IMPORTANT: do not add `import wwr.hip.hip_fp4;` to this file -- see
 // src/hip/hip_fp6.cppm's file header and src/hip/README.md for why hip_fp4
 // and hip_fp6 must never land in the same translation unit.
 
@@ -8,13 +8,13 @@ module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hip_fp6;
+export module wwr.test.hip.hip_fp6;
 
 import std;
-import gpumod.hip.hip_fp6;
+import wwr.hip.hip_fp6;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hip_fp6
+// Compile-time tests for wwr.hip.hip_fp6
 //
 // Mirrors test/cuda/cuda_fp6.cppm. HIP's fp6 conversion functions take an
 // enum hipRoundMode parameter (not cudaRoundMode) -- see src/hip/hip_fp6.cppm.

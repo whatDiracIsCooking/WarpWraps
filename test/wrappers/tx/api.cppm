@@ -1,10 +1,10 @@
-// api.cppm - Compile-time tests for gpumod.wrappers.tx's API shape
+// api.cppm - Compile-time tests for wwr.wrappers.tx's API shape
 
-export module gpumod.test.wrappers.tx_api;
+export module wwr.test.wrappers.tx_api;
 
 import std;
-import gpumod.tx;
-import gpumod.wrappers.tx;
+import wwr.tx;
+import wwr.wrappers.tx;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // The tx wrapper is untyped -- no dispatch table, no type map -- so what it can

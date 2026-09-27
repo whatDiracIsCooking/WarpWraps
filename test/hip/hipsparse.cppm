@@ -1,16 +1,16 @@
-// hipsparse.cppm - Compile-time tests for gpumod.hip.hipsparse
+// hipsparse.cppm - Compile-time tests for wwr.hip.hipsparse
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.hip.hipsparse;
+export module wwr.test.hip.hipsparse;
 
 import std;
-import gpumod.hip.hipsparse;
+import wwr.hip.hipsparse;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.hip.hipsparse
+// Compile-time tests for wwr.hip.hipsparse
 //
 // WWR_LINK_CHECK covers all 546 HIPSPARSE_EXPORT functions declared across
 // hipsparse.h and its internal/{level1,level2,level3,extra,precond,

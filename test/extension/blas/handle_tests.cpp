@@ -1,4 +1,4 @@
-// handle_tests.cpp - RAII contract of gpumod.extension.blas's GpublasHandle
+// handle_tests.cpp - RAII contract of wwr.extension.blas's GpublasHandle
 //
 // GpublasHandle is a DeviceBoundHandle specialisation over gpublasHandle_t, so its
 // whole behaviour is that layer's: create a live cuBLAS/hipBLAS handle on the
@@ -16,9 +16,9 @@
 #include <gtest/gtest.h>
 
 import std;
-import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.handle; // DeviceBoundHandle(View)
-import gpumod.extension.blas; // re-exports gpumod.blas, so gpublasHandle_t is in scope
+import wwr.extension.common; // the error_policy concept, for the counting policy
+import wwr.extension.handle; // DeviceBoundHandle(View)
+import wwr.extension.blas; // re-exports wwr.blas, so gpublasHandle_t is in scope
 
 namespace wwr::extension::test {
 

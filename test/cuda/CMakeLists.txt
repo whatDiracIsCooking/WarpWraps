@@ -11,11 +11,11 @@
 # module compiled and the executable linked.
 # Expected exit code: 0
 #
-# Each CUDA library gets one gpumod.test.cuda.<name> module wrapping its
+# Each CUDA library gets one wwr.test.cuda.<name> module wrapping its
 # compile-time test (<name>.cppm) in an identical shape -- a foreach builds them
 # all rather than repeating a 10-line wwr_add_cxx_module_library() block for
 # each. cuda.cppm is the one irregular name: its module is cuda_h (matching
-# the wrapped module gpumod.cuda.cuda_h -- "cuda" on its own collides
+# the wrapped module wwr.cuda.cuda_h -- "cuda" on its own collides
 # with this project's own top-level namespace).
 
 set(CUDA_TEST_LIBRARIES
@@ -54,17 +54,17 @@ foreach(_lib IN LISTS CUDA_TEST_LIBRARIES)
 
   wwr_add_cxx_module_library(
     NAME
-    gpumod.test.cuda.${_lib}
+    wwr.test.cuda.${_lib}
     IMPORT_STD
     NO_CUDA_DEVICE_LINKING
     PRIMARY_INTERFACE
     ${_source}
     LINK_PUBLIC
-    gpumod.cuda.${_lib}
+    wwr.cuda.${_lib}
     INCLUDE_DIRS_PRIVATE
     ${CMAKE_SOURCE_DIR}
   )
-  add_dependencies(compile_time_tests gpumod.test.cuda.${_lib})
+  add_dependencies(compile_time_tests wwr.test.cuda.${_lib})
 endforeach()
 
 # Create test executable with main.cpp entry point.
@@ -78,7 +78,7 @@ endforeach()
 # CUDA/thrust); libstdc++ must be linked explicitly after all CUDA libraries
 set(_cuda_test_targets "")
 foreach(_lib IN LISTS CUDA_TEST_LIBRARIES)
-  list(APPEND _cuda_test_targets gpumod.test.cuda.${_lib})
+  list(APPEND _cuda_test_targets wwr.test.cuda.${_lib})
 endforeach()
 
 wwr_add_test_executable(

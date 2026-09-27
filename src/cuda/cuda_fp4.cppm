@@ -7,7 +7,7 @@
  * host-accessible conversion functions.
  *
  * Usage:
- *   import gpumod.cuda.cuda_fp4;
+ *   import wwr.cuda.cuda_fp4;
  *
  * Note: cuda_fp4.h includes cuda_fp6.h which includes cuda_fp8.h, so the raw
  * storage and half-precision types (__half_raw, __nv_bfloat16_raw, etc.) are
@@ -30,7 +30,7 @@ module;
 
 #include <cuda_fp4.h>
 
-export module gpumod.cuda.cuda_fp4;
+export module wwr.cuda.cuda_fp4;
 
 import std;
 

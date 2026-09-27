@@ -1,16 +1,16 @@
-// cublasXt.cppm - Compile-time tests for gpumod.cuda.cublasXt
+// cublasXt.cppm - Compile-time tests for wwr.cuda.cublasXt
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.cublasXt;
+export module wwr.test.cuda.cublasXt;
 
 import std;
-import gpumod.cuda.cublasXt;
+import wwr.cuda.cublasXt;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.cublasXt
+// Compile-time tests for wwr.cuda.cublasXt
 //
 // We verify at compile-time that:
 //   1. Key enum types exist (std::is_enum_v)

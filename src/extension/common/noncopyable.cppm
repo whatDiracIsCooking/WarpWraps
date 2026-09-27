@@ -3,12 +3,12 @@
  * @brief Mixin that deletes copy operations while allowing moves
  *
  * Usage:
- *   import gpumod.extension.common;
+ *   import wwr.extension.common;
  *
  *   class MyResource : private NonCopyable { ... };
  */
 
-export module gpumod.extension.common:noncopyable;
+export module wwr.extension.common:noncopyable;
 
 import std;
 

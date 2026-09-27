@@ -13,7 +13,7 @@
  *
  * Prerequisites (must be provided by the including file):
  * - std::is_same_v (via `import std;` or equivalent)
- * - gpuComplex, gpuDoubleComplex (gpumod.complex) for WWR_COMPLEX_DISPATCH
+ * - gpuComplex, gpuDoubleComplex (wwr.complex) for WWR_COMPLEX_DISPATCH
  */
 
 #pragma once

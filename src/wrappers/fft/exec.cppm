@@ -10,7 +10,7 @@
  * signatures match the vendor functions on both backends.
  *
  * Usage:
- *   import gpumod.wrappers.fft;
+ *   import wwr.wrappers.fft;
  *   using namespace wwr;
  *
  *   FftPlan plan;
@@ -22,9 +22,9 @@ module;
 
 #include "dispatch_macros.h"
 
-export module gpumod.wrappers.fft:exec;
+export module wwr.wrappers.fft:exec;
 
-import gpumod.fft;
+import wwr.fft;
 import :type_traits;
 import std;
 

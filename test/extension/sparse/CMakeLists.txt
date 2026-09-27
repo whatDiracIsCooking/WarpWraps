@@ -1,4 +1,4 @@
-# gpumod.extension.sparse RAII handle tests
+# wwr.extension.sparse RAII handle tests
 #
 # Runtime only: gpusparseCreate needs a live GPU context. Same shape as
 # test/extension/blas -- one plain .cpp, one ctest entry per suite.
@@ -9,8 +9,8 @@ wwr_add_gtest_executable(
   SOURCES
   handle_tests.cpp
   LINK
-  gpumod.extension.sparse
-  gpumod.extension.handle
+  wwr.extension.sparse
+  wwr.extension.handle
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test file,

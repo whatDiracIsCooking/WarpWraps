@@ -5,7 +5,7 @@
 # What this file has to do beyond including the target export set comes from one
 # fact about C++23 named modules: a consumer of this package COMPILES the module
 # interface sources it installs (a BMI is not portable, so none is shipped --
-# cmake/gpumod_install.cmake explains the mechanism). A consumer's build is
+# cmake/wwr_install.cmake explains the mechanism). A consumer's build is
 # therefore not merely linking against gpumod, it is continuing it, and the
 # three things checked below are the ones where continuing it with different
 # settings produces a failure whose message points nowhere near the cause.
@@ -28,18 +28,18 @@ set(WWR_BUILT_WITH_CXX_STANDARD_LIBRARY
 # An installation is built against exactly one backend and contains only that
 # backend's wrapper modules. Asking for the other one is not a thing that can
 # half-work, so it is refused here rather than at the point where
-# `import gpumod.cuda.cublas_v2;` fails to resolve in a HIP install.
-if(DEFINED gpumod_FIND_COMPONENTS)
-  foreach(_wwr_component IN LISTS gpumod_FIND_COMPONENTS)
+# `import wwr.cuda.cublas_v2;` fails to resolve in a HIP install.
+if(DEFINED wwr_FIND_COMPONENTS)
+  foreach(_wwr_component IN LISTS wwr_FIND_COMPONENTS)
     if(_wwr_component MATCHES "^(CUDA|HIP)$"
        AND NOT _wwr_component STREQUAL WWR_GPU_BACKEND
     )
-      set(gpumod_FOUND FALSE)
-      set(gpumod_NOT_FOUND_MESSAGE
-          "This gpumod installation was built for the ${WWR_GPU_BACKEND} "
+      set(wwr_FOUND FALSE)
+      set(wwr_NOT_FOUND_MESSAGE
+          "This wwr installation was built for the ${WWR_GPU_BACKEND} "
           "backend; the ${_wwr_component} component was requested. A build "
           "targets exactly one backend -- install a ${_wwr_component} build "
-          "of gpumod to a separate prefix."
+          "of wwr to a separate prefix."
       )
       return()
     endif()
@@ -66,17 +66,17 @@ if(NOT WWR_SKIP_TOOLCHAIN_CHECK)
   if(NOT CMAKE_CXX_COMPILER_ID STREQUAL WWR_BUILT_WITH_CXX_COMPILER_ID)
     message(
       WARNING
-        "gpumod was built with ${WWR_BUILT_WITH_CXX_COMPILER_ID}, this "
-        "project uses ${CMAKE_CXX_COMPILER_ID}. Consumers COMPILE gpumod's "
+        "wwr was built with ${WWR_BUILT_WITH_CXX_COMPILER_ID}, this "
+        "project uses ${CMAKE_CXX_COMPILER_ID}. Consumers COMPILE wwr's "
         "module interface units, and this project's units require Clang -- "
-        "expect errors inside gpumod's own sources."
+        "expect errors inside wwr's own sources."
     )
   elseif(NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL
          WWR_BUILT_WITH_CXX_COMPILER_VERSION
   )
     message(
       STATUS
-        "gpumod was built with Clang "
+        "wwr was built with Clang "
         "${WWR_BUILT_WITH_CXX_COMPILER_VERSION}, this project uses "
         "${CMAKE_CXX_COMPILER_VERSION}. Module sources are recompiled by the "
         "consumer, so this is usually fine."
@@ -89,7 +89,7 @@ if(NOT WWR_SKIP_TOOLCHAIN_CHECK)
   )
     message(
       WARNING
-        "gpumod was built against ${WWR_BUILT_WITH_CXX_STANDARD_LIBRARY}, "
+        "wwr was built against ${WWR_BUILT_WITH_CXX_STANDARD_LIBRARY}, "
         "this project uses '${CMAKE_CXX_STANDARD_LIBRARY}'. `import std` "
         "resolves against the standard library's own module manifest; set "
         "CMAKE_CXX_STANDARD_LIBRARY to "
@@ -113,24 +113,24 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   # its NAME into the export set and nothing else, so the name has to be
   # recreated here. Re-finding rather than baking in the build machine's
   # absolute path is what keeps the installed package relocatable.
-  if(NOT TARGET gpumod::cuda_cusolverMg)
+  if(NOT TARGET wwr::cuda_cusolverMg)
     find_library(
       WWR_cusolverMg_LIBRARY
       NAMES cusolverMg
       HINTS ${CUDAToolkit_LIBRARY_DIR}
     )
     if(NOT WWR_cusolverMg_LIBRARY)
-      set(gpumod_FOUND FALSE)
-      set(gpumod_NOT_FOUND_MESSAGE
+      set(wwr_FOUND FALSE)
+      set(wwr_NOT_FOUND_MESSAGE
           "libcusolverMg not found. It ships with the CUDA Toolkit but is not "
           "a FindCUDAToolkit component; pass -DWWR_cusolverMg_LIBRARY=<path>"
           " if it lives outside ${CUDAToolkit_LIBRARY_DIR}."
       )
       return()
     endif()
-    add_library(gpumod::cuda_cusolverMg UNKNOWN IMPORTED)
+    add_library(wwr::cuda_cusolverMg UNKNOWN IMPORTED)
     set_target_properties(
-      gpumod::cuda_cusolverMg PROPERTIES IMPORTED_LOCATION
+      wwr::cuda_cusolverMg PROPERTIES IMPORTED_LOCATION
                                          "${WWR_cusolverMg_LIBRARY}"
     )
   endif()
@@ -147,6 +147,6 @@ else()
   find_dependency(hiprand)
 endif()
 
-include("${CMAKE_CURRENT_LIST_DIR}/gpumod-targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/wwr-targets.cmake")
 
-check_required_components(gpumod)
+check_required_components(wwr)

@@ -7,14 +7,14 @@ consumed via `import` statements in module-based translation units.
 
 Each `.cppm` file is a primary module interface unit built by
 `wwr_add_cxx_module_library`. All exported symbols are placed in the
-`wwr::cuda` namespace, except `gpumod.cuda.cuda_h` (the CUDA Driver API),
+`wwr::cuda` namespace, except `wwr.cuda.cuda_h` (the CUDA Driver API),
 which exports directly into the global namespace.
 
 ## Modules
 
-### `gpumod.cuda.cuda_runtime_api`
+### `wwr.cuda.cuda_runtime_api`
 
-**Import:** `import gpumod.cuda.cuda_runtime_api;`
+**Import:** `import wwr.cuda.cuda_runtime_api;`
 
 Wraps `cuda_runtime_api.h` (not `cuda_runtime.h`, which contains static inline
 wrappers that cannot be exported from modules). Exports:
@@ -35,9 +35,9 @@ wrappers that cannot be exported from modules). Exports:
   occupancy helpers, CUDA graph construction and execution, texture/surface
   management, graphics interop, and driver entry-point queries.
 
-### `gpumod.cuda.cublas_v2`
+### `wwr.cuda.cublas_v2`
 
-**Import:** `import gpumod.cuda.cublas_v2;`
+**Import:** `import wwr.cuda.cublas_v2;`
 
 Wraps `cublas_v2.h`. Provides the complete cuBLAS public API:
 
@@ -60,9 +60,9 @@ Note: macros that redirect non-`_v2` names to `_v2` functions are `#undef`'d
 before the module interface; the module exports both the `_v2` function names
 and clean convenience wrappers without the suffix.
 
-### `gpumod.cuda.cusolverDn`
+### `wwr.cuda.cusolverDn`
 
-**Import:** `import gpumod.cuda.cusolverDn;`
+**Import:** `import wwr.cuda.cusolverDn;`
 
 Wraps `cusolverDn.h`. Exports the cuSOLVER Dense API in full:
 
@@ -89,9 +89,9 @@ Wraps `cusolverDn.h`. Exports the cuSOLVER Dense API in full:
   batched, SYEVD/HEEVD, SYEVDX/HEEVDX, SYEVJ/HEEVJ (including batched),
   SYGVD/HEGVD, SYGVDX/HEGVDX, SYGVJ/HEGVJ, LASWP — all S/D/C/Z variants.
 
-### `gpumod.cuda.curand`
+### `wwr.cuda.curand`
 
-**Import:** `import gpumod.cuda.curand;`
+**Import:** `import wwr.cuda.curand;`
 
 Wraps `curand.h` and `curand_kernel.h`. Exports:
 
@@ -109,9 +109,9 @@ Wraps `curand.h` and `curand_kernel.h`. Exports:
   `curandStateMtgp32_t`, `curandStatePhilox4_32_10_t`, Sobol32/64 and
   scrambled variants, and the default `curandState_t` alias.
 
-### `gpumod.cuda.cuComplex`
+### `wwr.cuda.cuComplex`
 
-**Import:** `import gpumod.cuda.cuComplex;`
+**Import:** `import wwr.cuda.cuComplex;`
 
 Wraps `cuComplex.h`. Because all functions in that header have `static inline`
 linkage, they cannot be directly re-exported from a module; this wrapper
@@ -127,9 +127,9 @@ provides thin forwarding functions:
   `cuCabs`, `cuConj`.
 - **Type conversion** — `cuComplexDoubleToFloat`, `cuComplexFloatToDouble`.
 
-### `gpumod.cuda.cuda_fp16`
+### `wwr.cuda.cuda_fp16`
 
-**Import:** `import gpumod.cuda.cuda_fp16;`
+**Import:** `import wwr.cuda.cuda_fp16;`
 
 Wraps `cuda_fp16.h`. Exports:
 
@@ -139,9 +139,9 @@ Wraps `cuda_fp16.h`. Exports:
 - Arithmetic and comparison operators are defined in the global namespace and
   reach exported types via Argument-Dependent Lookup (ADL).
 
-### `gpumod.cuda.cuda_bf16`
+### `wwr.cuda.cuda_bf16`
 
-**Import:** `import gpumod.cuda.cuda_bf16;`
+**Import:** `import wwr.cuda.cuda_bf16;`
 
 Wraps `cuda_bf16.h`. Exports:
 

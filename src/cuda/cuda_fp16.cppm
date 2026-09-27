@@ -6,7 +6,7 @@
  * It exports half-precision types and their operators for host-side code.
  *
  * Usage:
- *   import gpumod.cuda.cuda_fp16;
+ *   import wwr.cuda.cuda_fp16;
  *
  * Note: This module exports types and host-side operators. The full set of
  * device-side intrinsics is available in device code via the native <cuda_fp16.h> header.
@@ -23,7 +23,7 @@ module;
 
 #include <cuda_fp16.h>
 
-export module gpumod.cuda.cuda_fp16;
+export module wwr.cuda.cuda_fp16;
 
 // ========================================================================
 // Export all cuda_fp16 types in wwr namespace

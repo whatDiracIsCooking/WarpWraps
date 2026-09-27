@@ -5,9 +5,9 @@
  * Wraps hip/hip_fp6.h for C++23 module-based code: 6-bit floating-point types
  * (__hip_fp6_e2m3, __hip_fp6_e3m2, plus x2/x4 variants), enumerations, storage
  * typedefs and host-accessible conversion functions. CUDA counterpart:
- * gpumod.cuda.cuda_fp6.
+ * wwr.cuda.cuda_fp6.
  *
- * IMPORTANT: this module and gpumod.hip.hip_fp4 must never appear in the same
+ * IMPORTANT: this module and wwr.hip.hip_fp4 must never appear in the same
  * translation unit's global module fragment -- both vendor headers define the
  * same internal:: helpers as non-inline statics. See docs/architecture.md,
  * section 11. This .cppm includes only hip_fp6.h; keep it that way.
@@ -20,7 +20,7 @@
  * wrappers rather than `using` declarations -- docs/architecture.md, section 12.
  *
  * Usage:
- *   import gpumod.hip.hip_fp6;
+ *   import wwr.hip.hip_fp6;
  */
 
 module;
@@ -30,7 +30,7 @@ module;
 #include <array>
 #include <hip/hip_fp6.h>
 
-export module gpumod.hip.hip_fp6;
+export module wwr.hip.hip_fp6;
 
 export namespace wwr::hip {
 

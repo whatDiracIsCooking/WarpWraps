@@ -6,12 +6,12 @@
  * Host memory uses standard std::malloc/std::free for allocation.
  */
 
-export module gpumod.extension.memory_buffer:host_buffer;
+export module wwr.extension.memory_buffer:host_buffer;
 
 import :base_buffer;
 import :memory_kind;
 import :host_memory;
-import gpumod.extension.common;
+import wwr.extension.common;
 import std;
 
 export namespace wwr::extension {

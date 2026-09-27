@@ -8,11 +8,11 @@
  * the destruction slot additionally requires it to be noexcept.
  *
  * Usage:
- *   import gpumod.extension.common;
+ *   import wwr.extension.common;
  *   using namespace wwr::extension;
  */
 
-export module gpumod.extension.common.error_handling:error_policy;
+export module wwr.extension.common.error_handling:error_policy;
 
 import std;
 

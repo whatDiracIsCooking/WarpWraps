@@ -7,7 +7,7 @@
  * See gpu_backend.h.
  *
  * Usage:
- *   import gpumod.fp16;
+ *   import wwr.fp16;
  */
 
 module;
@@ -27,12 +27,12 @@ module;
 #include <hip/hip_fp16.h>
 #endif
 
-export module gpumod.fp16;
+export module wwr.fp16;
 
 #if defined(WWR_GPU_BACKEND_CUDA)
-import gpumod.cuda.cuda_fp16;
+import wwr.cuda.cuda_fp16;
 #else
-import gpumod.hip.hip_fp16;
+import wwr.hip.hip_fp16;
 #endif
 
 export namespace wwr {

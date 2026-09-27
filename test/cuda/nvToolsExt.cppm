@@ -1,16 +1,16 @@
-// nvToolsExt.cppm - Compile-time tests for gpumod.cuda.nvToolsExt
+// nvToolsExt.cppm - Compile-time tests for wwr.cuda.nvToolsExt
 
 module;
 
 #include "test/shared/link_check.h"
 
-export module gpumod.test.cuda.nvToolsExt;
+export module wwr.test.cuda.nvToolsExt;
 
 import std;
-import gpumod.cuda.nvToolsExt;
+import wwr.cuda.nvToolsExt;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Compile-time tests for gpumod.cuda.nvToolsExt
+// Compile-time tests for wwr.cuda.nvToolsExt
 //
 // The module wraps NVTX's static-inline marker/range core through thin
 // forwarding functions (nvToolsExt.h has internal linkage, so it cannot be

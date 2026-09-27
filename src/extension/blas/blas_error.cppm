@@ -5,10 +5,10 @@
  * Provides specializations of error handling templates for gpublasStatus_t.
  */
 
-export module gpumod.extension.blas:blas_error;
+export module wwr.extension.blas:blas_error;
 
-import gpumod.blas;
-import gpumod.extension.common;
+import wwr.blas;
+import wwr.extension.common;
 import std;
 
 export namespace wwr::extension {
