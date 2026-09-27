@@ -55,10 +55,10 @@ static_assert(CUFILE_GPU_UUID_LEN == 16, "CUFILE_GPU_UUID_LEN value mismatch");
 export module gpumod.cuda.cufile;
 
 // ========================================================================
-// Export all cuFile types and functions in gpumod namespace
+// Export all cuFile types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Constexpr wrappers for cuFile call-site flag macros
@@ -400,4 +400,4 @@ using ::cuFileStatsStop;
 // ========================================================================
 using ::cuFileGetBARSizeInKB;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

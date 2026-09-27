@@ -19,12 +19,12 @@ import gpumod.cuda.cublasLt;
 //   4. Opaque handle types are pointers
 //   5. Semi-opaque descriptor struct types satisfy type traits
 //   6. Result struct satisfies type traits
-//   7. GPUMOD_LINK_CHECK for all exported functions
+//   7. WWR_LINK_CHECK for all exported functions
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Constexpr numerical implementation flag values
@@ -370,92 +370,92 @@ static_assert(std::is_trivially_copyable_v<cublasLtMatmulHeuristicResult_t>);
 static_assert(std::is_standard_layout_v<cublasLtMatmulHeuristicResult_t>);
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: context management
+// WWR_LINK_CHECK: context management
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasLtCreate)
-GPUMOD_LINK_CHECK(cublasLtDestroy)
-GPUMOD_LINK_CHECK(cublasLtGetStatusName)
-GPUMOD_LINK_CHECK(cublasLtGetStatusString)
-GPUMOD_LINK_CHECK(cublasLtGetVersion)
-GPUMOD_LINK_CHECK(cublasLtGetCudartVersion)
-GPUMOD_LINK_CHECK(cublasLtGetProperty)
-GPUMOD_LINK_CHECK(cublasLtHeuristicsCacheGetCapacity)
-GPUMOD_LINK_CHECK(cublasLtHeuristicsCacheSetCapacity)
+WWR_LINK_CHECK(cublasLtCreate)
+WWR_LINK_CHECK(cublasLtDestroy)
+WWR_LINK_CHECK(cublasLtGetStatusName)
+WWR_LINK_CHECK(cublasLtGetStatusString)
+WWR_LINK_CHECK(cublasLtGetVersion)
+WWR_LINK_CHECK(cublasLtGetCudartVersion)
+WWR_LINK_CHECK(cublasLtGetProperty)
+WWR_LINK_CHECK(cublasLtHeuristicsCacheGetCapacity)
+WWR_LINK_CHECK(cublasLtHeuristicsCacheSetCapacity)
 // Declared in cublasLt.h but not exported by libcublasLt.so (13.0.0.19), nor by
 // libcublas.so; it appears only in libcublasLt_static.a. Calling it from a
 // program linked against the shared library fails to link, so only the
 // declaration is checked.
-GPUMOD_DECLARED_CHECK(cublasLtDisableCpuInstructionsSetMask)
+WWR_DECLARED_CHECK(cublasLtDisableCpuInstructionsSetMask)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: core computation
+// WWR_LINK_CHECK: core computation
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasLtMatmul)
-GPUMOD_LINK_CHECK(cublasLtMatrixTransform)
+WWR_LINK_CHECK(cublasLtMatmul)
+WWR_LINK_CHECK(cublasLtMatrixTransform)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: matrix layout descriptor
+// WWR_LINK_CHECK: matrix layout descriptor
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasLtMatrixLayoutInit_internal)
-GPUMOD_LINK_CHECK(cublasLtMatrixLayoutCreate)
-GPUMOD_LINK_CHECK(cublasLtMatrixLayoutDestroy)
-GPUMOD_LINK_CHECK(cublasLtMatrixLayoutSetAttribute)
-GPUMOD_LINK_CHECK(cublasLtMatrixLayoutGetAttribute)
+WWR_LINK_CHECK(cublasLtMatrixLayoutInit_internal)
+WWR_LINK_CHECK(cublasLtMatrixLayoutCreate)
+WWR_LINK_CHECK(cublasLtMatrixLayoutDestroy)
+WWR_LINK_CHECK(cublasLtMatrixLayoutSetAttribute)
+WWR_LINK_CHECK(cublasLtMatrixLayoutGetAttribute)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: matmul descriptor
+// WWR_LINK_CHECK: matmul descriptor
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasLtMatmulDescInit_internal)
-GPUMOD_LINK_CHECK(cublasLtMatmulDescCreate)
-GPUMOD_LINK_CHECK(cublasLtMatmulDescDestroy)
-GPUMOD_LINK_CHECK(cublasLtMatmulDescSetAttribute)
-GPUMOD_LINK_CHECK(cublasLtMatmulDescGetAttribute)
+WWR_LINK_CHECK(cublasLtMatmulDescInit_internal)
+WWR_LINK_CHECK(cublasLtMatmulDescCreate)
+WWR_LINK_CHECK(cublasLtMatmulDescDestroy)
+WWR_LINK_CHECK(cublasLtMatmulDescSetAttribute)
+WWR_LINK_CHECK(cublasLtMatmulDescGetAttribute)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: matrix transform descriptor
+// WWR_LINK_CHECK: matrix transform descriptor
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasLtMatrixTransformDescInit_internal)
-GPUMOD_LINK_CHECK(cublasLtMatrixTransformDescCreate)
-GPUMOD_LINK_CHECK(cublasLtMatrixTransformDescDestroy)
-GPUMOD_LINK_CHECK(cublasLtMatrixTransformDescSetAttribute)
-GPUMOD_LINK_CHECK(cublasLtMatrixTransformDescGetAttribute)
+WWR_LINK_CHECK(cublasLtMatrixTransformDescInit_internal)
+WWR_LINK_CHECK(cublasLtMatrixTransformDescCreate)
+WWR_LINK_CHECK(cublasLtMatrixTransformDescDestroy)
+WWR_LINK_CHECK(cublasLtMatrixTransformDescSetAttribute)
+WWR_LINK_CHECK(cublasLtMatrixTransformDescGetAttribute)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: matmul preference descriptor
+// WWR_LINK_CHECK: matmul preference descriptor
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasLtMatmulPreferenceInit_internal)
-GPUMOD_LINK_CHECK(cublasLtMatmulPreferenceCreate)
-GPUMOD_LINK_CHECK(cublasLtMatmulPreferenceDestroy)
-GPUMOD_LINK_CHECK(cublasLtMatmulPreferenceSetAttribute)
-GPUMOD_LINK_CHECK(cublasLtMatmulPreferenceGetAttribute)
+WWR_LINK_CHECK(cublasLtMatmulPreferenceInit_internal)
+WWR_LINK_CHECK(cublasLtMatmulPreferenceCreate)
+WWR_LINK_CHECK(cublasLtMatmulPreferenceDestroy)
+WWR_LINK_CHECK(cublasLtMatmulPreferenceSetAttribute)
+WWR_LINK_CHECK(cublasLtMatmulPreferenceGetAttribute)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: heuristic and algorithm functions
+// WWR_LINK_CHECK: heuristic and algorithm functions
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasLtMatmulAlgoGetHeuristic)
-GPUMOD_LINK_CHECK(cublasLtMatmulAlgoGetIds)
-GPUMOD_LINK_CHECK(cublasLtMatmulAlgoInit)
-GPUMOD_LINK_CHECK(cublasLtMatmulAlgoCheck)
-GPUMOD_LINK_CHECK(cublasLtMatmulAlgoCapGetAttribute)
-GPUMOD_LINK_CHECK(cublasLtMatmulAlgoConfigSetAttribute)
-GPUMOD_LINK_CHECK(cublasLtMatmulAlgoConfigGetAttribute)
+WWR_LINK_CHECK(cublasLtMatmulAlgoGetHeuristic)
+WWR_LINK_CHECK(cublasLtMatmulAlgoGetIds)
+WWR_LINK_CHECK(cublasLtMatmulAlgoInit)
+WWR_LINK_CHECK(cublasLtMatmulAlgoCheck)
+WWR_LINK_CHECK(cublasLtMatmulAlgoCapGetAttribute)
+WWR_LINK_CHECK(cublasLtMatmulAlgoConfigSetAttribute)
+WWR_LINK_CHECK(cublasLtMatmulAlgoConfigGetAttribute)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: logger functions
+// WWR_LINK_CHECK: logger functions
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasLtLoggerSetCallback)
-GPUMOD_LINK_CHECK(cublasLtLoggerSetFile)
-GPUMOD_LINK_CHECK(cublasLtLoggerOpenFile)
-GPUMOD_LINK_CHECK(cublasLtLoggerSetLevel)
-GPUMOD_LINK_CHECK(cublasLtLoggerSetMask)
-GPUMOD_LINK_CHECK(cublasLtLoggerForceDisable)
+WWR_LINK_CHECK(cublasLtLoggerSetCallback)
+WWR_LINK_CHECK(cublasLtLoggerSetFile)
+WWR_LINK_CHECK(cublasLtLoggerOpenFile)
+WWR_LINK_CHECK(cublasLtLoggerSetLevel)
+WWR_LINK_CHECK(cublasLtLoggerSetMask)
+WWR_LINK_CHECK(cublasLtLoggerForceDisable)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

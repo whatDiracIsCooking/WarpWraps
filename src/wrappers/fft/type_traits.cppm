@@ -16,7 +16,7 @@ export import gpumod.wrappers.common;
 import gpumod.fft;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 /**
  * @brief The FFT library's complex element type for a real precision T.
@@ -31,4 +31,4 @@ export namespace gpumod {
 template<real_fp T>
 using FftComplex = std::conditional_t<std::is_same_v<T, float>, gpufftComplex, gpufftDoubleComplex>;
 
-} // namespace gpumod
+} // namespace wwr

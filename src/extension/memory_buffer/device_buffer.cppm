@@ -15,7 +15,7 @@ import gpumod.extension.common;
 import gpumod.extension.runtime;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief RAII wrapper for GPU device memory buffer
@@ -163,4 +163,4 @@ private:
   std::shared_ptr<DeviceHandle> handle_;
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

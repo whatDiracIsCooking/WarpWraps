@@ -20,7 +20,7 @@ import gpumod.extension.common; // gpu_check, error_policy
 import gpumod.runtime_api;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief CRTP layer over BaseHandle for handles bound to one physical device
@@ -143,4 +143,4 @@ public:
   DeviceBoundHandleView<T> view() && = delete;
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

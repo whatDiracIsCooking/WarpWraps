@@ -6,7 +6,7 @@
 # on, and runtime_api for the device queries GpuBoundHandle makes (gpuGetDevice/
 # gpuSetDevice). The runtime, memory_buffer and blas/solver/fft/sparse handle
 # modules that derive concrete handles from these bases link this.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.extension.handle
   PRIMARY_INTERFACE

@@ -114,50 +114,50 @@ message(
 # Either way the gpu* layer maps the gpu* names onto the chosen backend, and
 # src/wrappers + test/wrappers are built on top of it, unchanged. A HIP build
 # needs no CUDA toolkit, and a CUDA build needs no ROCm.
-set(GPUMOD_GPU_BACKEND
+set(WWR_GPU_BACKEND
     "CUDA"
     CACHE STRING "GPU backend to build against: CUDA or HIP"
 )
-set_property(CACHE GPUMOD_GPU_BACKEND PROPERTY STRINGS CUDA HIP)
-if(NOT GPUMOD_GPU_BACKEND MATCHES "^(CUDA|HIP)$")
+set_property(CACHE WWR_GPU_BACKEND PROPERTY STRINGS CUDA HIP)
+if(NOT WWR_GPU_BACKEND MATCHES "^(CUDA|HIP)$")
   message(
     FATAL_ERROR
-      "GPUMOD_GPU_BACKEND must be CUDA or HIP, got '${GPUMOD_GPU_BACKEND}'"
+      "WWR_GPU_BACKEND must be CUDA or HIP, got '${WWR_GPU_BACKEND}'"
   )
 endif()
 
-if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
-  set(_gpumod_languages CXX CUDA)
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
+  set(_wwr_languages CXX CUDA)
 else()
-  set(_gpumod_languages CXX)
+  set(_wwr_languages CXX)
 endif()
 
 project(
   gpumod
   VERSION 0.1.0
-  LANGUAGES ${_gpumod_languages}
+  LANGUAGES ${_wwr_languages}
   DESCRIPTION "C++23 module wrappers for the CUDA and HIP GPU APIs"
 )
-message(STATUS "GPU backend: ${GPUMOD_GPU_BACKEND}")
+message(STATUS "GPU backend: ${WWR_GPU_BACKEND}")
 
 # ========================================================================
 # Warp / wavefront size
 # ========================================================================
-# GPUMOD_WARP_SIZE (src/runtime.cuh) is a configure-time constant because
+# WWR_WARP_SIZE (src/runtime.cuh) is a configure-time constant because
 # neither backend offers a compile-time spelling that is correct in every pass.
 # 32 is right for every NVIDIA arch and for RDNA (gfx10xx-gfx12xx);
 # set 64 for CDNA (gfx90a, gfx942). Nothing validates it against a real device.
-set(GPUMOD_WARP_SIZE
+set(WWR_WARP_SIZE
     "32"
     CACHE STRING "Warp/wavefront size: 32 for NVIDIA and RDNA, 64 for CDNA"
 )
-set_property(CACHE GPUMOD_WARP_SIZE PROPERTY STRINGS 32 64)
-if(NOT GPUMOD_WARP_SIZE MATCHES "^[1-9][0-9]*$")
-  message(FATAL_ERROR "GPUMOD_WARP_SIZE must be a positive integer, got "
-                      "'${GPUMOD_WARP_SIZE}'"
+set_property(CACHE WWR_WARP_SIZE PROPERTY STRINGS 32 64)
+if(NOT WWR_WARP_SIZE MATCHES "^[1-9][0-9]*$")
+  message(FATAL_ERROR "WWR_WARP_SIZE must be a positive integer, got "
+                      "'${WWR_WARP_SIZE}'"
   )
 endif()
-message(STATUS "GPU warp size: ${GPUMOD_WARP_SIZE}")
+message(STATUS "GPU warp size: ${WWR_WARP_SIZE}")
 
 # ========================================================================
 # C++ Standard and Compiler Requirements
@@ -182,7 +182,7 @@ add_link_options($<$<COMPILE_LANGUAGE:CXX>:-lc++abi>)
 # ========================================================================
 # Find the backend's packages
 # ========================================================================
-if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
   find_package(CUDAToolkit REQUIRED)
 else()
   # Seed GPU_TARGETS from the environment before find_package(hip).
@@ -191,7 +191,7 @@ else()
   # export an env var of the same name (default gfx1200), but an env var is not
   # a CMake variable, so it must be copied in. Left unset, hip-config runs
   # `amdgpu-arch` and on a box with no AMD GPU silently falls back to gfx906 --
-  # wave64, which also disagrees with GPUMOD_WARP_SIZE's default 32.
+  # wave64, which also disagrees with WWR_WARP_SIZE's default 32.
   # Precedence: an explicit -DGPU_TARGETS (already cached) beats
   # $ENV{GPU_TARGETS} beats ROCm's own detection. AMDGPU_TARGETS is left unset
   # -- hip-config warns it is deprecated and copies it into GPU_TARGETS anyway.
@@ -246,28 +246,28 @@ endif()
 # ========================================================================
 # Module Configuration
 # ========================================================================
-include(cmake/gpumod_internal_helpers.cmake)
-include(cmake/gpumod_add_cxx_module_library.cmake)
-include(cmake/gpumod_add_gpu_device_library.cmake)
-include(cmake/gpumod_add_interface_library.cmake)
+include(cmake/wwr_internal_helpers.cmake)
+include(cmake/wwr_add_cxx_module_library.cmake)
+include(cmake/wwr_add_gpu_device_library.cmake)
+include(cmake/wwr_add_interface_library.cmake)
 
 # Creating ctest-registered plain (non-GoogleTest) test executables
-include(cmake/gpumod_add_test_executable.cmake)
+include(cmake/wwr_add_test_executable.cmake)
 
 # Registers GoogleTest binaries with ctest one entry per suite
-include(cmake/gpumod_add_gtest_suite_tests.cmake)
+include(cmake/wwr_add_gtest_suite_tests.cmake)
 
 # Consolidates GoogleTest executable boilerplate (module properties, the shared
 # GPU Environment's main.cpp/link list, libstdc++)
-include(cmake/gpumod_add_gtest_executable.cmake)
+include(cmake/wwr_add_gtest_executable.cmake)
 
 # Build-time check that an extension module's wrappers dispatch to the vendor
 # functions its TOML table names, read out of the compiled objects
-include(cmake/gpumod_add_dispatch_check.cmake)
+include(cmake/wwr_add_dispatch_check.cmake)
 
 # Install rules, the export set and the CMake package. Included HERE rather than
-# next to gpumod_install_package()'s call at the bottom of this file, because it
-# defines the GPUMOD_INSTALL_*DIR variables that src, src/wrappers and the
+# next to wwr_install_package()'s call at the bottom of this file, because it
+# defines the WWR_INSTALL_*DIR variables that src, src/wrappers and the
 # library macros reference in their $<INSTALL_INTERFACE:> include directories --
 # those have to be set before the add_subdirectory calls that read them.
 include(cmake/gpumod_install.cmake)
@@ -304,11 +304,11 @@ endif()
 # instrumented binaries drop is merged by llvm-profdata and read by llvm-cov,
 # both of which must match the clang version; devtools/coverage.sh drives that
 # post-processing and the 'coverage' preset turns this on in build-coverage/.
-option(GPUMOD_COVERAGE
+option(WWR_COVERAGE
        "Enable clang source-based coverage instrumentation for host (CXX) code"
        OFF
 )
-if(GPUMOD_COVERAGE)
+if(WWR_COVERAGE)
   message(
     STATUS "Coverage instrumentation enabled (clang source-based, host CXX)"
   )
@@ -329,7 +329,7 @@ endif()
 # for gpumod's install rules, while `make install` in the OUTER project would
 # otherwise drag gpumod's headers and module sources into that project's install
 # tree uninvited.
-option(GPUMOD_INSTALL "Generate install rules and the CMake package"
+option(WWR_INSTALL "Generate install rules and the CMake package"
        ${PROJECT_IS_TOP_LEVEL}
 )
 
@@ -341,13 +341,13 @@ option(GPUMOD_INSTALL "Generate install rules and the CMake package"
 #   cmake --build build --target compile_time_tests   # build only those
 #   ctest --test-dir build -L compile_time            # run the linked binary
 #
-# With GPUMOD_COMPILE_TIME_ONLY the configure step also skips everything that
+# With WWR_COMPILE_TIME_ONLY the configure step also skips everything that
 # exists only for the runtime tests -- the GoogleTest fetch (deps/) and the
 # runtime test directories -- so it needs no network and generates no runtime
 # test targets. The 'compile-time' preset turns it on in its own build
 # directory.
 option(
-  GPUMOD_COMPILE_TIME_ONLY
+  WWR_COMPILE_TIME_ONLY
   "Configure only the compile-time tests; skip GoogleTest and the runtime tests"
   OFF
 )
@@ -363,7 +363,7 @@ option(
 # container-wide LD_LIBRARY_PATH would beat the loader cache and shadow the
 # real driver the NVIDIA runtime injects. See test/cuda/CMakeLists.txt.
 option(
-  GPUMOD_CUDA_DRIVER_STUBS
+  WWR_CUDA_DRIVER_STUBS
   "Run cuda_compile_tests against the CUDA driver stubs (no driver needed)"
   OFF
 )
@@ -392,19 +392,19 @@ add_subdirectory(src)
 
 # The in-tree examples, written against the gpu* and extension layers the same
 # way a consumer would write them. Added after src/ so the targets they link
-# exist, and unconditionally -- GPUMOD_COMPILE_TIME_ONLY included -- so
+# exist, and unconditionally -- WWR_COMPILE_TIME_ONLY included -- so
 # devtools/cross-backend-check.sh compiles them for the other backend. See
 # example/README.md; example/consumer is NOT part of this build.
 add_subdirectory(example)
 
 # GoogleTest, which the runtime tests are written in. Added before the test
 # directories so the GTest::* targets exist when they are linked. Not needed by
-# the compile-time tests, so GPUMOD_COMPILE_TIME_ONLY skips it.
-if(NOT GPUMOD_COMPILE_TIME_ONLY)
+# the compile-time tests, so WWR_COMPILE_TIME_ONLY skips it.
+if(NOT WWR_COMPILE_TIME_ONLY)
   add_subdirectory(deps)
 endif()
 
-if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
   add_subdirectory(test/cuda)
 else()
   add_subdirectory(test/hip)
@@ -419,11 +419,11 @@ add_subdirectory(test/extension)
 # ========================================================================
 # Install rules and the CMake package
 # ========================================================================
-# Last in the file on purpose: gpumod_install_package() decides what to install
+# Last in the file on purpose: wwr_install_package() decides what to install
 # by reading the buildsystem back (every library target defined under src/),
 # rather than from a hand-maintained list that a new module could fall out of
 # silently. A target that has not been defined yet cannot be found, so this has
 # to run after every add_subdirectory that defines one.
-if(GPUMOD_INSTALL)
-  gpumod_install_package()
+if(WWR_INSTALL)
+  wwr_install_package()
 endif()

@@ -10,31 +10,31 @@ export module gpumod.test.gpu.complex;
 
 import std;
 import gpumod.complex;
-#if defined(GPUMOD_GPU_BACKEND_CUDA)
+#if defined(WWR_GPU_BACKEND_CUDA)
 import gpumod.cuda.cuComplex;
 #else
 import gpumod.hip.hip_complex;
 #endif
 
-namespace gpumod::test {
+namespace wwr::test {
 
-using namespace gpumod;
+using namespace wwr;
 
-#if defined(GPUMOD_GPU_BACKEND_CUDA)
+#if defined(WWR_GPU_BACKEND_CUDA)
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
-GPUMOD_SAME_TYPE(gpuFloatComplex, cuFloatComplex)
-GPUMOD_SAME_TYPE(gpuDoubleComplex, cuDoubleComplex)
-GPUMOD_SAME_TYPE(gpuComplex, cuComplex)
+WWR_SAME_TYPE(gpuFloatComplex, cuFloatComplex)
+WWR_SAME_TYPE(gpuDoubleComplex, cuDoubleComplex)
+WWR_SAME_TYPE(gpuComplex, cuComplex)
 
 #else
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
-GPUMOD_SAME_TYPE(gpuFloatComplex, hipFloatComplex)
-GPUMOD_SAME_TYPE(gpuDoubleComplex, hipDoubleComplex)
-GPUMOD_SAME_TYPE(gpuComplex, hipComplex)
+WWR_SAME_TYPE(gpuFloatComplex, hipFloatComplex)
+WWR_SAME_TYPE(gpuDoubleComplex, hipDoubleComplex)
+WWR_SAME_TYPE(gpuComplex, hipComplex)
 
 #endif
 
@@ -42,27 +42,27 @@ GPUMOD_SAME_TYPE(gpuComplex, hipComplex)
 static_assert(std::is_same_v<gpuComplex, gpuFloatComplex>);
 
 // The host construction and arithmetic wrappers are forwarding functions, not
-// GPUMOD_FUNCTION reference bindings, so &gpu != &backend and GPUMOD_SAME_FUNCTION cannot
-// apply. A bare GPUMOD_LINK_CHECK from this importing TU is the build-time claim: each
+// WWR_FUNCTION reference bindings, so &gpu != &backend and WWR_SAME_FUNCTION cannot
+// apply. A bare WWR_LINK_CHECK from this importing TU is the build-time claim: each
 // exported inline wrapper is reachable by name across the import and links. The
 // device-side counterparts in complex.cuh are proved separately by complex.cu.
-GPUMOD_LINK_CHECK(make_gpuFloatComplex)
-GPUMOD_LINK_CHECK(make_gpuDoubleComplex)
-GPUMOD_LINK_CHECK(gpuCrealf)
-GPUMOD_LINK_CHECK(gpuCimagf)
-GPUMOD_LINK_CHECK(gpuCreal)
-GPUMOD_LINK_CHECK(gpuCimag)
-GPUMOD_LINK_CHECK(gpuCabsf)
-GPUMOD_LINK_CHECK(gpuCabs)
-GPUMOD_LINK_CHECK(gpuConjf)
-GPUMOD_LINK_CHECK(gpuConj)
-GPUMOD_LINK_CHECK(gpuCaddf)
-GPUMOD_LINK_CHECK(gpuCsubf)
-GPUMOD_LINK_CHECK(gpuCmulf)
-GPUMOD_LINK_CHECK(gpuCdivf)
-GPUMOD_LINK_CHECK(gpuCadd)
-GPUMOD_LINK_CHECK(gpuCsub)
-GPUMOD_LINK_CHECK(gpuCmul)
-GPUMOD_LINK_CHECK(gpuCdiv)
+WWR_LINK_CHECK(make_gpuFloatComplex)
+WWR_LINK_CHECK(make_gpuDoubleComplex)
+WWR_LINK_CHECK(gpuCrealf)
+WWR_LINK_CHECK(gpuCimagf)
+WWR_LINK_CHECK(gpuCreal)
+WWR_LINK_CHECK(gpuCimag)
+WWR_LINK_CHECK(gpuCabsf)
+WWR_LINK_CHECK(gpuCabs)
+WWR_LINK_CHECK(gpuConjf)
+WWR_LINK_CHECK(gpuConj)
+WWR_LINK_CHECK(gpuCaddf)
+WWR_LINK_CHECK(gpuCsubf)
+WWR_LINK_CHECK(gpuCmulf)
+WWR_LINK_CHECK(gpuCdivf)
+WWR_LINK_CHECK(gpuCadd)
+WWR_LINK_CHECK(gpuCsub)
+WWR_LINK_CHECK(gpuCmul)
+WWR_LINK_CHECK(gpuCdiv)
 
-} // namespace gpumod::test
+} // namespace wwr::test

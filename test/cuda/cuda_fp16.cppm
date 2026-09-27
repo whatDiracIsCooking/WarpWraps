@@ -22,9 +22,9 @@ import gpumod.cuda.cuda_fp16;
 // reach.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Struct traits: C-interop guarantees
@@ -52,4 +52,4 @@ static_assert(std::is_same_v<__nv_half2, __half2>);
 static_assert(std::is_same_v<nv_half, __half>);
 static_assert(std::is_same_v<nv_half2, __half2>);
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

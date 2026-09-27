@@ -67,7 +67,7 @@
       "inherits": "debug",
       "binaryDir": "${sourceDir}/build-coverage",
       "cacheVariables": {
-        "GPUMOD_COVERAGE": "ON"
+        "WWR_COVERAGE": "ON"
       }
     },
     {
@@ -77,7 +77,7 @@
       "description": "Release build against the ROCm/HIP backend instead of CUDA. Needs ROCm, not the CUDA toolkit.",
       "inherits": "base",
       "cacheVariables": {
-        "GPUMOD_GPU_BACKEND": "HIP"
+        "WWR_GPU_BACKEND": "HIP"
       }
     },
     {
@@ -87,7 +87,7 @@
       "description": "Configures only the compile-time tests: no GoogleTest fetch, no runtime test targets, no GPU needed.",
       "inherits": "base",
       "cacheVariables": {
-        "GPUMOD_COMPILE_TIME_ONLY": "ON"
+        "WWR_COMPILE_TIME_ONLY": "ON"
       }
     },
     {
@@ -98,7 +98,7 @@
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_CUDA_ARCHITECTURES": "86",
-        "GPUMOD_CUDA_DRIVER_STUBS": "ON"
+        "WWR_CUDA_DRIVER_STUBS": "ON"
       }
     },
     {

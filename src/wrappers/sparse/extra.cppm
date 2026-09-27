@@ -21,7 +21,7 @@ import gpumod.complex;
 import gpumod.wrappers.common;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // csrgeam2: C = alpha*A + beta*B (CSR)
@@ -35,7 +35,7 @@ gpusparseStatus_t csrgeam2_bufferSizeExt(
     const int *csrSortedRowPtrB, const int *csrSortedColIndB, const gpusparseMatDescr_t descrC,
     const T *csrSortedValC, const int *csrSortedRowPtrC, const int *csrSortedColIndC,
     size_t *pBufferSizeInBytes) {
-  GPUMOD_USUAL_DISPATCH(T, csrgeam2_bufferSizeExt, handle, m, n, alpha, descrA, nnzA, csrSortedValA,
+  WWR_USUAL_DISPATCH(T, csrgeam2_bufferSizeExt, handle, m, n, alpha, descrA, nnzA, csrSortedValA,
                         csrSortedRowPtrA, csrSortedColIndA, beta, descrB, nnzB, csrSortedValB,
                         csrSortedRowPtrB, csrSortedColIndB, descrC, csrSortedValC, csrSortedRowPtrC,
                         csrSortedColIndC, pBufferSizeInBytes);
@@ -48,7 +48,7 @@ csrgeam2(gpusparseHandle_t handle, int m, int n, const T *alpha, const gpusparse
          const T *beta, const gpusparseMatDescr_t descrB, int nnzB, const T *csrSortedValB,
          const int *csrSortedRowPtrB, const int *csrSortedColIndB, const gpusparseMatDescr_t descrC,
          T *csrSortedValC, int *csrSortedRowPtrC, int *csrSortedColIndC, void *pBuffer) {
-  GPUMOD_USUAL_DISPATCH(T, csrgeam2, handle, m, n, alpha, descrA, nnzA, csrSortedValA,
+  WWR_USUAL_DISPATCH(T, csrgeam2, handle, m, n, alpha, descrA, nnzA, csrSortedValA,
                         csrSortedRowPtrA, csrSortedColIndA, beta, descrB, nnzB, csrSortedValB,
                         csrSortedRowPtrB, csrSortedColIndB, descrC, csrSortedValC, csrSortedRowPtrC,
                         csrSortedColIndC, pBuffer);
@@ -105,4 +105,4 @@ csrgeam2<gpuDoubleComplex>(gpusparseHandle_t, int, int, const gpuDoubleComplex *
                            const gpuDoubleComplex *, const int *, const int *,
                            const gpusparseMatDescr_t, gpuDoubleComplex *, int *, int *, void *);
 
-} // namespace gpumod
+} // namespace wwr

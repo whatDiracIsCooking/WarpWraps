@@ -213,7 +213,7 @@ compose runs will contend. `docker/README.md` has the full variable list.
 
 The image is built by `docker/build.sh`, which walks the tag chain
 (`Dockerfile.base`, then `Dockerfile.cuda`) and tags the result both
-`<project>:cuda` and `<project>:latest` — the second being what `GPUMOD_IMAGE`
+`<project>:cuda` and `<project>:latest` — the second being what `WWR_IMAGE`
 defaults to:
 
 ```bash

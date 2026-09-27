@@ -9,7 +9,7 @@ dispatch.
 
 It is backend-neutral: written once against `src/fft`'s `gpufft*` names
 (`gpufftExecC2C` is `cufftExecC2C` on a CUDA build and `hipfftExecC2C` on a HIP
-build), so the same source builds for either `GPUMOD_GPU_BACKEND`.
+build), so the same source builds for either `WWR_GPU_BACKEND`.
 
 **Import:** `import gpumod.wrappers.fft;`
 **Namespace:** `gpumod`
@@ -82,7 +82,7 @@ device.
 ## Build
 
 ```
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME gpumod.wrappers.fft
   PRIMARY_INTERFACE interface.cppm
   PARTITIONS type_traits.cppm exec.cppm

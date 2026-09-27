@@ -14,7 +14,7 @@
  *
  * Usage:
  *   import gpumod.extension.common.error_handling;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  *
  * gpumod.extension.common re-exports this module, so
  * `import gpumod.extension.common;` also brings these names in.

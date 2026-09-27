@@ -16,13 +16,13 @@ import gpumod.cuda.nvjpeg;
 //   - Enum types satisfy std::is_enum_v
 //   - Key enumerator values match the nvJPEG-specified integer values
 //   - Opaque handle types are pointer types (std::is_pointer_v)
-// Link-time checks (GPUMOD_LINK_CHECK) verify that every re-exported function
+// Link-time checks (WWR_LINK_CHECK) verify that every re-exported function
 // symbol resolves at link time.
 // ========================================================================
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -168,116 +168,116 @@ static_assert(std::is_pointer_v<nvjpegJpegDecoder_t>);
 // ────────────────────────────────────────────────────────────────────────
 
 // Library property and version
-GPUMOD_LINK_CHECK(nvjpegGetProperty)
-GPUMOD_LINK_CHECK(nvjpegGetCudartProperty)
+WWR_LINK_CHECK(nvjpegGetProperty)
+WWR_LINK_CHECK(nvjpegGetCudartProperty)
 
 // Library handle management
-GPUMOD_LINK_CHECK(nvjpegCreate)
-GPUMOD_LINK_CHECK(nvjpegCreateSimple)
-GPUMOD_LINK_CHECK(nvjpegCreateEx)
-GPUMOD_LINK_CHECK(nvjpegCreateExV2)
-GPUMOD_LINK_CHECK(nvjpegDestroy)
+WWR_LINK_CHECK(nvjpegCreate)
+WWR_LINK_CHECK(nvjpegCreateSimple)
+WWR_LINK_CHECK(nvjpegCreateEx)
+WWR_LINK_CHECK(nvjpegCreateExV2)
+WWR_LINK_CHECK(nvjpegDestroy)
 
 // Memory padding configuration
-GPUMOD_LINK_CHECK(nvjpegSetDeviceMemoryPadding)
-GPUMOD_LINK_CHECK(nvjpegGetDeviceMemoryPadding)
-GPUMOD_LINK_CHECK(nvjpegSetPinnedMemoryPadding)
-GPUMOD_LINK_CHECK(nvjpegGetPinnedMemoryPadding)
+WWR_LINK_CHECK(nvjpegSetDeviceMemoryPadding)
+WWR_LINK_CHECK(nvjpegGetDeviceMemoryPadding)
+WWR_LINK_CHECK(nvjpegSetPinnedMemoryPadding)
+WWR_LINK_CHECK(nvjpegGetPinnedMemoryPadding)
 
 // Hardware info
-GPUMOD_LINK_CHECK(nvjpegGetHardwareDecoderInfo)
-GPUMOD_LINK_CHECK(nvjpegGetHardwareEncoderInfo)
+WWR_LINK_CHECK(nvjpegGetHardwareDecoderInfo)
+WWR_LINK_CHECK(nvjpegGetHardwareEncoderInfo)
 
 // Decoder state management
-GPUMOD_LINK_CHECK(nvjpegJpegStateCreate)
-GPUMOD_LINK_CHECK(nvjpegJpegStateDestroy)
+WWR_LINK_CHECK(nvjpegJpegStateCreate)
+WWR_LINK_CHECK(nvjpegJpegStateDestroy)
 
 // Image info query
-GPUMOD_LINK_CHECK(nvjpegGetImageInfo)
+WWR_LINK_CHECK(nvjpegGetImageInfo)
 
 // Simple decode
-GPUMOD_LINK_CHECK(nvjpegDecode)
+WWR_LINK_CHECK(nvjpegDecode)
 
 // Batch decoding
-GPUMOD_LINK_CHECK(nvjpegDecodeBatchedInitialize)
-GPUMOD_LINK_CHECK(nvjpegDecodeBatched)
-GPUMOD_LINK_CHECK(nvjpegDecodeBatchedPreAllocate)
-GPUMOD_LINK_CHECK(nvjpegDecodeBatchedParseJpegTables)
-GPUMOD_LINK_CHECK(nvjpegDecodeBatchedSupported)
-GPUMOD_LINK_CHECK(nvjpegDecodeBatchedSupportedEx)
-GPUMOD_LINK_CHECK(nvjpegDecodeBatchedEx)
+WWR_LINK_CHECK(nvjpegDecodeBatchedInitialize)
+WWR_LINK_CHECK(nvjpegDecodeBatched)
+WWR_LINK_CHECK(nvjpegDecodeBatchedPreAllocate)
+WWR_LINK_CHECK(nvjpegDecodeBatchedParseJpegTables)
+WWR_LINK_CHECK(nvjpegDecodeBatchedSupported)
+WWR_LINK_CHECK(nvjpegDecodeBatchedSupportedEx)
+WWR_LINK_CHECK(nvjpegDecodeBatchedEx)
 
 // Encoder state and params management
-GPUMOD_LINK_CHECK(nvjpegEncoderStateCreate)
-GPUMOD_LINK_CHECK(nvjpegEncoderStateCreateWithBackend)
-GPUMOD_LINK_CHECK(nvjpegEncoderStateDestroy)
-GPUMOD_LINK_CHECK(nvjpegEncoderParamsCreate)
-GPUMOD_LINK_CHECK(nvjpegEncoderParamsDestroy)
-GPUMOD_LINK_CHECK(nvjpegEncoderParamsSetQuality)
-GPUMOD_LINK_CHECK(nvjpegEncoderParamsSetEncoding)
-GPUMOD_LINK_CHECK(nvjpegEncoderParamsSetOptimizedHuffman)
-GPUMOD_LINK_CHECK(nvjpegEncoderParamsSetSamplingFactors)
-GPUMOD_LINK_CHECK(nvjpegEncoderParamsSetRestartInterval)
+WWR_LINK_CHECK(nvjpegEncoderStateCreate)
+WWR_LINK_CHECK(nvjpegEncoderStateCreateWithBackend)
+WWR_LINK_CHECK(nvjpegEncoderStateDestroy)
+WWR_LINK_CHECK(nvjpegEncoderParamsCreate)
+WWR_LINK_CHECK(nvjpegEncoderParamsDestroy)
+WWR_LINK_CHECK(nvjpegEncoderParamsSetQuality)
+WWR_LINK_CHECK(nvjpegEncoderParamsSetEncoding)
+WWR_LINK_CHECK(nvjpegEncoderParamsSetOptimizedHuffman)
+WWR_LINK_CHECK(nvjpegEncoderParamsSetSamplingFactors)
+WWR_LINK_CHECK(nvjpegEncoderParamsSetRestartInterval)
 
 // Encode functions
-GPUMOD_LINK_CHECK(nvjpegEncodeGetBufferSize)
-GPUMOD_LINK_CHECK(nvjpegEncodeYUV)
-GPUMOD_LINK_CHECK(nvjpegEncodeImage)
-GPUMOD_LINK_CHECK(nvjpegEncode)
-GPUMOD_LINK_CHECK(nvjpegEncodeRetrieveBitstreamDevice)
-GPUMOD_LINK_CHECK(nvjpegEncodeRetrieveBitstream)
+WWR_LINK_CHECK(nvjpegEncodeGetBufferSize)
+WWR_LINK_CHECK(nvjpegEncodeYUV)
+WWR_LINK_CHECK(nvjpegEncodeImage)
+WWR_LINK_CHECK(nvjpegEncode)
+WWR_LINK_CHECK(nvjpegEncodeRetrieveBitstreamDevice)
+WWR_LINK_CHECK(nvjpegEncodeRetrieveBitstream)
 
 // Buffer management (API v2)
-GPUMOD_LINK_CHECK(nvjpegBufferPinnedCreate)
-GPUMOD_LINK_CHECK(nvjpegBufferPinnedCreateV2)
-GPUMOD_LINK_CHECK(nvjpegBufferPinnedResize)
-GPUMOD_LINK_CHECK(nvjpegBufferPinnedDestroy)
-GPUMOD_LINK_CHECK(nvjpegBufferPinnedRetrieve)
-GPUMOD_LINK_CHECK(nvjpegBufferDeviceCreate)
-GPUMOD_LINK_CHECK(nvjpegBufferDeviceCreateV2)
-GPUMOD_LINK_CHECK(nvjpegBufferDeviceResize)
-GPUMOD_LINK_CHECK(nvjpegBufferDeviceDestroy)
-GPUMOD_LINK_CHECK(nvjpegBufferDeviceRetrieve)
-GPUMOD_LINK_CHECK(nvjpegStateAttachPinnedBuffer)
-GPUMOD_LINK_CHECK(nvjpegStateAttachDeviceBuffer)
+WWR_LINK_CHECK(nvjpegBufferPinnedCreate)
+WWR_LINK_CHECK(nvjpegBufferPinnedCreateV2)
+WWR_LINK_CHECK(nvjpegBufferPinnedResize)
+WWR_LINK_CHECK(nvjpegBufferPinnedDestroy)
+WWR_LINK_CHECK(nvjpegBufferPinnedRetrieve)
+WWR_LINK_CHECK(nvjpegBufferDeviceCreate)
+WWR_LINK_CHECK(nvjpegBufferDeviceCreateV2)
+WWR_LINK_CHECK(nvjpegBufferDeviceResize)
+WWR_LINK_CHECK(nvjpegBufferDeviceDestroy)
+WWR_LINK_CHECK(nvjpegBufferDeviceRetrieve)
+WWR_LINK_CHECK(nvjpegStateAttachPinnedBuffer)
+WWR_LINK_CHECK(nvjpegStateAttachDeviceBuffer)
 
 // JPEG stream (header / metadata parsing)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamCreate)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamDestroy)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamParse)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamParseHeader)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamParseTables)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamGetJpegEncoding)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamGetFrameDimensions)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamGetComponentsNum)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamGetComponentDimensions)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamGetExifOrientation)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamGetSamplePrecision)
-GPUMOD_LINK_CHECK(nvjpegJpegStreamGetChromaSubsampling)
+WWR_LINK_CHECK(nvjpegJpegStreamCreate)
+WWR_LINK_CHECK(nvjpegJpegStreamDestroy)
+WWR_LINK_CHECK(nvjpegJpegStreamParse)
+WWR_LINK_CHECK(nvjpegJpegStreamParseHeader)
+WWR_LINK_CHECK(nvjpegJpegStreamParseTables)
+WWR_LINK_CHECK(nvjpegJpegStreamGetJpegEncoding)
+WWR_LINK_CHECK(nvjpegJpegStreamGetFrameDimensions)
+WWR_LINK_CHECK(nvjpegJpegStreamGetComponentsNum)
+WWR_LINK_CHECK(nvjpegJpegStreamGetComponentDimensions)
+WWR_LINK_CHECK(nvjpegJpegStreamGetExifOrientation)
+WWR_LINK_CHECK(nvjpegJpegStreamGetSamplePrecision)
+WWR_LINK_CHECK(nvjpegJpegStreamGetChromaSubsampling)
 
 // Decode params management
-GPUMOD_LINK_CHECK(nvjpegDecodeParamsCreate)
-GPUMOD_LINK_CHECK(nvjpegDecodeParamsDestroy)
-GPUMOD_LINK_CHECK(nvjpegDecodeParamsSetOutputFormat)
-GPUMOD_LINK_CHECK(nvjpegDecodeParamsSetROI)
-GPUMOD_LINK_CHECK(nvjpegDecodeParamsSetAllowCMYK)
-GPUMOD_LINK_CHECK(nvjpegDecodeParamsSetScaleFactor)
-GPUMOD_LINK_CHECK(nvjpegDecodeParamsSetExifOrientation)
+WWR_LINK_CHECK(nvjpegDecodeParamsCreate)
+WWR_LINK_CHECK(nvjpegDecodeParamsDestroy)
+WWR_LINK_CHECK(nvjpegDecodeParamsSetOutputFormat)
+WWR_LINK_CHECK(nvjpegDecodeParamsSetROI)
+WWR_LINK_CHECK(nvjpegDecodeParamsSetAllowCMYK)
+WWR_LINK_CHECK(nvjpegDecodeParamsSetScaleFactor)
+WWR_LINK_CHECK(nvjpegDecodeParamsSetExifOrientation)
 
 // Advanced decoder lifecycle (API v2)
-GPUMOD_LINK_CHECK(nvjpegDecoderCreate)
-GPUMOD_LINK_CHECK(nvjpegDecoderDestroy)
-GPUMOD_LINK_CHECK(nvjpegDecoderJpegSupported)
-GPUMOD_LINK_CHECK(nvjpegDecoderStateCreate)
+WWR_LINK_CHECK(nvjpegDecoderCreate)
+WWR_LINK_CHECK(nvjpegDecoderDestroy)
+WWR_LINK_CHECK(nvjpegDecoderJpegSupported)
+WWR_LINK_CHECK(nvjpegDecoderStateCreate)
 
 // Advanced decode functions (API v2)
-GPUMOD_LINK_CHECK(nvjpegDecodeJpeg)
-GPUMOD_LINK_CHECK(nvjpegDecodeJpegHost)
-GPUMOD_LINK_CHECK(nvjpegDecodeJpegTransferToDevice)
-GPUMOD_LINK_CHECK(nvjpegDecodeJpegDevice)
+WWR_LINK_CHECK(nvjpegDecodeJpeg)
+WWR_LINK_CHECK(nvjpegDecodeJpegHost)
+WWR_LINK_CHECK(nvjpegDecodeJpegTransferToDevice)
+WWR_LINK_CHECK(nvjpegDecodeJpegDevice)
 
 // Note: nvjpegEncoderParamsCopyMetadata and nvjpegEncoderParamsCopyQuantizationTables
-// are declared without NVJPEGAPI in the header (transcoding helpers); GPUMOD_LINK_CHECK is
+// are declared without NVJPEGAPI in the header (transcoding helpers); WWR_LINK_CHECK is
 // intentionally omitted for those two symbols.
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

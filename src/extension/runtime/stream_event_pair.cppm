@@ -14,7 +14,7 @@ import gpumod.extension.common;
 import gpumod.runtime_api;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Configuration for StreamEventPair construction.
@@ -77,4 +77,4 @@ public:
   gpuError_t event_sync() { return event_.sync(); }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

@@ -17,7 +17,7 @@
 [check]
 module = "gpumod.wrappers.fft"
 prefix = "gpufft"
-# gpumod.fft is pure GPUMOD_FUNCTION aliases -- no inline forwarders to
+# gpumod.fft is pure WWR_FUNCTION aliases -- no inline forwarders to
 # recognise, unlike gpumod.blas -- so there is no forwarder_module here. The
 # exec wrappers are templated on precision alone (float/double), so no
 # [type_names] complex-type mapping is needed either.

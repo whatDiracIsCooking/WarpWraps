@@ -24,9 +24,9 @@ import gpumod.hip.hip_fp4;
 // as CUDA's fp4 storage sizes.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Storage typedef sizes
@@ -80,7 +80,7 @@ static_assert(std::is_standard_layout_v<__hip_fp4x4_e2m1>);
 
 // ────────────────────────────────────────────────────────────────────────
 // Inline wrapper function invocability checks
-// GPUMOD_LINK_CHECK is not applicable for inline functions (no external symbol).
+// WWR_LINK_CHECK is not applicable for inline functions (no external symbol).
 // ────────────────────────────────────────────────────────────────────────
 
 // Narrowing conversions (to fp4 storage)
@@ -136,4 +136,4 @@ static_assert(
                                         __hip_fp4x2_storage_t, __hip_fp4_interpretation_t>,
                    __half2_raw>);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

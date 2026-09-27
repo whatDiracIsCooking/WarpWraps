@@ -11,7 +11,7 @@ import gpumod.fft;
 import gpumod.extension.common;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Success Code Specialization
@@ -78,4 +78,4 @@ template bool gpu_check<gpufftResult_t, DefaultErrorPolicy<gpufftResult_t>>(
     const gpufftResult_t error, DefaultErrorPolicy<gpufftResult_t> &policy,
     std::source_location location);
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

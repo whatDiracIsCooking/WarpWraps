@@ -1,6 +1,6 @@
 #pragma once
 
-// GPUMOD_LINK_CHECK(sym)
+// WWR_LINK_CHECK(sym)
 //
 // Forces the linker to resolve `sym` at build time without a runtime call.
 // Place in the global module fragment of a compile-time test module.
@@ -8,7 +8,7 @@
 // Usage:
 //   module;
 //   #include "test/shared/link_check.h"
-//   GPUMOD_LINK_CHECK(cudaMalloc)
+//   WWR_LINK_CHECK(cudaMalloc)
 //
 // Two things make the check real, and both are needed:
 //
@@ -24,16 +24,16 @@
 //
 // A symbol that is declared by the wrapper but has no definition in any linked
 // library now fails the link of cuda_compile_tests with "undefined reference".
-#define GPUMOD_LINK_CHECK(sym)                                                                     \
+#define WWR_LINK_CHECK(sym)                                                                     \
   [[maybe_unused, gnu::used]] static constinit auto *link_check_##sym = &sym;
 
-// GPUMOD_DECLARED_CHECK(sym)
+// WWR_DECLARED_CHECK(sym)
 //
 // For a symbol the vendor header declares but the CUDA library does not export,
-// so GPUMOD_LINK_CHECK cannot pass. Only checks that the name resolves through the
+// so WWR_LINK_CHECK cannot pass. Only checks that the name resolves through the
 // wrapper module; it takes the address without forcing a reference, so nothing
-// reaches the linker. Use it in place of GPUMOD_LINK_CHECK, with a comment naming the
+// reaches the linker. Use it in place of WWR_LINK_CHECK, with a comment naming the
 // library version the symbol was found missing from -- and switch back to
-// GPUMOD_LINK_CHECK when a newer library exports it.
-#define GPUMOD_DECLARED_CHECK(sym)                                                                 \
+// WWR_LINK_CHECK when a newer library exports it.
+#define WWR_DECLARED_CHECK(sym)                                                                 \
   [[maybe_unused]] static constexpr auto *declared_check_##sym = &sym;

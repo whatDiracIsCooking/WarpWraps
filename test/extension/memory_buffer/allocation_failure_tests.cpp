@@ -22,7 +22,7 @@ import gpumod.extension.memory_buffer;
 
 #include "counting_policy.h"
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Allocation failure: the alloc passes the size check but cannot succeed
@@ -54,4 +54,4 @@ TEST(AllocationFailureTests, FailedDeviceAllocationLeavesCoherentEmptyBuffer) {
   static_cast<void>(gpuGetLastError());
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

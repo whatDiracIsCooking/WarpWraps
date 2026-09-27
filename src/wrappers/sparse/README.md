@@ -8,7 +8,7 @@ function is selected at compile time via `if constexpr` dispatch.
 
 It is backend-neutral: written once against `src/sparse`'s `gpusparse*` names
 (`gpusparseSbsrmv` is `cusparseSbsrmv` on a CUDA build and `hipsparseSbsrmv` on a
-HIP build), so the same source builds for either `GPUMOD_GPU_BACKEND`.
+HIP build), so the same source builds for either `WWR_GPU_BACKEND`.
 
 **Import:** `import gpumod.wrappers.sparse;`
 **Namespace:** `gpumod`
@@ -109,7 +109,7 @@ device.
 ## Build
 
 ```
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME gpumod.wrappers.sparse
   PRIMARY_INTERFACE interface.cppm
   PARTITIONS level_2.cppm solvers.cppm extra.cppm conversion.cppm
@@ -119,6 +119,6 @@ gpumod_add_cxx_module_library(
 )
 ```
 
-`dispatch_macros.h` (the `gpusparse`-prefixed `GPUMOD_USUAL_DISPATCH`) sits next to the
+`dispatch_macros.h` (the `gpusparse`-prefixed `WWR_USUAL_DISPATCH`) sits next to the
 sources and is included same-dir; it builds on the prefix-agnostic
-`GPUMOD_REAL_DISPATCH` / `GPUMOD_COMPLEX_DISPATCH` cores shared from `wrappers/common/dispatch_sdcz.h`.
+`WWR_REAL_DISPATCH` / `WWR_COMPLEX_DISPATCH` cores shared from `wrappers/common/dispatch_sdcz.h`.

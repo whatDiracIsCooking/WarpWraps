@@ -17,7 +17,7 @@
  *
  * Usage:
  *   import gpumod.extension.common;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  */
 
 export module gpumod.extension.common;

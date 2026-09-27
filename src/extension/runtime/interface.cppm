@@ -13,7 +13,7 @@
  *
  * Usage:
  *   import gpumod.extension.runtime;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  *
  *   GpuStream stream;
  *   GpuEvent event;

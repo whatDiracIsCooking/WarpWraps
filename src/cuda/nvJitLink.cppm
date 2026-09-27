@@ -18,7 +18,7 @@ export module gpumod.cuda.nvJitLink;
 
 import std;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Result / Status Type
@@ -149,4 +149,4 @@ inline nvJitLinkResult nvJitLinkGetInfoLog(nvJitLinkHandle handle, char *log) {
 // ========================================================================
 using ::nvJitLinkVersion;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

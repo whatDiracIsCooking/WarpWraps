@@ -38,7 +38,7 @@ export module gpumod.hip.hipsparse;
 
 import std;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Opaque Handle Types
@@ -799,4 +799,4 @@ using ::hipsparseSpSV_destroyDescr;
 using ::hipsparseSpSV_solve;
 using ::hipsparseSpVV;
 using ::hipsparseSpVV_bufferSize;
-} // namespace gpumod::hip
+} // namespace wwr::hip

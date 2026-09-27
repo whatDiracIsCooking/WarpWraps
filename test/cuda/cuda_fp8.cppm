@@ -22,8 +22,8 @@ import gpumod.cuda.cuda_fp8;
 //      argument types (std::is_invocable_v checks)
 //
 // Note: The conversion wrappers (__nv_cvt_*) are exported as inline
-// functions in the gpumod namespace. Because they are inline (not
-// separately linkable symbols), GPUMOD_LINK_CHECK is not applicable; instead
+// functions in the wwr namespace. Because they are inline (not
+// separately linkable symbols), WWR_LINK_CHECK is not applicable; instead
 // std::is_invocable_v verifies the signatures at compile time.
 //
 // Note: The C++ fp8 struct types (__nv_fp8_e4m3, etc.) have user-defined
@@ -31,9 +31,9 @@ import gpumod.cuda.cuda_fp8;
 // however, standard layout.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Storage typedef sizes
@@ -135,8 +135,8 @@ static_assert(std::is_standard_layout_v<__nv_fp8x4_e8m0>);
 // Inline wrapper function invocability checks
 //
 // Each static_assert confirms that the exported inline wrapper in the
-// gpumod namespace is callable with the expected argument types.
-// GPUMOD_LINK_CHECK is not applicable for inline functions (no external symbol).
+// wwr namespace is callable with the expected argument types.
+// WWR_LINK_CHECK is not applicable for inline functions (no external symbol).
 // ────────────────────────────────────────────────────────────────────────
 
 // Narrowing conversions (to fp8 storage)
@@ -221,4 +221,4 @@ static_assert(std::is_same_v<
               std::invoke_result_t<decltype(__nv_cvt_e8m0x2_to_bf162raw), __nv_fp8x2_storage_t>,
               __nv_bfloat162_raw>);
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

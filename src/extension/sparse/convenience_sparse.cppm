@@ -14,7 +14,7 @@ import gpumod.sparse;
 import gpumod.extension.common;
 import gpumod.extension.handle;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Convenient alias for GpusparseHandleWrapper with default error policies
@@ -29,4 +29,4 @@ using GpusparseHandle = GpusparseHandleWrapper<>;
 ///        the gpusparse* wrappers, so a borrowed handle can be used without owning it.
 using GpusparseHandleView = DeviceBoundHandleView<gpusparseHandle_t>;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

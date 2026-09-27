@@ -9,14 +9,14 @@
  *
  * Usage:
  *   import gpumod.extension.common;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  */
 
 export module gpumod.extension.common.error_handling:error_policy;
 
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Error Policy Concepts
@@ -69,4 +69,4 @@ template<typename P>
 concept typed_error_policy =
     requires { typename P::error_type; } && error_policy<P, typename P::error_type>;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

@@ -18,10 +18,10 @@ export module gpumod.cuda.nvjpeg;
 import std;
 
 // ========================================================================
-// Export all nvJPEG types and functions in gpumod namespace
+// Export all nvJPEG types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Status Codes
@@ -341,4 +341,4 @@ using ::nvjpegDecodeJpegTransferToDevice;
 using ::nvjpegEncoderParamsCopyMetadata;
 using ::nvjpegEncoderParamsCopyQuantizationTables;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

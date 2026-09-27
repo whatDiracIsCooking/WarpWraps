@@ -32,25 +32,25 @@ module;
 
 export module gpumod.fft;
 
-#if defined(GPUMOD_GPU_BACKEND_CUDA)
+#if defined(WWR_GPU_BACKEND_CUDA)
 import gpumod.cuda.cufft;
 #else
 import gpumod.hip.hipfft;
 #endif
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // Types
 // ========================================================================
 
-GPUMOD_TYPE(gpufftHandle, cufftHandle, hipfftHandle)
-GPUMOD_TYPE(gpufftResult_t, cufftResult_t, hipfftResult_t)
-GPUMOD_TYPE(gpufftType_t, cufftType_t, hipfftType_t)
-GPUMOD_TYPE(gpufftReal, cufftReal, hipfftReal)
-GPUMOD_TYPE(gpufftDoubleReal, cufftDoubleReal, hipfftDoubleReal)
-GPUMOD_TYPE(gpufftComplex, cufftComplex, hipfftComplex)
-GPUMOD_TYPE(gpufftDoubleComplex, cufftDoubleComplex, hipfftDoubleComplex)
+WWR_TYPE(gpufftHandle, cufftHandle, hipfftHandle)
+WWR_TYPE(gpufftResult_t, cufftResult_t, hipfftResult_t)
+WWR_TYPE(gpufftType_t, cufftType_t, hipfftType_t)
+WWR_TYPE(gpufftReal, cufftReal, hipfftReal)
+WWR_TYPE(gpufftDoubleReal, cufftDoubleReal, hipfftDoubleReal)
+WWR_TYPE(gpufftComplex, cufftComplex, hipfftComplex)
+WWR_TYPE(gpufftDoubleComplex, cufftDoubleComplex, hipfftDoubleComplex)
 
 // ========================================================================
 // Constants
@@ -58,34 +58,34 @@ GPUMOD_TYPE(gpufftDoubleComplex, cufftDoubleComplex, hipfftDoubleComplex)
 
 // FFT direction flags (the `direction` argument to gpufftExecC2C/Z2Z).
 // cuFFT: CUFFT_FORWARD/CUFFT_INVERSE; hipFFT: HIPFFT_FORWARD/HIPFFT_BACKWARD.
-GPUMOD_VALUE(GPUFFT_FORWARD, CUFFT_FORWARD, HIPFFT_FORWARD)
-GPUMOD_VALUE(GPUFFT_INVERSE, CUFFT_INVERSE, HIPFFT_BACKWARD)
+WWR_VALUE(GPUFFT_FORWARD, CUFFT_FORWARD, HIPFFT_FORWARD)
+WWR_VALUE(GPUFFT_INVERSE, CUFFT_INVERSE, HIPFFT_BACKWARD)
 
 // Transform type (the `type` argument to the plan-creation functions).
-GPUMOD_VALUE(GPUFFT_R2C, CUFFT_R2C, HIPFFT_R2C)
-GPUMOD_VALUE(GPUFFT_C2R, CUFFT_C2R, HIPFFT_C2R)
-GPUMOD_VALUE(GPUFFT_C2C, CUFFT_C2C, HIPFFT_C2C)
-GPUMOD_VALUE(GPUFFT_D2Z, CUFFT_D2Z, HIPFFT_D2Z)
-GPUMOD_VALUE(GPUFFT_Z2D, CUFFT_Z2D, HIPFFT_Z2D)
-GPUMOD_VALUE(GPUFFT_Z2Z, CUFFT_Z2Z, HIPFFT_Z2Z)
+WWR_VALUE(GPUFFT_R2C, CUFFT_R2C, HIPFFT_R2C)
+WWR_VALUE(GPUFFT_C2R, CUFFT_C2R, HIPFFT_C2R)
+WWR_VALUE(GPUFFT_C2C, CUFFT_C2C, HIPFFT_C2C)
+WWR_VALUE(GPUFFT_D2Z, CUFFT_D2Z, HIPFFT_D2Z)
+WWR_VALUE(GPUFFT_Z2D, CUFFT_Z2D, HIPFFT_Z2D)
+WWR_VALUE(GPUFFT_Z2Z, CUFFT_Z2Z, HIPFFT_Z2Z)
 
 // Result codes -- the 14 shared by both enums. cuFFT-only (MISSING_DEPENDENCY,
 // NVRTC/NVJITLINK/NVSHMEM_FAILURE) and hipFFT-only (INCOMPLETE_PARAMETER_LIST,
 // PARSE_ERROR) codes are reached through the raw module.
-GPUMOD_VALUE(GPUFFT_SUCCESS, CUFFT_SUCCESS, HIPFFT_SUCCESS)
-GPUMOD_VALUE(GPUFFT_INVALID_PLAN, CUFFT_INVALID_PLAN, HIPFFT_INVALID_PLAN)
-GPUMOD_VALUE(GPUFFT_ALLOC_FAILED, CUFFT_ALLOC_FAILED, HIPFFT_ALLOC_FAILED)
-GPUMOD_VALUE(GPUFFT_INVALID_TYPE, CUFFT_INVALID_TYPE, HIPFFT_INVALID_TYPE)
-GPUMOD_VALUE(GPUFFT_INVALID_VALUE, CUFFT_INVALID_VALUE, HIPFFT_INVALID_VALUE)
-GPUMOD_VALUE(GPUFFT_INTERNAL_ERROR, CUFFT_INTERNAL_ERROR, HIPFFT_INTERNAL_ERROR)
-GPUMOD_VALUE(GPUFFT_EXEC_FAILED, CUFFT_EXEC_FAILED, HIPFFT_EXEC_FAILED)
-GPUMOD_VALUE(GPUFFT_SETUP_FAILED, CUFFT_SETUP_FAILED, HIPFFT_SETUP_FAILED)
-GPUMOD_VALUE(GPUFFT_INVALID_SIZE, CUFFT_INVALID_SIZE, HIPFFT_INVALID_SIZE)
-GPUMOD_VALUE(GPUFFT_UNALIGNED_DATA, CUFFT_UNALIGNED_DATA, HIPFFT_UNALIGNED_DATA)
-GPUMOD_VALUE(GPUFFT_INVALID_DEVICE, CUFFT_INVALID_DEVICE, HIPFFT_INVALID_DEVICE)
-GPUMOD_VALUE(GPUFFT_NO_WORKSPACE, CUFFT_NO_WORKSPACE, HIPFFT_NO_WORKSPACE)
-GPUMOD_VALUE(GPUFFT_NOT_IMPLEMENTED, CUFFT_NOT_IMPLEMENTED, HIPFFT_NOT_IMPLEMENTED)
-GPUMOD_VALUE(GPUFFT_NOT_SUPPORTED, CUFFT_NOT_SUPPORTED, HIPFFT_NOT_SUPPORTED)
+WWR_VALUE(GPUFFT_SUCCESS, CUFFT_SUCCESS, HIPFFT_SUCCESS)
+WWR_VALUE(GPUFFT_INVALID_PLAN, CUFFT_INVALID_PLAN, HIPFFT_INVALID_PLAN)
+WWR_VALUE(GPUFFT_ALLOC_FAILED, CUFFT_ALLOC_FAILED, HIPFFT_ALLOC_FAILED)
+WWR_VALUE(GPUFFT_INVALID_TYPE, CUFFT_INVALID_TYPE, HIPFFT_INVALID_TYPE)
+WWR_VALUE(GPUFFT_INVALID_VALUE, CUFFT_INVALID_VALUE, HIPFFT_INVALID_VALUE)
+WWR_VALUE(GPUFFT_INTERNAL_ERROR, CUFFT_INTERNAL_ERROR, HIPFFT_INTERNAL_ERROR)
+WWR_VALUE(GPUFFT_EXEC_FAILED, CUFFT_EXEC_FAILED, HIPFFT_EXEC_FAILED)
+WWR_VALUE(GPUFFT_SETUP_FAILED, CUFFT_SETUP_FAILED, HIPFFT_SETUP_FAILED)
+WWR_VALUE(GPUFFT_INVALID_SIZE, CUFFT_INVALID_SIZE, HIPFFT_INVALID_SIZE)
+WWR_VALUE(GPUFFT_UNALIGNED_DATA, CUFFT_UNALIGNED_DATA, HIPFFT_UNALIGNED_DATA)
+WWR_VALUE(GPUFFT_INVALID_DEVICE, CUFFT_INVALID_DEVICE, HIPFFT_INVALID_DEVICE)
+WWR_VALUE(GPUFFT_NO_WORKSPACE, CUFFT_NO_WORKSPACE, HIPFFT_NO_WORKSPACE)
+WWR_VALUE(GPUFFT_NOT_IMPLEMENTED, CUFFT_NOT_IMPLEMENTED, HIPFFT_NOT_IMPLEMENTED)
+WWR_VALUE(GPUFFT_NOT_SUPPORTED, CUFFT_NOT_SUPPORTED, HIPFFT_NOT_SUPPORTED)
 
 // ========================================================================
 // Status strings: neither backend ships a status-to-string function, so
@@ -94,7 +94,7 @@ GPUMOD_VALUE(GPUFFT_NOT_SUPPORTED, CUFFT_NOT_SUPPORTED, HIPFFT_NOT_SUPPORTED)
 // ========================================================================
 
 inline const char *gpufftGetStatusName(gpufftResult_t error) noexcept {
-#if defined(GPUMOD_GPU_BACKEND_CUDA)
+#if defined(WWR_GPU_BACKEND_CUDA)
   switch (error) {
   case CUFFT_SUCCESS:
     return "CUFFT_SUCCESS";
@@ -176,7 +176,7 @@ inline const char *gpufftGetStatusName(gpufftResult_t error) noexcept {
 }
 
 inline const char *gpufftGetStatusString(gpufftResult_t error) noexcept {
-#if defined(GPUMOD_GPU_BACKEND_CUDA)
+#if defined(WWR_GPU_BACKEND_CUDA)
   switch (error) {
   case CUFFT_SUCCESS:
     return "the operation completed successfully";
@@ -261,66 +261,66 @@ inline const char *gpufftGetStatusString(gpufftResult_t error) noexcept {
 // Lifecycle
 // ========================================================================
 
-GPUMOD_FUNCTION(gpufftCreate, cufftCreate, hipfftCreate)
-GPUMOD_FUNCTION(gpufftDestroy, cufftDestroy, hipfftDestroy)
-GPUMOD_FUNCTION(gpufftSetStream, cufftSetStream, hipfftSetStream)
-GPUMOD_FUNCTION(gpufftGetVersion, cufftGetVersion, hipfftGetVersion)
+WWR_FUNCTION(gpufftCreate, cufftCreate, hipfftCreate)
+WWR_FUNCTION(gpufftDestroy, cufftDestroy, hipfftDestroy)
+WWR_FUNCTION(gpufftSetStream, cufftSetStream, hipfftSetStream)
+WWR_FUNCTION(gpufftGetVersion, cufftGetVersion, hipfftGetVersion)
 
 // ========================================================================
 // Plan creation (one-shot)
 // ========================================================================
 
-GPUMOD_FUNCTION(gpufftPlan1d, cufftPlan1d, hipfftPlan1d)
-GPUMOD_FUNCTION(gpufftPlan2d, cufftPlan2d, hipfftPlan2d)
-GPUMOD_FUNCTION(gpufftPlan3d, cufftPlan3d, hipfftPlan3d)
-GPUMOD_FUNCTION(gpufftPlanMany, cufftPlanMany, hipfftPlanMany)
+WWR_FUNCTION(gpufftPlan1d, cufftPlan1d, hipfftPlan1d)
+WWR_FUNCTION(gpufftPlan2d, cufftPlan2d, hipfftPlan2d)
+WWR_FUNCTION(gpufftPlan3d, cufftPlan3d, hipfftPlan3d)
+WWR_FUNCTION(gpufftPlanMany, cufftPlanMany, hipfftPlanMany)
 
 // ========================================================================
 // Plan make (two-step: gpufftCreate, then MakePlan*)
 // ========================================================================
 
-GPUMOD_FUNCTION(gpufftMakePlan1d, cufftMakePlan1d, hipfftMakePlan1d)
-GPUMOD_FUNCTION(gpufftMakePlan2d, cufftMakePlan2d, hipfftMakePlan2d)
-GPUMOD_FUNCTION(gpufftMakePlan3d, cufftMakePlan3d, hipfftMakePlan3d)
-GPUMOD_FUNCTION(gpufftMakePlanMany, cufftMakePlanMany, hipfftMakePlanMany)
-GPUMOD_FUNCTION(gpufftMakePlanMany64, cufftMakePlanMany64, hipfftMakePlanMany64)
+WWR_FUNCTION(gpufftMakePlan1d, cufftMakePlan1d, hipfftMakePlan1d)
+WWR_FUNCTION(gpufftMakePlan2d, cufftMakePlan2d, hipfftMakePlan2d)
+WWR_FUNCTION(gpufftMakePlan3d, cufftMakePlan3d, hipfftMakePlan3d)
+WWR_FUNCTION(gpufftMakePlanMany, cufftMakePlanMany, hipfftMakePlanMany)
+WWR_FUNCTION(gpufftMakePlanMany64, cufftMakePlanMany64, hipfftMakePlanMany64)
 
 // ========================================================================
 // Work size estimation
 // ========================================================================
 
-GPUMOD_FUNCTION(gpufftEstimate1d, cufftEstimate1d, hipfftEstimate1d)
-GPUMOD_FUNCTION(gpufftEstimate2d, cufftEstimate2d, hipfftEstimate2d)
-GPUMOD_FUNCTION(gpufftEstimate3d, cufftEstimate3d, hipfftEstimate3d)
-GPUMOD_FUNCTION(gpufftEstimateMany, cufftEstimateMany, hipfftEstimateMany)
+WWR_FUNCTION(gpufftEstimate1d, cufftEstimate1d, hipfftEstimate1d)
+WWR_FUNCTION(gpufftEstimate2d, cufftEstimate2d, hipfftEstimate2d)
+WWR_FUNCTION(gpufftEstimate3d, cufftEstimate3d, hipfftEstimate3d)
+WWR_FUNCTION(gpufftEstimateMany, cufftEstimateMany, hipfftEstimateMany)
 
 // ========================================================================
 // Work size query
 // ========================================================================
 
-GPUMOD_FUNCTION(gpufftGetSize1d, cufftGetSize1d, hipfftGetSize1d)
-GPUMOD_FUNCTION(gpufftGetSize2d, cufftGetSize2d, hipfftGetSize2d)
-GPUMOD_FUNCTION(gpufftGetSize3d, cufftGetSize3d, hipfftGetSize3d)
-GPUMOD_FUNCTION(gpufftGetSizeMany, cufftGetSizeMany, hipfftGetSizeMany)
-GPUMOD_FUNCTION(gpufftGetSizeMany64, cufftGetSizeMany64, hipfftGetSizeMany64)
-GPUMOD_FUNCTION(gpufftGetSize, cufftGetSize, hipfftGetSize)
+WWR_FUNCTION(gpufftGetSize1d, cufftGetSize1d, hipfftGetSize1d)
+WWR_FUNCTION(gpufftGetSize2d, cufftGetSize2d, hipfftGetSize2d)
+WWR_FUNCTION(gpufftGetSize3d, cufftGetSize3d, hipfftGetSize3d)
+WWR_FUNCTION(gpufftGetSizeMany, cufftGetSizeMany, hipfftGetSizeMany)
+WWR_FUNCTION(gpufftGetSizeMany64, cufftGetSizeMany64, hipfftGetSizeMany64)
+WWR_FUNCTION(gpufftGetSize, cufftGetSize, hipfftGetSize)
 
 // ========================================================================
 // Work area management
 // ========================================================================
 
-GPUMOD_FUNCTION(gpufftSetWorkArea, cufftSetWorkArea, hipfftSetWorkArea)
-GPUMOD_FUNCTION(gpufftSetAutoAllocation, cufftSetAutoAllocation, hipfftSetAutoAllocation)
+WWR_FUNCTION(gpufftSetWorkArea, cufftSetWorkArea, hipfftSetWorkArea)
+WWR_FUNCTION(gpufftSetAutoAllocation, cufftSetAutoAllocation, hipfftSetAutoAllocation)
 
 // ========================================================================
 // Execution
 // ========================================================================
 
-GPUMOD_FUNCTION(gpufftExecC2C, cufftExecC2C, hipfftExecC2C)
-GPUMOD_FUNCTION(gpufftExecR2C, cufftExecR2C, hipfftExecR2C)
-GPUMOD_FUNCTION(gpufftExecC2R, cufftExecC2R, hipfftExecC2R)
-GPUMOD_FUNCTION(gpufftExecZ2Z, cufftExecZ2Z, hipfftExecZ2Z)
-GPUMOD_FUNCTION(gpufftExecD2Z, cufftExecD2Z, hipfftExecD2Z)
-GPUMOD_FUNCTION(gpufftExecZ2D, cufftExecZ2D, hipfftExecZ2D)
+WWR_FUNCTION(gpufftExecC2C, cufftExecC2C, hipfftExecC2C)
+WWR_FUNCTION(gpufftExecR2C, cufftExecR2C, hipfftExecR2C)
+WWR_FUNCTION(gpufftExecC2R, cufftExecC2R, hipfftExecC2R)
+WWR_FUNCTION(gpufftExecZ2Z, cufftExecZ2Z, hipfftExecZ2Z)
+WWR_FUNCTION(gpufftExecD2Z, cufftExecD2Z, hipfftExecD2Z)
+WWR_FUNCTION(gpufftExecZ2D, cufftExecZ2D, hipfftExecZ2D)
 
-} // namespace gpumod
+} // namespace wwr

@@ -40,8 +40,8 @@ add_link_options($<$<COMPILE_LANGUAGE:CXX>:-lc++abi>)
 # module. Point CMAKE_PREFIX_PATH at the install prefix to locate it.
 find_package(gpumod 0.1 REQUIRED)
 
-message(STATUS "gpumod backend:   ${GPUMOD_GPU_BACKEND}")
-message(STATUS "gpumod warp size: ${GPUMOD_WARP_SIZE}")
+message(STATUS "gpumod backend:   ${WWR_GPU_BACKEND}")
+message(STATUS "gpumod warp size: ${WWR_WARP_SIZE}")
 
 add_executable(consumer main.cpp)
 

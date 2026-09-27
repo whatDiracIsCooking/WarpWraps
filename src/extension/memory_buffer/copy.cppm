@@ -7,7 +7,7 @@
  *
  * Usage:
  *   import gpumod.extension.memory_buffer;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  */
 
 export module gpumod.extension.memory_buffer:copy;
@@ -17,7 +17,7 @@ import :base_buffer;
 import :host_memory;
 import gpumod.runtime_api;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Validate buffer copy parameters
@@ -115,4 +115,4 @@ gpuError_t copy(B1 &dst, const std::size_t dst_offset, const B2 &src, const std:
                         count * B1::element_size, gpuMemcpyDefault, stream);
 }
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

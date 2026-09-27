@@ -11,7 +11,7 @@ module gpumod.wrappers.fft;
 
 import gpumod.fft;
 
-namespace gpumod {
+namespace wwr {
 
 // Function: exec_c2c
 template gpufftResult_t exec_c2c<float>(gpufftHandle, gpufftComplex *, gpufftComplex *, int);
@@ -26,4 +26,4 @@ template gpufftResult_t exec_r2c<double>(gpufftHandle, double *, gpufftDoubleCom
 template gpufftResult_t exec_c2r<float>(gpufftHandle, gpufftComplex *, float *);
 template gpufftResult_t exec_c2r<double>(gpufftHandle, gpufftDoubleComplex *, double *);
 
-} // namespace gpumod
+} // namespace wwr

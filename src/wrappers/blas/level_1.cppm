@@ -19,7 +19,7 @@ import gpumod.complex;
 import :type_traits;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // Index of maximum/minimum absolute value
@@ -27,14 +27,14 @@ export namespace gpumod {
 
 template<usual_fp T, int_type IntT>
 gpublasStatus_t iamax(gpublasHandle_t handle, IntT n, const T *x, IntT incx, IntT *result) {
-  GPUMOD_REAL_DISPATCH_64(T, IntT, gpublasI, s, d, amax, handle, n, x, incx, result);
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublasI, c, z, amax, handle, n, x, incx, result);
+  WWR_REAL_DISPATCH_64(T, IntT, gpublasI, s, d, amax, handle, n, x, incx, result);
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublasI, c, z, amax, handle, n, x, incx, result);
 }
 
 template<usual_fp T, int_type IntT>
 gpublasStatus_t iamin(gpublasHandle_t handle, IntT n, const T *x, IntT incx, IntT *result) {
-  GPUMOD_REAL_DISPATCH_64(T, IntT, gpublasI, s, d, amin, handle, n, x, incx, result);
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublasI, c, z, amin, handle, n, x, incx, result);
+  WWR_REAL_DISPATCH_64(T, IntT, gpublasI, s, d, amin, handle, n, x, incx, result);
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublasI, c, z, amin, handle, n, x, incx, result);
 }
 
 // ========================================================================
@@ -44,8 +44,8 @@ gpublasStatus_t iamin(gpublasHandle_t handle, IntT n, const T *x, IntT incx, Int
 template<usual_fp T, int_type IntT>
 gpublasStatus_t asum(gpublasHandle_t handle, IntT n, const T *x, IntT incx,
                      ComplexToRealType<T> *result) {
-  GPUMOD_REAL_DISPATCH_64(T, IntT, gpublas, S, D, asum, handle, n, x, incx, result);
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, Sc, Dz, asum, handle, n, x, incx, result);
+  WWR_REAL_DISPATCH_64(T, IntT, gpublas, S, D, asum, handle, n, x, incx, result);
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, Sc, Dz, asum, handle, n, x, incx, result);
 }
 
 // ========================================================================
@@ -55,7 +55,7 @@ gpublasStatus_t asum(gpublasHandle_t handle, IntT n, const T *x, IntT incx,
 template<usual_fp T, int_type IntT>
 gpublasStatus_t axpy(gpublasHandle_t handle, IntT n, const T *alpha, const T *x, IntT incx, T *y,
                      IntT incy) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, axpy, handle, n, alpha, x, incx, y, incy);
+  WWR_USUAL_DISPATCH_64(T, IntT, axpy, handle, n, alpha, x, incx, y, incy);
 }
 
 // ========================================================================
@@ -64,7 +64,7 @@ gpublasStatus_t axpy(gpublasHandle_t handle, IntT n, const T *alpha, const T *x,
 
 template<usual_fp T, int_type IntT>
 gpublasStatus_t copy(gpublasHandle_t handle, IntT n, const T *x, IntT incx, T *y, IntT incy) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, copy, handle, n, x, incx, y, incy);
+  WWR_USUAL_DISPATCH_64(T, IntT, copy, handle, n, x, incx, y, incy);
 }
 
 // ========================================================================
@@ -74,19 +74,19 @@ gpublasStatus_t copy(gpublasHandle_t handle, IntT n, const T *x, IntT incx, T *y
 template<real_fp T, int_type IntT>
 gpublasStatus_t dot(gpublasHandle_t handle, IntT n, const T *x, IntT incx, const T *y, IntT incy,
                     T *result) {
-  GPUMOD_REAL_DISPATCH_64(T, IntT, gpublas, S, D, dot, handle, n, x, incx, y, incy, result);
+  WWR_REAL_DISPATCH_64(T, IntT, gpublas, S, D, dot, handle, n, x, incx, y, incy, result);
 }
 
 template<complex_fp T, int_type IntT>
 gpublasStatus_t dotc(gpublasHandle_t handle, IntT n, const T *x, IntT incx, const T *y, IntT incy,
                      T *result) {
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, dotc, handle, n, x, incx, y, incy, result);
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, dotc, handle, n, x, incx, y, incy, result);
 }
 
 template<complex_fp T, int_type IntT>
 gpublasStatus_t dotu(gpublasHandle_t handle, IntT n, const T *x, IntT incx, const T *y, IntT incy,
                      T *result) {
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, dotu, handle, n, x, incx, y, incy, result);
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, dotu, handle, n, x, incx, y, incy, result);
 }
 
 // ========================================================================
@@ -96,8 +96,8 @@ gpublasStatus_t dotu(gpublasHandle_t handle, IntT n, const T *x, IntT incx, cons
 template<usual_fp T, int_type IntT>
 gpublasStatus_t nrm2(gpublasHandle_t handle, IntT n, const T *x, IntT incx,
                      ComplexToRealType<T> *result) {
-  GPUMOD_REAL_DISPATCH_64(T, IntT, gpublas, S, D, nrm2, handle, n, x, incx, result);
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, Sc, Dz, nrm2, handle, n, x, incx, result);
+  WWR_REAL_DISPATCH_64(T, IntT, gpublas, S, D, nrm2, handle, n, x, incx, result);
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, Sc, Dz, nrm2, handle, n, x, incx, result);
 }
 
 // ========================================================================
@@ -107,19 +107,19 @@ gpublasStatus_t nrm2(gpublasHandle_t handle, IntT n, const T *x, IntT incx,
 template<real_fp T, int_type IntT>
 gpublasStatus_t rot(gpublasHandle_t handle, IntT n, T *x, IntT incx, T *y, IntT incy, const T *c,
                     const T *s) {
-  GPUMOD_REAL_DISPATCH_64(T, IntT, gpublas, S, D, rot, handle, n, x, incx, y, incy, c, s);
+  WWR_REAL_DISPATCH_64(T, IntT, gpublas, S, D, rot, handle, n, x, incx, y, incy, c, s);
 }
 
 template<complex_fp T, int_type IntT>
 gpublasStatus_t rot(gpublasHandle_t handle, IntT n, T *x, IntT incx, T *y, IntT incy,
                     const ComplexToRealType<T> *c, const T *s) {
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, rot, handle, n, x, incx, y, incy, c, s);
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, C, Z, rot, handle, n, x, incx, y, incy, c, s);
 }
 
 template<complex_fp T, int_type IntT>
 gpublasStatus_t rot(gpublasHandle_t handle, IntT n, T *x, IntT incx, T *y, IntT incy,
                     const ComplexToRealType<T> *c, const ComplexToRealType<T> *s) {
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, Cs, Zd, rot, handle, n, x, incx, y, incy, c, s);
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, Cs, Zd, rot, handle, n, x, incx, y, incy, c, s);
 }
 
 // ========================================================================
@@ -130,12 +130,12 @@ gpublasStatus_t rot(gpublasHandle_t handle, IntT n, T *x, IntT incx, T *y, IntT 
 
 template<real_fp T, int_type IntT = int>
 gpublasStatus_t rotg(gpublasHandle_t handle, T *a, T *b, T *c, T *s) {
-  GPUMOD_REAL_DISPATCH(T, gpublas, S, D, rotg, handle, a, b, c, s);
+  WWR_REAL_DISPATCH(T, gpublas, S, D, rotg, handle, a, b, c, s);
 }
 
 template<complex_fp T, int_type IntT = int>
 gpublasStatus_t rotg(gpublasHandle_t handle, T *a, T *b, ComplexToRealType<T> *c, T *s) {
-  GPUMOD_COMPLEX_DISPATCH(T, gpublas, C, Z, rotg, handle, a, b, c, s);
+  WWR_COMPLEX_DISPATCH(T, gpublas, C, Z, rotg, handle, a, b, c, s);
 }
 
 // ========================================================================
@@ -145,14 +145,14 @@ gpublasStatus_t rotg(gpublasHandle_t handle, T *a, T *b, ComplexToRealType<T> *c
 template<real_fp T, int_type IntT>
 gpublasStatus_t rotm(gpublasHandle_t handle, IntT n, T *x, IntT incx, T *y, IntT incy,
                      const T *param) {
-  GPUMOD_REAL_DISPATCH_64(T, IntT, gpublas, S, D, rotm, handle, n, x, incx, y, incy, param);
+  WWR_REAL_DISPATCH_64(T, IntT, gpublas, S, D, rotm, handle, n, x, incx, y, incy, param);
 }
 
 // NOTE: rotmg operates on scalars only (no integer size parameters).
 // No _v2_64 variant exists - IntT template parameter is for API consistency.
 template<real_fp T, int_type IntT = int>
 gpublasStatus_t rotmg(gpublasHandle_t handle, T *d1, T *d2, T *x1, const T *y1, T *param) {
-  GPUMOD_REAL_DISPATCH(T, gpublas, S, D, rotmg, handle, d1, d2, x1, y1, param);
+  WWR_REAL_DISPATCH(T, gpublas, S, D, rotmg, handle, d1, d2, x1, y1, param);
 }
 
 // ========================================================================
@@ -161,13 +161,13 @@ gpublasStatus_t rotmg(gpublasHandle_t handle, T *d1, T *d2, T *x1, const T *y1, 
 
 template<usual_fp T, int_type IntT>
 gpublasStatus_t scal(gpublasHandle_t handle, IntT n, const T *alpha, T *x, IntT incx) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, scal, handle, n, alpha, x, incx);
+  WWR_USUAL_DISPATCH_64(T, IntT, scal, handle, n, alpha, x, incx);
 }
 
 template<complex_fp T, int_type IntT>
 gpublasStatus_t scal(gpublasHandle_t handle, IntT n, const ComplexToRealType<T> *alpha, T *x,
                      IntT incx) {
-  GPUMOD_COMPLEX_DISPATCH_64(T, IntT, gpublas, Cs, Zd, scal, handle, n, alpha, x, incx);
+  WWR_COMPLEX_DISPATCH_64(T, IntT, gpublas, Cs, Zd, scal, handle, n, alpha, x, incx);
 }
 
 // ========================================================================
@@ -176,7 +176,7 @@ gpublasStatus_t scal(gpublasHandle_t handle, IntT n, const ComplexToRealType<T> 
 
 template<usual_fp T, int_type IntT>
 gpublasStatus_t swap(gpublasHandle_t handle, IntT n, T *x, IntT incx, T *y, IntT incy) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, swap, handle, n, x, incx, y, incy);
+  WWR_USUAL_DISPATCH_64(T, IntT, swap, handle, n, x, incx, y, incy);
 }
 
 // ==================== Explicit Template Instantiations ====================
@@ -478,4 +478,4 @@ extern template gpublasStatus_t swap<gpuDoubleComplex, int64_t>(gpublasHandle_t,
                                                                 gpuDoubleComplex *, int64_t,
                                                                 gpuDoubleComplex *, int64_t);
 
-} // namespace gpumod
+} // namespace wwr

@@ -29,11 +29,11 @@ module;
 export module gpumod.hip.hip_complex;
 
 // ========================================================================
-// Export all hip_complex types and functions in gpumod::hip
-// (NOT bare gpumod -- see src/hip/README.md "Design decisions")
+// Export all hip_complex types and functions in wwr::hip
+// (NOT bare wwr -- see src/hip/README.md "Design decisions")
 // ========================================================================
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Complex Number Types
@@ -173,4 +173,4 @@ hipDoubleComplex hipCfma(hipDoubleComplex p, hipDoubleComplex q, hipDoubleComple
   return ::hipCfma(p, q, r);
 }
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

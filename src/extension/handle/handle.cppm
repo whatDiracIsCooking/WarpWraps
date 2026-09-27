@@ -17,7 +17,7 @@ import gpumod.extension.common; // BaseErrorPolicy, NonCopyable
 import :handle_view;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // RAII Handle Wrapper
@@ -164,4 +164,4 @@ public:
   HandleView<T> view() && = delete;
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

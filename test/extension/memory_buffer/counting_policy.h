@@ -14,7 +14,7 @@
 // to include it into. It pulls in no headers of its own, so nothing here
 // conflicts with `import std;`.
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Test error policy
@@ -52,4 +52,4 @@ using CountedDeviceBuffer = DeviceBufferWrapper<T, GpuPolicy>;
 template<typename T>
 using CountedHostView = BufferViewWrapper<T, MemoryKind::Host, HostPolicy>;
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

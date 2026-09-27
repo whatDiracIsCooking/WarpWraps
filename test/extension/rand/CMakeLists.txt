@@ -13,7 +13,7 @@
 # src/extension/random_normal/random_normal.cu), so this test TU is an ordinary
 # host CXX compile that just imports them.
 
-gpumod_add_gtest_executable(
+wwr_add_gtest_executable(
   NAME
   extension_rand_tests
   SOURCES
@@ -32,7 +32,7 @@ gpumod_add_gtest_executable(
 
 # One ctest entry per suite. Add a suite here when you add one to the test
 # file, or the SuiteListIsComplete guard test will fail and say so.
-gpumod_add_gtest_suite_tests(
+wwr_add_gtest_suite_tests(
   TARGET
   extension_rand_tests
   SUITES

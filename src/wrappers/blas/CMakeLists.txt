@@ -1,9 +1,9 @@
 # GPU BLAS extension - type-safe wrappers over gpublas* (cuBLAS or hipBLAS,
-# per GPUMOD_GPU_BACKEND). dispatch_macros.h sits next to the sources and is
+# per WWR_GPU_BACKEND). dispatch_macros.h sits next to the sources and is
 # #include'd same-dir, so it needs no include directory; the shared
 # dispatch_sdcz.h it pulls in is reached through the src/ root that
 # gpumod.wrappers.common exports (linked PUBLIC below).
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.wrappers.blas
   PRIMARY_INTERFACE

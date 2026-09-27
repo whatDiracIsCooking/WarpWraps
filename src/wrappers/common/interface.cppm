@@ -9,7 +9,7 @@
  *
  * Usage:
  *   import gpumod.wrappers.common;
- *   using namespace gpumod;
+ *   using namespace wwr;
  */
 
 export module gpumod.wrappers.common;

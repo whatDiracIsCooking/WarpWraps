@@ -2,7 +2,7 @@
 # wrappers that once shared this module were split out to
 # gpumod.wrappers.solver; what is left here is solver_error + solver_handle +
 # solver_params, aggregated by interface.cppm.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.extension.solver
   PRIMARY_INTERFACE

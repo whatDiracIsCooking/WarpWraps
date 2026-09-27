@@ -13,7 +13,7 @@
  *
  * Usage:
  *   import gpumod.wrappers.solver;
- *   using namespace gpumod;
+ *   using namespace wwr;
  *
  *   potrf_bufferSize<float>(handle, params, uplo, n, A, lda, ...);
  */
@@ -25,7 +25,7 @@ import gpumod.blas;
 import :type_traits;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // Cholesky Factorization - potrf
@@ -129,4 +129,4 @@ gpusolverStatus_t geqrf(gpusolverDnHandle_t handle, gpusolverDnParams_t params, 
                            workspaceInBytesOnDevice, bufferOnHost, workspaceInBytesOnHost, info);
 }
 
-} // namespace gpumod
+} // namespace wwr

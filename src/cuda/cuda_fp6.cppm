@@ -32,7 +32,7 @@ export module gpumod.cuda.cuda_fp6;
 
 import std;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Storage Typedefs
@@ -119,7 +119,7 @@ using ::cudaRoundZero;
 // The following functions are defined as static inline in the global namespace
 // in cuda_fp6.h and cannot be re-exported via using declarations. Thin inline
 // wrappers are provided here so that callers importing this module can access
-// them by name within the gpumod namespace.
+// them by name within the wwr namespace.
 //
 // Note: Unlike the fp8 narrowing conversions, all fp6 narrowing conversions
 // require an explicit cudaRoundMode rounding parameter. The fp6 header does
@@ -190,4 +190,4 @@ inline __half2_raw __nv_cvt_fp6x2_to_halfraw2(const __nv_fp6x2_storage_t x,
   return ::__nv_cvt_fp6x2_to_halfraw2(x, fp6_interpretation);
 }
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

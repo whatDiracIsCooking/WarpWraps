@@ -18,7 +18,7 @@ export module gpumod.cuda.nvFatbin;
 
 import std;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Result / Status Type
@@ -83,4 +83,4 @@ using ::nvFatbinSize;
 // ========================================================================
 using ::nvFatbinVersion;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

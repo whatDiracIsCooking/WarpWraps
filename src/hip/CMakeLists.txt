@@ -1,4 +1,4 @@
-# ROCm/HIP API module wrappers (built when GPUMOD_GPU_BACKEND is HIP)
+# ROCm/HIP API module wrappers (built when WWR_GPU_BACKEND is HIP)
 
 # HIP Runtime API
 #
@@ -6,7 +6,7 @@
 # vs cuda_runtime_api.h), so this one module covers what gpumod.cuda.cuda_h and
 # gpumod.cuda.cuda_runtime_api cover together. Links hip::host, never
 # hip::device -- see src/hip/README.md, "Link hip::host, never hip::device".
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hip_runtime_api
   PRIMARY_INTERFACE
@@ -23,7 +23,7 @@ gpumod_add_cxx_module_library(
 # imported target is the unnamespaced rocm_smi64 (from rocm_smiTargets.cmake);
 # link that, not hip::host, since this library is independent of the HIP
 # runtime.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.rocm_smi
   PRIMARY_INTERFACE
@@ -39,7 +39,7 @@ gpumod_add_cxx_module_library(
 # imported target is the unnamespaced amd_smi (from amd_smiTargets.cmake); link
 # that, not hip::host, since this library is also independent of the HIP
 # runtime.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.amd_smi
   PRIMARY_INTERFACE
@@ -61,7 +61,7 @@ find_library(ROCTRACER_LIBRARY roctracer64 HINTS /opt/rocm/lib REQUIRED)
 find_path(ROCTRACER_INCLUDE_DIR roctracer/roctracer.h HINTS /opt/rocm/include
                                                             REQUIRED
 )
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.roctracer
   PRIMARY_INTERFACE
@@ -81,7 +81,7 @@ gpumod_add_cxx_module_library(
 # symbols nor its headers -- so this links no hip:: target, only libroctx64.
 find_library(ROCTX_LIBRARY roctx64 HINTS /opt/rocm/lib REQUIRED)
 find_path(ROCTX_INCLUDE_DIR roctracer/roctx.h HINTS /opt/rocm/include REQUIRED)
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.roctx
   PRIMARY_INTERFACE
@@ -98,7 +98,7 @@ gpumod_add_cxx_module_library(
 # hip/hip_complex.h -> amd_detail/amd_hip_complex.h. All functions there are
 # `static inline`, like CUDA's cuComplex.h -- thin forwarding functions, not
 # `using` declarations. See src/hip/hip_complex.cppm.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hip_complex
   PRIMARY_INTERFACE
@@ -116,7 +116,7 @@ gpumod_add_cxx_module_library(
 # which has no arithmetic/comparison operators on __half/__half2 at all --
 # nothing to forward. See src/hip/hip_fp16.cppm's file header for the full
 # story (discovered by compiling, not by reading the header in isolation).
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hip_fp16
   PRIMARY_INTERFACE
@@ -132,7 +132,7 @@ gpumod_add_cxx_module_library(
 # operators are `static inline` free functions (unlike hip_fp16's hidden
 # friends) -- thin forwarding functions needed, as in cuda_bf16.cppm. See
 # src/hip/hip_bf16.cppm.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hip_bf16
   PRIMARY_INTERFACE
@@ -145,7 +145,7 @@ gpumod_add_cxx_module_library(
 # HIP FP8 Floating-Point
 #
 # hip/hip_fp8.h -> amd_detail/amd_hip_fp8.h. See src/hip/hip_fp8.cppm.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hip_fp8
   PRIMARY_INTERFACE
@@ -172,7 +172,7 @@ gpumod_add_cxx_module_library(
 # hiprtc::hiprtc is self-contained (the runtime-compilation API does not also
 # need hip::host's libamdhip64), so it is linked alone, not alongside
 # hip::host.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hiprtc
   PRIMARY_INTERFACE
@@ -193,7 +193,7 @@ gpumod_add_cxx_module_library(
 # CUDA counterpart: cublas_v2.cppm. Unlike cuBLAS, hipBLAS carries no
 # "_v2"-suffixed name pair to redirect around -- every function is declared
 # once, under its final name. See src/hip/hipblas.cppm.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hipblas
   PRIMARY_INTERFACE
@@ -213,7 +213,7 @@ gpumod_add_cxx_module_library(
 # hip::host transitively (its INTERFACE_LINK_LIBRARIES is just
 # roc::hipblas-common), so without linking hip::host explicitly here,
 # hipblaslt.h's transitive #includes fail their `__HIP_PLATFORM_AMD__` guard.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hipblaslt
   PRIMARY_INTERFACE
@@ -234,7 +234,7 @@ gpumod_add_cxx_module_library(
 # hipsolverRf* API is wrapped -- this project has never wrapped cusolverRf
 # either, so there is nothing on the CUDA side for a refactor module to
 # mirror. See src/hip/hipsolver.cppm and src/hip/README.md.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hipsolver
   PRIMARY_INTERFACE
@@ -247,7 +247,7 @@ gpumod_add_cxx_module_library(
 # hipSPARSE
 #
 # CUDA counterpart: cusparse.cppm. See src/hip/hipsparse.cppm.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hipsparse
   PRIMARY_INTERFACE
@@ -263,7 +263,7 @@ gpumod_add_cxx_module_library(
 #
 # Note the imported target namespace is hip::, NOT roc:: -- unlike most of this
 # batch.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hipfft
   PRIMARY_INTERFACE
@@ -283,7 +283,7 @@ gpumod_add_cxx_module_library(
 # gpumod.hip.hipfft. Same package as hipfft above (no second
 # find_package call), same hip::hipfft imported target. See
 # src/hip/hipfftXt.cppm.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hipfftXt
   PRIMARY_INTERFACE
@@ -299,7 +299,7 @@ gpumod_add_cxx_module_library(
 #
 # Note the imported target namespace is hip::, NOT roc:: -- also unlike most of
 # this batch.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hiprand
   PRIMARY_INTERFACE
@@ -324,7 +324,7 @@ gpumod_add_cxx_module_library(
 # Same hip::hiprand imported target as above (one hipRAND package, two
 # headers); it carries /opt/rocm/include and __HIP_PLATFORM_AMD__, which is
 # all a types-only wrapper needs.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.hip.hiprand_kernel
   PRIMARY_INTERFACE

@@ -24,7 +24,7 @@ import std;
 // ============================================================================
 // Error Checking Functions
 // ============================================================================
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Check an error code with the default error policy
@@ -76,4 +76,4 @@ bool gpu_check(const T error, ErrorPolicy &policy,
   return true;
 }
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

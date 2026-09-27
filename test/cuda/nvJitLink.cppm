@@ -21,9 +21,9 @@ import gpumod.cuda.nvJitLink;
 //   5. nvJitLinkVersion (the only non-inline extern symbol) resolves at link time
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -83,13 +83,13 @@ static_assert(std::is_pointer_v<nvJitLinkHandle>);
 // The public API functions (nvJitLinkCreate, nvJitLinkDestroy, etc.) are
 // defined as `static inline` wrappers in the header under the
 // NVJITLINK_NO_INLINE guard.  Static inline functions do not produce
-// externally-linkable symbols, so GPUMOD_LINK_CHECK cannot be applied to them.
+// externally-linkable symbols, so WWR_LINK_CHECK cannot be applied to them.
 //
 // nvJitLinkVersion is the one function declared as a plain `extern` (not
-// inline), making it the only symbol we can verify with GPUMOD_LINK_CHECK.
+// inline), making it the only symbol we can verify with WWR_LINK_CHECK.
 // ────────────────────────────────────────────────────────────────────────
 
 // Version query (the only non-inline extern in the public API)
-GPUMOD_LINK_CHECK(nvJitLinkVersion)
+WWR_LINK_CHECK(nvJitLinkVersion)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

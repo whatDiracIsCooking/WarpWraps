@@ -1,9 +1,9 @@
-# gpumod_add_test_executable — a plain ctest-registered executable (no
+# wwr_add_test_executable — a plain ctest-registered executable (no
 # GoogleTest), used by the compile-time tiers where the proof is that the TU
 # compiled and linked. See cmake/README.md, "Tests", for when to use this versus
 # the GoogleTest macros.
 #
-#   gpumod_add_test_executable(
+#   wwr_add_test_executable(
 #     NAME           <target, also the ctest name>
 #     [MAIN          <source with main(); default main.cpp>]
 #     [TIMEOUT       <seconds; default 60>]
@@ -11,7 +11,7 @@
 #     [WHOLE_ARCHIVE <target ...>]   # force objects in, for self-registering
 #                                    # tests
 #     [LINK_LIBSTDCXX])              # link libstdc++.so.6 explicitly
-macro(gpumod_add_test_executable)
+macro(wwr_add_test_executable)
   cmake_parse_arguments(
     _TEX
     "LINK_LIBSTDCXX" # Boolean options
@@ -20,7 +20,7 @@ macro(gpumod_add_test_executable)
     ${ARGN}
   )
 
-  _gpumod_require_args("gpumod_add_test_executable" _TEX NAME)
+  _wwr_require_args("wwr_add_test_executable" _TEX NAME)
 
   if(NOT _TEX_MAIN)
     set(_TEX_MAIN "main.cpp")
@@ -53,7 +53,7 @@ macro(gpumod_add_test_executable)
   endif()
 
   set_target_properties(${_TEX_NAME} PROPERTIES CXX_MODULE_STD 1)
-  _gpumod_disable_cuda_device_linking(${_TEX_NAME})
+  _wwr_disable_cuda_device_linking(${_TEX_NAME})
 
   add_test(NAME ${_TEX_NAME} COMMAND ${_TEX_NAME})
   set_tests_properties(${_TEX_NAME} PROPERTIES TIMEOUT ${_TEX_TIMEOUT})

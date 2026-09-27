@@ -23,7 +23,7 @@ import gpumod.complex;
 import :type_traits;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // Matrix addition/transposition: C = alpha*op(A) + beta*op(B)
@@ -33,7 +33,7 @@ template<usual_fp T, int_type IntT>
 gpublasStatus_t geam(gpublasHandle_t handle, gpublasOperation_t transa, gpublasOperation_t transb,
                      IntT m, IntT n, const T *alpha, const T *A, IntT lda, const T *beta,
                      const T *B, IntT ldb, T *C, IntT ldc) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, geam, handle, transa, transb, m, n, alpha, A, lda, beta, B, ldb,
+  WWR_USUAL_DISPATCH_64(T, IntT, geam, handle, transa, transb, m, n, alpha, A, lda, beta, B, ldb,
                            C, ldc);
 }
 
@@ -44,7 +44,7 @@ gpublasStatus_t geam(gpublasHandle_t handle, gpublasOperation_t transa, gpublasO
 template<usual_fp T, int_type IntT>
 gpublasStatus_t dgmm(gpublasHandle_t handle, gpublasSideMode_t mode, IntT m, IntT n, const T *A,
                      IntT lda, const T *x, IntT incx, T *C, IntT ldc) {
-  GPUMOD_USUAL_DISPATCH_64(T, IntT, dgmm, handle, mode, m, n, A, lda, x, incx, C, ldc);
+  WWR_USUAL_DISPATCH_64(T, IntT, dgmm, handle, mode, m, n, A, lda, x, incx, C, ldc);
 }
 
 // ========================================================================
@@ -54,7 +54,7 @@ gpublasStatus_t dgmm(gpublasHandle_t handle, gpublasSideMode_t mode, IntT m, Int
 template<usual_fp T>
 gpublasStatus_t getrfBatched(gpublasHandle_t handle, int n, T *const A[], int lda, int *P,
                              int *info, int batchSize) {
-  GPUMOD_USUAL_DISPATCH(T, getrfBatched, handle, n, A, lda, P, info, batchSize);
+  WWR_USUAL_DISPATCH(T, getrfBatched, handle, n, A, lda, P, info, batchSize);
 }
 
 // ========================================================================
@@ -65,7 +65,7 @@ template<usual_fp T>
 gpublasStatus_t getrsBatched(gpublasHandle_t handle, gpublasOperation_t trans, int n, int nrhs,
                              const T *const Aarray[], int lda, const int *devIpiv,
                              T *const Barray[], int ldb, int *info, int batchSize) {
-  GPUMOD_USUAL_DISPATCH(T, getrsBatched, handle, trans, n, nrhs, Aarray, lda, devIpiv, Barray, ldb,
+  WWR_USUAL_DISPATCH(T, getrsBatched, handle, trans, n, nrhs, Aarray, lda, devIpiv, Barray, ldb,
                         info, batchSize);
 }
 
@@ -76,7 +76,7 @@ gpublasStatus_t getrsBatched(gpublasHandle_t handle, gpublasOperation_t trans, i
 template<usual_fp T>
 gpublasStatus_t getriBatched(gpublasHandle_t handle, int n, const T *const A[], int lda,
                              const int *P, T *const C[], int ldc, int *info, int batchSize) {
-  GPUMOD_USUAL_DISPATCH(T, getriBatched, handle, n, A, lda, P, C, ldc, info, batchSize);
+  WWR_USUAL_DISPATCH(T, getriBatched, handle, n, A, lda, P, C, ldc, info, batchSize);
 }
 
 // ========================================================================
@@ -86,7 +86,7 @@ gpublasStatus_t getriBatched(gpublasHandle_t handle, int n, const T *const A[], 
 template<usual_fp T>
 gpublasStatus_t geqrfBatched(gpublasHandle_t handle, int m, int n, T *const Aarray[], int lda,
                              T *const TauArray[], int *info, int batchSize) {
-  GPUMOD_USUAL_DISPATCH(T, geqrfBatched, handle, m, n, Aarray, lda, TauArray, info, batchSize);
+  WWR_USUAL_DISPATCH(T, geqrfBatched, handle, m, n, Aarray, lda, TauArray, info, batchSize);
 }
 
 // ========================================================================
@@ -97,7 +97,7 @@ template<usual_fp T>
 gpublasStatus_t gelsBatched(gpublasHandle_t handle, gpublasOperation_t trans, int m, int n,
                             int nrhs, T *const Aarray[], int lda, T *const Carray[], int ldc,
                             int *info, int *devInfoArray, int batchSize) {
-  GPUMOD_USUAL_DISPATCH(T, gelsBatched, handle, trans, m, n, nrhs, Aarray, lda, Carray, ldc, info,
+  WWR_USUAL_DISPATCH(T, gelsBatched, handle, trans, m, n, nrhs, Aarray, lda, Carray, ldc, info,
                         devInfoArray, batchSize);
 }
 
@@ -252,4 +252,4 @@ extern template gpublasStatus_t gelsBatched<gpuDoubleComplex>(gpublasHandle_t, g
                                                               gpuDoubleComplex *const[], int, int *,
                                                               int *, int);
 
-} // namespace gpumod
+} // namespace wwr

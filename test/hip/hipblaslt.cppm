@@ -13,9 +13,9 @@ import gpumod.hip.hipblaslt;
 // Compile-time tests for gpumod.hip.hipblaslt
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -184,57 +184,57 @@ static_assert(std::is_standard_layout_v<hipblasLtMatmulAlgo_t>);
 static_assert(std::is_standard_layout_v<hipblasLtMatmulHeuristicResult_t>);
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: library and handle management
+// WWR_LINK_CHECK: library and handle management
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipblasLtGetVersion)
-GPUMOD_LINK_CHECK(hipblasLtGetGitRevision)
-GPUMOD_LINK_CHECK(hipblasLtGetArchName)
-GPUMOD_LINK_CHECK(hipblasLtCreate)
-GPUMOD_LINK_CHECK(hipblasLtDestroy)
+WWR_LINK_CHECK(hipblasLtGetVersion)
+WWR_LINK_CHECK(hipblasLtGetGitRevision)
+WWR_LINK_CHECK(hipblasLtGetArchName)
+WWR_LINK_CHECK(hipblasLtCreate)
+WWR_LINK_CHECK(hipblasLtDestroy)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: matrix layout descriptor
+// WWR_LINK_CHECK: matrix layout descriptor
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipblasLtMatrixLayoutCreate)
-GPUMOD_LINK_CHECK(hipblasLtMatrixLayoutDestroy)
-GPUMOD_LINK_CHECK(hipblasLtMatrixLayoutSetAttribute)
-GPUMOD_LINK_CHECK(hipblasLtMatrixLayoutGetAttribute)
+WWR_LINK_CHECK(hipblasLtMatrixLayoutCreate)
+WWR_LINK_CHECK(hipblasLtMatrixLayoutDestroy)
+WWR_LINK_CHECK(hipblasLtMatrixLayoutSetAttribute)
+WWR_LINK_CHECK(hipblasLtMatrixLayoutGetAttribute)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: matmul descriptor
+// WWR_LINK_CHECK: matmul descriptor
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipblasLtMatmulDescCreate)
-GPUMOD_LINK_CHECK(hipblasLtMatmulDescDestroy)
-GPUMOD_LINK_CHECK(hipblasLtMatmulDescSetAttribute)
-GPUMOD_LINK_CHECK(hipblasLtMatmulDescGetAttribute)
+WWR_LINK_CHECK(hipblasLtMatmulDescCreate)
+WWR_LINK_CHECK(hipblasLtMatmulDescDestroy)
+WWR_LINK_CHECK(hipblasLtMatmulDescSetAttribute)
+WWR_LINK_CHECK(hipblasLtMatmulDescGetAttribute)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: matmul preference descriptor
+// WWR_LINK_CHECK: matmul preference descriptor
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipblasLtMatmulPreferenceCreate)
-GPUMOD_LINK_CHECK(hipblasLtMatmulPreferenceDestroy)
-GPUMOD_LINK_CHECK(hipblasLtMatmulPreferenceSetAttribute)
-GPUMOD_LINK_CHECK(hipblasLtMatmulPreferenceGetAttribute)
+WWR_LINK_CHECK(hipblasLtMatmulPreferenceCreate)
+WWR_LINK_CHECK(hipblasLtMatmulPreferenceDestroy)
+WWR_LINK_CHECK(hipblasLtMatmulPreferenceSetAttribute)
+WWR_LINK_CHECK(hipblasLtMatmulPreferenceGetAttribute)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: heuristic search and matmul execution
+// WWR_LINK_CHECK: heuristic search and matmul execution
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipblasLtMatmulAlgoGetHeuristic)
-GPUMOD_LINK_CHECK(hipblasLtMatmul)
+WWR_LINK_CHECK(hipblasLtMatmulAlgoGetHeuristic)
+WWR_LINK_CHECK(hipblasLtMatmul)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: matrix transform descriptor and execution
+// WWR_LINK_CHECK: matrix transform descriptor and execution
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(hipblasLtMatrixTransformDescCreate)
-GPUMOD_LINK_CHECK(hipblasLtMatrixTransformDescDestroy)
-GPUMOD_LINK_CHECK(hipblasLtMatrixTransformDescSetAttribute)
-GPUMOD_LINK_CHECK(hipblasLtMatrixTransformDescGetAttribute)
-GPUMOD_LINK_CHECK(hipblasLtMatrixTransform)
+WWR_LINK_CHECK(hipblasLtMatrixTransformDescCreate)
+WWR_LINK_CHECK(hipblasLtMatrixTransformDescDestroy)
+WWR_LINK_CHECK(hipblasLtMatrixTransformDescSetAttribute)
+WWR_LINK_CHECK(hipblasLtMatrixTransformDescGetAttribute)
+WWR_LINK_CHECK(hipblasLtMatrixTransform)
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

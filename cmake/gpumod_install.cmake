@@ -21,9 +21,9 @@ include(CMakePackageConfigHelpers)
 # prefix. `modules` holds module interface SOURCES, not BMIs (see above); it is
 # under include/ because that is where a "things the consumer's compiler reads"
 # directory belongs, not because anything #includes from it.
-set(GPUMOD_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/gpumod")
-set(GPUMOD_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/gpumod")
-set(GPUMOD_INSTALL_MODULEDIR "${GPUMOD_INSTALL_INCLUDEDIR}/modules")
+set(WWR_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/gpumod")
+set(WWR_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/gpumod")
+set(WWR_INSTALL_MODULEDIR "${WWR_INSTALL_INCLUDEDIR}/modules")
 
 # ---------------------------------------------------------------------------
 # Internal helpers (underscore-prefixed -- not part of the public API)
@@ -41,7 +41,7 @@ set(GPUMOD_INSTALL_MODULEDIR "${GPUMOD_INSTALL_INCLUDEDIR}/modules")
 # UTILITY targets (the compile_time_tests umbrella) and ALIAS targets (the ::
 # spellings, which are not in BUILDSYSTEM_TARGETS at all) fall out of the TYPE
 # filter on their own.
-function(_gpumod_collect_library_targets dir out_var)
+function(_wwr_collect_library_targets dir out_var)
   cmake_parse_arguments(
     _c
     "RECURSE"
@@ -70,7 +70,7 @@ function(_gpumod_collect_library_targets dir out_var)
       PROPERTY SUBDIRECTORIES
     )
     foreach(_subdir IN LISTS _subdirs)
-      _gpumod_collect_library_targets("${_subdir}" _from_subdir RECURSE)
+      _wwr_collect_library_targets("${_subdir}" _from_subdir RECURSE)
       list(APPEND _found ${_from_subdir})
     endforeach()
   endif()
@@ -83,16 +83,16 @@ endfunction()
 
 # The installed module-source directory for `target`, mirroring its position
 # under src/ -- see rule 2 in this file's header comment.
-function(_gpumod_module_destination target out_var)
+function(_wwr_module_destination target out_var)
   get_target_property(_source_dir ${target} SOURCE_DIR)
   file(RELATIVE_PATH _relative "${PROJECT_SOURCE_DIR}/src" "${_source_dir}")
   # The gpu* layer lives directly in src/, so its relative path is empty and its
   # module sources install at the MODULEDIR root; everything else mirrors to a
   # subdirectory (cuda/, wrappers/blas, ...).
   if(_relative STREQUAL "")
-    set(_destination "${GPUMOD_INSTALL_MODULEDIR}")
+    set(_destination "${WWR_INSTALL_MODULEDIR}")
   else()
-    set(_destination "${GPUMOD_INSTALL_MODULEDIR}/${_relative}")
+    set(_destination "${WWR_INSTALL_MODULEDIR}/${_relative}")
   endif()
   set(${out_var}
       "${_destination}"
@@ -109,7 +109,7 @@ endfunction()
 # is safe for the same reason it is usually not: the set is not an input to any
 # build rule, only to an install rule, so a stale glob costs a reconfigure and
 # never a wrong build.
-function(_gpumod_install_module_adjacent_headers target destination)
+function(_wwr_install_module_adjacent_headers target destination)
   get_target_property(_source_dir ${target} SOURCE_DIR)
   file(GLOB _headers "${_source_dir}/*.h" "${_source_dir}/*.cuh")
   if(_headers)
@@ -126,21 +126,21 @@ endfunction()
 # Call this from the top-level CMakeLists.txt AFTER every add_subdirectory that
 # defines a library, because it reads the buildsystem back to decide what to
 # install and a target that does not exist yet cannot be found.
-function(gpumod_install_package)
+function(wwr_install_package)
   # The backend's own wrapper directory is the only part of src/ that is not
   # added unconditionally, so the sweep covers whichever one this build chose.
-  if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
+  if(WWR_GPU_BACKEND STREQUAL "CUDA")
     set(_backend_dir "${PROJECT_SOURCE_DIR}/src/cuda")
   else()
     set(_backend_dir "${PROJECT_SOURCE_DIR}/src/hip")
   endif()
 
-  _gpumod_collect_library_targets("${_backend_dir}" _backend_targets RECURSE)
+  _wwr_collect_library_targets("${_backend_dir}" _backend_targets RECURSE)
   # The gpu* layer is defined directly in src/CMakeLists.txt, so it is collected
   # from src/ NON-recursively; recursing would re-collect src/cuda, src/hip and
   # src/wrappers, which are swept separately above and below.
-  _gpumod_collect_library_targets("${PROJECT_SOURCE_DIR}/src" _gpu_targets)
-  _gpumod_collect_library_targets(
+  _wwr_collect_library_targets("${PROJECT_SOURCE_DIR}/src" _gpu_targets)
+  _wwr_collect_library_targets(
     "${PROJECT_SOURCE_DIR}/src/wrappers" _wrapper_targets RECURSE
   )
 
@@ -150,7 +150,7 @@ function(gpumod_install_package)
   # so makes install(EXPORT) refuse the whole export set until it is a member
   # too. Collected non-recursively: recursing from the top would pull in test/
   # and deps/ (GoogleTest), none of which belongs in this package.
-  _gpumod_collect_library_targets("${PROJECT_SOURCE_DIR}" _root_targets)
+  _wwr_collect_library_targets("${PROJECT_SOURCE_DIR}" _root_targets)
   list(
     FILTER
     _root_targets
@@ -179,7 +179,7 @@ function(gpumod_install_package)
       # linking it cannot be exported without it.
       install(TARGETS ${_target} EXPORT gpumod-targets)
     else()
-      _gpumod_module_destination(${_target} _module_dir)
+      _wwr_module_destination(${_target} _module_dir)
       # cmake-lint: disable=E1122
       # One DESTINATION per artifact kind is how install(TARGETS) is spelled --
       # ARCHIVE, LIBRARY, RUNTIME and FILE_SET each take their own. cmake-lint
@@ -194,7 +194,7 @@ function(gpumod_install_package)
                 FILE_SET CXX_MODULES
                 DESTINATION "${_module_dir}"
       )
-      _gpumod_install_module_adjacent_headers(${_target} "${_module_dir}")
+      _wwr_install_module_adjacent_headers(${_target} "${_module_dir}")
     endif()
   endforeach()
 
@@ -216,14 +216,14 @@ function(gpumod_install_package)
        "${PROJECT_SOURCE_DIR}/src/*.cuh"
   )
   install(FILES ${_gpu_layer_headers}
-          DESTINATION "${GPUMOD_INSTALL_INCLUDEDIR}"
+          DESTINATION "${WWR_INSTALL_INCLUDEDIR}"
   )
 
   # The shared dispatch header under src/wrappers, included through src/ (e.g.
   # "wrappers/common/dispatch_sdcz.h"), mirrored to include/gpumod/wrappers.
   install(
     DIRECTORY "${PROJECT_SOURCE_DIR}/src/wrappers/"
-    DESTINATION "${GPUMOD_INSTALL_INCLUDEDIR}/wrappers"
+    DESTINATION "${WWR_INSTALL_INCLUDEDIR}/wrappers"
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.cuh"
@@ -236,7 +236,7 @@ function(gpumod_install_package)
   # gpumod.extension.random_normal) and by parallel_for.cuh, so with no
   # extension target exported nothing in the package includes them and there is
   # nothing to install. When the layer is made installable (a
-  # GPUMOD_BUILD_EXTENSION
+  # WWR_BUILD_EXTENSION
   # opt-in), the rule that installs these headers belongs there, next to the
   # sweep that adds the targets that need them -- so install-check can actually
   # verify it.
@@ -249,7 +249,7 @@ function(gpumod_install_package)
     EXPORT gpumod-targets
     FILE gpumod-targets.cmake
     NAMESPACE gpumod::
-    DESTINATION "${GPUMOD_INSTALL_CMAKEDIR}"
+    DESTINATION "${WWR_INSTALL_CMAKEDIR}"
     CXX_MODULES_DIRECTORY cxx-modules
   )
 
@@ -265,20 +265,20 @@ function(gpumod_install_package)
   # Recorded into the config so a consumer's build is checked against the
   # configuration this package was actually built with, rather than discovering
   # the mismatch as a link error or, worse, a wrong warp size at runtime.
-  set(GPUMOD_PACKAGE_BACKEND "${GPUMOD_GPU_BACKEND}")
-  set(GPUMOD_PACKAGE_WARP_SIZE "${GPUMOD_WARP_SIZE}")
-  set(GPUMOD_PACKAGE_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}")
-  set(GPUMOD_PACKAGE_CXX_COMPILER_VERSION "${CMAKE_CXX_COMPILER_VERSION}")
-  set(GPUMOD_PACKAGE_CXX_STANDARD_LIBRARY "${CMAKE_CXX_STANDARD_LIBRARY}")
+  set(WWR_PACKAGE_BACKEND "${WWR_GPU_BACKEND}")
+  set(WWR_PACKAGE_WARP_SIZE "${WWR_WARP_SIZE}")
+  set(WWR_PACKAGE_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}")
+  set(WWR_PACKAGE_CXX_COMPILER_VERSION "${CMAKE_CXX_COMPILER_VERSION}")
+  set(WWR_PACKAGE_CXX_STANDARD_LIBRARY "${CMAKE_CXX_STANDARD_LIBRARY}")
 
   configure_package_config_file(
     "${PROJECT_SOURCE_DIR}/cmake/gpumodConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/gpumodConfig.cmake"
-    INSTALL_DESTINATION "${GPUMOD_INSTALL_CMAKEDIR}"
+    INSTALL_DESTINATION "${WWR_INSTALL_CMAKEDIR}"
   )
 
   install(FILES "${CMAKE_CURRENT_BINARY_DIR}/gpumodConfig.cmake"
                 "${CMAKE_CURRENT_BINARY_DIR}/gpumodConfigVersion.cmake"
-          DESTINATION "${GPUMOD_INSTALL_CMAKEDIR}"
+          DESTINATION "${WWR_INSTALL_CMAKEDIR}"
   )
 endfunction()

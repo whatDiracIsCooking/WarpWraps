@@ -19,27 +19,27 @@
 
 namespace cg = cooperative_groups;
 
-namespace gpumod::example {
+namespace wwr::example {
 
 namespace {
 
 // Four warps, as parallel_for.cuh uses, and computed the same way:
-// GPUMOD_WARP_SIZE is a configure-time value, so this is 128 by default and 256
+// WWR_WARP_SIZE is a configure-time value, so this is 128 by default and 256
 // on a CDNA build that sets 64.
-constexpr std::uint32_t kWarp = static_cast<std::uint32_t>(GPUMOD_WARP_SIZE);
+constexpr std::uint32_t kWarp = static_cast<std::uint32_t>(WWR_WARP_SIZE);
 constexpr std::uint32_t kBlockSize = 4 * kWarp;
 constexpr std::uint32_t kNumTiles = kBlockSize / kWarp;
 
 static_assert(kBlockSize <= 1024,
               "block size exceeds the 1024 threads/block both backends cap at -- "
-              "GPUMOD_WARP_SIZE is too large");
+              "WWR_WARP_SIZE is too large");
 
 /// @brief [kernel] Single-block sum of `count` elements into `output[0]`
 __global__ void warp_reduce_sum_kernel(const float *input, std::size_t count, float *output) {
   __shared__ float partials[kNumTiles];
 
   const cg::thread_block block = cg::this_thread_block();
-  const cg::thread_block_tile<GPUMOD_WARP_SIZE> tile = cg::tiled_partition<GPUMOD_WARP_SIZE>(block);
+  const cg::thread_block_tile<WWR_WARP_SIZE> tile = cg::tiled_partition<WWR_WARP_SIZE>(block);
   const std::uint32_t rank = static_cast<std::uint32_t>(block.thread_rank());
 
   // Cascade: every thread walks the whole array with stride kBlockSize, so
@@ -84,4 +84,4 @@ void warp_reduce_sum(const gpuStream_t stream, const std::size_t count, const fl
   warp_reduce_sum_kernel<<<1, kBlockSize, 0, stream>>>(input, count, output);
 }
 
-} // namespace gpumod::example
+} // namespace wwr::example

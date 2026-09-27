@@ -102,7 +102,7 @@ device_targets=("${CONFIG_LINES[@]}")
 # Phase 1: run the check, here, with cmake
 # ---------------------------------------------------------------------------
 run_here() {
-  local -a cfg=(cmake --preset "$preset" -B "$build_dir" -DGPUMOD_COMPILE_TIME_ONLY=ON)
+  local -a cfg=(cmake --preset "$preset" -B "$build_dir" -DWWR_COMPILE_TIME_ONLY=ON)
   [ "$fresh" = 1 ] && cfg+=(--fresh)
 
   echo "cross-backend-check: configuring $backend (preset=$preset) -> $build_dir"

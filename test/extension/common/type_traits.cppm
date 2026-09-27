@@ -12,7 +12,7 @@ import std;
 import gpumod.extension.common;
 import gpumod.extension.handle;
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // error_policy / DefaultErrorPolicy
@@ -37,7 +37,7 @@ static_assert(std::is_nothrow_move_constructible_v<DefaultErrorPolicy<int>>);
 static_assert(std::is_nothrow_move_assignable_v<DefaultErrorPolicy<int>>);
 static_assert(!error_policy<int, int>); // a bare int is not a policy
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // BaseHandle RAII semantics
@@ -53,7 +53,7 @@ static_assert(!error_policy<int, int>); // a bare int is not a policy
 // the handle type, so no per-handle table is needed here or in the real wrappers.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 struct fake_handle_tag;
 using FakeHandle = fake_handle_tag *;
@@ -74,4 +74,4 @@ static_assert(std::is_nothrow_move_constructible_v<FakeHandleWrapper>);
 static_assert(std::is_nothrow_move_assignable_v<FakeHandleWrapper>);
 static_assert(std::is_convertible_v<FakeHandleWrapper, FakeHandle>);
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

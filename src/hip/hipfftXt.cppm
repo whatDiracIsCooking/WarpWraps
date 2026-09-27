@@ -38,7 +38,7 @@ export module gpumod.hip.hipfftXt;
 
 import std;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Multi-GPU descriptor types (from hiplibxt.h, used in hipfftXt signatures)
@@ -158,4 +158,4 @@ using ::hipfftXtExecDescriptorR2C;
 using ::hipfftXtExecDescriptorZ2D;
 using ::hipfftXtExecDescriptorZ2Z;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

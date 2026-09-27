@@ -3,7 +3,7 @@
  * @brief Primary interface for gpumod.extension.sparse
  *
  * The error-handling and RAII-handle layer for GPU sparse linear algebra
- * (cuSPARSE or hipSPARSE, per GPUMOD_GPU_BACKEND). The type-safe dispatch
+ * (cuSPARSE or hipSPARSE, per WWR_GPU_BACKEND). The type-safe dispatch
  * wrappers built on top of it live separately in gpumod.wrappers.sparse. It
  * aggregates:
  * - :sparse_error - Error code specializations for gpusparseStatus_t
@@ -12,7 +12,7 @@
  *
  * Usage:
  *   import gpumod.extension.sparse;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  */
 
 export module gpumod.extension.sparse;

@@ -11,7 +11,7 @@
 //
 // Runtime, device-requiring: gpublasCreate needs a live GPU context, so there
 // is no compile-time half. Backend-neutral -- built and run for either
-// GPUMOD_GPU_BACKEND.
+// WWR_GPU_BACKEND.
 
 #include <gtest/gtest.h>
 
@@ -20,7 +20,7 @@ import gpumod.extension.common; // the error_policy concept, for the counting po
 import gpumod.extension.handle; // DeviceBoundHandle(View)
 import gpumod.extension.blas; // re-exports gpumod.blas, so gpublasHandle_t is in scope
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // A counting policy for the destroy-exactly-once check below. DeviceBoundHandle
 // inherits only the (int dev_idx) constructor -- unlike FftPlanWrapper it takes
@@ -129,4 +129,4 @@ TEST(GpublasHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
   EXPECT_EQ(CountingBlasPolicy::errors, 0);
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

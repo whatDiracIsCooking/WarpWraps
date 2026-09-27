@@ -19,7 +19,7 @@ import gpumod.runtime_api;
 import gpumod.extension.common;
 import gpumod.extension.handle;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Convenient alias for GpuStreamWrapper with default error policies
@@ -71,4 +71,4 @@ using GpuGraphView = HandleView<gpuGraph_t>;
  */
 using GpuGraphExec = GpuGraphExecWrapper<>;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

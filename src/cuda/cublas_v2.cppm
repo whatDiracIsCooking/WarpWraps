@@ -29,10 +29,10 @@ export module gpumod.cuda.cublas_v2;
 import std;
 
 // ========================================================================
-// Export all cuBLAS types and functions in gpumod namespace
+// Export all cuBLAS types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Core Types
@@ -780,4 +780,4 @@ using ::cublasDtrttp;
 using ::cublasStrttp;
 using ::cublasZtrttp;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

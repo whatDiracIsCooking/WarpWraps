@@ -99,7 +99,7 @@ Things that will bite:
   appends a PASS/FAIL line to `summary.log`. Quote the log path when reporting a
   failure; it has the compiler diagnostics that the summary does not.
 - **ctest reports one entry per gtest SUITE**, registered by
-  `gpumod_add_gtest_suite_tests()` as an `add_test` with a `--gtest_filter`,
+  `wwr_add_gtest_suite_tests()` as an `add_test` with a `--gtest_filter`,
   plus a `<target>.SuiteListIsComplete` drift guard per binary. Nothing uses
   `gtest_discover_tests` or `DISCOVERY_MODE PRE_TEST`, so `-R` selects by suite
   name and there is no test-time discovery step.
@@ -110,7 +110,7 @@ Things that will bite:
   do) excludes them BY NAME in the output. Prefer that to a skip precisely
   because an exclusion is visible where a skip blends into green.
   `cuda_compile_tests` carries it too by default, for the unrelated reason
-  that it links the driver stubs — unless `GPUMOD_CUDA_DRIVER_STUBS=ON`, which
+  that it links the driver stubs — unless `WWR_CUDA_DRIVER_STUBS=ON`, which
   the `ci-cuda` preset sets so it runs on a driverless runner. That is why
   both CI legs report 12.
   Deliberately no case counts quoted here: the suite grows, and a stale number

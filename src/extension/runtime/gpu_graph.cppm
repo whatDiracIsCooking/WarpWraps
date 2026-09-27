@@ -14,7 +14,7 @@ import gpumod.extension.common;
 import gpumod.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief RAII wrapper for a GPU graph
@@ -87,4 +87,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

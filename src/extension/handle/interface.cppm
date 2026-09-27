@@ -14,7 +14,7 @@
  *
  * Usage:
  *   import gpumod.extension.handle;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  */
 
 export module gpumod.extension.handle;

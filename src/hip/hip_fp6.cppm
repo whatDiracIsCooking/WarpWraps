@@ -32,7 +32,7 @@ module;
 
 export module gpumod.hip.hip_fp6;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Storage Typedefs
@@ -94,7 +94,7 @@ using ::__hip_bfloat16_raw;
 // The following functions are defined as static inline in the global
 // namespace in amd_hip_fp6.h and cannot be re-exported via using
 // declarations. Thin inline wrappers are provided here so that callers
-// importing this module can access them by name within gpumod::hip.
+// importing this module can access them by name within wwr::hip.
 
 // -- Narrowing conversions (to fp6 storage) -------------------------------
 
@@ -159,4 +159,4 @@ inline __half2_raw __hip_cvt_fp6x2_to_halfraw2(const __hip_fp6x2_storage_t x,
   return ::__hip_cvt_fp6x2_to_halfraw2(x, interp);
 }
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

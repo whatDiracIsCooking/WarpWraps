@@ -109,7 +109,7 @@ step "1/4  configure gpumod (preset: $preset)"
 # ---------------------------------------------------------------------------
 # -B overrides the preset's own binaryDir so this tier keeps its cache separate
 # from cpp-tier.sh's, per the comment above.
-cmake --preset "$preset" -B "$build_dir" -DGPUMOD_INSTALL=ON
+cmake --preset "$preset" -B "$build_dir" -DWWR_INSTALL=ON
 
 # ---------------------------------------------------------------------------
 step "2/4  build and install into $prefix"

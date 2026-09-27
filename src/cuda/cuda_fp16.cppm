@@ -26,10 +26,10 @@ module;
 export module gpumod.cuda.cuda_fp16;
 
 // ========================================================================
-// Export all cuda_fp16 types in gpumod namespace
+// Export all cuda_fp16 types in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Core Half-Precision Types
@@ -202,4 +202,4 @@ bool operator>=(const __half2 &lh, const __half2 &rh) {
   return ::operator>=(lh, rh);
 }
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

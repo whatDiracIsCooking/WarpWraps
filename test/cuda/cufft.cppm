@@ -21,9 +21,9 @@ import gpumod.cuda.cufft;
 //   4. Scalar/complex types satisfy trivial copyability and standard layout
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Constexpr direction flags
@@ -127,54 +127,54 @@ static_assert(std::is_standard_layout_v<cufftDoubleComplex>);
 // ────────────────────────────────────────────────────────────────────────
 
 // Plan Creation
-GPUMOD_LINK_CHECK(cufftPlan1d)
-GPUMOD_LINK_CHECK(cufftPlan2d)
-GPUMOD_LINK_CHECK(cufftPlan3d)
-GPUMOD_LINK_CHECK(cufftPlanMany)
+WWR_LINK_CHECK(cufftPlan1d)
+WWR_LINK_CHECK(cufftPlan2d)
+WWR_LINK_CHECK(cufftPlan3d)
+WWR_LINK_CHECK(cufftPlanMany)
 
 // Plan Make (two-step)
-GPUMOD_LINK_CHECK(cufftCreate)
-GPUMOD_LINK_CHECK(cufftMakePlan1d)
-GPUMOD_LINK_CHECK(cufftMakePlan2d)
-GPUMOD_LINK_CHECK(cufftMakePlan3d)
-GPUMOD_LINK_CHECK(cufftMakePlanMany)
-GPUMOD_LINK_CHECK(cufftMakePlanMany64)
+WWR_LINK_CHECK(cufftCreate)
+WWR_LINK_CHECK(cufftMakePlan1d)
+WWR_LINK_CHECK(cufftMakePlan2d)
+WWR_LINK_CHECK(cufftMakePlan3d)
+WWR_LINK_CHECK(cufftMakePlanMany)
+WWR_LINK_CHECK(cufftMakePlanMany64)
 
 // Work Size Estimation
-GPUMOD_LINK_CHECK(cufftEstimate1d)
-GPUMOD_LINK_CHECK(cufftEstimate2d)
-GPUMOD_LINK_CHECK(cufftEstimate3d)
-GPUMOD_LINK_CHECK(cufftEstimateMany)
+WWR_LINK_CHECK(cufftEstimate1d)
+WWR_LINK_CHECK(cufftEstimate2d)
+WWR_LINK_CHECK(cufftEstimate3d)
+WWR_LINK_CHECK(cufftEstimateMany)
 
 // Work Size Query
-GPUMOD_LINK_CHECK(cufftGetSize1d)
-GPUMOD_LINK_CHECK(cufftGetSize2d)
-GPUMOD_LINK_CHECK(cufftGetSize3d)
-GPUMOD_LINK_CHECK(cufftGetSizeMany)
-GPUMOD_LINK_CHECK(cufftGetSizeMany64)
-GPUMOD_LINK_CHECK(cufftGetSize)
+WWR_LINK_CHECK(cufftGetSize1d)
+WWR_LINK_CHECK(cufftGetSize2d)
+WWR_LINK_CHECK(cufftGetSize3d)
+WWR_LINK_CHECK(cufftGetSizeMany)
+WWR_LINK_CHECK(cufftGetSizeMany64)
+WWR_LINK_CHECK(cufftGetSize)
 
 // Work Area Management
-GPUMOD_LINK_CHECK(cufftSetWorkArea)
-GPUMOD_LINK_CHECK(cufftSetAutoAllocation)
+WWR_LINK_CHECK(cufftSetWorkArea)
+WWR_LINK_CHECK(cufftSetAutoAllocation)
 
 // Execution
-GPUMOD_LINK_CHECK(cufftExecC2C)
-GPUMOD_LINK_CHECK(cufftExecR2C)
-GPUMOD_LINK_CHECK(cufftExecC2R)
-GPUMOD_LINK_CHECK(cufftExecZ2Z)
-GPUMOD_LINK_CHECK(cufftExecD2Z)
-GPUMOD_LINK_CHECK(cufftExecZ2D)
+WWR_LINK_CHECK(cufftExecC2C)
+WWR_LINK_CHECK(cufftExecR2C)
+WWR_LINK_CHECK(cufftExecC2R)
+WWR_LINK_CHECK(cufftExecZ2Z)
+WWR_LINK_CHECK(cufftExecD2Z)
+WWR_LINK_CHECK(cufftExecZ2D)
 
 // Utility / Lifecycle
-GPUMOD_LINK_CHECK(cufftSetStream)
-GPUMOD_LINK_CHECK(cufftDestroy)
-GPUMOD_LINK_CHECK(cufftGetVersion)
-GPUMOD_LINK_CHECK(cufftGetProperty)
+WWR_LINK_CHECK(cufftSetStream)
+WWR_LINK_CHECK(cufftDestroy)
+WWR_LINK_CHECK(cufftGetVersion)
+WWR_LINK_CHECK(cufftGetProperty)
 
 // Per-Plan Properties
-GPUMOD_LINK_CHECK(cufftSetPlanPropertyInt64)
-GPUMOD_LINK_CHECK(cufftGetPlanPropertyInt64)
-GPUMOD_LINK_CHECK(cufftResetPlanProperty)
+WWR_LINK_CHECK(cufftSetPlanPropertyInt64)
+WWR_LINK_CHECK(cufftGetPlanPropertyInt64)
+WWR_LINK_CHECK(cufftResetPlanProperty)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

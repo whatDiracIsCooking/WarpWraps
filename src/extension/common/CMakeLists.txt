@@ -13,7 +13,7 @@
 # src/extension/handle).
 add_subdirectory(error_handling)
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.extension.common
   PRIMARY_INTERFACE

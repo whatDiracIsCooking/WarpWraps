@@ -36,12 +36,12 @@ module;
 export module gpumod.hip.hip_fp16;
 
 // ========================================================================
-// Export all hip_fp16 types in gpumod::hip
-// (NOT bare gpumod -- see src/hip/README.md "Design decisions": this is
+// Export all hip_fp16 types in wwr::hip
+// (NOT bare wwr -- see src/hip/README.md "Design decisions": this is
 // the real `half` collision the README calls out against gpumod.cuda.cuda_fp16)
 // ========================================================================
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Core Half-Precision Types
@@ -73,4 +73,4 @@ using ::__half_raw;
 // `operator float()`/conversion from `__half2_raw`. There is nothing to
 // `using`-declare or forward.
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

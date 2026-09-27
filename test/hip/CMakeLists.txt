@@ -1,6 +1,6 @@
-# HIP compile-time tests (built when GPUMOD_GPU_BACKEND is HIP)
+# HIP compile-time tests (built when WWR_GPU_BACKEND is HIP)
 # Mirrors test/cuda/CMakeLists.txt exactly -- see that file's header comment
-# for the GPUMOD_LINK_CHECK/GPUMOD_DECLARED_CHECK/WHOLE_ARCHIVE rationale, which
+# for the WWR_LINK_CHECK/WWR_DECLARED_CHECK/WHOLE_ARCHIVE rationale, which
 # applies unchanged here.
 #
 # hip_compile_tests below is the one thing that runs (ctest label
@@ -34,7 +34,7 @@ set(HIP_TEST_LIBRARIES
 )
 
 foreach(_lib IN LISTS HIP_TEST_LIBRARIES)
-  gpumod_add_cxx_module_library(
+  wwr_add_cxx_module_library(
     NAME
     gpumod.test.hip.${_lib}
     IMPORT_STD
@@ -58,7 +58,7 @@ foreach(_lib IN LISTS HIP_TEST_LIBRARIES)
   list(APPEND _hip_test_targets gpumod.test.hip.${_lib})
 endforeach()
 
-gpumod_add_test_executable(
+wwr_add_test_executable(
   NAME
   hip_compile_tests
   TIMEOUT

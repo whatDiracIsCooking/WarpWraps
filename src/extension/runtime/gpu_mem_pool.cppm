@@ -12,7 +12,7 @@ import gpumod.extension.common;
 import gpumod.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief RAII wrapper for GPU memory pool
@@ -115,4 +115,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

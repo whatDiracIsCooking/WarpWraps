@@ -27,7 +27,7 @@ module;
 
 export module gpumod.hip.amd_smi;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Types and Enumerations
@@ -906,4 +906,4 @@ using ::amdsmi_get_gpu_ptl_state;
 using ::amdsmi_set_gpu_ptl_formats;
 using ::amdsmi_set_gpu_ptl_state;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

@@ -15,7 +15,7 @@ import gpumod.solver;
 import gpumod.extension.common;
 import gpumod.extension.handle;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Convenient alias for GpusolverDnHandleWrapper with default error policies
@@ -39,4 +39,4 @@ using GpusolverDnHandleView = DeviceBoundHandleView<gpusolverDnHandle_t>;
  */
 using GpusolverDnParams = GpusolverDnParamsWrapper<>;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

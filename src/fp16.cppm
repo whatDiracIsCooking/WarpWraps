@@ -19,7 +19,7 @@ module;
 // an import cannot reach them -- the header itself must be in the GMF, where its
 // external linkage is preserved (section 14). Host-only: a device TU reaches the
 // same conversions through fp16.cuh instead.
-#if defined(GPUMOD_GPU_BACKEND_CUDA)
+#if defined(WWR_GPU_BACKEND_CUDA)
 #include <cuda_fp16.h>
 #else
 // <array> before any HIP header. docs/architecture.md, section 9.
@@ -29,15 +29,15 @@ module;
 
 export module gpumod.fp16;
 
-#if defined(GPUMOD_GPU_BACKEND_CUDA)
+#if defined(WWR_GPU_BACKEND_CUDA)
 import gpumod.cuda.cuda_fp16;
 #else
 import gpumod.hip.hip_fp16;
 #endif
 
-export namespace gpumod {
+export namespace wwr {
 
-GPUMOD_TYPE(gpuHalf, __half, __half)
+WWR_TYPE(gpuHalf, __half, __half)
 
 /// @brief Convert a float to half precision (round to nearest even)
 inline gpuHalf gpuFloat2Half(const float value) {
@@ -49,4 +49,4 @@ inline float gpuHalf2Float(const gpuHalf value) {
   return ::__half2float(value);
 }
 
-} // namespace gpumod
+} // namespace wwr

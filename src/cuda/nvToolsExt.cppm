@@ -40,7 +40,7 @@ module;
 
 export module gpumod.cuda.nvToolsExt;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Types
@@ -90,4 +90,4 @@ void nvtxRangeEnd(nvtxRangeId_t id) {
   ::nvtxRangeEnd(id);
 }
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

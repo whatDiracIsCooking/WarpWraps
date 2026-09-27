@@ -1,5 +1,5 @@
 # Tests for gpumod.wrappers.common, the backend-neutral foundation the four
-# extensions are built on (built for either GPUMOD_GPU_BACKEND).
+# extensions are built on (built for either WWR_GPU_BACKEND).
 #
 # Build-time only. common is the fp/int concepts and the real/complex/half type
 # maps -- no compiled body, so there is nothing to disassemble and nothing to
@@ -10,7 +10,7 @@
 # #58 is what a wider domain costs. (See src/wrappers/common/README.md for the
 # error-policy / RAII-handle design.)
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.test.wrappers.common_type_traits
   IMPORT_STD

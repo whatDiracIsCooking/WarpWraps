@@ -1,9 +1,9 @@
-# gpu* layer compile-time tests (built for either GPUMOD_GPU_BACKEND)
+# gpu* layer compile-time tests (built for either WWR_GPU_BACKEND)
 #
 # One module per gpu* module, checking that every exported gpu* name is
 # exactly the backend entity it stands for: same type, same constant, same
-# function (plus GPUMOD_LINK_CHECK). Same shape as test/cuda -- see that file's
-# header comment for the GPUMOD_LINK_CHECK/WHOLE_ARCHIVE rationale.
+# function (plus WWR_LINK_CHECK). Same shape as test/cuda -- see that file's
+# header comment for the WWR_LINK_CHECK/WHOLE_ARCHIVE rationale.
 #
 # Like the gpu* layer, unlike everything else above it, these tests name both
 # backends, so they link gpumod_backend PRIVATE for the backend
@@ -13,7 +13,7 @@
 # gpu_compile_tests below is the one thing that runs (ctest label
 # compile_time). Expected exit code: 0
 
-if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_test_raw_runtime_api gpumod.cuda.cuda_runtime_api)
   set(_gpu_test_raw_complex gpumod.cuda.cuComplex)
   set(_gpu_test_raw_fp16 gpumod.cuda.cuda_fp16)
@@ -54,7 +54,7 @@ set(GPU_TEST_LIBRARIES
 
 set(_gpu_test_targets "")
 foreach(_lib IN LISTS GPU_TEST_LIBRARIES)
-  gpumod_add_cxx_module_library(
+  wwr_add_cxx_module_library(
     NAME
     gpumod.test.gpu.${_lib}
     IMPORT_STD
@@ -73,7 +73,7 @@ foreach(_lib IN LISTS GPU_TEST_LIBRARIES)
   list(APPEND _gpu_test_targets gpumod.test.gpu.${_lib})
 endforeach()
 
-gpumod_add_test_executable(
+wwr_add_test_executable(
   NAME
   gpu_compile_tests
   TIMEOUT
@@ -97,7 +97,7 @@ set_tests_properties(gpu_compile_tests PROPERTIES LABELS compile_time)
 # issue #37); if the header fails on a backend, that backend's compile-time tier
 # goes red. Its only include path is gpumod.device, which carries the
 # header.
-gpumod_add_gpu_device_library(
+wwr_add_gpu_device_library(
   NAME
   gpumod.test.gpu.cooperative_groups.device
   SOURCES
@@ -117,7 +117,7 @@ add_dependencies(
 # built around -- is a device-compile claim. Building them is the assertion; no
 # ctest entry, no launch. Reached through gpumod.device, the same include path a
 # real device consumer uses.
-gpumod_add_gpu_device_library(
+wwr_add_gpu_device_library(
   NAME
   gpumod.test.gpu.complex.device
   SOURCES
@@ -127,7 +127,7 @@ gpumod_add_gpu_device_library(
 )
 add_dependencies(compile_time_tests gpumod.test.gpu.complex.device)
 
-gpumod_add_gpu_device_library(
+wwr_add_gpu_device_library(
   NAME
   gpumod.test.gpu.fp16.device
   SOURCES
@@ -137,7 +137,7 @@ gpumod_add_gpu_device_library(
 )
 add_dependencies(compile_time_tests gpumod.test.gpu.fp16.device)
 
-gpumod_add_gpu_device_library(
+wwr_add_gpu_device_library(
   NAME
   gpumod.test.gpu.bf16.device
   SOURCES
@@ -148,7 +148,7 @@ gpumod_add_gpu_device_library(
 add_dependencies(compile_time_tests gpumod.test.gpu.bf16.device)
 
 # wmma.cu is cooperative_groups.cu's shape with a weaker starting guarantee.
-# wmma.cuh exports one name -- the gpumod::gpuwmma alias -- so there is still
+# wmma.cuh exports one name -- the wwr::gpuwmma alias -- so there is still
 # nothing for a .cppm module test to compare, and every WMMA entity is
 # __device__-only, so a host-compiled module test structurally cannot reach it.
 # But where cooperative_groups.cuh switches between two paths to the same vendor
@@ -159,7 +159,7 @@ add_dependencies(compile_time_tests gpumod.test.gpu.bf16.device)
 # and this tier configures with no device). Its include path is gpumod.device,
 # which carries wmma.cuh along with the fp16.cuh/bf16.cuh it names element
 # types from.
-gpumod_add_gpu_device_library(
+wwr_add_gpu_device_library(
   NAME
   gpumod.test.gpu.wmma.device
   SOURCES
@@ -177,7 +177,7 @@ add_dependencies(compile_time_tests gpumod.test.gpu.wmma.device)
 # device-compile claim, so this is a device TU. Building it is the assertion; no
 # ctest entry, no launch. Reached through gpumod.device, which carries
 # runtime.cuh and the runtime header.
-gpumod_add_gpu_device_library(
+wwr_add_gpu_device_library(
   NAME
   gpumod.test.gpu.atomics.device
   SOURCES
@@ -190,7 +190,7 @@ add_dependencies(
 )
 
 # Guard: every gpu* function alias in the gpu* layer is independently verified
-# by a GPUMOD_SAME_FUNCTION restatement in the matching test/gpu module, or by a
+# by a WWR_SAME_FUNCTION restatement in the matching test/gpu module, or by a
 # dispatch-table entry that test/shared/dispatch.py checks against the objects.
 # The check is source-only (no objects), so it is a build-time custom target
 # rather than a static_assert, added to compile_time_tests like the dispatch
@@ -223,7 +223,7 @@ add_dependencies(compile_time_tests gpu_alias_coverage)
 # The one runtime test under test/gpu. The fp16 / bf16 host conversion wrappers
 # (unlike every other gpu* name here) run on the CPU, so they can be exercised
 # for real with no device -- the .cppm tests above prove they link, this proves
-# they compute. GoogleTest is not fetched under GPUMOD_COMPILE_TIME_ONLY, so
+# they compute. GoogleTest is not fetched under WWR_COMPILE_TIME_ONLY, so
 # this target is skipped there, exactly like test/cuda and test/hip one level
 # up.
 #
@@ -232,8 +232,8 @@ add_dependencies(compile_time_tests gpu_alias_coverage)
 # these two, because host conversion is host code. Every other runtime target
 # (test/extension/*) allocates device memory, launches a kernel or creates a
 # vendor handle, and is labeled accordingly.
-if(NOT GPUMOD_COMPILE_TIME_ONLY)
-  gpumod_add_gtest_executable(
+if(NOT WWR_COMPILE_TIME_ONLY)
+  wwr_add_gtest_executable(
     NAME
     gpumod.test.gpu.conversions
     SOURCES
@@ -242,7 +242,7 @@ if(NOT GPUMOD_COMPILE_TIME_ONLY)
     gpumod.fp16
     gpumod.bf16
   )
-  gpumod_add_gtest_suite_tests(
+  wwr_add_gtest_suite_tests(
     TARGET
     gpumod.test.gpu.conversions
     SUITES

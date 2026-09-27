@@ -15,7 +15,7 @@
  * Usage:
  *   import gpumod.extension.init_state;
  *   import gpumod.extension.random_normal;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  *
  *   auto device = std::make_shared<DeviceHandle>();
  *   auto stream = device->alloc_stream().get();
@@ -44,7 +44,7 @@ import std;
 import gpumod.runtime_api;
 import gpumod.rand;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Initialize an array of generator states in parallel, one per element
@@ -73,4 +73,4 @@ void init_state(const gpuStream_t stream, const std::size_t count, gpurandState 
   device::init_state(stream, count, states, seed, sequence_offset, offset);
 }
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

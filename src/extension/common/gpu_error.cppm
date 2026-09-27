@@ -17,7 +17,7 @@ import gpumod.extension.common.error_handling;
 import gpumod.runtime_api;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Success Code Specialization
@@ -76,4 +76,4 @@ template bool gpu_check<gpuError_t>(const gpuError_t error, std::source_location
 template bool gpu_check<gpuError_t, DefaultErrorPolicy<gpuError_t>>(
     const gpuError_t error, DefaultErrorPolicy<gpuError_t> &policy, std::source_location location);
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

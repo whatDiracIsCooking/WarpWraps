@@ -8,7 +8,7 @@
  *
  * HIP spells the types __hip_bfloat16 / __hip_bfloat162, distinct from CUDA's
  * __nv_bfloat16 / __nv_bfloat162, so there is no collision here the way
- * hip_fp16's `half` has one. Everything still exports into gpumod::hip
+ * hip_fp16's `half` has one. Everything still exports into wwr::hip
  * regardless -- see src/hip/README.md.
  *
  * Unlike hip_fp16's hidden friends, amd_hip_bf16.h defines the arithmetic and
@@ -34,10 +34,10 @@ module;
 export module gpumod.hip.hip_bf16;
 
 // ========================================================================
-// Export all hip_bf16 types in gpumod::hip
+// Export all hip_bf16 types in wwr::hip
 // ========================================================================
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Core BFloat16 Types
@@ -195,4 +195,4 @@ bool operator>=(const __hip_bfloat162 &lh, const __hip_bfloat162 &rh) {
   return ::operator>=(lh, rh);
 }
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

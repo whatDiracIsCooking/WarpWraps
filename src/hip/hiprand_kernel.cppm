@@ -25,7 +25,7 @@
  * Usage:
  *   import gpumod.hip.hiprand_kernel;
  *
- *   gpumod::hip::hiprandState state;   // one per thread, allocated on device
+ *   wwr::hip::hiprandState state;   // one per thread, allocated on device
  */
 
 module;
@@ -39,11 +39,11 @@ module;
 export module gpumod.hip.hiprand_kernel;
 
 // ========================================================================
-// Export hipRAND device state types in gpumod::hip
-// (NOT bare gpumod -- see src/hip/README.md "Design decisions")
+// Export hipRAND device state types in wwr::hip
+// (NOT bare wwr -- see src/hip/README.md "Design decisions")
 // ========================================================================
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Device state types -- pseudorandom generators
@@ -76,4 +76,4 @@ using ::hiprandStateSobol64_t;
 using ::hiprandState;
 using ::hiprandState_t;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

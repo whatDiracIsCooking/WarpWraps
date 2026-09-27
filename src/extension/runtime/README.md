@@ -8,7 +8,7 @@ C++23 module providing RAII wrappers and error handling utilities for the GPU ru
 
 ## Overview
 
-This module exposes type-safe, RAII-managed wrappers for core GPU runtime objects and integrates them with the project-wide error policy infrastructure. All types are in the `gpumod::extension` namespace.
+This module exposes type-safe, RAII-managed wrappers for core GPU runtime objects and integrates them with the project-wide error policy infrastructure. All types are in the `wwr::extension` namespace.
 
 ## Partitions
 
@@ -134,7 +134,7 @@ Constructors:
 
 ```cpp
 import gpumod.extension.runtime;
-using namespace gpumod::extension;
+using namespace wwr::extension;
 
 GpuStream stream;
 GpuEvent  event;

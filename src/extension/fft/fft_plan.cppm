@@ -17,7 +17,7 @@ import gpumod.extension.common;
 import gpumod.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief RAII wrapper for a GPU FFT plan handle
@@ -77,4 +77,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

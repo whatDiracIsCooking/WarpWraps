@@ -19,7 +19,7 @@ import gpumod.complex;
 import gpumod.wrappers.common;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // BSR matrix-vector multiply: y = alpha*op(A)*x + beta*y
@@ -31,7 +31,7 @@ gpusparseStatus_t bsrmv(gpusparseHandle_t handle, gpusparseDirection_t dirA,
                         const gpusparseMatDescr_t descrA, const T *bsrSortedValA,
                         const int *bsrSortedRowPtrA, const int *bsrSortedColIndA, int blockDim,
                         const T *x, const T *beta, T *y) {
-  GPUMOD_USUAL_DISPATCH(T, bsrmv, handle, dirA, transA, mb, nb, nnzb, alpha, descrA, bsrSortedValA,
+  WWR_USUAL_DISPATCH(T, bsrmv, handle, dirA, transA, mb, nb, nnzb, alpha, descrA, bsrSortedValA,
                         bsrSortedRowPtrA, bsrSortedColIndA, blockDim, x, beta, y);
 }
 
@@ -61,4 +61,4 @@ bsrmv<gpuDoubleComplex>(gpusparseHandle_t, gpusparseDirection_t, gpusparseOperat
                         const gpuDoubleComplex *, const int *, const int *, int,
                         const gpuDoubleComplex *, const gpuDoubleComplex *, gpuDoubleComplex *);
 
-} // namespace gpumod
+} // namespace wwr

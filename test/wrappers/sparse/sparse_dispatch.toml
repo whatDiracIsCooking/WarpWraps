@@ -17,7 +17,7 @@ module = "gpumod.wrappers.sparse"
 prefix = "gpusparse"
 # gpumod.sparse defines the CUDA gebsr2gebsc_bufferSize / csr2gebsr_bufferSize
 # shims (cuSPARSE spells the byte count int*, hipSPARSE size_t*) as ordinary
-# inline functions next to its GPUMOD_FUNCTION aliases; one that is not inlined is
+# inline functions next to its WWR_FUNCTION aliases; one that is not inlined is
 # called by name, so the check has to recognise it as a dispatch target too.
 forwarder_module = "gpumod.sparse"
 

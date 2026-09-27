@@ -9,7 +9,7 @@
 # Header-only, so an INTERFACE library carrying only an include path -- and the
 # backend selection behind these headers is NOT its concern: on a device pass
 # selected_backend.h reads __CUDACC__/__HIP__, and on a host compile the
-# consumer links gpumod_backend PRIVATE for the GPUMOD_GPU_BACKEND_* define
+# consumer links gpumod_backend PRIVATE for the WWR_GPU_BACKEND_* define
 # (src/extension/init_state and src/extension/random_normal do exactly this).
 # This target grants neither the define nor a licence to #if on it.
 add_library(gpumod.extension.bridge INTERFACE)
@@ -22,5 +22,5 @@ add_library(gpumod.extension.bridge INTERFACE)
 target_include_directories(
   gpumod.extension.bridge
   INTERFACE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
-            $<INSTALL_INTERFACE:${GPUMOD_INSTALL_INCLUDEDIR}>
+            $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )

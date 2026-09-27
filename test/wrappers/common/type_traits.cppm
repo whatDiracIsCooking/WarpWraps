@@ -18,7 +18,7 @@ import gpumod.fp16;
 import gpumod.bf16;
 import gpumod.wrappers.common;
 
-namespace gpumod::test {
+namespace wwr::test {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // int_type -- the index-width constraint the BLAS wrappers put on IntT
@@ -137,4 +137,4 @@ static_assert(std::is_same_v<ComplexToRealType<RealToComplexType<double>>, doubl
 static_assert(std::is_same_v<HalfToFloatType<gpuHalf>, float>);
 static_assert(std::is_same_v<HalfToFloatType<gpuBfloat16>, float>);
 
-} // namespace gpumod::test
+} // namespace wwr::test

@@ -11,7 +11,7 @@ import gpumod.sparse;
 import gpumod.extension.common;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Success Code Specialization
@@ -79,4 +79,4 @@ template bool gpu_check<gpusparseStatus_t, DefaultErrorPolicy<gpusparseStatus_t>
     const gpusparseStatus_t error, DefaultErrorPolicy<gpusparseStatus_t> &policy,
     std::source_location location);
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

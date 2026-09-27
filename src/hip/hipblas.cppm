@@ -43,7 +43,7 @@ export module gpumod.hip.hipblas;
 
 import std;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Core Types
@@ -1363,4 +1363,4 @@ using ::hipblasNrm2Ex;
 using ::hipblasNrm2Ex_64;
 using ::hipblasNrm2StridedBatchedEx;
 using ::hipblasNrm2StridedBatchedEx_64;
-} // namespace gpumod::hip
+} // namespace wwr::hip

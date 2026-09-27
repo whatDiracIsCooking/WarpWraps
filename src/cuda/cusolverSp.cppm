@@ -18,10 +18,10 @@ export module gpumod.cuda.cusolverSp;
 import std;
 
 // ========================================================================
-// Export all cuSOLVER Sparse types and functions in gpumod namespace
+// Export all cuSOLVER Sparse types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Core Types
@@ -208,4 +208,4 @@ using ::cusolverSpDcsrqrsvBatched;
 using ::cusolverSpScsrqrsvBatched;
 using ::cusolverSpZcsrqrsvBatched;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

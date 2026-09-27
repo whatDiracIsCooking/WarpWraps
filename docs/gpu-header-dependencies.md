@@ -16,7 +16,7 @@ has this shape; this file only states *what* it is.
 reach it through `device_guard.h`, which adds the "must be a device pass"
 `#error` guard a bridge must not have. Four reach `device_guard.h` directly;
 `cooperative_groups.cuh` and `wmma.cuh` reach it through `runtime.cuh`,
-whose `GPUMOD_WARP_SIZE` they also want — a portable tile size for one, a wave
+whose `WWR_WARP_SIZE` they also want — a portable tile size for one, a wave
 index for the other, both because the API is a whole-warp collective.
 **No bridge includes another bridge, and every `.cuh`-to-`.cuh` edge stays
 inside a single target** — both are into `runtime.cuh`, and all three
@@ -51,8 +51,8 @@ selected_backend.h        no #includes — the leaf the switch/bridge layer rest
 gpu_backend.h             no #includes — independent; consumed only by the .cppm modules
 ```
 
-The two columns after each `+` are the CUDA branch (`GPUMOD_SELECTED_CUDA`) and
-the HIP branch (`GPUMOD_SELECTED_HIP` / the `#else`); a translation unit sees
+The two columns after each `+` are the CUDA branch (`WWR_SELECTED_CUDA`) and
+the HIP branch (`WWR_SELECTED_HIP` / the `#else`); a translation unit sees
 exactly one. `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `runtime.cuh`,
 `cooperative_groups.cuh`, `wmma.cuh`, `rand.cuh` and `gpu_stream_bridge.h` pull
 vendor headers; `rand_state_bridge.h` pulls none (it forward-declares the vendor

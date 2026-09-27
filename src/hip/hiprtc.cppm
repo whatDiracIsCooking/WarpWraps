@@ -27,7 +27,7 @@ module;
 
 export module gpumod.hip.hiprtc;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Result / Status Type
@@ -115,4 +115,4 @@ using ::hiprtcLinkComplete;
 using ::hiprtcLinkCreate;
 using ::hiprtcLinkDestroy;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

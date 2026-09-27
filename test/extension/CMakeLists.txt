@@ -1,14 +1,14 @@
 # Backend-neutral extension tests -- src/extension's tests, written against the
-# gpu* names and built for either GPUMOD_GPU_BACKEND.
+# gpu* names and built for either WWR_GPU_BACKEND.
 #
 # The build-time halves (static_asserts) must be configured under
-# GPUMOD_COMPILE_TIME_ONLY too, so their directories are added before the early
+# WWR_COMPILE_TIME_ONLY too, so their directories are added before the early
 # return; the GoogleTest runtime suites come after it.
 add_subdirectory(build_time)
 add_subdirectory(common)
 
 # Everything below is a GoogleTest runtime test.
-if(GPUMOD_COMPILE_TIME_ONLY)
+if(WWR_COMPILE_TIME_ONLY)
   return()
 endif()
 

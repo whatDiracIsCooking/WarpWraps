@@ -22,9 +22,9 @@ import gpumod.cuda.cuda_bf16;
 // guarantees that static_assert can reach.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Struct traits: C-interop guarantees
@@ -48,4 +48,4 @@ static_assert(sizeof(__nv_bfloat162) == 4);
 static_assert(std::is_same_v<nv_bfloat16, __nv_bfloat16>);
 static_assert(std::is_same_v<nv_bfloat162, __nv_bfloat162>);
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

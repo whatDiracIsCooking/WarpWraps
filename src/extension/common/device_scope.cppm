@@ -25,7 +25,7 @@ import :noncopyable;
 import gpumod.runtime_api;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Make `target_idx` the current device for the guard's lifetime
@@ -58,4 +58,4 @@ struct DeviceScope : private NonCopyable {
   // non-movable as well.
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

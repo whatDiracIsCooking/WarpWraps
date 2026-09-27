@@ -7,7 +7,7 @@ device array, one value per element, drawing from cuRAND / hipRAND
 ```cpp
 import gpumod.extension.init_state;
 import gpumod.extension.random_normal;
-using namespace gpumod::extension;
+using namespace wwr::extension;
 
 auto device = std::make_shared<DeviceHandle>();
 auto stream = device->alloc_stream().get();
@@ -88,7 +88,7 @@ either. CMake maps `.cu` to CUDA on its own; under HIP the `LANGUAGE` is
 overridden back to `CXX` (a HIP build enables no CUDA language at all) and
 `hip::device` is linked, into a small dedicated static library so those flags
 never reach the module units. All of that lives in
-`gpumod_add_gpu_device_library` (`cmake/`), which this `CMakeLists.txt` calls.
+`wwr_add_gpu_device_library` (`cmake/`), which this `CMakeLists.txt` calls.
 There is no per-backend `#if` in the source: `src/rand.cuh` and
 `src/fp_types.cuh` resolve every difference, so the functor is written once.
 

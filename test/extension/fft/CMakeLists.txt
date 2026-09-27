@@ -5,7 +5,7 @@
 # gpumod.extension.common as well, since the test substitutes its own
 # a counting policy for the default one to observe destroy-exactly-once.
 
-gpumod_add_gtest_executable(
+wwr_add_gtest_executable(
   NAME
   extension_fft_tests
   SOURCES
@@ -18,7 +18,7 @@ gpumod_add_gtest_executable(
 
 # One ctest entry per suite. Add a suite here when you add one to the test file,
 # or the SuiteListIsComplete guard test will fail and say so.
-gpumod_add_gtest_suite_tests(
+wwr_add_gtest_suite_tests(
   TARGET
   extension_fft_tests
   SUITES

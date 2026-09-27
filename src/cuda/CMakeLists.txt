@@ -1,7 +1,7 @@
 # Native CUDA API module wrappers
 
 # CUDA Driver API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cuda_h
   PRIMARY_INTERFACE
@@ -14,7 +14,7 @@ gpumod_add_cxx_module_library(
 )
 
 # CUDA Runtime API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cuda_runtime_api
   PRIMARY_INTERFACE
@@ -27,7 +27,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuComplex API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cuComplex
   PRIMARY_INTERFACE
@@ -40,7 +40,7 @@ gpumod_add_cxx_module_library(
 )
 
 # CUDA FP16 API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cuda_fp16
   PRIMARY_INTERFACE
@@ -53,7 +53,7 @@ gpumod_add_cxx_module_library(
 )
 
 # CUDA BF16 API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cuda_bf16
   PRIMARY_INTERFACE
@@ -66,7 +66,7 @@ gpumod_add_cxx_module_library(
 )
 
 # CUDA FP4 API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cuda_fp4
   PRIMARY_INTERFACE
@@ -79,7 +79,7 @@ gpumod_add_cxx_module_library(
 )
 
 # CUDA FP6 API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cuda_fp6
   PRIMARY_INTERFACE
@@ -92,7 +92,7 @@ gpumod_add_cxx_module_library(
 )
 
 # CUDA FP8 API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cuda_fp8
   PRIMARY_INTERFACE
@@ -105,7 +105,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuBLAS API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cublas_v2
   PRIMARY_INTERFACE
@@ -119,7 +119,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuBLASLt API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cublasLt
   PRIMARY_INTERFACE
@@ -133,7 +133,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuBLASXt API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cublasXt
   PRIMARY_INTERFACE
@@ -147,7 +147,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuFFT API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cufft
   PRIMARY_INTERFACE
@@ -160,7 +160,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuRAND API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.curand
   PRIMARY_INTERFACE
@@ -173,7 +173,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuSOLVER Dense API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cusolverDn
   PRIMARY_INTERFACE
@@ -186,7 +186,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuSPARSE API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cusparse
   PRIMARY_INTERFACE
@@ -199,7 +199,7 @@ gpumod_add_cxx_module_library(
 )
 
 # CUDA Profiler API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cuda_profiler_api
   PRIMARY_INTERFACE
@@ -212,7 +212,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuFFT Extended (multi-GPU) API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cufftXt
   PRIMARY_INTERFACE
@@ -248,7 +248,7 @@ if(NOT TARGET gpumod::cuda_cusolverMg)
   )
 endif()
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cusolverMg
   PRIMARY_INTERFACE
@@ -262,7 +262,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuSOLVER Sparse API
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cusolverSp
   PRIMARY_INTERFACE
@@ -282,7 +282,7 @@ gpumod_add_cxx_module_library(
 # library -- INCLUDE_CUDA_TOOLKIT alone puts nvtx3/ on the include path (needed
 # both here and when a consumer recompiles the installed module unit). See
 # src/cuda/nvToolsExt.cppm.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.nvToolsExt
   PRIMARY_INTERFACE
@@ -293,7 +293,7 @@ gpumod_add_cxx_module_library(
 )
 
 # CUPTI (CUDA Profiling Tools Interface)
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cupti
   PRIMARY_INTERFACE
@@ -306,7 +306,7 @@ gpumod_add_cxx_module_library(
 )
 
 # nvFatbin (NVIDIA Fatbinary Creation)
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.nvFatbin
   PRIMARY_INTERFACE
@@ -319,7 +319,7 @@ gpumod_add_cxx_module_library(
 )
 
 # cuFile (GPUDirect Storage)
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.cufile
   PRIMARY_INTERFACE
@@ -332,7 +332,7 @@ gpumod_add_cxx_module_library(
 )
 
 # nvJitLink (NVIDIA JIT Linking)
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.nvJitLink
   PRIMARY_INTERFACE
@@ -345,7 +345,7 @@ gpumod_add_cxx_module_library(
 )
 
 # nvJPEG
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.nvjpeg
   PRIMARY_INTERFACE
@@ -358,7 +358,7 @@ gpumod_add_cxx_module_library(
 )
 
 # NVML (NVIDIA Management Library)
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.nvml
   PRIMARY_INTERFACE
@@ -371,7 +371,7 @@ gpumod_add_cxx_module_library(
 )
 
 # NVRTC (NVIDIA Runtime Compilation)
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.cuda.nvrtc
   PRIMARY_INTERFACE

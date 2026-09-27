@@ -19,9 +19,9 @@ import gpumod.cuda.nvrtc;
 //   3. The nvrtcProgram handle is a pointer type
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type check
@@ -66,51 +66,51 @@ static_assert(std::is_pointer_v<nvrtcProgram>);
 // ────────────────────────────────────────────────────────────────────────
 
 // Error handling
-GPUMOD_LINK_CHECK(nvrtcGetErrorString)
+WWR_LINK_CHECK(nvrtcGetErrorString)
 
 // General information query
-GPUMOD_LINK_CHECK(nvrtcVersion)
-GPUMOD_LINK_CHECK(nvrtcGetNumSupportedArchs)
-GPUMOD_LINK_CHECK(nvrtcGetSupportedArchs)
+WWR_LINK_CHECK(nvrtcVersion)
+WWR_LINK_CHECK(nvrtcGetNumSupportedArchs)
+WWR_LINK_CHECK(nvrtcGetSupportedArchs)
 
 // Program lifecycle
-GPUMOD_LINK_CHECK(nvrtcCreateProgram)
-GPUMOD_LINK_CHECK(nvrtcDestroyProgram)
+WWR_LINK_CHECK(nvrtcCreateProgram)
+WWR_LINK_CHECK(nvrtcDestroyProgram)
 
 // Compilation
-GPUMOD_LINK_CHECK(nvrtcCompileProgram)
+WWR_LINK_CHECK(nvrtcCompileProgram)
 
 // PTX retrieval
-GPUMOD_LINK_CHECK(nvrtcGetPTXSize)
-GPUMOD_LINK_CHECK(nvrtcGetPTX)
+WWR_LINK_CHECK(nvrtcGetPTXSize)
+WWR_LINK_CHECK(nvrtcGetPTX)
 
 // CUBIN retrieval
-GPUMOD_LINK_CHECK(nvrtcGetCUBINSize)
-GPUMOD_LINK_CHECK(nvrtcGetCUBIN)
+WWR_LINK_CHECK(nvrtcGetCUBINSize)
+WWR_LINK_CHECK(nvrtcGetCUBIN)
 
 // LTO IR retrieval
-GPUMOD_LINK_CHECK(nvrtcGetLTOIRSize)
-GPUMOD_LINK_CHECK(nvrtcGetLTOIR)
+WWR_LINK_CHECK(nvrtcGetLTOIRSize)
+WWR_LINK_CHECK(nvrtcGetLTOIR)
 
 // OptiX IR retrieval
-GPUMOD_LINK_CHECK(nvrtcGetOptiXIRSize)
-GPUMOD_LINK_CHECK(nvrtcGetOptiXIR)
+WWR_LINK_CHECK(nvrtcGetOptiXIRSize)
+WWR_LINK_CHECK(nvrtcGetOptiXIR)
 
 // Compilation log retrieval
-GPUMOD_LINK_CHECK(nvrtcGetProgramLogSize)
-GPUMOD_LINK_CHECK(nvrtcGetProgramLog)
+WWR_LINK_CHECK(nvrtcGetProgramLogSize)
+WWR_LINK_CHECK(nvrtcGetProgramLog)
 
 // Name expression (symbol mangling)
-GPUMOD_LINK_CHECK(nvrtcAddNameExpression)
-GPUMOD_LINK_CHECK(nvrtcGetLoweredName)
+WWR_LINK_CHECK(nvrtcAddNameExpression)
+WWR_LINK_CHECK(nvrtcGetLoweredName)
 
 // Precompiled header (PCH)
-GPUMOD_LINK_CHECK(nvrtcGetPCHHeapSize)
-GPUMOD_LINK_CHECK(nvrtcSetPCHHeapSize)
-GPUMOD_LINK_CHECK(nvrtcGetPCHCreateStatus)
-GPUMOD_LINK_CHECK(nvrtcGetPCHHeapSizeRequired)
+WWR_LINK_CHECK(nvrtcGetPCHHeapSize)
+WWR_LINK_CHECK(nvrtcSetPCHHeapSize)
+WWR_LINK_CHECK(nvrtcGetPCHCreateStatus)
+WWR_LINK_CHECK(nvrtcGetPCHHeapSizeRequired)
 
 // Compilation flow control
-GPUMOD_LINK_CHECK(nvrtcSetFlowCallback)
+WWR_LINK_CHECK(nvrtcSetFlowCallback)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

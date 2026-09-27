@@ -24,11 +24,11 @@
 
 #pragma once
 
-// GPUMOD_SELECTED_CUDA / GPUMOD_SELECTED_HIP, and #errors outside a device pass;
+// WWR_SELECTED_CUDA / WWR_SELECTED_HIP, and #errors outside a device pass;
 // these vendor headers are device-only.
 #include "device_guard.h"
 
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
 
 #include <cuda_fp16.h>
 
@@ -45,7 +45,7 @@
 
 #endif
 
-namespace gpumod {
+namespace wwr {
 
 // ========================================================================
 // Type -- the same one fp16.cppm exports
@@ -63,4 +63,4 @@ __device__ __forceinline__ float gpuHalf2Float(const gpuHalf value) {
   return ::__half2float(value);
 }
 
-} // namespace gpumod
+} // namespace wwr

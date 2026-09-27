@@ -12,7 +12,7 @@ export module gpumod.extension.common:noncopyable;
 
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Mixin that deletes copy operations while allowing moves
@@ -35,4 +35,4 @@ protected:
   ~NonCopyable() = default; // Protected: prevents deletion through base pointer
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

@@ -18,7 +18,7 @@ import :pinned_buffer;
 import :unified_buffer;
 import gpumod.extension.common;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Convenient alias for DeviceBufferWrapper with default error policies
@@ -99,4 +99,4 @@ using UnifiedBuffer = UnifiedBufferWrapper<T>;
 template<typename T>
 using UnifiedBufferView = BufferViewWrapper<T, MemoryKind::Unified>;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

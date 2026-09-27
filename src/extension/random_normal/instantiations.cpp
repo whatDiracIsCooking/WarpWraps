@@ -25,7 +25,7 @@ import gpumod.complex;
 import gpumod.fp16;
 import gpumod.bf16;
 
-namespace gpumod::extension {
+namespace wwr::extension {
 
 template void random_normal<float>(gpuStream_t, std::size_t, gpurandState *, float *, float);
 template void random_normal<double>(gpuStream_t, std::size_t, gpurandState *, double *, double);
@@ -37,4 +37,4 @@ template void random_normal<gpuHalf>(gpuStream_t, std::size_t, gpurandState *, g
 template void random_normal<gpuBfloat16>(gpuStream_t, std::size_t, gpurandState *, gpuBfloat16 *,
                                          gpuBfloat16);
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

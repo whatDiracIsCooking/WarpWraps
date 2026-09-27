@@ -6,7 +6,7 @@
 # gpumod.extension.common re-exports it (and adds the gpuError_t specializations
 # in :gpu_error), so consumers reach these names through
 # `import gpumod.extension.common;`.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.extension.common.error_handling
   PRIMARY_INTERFACE

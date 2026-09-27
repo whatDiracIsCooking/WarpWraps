@@ -20,12 +20,12 @@ import gpumod.cuda.cufftXt;
 //   3. Descriptor structs satisfy standard-layout and trivial-copyability
 //      where applicable
 //   4. Callback function-pointer typedefs are plain pointer types
-//   5. Every non-inline function symbol resolves at link time (GPUMOD_LINK_CHECK)
+//   5. Every non-inline function symbol resolves at link time (WWR_LINK_CHECK)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -155,40 +155,40 @@ static_assert(std::is_pointer_v<cufftJITCallbackStoreD>);
 // ────────────────────────────────────────────────────────────────────────
 
 // Multi-GPU Setup
-GPUMOD_LINK_CHECK(cufftXtSetGPUs)
+WWR_LINK_CHECK(cufftXtSetGPUs)
 
 // Multi-GPU Memory Management
-GPUMOD_LINK_CHECK(cufftXtMalloc)
-GPUMOD_LINK_CHECK(cufftXtMemcpy)
-GPUMOD_LINK_CHECK(cufftXtFree)
-GPUMOD_LINK_CHECK(cufftXtSetWorkArea)
+WWR_LINK_CHECK(cufftXtMalloc)
+WWR_LINK_CHECK(cufftXtMemcpy)
+WWR_LINK_CHECK(cufftXtFree)
+WWR_LINK_CHECK(cufftXtSetWorkArea)
 
 // Descriptor-based typed execution
-GPUMOD_LINK_CHECK(cufftXtExecDescriptorC2C)
-GPUMOD_LINK_CHECK(cufftXtExecDescriptorR2C)
-GPUMOD_LINK_CHECK(cufftXtExecDescriptorC2R)
-GPUMOD_LINK_CHECK(cufftXtExecDescriptorZ2Z)
-GPUMOD_LINK_CHECK(cufftXtExecDescriptorD2Z)
-GPUMOD_LINK_CHECK(cufftXtExecDescriptorZ2D)
+WWR_LINK_CHECK(cufftXtExecDescriptorC2C)
+WWR_LINK_CHECK(cufftXtExecDescriptorR2C)
+WWR_LINK_CHECK(cufftXtExecDescriptorC2R)
+WWR_LINK_CHECK(cufftXtExecDescriptorZ2Z)
+WWR_LINK_CHECK(cufftXtExecDescriptorD2Z)
+WWR_LINK_CHECK(cufftXtExecDescriptorZ2D)
 
 // Generic execution
-GPUMOD_LINK_CHECK(cufftXtExec)
-GPUMOD_LINK_CHECK(cufftXtExecDescriptor)
+WWR_LINK_CHECK(cufftXtExec)
+WWR_LINK_CHECK(cufftXtExecDescriptor)
 
 // Extended plan creation and size query
-GPUMOD_LINK_CHECK(cufftXtMakePlanMany)
-GPUMOD_LINK_CHECK(cufftXtGetSizeMany)
+WWR_LINK_CHECK(cufftXtMakePlanMany)
+WWR_LINK_CHECK(cufftXtGetSizeMany)
 
 // Work area policy
-GPUMOD_LINK_CHECK(cufftXtSetWorkAreaPolicy)
+WWR_LINK_CHECK(cufftXtSetWorkAreaPolicy)
 
 // Query
-GPUMOD_LINK_CHECK(cufftXtQueryPlan)
+WWR_LINK_CHECK(cufftXtQueryPlan)
 
 // Callback registration
-GPUMOD_LINK_CHECK(cufftXtSetCallback)
-GPUMOD_LINK_CHECK(cufftXtClearCallback)
-GPUMOD_LINK_CHECK(cufftXtSetCallbackSharedSize)
-GPUMOD_LINK_CHECK(cufftXtSetJITCallback)
+WWR_LINK_CHECK(cufftXtSetCallback)
+WWR_LINK_CHECK(cufftXtClearCallback)
+WWR_LINK_CHECK(cufftXtSetCallbackSharedSize)
+WWR_LINK_CHECK(cufftXtSetJITCallback)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

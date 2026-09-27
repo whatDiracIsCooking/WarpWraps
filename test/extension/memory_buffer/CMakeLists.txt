@@ -4,7 +4,7 @@
 # First suite migrated to GoogleTest. Note what is gone relative to the
 # test_module version, because the rest of the migration follows this shape:
 #
-#   * no gpumod_add_cxx_module_library() wrapping the test source -- the
+#   * no wwr_add_cxx_module_library() wrapping the test source -- the
 #     test TU is a plain .cpp compiled straight into the executable
 #   * no WHOLE_ARCHIVE, because a TU linked directly into an executable cannot
 #     have its self-registering static objects dropped; that hack only existed
@@ -13,7 +13,7 @@
 #   * one ctest entry per suite instead of one per binary, so `ctest -R` can
 #     select one suite and a skip no longer reads as a pass
 
-gpumod_add_gtest_executable(
+wwr_add_gtest_executable(
   NAME
   extension_memory_buffer_tests
   SOURCES
@@ -34,7 +34,7 @@ gpumod_add_gtest_executable(
 # host-accessible kinds; TYPES names them in the same order as the
 # ::testing::Types list so its ctest entries read HostAccessibleOwningBufferTest
 # <HostBuffer> rather than .../0.
-gpumod_add_gtest_suite_tests(
+wwr_add_gtest_suite_tests(
   TARGET
   extension_memory_buffer_tests
   SUITES

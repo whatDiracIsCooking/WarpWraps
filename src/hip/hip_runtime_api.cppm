@@ -96,12 +96,12 @@ static_assert(hipMemAttachSingle == 0x04, "hipMemAttachSingle value mismatch");
 export module gpumod.hip.hip_runtime_api;
 
 // ========================================================================
-// Export all HIP types, functions, and constants in gpumod::hip
-// (NOT bare gpumod -- see src/hip/README.md "Design decisions": a real
+// Export all HIP types, functions, and constants in wwr::hip
+// (NOT bare wwr -- see src/hip/README.md "Design decisions": a real
 // `half` collision with gpumod.cuda.cuda_fp16 if this were bare)
 // ========================================================================
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Constexpr wrappers for HIP flag macros
@@ -1682,4 +1682,4 @@ using ::hipGetProcAddress;
 using ::hipProfilerStart;
 using ::hipProfilerStop;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

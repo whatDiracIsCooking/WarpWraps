@@ -14,7 +14,7 @@ import gpumod.extension.common;
 import gpumod.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Identity, static properties and default allocation stream of one physical GPU
@@ -75,4 +75,4 @@ private:
   GpuMemPool mem_pool_;
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

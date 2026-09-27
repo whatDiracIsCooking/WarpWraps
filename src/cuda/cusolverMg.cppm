@@ -18,10 +18,10 @@ export module gpumod.cuda.cusolverMg;
 import std;
 
 // ========================================================================
-// Export all cuSOLVER Multi-GPU types and functions in gpumod namespace
+// Export all cuSOLVER Multi-GPU types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Core Types
@@ -143,4 +143,4 @@ using ::cusolverMgPotrs_bufferSize;
 using ::cusolverMgPotri;
 using ::cusolverMgPotri_bufferSize;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

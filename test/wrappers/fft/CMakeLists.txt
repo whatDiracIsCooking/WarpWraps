@@ -1,4 +1,4 @@
-# GPU FFT wrapper tests (backend-neutral: built for either GPUMOD_GPU_BACKEND)
+# GPU FFT wrapper tests (backend-neutral: built for either WWR_GPU_BACKEND)
 #
 # Build-time only. The typed exec wrappers pick their entry point by
 # token-pasting a precision-specific transform-kind suffix (C2C/Z2Z, ...), which
@@ -8,7 +8,7 @@
 # half, and no type_traits static-assert companion the way solver has (FFT
 # dispatch carries no runtime data-type value to check).
 
-gpumod_add_dispatch_check(
+wwr_add_dispatch_check(
   NAME
   gpumod.test.wrappers.fft_dispatch
   TARGET

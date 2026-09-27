@@ -17,9 +17,9 @@ import gpumod.wrappers.tx;
 // test/gpu/tx.cppm.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::test {
+namespace wwr::test {
 
-using namespace gpumod;
+using namespace wwr;
 
 // ──────────────────────────────────────────────────────────────────────
 // Free-function signatures
@@ -44,4 +44,4 @@ static_assert(!std::is_copy_assignable_v<tx::ScopedRange>);
 static_assert(!std::is_move_assignable_v<tx::ScopedRange>);
 static_assert(std::is_nothrow_destructible_v<tx::ScopedRange>);
 
-} // namespace gpumod::test
+} // namespace wwr::test

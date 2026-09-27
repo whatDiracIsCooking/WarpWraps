@@ -1,6 +1,6 @@
 # Memory buffer modules - RAII wrappers for different memory kinds
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.extension.memory_buffer
   PRIMARY_INTERFACE

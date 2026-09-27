@@ -12,7 +12,7 @@ link, and run.
 So this reads the compiled code instead. Each explicit instantiation of a
 wrapper is its own function in the object file, and the relocations inside it
 name the vendor function it actually calls. `llvm-objdump -dr` lists them; the
-vendor name is mapped back to its gpu* alias through the GPUMOD_FUNCTION table in
+vendor name is mapped back to its gpu* alias through the WWR_FUNCTION table in
 the matching gpu* module, which names both backends' functions -- so one
 expected table, written in gpu* names, checks a CUDA and a HIP build alike.
 
@@ -22,7 +22,7 @@ script is shared by every extension module that dispatches this way:
     [check]
     module     = "gpumod.wrappers.blas"   # module name in the mangled symbols
     prefix     = "gpublas"                 # the gpu* alias prefix to look for
-    namespace  = "gpumod"       # optional; this is the default
+    namespace  = "wwr"       # optional; this is the default
     forwarder_module = "gpumod.blas"   # optional; see below
 
     [type_names.CUDA]                      # demangled spelling -> table spelling
@@ -41,7 +41,7 @@ legacy and the modern API); each overload must call exactly one, and together
 they must call exactly the listed ones.
 
 `forwarder_module` is for gpu* modules that define ordinary inline functions
-alongside the GPUMOD_FUNCTION aliases (gpumod.blas does, for the HIP
+alongside the WWR_FUNCTION aliases (gpumod.blas does, for the HIP
 getrs/getriBatched shims). If one of those is not inlined, the wrapper calls it
 by name rather than the vendor symbol, and this is what recognises it. Omit the
 key for a module that has none.
@@ -64,12 +64,12 @@ import tomllib
 from collections import Counter, defaultdict
 from pathlib import Path
 
-# GPUMOD_FUNCTION(gpublasSaxpy, cublasSaxpy_v2, hipblasSaxpy) -- the alias is
-# constrained to the configured prefix so an unrelated GPUMOD_FUNCTION line in the
+# WWR_FUNCTION(gpublasSaxpy, cublasSaxpy_v2, hipblasSaxpy) -- the alias is
+# constrained to the configured prefix so an unrelated WWR_FUNCTION line in the
 # same file (handle create/destroy, stream setters) cannot be mistaken for a
 # dispatch target.
 GPU_FUNCTION_RE_TEMPLATE = (
-    r"GPUMOD_FUNCTION\(\s*({prefix}\w+)\s*,\s*(\w+)\s*,\s*(\w+)\s*\)"
+    r"WWR_FUNCTION\(\s*({prefix}\w+)\s*,\s*(\w+)\s*,\s*(\w+)\s*\)"
 )
 
 # A wrapper as llvm-cxxfilt prints it: return type, then
@@ -107,7 +107,7 @@ class Table:
                 sys.exit(f"error: {path}: [check] needs a string '{key}'")
         module = check["module"]
         prefix = check["prefix"]
-        namespace = check.get("namespace", "gpumod")
+        namespace = check.get("namespace", "wwr")
         forwarder_module = check.get("forwarder_module")
 
         self.module = module
@@ -170,7 +170,7 @@ class Table:
         backend can merge two of the other's entry points, and src/blas.cppm
         does exactly that -- gpublasGetStatusName and gpublasGetStatusString are
         both hipblasStatusToString under HIP. Returning a bare dict silently kept
-        whichever GPUMOD_FUNCTION line came last and dropped the other, so a wrapper
+        whichever WWR_FUNCTION line came last and dropped the other, so a wrapper
         calling the merged symbol was reported under an arbitrary one of its two
         names. Nothing distinguishes them in the object file -- they ARE one
         symbol there -- so the ambiguity is resolved where it is used, or
@@ -184,7 +184,7 @@ class Table:
                 vendor[m.group(col)].append(alias)
         if not vendor:
             sys.exit(
-                f"error: no GPUMOD_FUNCTION({self.prefix}...) "
+                f"error: no WWR_FUNCTION({self.prefix}...) "
                 f"lines found in {gpu_source}"
             )
         return dict(vendor)
@@ -377,7 +377,7 @@ def main():
     ap.add_argument("--backend", required=True, choices=list(BACKENDS))
     ap.add_argument("--table", required=True, help="the TOML dispatch table")
     ap.add_argument(
-        "--gpu-source", required=True, help="the gpu* module holding GPUMOD_FUNCTION"
+        "--gpu-source", required=True, help="the gpu* module holding WWR_FUNCTION"
     )
     ap.add_argument("--stamp", help="touched on success")
     ap.add_argument(

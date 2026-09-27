@@ -33,7 +33,7 @@
 [check]
 module = "gpumod.wrappers.solver"
 prefix = "gpusolver"
-# gpumod.solver is pure GPUMOD_FUNCTION aliases -- no inline forwarders to
+# gpumod.solver is pure WWR_FUNCTION aliases -- no inline forwarders to
 # recognise, unlike gpumod.blas -- so there is no forwarder_module here.
 
 # How the demangler spells each template argument, mapped to the name this table

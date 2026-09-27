@@ -14,7 +14,7 @@
 
 export module gpumod.extension.common.error_handling:error_code;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Success Code Template
@@ -63,4 +63,4 @@ const char *error_name(T code) noexcept;
 template<typename T>
 const char *error_string(T code) noexcept;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

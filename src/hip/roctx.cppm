@@ -41,7 +41,7 @@ module;
 
 export module gpumod.hip.roctx;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Types
@@ -70,4 +70,4 @@ using ::roctxRangePushA;
 using ::roctxRangeStartA;
 using ::roctxRangeStop;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

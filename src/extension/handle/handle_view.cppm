@@ -17,7 +17,7 @@ export module gpumod.extension.handle:handle_view;
 
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /// @brief Non-owning, copyable view over a GPU handle
 /// @tparam T The underlying GPU handle type
@@ -42,4 +42,4 @@ public:
   operator T() const noexcept { return handle_; }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

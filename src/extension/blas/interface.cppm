@@ -3,7 +3,7 @@
  * @brief Primary interface for gpumod.extension.blas
  *
  * The error-handling and RAII-handle layer for GPU BLAS (cuBLAS or hipBLAS,
- * per GPUMOD_GPU_BACKEND). The type-safe dispatch wrappers built on top of it
+ * per WWR_GPU_BACKEND). The type-safe dispatch wrappers built on top of it
  * live separately in gpumod.wrappers.blas. It aggregates:
  * - :blas_error - Error code specializations for gpublasStatus_t
  * - :blas_handle - RAII wrapper for gpublasHandle_t
@@ -11,7 +11,7 @@
  *
  * Usage:
  *   import gpumod.extension.blas;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  */
 
 export module gpumod.extension.blas;

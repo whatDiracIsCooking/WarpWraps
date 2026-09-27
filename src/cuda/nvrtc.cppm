@@ -18,7 +18,7 @@ export module gpumod.cuda.nvrtc;
 
 import std;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Result / Status Type
@@ -124,4 +124,4 @@ using ::nvrtcSetPCHHeapSize;
 // ========================================================================
 using ::nvrtcSetFlowCallback;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

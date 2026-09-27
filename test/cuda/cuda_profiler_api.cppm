@@ -22,12 +22,12 @@ import gpumod.cuda.cuda_profiler_api;
 //   1. cudaError_t is recognised as an enum type
 //   2. cudaProfilerStart and cudaProfilerStop have the expected signatures
 //      (callable with no arguments, returning cudaError_t)
-//   3. Both functions resolve to linkable external symbols (GPUMOD_LINK_CHECK)
+//   3. Both functions resolve to linkable external symbols (WWR_LINK_CHECK)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Return type
@@ -48,10 +48,10 @@ static_assert(std::is_same_v<std::invoke_result_t<decltype(cudaProfilerStop)>, c
 
 // ────────────────────────────────────────────────────────────────────────
 // Link-time symbol resolution
-// Both functions are external (non-inline), so GPUMOD_LINK_CHECK applies.
+// Both functions are external (non-inline), so WWR_LINK_CHECK applies.
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cudaProfilerStart)
-GPUMOD_LINK_CHECK(cudaProfilerStop)
+WWR_LINK_CHECK(cudaProfilerStart)
+WWR_LINK_CHECK(cudaProfilerStop)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

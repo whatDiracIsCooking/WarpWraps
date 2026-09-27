@@ -7,12 +7,12 @@
 # here couples the two: they share only gpurandState, which comes from
 # gpumod.rand.
 
-# The device-kernel library (gpumod_add_gpu_device_library handles the
+# The device-kernel library (wwr_add_gpu_device_library handles the
 # per-backend compilation; see cmake/). The link line is what is local: PRIVATE,
 # as every device-library link is. gpumod.extension.parallel_for carries
 # ${CMAKE_SOURCE_DIR}/src (so random_normal_bridge.h and rand.cuh resolve) and
 # gpumod.device; gpumod.rand.device adds the cuRAND/hipRAND library.
-gpumod_add_gpu_device_library(
+wwr_add_gpu_device_library(
   NAME
   gpumod.extension.random_normal.device
   SOURCES
@@ -33,10 +33,10 @@ gpumod_add_gpu_device_library(
 # pulls in there (extension/bridge/gpu_stream_bridge.h,
 # extension/bridge/rand_state_bridge.h): a GMF cannot `import`, so gpuStream_t
 # and gpurandState have to arrive by #include, and selected_backend.h behind
-# them reads GPUMOD_GPU_BACKEND_{CUDA,HIP} when there is no device-compile pass
+# them reads WWR_GPU_BACKEND_{CUDA,HIP} when there is no device-compile pass
 # to read __CUDACC__/__HIP__ from. PRIVATE, so the define reaches these module
 # units and nothing that imports them.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.extension.random_normal
   PRIMARY_INTERFACE
@@ -78,13 +78,13 @@ unset(_wa_install)
 
 # interface.cppm and instantiations.cpp's two compile requirements (the src/
 # include root for random_normal_bridge.h, and gpumod_backend for the
-# GPUMOD_GPU_BACKEND_* define behind the bridges), granted to installed
+# WWR_GPU_BACKEND_* define behind the bridges), granted to installed
 # consumers under $<INSTALL_INTERFACE:> because they are the ones compiling them
 # -- see the comment at the end of src/CMakeLists.txt. PRIVATE for the in-tree
 # build.
 target_include_directories(
   gpumod.extension.random_normal
-  PUBLIC $<INSTALL_INTERFACE:${GPUMOD_INSTALL_INCLUDEDIR}>
+  PUBLIC $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(
   gpumod.extension.random_normal PUBLIC $<INSTALL_INTERFACE:gpumod_backend>

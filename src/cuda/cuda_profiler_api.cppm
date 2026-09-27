@@ -18,10 +18,10 @@ module;
 export module gpumod.cuda.cuda_profiler_api;
 
 // ========================================================================
-// Export all cuda_profiler_api types and functions in gpumod namespace
+// Export all cuda_profiler_api types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Dependent types from driver_types.h that appear in function signatures
@@ -41,4 +41,4 @@ using ::cudaProfilerStart;
 // disabled this call has no effect.  Returns cudaSuccess on success.
 using ::cudaProfilerStop;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

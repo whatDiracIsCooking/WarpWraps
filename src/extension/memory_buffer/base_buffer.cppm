@@ -7,7 +7,7 @@
  *
  * Usage:
  *   import gpumod.extension.memory_buffer;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  */
 
 export module gpumod.extension.memory_buffer:base_buffer;
@@ -16,7 +16,7 @@ import std;
 import gpumod.extension.common;
 import :memory_kind;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 // ============================================================================
 // Reinterpreting-view tag
@@ -608,4 +608,4 @@ template<typename B1, typename B2>
 concept same_value_type = buffer_base<B1> && buffer_base<B2> &&
                           std::same_as<typename B1::value_type, typename B2::value_type>;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

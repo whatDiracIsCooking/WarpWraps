@@ -13,8 +13,8 @@
 // HIP). bf16.cuh's vendor headers happen to pull it transitively, but this
 // kernel TU names it itself rather than lean on that. nvcc supplies
 // <cuda_runtime.h> for a .cu implicitly; spell both for a self-contained TU.
-// GPUMOD_SELECTED_* comes from bf16.cuh (via device_guard.h).
-#if defined(GPUMOD_SELECTED_CUDA)
+// WWR_SELECTED_* comes from bf16.cuh (via device_guard.h).
+#if defined(WWR_SELECTED_CUDA)
 #include <cuda_runtime.h>
 #else
 #include <hip/hip_runtime.h>
@@ -22,7 +22,7 @@
 
 #include <type_traits>
 
-namespace gpumod {
+namespace wwr {
 namespace {
 
 // ---------------------------------------------------------------------------
@@ -40,7 +40,7 @@ static_assert(sizeof(gpuBfloat16) == 2, "gpuBfloat16 is expected to be 16 bits")
 // functor converts one way and reads back the other. Both directions are
 // __device__ and spelled identically by the vendors, so no #if reaches this TU;
 // this kernel is a device context, which is where the conversions are callable.
-__global__ void gpumod_bf_conversions(float *out) {
+__global__ void wwr_bf_conversions(float *out) {
   const gpuBfloat16 b = gpuFloat2Bfloat16(1.5f);
   float acc = gpuBfloat162Float(b);
 
@@ -54,4 +54,4 @@ __global__ void gpumod_bf_conversions(float *out) {
   out[0] = acc;
 }
 
-} // namespace gpumod
+} // namespace wwr

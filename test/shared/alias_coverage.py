@@ -2,11 +2,11 @@
 """Guard that every src function alias is independently verified.
 
 Each ``src/<m>.cppm`` binds backend-neutral ``gpu*`` names to a backend's own
-functions with ``GPUMOD_FUNCTION(gpu_name, cuda_name, hip_name)`` (or the
-prefix-pasting ``GPUMOD_RT_FUNCTION(x)`` -> ``gpu##x``). Two independent statements
+functions with ``WWR_FUNCTION(gpu_name, cuda_name, hip_name)`` (or the
+prefix-pasting ``WWR_RT_FUNCTION(x)`` -> ``gpu##x``). Two independent statements
 prove each alias points at the right backend symbol:
 
-  * ``test/gpu/<m>.cppm`` restates it in full with ``GPUMOD_SAME_FUNCTION`` -- for the
+  * ``test/gpu/<m>.cppm`` restates it in full with ``WWR_SAME_FUNCTION`` -- for the
     handle/stream/status functions no wrapper dispatches to; and
   * the dispatch table ``test/wrappers/<m>/<m>_dispatch.toml`` names it as the
     expected call target of a wrapper instantiation, which
@@ -14,10 +14,10 @@ prove each alias points at the right backend symbol:
     typed entry points.
 
 Between them coverage is total, but nothing *enforced* that: a newly added alias
-that no wrapper dispatches to and that no one adds a ``GPUMOD_SAME_FUNCTION`` for would
+that no wrapper dispatches to and that no one adds a ``WWR_SAME_FUNCTION`` for would
 ship with only "it compiles" behind it -- and a wrong-but-existing backend name
 compiles. This checker fails when that happens. It parses source only; it needs
-no build. It is deliberately blind to *whether* a ``GPUMOD_SAME_FUNCTION``/table entry
+no build. It is deliberately blind to *whether* a ``WWR_SAME_FUNCTION``/table entry
 is correct (dispatch.py and the compiler judge that); it only asserts that one
 exists for every alias.
 """
@@ -30,13 +30,13 @@ import sys
 import tomllib
 from pathlib import Path
 
-# GPUMOD_FUNCTION(gpu_name, ...) -- anchored at line start so the macro *definition*
-# in gpu_backend.h ("#define GPUMOD_FUNCTION ...") and the paste inside
-# GPUMOD_RT_FUNCTION's definition are not read as invocations.
-_GPUMOD_FUNCTION_RE = re.compile(r"^\s*GPUMOD_FUNCTION\(\s*(\w+)\s*,")
-# GPUMOD_RT_FUNCTION(X) expands to GPUMOD_FUNCTION(gpuX, cudaX, hipX); alias is gpuX.
-_GPUMOD_RT_FUNCTION_RE = re.compile(r"^\s*GPUMOD_RT_FUNCTION\(\s*(\w+)\s*\)")
-_GPUMOD_SAME_FUNCTION_RE = re.compile(r"^\s*GPUMOD_SAME_FUNCTION\(\s*(\w+)\s*,")
+# WWR_FUNCTION(gpu_name, ...) -- anchored at line start so the macro *definition*
+# in gpu_backend.h ("#define WWR_FUNCTION ...") and the paste inside
+# WWR_RT_FUNCTION's definition are not read as invocations.
+_WWR_FUNCTION_RE = re.compile(r"^\s*WWR_FUNCTION\(\s*(\w+)\s*,")
+# WWR_RT_FUNCTION(X) expands to WWR_FUNCTION(gpuX, cudaX, hipX); alias is gpuX.
+_WWR_RT_FUNCTION_RE = re.compile(r"^\s*WWR_RT_FUNCTION\(\s*(\w+)\s*\)")
+_WWR_SAME_FUNCTION_RE = re.compile(r"^\s*WWR_SAME_FUNCTION\(\s*(\w+)\s*,")
 _GPU_NAME_RE = re.compile(r"^gpu\w+$")
 
 
@@ -46,19 +46,19 @@ def parse_aliases(text: str) -> set[str]:
     for line in text.splitlines():
         if line.lstrip().startswith("#define"):
             continue
-        if m := _GPUMOD_FUNCTION_RE.match(line):
+        if m := _WWR_FUNCTION_RE.match(line):
             aliases.add(m.group(1))
-        elif m := _GPUMOD_RT_FUNCTION_RE.match(line):
+        elif m := _WWR_RT_FUNCTION_RE.match(line):
             aliases.add("gpu" + m.group(1))
     return aliases
 
 
 def parse_same_functions(text: str) -> set[str]:
-    """The gpu* names a test/gpu module checks with GPUMOD_SAME_FUNCTION."""
+    """The gpu* names a test/gpu module checks with WWR_SAME_FUNCTION."""
     return {
         m.group(1)
         for line in text.splitlines()
-        if (m := _GPUMOD_SAME_FUNCTION_RE.match(line))
+        if (m := _WWR_SAME_FUNCTION_RE.match(line))
     }
 
 
@@ -88,7 +88,7 @@ def parse_toml_targets(data: dict) -> set[str]:
 
 
 def coverage_gap(aliases: set[str], same: set[str], toml_targets: set[str]) -> set[str]:
-    """Aliases with neither a GPUMOD_SAME_FUNCTION nor a dispatch-table entry."""
+    """Aliases with neither a WWR_SAME_FUNCTION nor a dispatch-table entry."""
     return aliases - (same | toml_targets)
 
 
@@ -140,13 +140,13 @@ def main(argv: list[str] | None = None) -> int:
             names = ", ".join(sorted(gap))
             print(
                 f"alias_coverage: {module}: {len(gap)} gpu* function(s) with no "
-                f"GPUMOD_SAME_FUNCTION and no dispatch-table entry: {names}",
+                f"WWR_SAME_FUNCTION and no dispatch-table entry: {names}",
                 file=sys.stderr,
             )
 
     if failed:
         print(
-            "alias_coverage: add a GPUMOD_SAME_FUNCTION in the matching test/gpu "
+            "alias_coverage: add a WWR_SAME_FUNCTION in the matching test/gpu "
             "module, or a dispatch expectation in its *_dispatch.toml.",
             file=sys.stderr,
         )

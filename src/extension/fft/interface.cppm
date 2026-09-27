@@ -3,7 +3,7 @@
  * @brief Primary interface for gpumod.extension.fft
  *
  * The error-handling and RAII-plan layer for GPU FFT (cuFFT or hipFFT, per
- * GPUMOD_GPU_BACKEND). The type-safe execution wrappers built on top of it
+ * WWR_GPU_BACKEND). The type-safe execution wrappers built on top of it
  * live separately in gpumod.wrappers.fft. It aggregates:
  * - :fft_error - Error code specializations for gpufftResult_t
  * - :fft_plan - RAII wrapper for a GPU FFT plan handle
@@ -11,7 +11,7 @@
  *
  * Usage:
  *   import gpumod.extension.fft;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  */
 
 export module gpumod.extension.fft;

@@ -14,17 +14,17 @@
  *     CUDA-only, and not in `<cooperative_groups.h>` on CUDA either.
  *   - `ballot()` is 32-bit on CUDA and 64-bit on HIP; `thread_rank()` and
  *     `num_threads()` vary too, though not for `thread_block` or the tiles.
- *   - Tiles are bounded by GPUMOD_WARP_SIZE, `grid_group` has five portable
+ *   - Tiles are bounded by WWR_WARP_SIZE, `grid_group` has five portable
  *     members, and `this_grid().sync()` needs a cooperative launch.
  */
 
 #pragma once
 
-// The device-pass #error, GPUMOD_SELECTED_CUDA / GPUMOD_SELECTED_HIP, and
-// GPUMOD_WARP_SIZE, which is what a portable tile size is built from.
+// The device-pass #error, WWR_SELECTED_CUDA / WWR_SELECTED_HIP, and
+// WWR_WARP_SIZE, which is what a portable tile size is built from.
 #include "runtime.cuh"
 
-#if defined(GPUMOD_SELECTED_CUDA)
+#if defined(WWR_SELECTED_CUDA)
 
 #include <cooperative_groups.h>
 

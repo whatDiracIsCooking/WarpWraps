@@ -3,7 +3,7 @@
  * @brief Primary interface for gpumod.wrappers.solver
  *
  * This module provides type-safe C++ wrappers for GPU dense solver operations
- * (cuSOLVER Dense or hipSOLVER Dense, per GPUMOD_GPU_BACKEND). It
+ * (cuSOLVER Dense or hipSOLVER Dense, per WWR_GPU_BACKEND). It
  * aggregates all solver partitions:
  * - :type_traits - Type system and concepts (internal)
  * - :linear_solver_legacy - Legacy (int-based, pre-params) linear solver API
@@ -12,7 +12,7 @@
  *
  * Usage:
  *   import gpumod.wrappers.solver;
- *   using namespace gpumod;
+ *   using namespace wwr;
  */
 
 module;

@@ -8,7 +8,7 @@ selected at compile time via `if constexpr` dispatch.
 
 It is backend-neutral: written once against `src/blas`'s `gpublas*` names
 (`gpublasSgemm` is `cublasSgemm_v2` on a CUDA build and `hipblasSgemm` on a HIP
-build), so the same source builds for either `GPUMOD_GPU_BACKEND`.
+build), so the same source builds for either `WWR_GPU_BACKEND`.
 
 **Import:** `import gpumod.wrappers.blas;`
 **Namespace:** `gpumod`
@@ -172,7 +172,7 @@ device.
 ## Build
 
 ```
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME gpumod.wrappers.blas
   PRIMARY_INTERFACE interface.cppm
   PARTITIONS type_traits.cppm
@@ -184,7 +184,7 @@ gpumod_add_cxx_module_library(
 )
 ```
 
-`dispatch_macros.h` (the `gpublas`-prefixed `GPUMOD_USUAL_DISPATCH` plus the `_64`
+`dispatch_macros.h` (the `gpublas`-prefixed `WWR_USUAL_DISPATCH` plus the `_64`
 index variants) sits next to the sources and is included same-dir; it
-builds on the prefix-agnostic `GPUMOD_REAL_DISPATCH` / `GPUMOD_COMPLEX_DISPATCH` cores shared
+builds on the prefix-agnostic `WWR_REAL_DISPATCH` / `WWR_COMPLEX_DISPATCH` cores shared
 from `wrappers/common/dispatch_sdcz.h`.

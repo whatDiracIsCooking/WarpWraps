@@ -15,7 +15,7 @@ module;
 
 export module gpumod.cuda.cusparse;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Opaque Handle Types
@@ -566,4 +566,4 @@ using ::cusparseSpMMOp;
 using ::cusparseSpMMOp_createPlan;
 using ::cusparseSpMMOp_destroyPlan;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

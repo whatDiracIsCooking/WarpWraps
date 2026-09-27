@@ -32,17 +32,17 @@ import pytest
 
 SCRIPT = Path(__file__).resolve().parent / "dispatch.py"
 
-# A two-backend GPUMOD_FUNCTION table, as src/blas.cppm spells it.
+# A two-backend WWR_FUNCTION table, as src/blas.cppm spells it.
 GPU_SOURCE = """\
-GPUMOD_FUNCTION(gpublasSaxpy, cublasSaxpy_v2, hipblasSaxpy)
-GPUMOD_FUNCTION(gpublasDaxpy, cublasDaxpy_v2, hipblasDaxpy)
-GPUMOD_FUNCTION(gpublasSscal, cublasSscal_v2, hipblasSscal)
+WWR_FUNCTION(gpublasSaxpy, cublasSaxpy_v2, hipblasSaxpy)
+WWR_FUNCTION(gpublasDaxpy, cublasDaxpy_v2, hipblasDaxpy)
+WWR_FUNCTION(gpublasSscal, cublasSscal_v2, hipblasSscal)
 // Not a dispatch target: the wrong prefix, and it must be ignored.
-GPUMOD_FUNCTION(gpusolverDnCreate, cusolverDnCreate, hipsolverDnCreate)
+WWR_FUNCTION(gpusolverDnCreate, cusolverDnCreate, hipsolverDnCreate)
 // Many-to-one, exactly as src/blas.cppm does it: hipBLAS has a single
 // status-to-string entry point where cuBLAS has two.
-GPUMOD_FUNCTION(gpublasGetStatusName, cublasGetStatusName, hipblasStatusToString)
-GPUMOD_FUNCTION(gpublasGetStatusString, cublasGetStatusString, hipblasStatusToString)
+WWR_FUNCTION(gpublasGetStatusName, cublasGetStatusName, hipblasStatusToString)
+WWR_FUNCTION(gpublasGetStatusString, cublasGetStatusString, hipblasStatusToString)
 """
 
 TABLE = """\
@@ -68,7 +68,7 @@ long = "int64_t"
 OVERLOAD_ENTRY = '"scal<gpuComplex, int>" = ["gpublasSscal", "gpublasSaxpy"]\n'
 
 
-def _wrapper(name, targs, namespace="gpumod"):
+def _wrapper(name, targs, namespace="wwr"):
     """A wrapper as llvm-cxxfilt prints it."""
     return (
         f"gpublasStatus_t {namespace}::{name}"
@@ -198,7 +198,7 @@ def test_non_wrapper_functions_are_ignored(env):
     r = env({
         _wrapper("axpy", "float, int"): ["cublasSaxpy_v2"],
         _wrapper("axpy", "double, int"): ["cublasDaxpy_v2"],
-        "char const* gpumod::error_name@gpumod.wrappers.blas(int)": [],
+        "char const* wwr::error_name@gpumod.wrappers.blas(int)": [],
         "void some::other::thing(int)": ["cublasSaxpy_v2"],
     })
     assert r.returncode == 0, r.stderr
@@ -363,7 +363,7 @@ def test_gpu_source_without_the_prefix_is_rejected(env, tmp_path):
     reporting every wrapper as calling nothing."""
     empty = tmp_path / "solver.cppm"
     empty.write_text(
-        "GPUMOD_FUNCTION(gpusolverDnCreate, cusolverDnCreate, hipsolverDnCreate)\n"
+        "WWR_FUNCTION(gpusolverDnCreate, cusolverDnCreate, hipsolverDnCreate)\n"
     )
     r = subprocess.run(
         [sys.executable, str(SCRIPT), "--objdump", "/bin/true", "--cxxfilt",
@@ -372,7 +372,7 @@ def test_gpu_source_without_the_prefix_is_rejected(env, tmp_path):
         capture_output=True, text=True,
     )
     assert r.returncode != 0
-    assert "no GPUMOD_FUNCTION(gpublas...) lines found" in r.stderr
+    assert "no WWR_FUNCTION(gpublas...) lines found" in r.stderr
 
 
 # ---- --print -------------------------------------------------------------
@@ -424,7 +424,7 @@ def test_nested_template_argument_is_not_split(env):
 # ---- the optional [check] namespace ---------------------------------------
 
 def test_namespace_override_is_honoured(env):
-    """[check] namespace defaults to gpumod; the override was dead.
+    """[check] namespace defaults to wwr; the override was dead.
 
     Both shipped tables take the default, so nothing proved the key does
     anything. A silently ignored override would look like every wrapper having
@@ -433,10 +433,10 @@ def test_namespace_override_is_honoured(env):
     env.table.write_text(
         TABLE.replace(
             'prefix = "gpublas"',
-            'prefix = "gpublas"\nnamespace = "gpumod::other"',
+            'prefix = "gpublas"\nnamespace = "wwr::other"',
         )
     )
-    ns = {"namespace": "gpumod::other"}
+    ns = {"namespace": "wwr::other"}
     r = env({
         _wrapper("axpy", "float, int", **ns): ["cublasSaxpy_v2"],
         _wrapper("axpy", "double, int", **ns): ["cublasDaxpy_v2"],
@@ -458,7 +458,7 @@ def test_merged_backend_symbol_resolves_to_the_expected_name(env):
     """On HIP both status functions ARE hipblasStatusToString -- one symbol.
 
     The disassembly cannot distinguish them, so reporting the expected spelling
-    is exact rather than lenient. Before this, whichever GPUMOD_FUNCTION line came
+    is exact rather than lenient. Before this, whichever WWR_FUNCTION line came
     last silently won, so the same object could fail or pass depending on the
     order of two unrelated lines in src/blas.cppm.
     """
@@ -724,7 +724,7 @@ REPO_ROOT = SCRIPT.resolve().parents[2]
 # without editing this file -- and so a test that claims to check the shipped
 # tables cannot quietly be checking a stale list of them.
 DISPATCH_CHECK_RE = re.compile(
-    r"gpumod_add_dispatch_check\s*\((.*?)\)", re.DOTALL
+    r"wwr_add_dispatch_check\s*\((.*?)\)", re.DOTALL
 )
 
 
@@ -757,7 +757,7 @@ def test_shipped_checks_were_discovered():
     """
     assert len(SHIPPED_CHECKS) >= 2, (
         "expected at least the blas and solver dispatch checks; "
-        "gpumod_add_dispatch_check call sites may have moved"
+        "wwr_add_dispatch_check call sites may have moved"
     )
 
 
@@ -824,5 +824,5 @@ def test_shipped_tables_name_real_functions(table_path, gpu_source):
         unknown = sorted(expected - known)
         assert not unknown, (
             f"{table_path.name} ({backend}) expects {unknown}, which "
-            f"GPUMOD_FUNCTION({table.prefix}...) in {gpu_source.name} does not define"
+            f"WWR_FUNCTION({table.prefix}...) in {gpu_source.name} does not define"
         )

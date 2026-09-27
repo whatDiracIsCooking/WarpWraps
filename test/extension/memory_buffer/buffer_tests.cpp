@@ -21,9 +21,9 @@ import gpumod.extension.memory_buffer;
 
 #include "counting_policy.h"
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
-namespace ext = gpumod::extension;
+namespace ext = wwr::extension;
 
 // CountingPolicy and the Counted* buffer aliases used across the failure-path
 // suites live in counting_policy.h, shared with allocation_failure_tests.cpp.
@@ -803,4 +803,4 @@ TEST(CopyAndMemsetTests, VoidBufferCopiesByBytes) {
   EXPECT_EQ(gpuStreamSynchronize(gpuStream_t{0}), gpuSuccess);
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

@@ -18,7 +18,7 @@ export module gpumod.extension.handle:device_bound_handle_view;
 import :handle_view;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /// @brief Non-owning view over a device-bound handle, carrying its device index
 /// @tparam T The underlying GPU handle type (e.g., gpuEvent_t)
@@ -46,4 +46,4 @@ public:
   int dev_idx() const noexcept { return dev_idx_; }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

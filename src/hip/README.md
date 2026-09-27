@@ -9,14 +9,14 @@ section here once it exists.
 
 ## Design decisions
 
-### Namespace: `gpumod::hip`, not bare `gpumod`
+### Namespace: `wwr::hip`, not bare `wwr`
 
 `src/cuda/cuda_fp16.cppm` exports `using ::half;` from CUDA's `cuda_fp16.h`.
 `hip/amd_detail/amd_hip_fp16.h` defines its own, distinct global `half`. A
-same-shaped bare-`gpumod`-namespace `gpumod.hip.hip_fp16` module
-would make `gpumod::half` ambiguous the moment both it and
+same-shaped bare-`wwr`-namespace `gpumod.hip.hip_fp16` module
+would make `wwr::half` ambiguous the moment both it and
 `gpumod.cuda.cuda_fp16` are imported in one translation unit. So every
-`src/hip` module exports into `gpumod::hip`, never bare `gpumod`,
+`src/hip` module exports into `wwr::hip`, never bare `wwr`,
 even where (like `hip_bf16` vs `cuda_bf16`'s `__nv_bfloat16`/`hip_bfloat16`)
 there happens to be no actual collision — the namespace choice doesn't depend
 on checking each header case by case.
@@ -302,7 +302,7 @@ operator to forward or claim ADL-reachability for on this code path.
 Wraps `hip/hip_bf16.h` -> `amd_detail/amd_hip_bf16.h`. HIP's bfloat16 type is
 `__hip_bfloat16`/`__hip_bfloat162` -- distinct names from CUDA's
 `__nv_bfloat16`/`__nv_bfloat162`, so there is no actual collision here (unlike
-`hip_fp16`'s `half`), but the module still exports into `gpumod::hip`
+`hip_fp16`'s `half`), but the module still exports into `wwr::hip`
 per the namespace design decision above. Unlike `hip_fp16`, this header's
 operators are ordinary `static inline` free functions (verified directly --
 the two headers do not share the same shape), so this module needs thin
@@ -402,7 +402,7 @@ Wraps `hip/hiprtc.h`, declarations-only `extern "C"` (parity with CUDA's
 as a separate ROCm CMake package from `hip` (`find_package(hiprtc CONFIG
 REQUIRED)`, added alongside the existing `find_package(hip CONFIG REQUIRED)`
 in the top-level `CMakeLists.txt`, guarded by the same
-`GPUMOD_GPU_BACKEND=HIP` check), providing the `hiprtc::hiprtc` imported
+`WWR_GPU_BACKEND=HIP` check), providing the `hiprtc::hiprtc` imported
 target. This module links `hiprtc::hiprtc` alone -- the runtime-compilation
 API is self-contained and does not also need `hip::host`'s `libamdhip64`.
 `hiprtcJIT_option`/`hiprtcJITInputType` are preprocessor macro aliases for
@@ -435,7 +435,7 @@ API`, and `\brief BLAS_EX API` doc-comment groupings (verified against the
 header directly) rather than `cublas_v2.cppm`'s finer hand-grouping -- at
 hipBLAS's ~1200-function scale, grouping by the vendor's own section markers
 is both authoritative and tractable. Every one of the 1191 `HIPBLAS_EXPORT`
-declarations in the header is exported and `GPUMOD_LINK_CHECK`'d.
+declarations in the header is exported and `WWR_LINK_CHECK`'d.
 
 ### `gpumod.hip.hipblaslt`
 
@@ -513,7 +513,7 @@ three). It also *adds* six functions `cusolverDn.cppm` does not export:
 parameter setters for the gesvdj/syevj info objects) -- included since the
 full hipsolverDn header surface is in scope here, not just the CUDA-side
 shape. Net surface: 247 dense functions + 11 sparse functions = 258
-`GPUMOD_LINK_CHECK`s total.
+`WWR_LINK_CHECK`s total.
 
 Types owned by `gpumod.hip.hipblas` (`hipblasOperation_t`,
 `hipblasFillMode_t`, `hipblasSideMode_t` -- used directly in most hipsolverDn
@@ -558,7 +558,7 @@ cuSPARSE's Preview SpMM-with-custom-operators API
 `cusparseSpMMOpAlg_t`) -- verified by grepping the installed hipSPARSE
 headers; nothing exists. Not stubbed, simply not exported. All 546
 `HIPSPARSE_EXPORT` declarations found across the header tree are exported
-and `GPUMOD_LINK_CHECK`'d.
+and `WWR_LINK_CHECK`'d.
 
 ### `gpumod.hip.hipfft`
 
@@ -684,10 +684,10 @@ function-like macros -- `HIP_SCOPED_MARKER(markerName, group)`,
 interface unit could `using`-declare or forward. The functions that actually
 correspond to CUDA's `cudaProfilerStart`/`cudaProfilerStop`,
 `hipProfilerStart`/`hipProfilerStop`, already live in `hip/hip_runtime_api.h`
-and are already exported and `GPUMOD_LINK_CHECK`'d by `gpumod.hip.hip_runtime_api`
+and are already exported and `WWR_LINK_CHECK`'d by `gpumod.hip.hip_runtime_api`
 (the PR #181 pilot module) -- see its `using ::hipProfilerStart;` /
 `using ::hipProfilerStop;` and `test/hip/hip_runtime_api.cppm`'s
-`GPUMOD_LINK_CHECK(hipProfilerStart)` / `GPUMOD_LINK_CHECK(hipProfilerStop)`. A module that
+`WWR_LINK_CHECK(hipProfilerStart)` / `WWR_LINK_CHECK(hipProfilerStop)`. A module that
 re-exported the three no-op macros as, say, `constexpr` no-op marker functions
 would not provide API parity with anything real (there's no device-code
 marker call site in this project to parallel), so it would be manufactured
@@ -723,7 +723,7 @@ counterpart for at all) is not wrapped at all -- reach it through
 
 ## Build
 
-Built when `GPUMOD_GPU_BACKEND=HIP`. Every other preset
+Built when `WWR_GPU_BACKEND=HIP`. Every other preset
 (`default`/`debug`/`compile-time`/`asan`) builds the CUDA backend. The `hip`
 preset (`scripts/build.sh --hip`, own `build-hip/` directory) builds this tree
 *instead of* `src/cuda`, together with `src`, `src/wrappers` and
@@ -739,5 +739,5 @@ finds the CUDA toolkit, and a CUDA build never gains a ROCm dependency. See
 `src/README.md`.
 
 Each target is defined in `src/hip/CMakeLists.txt` using the same
-project-local `gpumod_add_cxx_module_library` CMake function `src/cuda`
+project-local `wwr_add_cxx_module_library` CMake function `src/cuda`
 uses.

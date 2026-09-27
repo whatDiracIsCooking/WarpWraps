@@ -32,7 +32,7 @@ import gpumod.extension.sparse;
 // These are compile-time contracts; the runtime tests live beside the wrappers.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // A view is a freely copyable, trivially destructible value -- the whole point.
 template<typename View>
@@ -116,4 +116,4 @@ static_assert(
   (void)exec.launch(raw_stream); // owner shares the mixin
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

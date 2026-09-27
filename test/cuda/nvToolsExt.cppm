@@ -23,9 +23,9 @@ import gpumod.cuda.nvToolsExt;
 //      header-only NVTX implementation it forwards to
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ──────────────────────────────────────────────────────────────────────
 // Type shape
@@ -48,10 +48,10 @@ static_assert(std::is_same_v<decltype(nvtxRangeEnd), void(nvtxRangeId_t)>);
 // Link-time symbol resolution
 // ──────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(nvtxMarkA)
-GPUMOD_LINK_CHECK(nvtxRangePushA)
-GPUMOD_LINK_CHECK(nvtxRangePop)
-GPUMOD_LINK_CHECK(nvtxRangeStartA)
-GPUMOD_LINK_CHECK(nvtxRangeEnd)
+WWR_LINK_CHECK(nvtxMarkA)
+WWR_LINK_CHECK(nvtxRangePushA)
+WWR_LINK_CHECK(nvtxRangePop)
+WWR_LINK_CHECK(nvtxRangeStartA)
+WWR_LINK_CHECK(nvtxRangeEnd)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

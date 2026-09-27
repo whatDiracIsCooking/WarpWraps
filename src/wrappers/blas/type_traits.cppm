@@ -17,7 +17,7 @@ export import gpumod.wrappers.common;
 import gpumod.fp16;
 import gpumod.bf16;
 
-export namespace gpumod {
+export namespace wwr {
 
 // ========================================================================
 // Type Traits
@@ -48,4 +48,4 @@ struct GetSinglePrecisionType<gpuBfloat16> {
 template<half_fp T>
 using SinglePrecisionType = typename GetSinglePrecisionType<T>::type;
 
-} // namespace gpumod
+} // namespace wwr

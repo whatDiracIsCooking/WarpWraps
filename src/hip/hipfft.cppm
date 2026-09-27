@@ -39,7 +39,7 @@ export module gpumod.hip.hipfft;
 
 import std;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Constexpr wrappers for hipFFT call-site flag macros
@@ -163,4 +163,4 @@ using ::hipfftGetProperty;
 using ::hipfftGetVersion;
 using ::hipfftSetStream;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

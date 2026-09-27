@@ -54,7 +54,7 @@ copy next to its sources, in `src/wrappers/blas/dispatch_macros.h` and
 `src/wrappers/solver/dispatch_macros.h`.
 
 What stayed is `dispatch_sdcz.h` — the prefix-agnostic
-`GPUMOD_REAL_DISPATCH` / `GPUMOD_COMPLEX_DISPATCH` cores those per-wrapper
+`WWR_REAL_DISPATCH` / `WWR_COMPLEX_DISPATCH` cores those per-wrapper
 headers build on. It is a non-module header, so those wrappers reach it by the
 owned-header spelling `#include "wrappers/common/dispatch_sdcz.h"`, resolved
 through the `src/` include root this target exports (see `CMakeLists.txt`).
@@ -74,7 +74,7 @@ would match neither branch and expand the wrapper body to nothing. See #58.
 ## Build
 
 ```
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME gpumod.wrappers.common
   PRIMARY_INTERFACE interface.cppm
   PARTITIONS fp_types.cppm int_types.cppm

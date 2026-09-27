@@ -5,7 +5,7 @@ cuBLAS, cuSOLVER, cuRAND (and their ROCm/HIP counterparts) and supporting
 libraries as importable C++23 modules, then builds type-safe abstractions on top
 of them.
 
-A build targets exactly one GPU backend, CUDA or HIP (`GPUMOD_GPU_BACKEND`).
+A build targets exactly one GPU backend, CUDA or HIP (`WWR_GPU_BACKEND`).
 The `gpu*` layer directly under `src/` maps backend-neutral `gpu*` names
 (`gpuStream_t`, `gpuStreamCreate`, `gpuFloatComplex`, …) onto the chosen
 backend, and `src/wrappers` is written once against those names.
@@ -107,13 +107,13 @@ The consequence is that a consumer's build is less "linking against gpumod" than
 `gpumodConfig.cmake` checks what it can — it warns on a compiler or standard
 library that does not match the one the package was built with, rather than
 letting the mismatch surface as a wall of errors inside gpumod's own sources.
-Silence those with `-DGPUMOD_SKIP_TOOLCHAIN_CHECK=ON` if you know your toolchain
+Silence those with `-DWWR_SKIP_TOOLCHAIN_CHECK=ON` if you know your toolchain
 is compatible.
 
 ### One backend per installation
 
 An installation contains exactly one backend's wrapper modules, recorded in the
-config as `GPUMOD_GPU_BACKEND` along with `GPUMOD_WARP_SIZE`. Requesting the
+config as `WWR_GPU_BACKEND` along with `WWR_WARP_SIZE`. Requesting the
 other one is refused rather than half-satisfied:
 
 ```cmake
@@ -125,7 +125,7 @@ To use both, build and install gpumod twice, to two prefixes.
 ### Embedding it instead
 
 `add_subdirectory` and `FetchContent` also work, and link the targets directly
-with no install step. `GPUMOD_INSTALL` defaults to `OFF` in that case, so
+with no install step. `WWR_INSTALL` defaults to `OFF` in that case, so
 gpumod's headers and module sources do not follow your project into *its*
 install tree.
 
@@ -335,9 +335,9 @@ existing ones. There is no code generator.
 | `workstation` | Same, in `build-workstation/`, so a host build and a container build can coexist. |
 | `debug` / `asan` | Debug, and Debug + AddressSanitizer. |
 | `compute-sanitizer` | Debug build for the GPU memcheck/racecheck run. |
-| `coverage` | Debug + `GPUMOD_COVERAGE=ON` in `build-coverage/`: clang source-based coverage for host code. Driven by `devtools/coverage.sh`. |
+| `coverage` | Debug + `WWR_COVERAGE=ON` in `build-coverage/`: clang source-based coverage for host code. Driven by `devtools/coverage.sh`. |
 | `hip` | The ROCm/HIP backend, in `build-hip/`. Needs ROCm, not CUDA. |
-| `compile-time` | `GPUMOD_COMPILE_TIME_ONLY=ON` in `build-compile-time/`: no GoogleTest fetch, no runtime tests, no GPU. |
+| `compile-time` | `WWR_COMPILE_TIME_ONLY=ON` in `build-compile-time/`: no GoogleTest fetch, no runtime tests, no GPU. |
 | `ci-cuda` / `ci-hip` | What `.github/workflows/ci.yml` builds, and runnable here to reproduce it. Same shape as each other: the whole tree for that backend, runtime binaries included, then `ctest -LE gpu`. Neither needs a device (`ci-cuda` pins the architecture so configure never queries a driver). Read them as compile-and-link plus a thin runtime slice, not as a test of GPU behaviour. |
 
 Every configure preset has its own `binaryDir`, and it needs to stay that way —
@@ -488,7 +488,7 @@ links the CUDA driver API stubs, so *running* it needs `libcuda.so.1` — a
 container started without `--gpus` fails it with `error while loading shared
 libraries`. `gpu_compile_tests` runs anywhere.
 
-`GPUMOD_CUDA_DRIVER_STUBS=ON` (which the `ci-cuda` preset sets) resolves that
+`WWR_CUDA_DRIVER_STUBS=ON` (which the `ci-cuda` preset sets) resolves that
 by pointing just that one test at the toolkit's own stubs, so it runs on a
 driverless box too. It proves every *non-driver* dependency resolves — not
 that a real driver would load. `test/cuda/CMakeLists.txt` explains why the
@@ -502,7 +502,7 @@ executable — not a `.cppm`, and not wrapped in a module library. That keeps
 with `import std;` in this project's GPU-heavy TUs, and means the self-registering
 `TEST()` objects cannot be dropped by the linker.
 
-Test binaries register with ctest through `gpumod_add_gtest_suite_tests()`, which
+Test binaries register with ctest through `wwr_add_gtest_suite_tests()`, which
 creates **one ctest entry per suite** plus a guard test that fails if a suite
 exists in the binary but is missing from the CMake list.
 
@@ -526,7 +526,7 @@ passes only when the call *failed*. Compare against `cudaSuccess` /
 ## Adding a module
 
 ```cmake
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME gpumod.wrappers.widget
   PRIMARY_INTERFACE widget.cppm
   IMPORT_STD
@@ -536,8 +536,8 @@ gpumod_add_cxx_module_library(
 
 Target names use dots and are aliased to `::` — `gpumod.wrappers.widget` is
 consumable as `gpumod::widget`. For a `.cu` of device-kernel code
-use `gpumod_add_gpu_device_library`, which compiles it for whichever backend
-the build selected; for header-only code use `gpumod_add_interface_library`.
+use `wwr_add_gpu_device_library`, which compiles it for whichever backend
+the build selected; for header-only code use `wwr_add_interface_library`.
 See [`cmake/README.md`](cmake/README.md).
 
 ---

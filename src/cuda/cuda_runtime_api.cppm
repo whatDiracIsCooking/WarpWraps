@@ -52,10 +52,10 @@ static_assert(cudaMemAttachHost == 0x02, "cudaMemAttachHost value mismatch");
 export module gpumod.cuda.cuda_runtime_api;
 
 // ========================================================================
-// Export all CUDA types, functions, and constants in gpumod namespace
+// Export all CUDA types, functions, and constants in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Constexpr wrappers for CUDA flag macros
@@ -990,4 +990,4 @@ using ::cudaGetDriverEntryPoint;
 using ::cudaGetDriverEntryPointByVersion;
 using ::cudaGetExportTable;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

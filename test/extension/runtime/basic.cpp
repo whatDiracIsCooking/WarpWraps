@@ -17,7 +17,7 @@ import gpumod.extension.common;
 import gpumod.extension.handle;
 import gpumod.extension.runtime;
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // GpuStream Tests
@@ -660,4 +660,4 @@ TEST(RuntimePolicyTests, CreationFailureFiresCreatePolicy) {
   static_cast<void>(gpuGetLastError());
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

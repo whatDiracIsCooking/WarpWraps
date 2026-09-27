@@ -12,7 +12,7 @@ import gpumod.extension.common;
 import gpumod.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Borrow-safe event operations, shared by the owner and the view
@@ -121,4 +121,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

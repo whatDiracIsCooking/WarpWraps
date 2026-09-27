@@ -86,10 +86,10 @@ static_assert(CUBLASLT_NUMERICAL_IMPL_FLAGS_GAUSSIAN == (0x01ull << 32),
 export module gpumod.cuda.cublasLt;
 
 // ========================================================================
-// Export all cuBLASLt types and functions in gpumod namespace
+// Export all cuBLASLt types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Numeric implementation flags (constexpr replacements for macros)
@@ -1223,4 +1223,4 @@ using ::cublasLtLoggerSetFile;
 using ::cublasLtLoggerSetLevel;
 using ::cublasLtLoggerSetMask;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

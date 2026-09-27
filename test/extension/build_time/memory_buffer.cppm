@@ -14,7 +14,7 @@ import gpumod.extension.memory_buffer;
 // runtime tests.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 static_assert(!std::is_copy_constructible_v<HostBuffer<float>>);
 static_assert(!std::is_copy_assignable_v<HostBuffer<float>>);
@@ -52,4 +52,4 @@ static_assert(std::same_as<decltype(reinterpret_buffer_view<std::byte>(
                                std::declval<HostBuffer<float> &>())),
                            HostBufferView<std::byte>>);
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

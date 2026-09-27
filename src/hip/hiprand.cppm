@@ -27,7 +27,7 @@ export module gpumod.hip.hiprand;
 
 import std;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Core Types
@@ -161,4 +161,4 @@ using ::hiprandGetDirectionVectors64;
 using ::hiprandGetScrambleConstants32;
 using ::hiprandGetScrambleConstants64;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

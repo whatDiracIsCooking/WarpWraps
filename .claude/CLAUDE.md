@@ -8,13 +8,15 @@ importable named modules (`import gpumod.cuda.cublas_v2;`), the `gpu*` layer
 directly under `src/` maps backend-neutral `gpu*` names onto whichever backend
 was selected, and `src/wrappers` is written once against those names.
 
-**A build targets exactly one backend.** `GPUMOD_GPU_BACKEND` is `CUDA` or
+**A build targets exactly one backend.** `WWR_GPU_BACKEND` is `CUDA` or
 `HIP`, and it is read *before* `project()` because it decides whether the CUDA
 language is enabled at all. A HIP build needs no CUDA toolkit; a CUDA build
 needs no ROCm.
 
-The C++ and CMake identity is `gpumod`: namespace `gpumod`, modules `gpumod.*`,
-macros `GPUMOD_*`, CMake targets `gpumod.*` aliased to `gpumod::*`.
+The project is being renamed to **Warp Wraps** (`wwr`). Already renamed:
+namespace `wwr`, macros and CMake options `WWR_*`, CMake helper functions
+`wwr_*`. Still `gpumod`: modules `gpumod.*`, CMake targets `gpumod.*` aliased
+to `gpumod::*`, and the installed package (`find_package(gpumod)`).
 `PROJECT_NAME` in `devtools/config.sh` is `gpumod` too — it names docker
 volumes, images and the devcontainer, and `doctor.sh` warns when it and any
 `.devcontainer/*/devcontainer.json` disagree.
@@ -118,9 +120,9 @@ cost instead.
 
 - C++23, named modules, clang + libc++. `CMakeLists.txt` **refuses gcc**.
 - Targets are declared through the macros in `cmake/`:
-  `gpumod_add_cxx_module_library`, the `gpumod_add_gtest_*` /
-  `gpumod_add_test_executable` test macros, and `gpumod_add_gpu_device_library`
-  for a module's device-kernel `.cu` library. `gpumod_add_interface_library` is
+  `wwr_add_cxx_module_library`, the `wwr_add_gtest_*` /
+  `wwr_add_test_executable` test macros, and `wwr_add_gpu_device_library`
+  for a module's device-kernel `.cu` library. `wwr_add_interface_library` is
   wired and documented with **no call sites** — do not assume it is dead.
 - Target names use dots and are aliased to `::`.
 - **`#include` style tracks header ownership.** A header this project owns uses

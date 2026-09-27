@@ -7,7 +7,7 @@
 // the extension layer (gpumod.extension.*, the RAII handle / buffer / error
 // abstractions) -- that layer is built in-tree but is not part of the installed
 // package, so a find_package consumer cannot see it. Restoring it to the
-// package is a separate decision (a GPUMOD_BUILD_EXTENSION opt-in); until then
+// package is a separate decision (a WWR_BUILD_EXTENSION opt-in); until then
 // an installed consumer manages its own device memory and handles, exactly as
 // this file does.
 //
@@ -18,7 +18,7 @@
 //     module package ships sources -- a BMI is not portable -- and this build
 //     compiles them). Each wrapper's units #include "wrappers/.../dispatch_*.h"
 //     from their global module fragment, so those headers had to travel next to
-//     the sources; gpumod.wrappers.sparse also needs the GPUMOD_GPU_BACKEND_*
+//     the sources; gpumod.wrappers.sparse also needs the WWR_GPU_BACKEND_*
 //     define at install-compile time. Taking the address of one instantiation
 //     per wrapper (solver/fft/sparse below) forces each to resolve and link
 //     without running a kernel -- so this half needs no GPU.
@@ -43,12 +43,12 @@ import gpumod.wrappers.blas;
 import gpumod.wrappers.solver;
 import gpumod.wrappers.fft;
 import gpumod.wrappers.sparse;
-import gpumod.wrappers.tx; // gpumod::tx::mark, ScopedRange, range_start/stop
+import gpumod.wrappers.tx; // wwr::tx::mark, ScopedRange, range_start/stop
 
 // The gpu* names (gpuSuccess, gpuMalloc, GPUBLAS_OP_N, ...) and the wrappers
-// (gemm, potri, ...) are all exported in namespace gpumod. A consumer is not
+// (gemm, potri, ...) are all exported in namespace wwr. A consumer is not
 // inside it, so unlike this project's own tests it has to say so.
-using namespace gpumod;
+using namespace wwr;
 
 namespace {
 

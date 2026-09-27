@@ -3,7 +3,7 @@
  * @brief Primary interface for gpumod.extension.solver
  *
  * The error-handling and RAII-handle layer for GPU dense solvers (cuSOLVER or
- * hipSOLVER, per GPUMOD_GPU_BACKEND). The type-safe dispatch wrappers built on
+ * hipSOLVER, per WWR_GPU_BACKEND). The type-safe dispatch wrappers built on
  * top of it live separately in gpumod.wrappers.solver. It aggregates:
  * - :solver_error - Error code specializations for gpusolverStatus_t
  * - :solver_handle - RAII wrapper for gpusolverDnHandle_t
@@ -12,7 +12,7 @@
  *
  * Usage:
  *   import gpumod.extension.solver;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  */
 
 export module gpumod.extension.solver;

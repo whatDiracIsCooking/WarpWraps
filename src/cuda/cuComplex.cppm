@@ -22,10 +22,10 @@ module;
 export module gpumod.cuda.cuComplex;
 
 // ========================================================================
-// Export all cuComplex types and functions in gpumod namespace
+// Export all cuComplex types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Complex Number Types
@@ -160,4 +160,4 @@ cuDoubleComplex cuComplexFloatToDouble(cuFloatComplex x) {
   return ::cuComplexFloatToDouble(x);
 }
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

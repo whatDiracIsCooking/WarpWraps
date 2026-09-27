@@ -26,9 +26,9 @@ import gpumod.hip.hip_fp6;
 // __NV_E3M2 (1), verified against amd_hip_fp6.h directly.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Storage typedef sizes
@@ -92,7 +92,7 @@ static_assert(std::is_standard_layout_v<__hip_fp6x4_e2m3>);
 
 // ────────────────────────────────────────────────────────────────────────
 // Inline wrapper function invocability checks
-// GPUMOD_LINK_CHECK is not applicable for inline functions (no external symbol).
+// WWR_LINK_CHECK is not applicable for inline functions (no external symbol).
 // ────────────────────────────────────────────────────────────────────────
 
 // Narrowing conversions (to fp6 storage)
@@ -148,4 +148,4 @@ static_assert(
                                         __hip_fp6x2_storage_t, __hip_fp6_interpretation_t>,
                    __half2_raw>);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

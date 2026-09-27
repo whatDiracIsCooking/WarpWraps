@@ -21,7 +21,7 @@ module;
 
 export module gpumod.hip.rocm_smi;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Types and Enumerations
@@ -546,4 +546,4 @@ using ::rsmi_dev_metrics_header_info_get;
 using ::rsmi_dev_metrics_log_get;
 using ::rsmi_dev_metrics_xcd_counter_get;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

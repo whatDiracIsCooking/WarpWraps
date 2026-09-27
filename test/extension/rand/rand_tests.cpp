@@ -41,7 +41,7 @@ import gpumod.extension.memory_buffer;
 import gpumod.extension.init_state;
 import gpumod.extension.random_normal;
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 namespace {
 
@@ -338,4 +338,4 @@ TEST(RandTests, ZeroCountIsANoOp) {
   }
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

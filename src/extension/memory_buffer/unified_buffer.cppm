@@ -15,7 +15,7 @@ import gpumod.extension.common;
 import gpumod.extension.runtime;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief RAII wrapper for unified (managed) memory buffer
@@ -114,4 +114,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

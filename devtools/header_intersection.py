@@ -45,7 +45,7 @@ compiler are for.
 module's CONTRACT, which comes in two kinds.
 
 A WHOLE-SURFACE module (rand, fft, tx) promises to wrap everything the two
-backends share and spells both names out (``GPUMOD_FUNCTION(gpu, cu, hip)``).
+backends share and spells both names out (``WWR_FUNCTION(gpu, cu, hip)``).
 For these ``--coverage`` is the real completeness gate: a nonempty "missing" is a
 genuine hole (or a documented omission the module names in its header).
 

@@ -10,14 +10,14 @@
 # gpumod_install.cmake ships src/'s shape under -- so the one spelling resolves
 # both in-tree and for an installed consumer recompiling those module units.
 # This is the root the install file's rule-3 comment already documents.
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.wrappers.common
   PRIMARY_INTERFACE
   interface.cppm
   INCLUDE_DIRS_PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-  $<INSTALL_INTERFACE:${GPUMOD_INSTALL_INCLUDEDIR}>
+  $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
   PARTITIONS
   fp_types.cppm
   int_types.cppm

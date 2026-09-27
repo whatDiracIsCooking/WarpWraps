@@ -43,7 +43,7 @@ export module gpumod.hip.hipsolver;
 
 import std;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Core Types
@@ -532,4 +532,4 @@ using ::hipsolverSpDcsrlsvqr;
 using ::hipsolverSpScsrlsvqr;
 using ::hipsolverSpZcsrlsvqr;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

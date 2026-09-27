@@ -14,7 +14,7 @@ import gpumod.blas;
 import gpumod.extension.common;
 import gpumod.extension.handle;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Convenient alias for GpublasHandleWrapper with default error policies
@@ -29,4 +29,4 @@ using GpublasHandle = GpublasHandleWrapper<>;
 ///        gpublas* wrappers, so a borrowed handle can be used without owning it.
 using GpublasHandleView = DeviceBoundHandleView<gpublasHandle_t>;
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

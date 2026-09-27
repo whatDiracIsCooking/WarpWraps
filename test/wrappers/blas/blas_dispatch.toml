@@ -18,7 +18,7 @@
 module = "gpumod.wrappers.blas"
 prefix = "gpublas"
 # gpumod.blas defines the HIP getrs/getriBatched shims as ordinary inline
-# functions next to its GPUMOD_FUNCTION aliases; one that is not inlined is called
+# functions next to its WWR_FUNCTION aliases; one that is not inlined is called
 # by name, so the check has to recognise it as a dispatch target too.
 forwarder_module = "gpumod.blas"
 

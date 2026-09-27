@@ -6,8 +6,8 @@ library headers (`cuda_runtime_api.h`, `cublas_v2.h`, `cusolverDn.h`,
 consumed via `import` statements in module-based translation units.
 
 Each `.cppm` file is a primary module interface unit built by
-`gpumod_add_cxx_module_library`. All exported symbols are placed in the
-`gpumod::cuda` namespace, except `gpumod.cuda.cuda_h` (the CUDA Driver API),
+`wwr_add_cxx_module_library`. All exported symbols are placed in the
+`wwr::cuda` namespace, except `gpumod.cuda.cuda_h` (the CUDA Driver API),
 which exports directly into the global namespace.
 
 ## Modules
@@ -156,7 +156,7 @@ making it well-suited for deep learning workloads.
 ## Build
 
 Defined in `CMakeLists.txt` using the project-local
-`gpumod_add_cxx_module_library` CMake function. Each target links the
+`wwr_add_cxx_module_library` CMake function. Each target links the
 appropriate CUDA toolkit component (`CUDA::cudart`, `CUDA::cublas`,
 `CUDA::cusolver`, `CUDA::curand`) and exposes CUDA toolkit include directories
 publicly.

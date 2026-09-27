@@ -33,7 +33,7 @@
  * Usage:
  *   import gpumod.extension.init_state;
  *   import gpumod.extension.random_normal;
- *   using namespace gpumod::extension;
+ *   using namespace wwr::extension;
  *
  *   auto device = std::make_shared<DeviceHandle>();
  *   auto stream = device->alloc_stream().get();
@@ -64,7 +64,7 @@ import gpumod.bf16;
 // (`extern template`) cannot be exported, so the template carries its own
 // `export` and the declarations below sit in the plain namespace -- the same
 // shape the CUDA-only original used.
-namespace gpumod::extension {
+namespace wwr::extension {
 
 /**
  * @brief Draw `count` standard-normal values into `output`
@@ -109,4 +109,4 @@ extern template void random_normal<gpuHalf>(gpuStream_t, std::size_t, gpurandSta
 extern template void random_normal<gpuBfloat16>(gpuStream_t, std::size_t, gpurandState *,
                                                 gpuBfloat16 *, gpuBfloat16);
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

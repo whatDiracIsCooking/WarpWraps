@@ -3,7 +3,7 @@
 #
 # Header-only library providing parallel_for(stream, count, functor): a
 # hand-written index-per-thread __global__ kernel launch (no grid-stride loop,
-# 4 warps per block -- 128 threads at the default GPUMOD_WARP_SIZE of 32,
+# 4 warps per block -- 128 threads at the default WWR_WARP_SIZE of 32,
 # 256 on a CDNA build that sets 64). Unlike everything else under
 # src/extension, this is a device-code header (parallel_for.cuh), not a C++20
 # module -- consumers #include it directly into a .cu (CUDA) or
@@ -30,7 +30,7 @@ add_library(gpumod.extension.parallel_for INTERFACE)
 target_include_directories(
   gpumod.extension.parallel_for
   INTERFACE $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
-            $<INSTALL_INTERFACE:${GPUMOD_INSTALL_INCLUDEDIR}>
+            $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )
 
 # gpumod.device (src/CMakeLists.txt) carries runtime.cuh's
@@ -38,7 +38,7 @@ target_include_directories(
 # hip::device -- see that target's own comment). A real device-KERNEL
 # consumer of THIS library still links hip::device itself, scoped to a small
 # dedicated library holding only its own device-kernel source -- see
-# cmake/gpumod_add_gpu_device_library.cmake, which is that pattern, and its
+# cmake/wwr_add_gpu_device_library.cmake, which is that pattern, and its
 # call sites in src/extension/init_state and src/extension/random_normal.
 target_link_libraries(gpumod.extension.parallel_for INTERFACE gpumod.device)
 

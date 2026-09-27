@@ -18,7 +18,7 @@ import std;
 import gpumod.extension.common;
 import gpumod.extension.memory_buffer;
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 namespace {
 
@@ -147,4 +147,4 @@ TEST(GpuCheckDeathTest, DefaultPolicyFailureAborts) {
   EXPECT_DEATH((void)gpu_check(stdHostMemAllocFailure), "GPU error at");
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

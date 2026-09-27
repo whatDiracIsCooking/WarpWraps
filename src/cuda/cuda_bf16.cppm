@@ -27,10 +27,10 @@ module;
 export module gpumod.cuda.cuda_bf16;
 
 // ========================================================================
-// Export all cuda_bf16 types in gpumod namespace
+// Export all cuda_bf16 types in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Core BFloat16 Types
@@ -195,4 +195,4 @@ bool operator>=(const __nv_bfloat162 &lh, const __nv_bfloat162 &rh) {
   return ::operator>=(lh, rh);
 }
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

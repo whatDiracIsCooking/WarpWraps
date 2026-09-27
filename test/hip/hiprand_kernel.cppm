@@ -17,9 +17,9 @@ import gpumod.hip.hiprand_kernel;
 // are __device__-qualified and a module unit is host code).
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ────────────────────────────────────────────────────────────────────────
 // Every state type is a complete class type
@@ -81,4 +81,4 @@ static_assert(sizeof(hiprandState) == sizeof(hiprandStateXORWOW));
 static_assert(std::is_base_of_v<hiprandState::base, hiprandState>);
 static_assert(std::is_same_v<hiprandState::base, hiprandStateXORWOW::base>);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

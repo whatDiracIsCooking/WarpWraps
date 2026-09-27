@@ -17,7 +17,7 @@ export module gpumod.cuda.nvml;
 
 import std;
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Core Handle Types
@@ -1400,4 +1400,4 @@ using ::nvmlSystemGetConfComputeSettings;
 using ::nvmlSystemGetConfComputeState;
 using ::nvmlSystemSetConfComputeKeyRotationThresholdInfo;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

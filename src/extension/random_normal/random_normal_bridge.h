@@ -30,7 +30,7 @@
 
 #include <cstddef>
 
-namespace gpumod::extension::device {
+namespace wwr::extension::device {
 
 /// @brief Fill `output` with `count` standard normal values, each times `scale`
 /// @param states one initialized state per element
@@ -39,4 +39,4 @@ template<typename T>
 void random_normal(gpuStream_t stream, std::size_t count, gpurandState *states, T *output,
                    T scale);
 
-} // namespace gpumod::extension::device
+} // namespace wwr::extension::device

@@ -64,7 +64,7 @@ forwarding layer would only rename each name to itself. The header is the
 The divergences are the caller's to handle:
 `ballot()` is 32-bit on CUDA and 64-bit on HIP, so storing one in an `unsigned`
 is silently wrong on a wave64 part; `thread_rank()` and `num_threads()` vary by
-group type on CUDA but not on HIP; tiles are bounded by `GPUMOD_WARP_SIZE`;
+group type on CUDA but not on HIP; tiles are bounded by `WWR_WARP_SIZE`;
 `grid_group` has five portable members, CUDA's `block_rank()` family having no
 HIP counterpart; and `thread_block::group_dim()` is static on CUDA but a
 non-const member on HIP.
@@ -80,9 +80,9 @@ The float-to-half conversions need no such treatment: `__float2half` and
 `__float2bfloat16` are spelled identically by both vendors. They are re-exposed
 under `gpu*` names anyway, for the layering reason in §5.
 
-## 4. Forwarding templates where `GPUMOD_FUNCTION` cannot reach
+## 4. Forwarding templates where `WWR_FUNCTION` cannot reach
 
-`GPUMOD_FUNCTION` binds a reference straight to the backend's function
+`WWR_FUNCTION` binds a reference straight to the backend's function
 (`inline constexpr auto& gpuX = ::cuX;`), so the signature is never restated and
 cannot drift. A function reference carries no default arguments and **cannot
 name an overload set**, which rules it out in three places:
@@ -213,7 +213,7 @@ even when an `extern "C"` overload with external linkage also exists.
 for `hipMemcpyToSymbol`, `hipGetSymbolAddress`, `hipLaunchCooperativeKernel` and
 the `hipOccupancy*` family, the convenience overload is a non-static function
 *template*, so `using ::name;` compiles — but `test/hip/hip_runtime_api.cppm`'s
-`GPUMOD_LINK_CHECK(name)`, which takes `&name` with no arguments or target type, cannot
+`WWR_LINK_CHECK(name)`, which takes `&name` with no arguments or target type, cannot
 disambiguate it from the non-template overload. Those ~13 names get forwarding
 functions too.
 
@@ -227,7 +227,7 @@ functions too.
 `parallel_for`'s `device_functor` concept requires the functor to be trivially
 copyable **and** not copy-assignable. The second half is what enforces
 immutability: under CUDA the kernel receives the functor via
-`GPUMOD_GRID_CONSTANT` (constant memory shared across the grid), and writes to
+`WWR_GRID_CONSTANT` (constant memory shared across the grid), and writes to
 constant memory are undefined behaviour on either backend.
 
 Marking **every** member `const` is the obvious way to satisfy
@@ -242,7 +242,7 @@ Checked on clang 20.1.8, both libc++ and libstdc++, C++20 and C++23, with no
 **The rule.** Keep at least one `const` **scalar** member — that is what
 deletes the copy assignment — and leave class-type members non-`const`.
 Nothing is lost, because `parallel_for_kernel` takes the functor as
-`GPUMOD_GRID_CONSTANT const Functor` and `operator()` is const-qualified, so the
+`WWR_GRID_CONSTANT const Functor` and `operator()` is const-qualified, so the
 kernel cannot write it by either route.
 
 `src/wrappers/fill/fill.cu`'s two functors are the worked example. It cost a
@@ -294,7 +294,7 @@ device-compile flag that makes AMD emit native FP-atomic instructions instead:
 faster, but with weaker guarantees — it can flush denormals, and on fine-grained
 memory it can silently drop the update rather than fault. gpumod never sets it;
 a TU that wants the trade-off passes it on its own device library (the
-`gpumod_add_gpu_device_library` target that owns the kernel), never on a target
+`wwr_add_gpu_device_library` target that owns the kernel), never on a target
 that reaches non-device code.
 
 One-sided atomics stay exposed too, for the same reason: the scoped CUDA forms
@@ -332,7 +332,7 @@ the pass being compiled — 4 and 4 in the wave64 host pass, 8 and 8 in the
 gfx1200 device pass of the same TU. This is the same warp-size trap surfacing
 in a type's member: a `static_assert` on a literal count cannot hold in both passes,
 and host code sizing a buffer from it is wrong with nothing to diagnose it.
-Multiplying by a warp width does not rescue it either: `GPUMOD_WARP_SIZE` is the
+Multiplying by a warp width does not rescue it either: `WWR_WARP_SIZE` is the
 configure-time 32 in both passes, and clang 20 deprecates
 `__AMDGCN_WAVEFRONT_SIZE__` outright — *"compile-time-constant access to the
 wavefront size will be removed in a future release"*. So `test/gpu/wmma.cu` pins
@@ -347,7 +347,7 @@ Measured 2026-09-25 against clang 20.1.8 and ROCm 7.2.4 at
 Under the HIP backend the project enables no CUDA language — the top-level
 `CMakeLists.txt` decides that before `project()`, and a ROCm-only box has no CUDA
 toolkit. So the steps that turn a `.cu` into device code are arranged by hand, in
-`cmake/gpumod_add_gpu_device_library.cmake`.
+`cmake/wwr_add_gpu_device_library.cmake`.
 
 **The `.cu` extension is overridden back to CXX.** CMake maps `.cu` to the CUDA
 language by extension; with CUDA disabled that cannot stand, so each source gets

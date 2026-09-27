@@ -26,10 +26,10 @@ module;
 export module gpumod.cuda.cupti;
 
 // ========================================================================
-// Export all CUPTI types and functions in gpumod namespace
+// Export all CUPTI types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Result / Status Type (cupti_result.h)
@@ -796,4 +796,4 @@ using ::cuptiMetricGetRequiredEventGroupSets;
 using ::cuptiMetricGetValue;
 using ::cuptiMetricGetValue2;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

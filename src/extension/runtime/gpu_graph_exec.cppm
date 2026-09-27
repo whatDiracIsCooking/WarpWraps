@@ -13,7 +13,7 @@ import gpumod.extension.common;
 import gpumod.extension.handle;
 import std;
 
-export namespace gpumod::extension {
+export namespace wwr::extension {
 
 /**
  * @brief Borrow-safe executable-graph operations, shared by the owner and view
@@ -108,4 +108,4 @@ public:
   }
 };
 
-} // namespace gpumod::extension
+} // namespace wwr::extension

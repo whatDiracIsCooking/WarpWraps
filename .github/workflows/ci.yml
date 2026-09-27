@@ -66,7 +66,7 @@
 #
 # Getting there needed one thing: cuda_compile_tests links the driver stubs
 # and cannot LOAD without libcuda.so.1, where hip_compile_tests has no such
-# dependency. The ci-cuda preset sets GPUMOD_CUDA_DRIVER_STUBS=ON, which points
+# dependency. The ci-cuda preset sets WWR_CUDA_DRIVER_STUBS=ON, which points
 # THAT ONE TEST at the toolkit's own stubs -- build-directory symlinks and a
 # per-test ENVIRONMENT_MODIFICATION, never an image-wide LD_LIBRARY_PATH, which
 # would shadow the real driver on a machine that has one. It proves every

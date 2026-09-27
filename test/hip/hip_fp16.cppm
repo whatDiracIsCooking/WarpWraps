@@ -18,14 +18,14 @@ import gpumod.hip.hip_fp16;
 // always predefines `__GNUC__`, and `__HIP__` is never defined without
 // `-x hip`), which pulls in hip_fp16_gcc.h -- a portable `__half`/`__half2`
 // with NO arithmetic/comparison operators of their own (only an implicit
-// `operator float()`). There is nothing to GPUMOD_LINK_CHECK or ADL-test for
+// `operator float()`). There is nothing to WWR_LINK_CHECK or ADL-test for
 // operators that do not exist on this code path; this file covers the
 // layout and alias guarantees that static_assert can reach.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ──────────────────────────────────────────────────────────────────────
 // Struct traits: C-interop guarantees
@@ -51,4 +51,4 @@ static_assert(sizeof(__half2) == 4);
 static_assert(std::is_same_v<half, __half>);
 static_assert(std::is_same_v<half2, __half2>);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

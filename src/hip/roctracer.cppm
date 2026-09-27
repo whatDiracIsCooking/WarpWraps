@@ -29,7 +29,7 @@ module;
 
 export module gpumod.hip.roctracer;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Types and Enumerations (roctracer/ext/prof_protocol.h)
@@ -155,4 +155,4 @@ using ::roctracer_flush_activity_expl;
 // Timestamp
 using ::roctracer_get_timestamp;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

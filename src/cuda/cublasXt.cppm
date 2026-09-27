@@ -16,10 +16,10 @@ module;
 export module gpumod.cuda.cublasXt;
 
 // ========================================================================
-// Export all cuBLASXt types and functions in gpumod namespace
+// Export all cuBLASXt types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Opaque handle type
@@ -221,4 +221,4 @@ using ::cublasXtDtrmm;
 using ::cublasXtStrmm;
 using ::cublasXtZtrmm;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

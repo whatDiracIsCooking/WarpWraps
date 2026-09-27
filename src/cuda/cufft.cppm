@@ -31,10 +31,10 @@ static_assert(CUFFT_INVERSE == 1, "CUFFT_INVERSE value mismatch");
 export module gpumod.cuda.cufft;
 
 // ========================================================================
-// Export all cuFFT types and functions in gpumod namespace
+// Export all cuFFT types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Constexpr wrappers for cuFFT call-site flag macros
@@ -183,4 +183,4 @@ using ::cufftGetPlanPropertyInt64;
 using ::cufftResetPlanProperty;
 using ::cufftSetPlanPropertyInt64;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

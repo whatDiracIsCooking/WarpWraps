@@ -20,10 +20,10 @@ module;
 export module gpumod.cuda.curand;
 
 // ========================================================================
-// Export all cuRAND types and functions in gpumod namespace
+// Export all cuRAND types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Core Types
@@ -213,4 +213,4 @@ using ::curandStateXORWOW_t;
 using ::curandState;
 using ::curandState_t;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

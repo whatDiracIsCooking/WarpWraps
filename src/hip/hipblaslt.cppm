@@ -39,7 +39,7 @@ export module gpumod.hip.hipblaslt;
 
 import std;
 
-export namespace gpumod::hip {
+export namespace wwr::hip {
 
 // ========================================================================
 // Enum: hipblasLtEpilogue_t
@@ -227,4 +227,4 @@ using ::hipblasLtMatrixTransformDescDestroy;
 using ::hipblasLtMatrixTransformDescGetAttribute;
 using ::hipblasLtMatrixTransformDescSetAttribute;
 
-} // namespace gpumod::hip
+} // namespace wwr::hip

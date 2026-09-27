@@ -18,7 +18,7 @@ import gpumod.solver;
 import gpumod.complex;
 import std;
 
-export namespace gpumod {
+export namespace wwr {
 
 /**
  * @brief Get the gpusolverDataType_t enum for a GPU-solver-supported type
@@ -46,4 +46,4 @@ constexpr gpusolverDataType_t get_gpusolver_type() noexcept {
   }
 }
 
-} // namespace gpumod
+} // namespace wwr

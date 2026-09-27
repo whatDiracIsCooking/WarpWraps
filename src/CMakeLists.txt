@@ -2,20 +2,20 @@
 #
 # The gpu* modules live directly in this directory. Each re-exports one raw
 # library module (src/cuda or src/hip) under gpu-prefixed names, picked at
-# configure time by GPUMOD_GPU_BACKEND. This is the only place in the project
+# configure time by WWR_GPU_BACKEND. This is the only place in the project
 # that names both backends; everything built on top (src/wrappers) is written
 # once against gpu* names. See README.md.
 #
 # This file also owns the order the src/ trees are added: the chosen backend's
 # raw 1:1 wrappers first (the gpu* modules below link them), then those modules,
 # then src/wrappers (written once against the gpu* names).
-if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
   add_subdirectory(cuda)
 else()
   add_subdirectory(hip)
 endif()
 
-# The backend define (GPUMOD_GPU_BACKEND_*) and the src/-root include path for
+# The backend define (WWR_GPU_BACKEND_*) and the src/-root include path for
 # the gpu* layer's headers (selected_backend.h, gpu_backend.h, runtime.cuh,
 # device_guard.h). Linked PRIVATE by every module below, and by test/gpu and the
 # bridge-using modules (init_state, random_normal), which read
@@ -24,25 +24,25 @@ endif()
 # only in the gpu* layer's headers.
 add_library(gpumod_backend INTERFACE)
 target_compile_definitions(
-  gpumod_backend INTERFACE GPUMOD_GPU_BACKEND_${GPUMOD_GPU_BACKEND}
+  gpumod_backend INTERFACE WWR_GPU_BACKEND_${WWR_GPU_BACKEND}
 )
 target_include_directories(
   gpumod_backend
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${GPUMOD_INSTALL_INCLUDEDIR}>
+            $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )
 
-# The include path, runtime libs and GPUMOD_WARP_SIZE for the device-side
+# The include path, runtime libs and WWR_WARP_SIZE for the device-side
 # headers (runtime.cuh, complex.cuh, fp16.cuh, cooperative_groups.cuh, wmma.cuh)
 # -- the counterpart to gpumod_backend for code reached by #include, not import
-# (a kernel TU imports no modules). Carries NO GPUMOD_GPU_BACKEND define: these
+# (a kernel TU imports no modules). Carries NO WWR_GPU_BACKEND define: these
 # headers pick their backend from __CUDACC__/__HIP__, so this is safe to link
 # from outside the gpu* layer (gpumod.extension.parallel_for is the intended
 # consumer). Never hip::device here -- see src/hip/README.md, "Link hip::host,
-# never hip::device", and cmake/gpumod_add_gpu_device_library.cmake for the
+# never hip::device", and cmake/wwr_add_gpu_device_library.cmake for the
 # per-kernel target that does.
 #
-# GPUMOD_WARP_SIZE is a configure-time constant, not a backend switch.
+# WWR_WARP_SIZE is a configure-time constant, not a backend switch.
 # cooperative_groups.cuh and wmma.cuh need no target of their own:
 # both vendors ship them header-only on the include path CUDA::cudart /
 # hip::host already bring (docs/architecture.md §2, §16 -- and do NOT add
@@ -53,13 +53,13 @@ add_library(gpumod.device INTERFACE)
 target_include_directories(
   gpumod.device
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${GPUMOD_INSTALL_INCLUDEDIR}>
+            $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )
 target_compile_definitions(
   gpumod.device
-  INTERFACE GPUMOD_WARP_SIZE=${GPUMOD_WARP_SIZE}
+  INTERFACE WWR_WARP_SIZE=${WWR_WARP_SIZE}
 )
-if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
   target_link_libraries(gpumod.device INTERFACE CUDA::cudart)
 else()
   target_link_libraries(gpumod.device INTERFACE hip::host)
@@ -68,22 +68,22 @@ endif()
 # rand.cuh's include path and RNG library, for a device TU calling the
 # cuRAND/hipRAND device API -- the #include counterpart to gpumod.rand.
 # Separate from gpumod.device because the two headers are independent and a
-# kernel needing no RNG should not link one. Carries no GPUMOD_GPU_BACKEND
+# kernel needing no RNG should not link one. Carries no WWR_GPU_BACKEND
 # define and never hip::device, for the reasons on gpumod.device above.
 add_library(gpumod.rand.device INTERFACE)
 target_include_directories(
   gpumod.rand.device
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-            $<INSTALL_INTERFACE:${GPUMOD_INSTALL_INCLUDEDIR}>
+            $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )
-if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
   target_link_libraries(gpumod.rand.device INTERFACE CUDA::curand)
 else()
   target_link_libraries(gpumod.rand.device INTERFACE hip::hiprand)
 endif()
 
 # Raw module each gpu module wraps, per backend.
-if(GPUMOD_GPU_BACKEND STREQUAL "CUDA")
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_raw_runtime_api gpumod.cuda.cuda_runtime_api)
   set(_gpu_raw_complex gpumod.cuda.cuComplex)
   set(_gpu_raw_fp16 gpumod.cuda.cuda_fp16)
@@ -110,7 +110,7 @@ else()
   set(_gpu_raw_tx gpumod.hip.roctx)
 endif()
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.runtime_api
   PRIMARY_INTERFACE
@@ -122,7 +122,7 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.complex
   PRIMARY_INTERFACE
@@ -134,7 +134,7 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.fp16
   PRIMARY_INTERFACE
@@ -146,7 +146,7 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.bf16
   PRIMARY_INTERFACE
@@ -158,7 +158,7 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.blas
   PRIMARY_INTERFACE
@@ -171,7 +171,7 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.solver
   PRIMARY_INTERFACE
@@ -185,7 +185,7 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.sparse
   PRIMARY_INTERFACE
@@ -198,7 +198,7 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.fft
   PRIMARY_INTERFACE
@@ -210,7 +210,7 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.rand
   PRIMARY_INTERFACE
@@ -222,7 +222,7 @@ gpumod_add_cxx_module_library(
   IMPORT_STD
 )
 
-gpumod_add_cxx_module_library(
+wwr_add_cxx_module_library(
   NAME
   gpumod.tx
   PRIMARY_INTERFACE

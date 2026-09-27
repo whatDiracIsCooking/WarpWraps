@@ -22,7 +22,7 @@
 // staying 0 across a move-then-destroy is the proof the move cleared ownership.
 //
 // Runtime, device-requiring: gpufftCreate needs a live GPU context.
-// Backend-neutral -- built and run for either GPUMOD_GPU_BACKEND.
+// Backend-neutral -- built and run for either WWR_GPU_BACKEND.
 
 #include <gtest/gtest.h>
 
@@ -31,7 +31,7 @@ import gpumod.extension.common; // the error_policy concept, for the counting po
 import gpumod.extension.handle; // BaseHandle, DeviceBoundHandle
 import gpumod.extension.fft; // re-exports gpumod.fft: gpufftHandle, gpufftResult_t, GPUFFT_SUCCESS
 
-namespace gpumod::extension::test {
+namespace wwr::extension::test {
 
 // An error policy that tallies failures into an external counter instead of
 // aborting, so a botched destroy is observable after the objects are gone
@@ -157,4 +157,4 @@ TEST(FftPlanTests, MovePreservesDevice) {
   EXPECT_EQ(plan1.dev_idx(), -1);
 }
 
-} // namespace gpumod::extension::test
+} // namespace wwr::extension::test

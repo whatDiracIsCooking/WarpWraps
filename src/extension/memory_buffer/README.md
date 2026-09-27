@@ -8,7 +8,7 @@ RAII-based memory buffer management for all GPU-relevant memory kinds. Provides 
 
 ## Buffer Types
 
-All buffer types live in the `gpumod::extension` namespace and are template aliases over their respective `*Wrapper` classes with default error policies.
+All buffer types live in the `wwr::extension` namespace and are template aliases over their respective `*Wrapper` classes with default error policies.
 
 | Alias | Memory kind | Allocation API | Host-accessible |
 |---|---|---|---|

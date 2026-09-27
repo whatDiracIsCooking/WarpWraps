@@ -26,7 +26,7 @@
 namespace {
 
 // Integer atomics: the widths every operation supports on both backends.
-__global__ void gpumod_atomics_integral(int *i, unsigned *u, unsigned long long *ull) {
+__global__ void wwr_atomics_integral(int *i, unsigned *u, unsigned long long *ull) {
   atomicAdd(i, *i);
   atomicAdd(u, *u);
   atomicAdd(ull, *ull);
@@ -70,7 +70,7 @@ __global__ void gpumod_atomics_integral(int *i, unsigned *u, unsigned long long 
 // Floating-point atomics: add and exch, on the default safe codegen (see the
 // file header). double atomicAdd needs sm_60+, met by the compile-time
 // preset's sm_70.
-__global__ void gpumod_atomics_floating(float *f, double *d) {
+__global__ void wwr_atomics_floating(float *f, double *d) {
   atomicAdd(f, *f);
   atomicAdd(d, *d);
   atomicExch(f, *f);

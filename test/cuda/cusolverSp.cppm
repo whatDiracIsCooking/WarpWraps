@@ -19,9 +19,9 @@ import gpumod.cuda.cusolverSp;
 //   3. Opaque handle types are pointer types (std::is_pointer_v<>)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -72,99 +72,99 @@ static_assert(std::is_pointer_v<cusparseMatDescr_t>);
 // ────────────────────────────────────────────────────────────────────────
 
 // Handle management
-GPUMOD_LINK_CHECK(cusolverSpCreate)
-GPUMOD_LINK_CHECK(cusolverSpDestroy)
-GPUMOD_LINK_CHECK(cusolverSpSetStream)
-GPUMOD_LINK_CHECK(cusolverSpGetStream)
+WWR_LINK_CHECK(cusolverSpCreate)
+WWR_LINK_CHECK(cusolverSpDestroy)
+WWR_LINK_CHECK(cusolverSpSetStream)
+WWR_LINK_CHECK(cusolverSpGetStream)
 
 // Symmetry check
-GPUMOD_LINK_CHECK(cusolverSpXcsrissymHost)
+WWR_LINK_CHECK(cusolverSpXcsrissymHost)
 
 // GPU LU linear solvers (Host)
-GPUMOD_LINK_CHECK(cusolverSpScsrlsvluHost)
-GPUMOD_LINK_CHECK(cusolverSpDcsrlsvluHost)
-GPUMOD_LINK_CHECK(cusolverSpCcsrlsvluHost)
-GPUMOD_LINK_CHECK(cusolverSpZcsrlsvluHost)
+WWR_LINK_CHECK(cusolverSpScsrlsvluHost)
+WWR_LINK_CHECK(cusolverSpDcsrlsvluHost)
+WWR_LINK_CHECK(cusolverSpCcsrlsvluHost)
+WWR_LINK_CHECK(cusolverSpZcsrlsvluHost)
 
 // GPU QR linear solvers (Device)
-GPUMOD_LINK_CHECK(cusolverSpScsrlsvqr)
-GPUMOD_LINK_CHECK(cusolverSpDcsrlsvqr)
-GPUMOD_LINK_CHECK(cusolverSpCcsrlsvqr)
-GPUMOD_LINK_CHECK(cusolverSpZcsrlsvqr)
+WWR_LINK_CHECK(cusolverSpScsrlsvqr)
+WWR_LINK_CHECK(cusolverSpDcsrlsvqr)
+WWR_LINK_CHECK(cusolverSpCcsrlsvqr)
+WWR_LINK_CHECK(cusolverSpZcsrlsvqr)
 
 // CPU QR linear solvers (Host)
-GPUMOD_LINK_CHECK(cusolverSpScsrlsvqrHost)
-GPUMOD_LINK_CHECK(cusolverSpDcsrlsvqrHost)
-GPUMOD_LINK_CHECK(cusolverSpCcsrlsvqrHost)
-GPUMOD_LINK_CHECK(cusolverSpZcsrlsvqrHost)
+WWR_LINK_CHECK(cusolverSpScsrlsvqrHost)
+WWR_LINK_CHECK(cusolverSpDcsrlsvqrHost)
+WWR_LINK_CHECK(cusolverSpCcsrlsvqrHost)
+WWR_LINK_CHECK(cusolverSpZcsrlsvqrHost)
 
 // CPU Cholesky linear solvers (Host)
-GPUMOD_LINK_CHECK(cusolverSpScsrlsvcholHost)
-GPUMOD_LINK_CHECK(cusolverSpDcsrlsvcholHost)
-GPUMOD_LINK_CHECK(cusolverSpCcsrlsvcholHost)
-GPUMOD_LINK_CHECK(cusolverSpZcsrlsvcholHost)
+WWR_LINK_CHECK(cusolverSpScsrlsvcholHost)
+WWR_LINK_CHECK(cusolverSpDcsrlsvcholHost)
+WWR_LINK_CHECK(cusolverSpCcsrlsvcholHost)
+WWR_LINK_CHECK(cusolverSpZcsrlsvcholHost)
 
 // GPU Cholesky linear solvers (Device)
-GPUMOD_LINK_CHECK(cusolverSpScsrlsvchol)
-GPUMOD_LINK_CHECK(cusolverSpDcsrlsvchol)
-GPUMOD_LINK_CHECK(cusolverSpCcsrlsvchol)
-GPUMOD_LINK_CHECK(cusolverSpZcsrlsvchol)
+WWR_LINK_CHECK(cusolverSpScsrlsvchol)
+WWR_LINK_CHECK(cusolverSpDcsrlsvchol)
+WWR_LINK_CHECK(cusolverSpCcsrlsvchol)
+WWR_LINK_CHECK(cusolverSpZcsrlsvchol)
 
 // CPU least-squares QR solvers (Host)
-GPUMOD_LINK_CHECK(cusolverSpScsrlsqvqrHost)
-GPUMOD_LINK_CHECK(cusolverSpDcsrlsqvqrHost)
-GPUMOD_LINK_CHECK(cusolverSpCcsrlsqvqrHost)
-GPUMOD_LINK_CHECK(cusolverSpZcsrlsqvqrHost)
+WWR_LINK_CHECK(cusolverSpScsrlsqvqrHost)
+WWR_LINK_CHECK(cusolverSpDcsrlsqvqrHost)
+WWR_LINK_CHECK(cusolverSpCcsrlsqvqrHost)
+WWR_LINK_CHECK(cusolverSpZcsrlsqvqrHost)
 
 // CPU shift-inverse eigenvalue solvers (Host)
-GPUMOD_LINK_CHECK(cusolverSpScsreigvsiHost)
-GPUMOD_LINK_CHECK(cusolverSpDcsreigvsiHost)
-GPUMOD_LINK_CHECK(cusolverSpCcsreigvsiHost)
-GPUMOD_LINK_CHECK(cusolverSpZcsreigvsiHost)
+WWR_LINK_CHECK(cusolverSpScsreigvsiHost)
+WWR_LINK_CHECK(cusolverSpDcsreigvsiHost)
+WWR_LINK_CHECK(cusolverSpCcsreigvsiHost)
+WWR_LINK_CHECK(cusolverSpZcsreigvsiHost)
 
 // GPU shift-inverse eigenvalue solvers (Device)
-GPUMOD_LINK_CHECK(cusolverSpScsreigvsi)
-GPUMOD_LINK_CHECK(cusolverSpDcsreigvsi)
-GPUMOD_LINK_CHECK(cusolverSpCcsreigvsi)
-GPUMOD_LINK_CHECK(cusolverSpZcsreigvsi)
+WWR_LINK_CHECK(cusolverSpScsreigvsi)
+WWR_LINK_CHECK(cusolverSpDcsreigvsi)
+WWR_LINK_CHECK(cusolverSpCcsreigvsi)
+WWR_LINK_CHECK(cusolverSpZcsreigvsi)
 
 // CPU enclosed eigenvalue count (Host)
-GPUMOD_LINK_CHECK(cusolverSpScsreigsHost)
-GPUMOD_LINK_CHECK(cusolverSpDcsreigsHost)
-GPUMOD_LINK_CHECK(cusolverSpCcsreigsHost)
-GPUMOD_LINK_CHECK(cusolverSpZcsreigsHost)
+WWR_LINK_CHECK(cusolverSpScsreigsHost)
+WWR_LINK_CHECK(cusolverSpDcsreigsHost)
+WWR_LINK_CHECK(cusolverSpCcsreigsHost)
+WWR_LINK_CHECK(cusolverSpZcsreigsHost)
 
 // CPU reordering
-GPUMOD_LINK_CHECK(cusolverSpXcsrsymrcmHost)
-GPUMOD_LINK_CHECK(cusolverSpXcsrsymmdqHost)
-GPUMOD_LINK_CHECK(cusolverSpXcsrsymamdHost)
-GPUMOD_LINK_CHECK(cusolverSpXcsrmetisndHost)
+WWR_LINK_CHECK(cusolverSpXcsrsymrcmHost)
+WWR_LINK_CHECK(cusolverSpXcsrsymmdqHost)
+WWR_LINK_CHECK(cusolverSpXcsrsymamdHost)
+WWR_LINK_CHECK(cusolverSpXcsrmetisndHost)
 
 // CPU zero-free diagonal reordering
-GPUMOD_LINK_CHECK(cusolverSpScsrzfdHost)
-GPUMOD_LINK_CHECK(cusolverSpDcsrzfdHost)
-GPUMOD_LINK_CHECK(cusolverSpCcsrzfdHost)
-GPUMOD_LINK_CHECK(cusolverSpZcsrzfdHost)
+WWR_LINK_CHECK(cusolverSpScsrzfdHost)
+WWR_LINK_CHECK(cusolverSpDcsrzfdHost)
+WWR_LINK_CHECK(cusolverSpCcsrzfdHost)
+WWR_LINK_CHECK(cusolverSpZcsrzfdHost)
 
 // CPU permutation
-GPUMOD_LINK_CHECK(cusolverSpXcsrperm_bufferSizeHost)
-GPUMOD_LINK_CHECK(cusolverSpXcsrpermHost)
+WWR_LINK_CHECK(cusolverSpXcsrperm_bufferSizeHost)
+WWR_LINK_CHECK(cusolverSpXcsrpermHost)
 
 // Batched QR info management
-GPUMOD_LINK_CHECK(cusolverSpCreateCsrqrInfo)
-GPUMOD_LINK_CHECK(cusolverSpDestroyCsrqrInfo)
+WWR_LINK_CHECK(cusolverSpCreateCsrqrInfo)
+WWR_LINK_CHECK(cusolverSpDestroyCsrqrInfo)
 
 // Batched QR analysis and buffer
-GPUMOD_LINK_CHECK(cusolverSpXcsrqrAnalysisBatched)
-GPUMOD_LINK_CHECK(cusolverSpScsrqrBufferInfoBatched)
-GPUMOD_LINK_CHECK(cusolverSpDcsrqrBufferInfoBatched)
-GPUMOD_LINK_CHECK(cusolverSpCcsrqrBufferInfoBatched)
-GPUMOD_LINK_CHECK(cusolverSpZcsrqrBufferInfoBatched)
+WWR_LINK_CHECK(cusolverSpXcsrqrAnalysisBatched)
+WWR_LINK_CHECK(cusolverSpScsrqrBufferInfoBatched)
+WWR_LINK_CHECK(cusolverSpDcsrqrBufferInfoBatched)
+WWR_LINK_CHECK(cusolverSpCcsrqrBufferInfoBatched)
+WWR_LINK_CHECK(cusolverSpZcsrqrBufferInfoBatched)
 
 // Batched QR solve
-GPUMOD_LINK_CHECK(cusolverSpScsrqrsvBatched)
-GPUMOD_LINK_CHECK(cusolverSpDcsrqrsvBatched)
-GPUMOD_LINK_CHECK(cusolverSpCcsrqrsvBatched)
-GPUMOD_LINK_CHECK(cusolverSpZcsrqrsvBatched)
+WWR_LINK_CHECK(cusolverSpScsrqrsvBatched)
+WWR_LINK_CHECK(cusolverSpDcsrqrsvBatched)
+WWR_LINK_CHECK(cusolverSpCcsrqrsvBatched)
+WWR_LINK_CHECK(cusolverSpZcsrqrsvBatched)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test

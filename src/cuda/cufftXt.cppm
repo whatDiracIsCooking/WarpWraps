@@ -18,10 +18,10 @@ module;
 export module gpumod.cuda.cufftXt;
 
 // ========================================================================
-// Export all cufftXt types and functions in gpumod namespace
+// Export all cufftXt types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Multi-GPU descriptor types (from cudalibxt.h, used in cufftXt signatures)
@@ -218,4 +218,4 @@ using ::cufftXtSetCallback;
 using ::cufftXtSetCallbackSharedSize;
 using ::cufftXtSetJITCallback;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

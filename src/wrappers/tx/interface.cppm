@@ -3,7 +3,7 @@
  * @brief Primary interface for gpumod.wrappers.tx
  *
  * Type-safe, backend-neutral profiler annotations over the gputx* marker/range
- * names (gpumod.tx -> NVTX or rocTX, per GPUMOD_GPU_BACKEND). It adds the C++
+ * names (gpumod.tx -> NVTX or rocTX, per WWR_GPU_BACKEND). It adds the C++
  * ergonomics the raw gputx* layer does not: named free functions and a
  * ScopedRange RAII guard that pushes a nested range on construction and pops it
  * on destruction, so a range cannot be left open on an early return or a throw.
@@ -12,18 +12,18 @@
  * tools API is untyped -- so this is a single interface unit with no partitions,
  * instantiations, or dispatch table.
  *
- * Names live in gpumod::tx, not bare gpumod: mark / range_push / range_pop are
+ * Names live in wwr::tx, not bare wwr: mark / range_push / range_pop are
  * generic enough to want a scope of their own, and it reads as a cohesive API
- * (gpumod::tx::ScopedRange). Messages are const char* -- NVTX and rocTX both take
+ * (wwr::tx::ScopedRange). Messages are const char* -- NVTX and rocTX both take
  * a null-terminated string, and this layer forwards it unchanged rather than
  * copy a std::string_view to guarantee termination.
  *
  * Usage:
  *   import gpumod.wrappers.tx;
  *
- *   gpumod::tx::mark("checkpoint");
+ *   wwr::tx::mark("checkpoint");
  *   {
- *     gpumod::tx::ScopedRange region{"phase 1"};
+ *     wwr::tx::ScopedRange region{"phase 1"};
  *     // ... work ...
  *   } // range popped here, even on early return or throw
  */
@@ -35,7 +35,7 @@ export module gpumod.wrappers.tx;
 import gpumod.tx;
 import std;
 
-export namespace gpumod::tx {
+export namespace wwr::tx {
 
 // ========================================================================
 // Markers -- an instantaneous event at a point in time
@@ -87,4 +87,4 @@ public:
   ScopedRange &operator=(ScopedRange &&) = delete;
 };
 
-} // namespace gpumod::tx
+} // namespace wwr::tx

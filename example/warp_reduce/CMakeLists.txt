@@ -10,15 +10,15 @@
 # Two targets because a .cu and a C++23 module TU cannot share one. The device
 # source needs a language decision and, under HIP, `-x hip --offload-arch=...`;
 # main.cpp is an ordinary host CXX compile that imports modules and must get
-# neither. cmake/gpumod_add_gpu_device_library.cmake is where that split is
+# neither. cmake/wwr_add_gpu_device_library.cmake is where that split is
 # spelled out in full.
 
 # gpumod.device carries cooperative_groups.cuh and runtime.cuh (and the
-# GPUMOD_WARP_SIZE the tile size is built from); gpumod.extension.bridge carries
+# WWR_WARP_SIZE the tile size is built from); gpumod.extension.bridge carries
 # "extension/bridge/gpu_stream_bridge.h", which warp_reduce_bridge.h includes.
 # PRIVATE, as every device-library link is: nothing that links this should
 # inherit a device-code include path.
-gpumod_add_gpu_device_library(
+wwr_add_gpu_device_library(
   NAME
   gpumod.example.warp_reduce.device
   SOURCES
@@ -35,7 +35,7 @@ gpumod_add_gpu_device_library(
 add_executable(gpumod.example.warp_reduce main.cpp)
 
 # gpumod.extension.bridge for gpu_stream_bridge.h, and gpumod_backend for the
-# GPUMOD_GPU_BACKEND_* define that selected_backend.h behind it reads when
+# WWR_GPU_BACKEND_* define that selected_backend.h behind it reads when
 # there is no device-compile pass to supply __CUDACC__ / __HIP__ -- the same
 # pair, for the same reason, that src/extension/rand's module links.
 target_link_libraries(

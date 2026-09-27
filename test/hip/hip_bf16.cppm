@@ -16,15 +16,15 @@ import gpumod.hip.hip_bf16;
 // re-exported by `using` declaration only; their arithmetic/comparison
 // operators are ordinary `static inline` free functions in
 // amd_hip_bf16.h's global namespace, so hip_bf16.cppm provides thin
-// forwarding operators in gpumod::hip (parity with cuda_bf16.cppm's
+// forwarding operators in wwr::hip (parity with cuda_bf16.cppm's
 // treatment of cuda_bf16.h). Whether those forwarders are actually reachable
 // and correct at run time is out of scope for this compile-time-only
 // directory (parity with cuda_bf16.cppm); this file covers the layout and alias guarantees that static_assert can reach.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::hip::test {
+namespace wwr::hip::test {
 
-using namespace gpumod::hip;
+using namespace wwr::hip;
 
 // ──────────────────────────────────────────────────────────────────────
 // Struct traits: C-interop guarantees
@@ -43,4 +43,4 @@ static_assert(std::is_standard_layout_v<__hip_bfloat162>);
 static_assert(sizeof(__hip_bfloat16) == 2);
 static_assert(sizeof(__hip_bfloat162) == 4);
 
-} // namespace gpumod::hip::test
+} // namespace wwr::hip::test

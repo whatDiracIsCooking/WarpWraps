@@ -11,7 +11,7 @@
 # files onto consumers would undo that.
 include(FetchContent)
 
-set(GPUMOD_GOOGLETEST_TAG
+set(WWR_GOOGLETEST_TAG
     "v1.17.0"
     CACHE STRING "googletest git tag to build against"
 )
@@ -19,7 +19,7 @@ set(GPUMOD_GOOGLETEST_TAG
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG ${GPUMOD_GOOGLETEST_TAG}
+  GIT_TAG ${WWR_GOOGLETEST_TAG}
   GIT_SHALLOW TRUE
 )
 

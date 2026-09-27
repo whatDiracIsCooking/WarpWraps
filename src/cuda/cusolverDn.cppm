@@ -18,10 +18,10 @@ export module gpumod.cuda.cusolverDn;
 import std;
 
 // ========================================================================
-// Export all cuSOLVER Dense types and functions in gpumod namespace
+// Export all cuSOLVER Dense types and functions in wwr namespace
 // ========================================================================
 
-export namespace gpumod::cuda {
+export namespace wwr::cuda {
 
 // ========================================================================
 // Core Types
@@ -691,4 +691,4 @@ using ::cusolverDnDlaswp;
 using ::cusolverDnSlaswp;
 using ::cusolverDnZlaswp;
 
-} // namespace gpumod::cuda
+} // namespace wwr::cuda

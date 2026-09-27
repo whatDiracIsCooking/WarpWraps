@@ -17,12 +17,12 @@ import gpumod.cuda.cublasXt;
 //   2. Key enum enumerator values with stable ABI values are correct
 //   3. The opaque handle type is a pointer
 //   4. Complex scalar types satisfy trivial copyability and standard layout
-//   5. GPUMOD_LINK_CHECK for all exported non-inline functions
+//   5. WWR_LINK_CHECK for all exported non-inline functions
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-namespace gpumod::cuda::test {
+namespace wwr::cuda::test {
 
-using namespace gpumod::cuda;
+using namespace wwr::cuda;
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum type checks
@@ -136,134 +136,134 @@ static_assert(std::is_trivially_copyable_v<cuDoubleComplex>);
 static_assert(std::is_standard_layout_v<cuDoubleComplex>);
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: context management
+// WWR_LINK_CHECK: context management
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtCreate)
-GPUMOD_LINK_CHECK(cublasXtDestroy)
+WWR_LINK_CHECK(cublasXtCreate)
+WWR_LINK_CHECK(cublasXtDestroy)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: device selection and configuration
+// WWR_LINK_CHECK: device selection and configuration
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtGetNumBoards)
-GPUMOD_LINK_CHECK(cublasXtMaxBoards)
-GPUMOD_LINK_CHECK(cublasXtDeviceSelect)
-GPUMOD_LINK_CHECK(cublasXtSetBlockDim)
-GPUMOD_LINK_CHECK(cublasXtGetBlockDim)
+WWR_LINK_CHECK(cublasXtGetNumBoards)
+WWR_LINK_CHECK(cublasXtMaxBoards)
+WWR_LINK_CHECK(cublasXtDeviceSelect)
+WWR_LINK_CHECK(cublasXtSetBlockDim)
+WWR_LINK_CHECK(cublasXtGetBlockDim)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: pinned memory mode
+// WWR_LINK_CHECK: pinned memory mode
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtGetPinningMemMode)
-GPUMOD_LINK_CHECK(cublasXtSetPinningMemMode)
+WWR_LINK_CHECK(cublasXtGetPinningMemMode)
+WWR_LINK_CHECK(cublasXtSetPinningMemMode)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: CPU BLAS offload
+// WWR_LINK_CHECK: CPU BLAS offload
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtSetCpuRoutine)
-GPUMOD_LINK_CHECK(cublasXtSetCpuRatio)
+WWR_LINK_CHECK(cublasXtSetCpuRoutine)
+WWR_LINK_CHECK(cublasXtSetCpuRatio)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: GEMM
+// WWR_LINK_CHECK: GEMM
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtSgemm)
-GPUMOD_LINK_CHECK(cublasXtDgemm)
-GPUMOD_LINK_CHECK(cublasXtCgemm)
-GPUMOD_LINK_CHECK(cublasXtZgemm)
+WWR_LINK_CHECK(cublasXtSgemm)
+WWR_LINK_CHECK(cublasXtDgemm)
+WWR_LINK_CHECK(cublasXtCgemm)
+WWR_LINK_CHECK(cublasXtZgemm)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: SYRK
+// WWR_LINK_CHECK: SYRK
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtSsyrk)
-GPUMOD_LINK_CHECK(cublasXtDsyrk)
-GPUMOD_LINK_CHECK(cublasXtCsyrk)
-GPUMOD_LINK_CHECK(cublasXtZsyrk)
+WWR_LINK_CHECK(cublasXtSsyrk)
+WWR_LINK_CHECK(cublasXtDsyrk)
+WWR_LINK_CHECK(cublasXtCsyrk)
+WWR_LINK_CHECK(cublasXtZsyrk)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: HERK
+// WWR_LINK_CHECK: HERK
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtCherk)
-GPUMOD_LINK_CHECK(cublasXtZherk)
+WWR_LINK_CHECK(cublasXtCherk)
+WWR_LINK_CHECK(cublasXtZherk)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: SYR2K
+// WWR_LINK_CHECK: SYR2K
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtSsyr2k)
-GPUMOD_LINK_CHECK(cublasXtDsyr2k)
-GPUMOD_LINK_CHECK(cublasXtCsyr2k)
-GPUMOD_LINK_CHECK(cublasXtZsyr2k)
+WWR_LINK_CHECK(cublasXtSsyr2k)
+WWR_LINK_CHECK(cublasXtDsyr2k)
+WWR_LINK_CHECK(cublasXtCsyr2k)
+WWR_LINK_CHECK(cublasXtZsyr2k)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: HERKX
+// WWR_LINK_CHECK: HERKX
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtCherkx)
-GPUMOD_LINK_CHECK(cublasXtZherkx)
+WWR_LINK_CHECK(cublasXtCherkx)
+WWR_LINK_CHECK(cublasXtZherkx)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: TRSM
+// WWR_LINK_CHECK: TRSM
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtStrsm)
-GPUMOD_LINK_CHECK(cublasXtDtrsm)
-GPUMOD_LINK_CHECK(cublasXtCtrsm)
-GPUMOD_LINK_CHECK(cublasXtZtrsm)
+WWR_LINK_CHECK(cublasXtStrsm)
+WWR_LINK_CHECK(cublasXtDtrsm)
+WWR_LINK_CHECK(cublasXtCtrsm)
+WWR_LINK_CHECK(cublasXtZtrsm)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: SYMM
+// WWR_LINK_CHECK: SYMM
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtSsymm)
-GPUMOD_LINK_CHECK(cublasXtDsymm)
-GPUMOD_LINK_CHECK(cublasXtCsymm)
-GPUMOD_LINK_CHECK(cublasXtZsymm)
+WWR_LINK_CHECK(cublasXtSsymm)
+WWR_LINK_CHECK(cublasXtDsymm)
+WWR_LINK_CHECK(cublasXtCsymm)
+WWR_LINK_CHECK(cublasXtZsymm)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: HEMM
+// WWR_LINK_CHECK: HEMM
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtChemm)
-GPUMOD_LINK_CHECK(cublasXtZhemm)
+WWR_LINK_CHECK(cublasXtChemm)
+WWR_LINK_CHECK(cublasXtZhemm)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: SYRKX
+// WWR_LINK_CHECK: SYRKX
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtSsyrkx)
-GPUMOD_LINK_CHECK(cublasXtDsyrkx)
-GPUMOD_LINK_CHECK(cublasXtCsyrkx)
-GPUMOD_LINK_CHECK(cublasXtZsyrkx)
+WWR_LINK_CHECK(cublasXtSsyrkx)
+WWR_LINK_CHECK(cublasXtDsyrkx)
+WWR_LINK_CHECK(cublasXtCsyrkx)
+WWR_LINK_CHECK(cublasXtZsyrkx)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: HER2K
+// WWR_LINK_CHECK: HER2K
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtCher2k)
-GPUMOD_LINK_CHECK(cublasXtZher2k)
+WWR_LINK_CHECK(cublasXtCher2k)
+WWR_LINK_CHECK(cublasXtZher2k)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: SPMM
+// WWR_LINK_CHECK: SPMM
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtSspmm)
-GPUMOD_LINK_CHECK(cublasXtDspmm)
-GPUMOD_LINK_CHECK(cublasXtCspmm)
-GPUMOD_LINK_CHECK(cublasXtZspmm)
+WWR_LINK_CHECK(cublasXtSspmm)
+WWR_LINK_CHECK(cublasXtDspmm)
+WWR_LINK_CHECK(cublasXtCspmm)
+WWR_LINK_CHECK(cublasXtZspmm)
 
 // ────────────────────────────────────────────────────────────────────────
-// GPUMOD_LINK_CHECK: TRMM
+// WWR_LINK_CHECK: TRMM
 // ────────────────────────────────────────────────────────────────────────
 
-GPUMOD_LINK_CHECK(cublasXtStrmm)
-GPUMOD_LINK_CHECK(cublasXtDtrmm)
-GPUMOD_LINK_CHECK(cublasXtCtrmm)
-GPUMOD_LINK_CHECK(cublasXtZtrmm)
+WWR_LINK_CHECK(cublasXtStrmm)
+WWR_LINK_CHECK(cublasXtDtrmm)
+WWR_LINK_CHECK(cublasXtCtrmm)
+WWR_LINK_CHECK(cublasXtZtrmm)
 
-} // namespace gpumod::cuda::test
+} // namespace wwr::cuda::test
