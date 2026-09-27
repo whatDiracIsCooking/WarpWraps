@@ -6,15 +6,14 @@
  * with automatic resource cleanup.
  *
  * Usage:
- *   import gpumod.extension.common;
+ *   import gpumod.extension.common.handle;
  *
  *   class GpuStream : public BaseGpuHandle<gpuStream_t, GpuStream, ...> { ... };
  */
 
-export module gpumod.extension.common:gpu_handle;
+export module gpumod.extension.common.handle:gpu_handle;
 
-import gpumod.extension.common.error_handling;
-import :noncopyable;
+import gpumod.extension.common; // BaseErrorPolicy, NonCopyable
 import :gpu_handle_view;
 import std;
 

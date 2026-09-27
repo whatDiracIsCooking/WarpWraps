@@ -28,6 +28,7 @@
 
 import std;
 import gpumod.extension.common; // BaseErrorPolicy, for the counting policy
+import gpumod.extension.common.handle; // BaseGpuHandle, GpuBoundHandle
 import gpumod.extension.fft; // re-exports gpumod.fft: gpufftHandle, gpufftResult_t, GPUFFT_SUCCESS
 
 namespace gpumod::extension::test {

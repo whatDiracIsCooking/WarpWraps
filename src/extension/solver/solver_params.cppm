@@ -10,6 +10,7 @@ export module gpumod.extension.solver:solver_params;
 import :solver_error;
 import gpumod.solver;
 import gpumod.extension.common;
+import gpumod.extension.common.handle;
 import std;
 
 export namespace gpumod::extension {

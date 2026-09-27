@@ -10,6 +10,7 @@ export module gpumod.extension.sparse:sparse_handle;
 import :sparse_error;
 import gpumod.sparse;
 import gpumod.extension.common;
+import gpumod.extension.common.handle;
 import std;
 
 export namespace gpumod::extension {

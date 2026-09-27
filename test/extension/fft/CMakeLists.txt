@@ -13,6 +13,7 @@ gpumod_add_gtest_executable(
   LINK
   gpumod.extension.fft
   gpumod.extension.common
+  gpumod.extension.common.handle
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test file,

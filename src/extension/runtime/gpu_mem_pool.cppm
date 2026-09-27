@@ -9,6 +9,7 @@ export module gpumod.extension.runtime:gpu_mem_pool;
 
 import gpumod.runtime_api;
 import gpumod.extension.common;
+import gpumod.extension.common.handle;
 import std;
 
 export namespace gpumod::extension {

@@ -12,5 +12,6 @@ gpumod_add_cxx_module_library(
   LINK_PUBLIC
   gpumod.fft
   gpumod.extension.common
+  gpumod.extension.common.handle
   IMPORT_STD
 )

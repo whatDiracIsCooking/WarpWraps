@@ -15,6 +15,7 @@
 
 import std;
 import gpumod.extension.common; // BaseErrorPolicy, for the counting policy
+import gpumod.extension.common.handle; // BaseGpuHandle, GpuBoundHandle(View)
 import gpumod.extension.solver; // re-exports gpumod.solver, so the raw handle/params types are in scope
 
 namespace gpumod::extension::test {
