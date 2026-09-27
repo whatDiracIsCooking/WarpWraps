@@ -41,13 +41,28 @@ on why the values differ). Read a green ``--coverage`` run as "every shared name
 is aliased", not "the aliases are correct" -- that is what dispatch.py and the
 compiler are for.
 
-``--coverage`` matches by LITERAL name, so it fits a module that spells both
-backends' names out (``GPUMOD_FUNCTION(gpu, cu, hip)``, as rand does). The
-dispatch modules (blas, solver, sparse) instead token-paste a type prefix onto a
-basename in their wrappers, so their vendor call sites name no full symbol and
-read as "missing" here -- for those, coverage lives in the dispatch tables that
-``test/shared/dispatch.py`` checks, not in a literal-name scan. Pass a module's
-``.cuh`` alongside its ``.cppm`` when device-side names live there.
+``--coverage`` matches by LITERAL name, so read its "missing" list against the
+module's CONTRACT, which comes in two kinds.
+
+A WHOLE-SURFACE module (rand, fft, tx) promises to wrap everything the two
+backends share and spells both names out (``GPUMOD_FUNCTION(gpu, cu, hip)``).
+For these ``--coverage`` is the real completeness gate: a nonempty "missing" is a
+genuine hole (or a documented omission the module names in its header).
+
+A CURATED-SUBSET module (blas, solver, sparse, runtime_api) lists only the names
+the layer above it uses ("Only the names src/wrappers/blas uses are listed") --
+it never promised the full intersection, so its "missing" list is
+reachable-but-unused vendor symbols, a discovery menu, not a defect report.
+blas.cppm still spells its names out in full, so ``--coverage`` covers most of
+the intersection (~300/320) and the tail is the unused remainder; solver and
+sparse read as near-empty for a different reason -- cusolverDn* vs hipsolver* and
+cusparse's opaque generic API barely intersect by NAME at all, so the scan is
+blind there. For all four, completeness is enforced elsewhere: the compiler (an
+unresolved gpu* name cannot be consumed), ``test/shared/alias_coverage.py``
+(every alias defined has a test), and the dispatch tables that
+``test/shared/dispatch.py`` checks (every wrapper calls the right alias).
+
+Pass a module's ``.cuh`` alongside its ``.cppm`` when device-side names live there.
 
 Usage:
     devtools/header_intersection.py \\
