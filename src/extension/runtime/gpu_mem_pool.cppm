@@ -28,11 +28,11 @@ export namespace gpumod::extension {
 template<error_policy<gpuError_t> P_create = DefaultErrorPolicy<gpuError_t>,
          nothrow_error_policy<gpuError_t> P_destroy = P_create>
 class GpuMemPoolWrapper
-    : public GpuBoundHandle<gpuMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create,
+    : public DeviceBoundHandle<gpuMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create,
                             P_destroy> {
 private:
   using Base =
-      GpuBoundHandle<gpuMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create, P_destroy>;
+      DeviceBoundHandle<gpuMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
   /// @note Use 1MB as default release threshold
   static constexpr unsigned int default_threshold = 1024u * 1024u; // 1MB in bytes
@@ -48,11 +48,11 @@ private:
 
 public:
   // The `GpuMemPool(int dev_idx = 0)` default/per-device constructor, inherited
-  // from GpuBoundHandle. With dev_idx as the mandatory first argument there is no
+  // from DeviceBoundHandle. With dev_idx as the mandatory first argument there is no
   // longer any collision with the `(dev_idx, release_threshold)` overload below,
   // so the base's device-index constructor is inherited like GpuStream/GpuEvent.
-  using GpuBoundHandle<gpuMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::GpuBoundHandle;
+  using DeviceBoundHandle<gpuMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create,
+                       P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU memory pool on `dev_idx` with default properties and a custom release threshold
   /// @param dev_idx Device to create the pool on
@@ -94,7 +94,7 @@ public:
   /// @param handle Output parameter for the created memory pool
   /// @param location Source location where creation was requested
   void create(gpuMemPool_t *handle, std::source_location location) {
-    // Reached through GpuBoundHandle's default create path, which has already
+    // Reached through DeviceBoundHandle's default create path, which has already
     // made dev_idx the current device; read it back so props names it.
     int dev_idx = 0;
     gpuGetDevice(&dev_idx);
@@ -126,6 +126,6 @@ using GpuMemPool = GpuMemPoolWrapper<>;
 /// @brief Non-owning, copyable view of a memory pool handle (carries its device
 ///        index). Returned by GpuMemPool::view(); has no borrow-safe operations
 ///        of its own -- a pool handle is consumed by allocation calls.
-using GpuMemPoolView = GpuBoundHandleView<gpuMemPool_t>;
+using GpuMemPoolView = DeviceBoundHandleView<gpuMemPool_t>;
 
 } // namespace gpumod::extension

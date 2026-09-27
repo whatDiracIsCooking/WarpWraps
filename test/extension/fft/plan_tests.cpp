@@ -1,6 +1,6 @@
 // plan_tests.cpp - RAII contract of gpumod.extension.fft's FftPlan
 //
-// FftPlan derives from GpuBoundHandle like the other library handles, but it is
+// FftPlan derives from DeviceBoundHandle like the other library handles, but it is
 // the one handle whose liveness cannot ride the base's null sentinel:
 // gpufftHandle is an integer on CUDA (cufftHandle is `int`) with no reserved
 // invalid value. BaseHandle handles that by tracking ownership with an
@@ -9,7 +9,7 @@
 // from a live one through get(), which is exactly why a broken move would
 // double-free undetected by the public API.
 //
-// A cuFFT/hipFFT plan is device-bound, so GpuBoundHandle's select-device /
+// A cuFFT/hipFFT plan is device-bound, so DeviceBoundHandle's select-device /
 // record-device contract applies: dev_idx() reports the creation device and the
 // move clears it to -1. The cases below pin that alongside the double-free
 // contract.
@@ -28,7 +28,7 @@
 
 import std;
 import gpumod.extension.common; // the error_policy concept, for the counting policy
-import gpumod.extension.handle; // BaseHandle, GpuBoundHandle
+import gpumod.extension.handle; // BaseHandle, DeviceBoundHandle
 import gpumod.extension.fft; // re-exports gpumod.fft: gpufftHandle, gpufftResult_t, GPUFFT_SUCCESS
 
 namespace gpumod::extension::test {

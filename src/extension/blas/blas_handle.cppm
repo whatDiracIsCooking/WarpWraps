@@ -19,7 +19,7 @@ export namespace gpumod::extension {
  * @brief RAII wrapper for a GPU BLAS handle
  *
  * A cuBLAS/rocBLAS handle belongs to whatever device was current when it was
- * created, so this derives from GpuBoundHandle: construction selects dev_idx
+ * created, so this derives from DeviceBoundHandle: construction selects dev_idx
  * (the first constructor argument, default 0), creates the handle there, and
  * records it -- read it back with dev_idx(). Destroys the handle on
  * destruction; supports move semantics, copy is deleted.
@@ -32,17 +32,17 @@ export namespace gpumod::extension {
 template<error_policy<gpublasStatus_t> P_create = DefaultErrorPolicy<gpublasStatus_t>,
          nothrow_error_policy<gpublasStatus_t> P_destroy = P_create>
 class GpublasHandleWrapper
-    : public GpuBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
+    : public DeviceBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
                             P_destroy> {
 private:
-  using Base = GpuBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
+  using Base = DeviceBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
                               P_destroy>;
 
 public:
   // The `GpublasHandle(int dev_idx = 0)` default/per-device constructor,
-  // inherited from GpuBoundHandle, which selects and records the owning device.
-  using GpuBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::GpuBoundHandle;
+  // inherited from DeviceBoundHandle, which selects and records the owning device.
+  using DeviceBoundHandle<gpublasHandle_t, GpublasHandleWrapper<P_create, P_destroy>, P_create,
+                       P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU BLAS handle
   /// @param handle Output parameter for the created handle
@@ -71,6 +71,6 @@ using GpublasHandle = GpublasHandleWrapper<>;
 /// @brief Non-owning, copyable view of a BLAS handle, carrying its device index.
 ///        Returned by GpublasHandle::view(); converts to gpublasHandle_t for the
 ///        gpublas* wrappers, so a borrowed handle can be used without owning it.
-using GpublasHandleView = GpuBoundHandleView<gpublasHandle_t>;
+using GpublasHandleView = DeviceBoundHandleView<gpublasHandle_t>;
 
 } // namespace gpumod::extension

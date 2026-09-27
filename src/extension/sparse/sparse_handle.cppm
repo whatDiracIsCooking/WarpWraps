@@ -19,7 +19,7 @@ export namespace gpumod::extension {
  * @brief RAII wrapper for a GPU sparse handle
  *
  * A cuSPARSE/rocSPARSE handle belongs to whatever device was current when it
- * was created, so this derives from GpuBoundHandle: construction selects
+ * was created, so this derives from DeviceBoundHandle: construction selects
  * dev_idx (the first constructor argument, default 0), creates the handle
  * there, and records it -- read it back with dev_idx(). Destroys the handle on
  * destruction; supports move semantics, copy is deleted.
@@ -32,17 +32,17 @@ export namespace gpumod::extension {
 template<error_policy<gpusparseStatus_t> P_create = DefaultErrorPolicy<gpusparseStatus_t>,
          nothrow_error_policy<gpusparseStatus_t> P_destroy = P_create>
 class GpusparseHandleWrapper
-    : public GpuBoundHandle<gpusparseHandle_t, GpusparseHandleWrapper<P_create, P_destroy>, P_create,
+    : public DeviceBoundHandle<gpusparseHandle_t, GpusparseHandleWrapper<P_create, P_destroy>, P_create,
                             P_destroy> {
 private:
-  using Base = GpuBoundHandle<gpusparseHandle_t, GpusparseHandleWrapper<P_create, P_destroy>,
+  using Base = DeviceBoundHandle<gpusparseHandle_t, GpusparseHandleWrapper<P_create, P_destroy>,
                               P_create, P_destroy>;
 
 public:
   // The `GpusparseHandle(int dev_idx = 0)` default/per-device constructor,
-  // inherited from GpuBoundHandle, which selects and records the owning device.
-  using GpuBoundHandle<gpusparseHandle_t, GpusparseHandleWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::GpuBoundHandle;
+  // inherited from DeviceBoundHandle, which selects and records the owning device.
+  using DeviceBoundHandle<gpusparseHandle_t, GpusparseHandleWrapper<P_create, P_destroy>, P_create,
+                       P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU sparse handle
   /// @param handle Output parameter for the created handle
@@ -71,6 +71,6 @@ using GpusparseHandle = GpusparseHandleWrapper<>;
 /// @brief Non-owning, copyable view of a sparse handle, carrying its device index.
 ///        Returned by GpusparseHandle::view(); converts to gpusparseHandle_t for
 ///        the gpusparse* wrappers, so a borrowed handle can be used without owning it.
-using GpusparseHandleView = GpuBoundHandleView<gpusparseHandle_t>;
+using GpusparseHandleView = DeviceBoundHandleView<gpusparseHandle_t>;
 
 } // namespace gpumod::extension

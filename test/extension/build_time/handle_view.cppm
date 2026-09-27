@@ -52,7 +52,7 @@ static_assert(is_view_value<GpusparseHandleView>);
 
 // The generic view bases carry the same semantics.
 static_assert(is_view_value<HandleView<gpuEvent_t>>);
-static_assert(is_view_value<GpuBoundHandleView<gpuEvent_t>>);
+static_assert(is_view_value<DeviceBoundHandleView<gpuEvent_t>>);
 
 // Owners are move-only; a view is never taken by copying an owner.
 static_assert(!std::is_copy_constructible_v<GpuEvent>);

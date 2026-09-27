@@ -23,7 +23,7 @@ export namespace gpumod::extension {
  * @brief RAII wrapper for a GPU FFT plan handle
  *
  * A cuFFT/hipFFT plan belongs to whatever device was current when it was
- * created, so this derives from GpuBoundHandle exactly like GpublasHandle /
+ * created, so this derives from DeviceBoundHandle exactly like GpublasHandle /
  * GpusolverDnHandle: construction selects dev_idx (the first constructor
  * argument, default 0), creates the plan there, and records it -- read it back
  * with dev_idx(). Destroys the plan on destruction; supports move semantics,
@@ -49,17 +49,17 @@ export namespace gpumod::extension {
 template<error_policy<gpufftResult_t> P_create = DefaultErrorPolicy<gpufftResult_t>,
          nothrow_error_policy<gpufftResult_t> P_destroy = P_create>
 class FftPlanWrapper
-    : public GpuBoundHandle<gpufftHandle, FftPlanWrapper<P_create, P_destroy>, P_create,
+    : public DeviceBoundHandle<gpufftHandle, FftPlanWrapper<P_create, P_destroy>, P_create,
                             P_destroy> {
 private:
   using Base =
-      GpuBoundHandle<gpufftHandle, FftPlanWrapper<P_create, P_destroy>, P_create, P_destroy>;
+      DeviceBoundHandle<gpufftHandle, FftPlanWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 public:
-  // The dev_idx / policy constructors, inherited from GpuBoundHandle, which
+  // The dev_idx / policy constructors, inherited from DeviceBoundHandle, which
   // selects and records the owning device.
-  using GpuBoundHandle<gpufftHandle, FftPlanWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::GpuBoundHandle;
+  using DeviceBoundHandle<gpufftHandle, FftPlanWrapper<P_create, P_destroy>, P_create,
+                       P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a bare GPU FFT plan handle
   /// @param handle Output parameter for the created plan

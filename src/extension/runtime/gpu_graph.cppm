@@ -23,7 +23,7 @@ export namespace gpumod::extension {
  * Supports move semantics for transferring ownership.
  *
  * @note A graph is NOT device-bound, so this sits on BaseHandle rather than
- *       GpuBoundHandle: gpuGraphCreate takes no device, and a graph is a
+ *       DeviceBoundHandle: gpuGraphCreate takes no device, and a graph is a
  *       description of work whose nodes may target different devices. There is
  *       no device index to record. See device_bound_handle.cppm.
  *

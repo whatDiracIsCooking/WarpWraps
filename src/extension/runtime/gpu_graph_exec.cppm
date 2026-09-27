@@ -59,7 +59,7 @@ public:
  * ownership.
  *
  * @note An executable graph is NOT device-bound, so this sits on BaseHandle
- *       rather than GpuBoundHandle: gpuGraphInstantiate* takes no device, a
+ *       rather than DeviceBoundHandle: gpuGraphInstantiate* takes no device, a
  *       graph may span multiple devices, and the exec runs on whatever device
  *       the stream passed to launch() belongs to. There is no device index to
  *       record. See device_bound_handle.cppm.

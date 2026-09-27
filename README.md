@@ -227,7 +227,7 @@ handful that only one does, and how to reach them.
 |--------|---------|
 | `gpumod.wrappers.common` | FP concepts and integer utilities the generic wrappers build on |
 | `gpumod.extension.common` | Error handling (`gpu_check`, pluggable policy), `DeviceScope` |
-| `gpumod.extension.handle` | The RAII handle base (`BaseHandle`, `GpuBoundHandle`) and the non-owning `HandleView` |
+| `gpumod.extension.handle` | The RAII handle base (`BaseHandle`, `DeviceBoundHandle`) and the non-owning `HandleView` |
 | `gpumod.extension.runtime` | RAII stream, event, graph and memory pool |
 | `gpumod.wrappers.blas` | Generic templated BLAS (`gemm<float>(…)` rather than `cublasSgemm_v2` / `hipblasSgemm`), either backend |
 | `gpumod.wrappers.solver` | Generic templated dense solver, either backend |

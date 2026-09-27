@@ -365,7 +365,7 @@ TEST(GpuGraphExecTests, ViewBorrowsHandleAndDrivesWork) {
 // GpuMemPool Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //
-// GpuMemPool is a GpuBoundHandle, like GpuStream/GpuEvent, so it carries the
+// GpuMemPool is a DeviceBoundHandle, like GpuStream/GpuEvent, so it carries the
 // same device-recording and move contract on top of the base handle -- these
 // mirror the stream/event cases and add the pool's own two extra constructors
 // (release-threshold and explicit-props) plus a live allocation round-trip.
