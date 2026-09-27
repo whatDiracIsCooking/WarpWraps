@@ -260,7 +260,7 @@ unset(_target)
 unset(_type)
 
 # The wrappers, written once against the gpu* names above. Added last so the
-# gpumod.* module targets they link already exist.
+# wwr.* module targets they link already exist.
 add_subdirectory(wrappers)
 
 # The extension layer -- higher-level RAII/error-handling abstractions built on

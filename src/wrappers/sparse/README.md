@@ -11,7 +11,7 @@ It is backend-neutral: written once against `src/sparse`'s `gpusparse*` names
 HIP build), so the same source builds for either `WWR_GPU_BACKEND`.
 
 **Import:** `import wwr.wrappers.sparse;`
-**Namespace:** `gpumod`
+**Namespace:** `wwr`
 
 ## Scope: the shared typed API only
 

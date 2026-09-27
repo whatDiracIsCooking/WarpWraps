@@ -195,7 +195,7 @@ of setup, which suite verifies what, and the gates to run before a PR.
 ### Low-level wrappers (`src/cuda/`, `src/hip/`)
 
 Thin C++23 module interfaces over the native vendor headers. All symbols are
-placed in the `gpumod` namespace.
+placed in the `wwr` namespace.
 
 | Module | Import | Wraps |
 |--------|--------|-------|
@@ -215,7 +215,7 @@ rocm_smi/amd_smi and hiprtc.
 ### Extensions (`src/wrappers/`)
 
 Type-safe abstractions, RAII resource management and utility kernels, all in the
-`gpumod` namespace. **Every one of them is backend-neutral**: they are
+`wwr` namespace. **Every one of them is backend-neutral**: they are
 written once against the gpu* layer's `gpu*` names and build for either backend.
 There is no per-backend extension tree.
 

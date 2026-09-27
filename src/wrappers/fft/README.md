@@ -12,7 +12,7 @@ It is backend-neutral: written once against `src/fft`'s `gpufft*` names
 build), so the same source builds for either `WWR_GPU_BACKEND`.
 
 **Import:** `import wwr.wrappers.fft;`
-**Namespace:** `gpumod`
+**Namespace:** `wwr`
 
 ## Backend differences, and where they are resolved
 

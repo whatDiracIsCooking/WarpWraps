@@ -10,7 +10,7 @@ partitions. It is backend-neutral: it imports only `std` and `src` (never
 backend.
 
 **Import:** `import wwr.wrappers.common;`
-**Namespace:** `gpumod`
+**Namespace:** `wwr`
 
 > The wrappers here take the raw vendor handle (`gpublasHandle_t`, …) and return
 > the raw vendor status (`gpublasStatus_t`, …); this module carries no

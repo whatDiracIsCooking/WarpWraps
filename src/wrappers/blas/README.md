@@ -11,7 +11,7 @@ It is backend-neutral: written once against `src/blas`'s `gpublas*` names
 build), so the same source builds for either `WWR_GPU_BACKEND`.
 
 **Import:** `import wwr.wrappers.blas;`
-**Namespace:** `gpumod`
+**Namespace:** `wwr`
 
 ## Backend differences, and where they are resolved
 
