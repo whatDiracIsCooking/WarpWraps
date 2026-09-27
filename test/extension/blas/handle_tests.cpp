@@ -16,9 +16,23 @@
 #include <gtest/gtest.h>
 
 import std;
+import gpumod.extension.common; // BaseErrorPolicy, for the counting policy
 import gpumod.extension.blas; // re-exports gpumod.blas, so gpublasHandle_t is in scope
 
 namespace gpumod::extension::test {
+
+// A counting policy for the destroy-exactly-once check below. GpuBoundHandle
+// inherits only the (int dev_idx) constructor -- unlike FftPlanWrapper it takes
+// no policy instance -- so the counter lives in a static rather than being
+// injected by pointer as test/extension/fft/plan_tests.cpp does. It tallies
+// failures instead of aborting (DefaultErrorPolicy would terminate the process),
+// so a botched destroy is observable after the objects are gone.
+struct CountingBlasPolicy : BaseErrorPolicy<gpublasStatus_t> {
+  static inline int errors = 0;
+  static void reset() { errors = 0; }
+  void handle_error(gpublasStatus_t, std::source_location) override { ++errors; }
+};
+using CountingBlasHandle = GpublasHandleWrapper<CountingBlasPolicy>;
 
 // Copy is deleted at the base; a copyable RAII handle would double-free.
 static_assert(!std::is_copy_constructible_v<GpublasHandle>);
@@ -81,6 +95,36 @@ TEST(GpublasHandleTests, MovePreservesDevice) {
   GpublasHandle handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
+}
+
+TEST(GpublasHandleTests, ViewMirrorsOwnerHandleAndDevice) {
+  // view() is inherited from GpuBoundHandle and only compile-tested elsewhere
+  // (test/extension/build_time/handle_view.cppm); nothing constructs a live
+  // handle and reads the borrowed handle/device back. GpublasHandleView is a
+  // bare GpuBoundHandleView with no borrow-safe ops of its own -- a cuBLAS call
+  // consumes the raw handle -- so mirroring get()/dev_idx() is its whole job.
+  GpublasHandle handle;
+  const GpublasHandleView view = handle.view();
+  EXPECT_EQ(view.get(), handle.get());
+  EXPECT_EQ(view.dev_idx(), handle.dev_idx());
+}
+
+TEST(GpublasHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
+  // Substitutes a counting policy for the default (aborting) one, proving the
+  // custom P_create/P_destroy actually compile into and thread through the
+  // handle, and that a move-then-destroy frees exactly once: a double-free
+  // (source re-destroying a handle already freed by dest) would route a failing
+  // gpublasDestroy through the policy and bump the counter. The existing move
+  // tests only check get() == nullptr as an indirect proxy for this.
+  CountingBlasPolicy::reset();
+  {
+    CountingBlasHandle source;
+    const gpublasHandle_t raw = source.get();
+
+    CountingBlasHandle dest(std::move(source));
+    EXPECT_EQ(dest.get(), raw);
+  }
+  EXPECT_EQ(CountingBlasPolicy::errors, 0);
 }
 
 } // namespace gpumod::extension::test

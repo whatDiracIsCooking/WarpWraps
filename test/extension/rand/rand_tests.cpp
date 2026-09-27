@@ -49,16 +49,22 @@ constexpr std::size_t kCount = 100000;
 constexpr unsigned long long kSeed = 20250923;
 
 /// @brief Draw `count` values of OutputType and copy them back to the host
+///
+/// `scale` is forwarded to random_normal (defaults to the module's own default
+/// of 1) and `offset` to init_state's per-subsequence skip-ahead (its 6th arg,
+/// distinct from `sequence_offset`).
 template<typename OutputType>
 std::vector<OutputType> draw(const std::size_t count, const unsigned long long seed = kSeed,
-                             const unsigned long long sequence_offset = 0) {
+                             const unsigned long long sequence_offset = 0,
+                             const OutputType scale = OutputType{1.0f},
+                             const unsigned long long offset = 0) {
   auto handle = std::make_shared<DeviceHandle>(0);
   GpuStream &stream = handle->alloc_stream();
   DeviceBuffer<gpurandState> states(count, handle);
   DeviceBuffer<OutputType> values(count, handle);
 
-  init_state(stream.get(), count, states.data(), seed, sequence_offset);
-  random_normal(stream.get(), count, states.data(), values.data());
+  init_state(stream.get(), count, states.data(), seed, sequence_offset, offset);
+  random_normal(stream.get(), count, states.data(), values.data(), scale);
 
   HostBuffer<OutputType> host(count);
   EXPECT_EQ(copy(host, values, stream.get()), gpuSuccess);
@@ -190,6 +196,64 @@ TEST(RandTests, DoubleComplexComponentsAreStandardNormal) {
   EXPECT_NEAR(mean, 0.0, 0.05);
   EXPECT_NEAR(variance, 1.0, 0.05);
   EXPECT_NEAR(sum_magnitude_sq / static_cast<double>(values.size()), 2.0, 0.05);
+}
+
+// The `scale` argument of random_normal is otherwise entirely dark: every test
+// above draws with the default scale of 1. For a real type it scales the
+// standard deviation, so the sample variance must scale by scale^2. This drives
+// the real (non-complex, non-half) scale-multiply path.
+TEST(RandTests, RealScaleScalesVarianceBySquare) {
+  constexpr double s = 2.0;
+  const auto values = draw<double>(kCount, kSeed, 0, s);
+
+  const auto [mean, variance] = moments(values);
+  EXPECT_NEAR(mean, 0.0, 0.1) << "scaled sample mean is not near 0";
+  EXPECT_NEAR(variance, s * s, 0.2) << "variance did not scale by scale^2";
+}
+
+// A complex draw has component variance 1 and E[|z|^2] = 2 unscaled. Passing
+// scale = 1/sqrt(2) (as a complex value) normalizes E[|z|^2] to 1 -- the exact
+// claim random_normal's header makes. This drives the complex-multiply scale
+// path (gpuCmulf), distinct from the real one above.
+TEST(RandTests, ComplexScaleNormalizesMagnitudeVariance) {
+  gpuFloatComplex s{};
+  s.x = static_cast<float>(1.0 / std::sqrt(2.0));
+  s.y = 0.0f;
+  const auto values = draw<gpuFloatComplex>(kCount, kSeed, 0, s);
+
+  double sum_magnitude_sq = 0.0;
+  for (const gpuFloatComplex z : values) {
+    sum_magnitude_sq += static_cast<double>(z.x) * z.x + static_cast<double>(z.y) * z.y;
+  }
+  EXPECT_NEAR(sum_magnitude_sq / static_cast<double>(values.size()), 1.0, 0.05)
+      << "scale = 1/sqrt(2) did not normalize E[|z|^2] to 1";
+}
+
+// The half types are drawn in single precision, scaled, then converted -- a
+// third distinct scale path (scale flows through the float<->half conversion).
+// Tolerances are looser than the real path, matching HalfIsStandardNormal.
+TEST(RandTests, ScaleAppliesThroughHalfConversion) {
+  const gpuHalf s = static_cast<gpuHalf>(2.0f);
+  const auto values = draw<gpuHalf>(kCount, kSeed, 0, s);
+
+  std::vector<double> as_double;
+  as_double.reserve(values.size());
+  for (const gpuHalf v : values) {
+    as_double.push_back(static_cast<double>(static_cast<float>(v)));
+  }
+  const auto [mean, variance] = moments(as_double);
+  EXPECT_NEAR(mean, 0.0, 0.1);
+  EXPECT_NEAR(variance, 4.0, 0.3) << "scale did not apply on the half conversion path";
+}
+
+// init_state's `offset` (its 6th argument) skips each state ahead within its
+// own subsequence. Same seed and same subsequences but a non-zero offset must
+// therefore produce a different stream -- otherwise the argument does nothing.
+// (SequenceOffsetShiftsTheStreams covers the 5th argument; this covers the 6th.)
+TEST(RandTests, SubsequenceOffsetSkipsAhead) {
+  const auto base = draw<double>(1000, kSeed, 0, 1.0, 0);
+  const auto skipped = draw<double>(1000, kSeed, 0, 1.0, 500);
+  EXPECT_NE(base, skipped);
 }
 
 // init_state puts element i on subsequence sequence_offset + i. If that offset

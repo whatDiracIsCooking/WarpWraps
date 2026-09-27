@@ -140,6 +140,95 @@ TEST(HostBufferTests, SubscriptReadsAndWrites) {
   EXPECT_EQ(buf[3], 4.0f);
 }
 
+TEST(HostBufferTests, ConstAndPointerAccessorsMatchData) {
+  // Three public accessors that no other test exercised (every other reaches
+  // storage through data() and the non-const operator[]): operator T*(),
+  // operator const T*(), and the const operator[].
+  HostBuffer<float> buf(8);
+  buf[0] = 3.5f;
+  float *p = buf; // operator T*()
+  EXPECT_EQ(p, buf.data());
+
+  const HostBuffer<float> &cbuf = buf;
+  const float *cp = cbuf; // operator const T*()
+  EXPECT_EQ(cp, cbuf.data());
+  EXPECT_EQ(cbuf[0], 3.5f); // const operator[]
+}
+
+// ── The separate allocation/deallocation policy axis ────────────────
+//
+// The four-argument (num, P_alloc, P_free) constructor and the whole P_free
+// template parameter were untested: every prior test used one policy for both
+// slots, and free_policy() was never called. A policy carrying a public tag lets
+// us check which instance landed in which slot without forcing a failure.
+namespace {
+struct TaggedHostPolicy : BaseErrorPolicy<stdHostMemoryError_t> {
+  int tag = 0;
+  TaggedHostPolicy() = default;
+  explicit TaggedHostPolicy(int t) : tag(t) {}
+  void handle_error(stdHostMemoryError_t, std::source_location) override {}
+};
+} // namespace
+
+TEST(HostBufferTests, SeparateAllocAndFreePoliciesReachTheirOwnSlots) {
+  HostBufferWrapper<float, TaggedHostPolicy> buf(8, TaggedHostPolicy{1}, TaggedHostPolicy{2});
+  EXPECT_EQ(buf.alloc_policy().tag, 1);
+  EXPECT_EQ(buf.free_policy().tag, 2); // free_policy() accessor + distinct P_free instance
+}
+
+// ── The base destructor's leaked-allocation safety net ──────────────
+//
+// ~BufferBase reports (via policy_free_) when an owning buffer still has a live
+// allocation at base-destruction time -- i.e. the derived class forgot to call
+// destroy_(). No other test reaches that branch, because every real buffer kind
+// releases correctly. A deliberately-broken owning buffer whose destructor omits
+// destroy_() is the only way in. The policy records to statics because the base
+// destructor fires after any instance policy would already be gone.
+namespace {
+struct StaticHostPolicy : BaseErrorPolicy<stdHostMemoryError_t> {
+  static inline int fires = 0;
+  static inline stdHostMemoryError_t last{};
+  static void reset() {
+    fires = 0;
+    last = stdHostMemoryError_t{};
+  }
+  void handle_error(stdHostMemoryError_t error, std::source_location) override {
+    ++fires;
+    last = error;
+  }
+};
+
+// Broken on purpose: allocates like a real host buffer but its (implicit)
+// destructor never calls destroy_(), so the allocation is still live when
+// ~BufferBase runs. The block is freed by hand after the object dies, so no
+// actual leak remains and the case stays sanitizer-clean.
+template<typename T, typename P>
+class LeakyBuffer : public BufferBase<T, MemoryKind::Host, LeakyBuffer<T, P>, P, P> {
+public:
+  using Base = BufferBase<T, MemoryKind::Host, LeakyBuffer<T, P>, P, P>;
+  using Base::Base;
+  static void allocate(T **ptr, std::size_t n, P &, std::source_location) {
+    *ptr = static_cast<T *>(std::malloc(n * sizeof(T)));
+  }
+  void deallocate(T *ptr, std::size_t) { std::free(ptr); } // contract-required; unused here
+};
+} // namespace
+
+TEST(HostBufferTests, LeakedAllocationIsReportedByBaseDestructor) {
+  StaticHostPolicy::reset();
+  void *raw = nullptr;
+  {
+    LeakyBuffer<float, StaticHostPolicy> buf(8);
+    raw = buf.data();
+    ASSERT_NE(raw, nullptr);
+    // buf destructs here WITHOUT calling destroy_(); ~BufferBase sees data_ set
+    // and must report through policy_free_.
+  }
+  EXPECT_EQ(StaticHostPolicy::fires, 1) << "base destructor did not report the leak";
+  EXPECT_EQ(StaticHostPolicy::last, stdHostMemInvalidValue);
+  std::free(raw); // release the intentionally-leaked block -- no real leak remains
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Size-overflow rejection
 //
@@ -325,6 +414,27 @@ TEST(BufferViewTests, EmptyBufferReinterpretsToEmptyView) {
 
   EXPECT_EQ(bytes.data(), nullptr);
   EXPECT_EQ(bytes.num_elements(), std::size_t{0});
+}
+
+TEST(BufferViewTests, ReinterpretViewUpcastsToWiderElementType) {
+  // The cross-type tests above all narrow (float/uint16 -> byte) or reject; the
+  // widening success path was never taken. A byte buffer whose base is suitably
+  // aligned (std::malloc is aligned for any type) and whose size is a whole
+  // multiple of 4 reinterprets to a uint32 view -- num_elements() shrinks from
+  // bytes to elements, and a write through the wide view is visible byte-for-byte
+  // through the source.
+  HostBuffer<std::byte> buf(16); // 16 bytes, zero-initialised
+  HostBufferView<std::uint32_t> words = reinterpret_buffer_view<std::uint32_t>(buf);
+
+  ASSERT_EQ(static_cast<void *>(words.data()), static_cast<void *>(buf.data()));
+  ASSERT_EQ(words.num_elements(), std::size_t{4}); // 16 / 4
+
+  words[0] = 0xFFFFFFFFu; // all-ones is endianness-independent
+  EXPECT_EQ(buf[0], std::byte{0xFF});
+  EXPECT_EQ(buf[1], std::byte{0xFF});
+  EXPECT_EQ(buf[2], std::byte{0xFF});
+  EXPECT_EQ(buf[3], std::byte{0xFF});
+  EXPECT_EQ(buf[4], std::byte{0x00}); // the next word is untouched
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

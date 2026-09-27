@@ -32,6 +32,7 @@ gpumod_add_gtest_suite_tests(
   GpuMemPoolTests
   StreamEventPairTests
   DeviceScopeTests
+  RuntimePolicyTests
   TIMEOUT
   30
   REQUIRES_GPU

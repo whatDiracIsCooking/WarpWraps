@@ -14,9 +14,20 @@
 #include <gtest/gtest.h>
 
 import std;
+import gpumod.extension.common; // BaseErrorPolicy, for the counting policy
 import gpumod.extension.solver; // re-exports gpumod.solver, so the raw handle/params types are in scope
 
 namespace gpumod::extension::test {
+
+// A counting policy for the destroy-exactly-once check below; see
+// test/extension/blas/handle_tests.cpp for why the counter is a static (the
+// GpuBoundHandle-inherited constructor takes no policy instance).
+struct CountingSolverPolicy : BaseErrorPolicy<gpusolverStatus_t> {
+  static inline int errors = 0;
+  static void reset() { errors = 0; }
+  void handle_error(gpusolverStatus_t, std::source_location) override { ++errors; }
+};
+using CountingSolverHandle = GpusolverDnHandleWrapper<CountingSolverPolicy>;
 
 static_assert(!std::is_copy_constructible_v<GpusolverDnHandle>);
 static_assert(!std::is_copy_assignable_v<GpusolverDnHandle>);
@@ -87,6 +98,33 @@ TEST(GpusolverDnHandleTests, MovePreservesDevice) {
   GpusolverDnHandle handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
+}
+
+TEST(GpusolverDnHandleTests, ViewMirrorsOwnerHandleAndDevice) {
+  // view() is inherited from GpuBoundHandle and only compile-tested elsewhere;
+  // this reads the borrowed handle/device back from a live handle. The view is
+  // a bare GpuBoundHandleView with no borrow-safe ops (a cuSOLVER call consumes
+  // the raw handle), so mirroring get()/dev_idx() is its whole job.
+  GpusolverDnHandle handle;
+  const GpusolverDnHandleView view = handle.view();
+  EXPECT_EQ(view.get(), handle.get());
+  EXPECT_EQ(view.dev_idx(), handle.dev_idx());
+}
+
+TEST(GpusolverDnHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
+  // Proves the custom P_create/P_destroy thread through the handle and that a
+  // move-then-destroy frees exactly once -- a double-free would route a failing
+  // gpusolverDnDestroy through the policy and bump the counter. The existing
+  // move tests only check get() == nullptr as an indirect proxy.
+  CountingSolverPolicy::reset();
+  {
+    CountingSolverHandle source;
+    const gpusolverDnHandle_t raw = source.get();
+
+    CountingSolverHandle dest(std::move(source));
+    EXPECT_EQ(dest.get(), raw);
+  }
+  EXPECT_EQ(CountingSolverPolicy::errors, 0);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
