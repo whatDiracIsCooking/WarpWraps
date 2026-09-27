@@ -3,7 +3,7 @@
  * @brief Success code utilities for error handling
  *
  * Provides template function declarations to retrieve success codes for various error types.
- * The gpuError_t specializations live alongside this module in :gpu_error (they
+ * The gpuError_t specializations live in gpumod.extension.common:gpu_error (they
  * back the device-bound handle base); library status types are specialized in
  * their own extension modules.
  *
@@ -12,7 +12,7 @@
  *   auto success = success_code<gpuError_t>();
  */
 
-export module gpumod.extension.common:error_code;
+export module gpumod.extension.common.error_handling:error_code;
 
 export namespace gpumod::extension {
 

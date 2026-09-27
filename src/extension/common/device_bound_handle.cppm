@@ -15,8 +15,7 @@
 export module gpumod.extension.common:device_bound_handle;
 
 import :gpu_handle;
-import :gpu_check;
-import :error_policy;
+import gpumod.extension.common.error_handling;
 import :device_bound_handle_view;
 import gpumod.runtime_api;
 import std;
