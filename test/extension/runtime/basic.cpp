@@ -95,7 +95,49 @@ TEST(GpuStreamTests, CaptureToGraph) {
   ASSERT_EQ(exec.launch(stream.get()), gpuSuccess);
   EXPECT_EQ(stream.sync(), gpuSuccess);
 
-  gpuFree(buf);
+  EXPECT_EQ(gpuFree(buf), gpuSuccess);
+}
+
+TEST(GpuStreamTests, WaitEventOrdersWorkAcrossStreams) {
+  // wait_event() is the cross-stream ordering primitive and nothing else here
+  // exercises it (the other tests reach the runtime through the raw API on
+  // .get()). Enqueue work on `producer`, record an event on it, then make
+  // `consumer` wait on that event through the wrapper method before its own
+  // work. The whole chain draining with success is the observable contract.
+  GpuStream producer;
+  GpuStream consumer;
+  GpuEvent event;
+
+  void *buf = nullptr;
+  ASSERT_EQ(gpuMalloc(&buf, sizeof(int)), gpuSuccess);
+
+  ASSERT_EQ(gpuMemsetAsync(buf, 0, sizeof(int), producer.get()), gpuSuccess);
+  ASSERT_EQ(event.record(producer.get()), gpuSuccess);
+  EXPECT_EQ(consumer.wait_event(event.get()), gpuSuccess);
+  ASSERT_EQ(gpuMemsetAsync(buf, 1, sizeof(int), consumer.get()), gpuSuccess);
+  EXPECT_EQ(consumer.sync(), gpuSuccess);
+  EXPECT_EQ(producer.sync(), gpuSuccess);
+
+  EXPECT_EQ(gpuFree(buf), gpuSuccess);
+}
+
+// The handle views are proven to compile and convert in
+// test/extension/build_time/handle_view.cppm (static_asserts only). Each owner
+// suite carries one ViewBorrows* case proving the view mirrors the owner's
+// handle/device AND that a borrowed op actually runs against the device -- the
+// GpuStreamAccess/GpuEventAccess/GpuGraphExecAccess mixins are shared with the
+// owner, so one borrowed op per view is enough to prove the forwarding wiring;
+// the mixin methods themselves are exercised by the owner cases above.
+TEST(GpuStreamTests, ViewBorrowsHandleAndDrivesWork) {
+  GpuStream stream;
+  GpuStreamView view = stream.view();
+  ASSERT_EQ(view.get(), stream.get());
+  ASSERT_EQ(view.dev_idx(), stream.dev_idx());
+
+  GpuEvent event;
+  ASSERT_EQ(event.record(stream.get()), gpuSuccess);
+  EXPECT_EQ(view.wait_event(event.get()), gpuSuccess);
+  EXPECT_EQ(view.sync(), gpuSuccess);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -173,6 +215,33 @@ TEST(GpuEventTests, QueryEvent) {
   EXPECT_EQ(gpuEventQuery(event.get()), gpuSuccess);
 }
 
+TEST(GpuEventTests, MemberRecordAndSync) {
+  // The suite records through the raw API elsewhere; this drives the wrapper's
+  // own record()/sync() members, including the two-arg record(stream, flags)
+  // overload (flag 0 is always valid).
+  GpuStream stream;
+  GpuEvent event;
+
+  ASSERT_EQ(event.record(stream.get()), gpuSuccess);
+  EXPECT_EQ(event.sync(), gpuSuccess);
+
+  ASSERT_EQ(event.record(stream.get(), 0), gpuSuccess);
+  EXPECT_EQ(event.sync(), gpuSuccess);
+}
+
+TEST(GpuEventTests, ViewBorrowsHandleAndDrivesWork) {
+  // One borrowed op proves forwarding; record(stream, flags) is already covered
+  // on the owner by MemberRecordAndSync (same GpuEventAccess mixin).
+  GpuStream stream;
+  GpuEvent event;
+  GpuEventView view = event.view();
+  ASSERT_EQ(view.get(), event.get());
+  ASSERT_EQ(view.dev_idx(), event.dev_idx());
+
+  ASSERT_EQ(view.record(stream.get()), gpuSuccess);
+  EXPECT_EQ(view.sync(), gpuSuccess);
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // GpuGraph Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -205,6 +274,15 @@ TEST(GpuGraphTests, Instantiate) {
   GpuGraph graph;
   GpuGraphExec exec = graph.instantiate();
   EXPECT_NE(exec.get(), nullptr);
+}
+
+TEST(GpuGraphTests, ViewBorrowsHandle) {
+  // GpuGraphView carries only the handle: a graph is not device-bound and its
+  // ops (instantiate) produce owned objects, so the view has no borrow-safe
+  // operations of its own. Check it mirrors the owner's handle.
+  GpuGraph graph;
+  GpuGraphView view = graph.view();
+  EXPECT_EQ(view.get(), graph.get());
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -247,6 +325,32 @@ TEST(GpuGraphExecTests, LaunchEmptyGraph) {
   GpuGraphExec exec = graph.instantiate();
 
   ASSERT_EQ(exec.launch(stream.get()), gpuSuccess);
+  EXPECT_EQ(stream.sync(), gpuSuccess);
+}
+
+TEST(GpuGraphExecTests, UploadThenLaunch) {
+  // upload() places the exec on the stream's device without launching it, and
+  // nothing else exercises it. Following it with launch proves the uploaded
+  // exec is the one that runs.
+  GpuStream stream;
+  GpuGraph graph;
+  GpuGraphExec exec = graph.instantiate();
+
+  ASSERT_EQ(exec.upload(stream.get()), gpuSuccess);
+  ASSERT_EQ(exec.launch(stream.get()), gpuSuccess);
+  EXPECT_EQ(stream.sync(), gpuSuccess);
+}
+
+TEST(GpuGraphExecTests, ViewBorrowsHandleAndDrivesWork) {
+  // One borrowed op proves forwarding; upload() is covered on the owner by
+  // UploadThenLaunch (same GpuGraphExecAccess mixin).
+  GpuStream stream;
+  GpuGraph graph;
+  GpuGraphExec exec = graph.instantiate();
+  GpuGraphExecView view = exec.view();
+  ASSERT_EQ(view.get(), exec.get());
+
+  ASSERT_EQ(view.launch(stream.get()), gpuSuccess);
   EXPECT_EQ(stream.sync(), gpuSuccess);
 }
 
@@ -330,6 +434,16 @@ TEST(GpuMemPoolTests, StreamOrderedAllocationRoundTrips) {
   EXPECT_EQ(stream.sync(), gpuSuccess);
 }
 
+TEST(GpuMemPoolTests, ViewBorrowsHandle) {
+  // GpuMemPoolView carries the handle and device index but has no borrow-safe
+  // ops (a pool handle is consumed by allocation calls). Check it mirrors the
+  // owner.
+  GpuMemPool pool;
+  GpuMemPoolView view = pool.view();
+  EXPECT_EQ(view.get(), pool.get());
+  EXPECT_EQ(view.dev_idx(), pool.dev_idx());
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // StreamEventPair Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -389,6 +503,15 @@ TEST(StreamEventPairTests, AccessorsMatchRawGetters) {
 TEST(StreamEventPairTests, RecordAndSync) {
   StreamEventPair pair;
   ASSERT_EQ(pair.record(), gpuSuccess);
+  EXPECT_EQ(pair.event_sync(), gpuSuccess);
+  EXPECT_EQ(pair.stream_sync(), gpuSuccess);
+}
+
+TEST(StreamEventPairTests, RecordWithFlagsAndSync) {
+  // The flagged record(flags) overload, which routes to the event's two-arg
+  // record; flag 0 is always valid.
+  StreamEventPair pair;
+  ASSERT_EQ(pair.record(0), gpuSuccess);
   EXPECT_EQ(pair.event_sync(), gpuSuccess);
   EXPECT_EQ(pair.stream_sync(), gpuSuccess);
 }
@@ -520,6 +643,55 @@ TEST(DeviceScopeTests, ThreadsBorrowedPolicy) {
   int after = -1;
   ASSERT_EQ(gpuGetDevice(&after), gpuSuccess);
   EXPECT_EQ(after, before);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Runtime wrapper error-policy Tests
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// Every other test here uses the default (aborting) policy on the success path,
+// so nothing proves a custom P_create is actually threaded through a runtime
+// wrapper and fires on a real failure -- the counterpart of
+// test/extension/memory_buffer's allocation-failure suite. (DeviceScope's
+// ThreadsBorrowedPolicy above checks only the success, no-op path.)
+//
+// The policy records to statics because the flag constructors default-construct
+// it (there is no flags+policy overload) and the wrapper exposes no accessor to
+// read an instance back. DefaultErrorPolicy aborts, so it cannot observe the
+// path. An invalid creation-flag mask forces gpuEventCreateWithFlags to return
+// gpuErrorInvalidValue -- a recoverable error that allocates nothing, so unlike
+// the memory allocation-failure suite this needs no no_sanitizer label.
+
+template<typename T>
+class ProbePolicy : public BaseErrorPolicy<T> {
+public:
+  static inline std::size_t count = 0;
+  static inline T last{};
+  static void reset() {
+    count = 0;
+    last = T{};
+  }
+  void handle_error(const T error, std::source_location) override {
+    ++count;
+    last = error;
+  }
+};
+
+TEST(RuntimePolicyTests, CreationFailureFiresCreatePolicy) {
+  ProbePolicy<gpuError_t>::reset();
+  {
+    // 0xFFFFFFFF is not a valid event-creation flag mask, so
+    // gpuEventCreateWithFlags fails and leaves the handle null -- the
+    // destructor then frees nothing, and only the create policy fires.
+    GpuEventWrapper<ProbePolicy<gpuError_t>> event(0, 0xFFFFFFFFu);
+    EXPECT_EQ(event.get(), nullptr);
+  }
+  EXPECT_GE(ProbePolicy<gpuError_t>::count, std::size_t{1});
+  EXPECT_EQ(ProbePolicy<gpuError_t>::last, gpuErrorInvalidValue);
+
+  // The failed create left a sticky error; clear it so later tests see a clean
+  // context (as the memory allocation-failure suite does).
+  static_cast<void>(gpuGetLastError());
 }
 
 } // namespace gpumod::extension::test

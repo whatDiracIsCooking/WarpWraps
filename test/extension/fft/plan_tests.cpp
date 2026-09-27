@@ -63,6 +63,15 @@ TEST(FftPlanTests, ConstructAndDestroyReportNoError) {
   EXPECT_EQ(errors, 0);
 }
 
+TEST(FftPlanTests, ImplicitConversionMatchesGet) {
+  // The raw gpufftMakePlan/gpufftExec* calls documented in fft_plan.cppm rely on
+  // operator gpufftHandle(); the blas/solver/sparse handles all pin this and fft
+  // did not. Only get() was exercised here before.
+  FftPlan plan;
+  gpufftHandle raw = plan; // operator gpufftHandle()
+  EXPECT_EQ(raw, plan.get());
+}
+
 TEST(FftPlanTests, MoveConstructorTransfersOwnershipAndFreesOnce) {
   int errors = 0;
   {
@@ -90,6 +99,29 @@ TEST(FftPlanTests, MoveAssignmentTransfersOwnershipAndFreesOnce) {
     EXPECT_EQ(dest.get(), raw);
   }
   EXPECT_EQ(errors, 0);
+}
+
+// The three-argument constructor threads SEPARATE create and destroy policies;
+// the cases above all use the single-policy ctor, which copies one into both. A
+// full construct -> move-assign -> destroy lifecycle with two distinct counters
+// proves both are stored and moved independently and that the clean path touches
+// neither. (On the success path the two cannot be told apart -- distinguishing
+// them would need a forced failure, which a live gpufft has no cheap way to
+// produce.)
+TEST(FftPlanTests, TwoPolicyConstructorThreadsBothPolicies) {
+  using TwoPolicyPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy>;
+  int create_errors = 0;
+  int destroy_errors = 0;
+  {
+    TwoPolicyPlan source{CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
+    TwoPolicyPlan dest{CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
+    const gpufftHandle raw = source.get();
+
+    dest = std::move(source); // frees dest's original plan through policy_destroy_
+    EXPECT_EQ(dest.get(), raw);
+  }
+  EXPECT_EQ(create_errors, 0);
+  EXPECT_EQ(destroy_errors, 0);
 }
 
 TEST(FftPlanTests, SelfMoveAssignmentIsSafe) {

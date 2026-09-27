@@ -11,9 +11,20 @@
 #include <gtest/gtest.h>
 
 import std;
+import gpumod.extension.common; // BaseErrorPolicy, for the counting policy
 import gpumod.extension.sparse; // re-exports gpumod.sparse, so gpusparseHandle_t is in scope
 
 namespace gpumod::extension::test {
+
+// A counting policy for the destroy-exactly-once check below; see
+// test/extension/blas/handle_tests.cpp for why the counter is a static (the
+// GpuBoundHandle-inherited constructor takes no policy instance).
+struct CountingSparsePolicy : BaseErrorPolicy<gpusparseStatus_t> {
+  static inline int errors = 0;
+  static void reset() { errors = 0; }
+  void handle_error(gpusparseStatus_t, std::source_location) override { ++errors; }
+};
+using CountingSparseHandle = GpusparseHandleWrapper<CountingSparsePolicy>;
 
 static_assert(!std::is_copy_constructible_v<GpusparseHandle>);
 static_assert(!std::is_copy_assignable_v<GpusparseHandle>);
@@ -75,6 +86,34 @@ TEST(GpusparseHandleTests, MovePreservesDevice) {
   GpusparseHandle handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
+}
+
+TEST(GpusparseHandleTests, ViewMirrorsOwnerHandleAndDevice) {
+  // view() is inherited from GpuBoundHandle and only compile-tested elsewhere;
+  // this reads the borrowed handle/device back from a live handle. The view is
+  // a bare GpuBoundHandleView with no borrow-safe ops (a cuSPARSE call consumes
+  // the raw handle), so mirroring get()/dev_idx() is its whole job.
+  GpusparseHandle handle;
+  const GpusparseHandleView view = handle.view();
+  EXPECT_EQ(view.get(), handle.get());
+  EXPECT_EQ(view.dev_idx(), handle.dev_idx());
+}
+
+TEST(GpusparseHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
+  // Sparse had no policy test at all (fft already proves this for its plan).
+  // Substitutes a counting policy for the default (aborting) one, proving the
+  // custom P_create/P_destroy thread through the handle and that a
+  // move-then-destroy frees exactly once -- a double-free would route a failing
+  // gpusparseDestroy through the policy and bump the counter.
+  CountingSparsePolicy::reset();
+  {
+    CountingSparseHandle source;
+    const gpusparseHandle_t raw = source.get();
+
+    CountingSparseHandle dest(std::move(source));
+    EXPECT_EQ(dest.get(), raw);
+  }
+  EXPECT_EQ(CountingSparsePolicy::errors, 0);
 }
 
 } // namespace gpumod::extension::test
