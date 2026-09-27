@@ -79,7 +79,7 @@ and every container command refuses until it is fixed.
 
 `CPUSET` (host cores) and `CPUS` (a core-count quota) come from
 `devtools/config.sh`, or from the environment for one call, and are applied by
-`up` and `rebuild` with `docker update` — live, no restart:
+`up` and `rebuild` with `docker update`:
 
 ```bash
 CPUSET=0-11 devtools/devcontainer.sh up      # pin to host cores 0-11
@@ -106,8 +106,18 @@ anything. Limits belong to the **container**, and a container is per workspace
 folder — so pin per worktree, not per shell; two `shell`s from the same
 checkout share one container and one set of limits.
 
-Two things to know:
+Three things to know:
 
+- **On the CUDA container this costs a restart, deliberately.** `docker update`
+  regenerates the device cgroup from `HostConfig.Devices`, which for `--gpus
+  all` is **empty** — the GPU ask lives in `DeviceRequests`, honoured by the
+  NVIDIA runtime's OCI hook only at container *start*. So a bare `docker update`
+  silently revokes GPU access (`nvidia-smi: Failed to initialize NVML`, and on
+  this repo a configure-time failure, since `CMAKE_CUDA_ARCHITECTURES=native`
+  queries the device). `devcontainer.sh` restarts to re-run the hook; the limits
+  persist across it because they live in the container config. The HIP variant
+  is untouched — `--device=/dev/kfd` populates `HostConfig.Devices`, which
+  `docker update` preserves — so the restart is gated on `DeviceRequests`.
 - `docker update` changes only what it is passed, so a second call with just
   `CPUSET` leaves an earlier `CPUS` quota in place, and running `up` with both
   unset **clears nothing** — it only stops applying. `rebuild` is how you get
