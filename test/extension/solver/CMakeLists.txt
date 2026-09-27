@@ -11,6 +11,7 @@ gpumod_add_gtest_executable(
   handle_tests.cpp
   LINK
   gpumod.extension.solver
+  gpumod.extension.common.handle
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test file,

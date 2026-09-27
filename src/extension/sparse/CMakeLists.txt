@@ -13,5 +13,6 @@ gpumod_add_cxx_module_library(
   LINK_PUBLIC
   gpumod.sparse
   gpumod.extension.common
+  gpumod.extension.common.handle
   IMPORT_STD
 )

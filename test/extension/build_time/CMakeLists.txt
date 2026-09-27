@@ -34,6 +34,7 @@ gpumod_add_cxx_module_library(
   handle_view.cppm
   LINK_PUBLIC
   gpumod.extension.common
+  gpumod.extension.common.handle
   gpumod.extension.runtime
   gpumod.extension.blas
   gpumod.extension.solver

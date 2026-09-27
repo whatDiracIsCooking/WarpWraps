@@ -14,6 +14,7 @@ export module gpumod.extension.fft:fft_plan;
 import :fft_error;
 import gpumod.fft;
 import gpumod.extension.common;
+import gpumod.extension.common.handle;
 import std;
 
 export namespace gpumod::extension {

@@ -5,6 +5,7 @@ export module gpumod.test.extension.handle_view;
 import std;
 import gpumod.runtime_api;
 import gpumod.extension.common;
+import gpumod.extension.common.handle;
 import gpumod.extension.runtime;
 import gpumod.extension.blas;
 import gpumod.extension.solver;

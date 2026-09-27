@@ -10,6 +10,7 @@ export module gpumod.test.extension.common_error_handle;
 
 import std;
 import gpumod.extension.common;
+import gpumod.extension.common.handle;
 
 namespace gpumod::extension::test {
 

@@ -7,16 +7,16 @@
  * handle) was created on.
  *
  * Usage:
- *   import gpumod.extension.common;
+ *   import gpumod.extension.common.handle;
  *
  *   class GpuStream : public GpuBoundHandle<gpuStream_t, GpuStream, ...> { ... };
  */
 
-export module gpumod.extension.common:device_bound_handle;
+export module gpumod.extension.common.handle:device_bound_handle;
 
 import :gpu_handle;
-import gpumod.extension.common.error_handling;
 import :device_bound_handle_view;
+import gpumod.extension.common; // gpu_check, error_policy
 import gpumod.runtime_api;
 import std;
 

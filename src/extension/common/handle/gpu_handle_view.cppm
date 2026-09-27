@@ -8,12 +8,12 @@
  * own, the default stream, an interop handle) while keeping get()/operator T().
  *
  * Usage:
- *   import gpumod.extension.common;
+ *   import gpumod.extension.common.handle;
  *
  *   void wait(GpuHandleView<gpuStream_t> s) { gpuStreamSynchronize(s); }
  */
 
-export module gpumod.extension.common:gpu_handle_view;
+export module gpumod.extension.common.handle:gpu_handle_view;
 
 import std;
 
