@@ -21,6 +21,7 @@ import gpumod.extension.common.error_handling;
 // implicit instantiation). Acyclic: :gpu_error imports none of :device_scope's
 // chain.
 import :gpu_error;
+import :noncopyable;
 import gpumod.runtime_api;
 import std;
 
@@ -40,7 +41,7 @@ export namespace gpumod::extension {
  * sane response; routing that through a caller's (typically allocation) policy
  * would defend a near-unreachable failure with the wrong tool.
  */
-struct DeviceScope {
+struct DeviceScope : private NonCopyable {
   int original_idx = -1; ///< Device current at construction, restored on destruction
 
   /// @brief Switch to `target_idx`, recording the previous device to restore
@@ -52,8 +53,9 @@ struct DeviceScope {
 
   ~DeviceScope() { gpu_check(gpuSetDevice(original_idx)); }
 
-  DeviceScope(const DeviceScope &) = delete;
-  DeviceScope &operator=(const DeviceScope &) = delete;
+  // Copy operations are implicitly deleted via the NonCopyable base. The
+  // user-declared destructor suppresses the implicit moves, so the guard stays
+  // non-movable as well.
 };
 
 } // namespace gpumod::extension
