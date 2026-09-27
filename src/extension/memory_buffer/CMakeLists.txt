@@ -15,6 +15,7 @@ gpumod_add_cxx_module_library(
   host_buffer.cppm
   copy.cppm
   memset.cppm
+  convenience_memory_buffer.cppm
   LINK_PUBLIC
   gpumod.runtime_api
   gpumod.extension.common

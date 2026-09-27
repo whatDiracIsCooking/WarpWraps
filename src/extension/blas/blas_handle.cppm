@@ -60,17 +60,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for GpublasHandleWrapper with default error policies
- *
- * Usage:
- *   GpublasHandle handle;  // Instead of GpublasHandleWrapper<>
- */
-using GpublasHandle = GpublasHandleWrapper<>;
-
-/// @brief Non-owning, copyable view of a BLAS handle, carrying its device index.
-///        Returned by GpublasHandle::view(); converts to gpublasHandle_t for the
-///        gpublas* wrappers, so a borrowed handle can be used without owning it.
-using GpublasHandleView = DeviceBoundHandleView<gpublasHandle_t>;
-
 } // namespace gpumod::extension

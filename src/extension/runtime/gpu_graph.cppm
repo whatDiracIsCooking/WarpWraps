@@ -87,17 +87,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for GpuGraphWrapper with default error policies
- *
- * Usage:
- *   GpuGraph graph;  // Instead of GpuGraphWrapper<>
- */
-using GpuGraph = GpuGraphWrapper<>;
-
-/// @brief Non-owning, copyable view of a graph handle. Returned by
-///        GpuGraph::view(); a graph is not device-bound, so it carries no device
-///        index, and instantiate() stays on the owner (it produces an owned exec).
-using GpuGraphView = HandleView<gpuGraph_t>;
-
 } // namespace gpumod::extension

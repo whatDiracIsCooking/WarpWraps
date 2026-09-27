@@ -11,6 +11,7 @@ gpumod_add_cxx_module_library(
   solver_error.cppm
   solver_handle.cppm
   solver_params.cppm
+  convenience_solver.cppm
   LINK_PUBLIC
   gpumod.solver
   gpumod.extension.common

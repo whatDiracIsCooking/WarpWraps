@@ -114,24 +114,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for PinnedBufferWrapper with default error policies
- *
- * Usage:
- *   PinnedBuffer<float> buffer(1024);  // Allocate 1024 floats in pinned memory
- *   PinnedBuffer<float> mapped_buffer(1024, gpuHostAllocMapped);  // With flags
- */
-template<typename T>
-using PinnedBuffer = PinnedBufferWrapper<T>;
-
-/**
- * @brief Non-owning view alias for pinned host memory
- *
- * Usage:
- *   PinnedBufferView<float> view(pinned_buffer);           // Full view
- *   PinnedBufferView<float> sub_view(pinned_buffer, 4, 8); // Sub-view: 8 elements starting at offset 4
- */
-template<typename T>
-using PinnedBufferView = BufferViewWrapper<T, MemoryKind::Pinned>;
-
 } // namespace gpumod::extension

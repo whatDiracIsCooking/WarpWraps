@@ -8,6 +8,7 @@ export module gpumod.extension.runtime:device_handle;
 
 import :gpu_stream;
 import :gpu_mem_pool;
+import :convenience_runtime;
 import gpumod.runtime_api;
 import gpumod.extension.common;
 import gpumod.extension.handle;

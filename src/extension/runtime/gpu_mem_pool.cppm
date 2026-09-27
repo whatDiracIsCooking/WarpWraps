@@ -115,17 +115,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for GpuMemPoolWrapper with default error policies
- *
- * Usage:
- *   GpuMemPool pool;  // Instead of GpuMemPoolWrapper<>
- */
-using GpuMemPool = GpuMemPoolWrapper<>;
-
-/// @brief Non-owning, copyable view of a memory pool handle (carries its device
-///        index). Returned by GpuMemPool::view(); has no borrow-safe operations
-///        of its own -- a pool handle is consumed by allocation calls.
-using GpuMemPoolView = DeviceBoundHandleView<gpuMemPool_t>;
-
 } // namespace gpumod::extension

@@ -121,12 +121,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for GpuEventWrapper with default error policies
- *
- * Usage:
- *   GpuEvent event;  // Instead of GpuEventWrapper<>
- */
-using GpuEvent = GpuEventWrapper<>;
-
 } // namespace gpumod::extension

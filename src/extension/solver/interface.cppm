@@ -8,6 +8,7 @@
  * - :solver_error - Error code specializations for gpusolverStatus_t
  * - :solver_handle - RAII wrapper for gpusolverDnHandle_t
  * - :solver_params - RAII wrapper for gpusolverDnParams_t
+ * - :convenience_solver - Default-policy aliases (GpusolverDnHandle, GpusolverDnHandleView, GpusolverDnParams)
  *
  * Usage:
  *   import gpumod.extension.solver;
@@ -25,3 +26,4 @@ export import gpumod.solver;
 export import :solver_error;
 export import :solver_handle;
 export import :solver_params;
+export import :convenience_solver;

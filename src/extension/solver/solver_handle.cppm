@@ -60,18 +60,4 @@ public:
   }
 };
 
-/**
- * @brief Convenient alias for GpusolverDnHandleWrapper with default error policies
- *
- * Usage:
- *   GpusolverDnHandle handle;  // Instead of GpusolverDnHandleWrapper<>
- */
-using GpusolverDnHandle = GpusolverDnHandleWrapper<>;
-
-/// @brief Non-owning, copyable view of a solver handle, carrying its device index.
-///        Returned by GpusolverDnHandle::view(); converts to gpusolverDnHandle_t
-///        for the gpusolverDn* wrappers, so a borrowed handle can be used without
-///        owning it.
-using GpusolverDnHandleView = DeviceBoundHandleView<gpusolverDnHandle_t>;
-
 } // namespace gpumod::extension

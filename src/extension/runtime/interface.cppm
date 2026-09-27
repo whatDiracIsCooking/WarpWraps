@@ -9,6 +9,7 @@
  * - :gpu_graph - RAII wrapper for GPU graphs
  * - :gpu_graph_exec - RAII wrapper for GPU executable graphs
  * - :device_handle - device identity, properties, default allocation stream and memory pool
+ * - :convenience_runtime - Default-policy aliases (GpuStream, GpuEvent, GpuMemPool, GpuGraph, GpuGraphExec, and views)
  *
  * Usage:
  *   import gpumod.extension.runtime;
@@ -28,3 +29,4 @@ export import :gpu_graph_exec;
 export import :gpu_graph;
 export import :stream_event_pair;
 export import :device_handle;
+export import :convenience_runtime;

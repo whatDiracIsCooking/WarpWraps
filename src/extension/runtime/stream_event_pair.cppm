@@ -9,6 +9,7 @@ export module gpumod.extension.runtime:stream_event_pair;
 
 import :gpu_stream;
 import :gpu_event;
+import :convenience_runtime;
 import gpumod.extension.common;
 import gpumod.runtime_api;
 import std;
