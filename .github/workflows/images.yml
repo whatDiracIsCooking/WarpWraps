@@ -167,7 +167,7 @@ jobs:
         # Not on a PR: nothing is pushed, so there is nothing to authenticate
         # for. It would also fail for a fork, whose GITHUB_TOKEN is read-only.
         if: steps.gate.outputs.run == 'true' && github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
