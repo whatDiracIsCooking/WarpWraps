@@ -158,6 +158,26 @@ if venv=$(find_venv); then
 else
   warn "no venv found in '$VENV_PATHS' -- run 'uv sync'"
 fi
+
+# find_venv's `-x bin/python` FOLLOWS the symlink, so a venv whose interpreter
+# is unreachable reads as no venv at all -- and `uv sync`, the advice above,
+# needs that same interpreter and fails with it. An interpreter that IS
+# reachable can still be unusable: one whose stdlib sits behind a directory this
+# uid cannot traverse prints --version happily, then dies on `import encodings`.
+# Either way the message above points at the wrong thing, so name the real
+# fault. Inside a container it means a stale image, nothing a command here fixes.
+for vpath in $VENV_PATHS; do
+  case "$vpath" in /*) vdir=$vpath ;; *) vdir=$TOP/$vpath ;; esac
+  [ -L "$vdir/bin/python" ] || [ -f "$vdir/bin/python" ] || continue
+  if "$vdir/bin/python" -c "import json" >/dev/null 2>&1; then
+    ok "interpreter usable: $vdir/bin/python"
+  else
+    warn "'$vdir/bin/python' exists but cannot run as uid $(id -u)"
+    note "target: $(readlink "$vdir/bin/python" 2>/dev/null || echo '<not a symlink>')"
+    note "in a container: stale image -- rebuild with docker/build.sh <variant>"
+    note "on the host: rm -rf '$vdir' && uv sync"
+  fi
+done
 if pytest_bin=$(find_pytest); then
   ok "pytest: $pytest_bin"
 else
