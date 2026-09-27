@@ -18,3 +18,25 @@ wwr_add_cxx_module_library(
   gpu_check.cppm
   IMPORT_STD
 )
+
+# Optional custom default error policy. Point WWR_DEFAULT_ERROR_POLICY_IMPL at a
+# header defining wwr::extension::DefaultErrorPolicyImpl<T> and this module's
+# DefaultErrorPolicy derives from it instead of the built-in body (see
+# default_error_policy.cppm). PRIVATE: the macro only has to reach the
+# compilation of default_error_policy.cppm, which happens in this target.
+set(WWR_DEFAULT_ERROR_POLICY_IMPL
+    ""
+    CACHE FILEPATH
+    "Header providing wwr::extension::DefaultErrorPolicyImpl<T> (replaces the default policy body)"
+)
+if(WWR_DEFAULT_ERROR_POLICY_IMPL)
+  cmake_path(GET WWR_DEFAULT_ERROR_POLICY_IMPL PARENT_PATH _wwr_depol_dir)
+  cmake_path(GET WWR_DEFAULT_ERROR_POLICY_IMPL FILENAME _wwr_depol_name)
+  target_include_directories(
+    wwr.extension.common.error_handling PRIVATE "${_wwr_depol_dir}"
+  )
+  target_compile_definitions(
+    wwr.extension.common.error_handling PRIVATE
+    "WWR_DEFAULT_ERROR_POLICY_IMPL=\"${_wwr_depol_name}\""
+  )
+endif()

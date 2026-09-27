@@ -10,3 +10,8 @@
 # An example that only ever builds on one backend is not an example of portable
 # code.
 add_subdirectory(warp_reduce)
+
+# The custom-default-error-policy example. Built here (both backends, so
+# cross-backend-check covers it); run by hand -- see its CMakeLists.txt for why
+# it has no ctest entry.
+add_subdirectory(custom_default_error_policy)
