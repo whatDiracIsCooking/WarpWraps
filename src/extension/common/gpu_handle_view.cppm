@@ -30,7 +30,7 @@ export namespace gpumod::extension {
 template<typename T>
 class GpuHandleView {
 protected:
-  T handle_ = nullptr;
+  T handle_{}; // nullptr for a pointer handle, 0 for an integer one (cufftHandle)
 
 public:
   GpuHandleView() noexcept = default;

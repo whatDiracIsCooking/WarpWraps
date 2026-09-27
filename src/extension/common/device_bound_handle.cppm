@@ -103,6 +103,20 @@ public:
     record_device();
   }
 
+  /// @brief Create on `dev_idx` (default 0) with a custom error policy.
+  GpuBoundHandle(P_create policy, int dev_idx = 0,
+                 std::source_location location = std::source_location::current())
+      : Base(std::move(policy), on_device(dev_idx, location)) {
+    record_device();
+  }
+
+  /// @brief Create on `dev_idx` (default 0) with distinct create/destroy policies.
+  GpuBoundHandle(P_create policy_create, P_destroy policy_destroy, int dev_idx = 0,
+                 std::source_location location = std::source_location::current())
+      : Base(std::move(policy_create), std::move(policy_destroy), on_device(dev_idx, location)) {
+    record_device();
+  }
+
   GpuBoundHandle(GpuBoundHandle &&other) noexcept
       : Base(std::move(other)), dev_idx_(other.dev_idx_) {
     other.dev_idx_ = -1;
