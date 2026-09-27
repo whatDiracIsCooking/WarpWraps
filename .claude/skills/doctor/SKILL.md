@@ -179,10 +179,12 @@ Five failures that look like something else entirely:
    "does nothing" wants `devtools/cpp-tier.sh --fresh`; a plain reconfigure
    keeps the old value.
 
-5. **A C++ change with no gate behind it.** The push hook only fires on `.py`,
-   and the CI `cpp:` job ships `if: false`. Nothing server-side checks a
-   `src/`-only PR until you have a GPU runner — doctor reports tools, not that
-   absence.
+5. **A device-behaviour change with no gate behind it.** The push hook only
+   fires on `.py`. CI now builds both backends and runs `ctest -LE gpu`, so
+   compile, link and the non-device tests *are* checked server-side — but the
+   `gpu`-labelled device suites (`test/extension/*`) are excluded, so a change
+   that only a card would catch stays ungated until `devtools/cpp-tier.sh` runs
+   locally. Doctor reports tools, not that absence.
 
 ## Reporting
 
