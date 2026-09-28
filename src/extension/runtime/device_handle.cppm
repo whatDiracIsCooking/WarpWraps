@@ -16,6 +16,27 @@ import std;
 export namespace wwr::extension {
 
 /**
+ * @brief A type usable as the backing device handle for a DeviceBuffer
+ *
+ * Structural, like error_policy: any type that exposes an `index()`, an
+ * `alloc_stream()` and a `mem_pool()` yielding the raw backend handles a pool
+ * allocation needs. Downstream code can model this with its own handle type
+ * instead of wwr's DeviceHandle -- returning raw wwrStream_t / wwrMemPool_t
+ * directly is fine; GpuStream / GpuMemPool satisfy it via their implicit
+ * conversions (BaseHandle::operator T).
+ *
+ * @note The accessors are required noexcept because DeviceBuffer::deallocate()
+ *       reads index() and alloc_stream() on the destructor path -- the same
+ *       destructor-safety rule that motivates nothrow_error_policy.
+ */
+template<typename H>
+concept device_handle = requires(const H h) {
+  { h.index() } noexcept -> std::convertible_to<int>;
+  { h.alloc_stream() } noexcept -> std::convertible_to<wwrStream_t>;
+  { h.mem_pool() } noexcept -> std::convertible_to<wwrMemPool_t>;
+};
+
+/**
  * @brief Identity, static properties and default allocation stream of one physical GPU
  *
  * Constructed from a device index; queries the runtime for that device's
@@ -73,5 +94,9 @@ private:
   GpuStreamWrapper<> alloc_stream_;
   GpuMemPoolWrapper<> mem_pool_;
 };
+
+/// The in-tree reference model must satisfy the concept it inspired -- guards
+/// against an accessor later turning throwing or non-const-callable.
+static_assert(device_handle<DeviceHandle>);
 
 } // namespace wwr::extension

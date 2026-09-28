@@ -20,6 +20,8 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   memory_buffer.cppm
   LINK_PUBLIC
+  wwr.extension.common
+  wwr.extension.runtime
   wwr.extension.memory_buffer
 )
 
