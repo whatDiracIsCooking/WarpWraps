@@ -172,7 +172,7 @@ wwr_add_gpu_device_library(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.wmma.device)
 
-# atomics.cu tests the portable common atomics, which gpumod does NOT wrap:
+# atomics.cu tests the portable common atomics, which wwr does NOT wrap:
 # atomicAdd/CAS/... are spelled identically on both backends and ride the vendor
 # runtime header that runtime.cuh switches, so there is no atomics header
 # to test. The claim it CAN break -- every operation resolving for the common

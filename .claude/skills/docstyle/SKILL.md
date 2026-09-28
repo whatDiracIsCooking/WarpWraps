@@ -75,7 +75,7 @@ plus the link.
  * <Optional: constraints, one line each. Link out for the why.>
  *
  * Usage:
- *   import gpumod.<x>;
+ *   import wwr.<x>;
  *
  *   <two or three lines of real calling code>
  */

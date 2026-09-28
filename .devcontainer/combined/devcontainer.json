@@ -17,7 +17,7 @@
   // backend's COMPILE tests still pass, since both toolchains target an
   // architecture rather than the card present -- and only that backend's
   // runtime tests fail. Note they FAIL rather than skip; see CLAUDE.md.
-  "name": "gpumod-combined",                           // EDIT
+  "name": "wwr-combined",                           // EDIT
 
   // Builds BOTH ancestors first -- base, then cuda -- since this is the bottom
   // of the diamond. See ../cuda/ for why a devcontainer needs this hook at all.
@@ -35,7 +35,7 @@
     // No "target": every backend is its own file now, each with a single stage,
     // so the old warning about this one being the file's last stage is moot.
     "args": {
-      "PROJECT_NAME": "gpumod",                        // EDIT
+      "PROJECT_NAME": "wwr",                        // EDIT
       // Widen for a mixed fleet, e.g. "gfx1100;gfx1200" (and CUDA_ARCH
       // "80;86;90" in the initializeCommand above).
       "GPU_TARGETS": "gfx1200"
@@ -75,9 +75,9 @@
   "mounts": [
     "source=${localEnv:HOME}/.claude,target=/home/ubuntu/.claude,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.claude.json,target=/home/ubuntu/.claude.json.host,type=bind,readonly",
-    "source=gpumod-claude-plugins-${localWorkspaceFolderBasename},target=/home/ubuntu/.claude/plugins,type=volume",  // EDIT
-    "source=gpumod-claude-backups-${localWorkspaceFolderBasename},target=/home/ubuntu/.claude/backups,type=volume",  // EDIT
-    "source=gpumod-pytest-tmp-${localWorkspaceFolderBasename},target=/tmp/pytest-of-ubuntu,type=volume",             // EDIT
+    "source=wwr-claude-plugins-${localWorkspaceFolderBasename},target=/home/ubuntu/.claude/plugins,type=volume",  // EDIT
+    "source=wwr-claude-backups-${localWorkspaceFolderBasename},target=/home/ubuntu/.claude/backups,type=volume",  // EDIT
+    "source=wwr-pytest-tmp-${localWorkspaceFolderBasename},target=/tmp/pytest-of-ubuntu,type=volume",             // EDIT
     // Host path injected as WWR_GIT_DIR by devtools/devcontainer.sh (up /
     // rebuild); the literal after the colon is only a fallback for opening this
     // config directly (VS Code "Reopen in Container"), which you then edit to

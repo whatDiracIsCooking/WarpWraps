@@ -1,12 +1,12 @@
 @PACKAGE_INIT@
 
-# gpumod package configuration.
+# wwr package configuration.
 #
 # What this file has to do beyond including the target export set comes from one
 # fact about C++23 named modules: a consumer of this package COMPILES the module
 # interface sources it installs (a BMI is not portable, so none is shipped --
 # cmake/wwr_install.cmake explains the mechanism). A consumer's build is
-# therefore not merely linking against gpumod, it is continuing it, and the
+# therefore not merely linking against wwr, it is continuing it, and the
 # three things checked below are the ones where continuing it with different
 # settings produces a failure whose message points nowhere near the cause.
 
@@ -54,7 +54,7 @@ endif()
 # consumer's own compiler. Module interface sources are not portable across
 # implementations, and this project's units are clang + libc++ specific (they
 # `import std`, which needs libc++'s module manifest). A mismatch here surfaces
-# as a wall of errors inside gpumod's own sources, which reads as gpumod being
+# as a wall of errors inside wwr's own sources, which reads as wwr being
 # broken rather than as the build using the wrong compiler -- hence a warning
 # that names the cause.
 #

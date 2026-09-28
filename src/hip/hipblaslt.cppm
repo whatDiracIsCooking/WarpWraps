@@ -1,6 +1,6 @@
 /**
  * @file hipblaslt.cppm
- * @brief hipBLASLt API module wrapper for gpumod project
+ * @brief hipBLASLt API module wrapper for wwr project
  *
  * Wraps hipblaslt/hipblaslt.h. CUDA counterpart: wwr.cuda.cublasLt.
  *

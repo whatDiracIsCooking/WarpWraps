@@ -1,6 +1,6 @@
 /**
  * @file hip_runtime_api.cppm
- * @brief HIP runtime API module wrapper for gpumod project
+ * @brief HIP runtime API module wrapper for wwr project
  *
  * Wraps hip/hip_runtime_api.h. HIP does not split the driver API from the
  * runtime API the way CUDA does, so this one module covers what

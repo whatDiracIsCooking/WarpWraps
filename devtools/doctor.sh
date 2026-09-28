@@ -105,7 +105,7 @@ if [ -n "$gitdir" ] && [ -d "$gitdir" ]; then
   ok "container .git mount resolves via WWR_GIT_DIR ($gitdir)"
 else
   warn "cannot resolve this repo's git dir for the container .git mount"
-  note "run doctor from inside the gpumod checkout"
+  note "run doctor from inside the wwr checkout"
 fi
 
 # --- worktrees ------------------------------------------------------------

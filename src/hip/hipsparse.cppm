@@ -1,6 +1,6 @@
 /**
  * @file hipsparse.cppm
- * @brief hipSPARSE API module wrapper for gpumod project
+ * @brief hipSPARSE API module wrapper for wwr project
  *
  * Wraps hipsparse/hipsparse.h. CUDA counterpart: wwr.cuda.cusparse.
  *

@@ -256,7 +256,7 @@ jobs:
             preset: ci-hip
             tidy: ''
     container:
-      image: ghcr.io/whatdiraciscooking/gpumod:${{ matrix.image }}
+      image: ghcr.io/whatdiraciscooking/wwr:${{ matrix.image }}
       # The image's own USER is `ubuntu` (uid 1000) and the runner creates
       # /__w owned by someone else, so the default user cannot write its own
       # workspace. Running as root inside a throwaway container is the usual
@@ -323,7 +323,7 @@ jobs:
       contents: read
       packages: read
     container:
-      image: ghcr.io/whatdiraciscooking/gpumod:cuda-ci
+      image: ghcr.io/whatdiraciscooking/wwr:cuda-ci
       options: --user root
     steps:
       - uses: actions/checkout@v7

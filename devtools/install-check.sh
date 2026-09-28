@@ -5,7 +5,7 @@
 #
 # Four steps, and the third is the only one that proves anything:
 #
-#   1. configure gpumod
+#   1. configure wwr
 #   2. cmake --install it into a throwaway prefix
 #   3. configure example/consumer against ONLY that prefix, and build it
 #   4. run the resulting binary
@@ -16,7 +16,7 @@
 # requirement that was PRIVATE and so never exported: all of those install
 # perfectly cleanly and fail only in a consumer. example/consumer is a
 # standalone project that knows nothing about this source tree and reaches
-# gpumod through find_package alone, so building it is a real answer and
+# wwr through find_package alone, so building it is a real answer and
 # `cmake --install` succeeding is not.
 #
 # WHY THIS EXISTS AS ITS OWN TIER. devtools/cpp-tier.sh builds and ctests the
@@ -39,7 +39,7 @@
 # .github/workflows/ci.yml uses, since its runner has no card at all.
 #
 # Flags:
-#   --preset NAME   gpumod configure preset (default: CMAKE_PRESET from
+#   --preset NAME   wwr configure preset (default: CMAKE_PRESET from
 #                   devtools/config.sh).
 #   --prefix DIR    install prefix (default: a mktemp -d, removed on exit).
 #   --keep          keep the prefix and the consumer build dir, and print
@@ -82,7 +82,7 @@ build_dir=$REPO_ROOT/build-install-check
 consumer_build=$REPO_ROOT/build-install-check-consumer
 
 if [ -z "$prefix" ]; then
-  prefix=$(mktemp -d -t gpumod-install-XXXXXX)
+  prefix=$(mktemp -d -t wwr-install-XXXXXX)
   created_prefix=1
 else
   mkdir -p "$prefix"
@@ -105,7 +105,7 @@ trap cleanup EXIT
 step() { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
 
 # ---------------------------------------------------------------------------
-step "1/4  configure gpumod (preset: $preset)"
+step "1/4  configure wwr (preset: $preset)"
 # ---------------------------------------------------------------------------
 # -B overrides the preset's own binaryDir so this tier keeps its cache separate
 # from cpp-tier.sh's, per the comment above.
@@ -139,7 +139,7 @@ done
 # ---------------------------------------------------------------------------
 step "3/4  configure and build example/consumer against the install"
 # ---------------------------------------------------------------------------
-# CMAKE_PREFIX_PATH is the ONLY thing connecting the consumer to gpumod. No
+# CMAKE_PREFIX_PATH is the ONLY thing connecting the consumer to wwr. No
 # source path, no build directory, nothing from this tree -- if find_package
 # cannot work from the install prefix alone, this step is where it shows.
 rm -rf "$consumer_build"

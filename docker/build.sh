@@ -100,8 +100,8 @@ build_args_of() {
 # the build args above. .github/workflows/images.yml is the only caller that
 # sets them; a local build sets none and behaves exactly as before.
 #
-#   IMAGE_TAG_SUFFIX=-ci   gpumod:hip        -> gpumod:hip-ci
-#   IMAGE_REGISTRY=ghcr.io/owner             also tag ghcr.io/owner/gpumod:...
+#   IMAGE_TAG_SUFFIX=-ci   wwr:hip        -> wwr:hip-ci
+#   IMAGE_REGISTRY=ghcr.io/owner             also tag ghcr.io/owner/wwr:...
 #   BUILD_PUSH=1           push the registry tags of the FINAL target
 #
 # The suffix exists so the pruned CI variant cannot overwrite the dev image
@@ -109,7 +109,7 @@ build_args_of() {
 # It is applied to every step of the chain, so a CI cuda is never built on a
 # dev base someone has since rebuilt.
 #
-# `:latest` is DROPPED when a suffix is set. `gpumod:latest-ci` would be a
+# `:latest` is DROPPED when a suffix is set. `wwr:latest-ci` would be a
 # lie -- latest is the alias docker/compose.yaml resolves by default, and it
 # must keep meaning the full CUDA dev image.
 #
@@ -172,7 +172,7 @@ for step in "${chain[@]}"; do
   fi
 
   # Always explicit, never left to the Dockerfile's default: a renamed project
-  # must chain to ITS OWN parent, not to gpumod's.
+  # must chain to ITS OWN parent, not to wwr's.
   cmd+=(--build-arg "PROJECT_NAME=$PROJECT_NAME")
   parent=$(parent_of "$step")
   if [ -n "$parent" ]; then

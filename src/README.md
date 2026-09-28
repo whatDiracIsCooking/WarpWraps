@@ -358,4 +358,4 @@ backend's compile-time tier):
 - `test/gpu/atomics.cu` — that the portable common atomics (`atomicAdd`,
   `atomicCAS`, …) resolve for the common widths under both front ends. These
   ride `runtime.cuh`'s runtime header and are spelled identically on both
-  backends, so gpumod wraps none of them; see `docs/architecture.md` section 15.
+  backends, so wwr wraps none of them; see `docs/architecture.md` section 15.

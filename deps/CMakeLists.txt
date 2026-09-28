@@ -6,7 +6,7 @@
 # the root CMakeLists -- so a distro GoogleTest built against libstdc++ would
 # not link. Building it here means it inherits those flags.
 #
-# INSTALL_GTEST OFF keeps `gpumod` installing nothing, which is true today and
+# INSTALL_GTEST OFF keeps `wwr` installing nothing, which is true today and
 # worth preserving: quietly installing GoogleTest's headers and CMake package
 # files onto consumers would undo that.
 include(FetchContent)

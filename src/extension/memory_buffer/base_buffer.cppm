@@ -73,7 +73,7 @@ public:
   // A non-trivially-copyable element type would leave zeroed bytes masquerading
   // as live objects, so reject it at construction - as std::atomic does.
   static_assert(std::is_trivially_copyable_v<storage_type>,
-                "gpumod buffers require a trivially-copyable element type");
+                "wwr buffers require a trivially-copyable element type");
 
   static constexpr MemoryKind memory_kind = K;
   /**

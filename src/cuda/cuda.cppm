@@ -1,6 +1,6 @@
 /**
  * @file cuda.cppm
- * @brief CUDA Driver API module wrapper for gpumod project
+ * @brief CUDA Driver API module wrapper for wwr project
  *
  * This module wraps the CUDA Driver API (cuda.h) to make it accessible
  * from C++20/C++23 module-based code.

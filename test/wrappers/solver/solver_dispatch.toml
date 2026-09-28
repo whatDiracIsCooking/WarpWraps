@@ -18,7 +18,7 @@
 #
 # The one naming exception is gels and gesv, whose entry points are the IRS
 # mixed-precision ones named <output><compute>gels / <output><compute>gesv --
-# so the uniform-precision case gpumod wraps doubles the letter:
+# so the uniform-precision case wwr wraps doubles the letter:
 # wwrsolverDnSSgels, wwrsolverDnZZgesv.
 #
 # Not covered here: the modern (X-prefixed) wrappers in

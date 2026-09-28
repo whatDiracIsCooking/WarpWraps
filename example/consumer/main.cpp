@@ -1,6 +1,6 @@
-// main.cpp -- what using an installed gpumod actually looks like.
+// main.cpp -- what using an installed wwr actually looks like.
 //
-// This consumes ONLY the parts of gpumod that the package installs: the
+// This consumes ONLY the parts of wwr that the package installs: the
 // backend-neutral gpu* layer (wwr.runtime_api, wwr.blas) and the wrappers
 // (wwr.wrappers.* -- the dispatch wrappers, plus the untyped tools-extension
 // wrapper wwr.wrappers.tx). It deliberately does NOT touch
@@ -164,7 +164,7 @@ int main() {
   // AND runs, regardless of whether a GPU is present. The ScopedRange guards the
   // rest of main, so it pops on every return path below.
   tx::mark("consumer start");
-  const tx::ScopedRange session{"gpumod install-check"};
+  const tx::ScopedRange session{"wwr install-check"};
   tx::range_stop(tx::range_start("async probe"));
   std::println("tx     : marker + scoped/async ranges resolved and linked");
 
@@ -175,13 +175,13 @@ int main() {
 
   int device = 0;
   if (wwrGetDevice(&device) != wwrSuccess) {
-    std::println("gpumod : installed package consumed and linked; no GPU to run the gemm");
+    std::println("wwr : installed package consumed and linked; no GPU to run the gemm");
     return 77; // ctest's conventional "skipped"
   }
 
   if (!multiply_square(64))
     return 1;
 
-  std::println("gpumod : consumed from an installed package, all checks passed");
+  std::println("wwr : consumed from an installed package, all checks passed");
   return 0;
 }

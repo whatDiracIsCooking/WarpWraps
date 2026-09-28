@@ -73,14 +73,14 @@ compose cannot drift onto two different toolchains.
 `./build.sh` is what walks the chain, and is the way to build any of them:
 
 ```bash
-docker/build.sh cuda        # base, then cuda -> gpumod:cuda and gpumod:latest
-docker/build.sh hip         # base, then hip  -> gpumod:hip
-docker/build.sh combined    # base, cuda, then combined -> gpumod:combined
-docker/build.sh base        # just the toolchain -> gpumod:base
+docker/build.sh cuda        # base, then cuda -> wwr:cuda and wwr:latest
+docker/build.sh hip         # base, then hip  -> wwr:hip
+docker/build.sh combined    # base, cuda, then combined -> wwr:combined
+docker/build.sh base        # just the toolchain -> wwr:base
 ```
 
 It takes the tag prefix from `PROJECT_NAME` in `devtools/config.sh`, so
-`gpumod:latest` — what `WWR_IMAGE` below defaults to — is always one of the
+`wwr:latest` — what `WWR_IMAGE` below defaults to — is always one of the
 two tags the CUDA image gets. Run it from anywhere; the context is always the
 repo root, because the files read `pyproject.toml`, `uv.lock` and
 `docker/install-{cuda,rocm}.sh` relative to it.
@@ -99,12 +99,12 @@ docker/build.sh cuda --no-cache --progress=plain   # flags reach every step
 By hand is still fine, as long as you build the parent yourself first:
 
 ```bash
-DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.base -t gpumod:base .
-DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.cuda -t gpumod:latest .
+DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.base -t wwr:base .
+DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.cuda -t wwr:latest .
 ```
 
 Skip that first line and docker does not fall back to building the parent — it
-tries to *pull* it, and fails with `pull access denied for gpumod, repository
+tries to *pull* it, and fails with `pull access denied for wwr, repository
 does not exist`, which reads like a registry problem rather than a missing local
 build. `docker/Dockerfile.base`'s header has the rest of the reasoning.
 
@@ -116,16 +116,16 @@ CI pulls:
 
 ```bash
 IMAGE_TAG_SUFFIX=-ci IMAGE_REGISTRY=ghcr.io/<owner> BUILD_PUSH=1 \
-  ROCM_PRUNE=1 docker/build.sh hip      # -> gpumod:hip-ci, pushed to GHCR
+  ROCM_PRUNE=1 docker/build.sh hip      # -> wwr:hip-ci, pushed to GHCR
 ```
 
 | knob | effect |
 |---|---|
-| `IMAGE_TAG_SUFFIX` | appended to every tag in the chain (`gpumod:hip-ci`) |
-| `IMAGE_REGISTRY` | adds `<registry>/gpumod:<tag>` as a second tag |
+| `IMAGE_TAG_SUFFIX` | appended to every tag in the chain (`wwr:hip-ci`) |
+| `IMAGE_REGISTRY` | adds `<registry>/wwr:<tag>` as a second tag |
 | `BUILD_PUSH=1` | pushes the **final target's** registry tags, not its parents' |
 
-`:latest` is dropped when a suffix is set — `gpumod:latest-ci` would be a lie,
+`:latest` is dropped when a suffix is set — `wwr:latest-ci` would be a lie,
 since `latest` is what `WWR_IMAGE` resolves to and must keep meaning the
 full CUDA dev image. Parents are not pushed because a child image is
 self-contained; publishing `:base` too would upload 1.45GB nothing pulls.
@@ -174,7 +174,7 @@ BUILD_ONLY=1 dc build
 
 | Env Var | Effect |
 |---------|--------|
-| `WWR_IMAGE` | Docker image to use (default: `gpumod:latest`) |
+| `WWR_IMAGE` | Docker image to use (default: `wwr:latest`) |
 | `BUILD_PRESET` | Select cmake preset: `default` (Release), `debug`, `asan` (default: `default`) |
 | `CLEAN=1` | Remove compiled objects before building |
 | `RECONFIGURE=1` | Wipe cmake cache and reconfigure from scratch |

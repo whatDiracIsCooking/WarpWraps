@@ -1,4 +1,4 @@
-# gpumod
+# Warp Wraps (`wwr`)
 
 C++23 module wrappers for the CUDA and HIP GPU APIs. Exposes the CUDA runtime,
 cuBLAS, cuSOLVER, cuRAND (and their ROCm/HIP counterparts) and supporting
@@ -44,7 +44,7 @@ devtools/doctor.sh
 
 ---
 
-## Using gpumod in your project
+## Using wwr in your project
 
 Install it, then `find_package`:
 
@@ -80,7 +80,7 @@ above, and `devtools/install-check.sh` runs it against a real install.
 
 ### What a consumer has to match, and why
 
-**Your build compiles gpumod's module interface units.** This is the one thing
+**Your build compiles wwr's module interface units.** This is the one thing
 worth understanding before depending on the package, because it is not how a
 header-or-`.so` library behaves.
 
@@ -91,8 +91,8 @@ ships the `.cppm` **sources**, and your build compiles them. CMake's
 `CXX_MODULES_DIRECTORY` export machinery is what re-attaches them to the
 imported targets.
 
-The consequence is that a consumer's build is less "linking against gpumod" than
-"continuing gpumod's build", and it needs the same things that build needed:
+The consequence is that a consumer's build is less "linking against wwr" than
+"continuing wwr's build", and it needs the same things that build needed:
 
 - **Clang with libc++.** The module units `import std;`, which resolves against
   libc++'s own module manifest. Set `CMAKE_CXX_STANDARD_LIBRARY` to `libc++` and
@@ -106,7 +106,7 @@ The consequence is that a consumer's build is less "linking against gpumod" than
 
 `wwrConfig.cmake` checks what it can — it warns on a compiler or standard
 library that does not match the one the package was built with, rather than
-letting the mismatch surface as a wall of errors inside gpumod's own sources.
+letting the mismatch surface as a wall of errors inside wwr's own sources.
 Silence those with `-DWWR_SKIP_TOOLCHAIN_CHECK=ON` if you know your toolchain
 is compatible.
 
@@ -120,13 +120,13 @@ other one is refused rather than half-satisfied:
 find_package(wwr REQUIRED COMPONENTS CUDA)   # fails on a HIP installation
 ```
 
-To use both, build and install gpumod twice, to two prefixes.
+To use both, build and install wwr twice, to two prefixes.
 
 ### Embedding it instead
 
 `add_subdirectory` and `FetchContent` also work, and link the targets directly
 with no install step. `WWR_INSTALL` defaults to `OFF` in that case, so
-gpumod's headers and module sources do not follow your project into *its*
+wwr's headers and module sources do not follow your project into *its*
 install tree.
 
 ## Requirements
@@ -168,7 +168,7 @@ src/*.cppm,*.cuh,*.h  The gpu* backend switch: gpu* names for the chosen backend
 src/cuda/             Low-level CUDA API module wrappers (CUDA backend)
 src/hip/              Low-level ROCm/HIP API module wrappers (HIP backend)
 src/wrappers/         Backend-neutral higher-level abstractions
-example/consumer/     A standalone project that uses an INSTALLED gpumod
+example/consumer/     A standalone project that uses an INSTALLED wwr
 test/shared/          link_check.h; dispatch.py + alias_coverage.py and their pytest suites
 test/cuda/, test/hip/ Compile-time checks for the low-level wrappers
 test/gpu/             Compile-time checks that every gpu* name is the backend's, + fp16/bf16 conversions
@@ -385,7 +385,7 @@ Four files under `docker/`, in a diamond:
 | `Dockerfile.combined` | `cuda` + ROCm, for switching backends without switching containers (~40GB). |
 
 ```sh
-docker/build.sh cuda        # base, then cuda -> gpumod:cuda and gpumod:latest
+docker/build.sh cuda        # base, then cuda -> wwr:cuda and wwr:latest
 docker/build.sh hip         # base, then hip
 docker/build.sh combined    # base, cuda, then combined
 ```
@@ -393,7 +393,7 @@ docker/build.sh combined    # base, cuda, then combined
 **They chain by tag, not by stage.** Each child opens with
 `FROM ${PARENT_IMAGE}`, so the parent must be built and tagged before it —
 `docker/build.sh` is what walks the chain, and building a child by hand with no
-parent tagged fails with `pull access denied for gpumod` rather than building
+parent tagged fails with `pull access denied for wwr` rather than building
 one. The `.devcontainer/*/devcontainer.json` files run a single `docker build`,
 so each carries an `initializeCommand` that calls `build.sh` for its parent.
 

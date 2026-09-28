@@ -6,15 +6,15 @@ Two different things, and only one of them is part of this build.
 |---|---|---|
 | `warp_reduce/` | A warp-level reduction kernel written against the `gpu*` layer | the main build, on either backend |
 | `custom_default_error_policy/` | A drop-in replacement for the extension layer's default error policy | the main build, on either backend |
-| `consumer/` | A standalone project consuming an **installed** gpumod | `devtools/install-check.sh` |
+| `consumer/` | A standalone project consuming an **installed** wwr | `devtools/install-check.sh` |
 
 `consumer/` has its own `project()` call and is not added by
 `example/CMakeLists.txt`: the whole point is that it knows nothing about this
-source tree and reaches gpumod only through `find_package(wwr)`.
+source tree and reaches wwr only through `find_package(wwr)`.
 
 ## `warp_reduce/` — an exemplar, not a library
 
-It is the answer to "how do I write my own warp-level kernel against gpumod?".
+It is the answer to "how do I write my own warp-level kernel against wwr?".
 One block of four warps, each thread cascading over the whole array, then a
 `tile.shfl_down` ladder — Mark Harris's reduction in cooperative groups, so any
 `count` is reduced by one kernel with no second pass and no cooperative launch.

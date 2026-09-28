@@ -279,7 +279,7 @@ The common atomics (`atomicAdd`, `atomicCAS`, `atomicExch`, `atomicMin`/`Max`,
 `atomicAnd`/`Or`/`Xor`, `atomicSub`, `atomicInc`/`Dec`) are spelled identically
 in the global namespace on CUDA and HIP, with the same signatures, and are
 declared by the vendor runtime header `runtime.cuh` already switches. So
-gpumod wraps none of them, for the reason §2 gives: a forwarding
+wwr wraps none of them, for the reason §2 gives: a forwarding
 function per name would only rename each name to itself. A device TU that
 includes `runtime.cuh` calls them bare; `test/gpu/atomics.cu` is what
 pins that the common widths resolve under both front ends, nvcc being the
@@ -292,7 +292,7 @@ floating-point atomic AMD has no safe native instruction for to a CAS loop, so
 — what `test/gpu/atomics.cu` builds. `-munsafe-fp-atomics` is an opt-in HIP
 device-compile flag that makes AMD emit native FP-atomic instructions instead:
 faster, but with weaker guarantees — it can flush denormals, and on fine-grained
-memory it can silently drop the update rather than fault. gpumod never sets it;
+memory it can silently drop the update rather than fault. wwr never sets it;
 a TU that wants the trade-off passes it on its own device library (the
 `wwr_add_gpu_device_library` target that owns the kernel), never on a target
 that reaches non-device code.
