@@ -217,7 +217,8 @@ WWR_FUNCTION(wwrrandGetScrambleConstants64, curandGetScrambleConstants64,
 // for the reason in this file's header. What the host needs these for is
 // sizing and allocating the per-thread state array:
 //
-//   DeviceBufferWrapper<wwrrandState> states(count, device);  // device: shared_ptr<DeviceHandle>
+//   DeviceBufferWrapper<wwrrandState, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>
+//       states(count, device);  // device: shared_ptr<DeviceHandle>
 //
 // wwrrandState is the default pseudorandom state on both backends, and on
 // both backends that default is xorwow-backed. It is NOT, however, the same

@@ -22,6 +22,9 @@ import wwr.extension.memory_buffer;
 #include "counting_policy.h"
 
 namespace wwr::extension::test {
+// Bind abort-on-failure once per error type, for this file's instantiations.
+using Abort = AbortPolicy<wwrError_t>;
+using HostAbort = AbortPolicy<stdHostMemoryError_t>;
 
 namespace ext = wwr::extension;
 
@@ -53,7 +56,7 @@ template<typename Buf>
 class HostAccessibleOwningBufferTest : public ::testing::Test {};
 
 using HostAccessibleOwningBufferTypes =
-    ::testing::Types<HostBufferWrapper<float>, PinnedBufferWrapper<float>, UnifiedBufferWrapper<float>>;
+    ::testing::Types<HostBufferWrapper<float, HostAbort, HostAbort>, PinnedBufferWrapper<float, Abort, Abort>, UnifiedBufferWrapper<float, Abort, Abort>>;
 TYPED_TEST_SUITE(HostAccessibleOwningBufferTest, HostAccessibleOwningBufferTypes);
 
 TYPED_TEST(HostAccessibleOwningBufferTest, AllocatesAndZeroInitialises) {
@@ -99,7 +102,7 @@ TYPED_TEST(HostAccessibleOwningBufferTest, MoveAssignmentReleasesThenTakesOwners
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TEST(HostBufferTests, DefaultConstructedIsEmpty) {
-  HostBufferWrapper<float> buf;
+  HostBufferWrapper<float, HostAbort, HostAbort> buf;
   EXPECT_EQ(buf.data(), nullptr);
   EXPECT_EQ(buf.num_elements(), std::size_t{0});
   EXPECT_EQ(buf.size_bytes(), std::size_t{0});
@@ -114,7 +117,7 @@ TEST(HostBufferTests, ZeroElementsIsEmptyNotAnError) {
 }
 
 TEST(HostBufferTests, SelfMoveAssignmentKeepsBuffer) {
-  HostBufferWrapper<float> buf(8);
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(8);
   float *const raw = buf.data();
 
   buf = std::move(buf);
@@ -123,8 +126,8 @@ TEST(HostBufferTests, SelfMoveAssignmentKeepsBuffer) {
 }
 
 TEST(HostBufferTests, MoveAssignmentOntoEmptyBuffer) {
-  HostBufferWrapper<float> dst;
-  HostBufferWrapper<float> src(4);
+  HostBufferWrapper<float, HostAbort, HostAbort> dst;
+  HostBufferWrapper<float, HostAbort, HostAbort> src(4);
   float *const raw = src.data();
 
   dst = std::move(src);
@@ -133,7 +136,7 @@ TEST(HostBufferTests, MoveAssignmentOntoEmptyBuffer) {
 }
 
 TEST(HostBufferTests, SubscriptReadsAndWrites) {
-  HostBufferWrapper<float> buf(4);
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(4);
   for (std::size_t i = 0; i < 4; ++i)
     buf[i] = static_cast<float>(i) + 1.0f;
   EXPECT_EQ(buf[0], 1.0f);
@@ -144,12 +147,12 @@ TEST(HostBufferTests, ConstAndPointerAccessorsMatchData) {
   // Three public accessors that no other test exercised (every other reaches
   // storage through data() and the non-const operator[]): operator T*(),
   // operator const T*(), and the const operator[].
-  HostBufferWrapper<float> buf(8);
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(8);
   buf[0] = 3.5f;
   float *p = buf; // operator T*()
   EXPECT_EQ(p, buf.data());
 
-  const HostBufferWrapper<float> &cbuf = buf;
+  const HostBufferWrapper<float, HostAbort, HostAbort> &cbuf = buf;
   const float *cp = cbuf; // operator const T*()
   EXPECT_EQ(cp, cbuf.data());
   EXPECT_EQ(cbuf[0], 3.5f); // const operator[]
@@ -172,7 +175,7 @@ struct TaggedHostPolicy {
 } // namespace
 
 TEST(HostBufferTests, SeparateAllocAndFreePoliciesReachTheirOwnSlots) {
-  HostBufferWrapper<float, TaggedHostPolicy> buf(8, TaggedHostPolicy{1}, TaggedHostPolicy{2});
+  HostBufferWrapper<float, TaggedHostPolicy, TaggedHostPolicy> buf(8, TaggedHostPolicy{1}, TaggedHostPolicy{2});
   EXPECT_EQ(buf.alloc_policy().tag, 1);
   EXPECT_EQ(buf.free_policy().tag, 2); // free_policy() accessor + distinct P_free instance
 }
@@ -269,19 +272,19 @@ TEST(SizeOverflowRejectionTests, DeviceElementCountOverflowIsRejected) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TEST(BufferViewTests, FullViewAliasesSourceBuffer) {
-  HostBufferWrapper<float> buf(16);
-  BufferViewWrapper<float, MemoryKind::Host> view(buf);
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(16);
+  BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort> view(buf);
 
   EXPECT_EQ(view.data(), buf.data());
   EXPECT_EQ(view.num_elements(), std::size_t{16});
 }
 
 TEST(BufferViewTests, SubViewOffsetsIntoSourceBuffer) {
-  HostBufferWrapper<float> buf(16);
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(16);
   for (std::size_t i = 0; i < 16; ++i)
     buf[i] = static_cast<float>(i);
 
-  BufferViewWrapper<float, MemoryKind::Host> view(buf, 4, 8);
+  BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort> view(buf, 4, 8);
   ASSERT_EQ(view.data(), buf.data() + 4);
   EXPECT_EQ(view.num_elements(), std::size_t{8});
   EXPECT_EQ(view[0], 4.0f);
@@ -289,34 +292,34 @@ TEST(BufferViewTests, SubViewOffsetsIntoSourceBuffer) {
 }
 
 TEST(BufferViewTests, OffsetOnlyViewCoversRemainingElements) {
-  HostBufferWrapper<float> buf(16);
-  BufferViewWrapper<float, MemoryKind::Host> view(buf, 12);
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(16);
+  BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort> view(buf, 12);
 
   EXPECT_EQ(view.data(), buf.data() + 12);
   EXPECT_EQ(view.num_elements(), std::size_t{4});
 }
 
 TEST(BufferViewTests, ViewWritesAreVisibleThroughSourceBuffer) {
-  HostBufferWrapper<float> buf(8);
-  BufferViewWrapper<float, MemoryKind::Host> view(buf, 2, 4);
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(8);
+  BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort> view(buf, 2, 4);
   view[0] = 42.0f;
 
   EXPECT_EQ(buf[2], 42.0f);
 }
 
 TEST(BufferViewTests, ViewsAreCopyable) {
-  HostBufferWrapper<float> buf(16);
-  BufferViewWrapper<float, MemoryKind::Host> view(buf, 4, 8);
-  BufferViewWrapper<float, MemoryKind::Host> copy(view);
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(16);
+  BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort> view(buf, 4, 8);
+  BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort> copy(view);
 
   EXPECT_EQ(copy.data(), view.data());
   EXPECT_EQ(copy.num_elements(), view.num_elements());
 }
 
 TEST(BufferViewTests, ViewOfViewNarrowsFurther) {
-  HostBufferWrapper<float> buf(16);
-  BufferViewWrapper<float, MemoryKind::Host> view(buf, 4, 8);
-  BufferViewWrapper<float, MemoryKind::Host> inner(view, 2, 3);
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(16);
+  BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort> view(buf, 4, 8);
+  BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort> inner(view, 2, 3);
 
   EXPECT_EQ(inner.data(), buf.data() + 6);
   EXPECT_EQ(inner.num_elements(), std::size_t{3});
@@ -354,10 +357,10 @@ TEST(BufferViewTests, OffsetPastEndDoesNotUnderflow) {
 // ── Reinterpreting (cross-type) views ──────────────────────────────
 
 TEST(BufferViewTests, ReinterpretViewPreservesByteSpan) {
-  HostBufferWrapper<float> buf(16); // 64 bytes
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(16); // 64 bytes
   // For a default-policy source the factory's return type is exactly the
   // per-kind alias, so it can be named instead of deduced with auto.
-  BufferViewWrapper<std::byte, MemoryKind::Host> bytes = reinterpret_buffer_view<std::byte>(buf);
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort> bytes = reinterpret_buffer_view<std::byte>(buf);
 
   EXPECT_EQ(static_cast<void *>(bytes.data()), static_cast<void *>(buf.data()));
   EXPECT_EQ(bytes.num_elements(), std::size_t{64});
@@ -365,9 +368,9 @@ TEST(BufferViewTests, ReinterpretViewPreservesByteSpan) {
 }
 
 TEST(BufferViewTests, ReinterpretViewWritesAreVisibleThroughSource) {
-  HostBufferWrapper<std::uint16_t> buf(4);
+  HostBufferWrapper<std::uint16_t, HostAbort, HostAbort> buf(4);
   buf[0] = 0;
-  BufferViewWrapper<std::byte, MemoryKind::Host> bytes = reinterpret_buffer_view<std::byte>(buf); // 8 bytes
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort> bytes = reinterpret_buffer_view<std::byte>(buf); // 8 bytes
 
   ASSERT_EQ(bytes.num_elements(), std::size_t{8});
   bytes[0] = std::byte{0xFF};
@@ -390,7 +393,7 @@ TEST(BufferViewTests, ReinterpretViewRejectsMisalignedBase) {
   CountedHostBuffer<std::byte> buf(16, policy);
   // A sub-view one byte into an (over-)aligned allocation cannot be aligned for
   // a 4-byte type -- this is the reachable misalignment case.
-  BufferViewWrapper<std::byte, MemoryKind::Host, HostPolicy> shifted(buf, 1, 8);
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostPolicy, HostPolicy> shifted(buf, 1, 8);
   ASSERT_EQ(shifted.num_elements(), std::size_t{8});
 
   auto ints = reinterpret_buffer_view<std::uint32_t>(shifted);
@@ -399,11 +402,11 @@ TEST(BufferViewTests, ReinterpretViewRejectsMisalignedBase) {
 }
 
 TEST(BufferViewTests, ReinterpretViewComposesWithSubView) {
-  HostBufferWrapper<float> buf(16); // 64 bytes
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(16); // 64 bytes
   // A reinterpreting view is itself a buffer, so the ordinary offset+count
   // sub-view constructor narrows it -- in the TARGET type's units (bytes here).
-  BufferViewWrapper<std::byte, MemoryKind::Host> bytes = reinterpret_buffer_view<std::byte>(buf);
-  BufferViewWrapper<std::byte, MemoryKind::Host> mid(bytes, 8, 16); // bytes [8, 24)
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort> bytes = reinterpret_buffer_view<std::byte>(buf);
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort> mid(bytes, 8, 16); // bytes [8, 24)
 
   EXPECT_EQ(static_cast<void *>(mid.data()),
             static_cast<void *>(reinterpret_cast<std::byte *>(buf.data()) + 8));
@@ -411,8 +414,8 @@ TEST(BufferViewTests, ReinterpretViewComposesWithSubView) {
 }
 
 TEST(BufferViewTests, EmptyBufferReinterpretsToEmptyView) {
-  HostBufferWrapper<float> buf; // null, 0 elements
-  BufferViewWrapper<std::byte, MemoryKind::Host> bytes = reinterpret_buffer_view<std::byte>(buf);
+  HostBufferWrapper<float, HostAbort, HostAbort> buf; // null, 0 elements
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort> bytes = reinterpret_buffer_view<std::byte>(buf);
 
   EXPECT_EQ(bytes.data(), nullptr);
   EXPECT_EQ(bytes.num_elements(), std::size_t{0});
@@ -425,8 +428,8 @@ TEST(BufferViewTests, ReinterpretViewUpcastsToWiderElementType) {
   // multiple of 4 reinterprets to a uint32 view -- num_elements() shrinks from
   // bytes to elements, and a write through the wide view is visible byte-for-byte
   // through the source.
-  HostBufferWrapper<std::byte> buf(16); // 16 bytes, zero-initialised
-  BufferViewWrapper<std::uint32_t, MemoryKind::Host> words = reinterpret_buffer_view<std::uint32_t>(buf);
+  HostBufferWrapper<std::byte, HostAbort, HostAbort> buf(16); // 16 bytes, zero-initialised
+  BufferViewWrapper<std::uint32_t, MemoryKind::Host, HostAbort, HostAbort> words = reinterpret_buffer_view<std::uint32_t>(buf);
 
   ASSERT_EQ(static_cast<void *>(words.data()), static_cast<void *>(buf.data()));
   ASSERT_EQ(words.num_elements(), std::size_t{4}); // 16 / 4
@@ -448,13 +451,13 @@ TEST(BufferViewTests, ReinterpretViewUpcastsToWiderElementType) {
 
 TEST(DeviceBufferTests, PoolAllocationZeroInitialises) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  DeviceBufferWrapper<float> dev(64, dev_h);
+  DeviceBufferWrapper<float, Abort, Abort> dev(64, dev_h);
   ASSERT_NE(dev.data(), nullptr);
   EXPECT_EQ(dev.num_elements(), std::size_t{64});
 
   // The buffer zero-inits on the handle's stream, so read it back on that same
   // stream rather than stream 0, which would race the async memset.
-  HostBufferWrapper<float> host(64);
+  HostBufferWrapper<float, HostAbort, HostAbort> host(64);
   const wwrStream_t stream = dev_h->alloc_stream().get();
   ASSERT_EQ(ext::copy(host, dev, stream), wwrSuccess);
   ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
@@ -467,20 +470,20 @@ TEST(DeviceBufferTests, ReinterpretViewAliasesDeviceStorage) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
   const wwrStream_t stream = dev_h->alloc_stream().get();
 
-  HostBufferWrapper<float> up(16);
+  HostBufferWrapper<float, HostAbort, HostAbort> up(16);
   for (std::size_t i = 0; i < up.num_elements(); ++i)
     up[i] = static_cast<float>(i) * 3.0f;
 
-  DeviceBufferWrapper<float> dev(16, dev_h);
+  DeviceBufferWrapper<float, Abort, Abort> dev(16, dev_h);
   ASSERT_EQ(ext::copy(dev, up, stream), wwrSuccess);
 
   // A device pointer passes the alignment check (it never gets dereferenced on
   // the host); read the block back through a byte view to prove it aliases.
-  BufferViewWrapper<std::byte, MemoryKind::Device> dev_bytes = reinterpret_buffer_view<std::byte>(dev);
+  BufferViewWrapper<std::byte, MemoryKind::Device, Abort, Abort> dev_bytes = reinterpret_buffer_view<std::byte>(dev);
   ASSERT_EQ(static_cast<void *>(dev_bytes.data()), static_cast<void *>(dev.data()));
   ASSERT_EQ(dev_bytes.num_elements(), dev.size_bytes());
 
-  HostBufferWrapper<std::byte> host_bytes(dev_bytes.num_elements());
+  HostBufferWrapper<std::byte, HostAbort, HostAbort> host_bytes(dev_bytes.num_elements());
   ASSERT_EQ(ext::copy(host_bytes, dev_bytes, stream), wwrSuccess);
   ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
 
@@ -489,10 +492,10 @@ TEST(DeviceBufferTests, ReinterpretViewAliasesDeviceStorage) {
 
 TEST(DeviceBufferTests, MoveTransfersDeviceOwnership) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  DeviceBufferWrapper<float> src(64, dev_h);
+  DeviceBufferWrapper<float, Abort, Abort> src(64, dev_h);
   float *const raw = src.data();
 
-  DeviceBufferWrapper<float> dst(std::move(src));
+  DeviceBufferWrapper<float, Abort, Abort> dst(std::move(src));
   EXPECT_EQ(dst.data(), raw);
   EXPECT_EQ(src.data(), nullptr);
 }
@@ -504,9 +507,9 @@ TEST(DeviceBufferTests, MoveAssignmentReleasesDeviceOwnership) {
   // constructor has no prior allocation to free, so this is the only test that
   // frees a live device block on a move.
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<> &stream = dev_h->alloc_stream();
-  DeviceBufferWrapper<float> src(64, dev_h);
-  DeviceBufferWrapper<float> dst(32, dev_h);
+  GpuStreamWrapper<Abort, Abort> &stream = dev_h->alloc_stream();
+  DeviceBufferWrapper<float, Abort, Abort> src(64, dev_h);
+  DeviceBufferWrapper<float, Abort, Abort> dst(32, dev_h);
   float *const raw = src.data();
 
   dst = std::move(src);
@@ -522,13 +525,13 @@ TEST(DeviceBufferTests, MoveAssignmentReleasesDeviceOwnership) {
 }
 
 TEST(DeviceBufferTests, RoundTripsThroughDeviceMemory) {
-  HostBufferWrapper<float> up(32);
-  HostBufferWrapper<float> down(32);
+  HostBufferWrapper<float, HostAbort, HostAbort> up(32);
+  HostBufferWrapper<float, HostAbort, HostAbort> down(32);
   for (std::size_t i = 0; i < 32; ++i)
     up[i] = static_cast<float>(i) * 2.0f;
 
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  DeviceBufferWrapper<float> dev(32, dev_h);
+  DeviceBufferWrapper<float, Abort, Abort> dev(32, dev_h);
   const wwrStream_t stream = dev_h->alloc_stream().get();
   ASSERT_EQ(ext::copy(dev, up, stream), wwrSuccess);
   ASSERT_EQ(ext::copy(down, dev, stream), wwrSuccess);
@@ -547,9 +550,9 @@ TEST(DeviceBufferTests, StreamOrderedAllocationsSurviveRepeatedChurn) {
   // reissued them to the next allocation. Freeing on the same stream
   // keeps each block alive until its work has drained.
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<> &stream = dev_h->alloc_stream();
+  GpuStreamWrapper<Abort, Abort> &stream = dev_h->alloc_stream();
   for (int iter = 0; iter < 64; ++iter) {
-    DeviceBufferWrapper<float> buf(4096, dev_h);
+    DeviceBufferWrapper<float, Abort, Abort> buf(4096, dev_h);
     ASSERT_NE(buf.data(), nullptr) << "at iteration " << iter;
     EXPECT_EQ(buf.num_elements(), std::size_t{4096}) << "at iteration " << iter;
     EXPECT_EQ(ext::memset(buf, 0xAB, stream.get()), wwrSuccess) << "at iteration " << iter;
@@ -560,10 +563,10 @@ TEST(DeviceBufferTests, StreamOrderedAllocationsSurviveRepeatedChurn) {
 
 TEST(DeviceBufferTests, StreamOrderedBufferHoldsItsContents) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<> &stream = dev_h->alloc_stream();
-  HostBufferWrapper<float> host(128);
+  GpuStreamWrapper<Abort, Abort> &stream = dev_h->alloc_stream();
+  HostBufferWrapper<float, HostAbort, HostAbort> host(128);
   {
-    DeviceBufferWrapper<float> dev(128, dev_h);
+    DeviceBufferWrapper<float, Abort, Abort> dev(128, dev_h);
     ASSERT_EQ(ext::memset(dev, 0, stream.get()), wwrSuccess);
     ASSERT_EQ(ext::copy(host, dev, stream.get()), wwrSuccess);
     ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
@@ -576,10 +579,10 @@ TEST(DeviceBufferTests, StreamOrderedBufferHoldsItsContents) {
 
 TEST(DeviceBufferTests, MovedStreamOrderedBufferFreesOnce) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<> &stream = dev_h->alloc_stream();
+  GpuStreamWrapper<Abort, Abort> &stream = dev_h->alloc_stream();
   {
-    DeviceBufferWrapper<float> src(1024, dev_h);
-    DeviceBufferWrapper<float> dst(std::move(src));
+    DeviceBufferWrapper<float, Abort, Abort> src(1024, dev_h);
+    DeviceBufferWrapper<float, Abort, Abort> dst(std::move(src));
     EXPECT_EQ(src.data(), nullptr);
     EXPECT_NE(dst.data(), nullptr);
   }
@@ -601,9 +604,9 @@ TEST(DeviceHandleTests, ReportsIndexAndQueriesProperties) {
 
 TEST(DeviceBufferTests, HandleAllocationHoldsItsContents) {
   auto dev = std::make_shared<DeviceHandle>(0);
-  HostBufferWrapper<float> host(128);
+  HostBufferWrapper<float, HostAbort, HostAbort> host(128);
   {
-    DeviceBufferWrapper<float> buf(128, dev);
+    DeviceBufferWrapper<float, Abort, Abort> buf(128, dev);
     ASSERT_NE(buf.data(), nullptr);
     EXPECT_EQ(buf.num_elements(), std::size_t{128});
     ASSERT_EQ(ext::memset(buf, 0, dev->alloc_stream().get()), wwrSuccess);
@@ -621,7 +624,7 @@ TEST(DeviceBufferTests, HandleBufferRetainsStreamAfterLocalHandleReset) {
   // reference must not destroy the stream the destructor frees on.
   auto dev = std::make_shared<DeviceHandle>(0);
   const wwrStream_t stream = dev->alloc_stream().get();
-  DeviceBufferWrapper<float> buf(256, dev);
+  DeviceBufferWrapper<float, Abort, Abort> buf(256, dev);
   dev.reset(); // the buffer's retained handle is now the sole owner
   ASSERT_NE(buf.data(), nullptr);
   EXPECT_EQ(wwrStreamSynchronize(stream), wwrSuccess); // stream still alive
@@ -634,13 +637,13 @@ TEST(DeviceBufferTests, HandleBufferRetainsStreamAfterLocalHandleReset) {
 // unified memory is genuinely host-writable.
 
 TEST(HostAccessibleBufferTests, PinnedBufferWithFlags) {
-  PinnedBufferWrapper<float> buf(64, wwrHostAllocMapped);
+  PinnedBufferWrapper<float, Abort, Abort> buf(64, wwrHostAllocMapped);
   EXPECT_NE(buf.data(), nullptr);
   EXPECT_EQ(buf.num_elements(), std::size_t{64});
 }
 
 TEST(HostAccessibleBufferTests, UnifiedBufferIsHostAccessible) {
-  UnifiedBufferWrapper<float> buf(64);
+  UnifiedBufferWrapper<float, Abort, Abort> buf(64);
   ASSERT_NE(buf.data(), nullptr);
   for (std::size_t i = 0; i < 64; ++i)
     buf[i] = static_cast<float>(i);
@@ -648,7 +651,7 @@ TEST(HostAccessibleBufferTests, UnifiedBufferIsHostAccessible) {
 }
 
 TEST(HostAccessibleBufferTests, UnifiedBufferWithFlags) {
-  UnifiedBufferWrapper<float> buf(64, wwrMemAttachHost);
+  UnifiedBufferWrapper<float, Abort, Abort> buf(64, wwrMemAttachHost);
   EXPECT_NE(buf.data(), nullptr);
   EXPECT_EQ(buf.num_elements(), std::size_t{64});
 }
@@ -658,8 +661,8 @@ TEST(HostAccessibleBufferTests, UnifiedBufferWithFlags) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TEST(CopyAndMemsetTests, SynchronousHostCopy) {
-  HostBufferWrapper<float> src(16);
-  HostBufferWrapper<float> dst(16);
+  HostBufferWrapper<float, HostAbort, HostAbort> src(16);
+  HostBufferWrapper<float, HostAbort, HostAbort> dst(16);
   for (std::size_t i = 0; i < 16; ++i)
     src[i] = static_cast<float>(i);
 
@@ -670,25 +673,25 @@ TEST(CopyAndMemsetTests, SynchronousHostCopy) {
 }
 
 TEST(CopyAndMemsetTests, SynchronousHostCopyRejectsUndersizedDestination) {
-  HostBufferWrapper<float> src(16);
-  HostBufferWrapper<float> dst(4);
+  HostBufferWrapper<float, HostAbort, HostAbort> src(16);
+  HostBufferWrapper<float, HostAbort, HostAbort> dst(4);
   EXPECT_EQ(ext::copy(dst, src), stdHostMemInvalidValue);
 }
 
 TEST(CopyAndMemsetTests, EmptyBufferCopyIsANoOp) {
-  HostBufferWrapper<float> src;
-  HostBufferWrapper<float> dst;
+  HostBufferWrapper<float, HostAbort, HostAbort> src;
+  HostBufferWrapper<float, HostAbort, HostAbort> dst;
   EXPECT_EQ(ext::copy(dst, src), stdHostMemSuccess);
 }
 
 TEST(CopyAndMemsetTests, OffsetCopyMovesOnlyTheRequestedRange) {
-  HostBufferWrapper<float> host(16);
+  HostBufferWrapper<float, HostAbort, HostAbort> host(16);
   for (std::size_t i = 0; i < 16; ++i)
     host[i] = static_cast<float>(i) + 1.0f;
 
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  DeviceBufferWrapper<float> dev(16, dev_h);
-  HostBufferWrapper<float> out(16);
+  DeviceBufferWrapper<float, Abort, Abort> dev(16, dev_h);
+  HostBufferWrapper<float, HostAbort, HostAbort> out(16);
 
   const wwrStream_t stream = dev_h->alloc_stream().get();
   ASSERT_EQ(ext::copy(dev, 0, host, 4, 8, stream), wwrSuccess);
@@ -702,8 +705,8 @@ TEST(CopyAndMemsetTests, OffsetCopyMovesOnlyTheRequestedRange) {
 
 TEST(CopyAndMemsetTests, OffsetCopyRejectsOutOfBoundsRange) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  HostBufferWrapper<float> host(16);
-  DeviceBufferWrapper<float> dev(16, dev_h);
+  HostBufferWrapper<float, HostAbort, HostAbort> host(16);
+  DeviceBufferWrapper<float, Abort, Abort> dev(16, dev_h);
   EXPECT_EQ(ext::copy(dev, 0, host, 12, 8, wwrStream_t{0}), wwrErrorInvalidValue);
 }
 
@@ -713,16 +716,16 @@ TEST(CopyAndMemsetTests, OffsetCopyRejectsOutOfBoundsRange) {
 // units. These pin both, with a reinterpret view on each end.
 
 TEST(CopyAndMemsetTests, SynchronousHostCopyThroughReinterpretViews) {
-  HostBufferWrapper<std::uint32_t> src(4);
-  HostBufferWrapper<std::uint32_t> dst(4);
+  HostBufferWrapper<std::uint32_t, HostAbort, HostAbort> src(4);
+  HostBufferWrapper<std::uint32_t, HostAbort, HostAbort> dst(4);
   for (std::size_t i = 0; i < 4; ++i) {
     src[i] = 0xDEAD0000u + static_cast<std::uint32_t>(i);
     dst[i] = 0;
   }
 
   // Byte views over both ends: the sync overload memcpy's the whole 16-byte span.
-  BufferViewWrapper<std::byte, MemoryKind::Host> src_bytes = reinterpret_buffer_view<std::byte>(src);
-  BufferViewWrapper<std::byte, MemoryKind::Host> dst_bytes = reinterpret_buffer_view<std::byte>(dst);
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort> src_bytes = reinterpret_buffer_view<std::byte>(src);
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort> dst_bytes = reinterpret_buffer_view<std::byte>(dst);
   ASSERT_EQ(src_bytes.num_elements(), std::size_t{16});
   ASSERT_EQ(ext::copy(dst_bytes, src_bytes), stdHostMemSuccess);
 
@@ -731,15 +734,15 @@ TEST(CopyAndMemsetTests, SynchronousHostCopyThroughReinterpretViews) {
 }
 
 TEST(CopyAndMemsetTests, OffsetCopyThroughReinterpretViewUsesByteUnits) {
-  HostBufferWrapper<std::uint32_t> src(4);
-  HostBufferWrapper<std::uint32_t> dst(4);
+  HostBufferWrapper<std::uint32_t, HostAbort, HostAbort> src(4);
+  HostBufferWrapper<std::uint32_t, HostAbort, HostAbort> dst(4);
   for (std::size_t i = 0; i < 4; ++i) {
     src[i] = 0x11111111u * static_cast<std::uint32_t>(i + 1);
     dst[i] = 0;
   }
 
-  BufferViewWrapper<std::byte, MemoryKind::Host> src_bytes = reinterpret_buffer_view<std::byte>(src);
-  BufferViewWrapper<std::byte, MemoryKind::Host> dst_bytes = reinterpret_buffer_view<std::byte>(dst);
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort> src_bytes = reinterpret_buffer_view<std::byte>(src);
+  BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort> dst_bytes = reinterpret_buffer_view<std::byte>(dst);
 
   // 8 bytes (two uint32) from src[0..] into dst starting at byte 4 (= dst[1]).
   // Offsets and count are in the view's element units, which are bytes here.
@@ -753,7 +756,7 @@ TEST(CopyAndMemsetTests, OffsetCopyThroughReinterpretViewUsesByteUnits) {
 }
 
 TEST(CopyAndMemsetTests, HostMemsetFillsBuffer) {
-  HostBufferWrapper<std::byte> buf(16);
+  HostBufferWrapper<std::byte, HostAbort, HostAbort> buf(16);
   ASSERT_EQ(ext::memset(buf, 0x5A), stdHostMemSuccess);
   for (std::size_t i = 0; i < 16; ++i) {
     EXPECT_EQ(static_cast<int>(buf[i]), 0x5A) << "at index " << i;
@@ -761,13 +764,13 @@ TEST(CopyAndMemsetTests, HostMemsetFillsBuffer) {
 }
 
 TEST(CopyAndMemsetTests, EmptyBufferMemsetIsANoOp) {
-  HostBufferWrapper<std::byte> buf;
+  HostBufferWrapper<std::byte, HostAbort, HostAbort> buf;
   EXPECT_EQ(ext::memset(buf, 0x5A), stdHostMemSuccess);
 }
 
 TEST(CopyAndMemsetTests, OffsetMemsetRejectsOutOfBoundsRange) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  DeviceBufferWrapper<float> dev(16, dev_h);
+  DeviceBufferWrapper<float, Abort, Abort> dev(16, dev_h);
   EXPECT_EQ(ext::memset(dev, 12, 8, 0, wwrStream_t{0}), wwrErrorInvalidValue);
 }
 
@@ -780,11 +783,11 @@ TEST(CopyAndMemsetTests, OffsetMemsetFillsOnlyTheRequestedRange) {
   // float would read back as a NaN bit pattern.
   auto dev_h = std::make_shared<DeviceHandle>(0);
   const wwrStream_t stream = dev_h->alloc_stream().get();
-  DeviceBufferWrapper<std::byte> dev(16, dev_h); // zero-initialised by the pool draw
+  DeviceBufferWrapper<std::byte, Abort, Abort> dev(16, dev_h); // zero-initialised by the pool draw
 
   ASSERT_EQ(ext::memset(dev, 4, 8, 0xAB, stream), wwrSuccess);
 
-  HostBufferWrapper<std::byte> host(16);
+  HostBufferWrapper<std::byte, HostAbort, HostAbort> host(16);
   ASSERT_EQ(ext::copy(host, dev, stream), wwrSuccess);
   ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
 
@@ -795,8 +798,8 @@ TEST(CopyAndMemsetTests, OffsetMemsetFillsOnlyTheRequestedRange) {
 }
 
 TEST(CopyAndMemsetTests, VoidBufferCopiesByBytes) {
-  HostBufferWrapper<void> src(32);
-  HostBufferWrapper<void> dst(32);
+  HostBufferWrapper<void, HostAbort, HostAbort> src(32);
+  HostBufferWrapper<void, HostAbort, HostAbort> dst(32);
   EXPECT_EQ(src.size_bytes(), std::size_t{32});
   EXPECT_EQ(ext::copy(dst, src), stdHostMemSuccess);
   EXPECT_EQ(ext::copy(dst, 8, src, 8, 16, wwrStream_t{0}), wwrSuccess);

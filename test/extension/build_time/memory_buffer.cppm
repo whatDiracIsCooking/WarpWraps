@@ -18,31 +18,34 @@ import wwr.extension.memory_buffer;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 namespace wwr::extension::test {
+// Bind abort-on-failure once per error type, for this file's instantiations.
+using Abort = AbortPolicy<wwrError_t>;
+using HostAbort = AbortPolicy<stdHostMemoryError_t>;
 
-static_assert(!std::is_copy_constructible_v<HostBufferWrapper<float>>);
-static_assert(!std::is_copy_assignable_v<HostBufferWrapper<float>>);
-static_assert(!std::is_copy_constructible_v<DeviceBufferWrapper<float>>);
-static_assert(std::is_nothrow_move_constructible_v<HostBufferWrapper<float>>);
-static_assert(std::is_nothrow_move_assignable_v<HostBufferWrapper<float>>);
-static_assert(std::is_nothrow_move_constructible_v<DeviceBufferWrapper<float>>);
-static_assert(std::is_nothrow_move_assignable_v<DeviceBufferWrapper<float>>);
-static_assert(std::is_nothrow_move_constructible_v<PinnedBufferWrapper<float>>);
-static_assert(std::is_nothrow_move_constructible_v<UnifiedBufferWrapper<float>>);
+static_assert(!std::is_copy_constructible_v<HostBufferWrapper<float, HostAbort, HostAbort>>);
+static_assert(!std::is_copy_assignable_v<HostBufferWrapper<float, HostAbort, HostAbort>>);
+static_assert(!std::is_copy_constructible_v<DeviceBufferWrapper<float, Abort, Abort>>);
+static_assert(std::is_nothrow_move_constructible_v<HostBufferWrapper<float, HostAbort, HostAbort>>);
+static_assert(std::is_nothrow_move_assignable_v<HostBufferWrapper<float, HostAbort, HostAbort>>);
+static_assert(std::is_nothrow_move_constructible_v<DeviceBufferWrapper<float, Abort, Abort>>);
+static_assert(std::is_nothrow_move_assignable_v<DeviceBufferWrapper<float, Abort, Abort>>);
+static_assert(std::is_nothrow_move_constructible_v<PinnedBufferWrapper<float, Abort, Abort>>);
+static_assert(std::is_nothrow_move_constructible_v<UnifiedBufferWrapper<float, Abort, Abort>>);
 
 // Views share the buffer_base interface but are copyable and never own.
-static_assert(std::is_copy_constructible_v<BufferViewWrapper<float, MemoryKind::Host>>);
-static_assert(std::is_copy_assignable_v<BufferViewWrapper<float, MemoryKind::Host>>);
-static_assert(BufferViewWrapper<float, MemoryKind::Host>::is_view);
-static_assert(!HostBufferWrapper<float>::is_view);
-static_assert(buffer_base<HostBufferWrapper<float>>);
-static_assert(buffer_base<BufferViewWrapper<float, MemoryKind::Host>>);
-static_assert(buffer_base<DeviceBufferWrapper<float>>);
-static_assert(same_value_type<HostBufferWrapper<float>, DeviceBufferWrapper<float>>);
-static_assert(buffer_typename<HostBufferWrapper<float>, float>);
+static_assert(std::is_copy_constructible_v<BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>>);
+static_assert(std::is_copy_assignable_v<BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>>);
+static_assert(BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>::is_view);
+static_assert(!HostBufferWrapper<float, HostAbort, HostAbort>::is_view);
+static_assert(buffer_base<HostBufferWrapper<float, HostAbort, HostAbort>>);
+static_assert(buffer_base<BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>>);
+static_assert(buffer_base<DeviceBufferWrapper<float, Abort, Abort>>);
+static_assert(same_value_type<HostBufferWrapper<float, HostAbort, HostAbort>, DeviceBufferWrapper<float, Abort, Abort>>);
+static_assert(buffer_typename<HostBufferWrapper<float, HostAbort, HostAbort>, float>);
 
 // void buffers store bytes.
-static_assert(HostBufferWrapper<void>::element_size == 1);
-static_assert(HostBufferWrapper<float>::element_size == sizeof(float));
+static_assert(HostBufferWrapper<void, HostAbort, HostAbort>::element_size == 1);
+static_assert(HostBufferWrapper<float, HostAbort, HostAbort>::element_size == sizeof(float));
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // [[no_unique_address]] on the alloc/free policy members (issue #67)
@@ -72,7 +75,7 @@ using HErr = stdHostMemoryError_t;
 static_assert(sizeof(HostBufferWrapper<float, EmptyPolicyA<HErr>, EmptyPolicyB<HErr>>) ==
               sizeof(float *) + sizeof(std::size_t));
 // The same-type default still pays for the second, otherwise-elided slot.
-static_assert(sizeof(HostBufferWrapper<float>) >
+static_assert(sizeof(HostBufferWrapper<float, HostAbort, HostAbort>) >
               sizeof(HostBufferWrapper<float, EmptyPolicyA<HErr>, EmptyPolicyB<HErr>>));
 
 // A reinterpreting view is never formed by an implicit cross-type conversion,
@@ -80,10 +83,10 @@ static_assert(sizeof(HostBufferWrapper<float>) >
 // detail (not re-exported), so the factory is the only public door. Assert both:
 // no implicit conversion, and reinterpret_buffer_view carries the source's kind
 // and policies onto a view of the requested element type.
-static_assert(!std::is_constructible_v<BufferViewWrapper<std::byte, MemoryKind::Host>, HostBufferWrapper<float> &>);
+static_assert(!std::is_constructible_v<BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort>, HostBufferWrapper<float, HostAbort, HostAbort> &>);
 static_assert(std::same_as<decltype(reinterpret_buffer_view<std::byte>(
-                               std::declval<HostBufferWrapper<float> &>())),
-                           BufferViewWrapper<std::byte, MemoryKind::Host>>);
+                               std::declval<HostBufferWrapper<float, HostAbort, HostAbort> &>())),
+                           BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort>>);
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // The device_handle concept and the DeviceBuffer handle axis
@@ -119,7 +122,7 @@ static_assert(!device_handle<MissingHandle>);
 
 // The buffer instantiates over a downstream handle and keeps its contract.
 using FakeDeviceBuffer =
-    DeviceBufferWrapper<float, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
+    DeviceBufferWrapper<float, Abort, Abort,
                         FakeHandle>;
 static_assert(buffer_base<FakeDeviceBuffer>);
 static_assert(std::is_nothrow_move_constructible_v<FakeDeviceBuffer>);

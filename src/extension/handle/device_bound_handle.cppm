@@ -49,10 +49,10 @@ export namespace wwr::extension {
  * @tparam T The underlying GPU handle type (e.g., wwrStream_t)
  * @tparam Derived The concrete class inheriting from this layer (CRTP)
  * @tparam P_create The error policy type for creation
- * @tparam P_destroy The error policy type for destruction (defaults to P_create)
+ * @tparam P_destroy The error policy type for destruction
  */
 template<typename T, typename Derived, typed_error_policy P_create,
-         nothrow_error_policy<typename P_create::error_type> P_destroy = P_create>
+         nothrow_error_policy<typename P_create::error_type> P_destroy>
 class DeviceBoundHandle : public BaseHandle<T, Derived, P_create, P_destroy> {
 private:
   using Base = BaseHandle<T, Derived, P_create, P_destroy>;

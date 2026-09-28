@@ -12,7 +12,7 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 
 **Borrow-safe operations are free functions.** `sync`, `wait_event`, `begin_capture` (stream), `record`, `sync` (event), and `launch`, `upload` (executable graph) are free functions taking the raw handle (`wwrStream_t`/`wwrEvent_t`/`wwrGraphExec_t`). An owning wrapper and its view both convert to that handle, so one definition serves the owner, its view, and a bare handle alike (found by ADL on the wrapper/view types). Operations that *produce* an owned handle — `end_capture` (stream), `instantiate` (graph) — stay members, since they need the wrapper's error policy. A handle's `view()` (from `BaseHandle`/`DeviceBoundHandle`) returns its non-owning, copyable, trivially-destructible view.
 
-**The module ships the wrappers, not default-policy aliases for them.** Each `*Wrapper` takes its error policy as a template argument, defaulting to `AbortPolicy`. Binding one to the default is a one-line `using` a consumer writes once, for exactly the names it uses (`using GpuStream = GpuStreamWrapper<>;`) — see the [Usage](#usage) block and `example/warp_reduce`.
+**The module ships the wrappers, not default-policy aliases for them.** Each `*Wrapper` takes its create and destroy error policies as explicit template arguments — neither has a default, so every use names both. Binding them (e.g. to `AbortPolicy`) is a one-line `using` a consumer writes once, for exactly the names it uses (`using GpuStream = GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;`) — see the [Usage](#usage) block and `example/warp_reduce`.
 
 ## Partitions
 
@@ -41,8 +41,8 @@ Also explicitly instantiates `AbortPolicy<wwrError_t>` and both overloads of `gp
 ### Stream (`gpu_stream`)
 
 ```cpp
-template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
-         nothrow_error_policy<wwrError_t> P_destroy = P_create>
+template<error_policy<wwrError_t> P_create,
+         nothrow_error_policy<wwrError_t> P_destroy>
 class GpuStreamWrapper;
 ```
 
@@ -53,13 +53,13 @@ Constructors:
 
 Destruction calls `wwrStreamDestroy`. Supports move semantics; copy is deleted.
 
-Graph capture: the free function `begin_capture(stream, mode = wwrStreamCaptureModeGlobal)` starts recording work submitted to the stream, and the owner's `end_capture()` member ends it and returns a `GpuGraphWrapper<>` owning the captured graph (via `GpuGraphWrapper::adopt`), so the whole `begin_capture → end_capture → instantiate → launch` flow stays RAII. `end_capture` stays a member because it mints an owned graph through the create policy.
+Graph capture: the free function `begin_capture(stream, mode = wwrStreamCaptureModeGlobal)` starts recording work submitted to the stream, and the owner's `end_capture()` member ends it and returns a `GpuGraphWrapper<P_create, P_destroy>` (the stream's own policies) owning the captured graph (via `GpuGraphWrapper::adopt`), so the whole `begin_capture → end_capture → instantiate → launch` flow stays RAII. `end_capture` stays a member because it mints an owned graph through the create policy.
 
 ### Event (`gpu_event`)
 
 ```cpp
-template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
-         nothrow_error_policy<wwrError_t> P_destroy = P_create>
+template<error_policy<wwrError_t> P_create,
+         nothrow_error_policy<wwrError_t> P_destroy>
 class GpuEventWrapper;
 ```
 
@@ -72,8 +72,8 @@ Destruction calls `wwrEventDestroy`.
 ### Memory pool (`gpu_mem_pool`)
 
 ```cpp
-template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
-         nothrow_error_policy<wwrError_t> P_destroy = P_create>
+template<error_policy<wwrError_t> P_create,
+         nothrow_error_policy<wwrError_t> P_destroy>
 class GpuMemPoolWrapper;
 ```
 
@@ -86,21 +86,21 @@ Destruction calls `wwrMemPoolDestroy`.
 ### Graph (`gpu_graph`)
 
 ```cpp
-template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
-         nothrow_error_policy<wwrError_t> P_destroy = P_create>
+template<error_policy<wwrError_t> P_create,
+         nothrow_error_policy<wwrError_t> P_destroy>
 class GpuGraphWrapper;
 ```
 
 Constructors:
 - Default — creates an empty graph with `wwrGraphCreate`
 
-`instantiate(unsigned long long flags = 0)` returns a `GpuGraphExecWrapper<>` for this graph. Destruction calls `wwrGraphDestroy`.
+`instantiate(unsigned long long flags = 0)` returns a `GpuGraphExecWrapper<P_create, P_destroy>` (the graph's own policies) for this graph. Destruction calls `wwrGraphDestroy`.
 
 ### Executable graph (`gpu_graph_exec`)
 
 ```cpp
-template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
-         nothrow_error_policy<wwrError_t> P_destroy = P_create>
+template<error_policy<wwrError_t> P_create,
+         nothrow_error_policy<wwrError_t> P_destroy>
 class GpuGraphExecWrapper;
 ```
 
@@ -130,12 +130,13 @@ Constructors:
 import wwr.extension.runtime;
 using namespace wwr::extension;
 
-// Bind the wrappers to the default error policy — your names, defined once.
-using GpuStream = GpuStreamWrapper<>;
-using GpuEvent = GpuEventWrapper<>;
-using GpuMemPool = GpuMemPoolWrapper<>;
-using GpuGraph = GpuGraphWrapper<>;
-using GpuGraphExec = GpuGraphExecWrapper<>;
+// Bind the wrappers to an error policy — your names, defined once.
+using Abort = AbortPolicy<wwrError_t>;
+using GpuStream = GpuStreamWrapper<Abort, Abort>;
+using GpuEvent = GpuEventWrapper<Abort, Abort>;
+using GpuMemPool = GpuMemPoolWrapper<Abort, Abort>;
+using GpuGraph = GpuGraphWrapper<Abort, Abort>;
+using GpuGraphExec = GpuGraphExecWrapper<Abort, Abort>;
 
 GpuStream stream;
 GpuEvent  event;

@@ -37,16 +37,16 @@ struct StreamEventConfig {
  */
 class StreamEventPair : private NonCopyable {
 private:
-  GpuStreamWrapper<> stream_;
-  GpuEventWrapper<> event_;
+  GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> stream_;
+  GpuEventWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> event_;
 
-  static GpuStreamWrapper<> make_stream(const StreamEventConfig &cfg) {
+  static GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> make_stream(const StreamEventConfig &cfg) {
     if (cfg.stream_priority)
-      return GpuStreamWrapper<>(cfg.device, cfg.stream_flags.value_or(wwrStreamDefault),
+      return GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>(cfg.device, cfg.stream_flags.value_or(wwrStreamDefault),
                        *cfg.stream_priority);
     if (cfg.stream_flags)
-      return GpuStreamWrapper<>(cfg.device, *cfg.stream_flags);
-    return GpuStreamWrapper<>(cfg.device);
+      return GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>(cfg.device, *cfg.stream_flags);
+    return GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>(cfg.device);
   }
 
 public:
@@ -54,18 +54,18 @@ public:
 
   explicit StreamEventPair(StreamEventConfig cfg)
       : stream_(make_stream(cfg)),
-        event_(cfg.event_flags ? GpuEventWrapper<>(cfg.device, *cfg.event_flags) : GpuEventWrapper<>(cfg.device)) {}
+        event_(cfg.event_flags ? GpuEventWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>(cfg.device, *cfg.event_flags) : GpuEventWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>(cfg.device)) {}
 
   // Copy operations are implicitly deleted via the NonCopyable base.
 
   StreamEventPair(StreamEventPair &&) = default;
   StreamEventPair &operator=(StreamEventPair &&) = default;
 
-  GpuStreamWrapper<> &gpu_stream() { return stream_; }
-  const GpuStreamWrapper<> &gpu_stream() const { return stream_; }
+  GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &gpu_stream() { return stream_; }
+  const GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &gpu_stream() const { return stream_; }
 
-  GpuEventWrapper<> &gpu_event() { return event_; }
-  const GpuEventWrapper<> &gpu_event() const { return event_; }
+  GpuEventWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &gpu_event() { return event_; }
+  const GpuEventWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &gpu_event() const { return event_; }
 
   wwrStream_t stream_raw() const { return stream_.get(); }
   wwrEvent_t event_raw() const { return event_.get(); }

@@ -48,6 +48,7 @@ import wwr.wrappers.sparse;
 import wwr.wrappers.tx; // wwr::tx::mark, ScopedRange, range_start/stop
 
 #if defined(WWR_CONSUMER_HAS_EXTENSION)
+import wwr.extension.common;        // AbortPolicy<E>, the error policies the wrappers take
 import wwr.extension.runtime;       // GpuStreamWrapper and the rest of the RAII runtime
 import wwr.extension.random_normal; // random_normal<T>, backed by a device archive
 #endif
@@ -170,7 +171,8 @@ bool wrappers_link() {
 // fragile part of the extension install -- the archive has to survive the export
 // set and re-attach in a find_package consumer.
 bool extension_link() {
-  static_assert(sizeof(extension::GpuStreamWrapper<>) > 0);
+  static_assert(sizeof(extension::GpuStreamWrapper<extension::AbortPolicy<wwrError_t>,
+                                                   extension::AbortPolicy<wwrError_t>>) > 0);
   static const void *volatile sink[] = {
       reinterpret_cast<const void *>(&extension::random_normal<float>),
   };

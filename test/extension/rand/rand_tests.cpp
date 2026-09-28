@@ -36,12 +36,16 @@ import wwr.rand;
 import wwr.complex;
 import wwr.fp16;
 import wwr.bf16;
+import wwr.extension.common;
 import wwr.extension.runtime;
 import wwr.extension.memory_buffer;
 import wwr.extension.init_state;
 import wwr.extension.random_normal;
 
 namespace wwr::extension::test {
+// Bind abort-on-failure once per error type, for this file's instantiations.
+using Abort = AbortPolicy<wwrError_t>;
+using HostAbort = AbortPolicy<stdHostMemoryError_t>;
 
 namespace {
 
@@ -59,14 +63,14 @@ std::vector<OutputType> draw(const std::size_t count, const unsigned long long s
                              const OutputType scale = OutputType{1.0f},
                              const unsigned long long offset = 0) {
   auto handle = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<> &stream = handle->alloc_stream();
-  DeviceBufferWrapper<wwrrandState> states(count, handle);
-  DeviceBufferWrapper<OutputType> values(count, handle);
+  GpuStreamWrapper<Abort, Abort> &stream = handle->alloc_stream();
+  DeviceBufferWrapper<wwrrandState, Abort, Abort> states(count, handle);
+  DeviceBufferWrapper<OutputType, Abort, Abort> values(count, handle);
 
   init_state(stream.get(), count, states.data(), seed, sequence_offset, offset);
   random_normal(stream.get(), count, states.data(), values.data(), scale);
 
-  HostBufferWrapper<OutputType> host(count);
+  HostBufferWrapper<OutputType, HostAbort, HostAbort> host(count);
   EXPECT_EQ(copy(host, values, stream.get()), wwrSuccess);
   EXPECT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
 
@@ -287,10 +291,10 @@ TEST(RandTests, StatesAdvanceAcrossCalls) {
   constexpr std::size_t n = 1000;
 
   auto handle = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<> &stream = handle->alloc_stream();
-  DeviceBufferWrapper<wwrrandState> states(n, handle);
-  DeviceBufferWrapper<double> values(n, handle);
-  HostBufferWrapper<double> host(n);
+  GpuStreamWrapper<Abort, Abort> &stream = handle->alloc_stream();
+  DeviceBufferWrapper<wwrrandState, Abort, Abort> states(n, handle);
+  DeviceBufferWrapper<double, Abort, Abort> values(n, handle);
+  HostBufferWrapper<double, HostAbort, HostAbort> host(n);
 
   init_state(stream.get(), n, states.data(), kSeed);
 
@@ -319,9 +323,9 @@ TEST(RandTests, SequenceOffsetShiftsTheStreams) {
 // or touch the buffer.
 TEST(RandTests, ZeroCountIsANoOp) {
   auto handle = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<> &stream = handle->alloc_stream();
-  DeviceBufferWrapper<wwrrandState> states(4, handle);
-  DeviceBufferWrapper<double> values(4, handle);
+  GpuStreamWrapper<Abort, Abort> &stream = handle->alloc_stream();
+  DeviceBufferWrapper<wwrrandState, Abort, Abort> states(4, handle);
+  DeviceBufferWrapper<double, Abort, Abort> values(4, handle);
 
   ASSERT_EQ(memset(values, 0, stream.get()), wwrSuccess);
 
@@ -329,7 +333,7 @@ TEST(RandTests, ZeroCountIsANoOp) {
   random_normal(stream.get(), 0, states.data(), values.data());
   ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
 
-  HostBufferWrapper<double> host(4);
+  HostBufferWrapper<double, HostAbort, HostAbort> host(4);
   ASSERT_EQ(copy(host, values, stream.get()), wwrSuccess);
   ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
 

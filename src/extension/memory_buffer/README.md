@@ -8,13 +8,13 @@ RAII-based memory buffer management for all GPU-relevant memory kinds. Provides 
 
 ## Buffer Types
 
-The module ships the `*Wrapper` classes (in the `wwr::extension` namespace); each takes its `P_alloc`/`P_free` error policies as template arguments, defaulting to `AbortPolicy`. It does **not** ship default-policy aliases for them — binding a wrapper to the default is a one-line `using` a consumer writes once, for the names it uses:
+The module ships the `*Wrapper` classes (in the `wwr::extension` namespace); each takes its `P_alloc`/`P_free` error policies as explicit template arguments — neither has a default, so every use names both. It does **not** ship default-policy aliases for them — binding a wrapper to a policy (e.g. `AbortPolicy`) is a one-line `using` a consumer writes once, for the names it uses:
 
 ```cpp
-template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T>;
-template<typename T> using PinnedBuffer  = PinnedBufferWrapper<T>;
-template<typename T> using UnifiedBuffer = UnifiedBufferWrapper<T>;
-template<typename T> using HostBuffer    = HostBufferWrapper<T>;
+template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
+template<typename T> using PinnedBuffer  = PinnedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
+template<typename T> using UnifiedBuffer = UnifiedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
+template<typename T> using HostBuffer    = HostBufferWrapper<T, AbortPolicy<stdHostMemoryError_t>, AbortPolicy<stdHostMemoryError_t>>;
 ```
 
 The examples below use those names (see also `example/warp_reduce`). Each wrapper class:
@@ -153,7 +153,7 @@ Both async overloads use `wwrMemcpyAsync` with `wwrMemcpyDefault` (direction inf
 
 `BufferViewWrapper<T, K, P_alloc, P_free>` is a non-owning view over any buffer of the same
 `T` and `K`. A consumer names one per kind with the same alias pattern —
-`template<typename T> using HostBufferView = BufferViewWrapper<T, MemoryKind::Host>;` and the
+`template<typename T> using HostBufferView = BufferViewWrapper<T, MemoryKind::Host, AbortPolicy<stdHostMemoryError_t>, AbortPolicy<stdHostMemoryError_t>>;` and the
 `Device` / `Pinned` / `Unified` equivalents — and the examples below use those names.
 
 ```cpp

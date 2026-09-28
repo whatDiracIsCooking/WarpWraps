@@ -32,6 +32,8 @@ import wwr.extension.handle; // BaseHandle, DeviceBoundHandle
 import wwr.extension.fft; // re-exports wwr.fft: wwrfftHandle, wwrfftResult_t, WWRFFT_SUCCESS
 
 namespace wwr::extension::test {
+// Bind abort-on-failure once, for this file's wrapper instantiations.
+using Abort = AbortPolicy<wwrfftResult_t>;
 
 // An error policy that tallies failures into an external counter instead of
 // aborting, so a botched destroy is observable after the objects are gone
@@ -50,12 +52,12 @@ struct CountingErrorPolicy {
   }
 };
 
-using CountingPlan = FftPlanWrapper<CountingErrorPolicy>;
+using CountingPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy>;
 
-static_assert(!std::is_copy_constructible_v<FftPlanWrapper<>>);
-static_assert(!std::is_copy_assignable_v<FftPlanWrapper<>>);
-static_assert(std::is_nothrow_move_constructible_v<FftPlanWrapper<>>);
-static_assert(std::is_nothrow_move_assignable_v<FftPlanWrapper<>>);
+static_assert(!std::is_copy_constructible_v<FftPlanWrapper<Abort, Abort>>);
+static_assert(!std::is_copy_assignable_v<FftPlanWrapper<Abort, Abort>>);
+static_assert(std::is_nothrow_move_constructible_v<FftPlanWrapper<Abort, Abort>>);
+static_assert(std::is_nothrow_move_assignable_v<FftPlanWrapper<Abort, Abort>>);
 
 TEST(FftPlanTests, ConstructAndDestroyReportNoError) {
   int errors = 0;
@@ -69,7 +71,7 @@ TEST(FftPlanTests, ImplicitConversionMatchesGet) {
   // The raw wwrfftMakePlan/wwrfftExec* calls documented in fft_plan.cppm rely on
   // operator wwrfftHandle(); the blas/solver/sparse handles all pin this and fft
   // did not. Only get() was exercised here before.
-  FftPlanWrapper<> plan;
+  FftPlanWrapper<Abort, Abort> plan;
   wwrfftHandle raw = plan; // operator wwrfftHandle()
   EXPECT_EQ(raw, plan.get());
 }
@@ -141,18 +143,18 @@ TEST(FftPlanTests, SelfMoveAssignmentIsSafe) {
 TEST(FftPlanTests, RecordsCreationDevice) {
   // The default constructor creates on device 0; dev_idx is the (defaulted)
   // first constructor argument, and device 0 always exists.
-  FftPlanWrapper<> plan;
+  FftPlanWrapper<Abort, Abort> plan;
   EXPECT_EQ(plan.dev_idx(), 0);
 
-  FftPlanWrapper<> on0(0);
+  FftPlanWrapper<Abort, Abort> on0(0);
   EXPECT_EQ(on0.dev_idx(), 0);
 }
 
 TEST(FftPlanTests, MovePreservesDevice) {
-  FftPlanWrapper<> plan1;
+  FftPlanWrapper<Abort, Abort> plan1;
   const int dev = plan1.dev_idx();
 
-  FftPlanWrapper<> plan2(std::move(plan1));
+  FftPlanWrapper<Abort, Abort> plan2(std::move(plan1));
   EXPECT_EQ(plan2.dev_idx(), dev);
   EXPECT_EQ(plan1.dev_idx(), -1);
 }

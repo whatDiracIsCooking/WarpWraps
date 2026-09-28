@@ -29,14 +29,14 @@ export namespace wwr::extension {
  * GPU and provides the fastest access for device code.
  *
  * @tparam T The element type stored in the buffer
- * @tparam P_alloc Error policy type for allocation (defaults to AbortPolicy<wwrError_t>)
- * @tparam P_free Error policy type for deallocation (defaults to P_alloc)
+ * @tparam P_alloc Error policy type for allocation
+ * @tparam P_free Error policy type for deallocation
  * @tparam H Device handle type backing the pool/stream (defaults to DeviceHandle)
  *
  * @note P_free MUST NOT THROW - it is called from the destructor.
  */
-template<typename T, error_policy<wwrError_t> P_alloc = AbortPolicy<wwrError_t>,
-         nothrow_error_policy<wwrError_t> P_free = P_alloc, device_handle H = DeviceHandle>
+template<typename T, error_policy<wwrError_t> P_alloc,
+         nothrow_error_policy<wwrError_t> P_free, device_handle H = DeviceHandle>
 class DeviceBufferWrapper
     : public BaseBuffer<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free, H>, P_alloc,
                         P_free> {

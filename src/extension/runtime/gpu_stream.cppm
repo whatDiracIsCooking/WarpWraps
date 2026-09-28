@@ -32,13 +32,13 @@ using GpuStreamView = DeviceBoundHandleView<wwrStream_t>;
  * Automatically creates a GPU stream on construction and destroys it on destruction.
  * Supports move semantics for transferring ownership.
  *
- * @tparam P_create Error policy type for creation (defaults to AbortPolicy<wwrError_t>)
- * @tparam P_destroy Error policy type for destruction (defaults to P_create)
+ * @tparam P_create Error policy type for creation
+ * @tparam P_destroy Error policy type for destruction
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
-template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
-         nothrow_error_policy<wwrError_t> P_destroy = P_create>
+template<error_policy<wwrError_t> P_create,
+         nothrow_error_policy<wwrError_t> P_destroy>
 class GpuStreamWrapper : public DeviceBoundHandle<wwrStream_t, GpuStreamWrapper<P_create, P_destroy>,
                                                   P_create, P_destroy> {
 private:
