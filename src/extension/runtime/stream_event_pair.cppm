@@ -71,10 +71,14 @@ public:
   wwrStream_t stream_raw() const { return stream_.get(); }
   wwrEvent_t event_raw() const { return event_.get(); }
 
-  wwrError_t record() { return event_.record(stream_.get()); }
-  wwrError_t record(const unsigned int flags) { return event_.record(stream_.get(), flags); }
-  wwrError_t stream_sync() { return stream_.sync(); }
-  wwrError_t event_sync() { return event_.sync(); }
+  // Borrow-safe ops are free functions now; qualify so the member `record`
+  // below does not shadow the free `record` via ordinary (pre-ADL) lookup.
+  wwrError_t record() { return wwr::extension::record(event_, stream_.get()); }
+  wwrError_t record(const unsigned int flags) {
+    return wwr::extension::record(event_, stream_.get(), flags);
+  }
+  wwrError_t stream_sync() { return wwr::extension::sync(stream_); }
+  wwrError_t event_sync() { return wwr::extension::sync(event_); }
 };
 
 } // namespace wwr::extension

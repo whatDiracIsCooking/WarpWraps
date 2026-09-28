@@ -3,7 +3,10 @@
  * @brief RAII wrapper for GPU executable graph handles
  *
  * Provides GpuGraphExec, an RAII wrapper for wwrGraphExec_t -- the executable
- * graph produced by instantiating a wwrGraph_t.
+ * graph produced by instantiating a wwrGraph_t. The borrow-safe operations
+ * (launch/upload) are free functions taking a raw wwrGraphExec_t, so one
+ * definition serves the owner, its view, and a bare handle alike -- see the
+ * free functions below and runtime/README.md.
  */
 
 export module wwr.extension.runtime:gpu_graph_exec;
@@ -15,41 +18,12 @@ import std;
 
 export namespace wwr::extension {
 
-/**
- * @brief Borrow-safe executable-graph operations, shared by the owner and view
- *
- * CRTP mixin keyed on Derived::get(): launch/upload forward to the borrowed
- * wwrGraphExec_t and touch no ownership state, so they are correct for both
- * GpuGraphExecWrapper (owns the exec) and GpuGraphExecView (borrows it).
- *
- * Methods are const: they mutate the GPU exec, not the C++ object.
- */
-template<typename Derived>
-class GpuGraphExecAccess {
-private:
-  const Derived &self() const noexcept { return static_cast<const Derived &>(*this); }
-
-public:
-  /// @brief Launch the executable graph on a stream
-  wwrError_t launch(wwrStream_t stream) const { return wwrGraphLaunch(self().get(), stream); }
-
-  /// @brief Upload the executable graph to a stream's device without launching it
-  wwrError_t upload(wwrStream_t stream) const { return wwrGraphUpload(self().get(), stream); }
-};
-
-/**
- * @brief Non-owning, copyable view over a GPU executable graph
- *
- * Carries the borrowed handle (via HandleView; an exec is not device-bound)
- * and the borrow-safe operations (via GpuGraphExecAccess). Construct one from an
- * owning GpuGraphExec with `.view()`, or from a raw wwrGraphExec_t. It destroys
- * nothing, so it must not outlive the exec it borrows.
- */
-class GpuGraphExecView : public HandleView<wwrGraphExec_t>,
-                         public GpuGraphExecAccess<GpuGraphExecView> {
-public:
-  using HandleView<wwrGraphExec_t>::HandleView;
-};
+/// @brief Non-owning, copyable view of an executable-graph handle. Returned by
+///        GpuGraphExec::view() (from BaseHandle; an exec is not device-bound, so
+///        it carries no device index); the borrow-safe operations are the free
+///        functions below, which act on it, on an owning GpuGraphExec, or on a
+///        raw wwrGraphExec_t.
+using GpuGraphExecView = HandleView<wwrGraphExec_t>;
 
 /**
  * @brief RAII wrapper for a GPU executable graph
@@ -73,13 +47,14 @@ template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuGraphExecWrapper
     : public BaseHandle<wwrGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create,
-                           P_destroy>,
-      public GpuGraphExecAccess<GpuGraphExecWrapper<P_create, P_destroy>> {
+                        P_destroy> {
 private:
   using Base =
       BaseHandle<wwrGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 public:
+  // view() (deleted on rvalues) is inherited from BaseHandle.
+
   /// @brief Instantiate an executable graph from a graph template
   /// @param graph The source graph to instantiate (not owned; used only for this call)
   /// @param flags Instantiation flags (0 for none)
@@ -90,15 +65,6 @@ public:
     gpu_check(wwrGraphInstantiate(&this->handle_, graph, flags), this->policy_create_, location);
   }
 
-  // launch()/upload() come from GpuGraphExecAccess, shared with GpuGraphExecView.
-
-  /// @brief A non-owning, copyable view of this executable graph
-  ///
-  /// Deleted on rvalues so a view cannot be taken from a temporary exec, which
-  /// would dangle immediately.
-  GpuGraphExecView view() const & noexcept { return GpuGraphExecView{this->get()}; }
-  GpuGraphExecView view() && = delete;
-
   /// @brief Destroy the executable graph
   /// @param handle The executable graph to destroy
   void destroy(wwrGraphExec_t handle) {
@@ -107,5 +73,20 @@ public:
     }
   }
 };
+
+// Borrow-safe executable-graph operations. Free functions on the raw
+// wwrGraphExec_t: an owning GpuGraphExec and a GpuGraphExecView both convert to
+// it, so each op has one definition that works on the owner, the view, or a
+// bare handle.
+
+/// @brief Launch an executable graph on a stream
+inline wwrError_t launch(wwrGraphExec_t exec, wwrStream_t stream) {
+  return wwrGraphLaunch(exec, stream);
+}
+
+/// @brief Upload an executable graph to a stream's device without launching it
+inline wwrError_t upload(wwrGraphExec_t exec, wwrStream_t stream) {
+  return wwrGraphUpload(exec, stream);
+}
 
 } // namespace wwr::extension

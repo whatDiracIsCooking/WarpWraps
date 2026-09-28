@@ -594,7 +594,7 @@ TEST(DeviceHandleTests, ReportsIndexAndQueriesProperties) {
   // names itself, which also exercises the field across both backends.
   EXPECT_NE(dev.props().name[0], '\0');
   // The stream created eagerly on that device is usable.
-  EXPECT_EQ(dev.alloc_stream().sync(), wwrSuccess);
+  EXPECT_EQ(sync(dev.alloc_stream()), wwrSuccess);
   // The memory pool created eagerly on that device is a live handle.
   EXPECT_NE(dev.mem_pool().get(), nullptr);
 }
@@ -608,7 +608,7 @@ TEST(DeviceBufferTests, HandleAllocationHoldsItsContents) {
     EXPECT_EQ(buf.num_elements(), std::size_t{128});
     ASSERT_EQ(ext::memset(buf, 0, dev->alloc_stream().get()), wwrSuccess);
     ASSERT_EQ(ext::copy(host, buf, dev->alloc_stream().get()), wwrSuccess);
-    ASSERT_EQ(dev->alloc_stream().sync(), wwrSuccess);
+    ASSERT_EQ(sync(dev->alloc_stream()), wwrSuccess);
   }
   for (std::size_t i = 0; i < host.num_elements(); ++i) {
     EXPECT_EQ(host[i], 0.0f) << "at index " << i;

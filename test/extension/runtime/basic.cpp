@@ -93,14 +93,14 @@ TEST(GpuStreamTests, CaptureToGraph) {
   void *buf = nullptr;
   ASSERT_EQ(wwrMalloc(&buf, sizeof(int)), wwrSuccess);
 
-  ASSERT_EQ(stream.begin_capture(), wwrSuccess);
+  ASSERT_EQ(begin_capture(stream), wwrSuccess);
   ASSERT_EQ(wwrMemsetAsync(buf, 0, sizeof(int), stream.get()), wwrSuccess);
   GpuGraph graph = stream.end_capture();
   EXPECT_NE(graph.get(), nullptr);
 
   GpuGraphExec exec = graph.instantiate();
-  ASSERT_EQ(exec.launch(stream.get()), wwrSuccess);
-  EXPECT_EQ(stream.sync(), wwrSuccess);
+  ASSERT_EQ(launch(exec, stream.get()), wwrSuccess);
+  EXPECT_EQ(sync(stream), wwrSuccess);
 
   EXPECT_EQ(wwrFree(buf), wwrSuccess);
 }
@@ -119,11 +119,11 @@ TEST(GpuStreamTests, WaitEventOrdersWorkAcrossStreams) {
   ASSERT_EQ(wwrMalloc(&buf, sizeof(int)), wwrSuccess);
 
   ASSERT_EQ(wwrMemsetAsync(buf, 0, sizeof(int), producer.get()), wwrSuccess);
-  ASSERT_EQ(event.record(producer.get()), wwrSuccess);
-  EXPECT_EQ(consumer.wait_event(event.get()), wwrSuccess);
+  ASSERT_EQ(record(event, producer.get()), wwrSuccess);
+  EXPECT_EQ(wait_event(consumer, event.get()), wwrSuccess);
   ASSERT_EQ(wwrMemsetAsync(buf, 1, sizeof(int), consumer.get()), wwrSuccess);
-  EXPECT_EQ(consumer.sync(), wwrSuccess);
-  EXPECT_EQ(producer.sync(), wwrSuccess);
+  EXPECT_EQ(sync(consumer), wwrSuccess);
+  EXPECT_EQ(sync(producer), wwrSuccess);
 
   EXPECT_EQ(wwrFree(buf), wwrSuccess);
 }
@@ -132,9 +132,10 @@ TEST(GpuStreamTests, WaitEventOrdersWorkAcrossStreams) {
 // test/extension/build_time/handle_view.cppm (static_asserts only). Each owner
 // suite carries one ViewBorrows* case proving the view mirrors the owner's
 // handle/device AND that a borrowed op actually runs against the device -- the
-// GpuStreamAccess/GpuEventAccess/GpuGraphExecAccess mixins are shared with the
-// owner, so one borrowed op per view is enough to prove the forwarding wiring;
-// the mixin methods themselves are exercised by the owner cases above.
+// The borrow-safe ops are free functions on the raw handle, so a view and its
+// owner reach the same definition; one op per view is enough to prove the view
+// converts to the handle, and the ops themselves are exercised by the owner
+// cases above.
 TEST(GpuStreamTests, ViewBorrowsHandleAndDrivesWork) {
   GpuStream stream;
   GpuStreamView view = stream.view();
@@ -142,9 +143,9 @@ TEST(GpuStreamTests, ViewBorrowsHandleAndDrivesWork) {
   ASSERT_EQ(view.dev_idx(), stream.dev_idx());
 
   GpuEvent event;
-  ASSERT_EQ(event.record(stream.get()), wwrSuccess);
-  EXPECT_EQ(view.wait_event(event.get()), wwrSuccess);
-  EXPECT_EQ(view.sync(), wwrSuccess);
+  ASSERT_EQ(record(event, stream.get()), wwrSuccess);
+  EXPECT_EQ(wait_event(view, event.get()), wwrSuccess);
+  EXPECT_EQ(sync(view), wwrSuccess);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -223,30 +224,30 @@ TEST(GpuEventTests, QueryEvent) {
 }
 
 TEST(GpuEventTests, MemberRecordAndSync) {
-  // The suite records through the raw API elsewhere; this drives the wrapper's
-  // own record()/sync() members, including the two-arg record(stream, flags)
-  // overload (flag 0 is always valid).
+  // The suite records through the raw API elsewhere; this drives the record()/
+  // sync() free functions on an owner, including the two-arg record(event,
+  // stream, flags) overload (flag 0 is always valid).
   GpuStream stream;
   GpuEvent event;
 
-  ASSERT_EQ(event.record(stream.get()), wwrSuccess);
-  EXPECT_EQ(event.sync(), wwrSuccess);
+  ASSERT_EQ(record(event, stream.get()), wwrSuccess);
+  EXPECT_EQ(sync(event), wwrSuccess);
 
-  ASSERT_EQ(event.record(stream.get(), 0), wwrSuccess);
-  EXPECT_EQ(event.sync(), wwrSuccess);
+  ASSERT_EQ(record(event, stream.get(), 0), wwrSuccess);
+  EXPECT_EQ(sync(event), wwrSuccess);
 }
 
 TEST(GpuEventTests, ViewBorrowsHandleAndDrivesWork) {
-  // One borrowed op proves forwarding; record(stream, flags) is already covered
-  // on the owner by MemberRecordAndSync (same GpuEventAccess mixin).
+  // One borrowed op proves the view converts; record(event, stream, flags) is
+  // already covered on the owner by MemberRecordAndSync (same free functions).
   GpuStream stream;
   GpuEvent event;
   GpuEventView view = event.view();
   ASSERT_EQ(view.get(), event.get());
   ASSERT_EQ(view.dev_idx(), event.dev_idx());
 
-  ASSERT_EQ(view.record(stream.get()), wwrSuccess);
-  EXPECT_EQ(view.sync(), wwrSuccess);
+  ASSERT_EQ(record(view, stream.get()), wwrSuccess);
+  EXPECT_EQ(sync(view), wwrSuccess);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -331,8 +332,8 @@ TEST(GpuGraphExecTests, LaunchEmptyGraph) {
   GpuGraph graph;
   GpuGraphExec exec = graph.instantiate();
 
-  ASSERT_EQ(exec.launch(stream.get()), wwrSuccess);
-  EXPECT_EQ(stream.sync(), wwrSuccess);
+  ASSERT_EQ(launch(exec, stream.get()), wwrSuccess);
+  EXPECT_EQ(sync(stream), wwrSuccess);
 }
 
 TEST(GpuGraphExecTests, UploadThenLaunch) {
@@ -343,22 +344,22 @@ TEST(GpuGraphExecTests, UploadThenLaunch) {
   GpuGraph graph;
   GpuGraphExec exec = graph.instantiate();
 
-  ASSERT_EQ(exec.upload(stream.get()), wwrSuccess);
-  ASSERT_EQ(exec.launch(stream.get()), wwrSuccess);
-  EXPECT_EQ(stream.sync(), wwrSuccess);
+  ASSERT_EQ(upload(exec, stream.get()), wwrSuccess);
+  ASSERT_EQ(launch(exec, stream.get()), wwrSuccess);
+  EXPECT_EQ(sync(stream), wwrSuccess);
 }
 
 TEST(GpuGraphExecTests, ViewBorrowsHandleAndDrivesWork) {
-  // One borrowed op proves forwarding; upload() is covered on the owner by
-  // UploadThenLaunch (same GpuGraphExecAccess mixin).
+  // One borrowed op proves the view converts; upload() is covered on the owner
+  // by UploadThenLaunch (same free functions).
   GpuStream stream;
   GpuGraph graph;
   GpuGraphExec exec = graph.instantiate();
   GpuGraphExecView view = exec.view();
   ASSERT_EQ(view.get(), exec.get());
 
-  ASSERT_EQ(view.launch(stream.get()), wwrSuccess);
-  EXPECT_EQ(stream.sync(), wwrSuccess);
+  ASSERT_EQ(launch(view, stream.get()), wwrSuccess);
+  EXPECT_EQ(sync(stream), wwrSuccess);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -434,11 +435,11 @@ TEST(GpuMemPoolTests, StreamOrderedAllocationRoundTrips) {
 
   void *ptr = nullptr;
   ASSERT_EQ(wwrMallocFromPoolAsync(&ptr, 1024, pool.get(), stream.get()), wwrSuccess);
-  ASSERT_EQ(stream.sync(), wwrSuccess);
+  ASSERT_EQ(sync(stream), wwrSuccess);
   EXPECT_NE(ptr, nullptr);
 
   ASSERT_EQ(wwrFreeAsync(ptr, stream.get()), wwrSuccess);
-  EXPECT_EQ(stream.sync(), wwrSuccess);
+  EXPECT_EQ(sync(stream), wwrSuccess);
 }
 
 TEST(GpuMemPoolTests, ViewBorrowsHandle) {

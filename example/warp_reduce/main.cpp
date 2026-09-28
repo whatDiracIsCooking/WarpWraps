@@ -67,7 +67,7 @@ int main() {
     std::println(stderr, "device -> host copy failed");
     return 1;
   }
-  if (stream.sync() != wwrSuccess) {
+  if (ext::sync(stream) != wwrSuccess) {
     std::println(stderr, "stream synchronize failed -- the kernel did not run");
     return 1;
   }
