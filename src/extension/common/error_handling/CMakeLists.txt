@@ -14,12 +14,12 @@
 # its own DefaultErrorPolicy<T>. Being a real module unit, the replacement may
 # `import` std, the sibling :error_code partition, or a module of your own --
 # name any such module target in WWR_DEFAULT_ERROR_POLICY_LINK so it is linked
-# and its BMI is reachable when this module is built. See default_error_policy.cppm
-# and example/custom_default_error_policy.
+# and its BMI is reachable when this module is built. See
+# default_error_policy.cppm and example/custom_default_error_policy.
 set(WWR_DEFAULT_ERROR_POLICY_MODULE
     ""
     CACHE FILEPATH
-    "Replacement .cppm for the :default_error_policy partition (empty = built-in)"
+    "Replacement .cppm for :default_error_policy (empty = built-in)"
 )
 set(WWR_DEFAULT_ERROR_POLICY_LINK
     ""
@@ -32,7 +32,7 @@ set(WWR_DEFAULT_ERROR_POLICY_LINK
 # FILE_SET base directory (a CXX_MODULES file set otherwise requires every file
 # under the calling directory). Leaving it out of PARTITIONS here also keeps the
 # built-in default_error_policy.cppm from being compiled alongside the
-# replacement -- two files cannot both declare the :default_error_policy partition.
+# replacement -- two files cannot both declare the same partition.
 set(_wwr_default_error_policy default_error_policy.cppm)
 if(WWR_DEFAULT_ERROR_POLICY_MODULE)
   set(_wwr_default_error_policy "")
