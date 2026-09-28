@@ -2,7 +2,7 @@
  * @file solver_handle.cppm
  * @brief RAII wrapper for a GPU solver handle
  *
- * Provides WwrsolverDnHandleWrapper class for automatic GPU solver handle management.
+ * Provides SolverDnHandleWrapper class for automatic GPU solver handle management.
  */
 
 export module wwr.extension.solver:solver_handle;
@@ -34,20 +34,20 @@ export namespace wwr::extension {
 template<error_policy<wwrsolverStatus_t> P_create,
          nothrow_error_policy<wwrsolverStatus_t> P_destroy,
          error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
-class WwrsolverDnHandleWrapper
+class SolverDnHandleWrapper
     : public DeviceBoundHandle<wwrsolverDnHandle_t,
-                            WwrsolverDnHandleWrapper<P_create, P_destroy, P_device_access>,
+                            SolverDnHandleWrapper<P_create, P_destroy, P_device_access>,
                             P_create, P_destroy, P_device_access> {
 private:
   using Base = DeviceBoundHandle<wwrsolverDnHandle_t,
-                              WwrsolverDnHandleWrapper<P_create, P_destroy, P_device_access>,
+                              SolverDnHandleWrapper<P_create, P_destroy, P_device_access>,
                               P_create, P_destroy, P_device_access>;
 
 public:
-  // The `WwrsolverDnHandleWrapper(int dev_idx = 0)` default/per-device constructor,
+  // The `SolverDnHandleWrapper(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
   using DeviceBoundHandle<wwrsolverDnHandle_t,
-                       WwrsolverDnHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
+                       SolverDnHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
                        P_destroy, P_device_access>::DeviceBoundHandle;
 
   /// @brief Create a GPU solver handle

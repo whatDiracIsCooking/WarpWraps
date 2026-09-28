@@ -1,6 +1,6 @@
-// handle_tests.cpp - RAII contract of wwr.extension.blas's WwrblasHandleWrapper
+// handle_tests.cpp - RAII contract of wwr.extension.blas's BlasHandleWrapper
 //
-// WwrblasHandleWrapper is a DeviceBoundHandle specialisation over wwrblasHandle_t, so its
+// BlasHandleWrapper is a DeviceBoundHandle specialisation over wwrblasHandle_t, so its
 // whole behaviour is that layer's: create a live cuBLAS/hipBLAS handle on the
 // selected device (recorded as dev_idx()), hand ownership across on move
 // (leaving the source null and dev_idx() == -1 so its destructor is a no-op),
@@ -36,37 +36,37 @@ struct CountingBlasPolicy {
   static void reset() { errors = 0; }
   void handle_error(wwrblasStatus_t, std::source_location) noexcept { ++errors; }
 };
-using CountingBlasHandle = WwrblasHandleWrapper<CountingBlasPolicy, CountingBlasPolicy>;
+using CountingBlasHandle = BlasHandleWrapper<CountingBlasPolicy, CountingBlasPolicy>;
 
 // Copy is deleted at the base; a copyable RAII handle would double-free.
-static_assert(!std::is_copy_constructible_v<WwrblasHandleWrapper<Abort, Abort>>);
-static_assert(!std::is_copy_assignable_v<WwrblasHandleWrapper<Abort, Abort>>);
-static_assert(std::is_nothrow_move_constructible_v<WwrblasHandleWrapper<Abort, Abort>>);
-static_assert(std::is_nothrow_move_assignable_v<WwrblasHandleWrapper<Abort, Abort>>);
+static_assert(!std::is_copy_constructible_v<BlasHandleWrapper<Abort, Abort>>);
+static_assert(!std::is_copy_assignable_v<BlasHandleWrapper<Abort, Abort>>);
+static_assert(std::is_nothrow_move_constructible_v<BlasHandleWrapper<Abort, Abort>>);
+static_assert(std::is_nothrow_move_assignable_v<BlasHandleWrapper<Abort, Abort>>);
 
-TEST(WwrblasHandleTests, DefaultConstructorCreatesHandle) {
-  WwrblasHandleWrapper<Abort, Abort> handle;
+TEST(BlasHandleTests, DefaultConstructorCreatesHandle) {
+  BlasHandleWrapper<Abort, Abort> handle;
   EXPECT_NE(handle.get(), nullptr);
 }
 
-TEST(WwrblasHandleTests, ImplicitConversionMatchesGet) {
-  WwrblasHandleWrapper<Abort, Abort> handle;
+TEST(BlasHandleTests, ImplicitConversionMatchesGet) {
+  BlasHandleWrapper<Abort, Abort> handle;
   wwrblasHandle_t raw = handle; // operator wwrblasHandle_t()
   EXPECT_EQ(raw, handle.get());
 }
 
-TEST(WwrblasHandleTests, MoveConstructorTransfersOwnership) {
-  WwrblasHandleWrapper<Abort, Abort> handle1;
+TEST(BlasHandleTests, MoveConstructorTransfersOwnership) {
+  BlasHandleWrapper<Abort, Abort> handle1;
   wwrblasHandle_t raw = handle1.get();
 
-  WwrblasHandleWrapper<Abort, Abort> handle2(std::move(handle1));
+  BlasHandleWrapper<Abort, Abort> handle2(std::move(handle1));
   EXPECT_EQ(handle2.get(), raw);
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
-TEST(WwrblasHandleTests, MoveAssignmentTransfersOwnership) {
-  WwrblasHandleWrapper<Abort, Abort> handle1;
-  WwrblasHandleWrapper<Abort, Abort> handle2;
+TEST(BlasHandleTests, MoveAssignmentTransfersOwnership) {
+  BlasHandleWrapper<Abort, Abort> handle1;
+  BlasHandleWrapper<Abort, Abort> handle2;
   wwrblasHandle_t raw = handle1.get();
 
   handle2 = std::move(handle1);
@@ -74,46 +74,46 @@ TEST(WwrblasHandleTests, MoveAssignmentTransfersOwnership) {
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
-TEST(WwrblasHandleTests, SelfMoveAssignmentKeepsHandle) {
-  WwrblasHandleWrapper<Abort, Abort> handle;
+TEST(BlasHandleTests, SelfMoveAssignmentKeepsHandle) {
+  BlasHandleWrapper<Abort, Abort> handle;
   wwrblasHandle_t raw = handle.get();
 
   handle = std::move(handle);
   EXPECT_EQ(handle.get(), raw);
 }
 
-TEST(WwrblasHandleTests, RecordsCreationDevice) {
+TEST(BlasHandleTests, RecordsCreationDevice) {
   // The default constructor creates on device 0.
-  WwrblasHandleWrapper<Abort, Abort> handle;
+  BlasHandleWrapper<Abort, Abort> handle;
   EXPECT_EQ(handle.dev_idx(), 0);
 
   // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
-  WwrblasHandleWrapper<Abort, Abort> on0(0);
+  BlasHandleWrapper<Abort, Abort> on0(0);
   EXPECT_EQ(on0.dev_idx(), 0);
 }
 
-TEST(WwrblasHandleTests, MovePreservesDevice) {
-  WwrblasHandleWrapper<Abort, Abort> handle1;
+TEST(BlasHandleTests, MovePreservesDevice) {
+  BlasHandleWrapper<Abort, Abort> handle1;
   const int dev = handle1.dev_idx();
 
-  WwrblasHandleWrapper<Abort, Abort> handle2(std::move(handle1));
+  BlasHandleWrapper<Abort, Abort> handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
 }
 
-TEST(WwrblasHandleTests, ViewMirrorsOwnerHandleAndDevice) {
+TEST(BlasHandleTests, ViewMirrorsOwnerHandleAndDevice) {
   // view() is inherited from DeviceBoundHandle and only compile-tested elsewhere
   // (test/extension/build_time/handle_view.cppm); nothing constructs a live
   // handle and reads the borrowed handle/device back. The view is a bare
   // DeviceBoundHandleView with no borrow-safe ops of its own -- a cuBLAS call
   // consumes the raw handle -- so mirroring get()/dev_idx() is its whole job.
-  WwrblasHandleWrapper<Abort, Abort> handle;
+  BlasHandleWrapper<Abort, Abort> handle;
   const DeviceBoundHandleView<wwrblasHandle_t> view = handle.view();
   EXPECT_EQ(view.get(), handle.get());
   EXPECT_EQ(view.dev_idx(), handle.dev_idx());
 }
 
-TEST(WwrblasHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
+TEST(BlasHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
   // Substitutes a counting policy for the default (aborting) one, proving the
   // custom P_create/P_destroy actually compile into and thread through the
   // handle, and that a move-then-destroy frees exactly once: a double-free

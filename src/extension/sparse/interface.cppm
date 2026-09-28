@@ -19,7 +19,7 @@ export module wwr.extension.sparse;
 import std;
 
 // Re-export the vendor sparse module: wwrsparseHandle_t is the return type of
-// WwrsparseHandleWrapper::get() and its conversion operator, so a consumer can name it
+// SparseHandleWrapper::get() and its conversion operator, so a consumer can name it
 // without importing wwr.sparse separately.
 export import wwr.sparse;
 export import :sparse_error;

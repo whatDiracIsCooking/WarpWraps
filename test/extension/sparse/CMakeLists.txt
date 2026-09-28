@@ -19,7 +19,7 @@ wwr_add_gtest_suite_tests(
   TARGET
   extension_sparse_tests
   SUITES
-  WwrsparseHandleTests
+  SparseHandleTests
   TIMEOUT
   30
   REQUIRES_GPU

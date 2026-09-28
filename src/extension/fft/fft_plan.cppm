@@ -24,8 +24,8 @@ export namespace wwr::extension {
  * @brief RAII wrapper for a GPU FFT plan handle
  *
  * A cuFFT/hipFFT plan belongs to whatever device was current when it was
- * created, so this derives from DeviceBoundHandle exactly like WwrblasHandleWrapper /
- * WwrsolverDnHandleWrapper: construction selects dev_idx (the first constructor
+ * created, so this derives from DeviceBoundHandle exactly like BlasHandleWrapper /
+ * SolverDnHandleWrapper: construction selects dev_idx (the first constructor
  * argument, default 0), creates the plan there, and records it -- read it back
  * with dev_idx(). Destroys the plan on destruction; supports move semantics,
  * copy is deleted.
