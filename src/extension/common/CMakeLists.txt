@@ -6,13 +6,11 @@
 # modules all link this.
 #
 # The error+check primitives (error_code, error_policy, abort_policy,
-# gpu_check) live in the wwr.extension.common.error_handling submodule; this
-# module links it PUBLIC and re-exports it, then adds the wwrError_t
-# specializations (:gpu_error) on top. The RAII GPU-handle layer built on this
-# foundation is a sibling module (wwr.extension.handle, in
-# src/extension/handle).
-add_subdirectory(error_handling)
-
+# gpu_check) live in the sibling wwr.extension.error_handling module (in
+# src/extension/error_handling); this module links it PUBLIC and re-exports it,
+# then adds the wwrError_t specializations (:gpu_error) on top. The RAII
+# GPU-handle layer built on this foundation is another sibling module
+# (wwr.extension.handle, in src/extension/handle).
 wwr_add_cxx_module_library(
   NAME
   wwr.extension.common
@@ -24,6 +22,6 @@ wwr_add_cxx_module_library(
   noncopyable.cppm
   LINK_PUBLIC
   wwr.runtime_api
-  wwr.extension.common.error_handling
+  wwr.extension.error_handling
   IMPORT_STD
 )

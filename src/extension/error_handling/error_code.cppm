@@ -12,7 +12,7 @@
  *   auto success = success_code<wwrError_t>();
  */
 
-export module wwr.extension.common.error_handling:error_code;
+export module wwr.extension.error_handling:error_code;
 
 export namespace wwr::extension {
 

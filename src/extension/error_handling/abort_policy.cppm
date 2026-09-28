@@ -7,7 +7,7 @@
  *   using namespace wwr::extension;
  */
 
-export module wwr.extension.common.error_handling:abort_policy;
+export module wwr.extension.error_handling:abort_policy;
 
 import std;
 import :error_code;

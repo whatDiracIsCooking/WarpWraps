@@ -14,7 +14,7 @@
  *   }
  */
 
-export module wwr.extension.common.error_handling:gpu_check;
+export module wwr.extension.error_handling:gpu_check;
 
 import :error_code;
 import :error_policy;

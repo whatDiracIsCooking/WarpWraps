@@ -13,7 +13,7 @@
 
 export module wwr.extension.common:gpu_error;
 
-import wwr.extension.common.error_handling;
+import wwr.extension.error_handling;
 import wwr.runtime_api;
 import std;
 
