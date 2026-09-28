@@ -190,6 +190,23 @@ add_link_options($<$<COMPILE_LANGUAGE:CXX>:-lc++abi>)
 # ========================================================================
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
   find_package(CUDAToolkit REQUIRED)
+
+  # wwr's floor is Ampere (sm_80), above the toolkit's own compute_75: the bf16
+  # tensor-core WMMA it wraps and test/gpu/wmma.cu exercises is only defined for
+  # sm_80+ (see that TU's __CUDA_ARCH__ >= 800 guard). Reject an explicit sub-80
+  # target here rather than let it fail deep in a device compile -- the guard
+  # WWR_WARP_SIZE has above, applied to the arch. `native` and the `all*`
+  # keywords are resolved by nvcc, not this loop, so they never match and pass
+  # through; a `NN-real`/`NN-virtual` suffix keeps its leading digits.
+  foreach(_wwr_arch IN LISTS CMAKE_CUDA_ARCHITECTURES)
+    if(_wwr_arch MATCHES "^([0-9]+)" AND CMAKE_MATCH_1 LESS 80)
+      message(
+        FATAL_ERROR
+          "wwr requires CUDA architecture 80 (Ampere) or newer for bf16 WMMA, "
+          "got '${_wwr_arch}' in CMAKE_CUDA_ARCHITECTURES"
+      )
+    endif()
+  endforeach()
 else()
   # Seed GPU_TARGETS from the environment before find_package(hip).
   #

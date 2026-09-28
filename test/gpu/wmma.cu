@@ -132,10 +132,12 @@ static_assert(!same_type<WmmaBf16, wwr::wwrBfloat16>::value,
 // arch specific, evaluated in the device pass where __CUDA_ARCH__ is the real
 // target: a blanket #ifdef would silently drop the check on HIP, where rocWMMA
 // instantiates its bf16 fragment in BOTH compile passes (the host pass carries no
-// __CUDA_ARCH__) and it must keep firing. Pre-Ampere CUDA lands in the #else: a
-// real sm_75 card, and -- the reason this guard exists -- a GPU-less host where
-// -arch=native cannot query a driver and nvcc falls back to a default arch that
-// predates bf16, which is what lets this TU compile on an AMD-only box (issue #77).
+// __CUDA_ARCH__) and it must keep firing. Pre-Ampere CUDA lands in the #else --
+// and with wwr's sm_80 floor (enforced in CMakeLists.txt) the only thing that
+// lands there is the reason this guard exists: a GPU-less host where -arch=native
+// cannot query a driver and nvcc falls back to a default arch that predates bf16,
+// which is what lets this TU compile on an AMD-only box (issue #77). No supported
+// card reaches it, so the bf16 check is skipped only where it could never run.
 __global__ void wwr_wmma_bf16_fragments(const WmmaBf16 *a) {
 #if !defined(WWR_SELECTED_CUDA) || (defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 800)
   // Declaring them is the claim: instantiating the fragment is what fails on
