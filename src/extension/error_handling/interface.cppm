@@ -7,7 +7,7 @@
  * status type; those specialize its templates from their own modules
  * (wwr.extension.common:gpu_error for wwrError_t, the blas/solver/fft/sparse
  * error modules for the library status codes). It aggregates:
- * - :error_code - success_code / error_name / error_string templates
+ * - :error_code - success_code / error_name / error_string templates + the error_type concept
  * - :error_policy - the error_policy / nothrow_error_policy / typed_error_policy concepts
  * - :abort_policy - AbortPolicy (prints to stderr, aborts)
  * - :gpu_check - no-throw error checks routed through an error policy
