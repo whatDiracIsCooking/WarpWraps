@@ -27,11 +27,8 @@ constexpr wwrsolverStatus_t success_code<wwrsolverStatus_t>() noexcept {
   return WWRSOLVER_STATUS_SUCCESS;
 }
 
-// Every vendor status enum uses 0 for success (CUSOLVER_STATUS_SUCCESS,
-// HIPSOLVER_STATUS_SUCCESS, ...). Pin the specialization to that contract,
-// independently of which named enumerator it returns: a wrong-enumerator typo
-// would make gpu_check treat every success as a failure (abort) or every failure
-// as success, and nothing else here would catch it.
+// Vendor success enumerators are always 0. Pin that contract: a wrong-enumerator
+// typo would silently invert gpu_check's success/failure, and nothing else catches it.
 static_assert(std::to_underlying(success_code<wwrsolverStatus_t>()) == 0);
 
 // ============================================================================
