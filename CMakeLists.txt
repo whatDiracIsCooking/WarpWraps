@@ -33,8 +33,14 @@ endif()
 set(CMAKE_CXX_STANDARD_LIBRARY "libc++")
 set(CMAKE_CXX_FLAGS_INIT "-stdlib=libc++")
 
-# Set C++ compiler to Clang BEFORE project()
-set(CMAKE_CXX_COMPILER "clang++")
+# Set C++ compiler to Clang BEFORE project(). Resolve to a full path: a bare
+# name survives only the first project() in a build (which runs full compiler
+# detection). When wwr is nested via add_subdirectory under a consumer whose own
+# project() already cached CMAKE_CXX_COMPILER_WORKS, the second project() skips
+# re-resolution and rejects a bare name as "not a full path and not found in the
+# PATH". A full path is validated identically either way.
+find_program(_wwr_cxx_compiler NAMES clang++ REQUIRED)
+set(CMAKE_CXX_COMPILER "${_wwr_cxx_compiler}")
 
 # ========================================================================
 # Toolchain discovery (must run before project())
