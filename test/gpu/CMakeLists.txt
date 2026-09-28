@@ -69,8 +69,12 @@ foreach(_lib IN LISTS GPU_TEST_LIBRARIES)
     ${_gpu_test_raw_${_lib}}
     LINK_PRIVATE
     wwr_backend
+    # PROJECT_SOURCE_DIR (not CMAKE_SOURCE_DIR) is gpumod's own root, so the
+    # root-relative #include "test/shared/link_check.h" resolves even when a
+    # consumer adds gpumod as a subdirectory -- there CMAKE_SOURCE_DIR is the
+    # consumer's root, which has no test/shared.
     INCLUDE_DIRS_PRIVATE
-    ${CMAKE_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}
   )
   add_dependencies(compile_time_tests wwr.test.gpu.${_lib})
   list(APPEND _gpu_test_targets wwr.test.gpu.${_lib})
