@@ -33,7 +33,7 @@ export namespace wwr::extension {
  * @tparam T The element type stored in the buffer
  * @tparam K The memory kind (Device, Pinned, Host, or Unified)
  * @tparam P_alloc The error policy type for allocation operations
- * @tparam P_free The error policy type for deallocation operations (defaults to P_alloc)
+ * @tparam P_free The error policy type for deallocation operations
  *
  * @note Provides RAII-based memory management with appropriate allocation
  *       and deallocation strategies based on the memory kind
@@ -47,7 +47,7 @@ export namespace wwr::extension {
  */
 template<typename T, MemoryKind K, typename Derived,
          error_policy<typename MemoryErrorType<K>::type> P_alloc,
-         nothrow_error_policy<typename MemoryErrorType<K>::type> P_free = P_alloc, bool IsView = false>
+         nothrow_error_policy<typename MemoryErrorType<K>::type> P_free, bool IsView = false>
 class BaseBuffer {
 public:
   /** @brief Element type stored in this buffer */
@@ -476,15 +476,14 @@ private:
  * @tparam T The element type
  * @tparam K The memory kind
  * @tparam P_alloc Error policy type for allocation operations (used for sub-view bounds checking)
- * @tparam P_free Error policy type for deallocation operations (defaults to P_alloc)
+ * @tparam P_free Error policy type for deallocation operations
  *
  * @note BufferViewWrapper satisfies the buffer_base concept.
  * @note View types are copyable; copies share the same pointer without ownership transfer.
  */
 template<typename T, MemoryKind K,
-         error_policy<typename MemoryErrorType<K>::type> P_alloc =
-             AbortPolicy<typename MemoryErrorType<K>::type>,
-         nothrow_error_policy<typename MemoryErrorType<K>::type> P_free = P_alloc>
+         error_policy<typename MemoryErrorType<K>::type> P_alloc,
+         nothrow_error_policy<typename MemoryErrorType<K>::type> P_free>
 class BufferViewWrapper
     : public BaseBuffer<T, K, BufferViewWrapper<T, K, P_alloc, P_free>, P_alloc, P_free, true> {
 public:
@@ -524,7 +523,7 @@ public:
  *         checks and their empty-view failure mode.
  *
  * Example:
- *   HostBufferWrapper<float> buf(16);
+ *   HostBufferWrapper<float, AbortPolicy<stdHostMemoryError_t>, AbortPolicy<stdHostMemoryError_t>> buf(16);
  *   auto bytes = reinterpret_buffer_view<std::byte>(buf);  // 64-element byte view
  */
 template<typename T, typename U, MemoryKind K, typename OtherDerived,

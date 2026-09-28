@@ -16,6 +16,8 @@ import wwr.extension.handle; // DeviceBoundHandle(View)
 import wwr.extension.sparse; // re-exports wwr.sparse, so wwrsparseHandle_t is in scope
 
 namespace wwr::extension::test {
+// Bind abort-on-failure once, for this file's wrapper instantiations.
+using Abort = AbortPolicy<wwrsparseStatus_t>;
 
 // A counting policy for the destroy-exactly-once check below; see
 // test/extension/blas/handle_tests.cpp for why the counter is a static (the
@@ -26,36 +28,36 @@ struct CountingSparsePolicy {
   static void reset() { errors = 0; }
   void handle_error(wwrsparseStatus_t, std::source_location) noexcept { ++errors; }
 };
-using CountingSparseHandle = WwrsparseHandleWrapper<CountingSparsePolicy>;
+using CountingSparseHandle = WwrsparseHandleWrapper<CountingSparsePolicy, CountingSparsePolicy>;
 
-static_assert(!std::is_copy_constructible_v<WwrsparseHandleWrapper<>>);
-static_assert(!std::is_copy_assignable_v<WwrsparseHandleWrapper<>>);
-static_assert(std::is_nothrow_move_constructible_v<WwrsparseHandleWrapper<>>);
-static_assert(std::is_nothrow_move_assignable_v<WwrsparseHandleWrapper<>>);
+static_assert(!std::is_copy_constructible_v<WwrsparseHandleWrapper<Abort, Abort>>);
+static_assert(!std::is_copy_assignable_v<WwrsparseHandleWrapper<Abort, Abort>>);
+static_assert(std::is_nothrow_move_constructible_v<WwrsparseHandleWrapper<Abort, Abort>>);
+static_assert(std::is_nothrow_move_assignable_v<WwrsparseHandleWrapper<Abort, Abort>>);
 
 TEST(WwrsparseHandleTests, DefaultConstructorCreatesHandle) {
-  WwrsparseHandleWrapper<> handle;
+  WwrsparseHandleWrapper<Abort, Abort> handle;
   EXPECT_NE(handle.get(), nullptr);
 }
 
 TEST(WwrsparseHandleTests, ImplicitConversionMatchesGet) {
-  WwrsparseHandleWrapper<> handle;
+  WwrsparseHandleWrapper<Abort, Abort> handle;
   wwrsparseHandle_t raw = handle; // operator wwrsparseHandle_t()
   EXPECT_EQ(raw, handle.get());
 }
 
 TEST(WwrsparseHandleTests, MoveConstructorTransfersOwnership) {
-  WwrsparseHandleWrapper<> handle1;
+  WwrsparseHandleWrapper<Abort, Abort> handle1;
   wwrsparseHandle_t raw = handle1.get();
 
-  WwrsparseHandleWrapper<> handle2(std::move(handle1));
+  WwrsparseHandleWrapper<Abort, Abort> handle2(std::move(handle1));
   EXPECT_EQ(handle2.get(), raw);
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
 TEST(WwrsparseHandleTests, MoveAssignmentTransfersOwnership) {
-  WwrsparseHandleWrapper<> handle1;
-  WwrsparseHandleWrapper<> handle2;
+  WwrsparseHandleWrapper<Abort, Abort> handle1;
+  WwrsparseHandleWrapper<Abort, Abort> handle2;
   wwrsparseHandle_t raw = handle1.get();
 
   handle2 = std::move(handle1);
@@ -64,7 +66,7 @@ TEST(WwrsparseHandleTests, MoveAssignmentTransfersOwnership) {
 }
 
 TEST(WwrsparseHandleTests, SelfMoveAssignmentKeepsHandle) {
-  WwrsparseHandleWrapper<> handle;
+  WwrsparseHandleWrapper<Abort, Abort> handle;
   wwrsparseHandle_t raw = handle.get();
 
   handle = std::move(handle);
@@ -73,19 +75,19 @@ TEST(WwrsparseHandleTests, SelfMoveAssignmentKeepsHandle) {
 
 TEST(WwrsparseHandleTests, RecordsCreationDevice) {
   // The default constructor creates on device 0.
-  WwrsparseHandleWrapper<> handle;
+  WwrsparseHandleWrapper<Abort, Abort> handle;
   EXPECT_EQ(handle.dev_idx(), 0);
 
   // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
-  WwrsparseHandleWrapper<> on0(0);
+  WwrsparseHandleWrapper<Abort, Abort> on0(0);
   EXPECT_EQ(on0.dev_idx(), 0);
 }
 
 TEST(WwrsparseHandleTests, MovePreservesDevice) {
-  WwrsparseHandleWrapper<> handle1;
+  WwrsparseHandleWrapper<Abort, Abort> handle1;
   const int dev = handle1.dev_idx();
 
-  WwrsparseHandleWrapper<> handle2(std::move(handle1));
+  WwrsparseHandleWrapper<Abort, Abort> handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
 }
@@ -95,7 +97,7 @@ TEST(WwrsparseHandleTests, ViewMirrorsOwnerHandleAndDevice) {
   // this reads the borrowed handle/device back from a live handle. The view is
   // a bare DeviceBoundHandleView with no borrow-safe ops (a cuSPARSE call consumes
   // the raw handle), so mirroring get()/dev_idx() is its whole job.
-  WwrsparseHandleWrapper<> handle;
+  WwrsparseHandleWrapper<Abort, Abort> handle;
   const DeviceBoundHandleView<wwrsparseHandle_t> view = handle.view();
   EXPECT_EQ(view.get(), handle.get());
   EXPECT_EQ(view.dev_idx(), handle.dev_idx());

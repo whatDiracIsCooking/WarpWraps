@@ -46,10 +46,10 @@ using HostPolicy = CountingPolicy<stdHostMemoryError_t>;
 using GpuPolicy = CountingPolicy<wwrError_t>;
 
 template<typename T>
-using CountedHostBuffer = HostBufferWrapper<T, HostPolicy>;
+using CountedHostBuffer = HostBufferWrapper<T, HostPolicy, HostPolicy>;
 template<typename T>
-using CountedDeviceBuffer = DeviceBufferWrapper<T, GpuPolicy>;
+using CountedDeviceBuffer = DeviceBufferWrapper<T, GpuPolicy, GpuPolicy>;
 template<typename T>
-using CountedHostView = BufferViewWrapper<T, MemoryKind::Host, HostPolicy>;
+using CountedHostView = BufferViewWrapper<T, MemoryKind::Host, HostPolicy, HostPolicy>;
 
 } // namespace wwr::extension::test

@@ -14,9 +14,9 @@
  *   import wwr.extension.runtime;
  *   using namespace wwr::extension;
  *
- *   GpuStreamWrapper<> stream;
- *   GpuEventWrapper<> event;
- *   GpuMemPoolWrapper<> mem_pool;
+ *   GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> stream;
+ *   GpuEventWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> event;
+ *   GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> mem_pool;
  */
 
 export module wwr.extension.runtime;

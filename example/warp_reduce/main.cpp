@@ -20,6 +20,7 @@
 import std;
 
 import wwr.runtime_api;
+import wwr.extension.common;
 import wwr.extension.runtime;
 import wwr.extension.memory_buffer;
 
@@ -27,16 +28,19 @@ using namespace wwr;
 namespace ext = wwr::extension;
 
 // The extension layer ships the RAII wrappers themselves, not default-policy
-// aliases for them. Binding a wrapper to the default error policy is a one-line
-// `using` a consumer writes once, for exactly the names it uses -- so here they
-// are, this example's own. Pass a custom policy as the template argument
-// (DeviceBufferWrapper<T, MyPolicy>, GpuStreamWrapper<MyPolicy>) to route errors
-// somewhere other than the default abort-on-failure.
+// aliases for them. Each wrapper names its create/alloc and destroy/free error
+// policies explicitly -- neither has a default -- so binding them is a one-line
+// `using` a consumer writes once, for exactly the names it uses; here they are,
+// this example's own, bound to abort-on-failure. Swap in a custom policy pair
+// (e.g. DeviceBufferWrapper<T, MyAlloc, MyFree>, GpuStreamWrapper<MyCreate,
+// MyDestroy>) to route errors somewhere other than aborting.
 template<typename T>
-using DeviceBuffer = ext::DeviceBufferWrapper<T>;
+using DeviceBuffer = ext::DeviceBufferWrapper<T, ext::AbortPolicy<wwrError_t>, ext::AbortPolicy<wwrError_t>>;
 template<typename T>
-using HostBuffer = ext::HostBufferWrapper<T>;
-using GpuStream = ext::GpuStreamWrapper<>;
+using HostBuffer =
+    ext::HostBufferWrapper<T, ext::AbortPolicy<ext::stdHostMemoryError_t>,
+                           ext::AbortPolicy<ext::stdHostMemoryError_t>>;
+using GpuStream = ext::GpuStreamWrapper<ext::AbortPolicy<wwrError_t>, ext::AbortPolicy<wwrError_t>>;
 
 namespace {
 

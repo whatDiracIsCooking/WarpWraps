@@ -15,10 +15,12 @@
  *   using namespace wwr::extension;
  *
  *   auto dev = std::make_shared<DeviceHandle>(0);
- *   DeviceBufferWrapper<float> dev_buf(1024, dev);  // Device memory (from the handle's pool)
- *   PinnedBufferWrapper<float> pin_buf(1024);       // Pinned host memory
- *   UnifiedBufferWrapper<float> uni_buf(1024);      // Unified memory
- *   HostBufferWrapper<float> host_buf(1024);        // Standard host memory
+ *   using Abort = AbortPolicy<wwrError_t>;
+ *   DeviceBufferWrapper<float, Abort, Abort> dev_buf(1024, dev);  // Device memory (from the handle's pool)
+ *   PinnedBufferWrapper<float, Abort, Abort> pin_buf(1024);       // Pinned host memory
+ *   UnifiedBufferWrapper<float, Abort, Abort> uni_buf(1024);      // Unified memory
+ *   HostBufferWrapper<float, AbortPolicy<stdHostMemoryError_t>,
+ *                     AbortPolicy<stdHostMemoryError_t>> host_buf(1024);  // Standard host memory
  */
 
 export module wwr.extension.memory_buffer;

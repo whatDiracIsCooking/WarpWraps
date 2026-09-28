@@ -72,14 +72,14 @@ public:
   const wwrDeviceProp &props() const noexcept { return props_; }
 
   /// @brief The default allocation stream, created on this device at construction
-  GpuStreamWrapper<> &alloc_stream() noexcept { return alloc_stream_; }
+  GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &alloc_stream() noexcept { return alloc_stream_; }
   /// @copydoc alloc_stream()
-  const GpuStreamWrapper<> &alloc_stream() const noexcept { return alloc_stream_; }
+  const GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &alloc_stream() const noexcept { return alloc_stream_; }
 
   /// @brief The default memory pool, created on this device at construction
-  GpuMemPoolWrapper<> &mem_pool() noexcept { return mem_pool_; }
+  GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &mem_pool() noexcept { return mem_pool_; }
   /// @copydoc mem_pool()
-  const GpuMemPoolWrapper<> &mem_pool() const noexcept { return mem_pool_; }
+  const GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &mem_pool() const noexcept { return mem_pool_; }
 
 private:
   /// @brief Query one device's properties, aborting on failure
@@ -91,8 +91,8 @@ private:
 
   int index_ = 0;
   wwrDeviceProp props_{};
-  GpuStreamWrapper<> alloc_stream_;
-  GpuMemPoolWrapper<> mem_pool_;
+  GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> alloc_stream_;
+  GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> mem_pool_;
 };
 
 /// The in-tree reference model must satisfy the concept it inspired -- guards

@@ -59,7 +59,7 @@ struct fake_handle_tag;
 using FakeHandle = fake_handle_tag *;
 
 class FakeHandleWrapper
-    : public BaseHandle<FakeHandle, FakeHandleWrapper, AbortPolicy<int>> {
+    : public BaseHandle<FakeHandle, FakeHandleWrapper, AbortPolicy<int>, AbortPolicy<int>> {
 public:
   using BaseHandle::BaseHandle;
   void create(FakeHandle *h, std::source_location) { *h = nullptr; }

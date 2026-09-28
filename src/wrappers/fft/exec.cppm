@@ -13,7 +13,7 @@
  *   import wwr.wrappers.fft;
  *   using namespace wwr;
  *
- *   FftPlanWrapper<> plan;
+ *   FftPlanWrapper<AbortPolicy<wwrfftResult_t>, AbortPolicy<wwrfftResult_t>> plan;
  *   wwrfftMakePlan1d(plan, n, WWRFFT_C2C, 1, &work);
  *   exec_c2c<float>(plan, in, out, WWRFFT_FORWARD);
  */

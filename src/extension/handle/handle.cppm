@@ -28,8 +28,8 @@ export namespace wwr::extension {
 /// @tparam Derived The derived class type
 /// @tparam P_create The error policy for creation; its error_type is the error
 ///         type this handle checks against
-/// @tparam P_destroy The error policy for destruction (defaults to P_create),
-///         constrained to P_create's error type
+/// @tparam P_destroy The error policy for destruction, constrained to
+///         P_create's error type
 ///
 /// @note P_destroy MUST NOT THROW exceptions, as it is invoked from the destructor
 ///       (a throwing handle_error would std::terminate). The nothrow_error_policy
@@ -46,7 +46,7 @@ export namespace wwr::extension {
 ///       tracks it. On HIP every vendor handle is a pointer, so the flag only
 ///       ever materialises for cuFFT.
 template<typename T, typename Derived, typed_error_policy P_create,
-         nothrow_error_policy<typename P_create::error_type> P_destroy = P_create>
+         nothrow_error_policy<typename P_create::error_type> P_destroy>
 class BaseHandle : private NonCopyable {
 protected:
   T handle_{};
