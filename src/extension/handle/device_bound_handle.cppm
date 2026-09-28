@@ -57,9 +57,11 @@ class DeviceBoundHandle : public BaseHandle<T, Derived, P_create, P_destroy> {
 private:
   using Base = BaseHandle<T, Derived, P_create, P_destroy>;
 
-  // Select `dev_idx` as the current device, then yield `loc`. Evaluated as the
-  // argument to the base initializer -- i.e. BEFORE Base runs Derived::create
-  // -- so the handle is created on `dev_idx`.
+  // Select `dev_idx` as the current device, then yield `loc`. A return-value
+  // adapter over select_device: it exists only to carry the void select into
+  // the base-initializer argument slot, which is evaluated -- i.e. the device
+  // is selected -- BEFORE Base runs Derived::create, so the handle is created
+  // on `dev_idx`.
   static std::source_location on_device(int dev_idx, std::source_location loc) {
     select_device(dev_idx, loc);
     return loc;
