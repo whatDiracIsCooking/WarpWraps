@@ -64,9 +64,8 @@ public:
     Base::select_device(dev_idx, location);
     const auto props = make_default_props(dev_idx);
     gpu_check(wwrMemPoolCreate(&this->handle_, &props), this->policy_create_, location);
-    const unsigned int threshold = release_threshold;
-    gpu_check(wwrMemPoolSetAttribute(this->handle_, wwrMemPoolAttrReleaseThreshold,
-                                     static_cast<void *>(const_cast<unsigned int *>(&threshold))),
+    unsigned int threshold = release_threshold;
+    gpu_check(wwrMemPoolSetAttribute(this->handle_, wwrMemPoolAttrReleaseThreshold, &threshold),
               this->policy_create_, location);
     this->record_device();
   }
@@ -83,9 +82,8 @@ public:
     // and the current device stay consistent -- as the other constructors do.
     Base::select_device(props.location.id, location);
     gpu_check(wwrMemPoolCreate(&this->handle_, &props), this->policy_create_, location);
-    const unsigned int threshold = release_threshold;
-    gpu_check(wwrMemPoolSetAttribute(this->handle_, wwrMemPoolAttrReleaseThreshold,
-                                     static_cast<void *>(const_cast<unsigned int *>(&threshold))),
+    unsigned int threshold = release_threshold;
+    gpu_check(wwrMemPoolSetAttribute(this->handle_, wwrMemPoolAttrReleaseThreshold, &threshold),
               this->policy_create_, location);
     this->record_device();
   }
@@ -100,9 +98,8 @@ public:
     wwrGetDevice(&dev_idx);
     auto props = make_default_props(dev_idx);
     gpu_check(wwrMemPoolCreate(handle, &props), this->policy_create_, location);
-    const unsigned int threshold = default_threshold;
-    gpu_check(wwrMemPoolSetAttribute(*handle, wwrMemPoolAttrReleaseThreshold,
-                                     static_cast<void *>(const_cast<unsigned int *>(&threshold))),
+    unsigned int threshold = default_threshold;
+    gpu_check(wwrMemPoolSetAttribute(*handle, wwrMemPoolAttrReleaseThreshold, &threshold),
               this->policy_create_, location);
   }
 
