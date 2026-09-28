@@ -91,7 +91,7 @@ static_assert(std::same_as<decltype(reinterpret_buffer_view<std::byte>(
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // The device_handle capability ladder and the DeviceBuffer handle axis
 //
-// DeviceBufferWrapper's fourth parameter lets downstream code back the buffer
+// DeviceBufferWrapper's fifth parameter lets downstream code back the buffer
 // with its own handle type. wwr's DeviceHandle is the reference model (the
 // fullest tier); the fakes below stand in for downstream handles and pin the
 // three concept tiers -- each adds one accessor and unlocks one strategy.
@@ -141,7 +141,7 @@ static_assert(!device_handle<MissingHandle>);
 // The buffer instantiates over a downstream handle at every tier and keeps its
 // contract; construction from a shared handle holds throughout.
 template<typename H>
-using FakeBuffer = DeviceBufferWrapper<float, Abort, Abort, H>;
+using FakeBuffer = DeviceBufferWrapper<float, Abort, Abort, Abort, H>;
 static_assert(buffer_base<FakeBuffer<IndexOnlyFake>>);
 static_assert(buffer_base<FakeBuffer<StreamOnlyFake>>);
 static_assert(buffer_base<FakeBuffer<FakeHandle>>);
