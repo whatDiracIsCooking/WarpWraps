@@ -1,6 +1,6 @@
 # wwr.extension.runtime
 
-C++23 module providing RAII wrappers and error handling utilities for the GPU runtime API. Backend-neutral: written against `wwr.runtime_api`'s `gpu*` names, so the same source builds for the CUDA and the HIP backend (see `src/README.md`).
+C++23 module providing RAII wrappers for the GPU runtime API's core objects. Backend-neutral: written against `wwr.runtime_api`'s `gpu*` names, so the same source builds for the CUDA and the HIP backend (see `src/README.md`).
 
 ## Module Name
 
@@ -18,25 +18,15 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 
 | Partition | Description |
 |-----------|-------------|
-| `:gpu_error` | `wwrError_t` specializations for the common error handling templates |
 | `:gpu_stream` | RAII wrapper for `wwrStream_t` |
 | `:gpu_event` | RAII wrapper for `wwrEvent_t` |
 | `:gpu_mem_pool` | RAII wrapper for `wwrMemPool_t` |
 | `:gpu_graph` | RAII wrapper for `wwrGraph_t` |
 | `:gpu_graph_exec` | RAII wrapper for `wwrGraphExec_t` |
-| `:device_handle` | device identity, properties and default allocation stream |
+| `:stream_event_pair` | Bundles a `wwrStream_t` and a `wwrEvent_t` (`StreamEventPair`) |
+| `:device_handle` | device identity, properties, default allocation stream and memory pool |
 
 ## Exported Types and Functions
-
-### Error handling (`gpu_error`)
-
-Specializes three function templates from `wwr.extension.common` for `wwrError_t`:
-
-- `success_code<wwrError_t>()` — returns `wwrSuccess`
-- `error_name<wwrError_t>(error)` — delegates to `wwrGetErrorName`
-- `error_string<wwrError_t>(error)` — delegates to `wwrGetErrorString`
-
-Also explicitly instantiates `AbortPolicy<wwrError_t>` and both overloads of `gpu_check<wwrError_t>`.
 
 ### Stream (`gpu_stream`)
 
@@ -47,9 +37,9 @@ class GpuStreamWrapper;
 ```
 
 Constructors:
-- Default — creates a non-blocking stream (`wwrStreamCreateWithFlags` with `wwrStreamNonBlocking`), so it does not serialize against the legacy default stream (0)
-- `(unsigned int flags)` — creates with `wwrStreamCreateWithFlags`
-- `(unsigned int flags, int priority)` — creates with `wwrStreamCreateWithPriority`
+- `(int dev_idx = 0)` — default; creates a non-blocking stream (`wwrStreamCreateWithFlags` with `wwrStreamNonBlocking`) on `dev_idx`, so it does not serialize against the legacy default stream (0)
+- `(int dev_idx, unsigned int flags)` — creates with `wwrStreamCreateWithFlags`
+- `(int dev_idx, unsigned int flags, int priority)` — creates with `wwrStreamCreateWithPriority`
 
 Destruction calls `wwrStreamDestroy`. Supports move semantics; copy is deleted.
 
@@ -78,8 +68,9 @@ class GpuMemPoolWrapper;
 ```
 
 Constructors:
-- Default — creates a pool with pinned allocation on the current device; sets `wwrMemPoolAttrReleaseThreshold` to 1 GB
-- `(const wwrMemPoolProps& props, unsigned int release_threshold = 1GB)` — creates with caller-supplied properties
+- `(int dev_idx = 0)` — default; creates a pool with pinned allocation on `dev_idx`; sets `wwrMemPoolAttrReleaseThreshold` to 1 GB
+- `(int dev_idx, unsigned int release_threshold)` — default properties on `dev_idx` with a caller-supplied threshold
+- `(const wwrMemPoolProps& props, unsigned int release_threshold = 1GB)` — creates with caller-supplied properties (`props.location.id` names the device)
 
 Destruction calls `wwrMemPoolDestroy`.
 
@@ -113,6 +104,15 @@ The free functions `launch(exec, stream)` and `upload(exec, stream)` run the gra
 >
 > `wwrGraphInstantiate` is a hand-written forwarding function in `wwr.runtime_api`, not a plain alias: the backends' plain `*Instantiate` entry points disagree on signature beyond the prefix (CUDA takes flags, HIP takes an error-node/log-buffer triple), so `wwrGraphInstantiate(exec, graph, flags = 0)` forwards to `cudaGraphInstantiate` on CUDA and `hipGraphInstantiateWithFlags` on HIP — both of which take `(GraphExec_t*, Graph_t, unsigned long long)`.
 
+### Stream/event pair (`stream_event_pair`)
+
+```cpp
+struct StreamEventConfig;   // { int device; optional stream_flags/stream_priority/event_flags }
+class StreamEventPair;      // move-only
+```
+
+Bundles an owned stream and an owned event, both created (with `AbortPolicy`) on the device named by the `StreamEventConfig` (default device 0). Default-constructible, or from a `StreamEventConfig` for optional flags/priority. Exposes the owners via `gpu_stream()` / `gpu_event()`, the raw handles via `stream_raw()` / `event_raw()`, and convenience `record()` / `record(flags)`, `stream_sync()`, `event_sync()` wrapping the borrow-safe free functions.
+
 ### Device handle (`device_handle`)
 
 ```cpp
@@ -122,7 +122,7 @@ class DeviceHandle;   // move-only
 Constructors:
 - `(int index = 0)` — queries `index`'s properties once (`wwrGetDeviceProperties`) and eagerly creates a stream and a memory pool on that device
 
-`activate()` makes this device current (`wwrSetDevice`) without restoring. `dev_idx()` returns the device index, `props()` returns the full `wwrDeviceProp` (`cudaDeviceProp` / `hipDeviceProp_t`) held directly — individual fields are not mirrored behind their own accessors — `stream()` returns the owned default allocation stream (usable anywhere a `wwrStream_t` is), and `pool()` returns the owned default memory pool. `DeviceHandle` is thus the fullest tier of the `device_handle` capability ladder (`dev_idx()` + `stream()` + `pool()`), so a device buffer built from a `std::shared_ptr<DeviceHandle>` draws from that pool on that stream. Move-only, because it owns the stream and pool; a bad index or driver failure aborts through the default error policy.
+`dev_idx()` returns the device index, `props()` returns the full `wwrDeviceProp` (`cudaDeviceProp` / `hipDeviceProp_t`) held directly — individual fields are not mirrored behind their own accessors — `stream()` returns the owned default allocation stream (usable anywhere a `wwrStream_t` is), and `pool()` returns the owned default memory pool. `DeviceHandle` is thus the fullest tier of the `device_handle` capability ladder (`dev_idx()` + `stream()` + `pool()`), so a device buffer built from a `std::shared_ptr<DeviceHandle>` draws from that pool on that stream. Move-only, because it owns the stream and pool; a bad index or driver failure aborts through the default error policy.
 
 ## Usage
 
