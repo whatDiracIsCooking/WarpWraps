@@ -63,7 +63,7 @@ std::vector<OutputType> draw(const std::size_t count, const unsigned long long s
                              const OutputType scale = OutputType{1.0f},
                              const unsigned long long offset = 0) {
   auto handle = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<Abort, Abort> &stream = handle->alloc_stream();
+  GpuStreamWrapper<Abort, Abort> &stream = handle->stream();
   DeviceBufferWrapper<wwrrandState, Abort, Abort> states(count, handle);
   DeviceBufferWrapper<OutputType, Abort, Abort> values(count, handle);
 
@@ -291,7 +291,7 @@ TEST(RandTests, StatesAdvanceAcrossCalls) {
   constexpr std::size_t n = 1000;
 
   auto handle = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<Abort, Abort> &stream = handle->alloc_stream();
+  GpuStreamWrapper<Abort, Abort> &stream = handle->stream();
   DeviceBufferWrapper<wwrrandState, Abort, Abort> states(n, handle);
   DeviceBufferWrapper<double, Abort, Abort> values(n, handle);
   HostBufferWrapper<double, HostAbort, HostAbort> host(n);
@@ -323,7 +323,7 @@ TEST(RandTests, SequenceOffsetShiftsTheStreams) {
 // or touch the buffer.
 TEST(RandTests, ZeroCountIsANoOp) {
   auto handle = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<Abort, Abort> &stream = handle->alloc_stream();
+  GpuStreamWrapper<Abort, Abort> &stream = handle->stream();
   DeviceBufferWrapper<wwrrandState, Abort, Abort> states(4, handle);
   DeviceBufferWrapper<double, Abort, Abort> values(4, handle);
 

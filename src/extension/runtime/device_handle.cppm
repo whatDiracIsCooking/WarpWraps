@@ -16,24 +16,42 @@ import std;
 export namespace wwr::extension {
 
 /**
- * @brief A type usable as the backing device handle for a DeviceBuffer
+ * @brief The device-handle capability ladder backing a DeviceBuffer
  *
- * Structural, like error_policy: any type that exposes an `index()`, an
- * `alloc_stream()` and a `mem_pool()` yielding the raw backend handles a pool
- * allocation needs. Downstream code can model this with its own handle type
- * instead of wwr's DeviceHandle -- returning raw wwrStream_t / wwrMemPool_t
- * directly is fine; GpuStream / GpuMemPool satisfy it via their implicit
- * conversions (BaseHandle::operator T).
+ * Three refining concepts, each adding one accessor and thereby unlocking one
+ * more allocation strategy in DeviceBufferWrapper:
  *
- * @note The accessors are required noexcept because DeviceBuffer::deallocate()
- *       reads index() and alloc_stream() on the destructor path -- the same
- *       destructor-safety rule that motivates nothrow_error_policy.
+ *   device_handle         dev_idx()   -> synchronous wwrMalloc / wwrFree
+ *   device_handle_stream  + stream()  -> wwrMallocAsync / wwrFreeAsync
+ *   device_handle_pool    + pool()    -> wwrMallocFromPoolAsync (+ async free)
+ *
+ * Structural, like error_policy: any type exposing the accessors qualifies.
+ * They yield raw backend handles, so downstream code can model a tier with its
+ * own type instead of wwr's DeviceHandle -- returning a raw wwrStream_t /
+ * wwrMemPool_t is fine, and GpuStream / GpuMemPool satisfy it via their
+ * implicit conversions (BaseHandle::operator T). The requirement is stated as
+ * convertible_to, never a specific `.get()`, precisely to keep that raw-handle
+ * path valid.
+ *
+ * @note The accessors are required noexcept because DeviceBuffer reads them on
+ *       the destructor (deallocate) path -- the same destructor-safety rule
+ *       that motivates nothrow_error_policy.
  */
 template<typename H>
 concept device_handle = requires(const H h) {
-  { h.index() } noexcept -> std::convertible_to<int>;
-  { h.alloc_stream() } noexcept -> std::convertible_to<wwrStream_t>;
-  { h.mem_pool() } noexcept -> std::convertible_to<wwrMemPool_t>;
+  { h.dev_idx() } noexcept -> std::convertible_to<int>;
+};
+
+/// @brief A device_handle that also offers a stream -> enables async alloc/free
+template<typename H>
+concept device_handle_stream = device_handle<H> && requires(const H h) {
+  { h.stream() } noexcept -> std::convertible_to<wwrStream_t>;
+};
+
+/// @brief A device_handle_stream that also offers a pool -> enables pool alloc
+template<typename H>
+concept device_handle_pool = device_handle_stream<H> && requires(const H h) {
+  { h.pool() } noexcept -> std::convertible_to<wwrMemPool_t>;
 };
 
 /**
@@ -41,7 +59,7 @@ concept device_handle = requires(const H h) {
  *
  * Constructed from a device index; queries the runtime for that device's
  * properties once, at construction, and eagerly creates a stream and a memory
- * pool on that device -- alloc_stream() and mem_pool() -- for callers that want
+ * pool on that device -- stream() and pool() -- for callers that want
  * to allocate device memory without managing their own stream or pool (e.g. a
  * device buffer, which is built from a DeviceHandle and draws from its pool on
  * its stream). An out-of-range index
@@ -63,23 +81,23 @@ class DeviceHandle {
 public:
   explicit DeviceHandle(int index = 0,
                         std::source_location location = std::source_location::current())
-      : index_(index), props_(query_props(index, location)), alloc_stream_(index, location),
-        mem_pool_(index, location) {}
+      : index_(index), props_(query_props(index, location)), stream_(index, location),
+        pool_(index, location) {}
 
-  int index() const noexcept { return index_; }
+  int dev_idx() const noexcept { return index_; }
 
   /// @brief This device's static properties, queried once at construction
   const wwrDeviceProp &props() const noexcept { return props_; }
 
   /// @brief The default allocation stream, created on this device at construction
-  GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &alloc_stream() noexcept { return alloc_stream_; }
-  /// @copydoc alloc_stream()
-  const GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &alloc_stream() const noexcept { return alloc_stream_; }
+  GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &stream() noexcept { return stream_; }
+  /// @copydoc stream()
+  const GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &stream() const noexcept { return stream_; }
 
   /// @brief The default memory pool, created on this device at construction
-  GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &mem_pool() noexcept { return mem_pool_; }
-  /// @copydoc mem_pool()
-  const GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &mem_pool() const noexcept { return mem_pool_; }
+  GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &pool() noexcept { return pool_; }
+  /// @copydoc pool()
+  const GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &pool() const noexcept { return pool_; }
 
 private:
   /// @brief Query one device's properties, aborting on failure
@@ -91,12 +109,13 @@ private:
 
   int index_ = 0;
   wwrDeviceProp props_{};
-  GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> alloc_stream_;
-  GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> mem_pool_;
+  GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> stream_;
+  GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> pool_;
 };
 
-/// The in-tree reference model must satisfy the concept it inspired -- guards
-/// against an accessor later turning throwing or non-const-callable.
-static_assert(device_handle<DeviceHandle>);
+/// The in-tree reference model is the fullest tier -- pinning it also pins the
+/// two tiers it refines. Guards against an accessor later turning throwing or
+/// non-const-callable.
+static_assert(device_handle_pool<DeviceHandle>);
 
 } // namespace wwr::extension

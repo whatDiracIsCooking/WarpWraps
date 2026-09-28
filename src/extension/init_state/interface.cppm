@@ -18,7 +18,7 @@
  *   using namespace wwr::extension;
  *
  *   auto device = std::make_shared<DeviceHandle>();
- *   auto stream = device->alloc_stream().get();
+ *   auto stream = device->stream().get();
  *   using Abort = AbortPolicy<wwrError_t>;
  *   DeviceBufferWrapper<wwrrandState, Abort, Abort> states(n, device);
  *   DeviceBufferWrapper<float, Abort, Abort> values(n, device);

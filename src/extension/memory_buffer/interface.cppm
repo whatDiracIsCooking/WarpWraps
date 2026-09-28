@@ -5,7 +5,7 @@
  * This module provides RAII-based memory buffer management for different
  * memory kinds with automatic allocation and deallocation. It aggregates
  * all buffer types:
- * - :device_buffer - GPU device memory buffers (wwrMallocFromPoolAsync/wwrFreeAsync)
+ * - :device_buffer - GPU device memory buffers (alloc call set by the handle's tier)
  * - :pinned_buffer - Pinned host memory buffers (wwrHostAlloc/wwrFreeHost)
  * - :unified_buffer - Unified memory buffers (wwrMallocManaged)
  * - :host_buffer - Standard host memory buffers (std::malloc/std::free)
@@ -16,7 +16,7 @@
  *
  *   auto dev = std::make_shared<DeviceHandle>(0);
  *   using Abort = AbortPolicy<wwrError_t>;
- *   DeviceBufferWrapper<float, Abort, Abort> dev_buf(1024, dev);  // Device memory (from the handle's pool)
+ *   DeviceBufferWrapper<float, Abort, Abort> dev_buf(1024, dev);  // Device memory (DeviceHandle -> pool)
  *   PinnedBufferWrapper<float, Abort, Abort> pin_buf(1024);       // Pinned host memory
  *   UnifiedBufferWrapper<float, Abort, Abort> uni_buf(1024);      // Unified memory
  *   HostBufferWrapper<float, AbortPolicy<stdHostMemoryError_t>,

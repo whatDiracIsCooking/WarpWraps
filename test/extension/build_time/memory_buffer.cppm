@@ -89,44 +89,67 @@ static_assert(std::same_as<decltype(reinterpret_buffer_view<std::byte>(
                            BufferViewWrapper<std::byte, MemoryKind::Host, HostAbort, HostAbort>>);
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// The device_handle concept and the DeviceBuffer handle axis
+// The device_handle capability ladder and the DeviceBuffer handle axis
 //
 // DeviceBufferWrapper's fourth parameter lets downstream code back the buffer
-// with its own handle type. wwr's DeviceHandle is the reference model; the fake
-// handles below stand in for a downstream one and pin the concept's shape.
+// with its own handle type. wwr's DeviceHandle is the reference model (the
+// fullest tier); the fakes below stand in for downstream handles and pin the
+// three concept tiers -- each adds one accessor and unlocks one strategy.
+// Raw backend handles straight out of the accessors, no GpuStream/GpuMemPool
+// wrappers in sight -- which is what the convertible_to (not .get()) shape buys.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// A minimal downstream handle: raw backend handles straight out of the
-// accessors, no GpuStream/GpuMemPool wrappers in sight.
-struct FakeHandle {
-  int index() const noexcept { return 0; }
-  wwrStream_t alloc_stream() const noexcept { return wwrStream_t{}; }
-  wwrMemPool_t mem_pool() const noexcept { return wwrMemPool_t{}; }
+// Bare tier: dev_idx() only -> synchronous wwrMalloc/wwrFree.
+struct IndexOnlyFake {
+  int dev_idx() const noexcept { return 0; }
 };
-static_assert(device_handle<FakeHandle>);
-static_assert(device_handle<DeviceHandle>);
+static_assert(device_handle<IndexOnlyFake>);
+static_assert(!device_handle_stream<IndexOnlyFake>);
+
+// Stream tier: adds stream() -> wwrMallocAsync/wwrFreeAsync.
+struct StreamOnlyFake {
+  int dev_idx() const noexcept { return 0; }
+  wwrStream_t stream() const noexcept { return wwrStream_t{}; }
+};
+static_assert(device_handle_stream<StreamOnlyFake>);
+static_assert(!device_handle_pool<StreamOnlyFake>);
+
+// Pool tier: adds pool() -> wwrMallocFromPoolAsync. Matches DeviceHandle's shape.
+struct FakeHandle {
+  int dev_idx() const noexcept { return 0; }
+  wwrStream_t stream() const noexcept { return wwrStream_t{}; }
+  wwrMemPool_t pool() const noexcept { return wwrMemPool_t{}; }
+};
+static_assert(device_handle_pool<FakeHandle>);
+static_assert(device_handle_pool<DeviceHandle>);
 
 // The concept bites when the contract is broken: a throwing accessor (unsafe on
-// the destructor path) and a missing accessor both fail it.
+// the destructor path) fails the tier that needs it, and a handle missing even
+// dev_idx() fails the root.
 struct ThrowingHandle {
-  int index() const { return 0; } // not noexcept
-  wwrStream_t alloc_stream() const noexcept { return wwrStream_t{}; }
-  wwrMemPool_t mem_pool() const noexcept { return wwrMemPool_t{}; }
+  int dev_idx() const { return 0; } // not noexcept
+  wwrStream_t stream() const noexcept { return wwrStream_t{}; }
 };
 static_assert(!device_handle<ThrowingHandle>);
+static_assert(!device_handle_stream<ThrowingHandle>);
 
 struct MissingHandle {
-  int index() const noexcept { return 0; }
+  wwrStream_t stream() const noexcept { return wwrStream_t{}; }
 };
 static_assert(!device_handle<MissingHandle>);
 
-// The buffer instantiates over a downstream handle and keeps its contract.
-using FakeDeviceBuffer =
-    DeviceBufferWrapper<float, Abort, Abort,
-                        FakeHandle>;
-static_assert(buffer_base<FakeDeviceBuffer>);
-static_assert(std::is_nothrow_move_constructible_v<FakeDeviceBuffer>);
-static_assert(!std::is_copy_constructible_v<FakeDeviceBuffer>);
-static_assert(std::is_constructible_v<FakeDeviceBuffer, std::size_t, std::shared_ptr<FakeHandle>>);
+// The buffer instantiates over a downstream handle at every tier and keeps its
+// contract; construction from a shared handle holds throughout.
+template<typename H>
+using FakeBuffer = DeviceBufferWrapper<float, Abort, Abort, H>;
+static_assert(buffer_base<FakeBuffer<IndexOnlyFake>>);
+static_assert(buffer_base<FakeBuffer<StreamOnlyFake>>);
+static_assert(buffer_base<FakeBuffer<FakeHandle>>);
+static_assert(std::is_nothrow_move_constructible_v<FakeBuffer<FakeHandle>>);
+static_assert(!std::is_copy_constructible_v<FakeBuffer<FakeHandle>>);
+static_assert(std::is_constructible_v<FakeBuffer<IndexOnlyFake>, std::size_t,
+                                      std::shared_ptr<IndexOnlyFake>>);
+static_assert(std::is_constructible_v<FakeBuffer<FakeHandle>, std::size_t,
+                                      std::shared_ptr<FakeHandle>>);
 
 } // namespace wwr::extension::test
