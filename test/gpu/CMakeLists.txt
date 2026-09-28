@@ -196,6 +196,23 @@ add_dependencies(
   compile_time_tests wwr.test.gpu.atomics.device
 )
 
+# math.cuh is the same shape of test as fp16.cuh / atomics.cu: its wrappers are
+# __device__ templates over vendor math intrinsics (::expf/::exp, ...) that only
+# a device pass can name, and the claim they can break -- every function
+# instantiating for float and double, through one include switch, on both
+# backends -- is a device-compile claim. Building it is the assertion; no ctest
+# entry, no launch. Reached through wwr.device, which carries the header along
+# with the runtime header its intrinsics ride.
+wwr_add_gpu_device_library(
+  NAME
+  wwr.test.gpu.math.device
+  SOURCES
+  math.cu
+  LINK_PRIVATE
+  wwr.device
+)
+add_dependencies(compile_time_tests wwr.test.gpu.math.device)
+
 # Guard: every gpu* function alias in the gpu* layer is independently verified
 # by a WWR_SAME_FUNCTION restatement in the matching test/gpu module, or by a
 # dispatch-table entry that test/shared/dispatch.py checks against the objects.
