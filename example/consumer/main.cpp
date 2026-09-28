@@ -1,11 +1,11 @@
 // main.cpp -- what using an installed wwr actually looks like.
 //
 // This always consumes the core wwr package: the backend-neutral gpu* layer
-// (wwr.runtime_api, wwr.blas) and the wrappers (wwr.wrappers.* -- the dispatch
-// wrappers, plus the untyped tools-extension wrapper wwr.wrappers.tx).
+// (wwr.runtime_api, wwr.blas) and the dispatch wrappers (wwr.wrappers.*).
 //
 // The extension layer (wwr.extension.*, the RAII handle / buffer / error
-// abstractions) is OPTIONAL in the package -- it ships only from a build
+// abstractions plus the untyped tools-extension guard wwr.extension.tx) is
+// OPTIONAL in the package -- it ships only from a build
 // configured with -DWWR_INSTALL_EXTENSION=ON. This file consumes it too, guarded
 // by WWR_CONSUMER_HAS_EXTENSION, which the consumer's CMakeLists.txt defines from
 // the package's WWR_HAS_EXTENSION variable. So the one source builds against a
@@ -45,12 +45,12 @@ import wwr.wrappers.blas;
 import wwr.wrappers.solver;
 import wwr.wrappers.fft;
 import wwr.wrappers.sparse;
-import wwr.wrappers.tx; // wwr::tx::mark, ScopedRange, range_start/stop
 
 #if defined(WWR_CONSUMER_HAS_EXTENSION)
 import wwr.extension.common;        // AbortPolicy<E>, the error policies the wrappers take
 import wwr.extension.runtime;       // GpuStreamWrapper and the rest of the RAII runtime
 import wwr.extension.random_normal; // random_normal<T>, backed by a device archive
+import wwr.extension.tx;            // wwr::extension::ScopedRange
 #endif
 
 // The gpu* names (wwrSuccess, wwrMalloc, WWRBLAS_OP_N, ...) and the wrappers
@@ -188,16 +188,16 @@ bool extension_link() {
 } // namespace
 
 int main() {
-  // wwr.wrappers.tx is host-side profiler annotation -- it needs no device,
-  // so exercising the whole surface here (marker, RAII push/pop via ScopedRange,
-  // async start/stop) proves the tx wrapper chain -- wwr.wrappers.tx ->
-  // wwr.tx -> the backend's NVTX/rocTX module -- installs, compiles, links
-  // AND runs, regardless of whether a GPU is present. The ScopedRange guards the
-  // rest of main, so it pops on every return path below.
-  tx::mark("consumer start");
-  const tx::ScopedRange session{"wwr install-check"};
-  tx::range_stop(tx::range_start("async probe"));
-  std::println("tx     : marker + scoped/async ranges resolved and linked");
+#if defined(WWR_CONSUMER_HAS_EXTENSION)
+  // wwr.extension.tx is host-side profiler annotation -- it needs no device, so
+  // constructing a ScopedRange here proves the tx chain (wwr.extension.tx ->
+  // wwr.tx -> the backend's NVTX/rocTX module) installs, compiles, links AND
+  // runs, regardless of whether a GPU is present. It guards the rest of main, so
+  // it pops on every return path below. Guarded by WWR_CONSUMER_HAS_EXTENSION
+  // because tx now ships with the optional extension layer, not the wrappers.
+  const extension::ScopedRange session{"wwr install-check"};
+  std::println("tx     : scoped range resolved and linked");
+#endif
 
   // Compile-and-link proof first: no device needed, and it is what proves the
   // install regardless of whether a GPU is present to run the gemm.

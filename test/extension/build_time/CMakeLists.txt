@@ -44,3 +44,17 @@ wwr_add_cxx_module_library(
 )
 
 add_dependencies(compile_time_tests wwr.test.extension.handle_view)
+
+wwr_add_cxx_module_library(
+  NAME
+  wwr.test.extension.tx
+  IMPORT_STD
+  NO_CUDA_DEVICE_LINKING
+  PRIMARY_INTERFACE
+  tx.cppm
+  LINK_PUBLIC
+  wwr.tx
+  wwr.extension.tx
+)
+
+add_dependencies(compile_time_tests wwr.test.extension.tx)
