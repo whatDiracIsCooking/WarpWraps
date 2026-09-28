@@ -71,7 +71,7 @@ template class DefaultErrorPolicy<wwrfftResult_t>;
 // Explicitly instantiate gpu_check for wwrfftResult_t
 template bool gpu_check<wwrfftResult_t>(const wwrfftResult_t error, std::source_location location);
 
-template bool gpu_check<wwrfftResult_t, DefaultErrorPolicy<wwrfftResult_t>>(
+template bool gpu_check<wwrfftResult_t, DefaultErrorPolicy<wwrfftResult_t> &>(
     const wwrfftResult_t error, DefaultErrorPolicy<wwrfftResult_t> &policy,
     std::source_location location);
 

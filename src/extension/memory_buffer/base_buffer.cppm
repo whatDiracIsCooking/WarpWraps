@@ -402,8 +402,8 @@ public:
 protected:
   T *data_ = nullptr;            ///< Pointer to allocated memory
   std::size_t num_elements_ = 0; ///< Number of elements (not bytes)
-  P_alloc policy_alloc_{};       ///< Error policy for allocation operations
-  P_free policy_free_{};         ///< Error policy for deallocation operations
+  [[no_unique_address]] P_alloc policy_alloc_{}; ///< Error policy for allocation operations
+  [[no_unique_address]] P_free policy_free_{};   ///< Error policy for deallocation operations
 
   // Tag type for derived classes to skip default allocation
   struct skip_default_alloc_t {};

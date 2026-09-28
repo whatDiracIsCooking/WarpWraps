@@ -91,8 +91,8 @@ private:
   }
 
 protected:
-  P_create policy_create_{};
-  P_destroy policy_destroy_{};
+  [[no_unique_address]] P_create policy_create_{};
+  [[no_unique_address]] P_destroy policy_destroy_{};
 
   // Tag type for derived classes to skip default handle creation
   struct skip_default_create_t {};

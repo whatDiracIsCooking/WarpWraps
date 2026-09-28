@@ -72,7 +72,7 @@ template class DefaultErrorPolicy<wwrblasStatus_t>;
 template bool gpu_check<wwrblasStatus_t>(const wwrblasStatus_t error,
                                          std::source_location location);
 
-template bool gpu_check<wwrblasStatus_t, DefaultErrorPolicy<wwrblasStatus_t>>(
+template bool gpu_check<wwrblasStatus_t, DefaultErrorPolicy<wwrblasStatus_t> &>(
     const wwrblasStatus_t error, DefaultErrorPolicy<wwrblasStatus_t> &policy,
     std::source_location location);
 

@@ -72,7 +72,7 @@ template class DefaultErrorPolicy<wwrsparseStatus_t>;
 template bool gpu_check<wwrsparseStatus_t>(const wwrsparseStatus_t error,
                                            std::source_location location);
 
-template bool gpu_check<wwrsparseStatus_t, DefaultErrorPolicy<wwrsparseStatus_t>>(
+template bool gpu_check<wwrsparseStatus_t, DefaultErrorPolicy<wwrsparseStatus_t> &>(
     const wwrsparseStatus_t error, DefaultErrorPolicy<wwrsparseStatus_t> &policy,
     std::source_location location);
 
