@@ -14,7 +14,7 @@
 export module wwr.extension.common:device_scope;
 
 import wwr.extension.common.error_handling;
-// gpu_check here uses the default DefaultErrorPolicy<wwrError_t>, which odr-uses
+// gpu_check here uses the default AbortPolicy<wwrError_t>, which odr-uses
 // success_code<wwrError_t>() (and error_name/error_string). That specialization
 // lives in :gpu_error; without it reachable the compiler falls back to the
 // inline-but-undefined primary template (-Wundefined-inline, and an ill-formed

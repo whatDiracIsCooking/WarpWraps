@@ -1,13 +1,13 @@
 /**
- * @file default_error_policy.cppm
- * @brief Default error policy implementation
+ * @file abort_policy.cppm
+ * @brief Abort-on-error policy (the default error policy)
  *
  * Usage:
  *   import wwr.extension.common;
  *   using namespace wwr::extension;
  */
 
-export module wwr.extension.common.error_handling:default_error_policy;
+export module wwr.extension.common.error_handling:abort_policy;
 
 import std;
 import :error_code;
@@ -15,25 +15,25 @@ import :error_code;
 export namespace wwr::extension {
 
 // ============================================================================
-// Default Error Policy
+// Abort Policy
 // ============================================================================
 
 /**
- * @brief Default error policy implementation
+ * @brief Error policy that prints to stderr and aborts (the default policy)
  *
  * @tparam T The error code type
  *
  * @note Prints error information to std::cerr when an error occurs, then aborts.
  *
- * DefaultErrorPolicy is the name every default-policy slot resolves to (the
+ * AbortPolicy is the name every default-policy slot resolves to (the
  * argless gpu_check and the P_create / P_alloc / P_free / P_destroy
  * template-argument defaults on the RAII wrappers). A build that wants different
  * behaviour passes an explicit policy at the call site instead. handle_error is
- * noexcept because DefaultErrorPolicy is also the default for the destruction
+ * noexcept because AbortPolicy is also the default for the destruction
  * slots (P_free / P_destroy), which require nothrow_error_policy.
  */
 template<typename T>
-class DefaultErrorPolicy {
+class AbortPolicy {
 public:
   /// @brief The error code type this policy handles (see typed_error_policy).
   using error_type = T;

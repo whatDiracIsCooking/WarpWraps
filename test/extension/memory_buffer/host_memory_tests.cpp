@@ -6,7 +6,7 @@
 // that host error type, so none of this needs a device. The file compiles into
 // the same executable as buffer_tests.cpp.
 //
-// The failure paths of DefaultErrorPolicy and the single-argument gpu_check end
+// The failure paths of AbortPolicy and the single-argument gpu_check end
 // in std::abort(), so they are covered with death tests -- named *DeathTest so
 // GoogleTest runs them before any suite in the binary that touches CUDA.
 // gpu_check's custom-policy overload returns false instead of aborting, so that
@@ -100,17 +100,17 @@ TEST(HostMemoryAllocTests, FreeNullptrIsError) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// default_error_policy.cppm
+// abort_policy.cppm
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-TEST(DefaultErrorPolicyTests, SuccessCodeIsNoOp) {
-  DefaultErrorPolicy<stdHostMemoryError_t> policy;
+TEST(AbortPolicyTests, SuccessCodeIsNoOp) {
+  AbortPolicy<stdHostMemoryError_t> policy;
   policy.handle_error(stdHostMemSuccess, std::source_location::current());
   SUCCEED(); // returned without printing or aborting
 }
 
-TEST(DefaultErrorPolicyDeathTest, FailureAborts) {
-  DefaultErrorPolicy<stdHostMemoryError_t> policy;
+TEST(AbortPolicyDeathTest, FailureAborts) {
+  AbortPolicy<stdHostMemoryError_t> policy;
   EXPECT_DEATH(policy.handle_error(stdHostMemAllocFailure, std::source_location::current()),
                "GPU error at");
 }

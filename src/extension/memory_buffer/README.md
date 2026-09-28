@@ -8,7 +8,7 @@ RAII-based memory buffer management for all GPU-relevant memory kinds. Provides 
 
 ## Buffer Types
 
-The module ships the `*Wrapper` classes (in the `wwr::extension` namespace); each takes its `P_alloc`/`P_free` error policies as template arguments, defaulting to `DefaultErrorPolicy`. It does **not** ship default-policy aliases for them — binding a wrapper to the default is a one-line `using` a consumer writes once, for the names it uses:
+The module ships the `*Wrapper` classes (in the `wwr::extension` namespace); each takes its `P_alloc`/`P_free` error policies as template arguments, defaulting to `AbortPolicy`. It does **not** ship default-policy aliases for them — binding a wrapper to the default is a one-line `using` a consumer writes once, for the names it uses:
 
 ```cpp
 template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T>;
@@ -95,7 +95,7 @@ UnifiedBuffer<T> buf(n, wwrMemAttachHost);   // wwrMallocManaged with flags
 
 ## Error Handling
 
-Error policies are parameterised via `P_alloc` and `P_free` template arguments. The default is `DefaultErrorPolicy<ErrorType>`. The error type varies by memory kind:
+Error policies are parameterised via `P_alloc` and `P_free` template arguments. The default is `AbortPolicy<ErrorType>`. The error type varies by memory kind:
 
 | Kind | Error type |
 |---|---|
@@ -220,6 +220,6 @@ Each buffer type exposes `static constexpr MemoryKind memory_kind` and the boole
 
 | Dependency | Purpose |
 |---|---|
-| `wwr.extension.common` | Error policy concepts, `gpu_check`, `DefaultErrorPolicy` |
+| `wwr.extension.common` | Error policy concepts, `gpu_check`, `AbortPolicy` |
 | `wwr.extension.runtime` | `gpu_check` overloads for `wwrError_t` |
 | `wwr.runtime_api` | gpu* memory allocation APIs (CUDA or HIP runtime) |

@@ -26,7 +26,7 @@ namespace wwr::extension::test {
 // inherits only the (int dev_idx) constructor -- unlike FftPlanWrapper it takes
 // no policy instance -- so the counter lives in a static rather than being
 // injected by pointer as test/extension/fft/plan_tests.cpp does. It tallies
-// failures instead of aborting (DefaultErrorPolicy would terminate the process),
+// failures instead of aborting (AbortPolicy would terminate the process),
 // so a botched destroy is observable after the objects are gone.
 struct CountingBlasPolicy {
   using error_type = wwrblasStatus_t;

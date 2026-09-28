@@ -24,14 +24,14 @@ export namespace wwr::extension {
  * may be swapped to disk by the OS.
  *
  * @tparam T The element type stored in the buffer
- * @tparam P_alloc Error policy type for allocation (defaults to DefaultErrorPolicy<stdHostMemoryError_t>)
+ * @tparam P_alloc Error policy type for allocation (defaults to AbortPolicy<stdHostMemoryError_t>)
  * @tparam P_free Error policy type for deallocation (defaults to P_alloc)
  *
  * @note P_free MUST NOT THROW - it is called from the destructor.
  * @note For faster host-device transfers, consider using PinnedBufferWrapper instead
  */
 template<typename T,
-         error_policy<stdHostMemoryError_t> P_alloc = DefaultErrorPolicy<stdHostMemoryError_t>,
+         error_policy<stdHostMemoryError_t> P_alloc = AbortPolicy<stdHostMemoryError_t>,
          nothrow_error_policy<stdHostMemoryError_t> P_free = P_alloc>
 class HostBufferWrapper
     : public BaseBuffer<T, MemoryKind::Host, HostBufferWrapper<T, P_alloc, P_free>, P_alloc,

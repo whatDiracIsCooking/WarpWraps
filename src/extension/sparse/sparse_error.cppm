@@ -65,15 +65,15 @@ const char *error_string<wwrsparseStatus_t>(wwrsparseStatus_t error) noexcept {
 // Template Instantiations
 // ============================================================================
 
-// Explicitly instantiate DefaultErrorPolicy for wwrsparseStatus_t
-template class DefaultErrorPolicy<wwrsparseStatus_t>;
+// Explicitly instantiate AbortPolicy for wwrsparseStatus_t
+template class AbortPolicy<wwrsparseStatus_t>;
 
 // Explicitly instantiate gpu_check for wwrsparseStatus_t
 template bool gpu_check<wwrsparseStatus_t>(const wwrsparseStatus_t error,
                                            std::source_location location);
 
-template bool gpu_check<wwrsparseStatus_t, DefaultErrorPolicy<wwrsparseStatus_t> &>(
-    const wwrsparseStatus_t error, DefaultErrorPolicy<wwrsparseStatus_t> &policy,
+template bool gpu_check<wwrsparseStatus_t, AbortPolicy<wwrsparseStatus_t> &>(
+    const wwrsparseStatus_t error, AbortPolicy<wwrsparseStatus_t> &policy,
     std::source_location location);
 
 } // namespace wwr::extension

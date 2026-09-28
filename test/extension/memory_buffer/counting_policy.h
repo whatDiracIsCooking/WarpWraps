@@ -19,7 +19,7 @@ namespace wwr::extension::test {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Test error policy
 //
-// DefaultErrorPolicy aborts, so it cannot be used to observe the failure
+// AbortPolicy aborts, so it cannot be used to observe the failure
 // paths. This one records instead, which is all the error_policy concept
 // requires, and is stored by value in the buffer so the counts can be read
 // back through alloc_policy().

@@ -483,7 +483,7 @@ private:
  */
 template<typename T, MemoryKind K,
          error_policy<typename MemoryErrorType<K>::type> P_alloc =
-             DefaultErrorPolicy<typename MemoryErrorType<K>::type>,
+             AbortPolicy<typename MemoryErrorType<K>::type>,
          nothrow_error_policy<typename MemoryErrorType<K>::type> P_free = P_alloc>
 class BufferViewWrapper
     : public BaseBuffer<T, K, BufferViewWrapper<T, K, P_alloc, P_free>, P_alloc, P_free, true> {

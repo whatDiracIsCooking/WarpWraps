@@ -623,7 +623,7 @@ TEST(DeviceScopeTests, NestedScopesRestore) {
 //
 // The policy records to statics because the flag constructors default-construct
 // it (there is no flags+policy overload) and the wrapper exposes no accessor to
-// read an instance back. DefaultErrorPolicy aborts, so it cannot observe the
+// read an instance back. AbortPolicy aborts, so it cannot observe the
 // path. An invalid creation-flag mask forces wwrEventCreateWithFlags to return
 // wwrErrorInvalidValue -- a recoverable error that allocates nothing, so unlike
 // the memory allocation-failure suite this needs no no_sanitizer label.
