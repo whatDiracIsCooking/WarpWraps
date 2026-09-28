@@ -2,7 +2,7 @@
  * @file solver_handle.cppm
  * @brief RAII wrapper for a GPU solver handle
  *
- * Provides WwrsolverDnHandle class for automatic GPU solver handle management.
+ * Provides WwrsolverDnHandleWrapper class for automatic GPU solver handle management.
  */
 
 export module wwr.extension.solver:solver_handle;
@@ -39,7 +39,7 @@ private:
                               P_create, P_destroy>;
 
 public:
-  // The `WwrsolverDnHandle(int dev_idx = 0)` default/per-device constructor,
+  // The `WwrsolverDnHandleWrapper(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
   using DeviceBoundHandle<wwrsolverDnHandle_t, WwrsolverDnHandleWrapper<P_create, P_destroy>, P_create,
                        P_destroy>::DeviceBoundHandle;

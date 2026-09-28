@@ -1,6 +1,6 @@
-// handle_tests.cpp - RAII contract of wwr.extension.sparse's WwrsparseHandle
+// handle_tests.cpp - RAII contract of wwr.extension.sparse's WwrsparseHandleWrapper
 //
-// WwrsparseHandle is a DeviceBoundHandle specialisation over wwrsparseHandle_t: it
+// WwrsparseHandleWrapper is a DeviceBoundHandle specialisation over wwrsparseHandle_t: it
 // records the device it was created on, since a cuSPARSE handle is
 // device-bound. See test/extension/blas/handle_tests.cpp for the shape and why
 // get() nulling on the moved-from object is the double-free guard.
@@ -28,34 +28,34 @@ struct CountingSparsePolicy {
 };
 using CountingSparseHandle = WwrsparseHandleWrapper<CountingSparsePolicy>;
 
-static_assert(!std::is_copy_constructible_v<WwrsparseHandle>);
-static_assert(!std::is_copy_assignable_v<WwrsparseHandle>);
-static_assert(std::is_nothrow_move_constructible_v<WwrsparseHandle>);
-static_assert(std::is_nothrow_move_assignable_v<WwrsparseHandle>);
+static_assert(!std::is_copy_constructible_v<WwrsparseHandleWrapper<>>);
+static_assert(!std::is_copy_assignable_v<WwrsparseHandleWrapper<>>);
+static_assert(std::is_nothrow_move_constructible_v<WwrsparseHandleWrapper<>>);
+static_assert(std::is_nothrow_move_assignable_v<WwrsparseHandleWrapper<>>);
 
 TEST(WwrsparseHandleTests, DefaultConstructorCreatesHandle) {
-  WwrsparseHandle handle;
+  WwrsparseHandleWrapper<> handle;
   EXPECT_NE(handle.get(), nullptr);
 }
 
 TEST(WwrsparseHandleTests, ImplicitConversionMatchesGet) {
-  WwrsparseHandle handle;
+  WwrsparseHandleWrapper<> handle;
   wwrsparseHandle_t raw = handle; // operator wwrsparseHandle_t()
   EXPECT_EQ(raw, handle.get());
 }
 
 TEST(WwrsparseHandleTests, MoveConstructorTransfersOwnership) {
-  WwrsparseHandle handle1;
+  WwrsparseHandleWrapper<> handle1;
   wwrsparseHandle_t raw = handle1.get();
 
-  WwrsparseHandle handle2(std::move(handle1));
+  WwrsparseHandleWrapper<> handle2(std::move(handle1));
   EXPECT_EQ(handle2.get(), raw);
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
 TEST(WwrsparseHandleTests, MoveAssignmentTransfersOwnership) {
-  WwrsparseHandle handle1;
-  WwrsparseHandle handle2;
+  WwrsparseHandleWrapper<> handle1;
+  WwrsparseHandleWrapper<> handle2;
   wwrsparseHandle_t raw = handle1.get();
 
   handle2 = std::move(handle1);
@@ -64,7 +64,7 @@ TEST(WwrsparseHandleTests, MoveAssignmentTransfersOwnership) {
 }
 
 TEST(WwrsparseHandleTests, SelfMoveAssignmentKeepsHandle) {
-  WwrsparseHandle handle;
+  WwrsparseHandleWrapper<> handle;
   wwrsparseHandle_t raw = handle.get();
 
   handle = std::move(handle);
@@ -73,19 +73,19 @@ TEST(WwrsparseHandleTests, SelfMoveAssignmentKeepsHandle) {
 
 TEST(WwrsparseHandleTests, RecordsCreationDevice) {
   // The default constructor creates on device 0.
-  WwrsparseHandle handle;
+  WwrsparseHandleWrapper<> handle;
   EXPECT_EQ(handle.dev_idx(), 0);
 
   // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
-  WwrsparseHandle on0(0);
+  WwrsparseHandleWrapper<> on0(0);
   EXPECT_EQ(on0.dev_idx(), 0);
 }
 
 TEST(WwrsparseHandleTests, MovePreservesDevice) {
-  WwrsparseHandle handle1;
+  WwrsparseHandleWrapper<> handle1;
   const int dev = handle1.dev_idx();
 
-  WwrsparseHandle handle2(std::move(handle1));
+  WwrsparseHandleWrapper<> handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
 }
@@ -95,8 +95,8 @@ TEST(WwrsparseHandleTests, ViewMirrorsOwnerHandleAndDevice) {
   // this reads the borrowed handle/device back from a live handle. The view is
   // a bare DeviceBoundHandleView with no borrow-safe ops (a cuSPARSE call consumes
   // the raw handle), so mirroring get()/dev_idx() is its whole job.
-  WwrsparseHandle handle;
-  const WwrsparseHandleView view = handle.view();
+  WwrsparseHandleWrapper<> handle;
+  const DeviceBoundHandleView<wwrsparseHandle_t> view = handle.view();
   EXPECT_EQ(view.get(), handle.get());
   EXPECT_EQ(view.dev_idx(), handle.dev_idx());
 }

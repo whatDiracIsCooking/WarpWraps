@@ -2,7 +2,7 @@
  * @file unified_buffer.cppm
  * @brief RAII wrapper for unified (managed) memory buffers
  *
- * Provides UnifiedBuffer class for automatic unified memory management.
+ * Provides UnifiedBufferWrapper class for automatic unified memory management.
  * Unified memory is accessible from both CPU and GPU with automatic migration.
  */
 

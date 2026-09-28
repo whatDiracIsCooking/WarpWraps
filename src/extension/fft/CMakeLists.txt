@@ -9,7 +9,6 @@ wwr_add_cxx_module_library(
   PARTITIONS
   fft_error.cppm
   fft_plan.cppm
-  convenience_fft.cppm
   LINK_PUBLIC
   wwr.fft
   wwr.extension.common

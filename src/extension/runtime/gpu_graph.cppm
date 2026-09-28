@@ -2,8 +2,8 @@
  * @file gpu_graph.cppm
  * @brief RAII wrapper for GPU graph handles
  *
- * Provides GpuGraph, an RAII wrapper for wwrGraph_t -- the mutable DAG that is
- * instantiated into an executable graph (GpuGraphExec).
+ * Provides GpuGraphWrapper, an RAII wrapper for wwrGraph_t -- the mutable DAG that is
+ * instantiated into an executable graph (GpuGraphExecWrapper).
  */
 
 export module wwr.extension.runtime:gpu_graph;
@@ -53,7 +53,7 @@ public:
   ///
   /// The handle is not created here -- it is one the runtime produced, e.g. by
   /// wwrStreamEndCapture. The returned wrapper owns it and destroys it with
-  /// wwrGraphDestroy like any other GpuGraph. Used by GpuStream::end_capture.
+  /// wwrGraphDestroy like any other GpuGraphWrapper. Used by GpuStreamWrapper::end_capture.
   static GpuGraphWrapper adopt(wwrGraph_t raw) noexcept {
     GpuGraphWrapper graph{typename Base::skip_default_create_t{}};
     graph.handle_ = raw;
@@ -71,7 +71,7 @@ public:
   /// @brief Instantiate this graph into an executable graph
   /// @param flags Instantiation flags (0 for none)
   /// @param location Source location where instantiation was requested
-  /// @return A GpuGraphExec owning the instantiated executable graph
+  /// @return A GpuGraphExecWrapper owning the instantiated executable graph
   GpuGraphExecWrapper<P_create, P_destroy>
   instantiate(const unsigned long long flags = 0,
               std::source_location location = std::source_location::current()) {

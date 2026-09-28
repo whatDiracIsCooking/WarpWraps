@@ -9,7 +9,6 @@ wwr_add_cxx_module_library(
   PARTITIONS
   blas_error.cppm
   blas_handle.cppm
-  convenience_blas.cppm
   LINK_PUBLIC
   wwr.blas
   wwr.extension.common

@@ -2,7 +2,7 @@
  * @file device_buffer.cppm
  * @brief RAII wrapper for GPU device memory buffers
  *
- * Provides DeviceBuffer class for automatic device memory management.
+ * Provides DeviceBufferWrapper class for automatic device memory management.
  * Device memory resides on the GPU and is accessible only by device code.
  */
 
@@ -45,7 +45,7 @@ public:
   /**
      * @brief Allocate device memory from a DeviceHandle's pool on its stream
      *
-     * A DeviceBuffer is always drawn from a shared DeviceHandle -- this and the
+     * A DeviceBufferWrapper is always drawn from a shared DeviceHandle -- this and the
      * policy-taking overload below are the only constructors. Makes the handle's
      * device current for the allocation via a DeviceScope guard -- restoring the
      * caller's previous device afterward -- then allocates from its memory pool

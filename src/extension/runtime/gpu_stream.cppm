@@ -2,12 +2,12 @@
  * @file gpu_stream.cppm
  * @brief RAII wrapper for GPU stream handles
  *
- * Provides GpuStream for automatic GPU stream management. The borrow-safe
+ * Provides GpuStreamWrapper for automatic GPU stream management. The borrow-safe
  * operations (sync/wait_event/begin_capture) are free functions taking a raw
  * wwrStream_t, so one definition serves the owner, its view, and a bare handle
  * (the default stream, or one owned elsewhere) alike -- see the free functions
  * below and runtime/README.md. end_capture stays a member: it mints an owned
- * GpuGraph through the create policy, which a borrow has no business doing.
+ * GpuGraphWrapper through the create policy, which a borrow has no business doing.
  */
 
 export module wwr.extension.runtime:gpu_stream;
@@ -21,9 +21,9 @@ import std;
 export namespace wwr::extension {
 
 /// @brief Non-owning, copyable view of a stream handle (carries its device
-///        index). Returned by GpuStream::view() (from DeviceBoundHandle); the
+///        index). Returned by GpuStreamWrapper::view() (from DeviceBoundHandle); the
 ///        borrow-safe stream operations are the free functions below, which act
-///        on it, on an owning GpuStream, or on a raw wwrStream_t.
+///        on it, on an owning GpuStreamWrapper, or on a raw wwrStream_t.
 using GpuStreamView = DeviceBoundHandleView<wwrStream_t>;
 
 /**
@@ -46,7 +46,7 @@ private:
       DeviceBoundHandle<wwrStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 public:
-  // The `GpuStream(int dev_idx = 0)` default/per-device constructor, inherited
+  // The `GpuStreamWrapper(int dev_idx = 0)` default/per-device constructor, inherited
   // from DeviceBoundHandle, which selects and records the owning device. view()
   // (device-aware, deleted on rvalues) is inherited from DeviceBoundHandle too.
   using DeviceBoundHandle<wwrStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create,
@@ -93,13 +93,13 @@ public:
 
   /// @brief End capture on this stream and return the captured graph
   ///
-  /// Wraps the graph the runtime produced in an owning GpuGraph (via
-  /// GpuGraph::adopt), so the whole capture -> instantiate -> launch flow stays
+  /// Wraps the graph the runtime produced in an owning GpuGraphWrapper (via
+  /// GpuGraphWrapper::adopt), so the whole capture -> instantiate -> launch flow stays
   /// RAII. Errors go through the create policy, matching construction. Stays a
   /// member (not a free function) because it produces an owned graph.
   ///
   /// @param location Source location where capture end was requested
-  /// @return A GpuGraph owning the captured graph
+  /// @return A GpuGraphWrapper owning the captured graph
   GpuGraphWrapper<P_create, P_destroy>
   end_capture(std::source_location location = std::source_location::current()) {
     wwrGraph_t graph = nullptr;
@@ -118,7 +118,7 @@ public:
 };
 
 // Borrow-safe stream operations. Free functions on the raw wwrStream_t: an
-// owning GpuStream and a GpuStreamView both convert to it, so each op has one
+// owning GpuStreamWrapper and a GpuStreamView both convert to it, so each op has one
 // definition that works on the owner, the view, or a bare handle. Found by ADL
 // on the wrapper/view types (both in wwr::extension); a bare handle needs
 // qualification. They mutate the GPU stream, not any C++ object.

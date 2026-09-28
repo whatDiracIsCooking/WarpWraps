@@ -10,7 +10,6 @@ wwr_add_cxx_module_library(
   PARTITIONS
   sparse_error.cppm
   sparse_handle.cppm
-  convenience_sparse.cppm
   LINK_PUBLIC
   wwr.sparse
   wwr.extension.common

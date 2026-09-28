@@ -1,8 +1,8 @@
 // handle_tests.cpp - RAII contract of wwr.extension.solver's two wrappers
 //
-// WwrsolverDnHandle is a DeviceBoundHandle specialisation (over
+// WwrsolverDnHandleWrapper is a DeviceBoundHandle specialisation (over
 // wwrsolverDnHandle_t): it records the device it was created on, since a
-// cuSOLVER handle is device-bound. WwrsolverDnParams stays a BaseHandle
+// cuSOLVER handle is device-bound. WwrsolverDnParamsWrapper stays a BaseHandle
 // specialisation (over wwrsolverDnParams_t) -- params carry no device. See
 // test/extension/blas/handle_tests.cpp for the shape and why get() nulling on
 // the moved-from object is the double-free guard. Params is the second live
@@ -31,43 +31,43 @@ struct CountingSolverPolicy {
 };
 using CountingSolverHandle = WwrsolverDnHandleWrapper<CountingSolverPolicy>;
 
-static_assert(!std::is_copy_constructible_v<WwrsolverDnHandle>);
-static_assert(!std::is_copy_assignable_v<WwrsolverDnHandle>);
-static_assert(std::is_nothrow_move_constructible_v<WwrsolverDnHandle>);
-static_assert(std::is_nothrow_move_assignable_v<WwrsolverDnHandle>);
+static_assert(!std::is_copy_constructible_v<WwrsolverDnHandleWrapper<>>);
+static_assert(!std::is_copy_assignable_v<WwrsolverDnHandleWrapper<>>);
+static_assert(std::is_nothrow_move_constructible_v<WwrsolverDnHandleWrapper<>>);
+static_assert(std::is_nothrow_move_assignable_v<WwrsolverDnHandleWrapper<>>);
 
-static_assert(!std::is_copy_constructible_v<WwrsolverDnParams>);
-static_assert(!std::is_copy_assignable_v<WwrsolverDnParams>);
-static_assert(std::is_nothrow_move_constructible_v<WwrsolverDnParams>);
-static_assert(std::is_nothrow_move_assignable_v<WwrsolverDnParams>);
+static_assert(!std::is_copy_constructible_v<WwrsolverDnParamsWrapper<>>);
+static_assert(!std::is_copy_assignable_v<WwrsolverDnParamsWrapper<>>);
+static_assert(std::is_nothrow_move_constructible_v<WwrsolverDnParamsWrapper<>>);
+static_assert(std::is_nothrow_move_assignable_v<WwrsolverDnParamsWrapper<>>);
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// WwrsolverDnHandle
+// WwrsolverDnHandleWrapper
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TEST(WwrsolverDnHandleTests, DefaultConstructorCreatesHandle) {
-  WwrsolverDnHandle handle;
+  WwrsolverDnHandleWrapper<> handle;
   EXPECT_NE(handle.get(), nullptr);
 }
 
 TEST(WwrsolverDnHandleTests, ImplicitConversionMatchesGet) {
-  WwrsolverDnHandle handle;
+  WwrsolverDnHandleWrapper<> handle;
   wwrsolverDnHandle_t raw = handle; // operator wwrsolverDnHandle_t()
   EXPECT_EQ(raw, handle.get());
 }
 
 TEST(WwrsolverDnHandleTests, MoveConstructorTransfersOwnership) {
-  WwrsolverDnHandle handle1;
+  WwrsolverDnHandleWrapper<> handle1;
   wwrsolverDnHandle_t raw = handle1.get();
 
-  WwrsolverDnHandle handle2(std::move(handle1));
+  WwrsolverDnHandleWrapper<> handle2(std::move(handle1));
   EXPECT_EQ(handle2.get(), raw);
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
 TEST(WwrsolverDnHandleTests, MoveAssignmentTransfersOwnership) {
-  WwrsolverDnHandle handle1;
-  WwrsolverDnHandle handle2;
+  WwrsolverDnHandleWrapper<> handle1;
+  WwrsolverDnHandleWrapper<> handle2;
   wwrsolverDnHandle_t raw = handle1.get();
 
   handle2 = std::move(handle1);
@@ -76,7 +76,7 @@ TEST(WwrsolverDnHandleTests, MoveAssignmentTransfersOwnership) {
 }
 
 TEST(WwrsolverDnHandleTests, SelfMoveAssignmentKeepsHandle) {
-  WwrsolverDnHandle handle;
+  WwrsolverDnHandleWrapper<> handle;
   wwrsolverDnHandle_t raw = handle.get();
 
   handle = std::move(handle);
@@ -85,19 +85,19 @@ TEST(WwrsolverDnHandleTests, SelfMoveAssignmentKeepsHandle) {
 
 TEST(WwrsolverDnHandleTests, RecordsCreationDevice) {
   // The default constructor creates on device 0.
-  WwrsolverDnHandle handle;
+  WwrsolverDnHandleWrapper<> handle;
   EXPECT_EQ(handle.dev_idx(), 0);
 
   // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
-  WwrsolverDnHandle on0(0);
+  WwrsolverDnHandleWrapper<> on0(0);
   EXPECT_EQ(on0.dev_idx(), 0);
 }
 
 TEST(WwrsolverDnHandleTests, MovePreservesDevice) {
-  WwrsolverDnHandle handle1;
+  WwrsolverDnHandleWrapper<> handle1;
   const int dev = handle1.dev_idx();
 
-  WwrsolverDnHandle handle2(std::move(handle1));
+  WwrsolverDnHandleWrapper<> handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
 }
@@ -107,8 +107,8 @@ TEST(WwrsolverDnHandleTests, ViewMirrorsOwnerHandleAndDevice) {
   // this reads the borrowed handle/device back from a live handle. The view is
   // a bare DeviceBoundHandleView with no borrow-safe ops (a cuSOLVER call consumes
   // the raw handle), so mirroring get()/dev_idx() is its whole job.
-  WwrsolverDnHandle handle;
-  const WwrsolverDnHandleView view = handle.view();
+  WwrsolverDnHandleWrapper<> handle;
+  const DeviceBoundHandleView<wwrsolverDnHandle_t> view = handle.view();
   EXPECT_EQ(view.get(), handle.get());
   EXPECT_EQ(view.dev_idx(), handle.dev_idx());
 }
@@ -130,32 +130,32 @@ TEST(WwrsolverDnHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// WwrsolverDnParams
+// WwrsolverDnParamsWrapper
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TEST(WwrsolverDnParamsTests, DefaultConstructorCreatesParams) {
-  WwrsolverDnParams params;
+  WwrsolverDnParamsWrapper<> params;
   EXPECT_NE(params.get(), nullptr);
 }
 
 TEST(WwrsolverDnParamsTests, ImplicitConversionMatchesGet) {
-  WwrsolverDnParams params;
+  WwrsolverDnParamsWrapper<> params;
   wwrsolverDnParams_t raw = params; // operator wwrsolverDnParams_t()
   EXPECT_EQ(raw, params.get());
 }
 
 TEST(WwrsolverDnParamsTests, MoveConstructorTransfersOwnership) {
-  WwrsolverDnParams params1;
+  WwrsolverDnParamsWrapper<> params1;
   wwrsolverDnParams_t raw = params1.get();
 
-  WwrsolverDnParams params2(std::move(params1));
+  WwrsolverDnParamsWrapper<> params2(std::move(params1));
   EXPECT_EQ(params2.get(), raw);
   EXPECT_EQ(params1.get(), nullptr);
 }
 
 TEST(WwrsolverDnParamsTests, MoveAssignmentTransfersOwnership) {
-  WwrsolverDnParams params1;
-  WwrsolverDnParams params2;
+  WwrsolverDnParamsWrapper<> params1;
+  WwrsolverDnParamsWrapper<> params2;
   wwrsolverDnParams_t raw = params1.get();
 
   params2 = std::move(params1);
@@ -164,7 +164,7 @@ TEST(WwrsolverDnParamsTests, MoveAssignmentTransfersOwnership) {
 }
 
 TEST(WwrsolverDnParamsTests, SelfMoveAssignmentKeepsParams) {
-  WwrsolverDnParams params;
+  WwrsolverDnParamsWrapper<> params;
   wwrsolverDnParams_t raw = params.get();
 
   params = std::move(params);

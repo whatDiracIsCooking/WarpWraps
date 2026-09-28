@@ -11,7 +11,6 @@ wwr_add_cxx_module_library(
   solver_error.cppm
   solver_handle.cppm
   solver_params.cppm
-  convenience_solver.cppm
   LINK_PUBLIC
   wwr.solver
   wwr.extension.common

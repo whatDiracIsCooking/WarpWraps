@@ -2,7 +2,7 @@
  * @file host_buffer.cppm
  * @brief RAII wrapper for standard host memory buffers
  *
- * Provides HostBuffer class for automatic host memory management.
+ * Provides HostBufferWrapper class for automatic host memory management.
  * Host memory uses standard std::malloc/std::free for allocation.
  */
 
@@ -28,7 +28,7 @@ export namespace wwr::extension {
  * @tparam P_free Error policy type for deallocation (defaults to P_alloc)
  *
  * @note P_free MUST NOT THROW - it is called from the destructor.
- * @note For faster host-device transfers, consider using PinnedBuffer instead
+ * @note For faster host-device transfers, consider using PinnedBufferWrapper instead
  */
 template<typename T,
          error_policy<stdHostMemoryError_t> P_alloc = DefaultErrorPolicy<stdHostMemoryError_t>,

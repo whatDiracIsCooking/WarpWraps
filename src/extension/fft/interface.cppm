@@ -7,7 +7,6 @@
  * live separately in wwr.wrappers.fft. It aggregates:
  * - :fft_error - Error code specializations for wwrfftResult_t
  * - :fft_plan - RAII wrapper for a GPU FFT plan handle
- * - :convenience_fft - Default-policy alias (FftPlan)
  *
  * Usage:
  *   import wwr.extension.fft;
@@ -19,9 +18,8 @@ export module wwr.extension.fft;
 import std;
 
 // Re-export the vendor FFT module: wwrfftHandle is the return type of
-// FftPlan::get() and its conversion operator (and wwrfftResult_t is its error
+// FftPlanWrapper::get() and its conversion operator (and wwrfftResult_t is its error
 // type), so a consumer can name them without importing wwr.fft separately.
 export import wwr.fft;
 export import :fft_error;
 export import :fft_plan;
-export import :convenience_fft;
