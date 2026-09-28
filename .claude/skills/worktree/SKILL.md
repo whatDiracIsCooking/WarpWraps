@@ -16,8 +16,14 @@ description: >-
 These are **lightweight, disposable** worktrees: a second checkout of this repo
 on its own branch, living inside `.claude/worktrees/<name>/`. That path is
 git-ignored by a tracked line in `.gitignore`, so the checkout itself is never
-committed. They get **no devcontainer, no named volumes, no build image** — that
-is exactly what makes them cheap to create and tear down.
+committed. They get **no dedicated per-worktree container, named volumes, or
+build image** — that is what makes them cheap to create and tear down. They
+still run **inside the session's devcontainer**, so the full toolchain is
+available: you can build the modules and run `devtools/cpp-tier.sh` here (it
+just uses its own `build/`, since the worktree sits at a distinct path). The
+heavier per-worktree container is the `devbox` skill. The `session-context.sh`
+SessionStart line (`Environment: container (GPU …) · …`) is the source of truth
+for host-vs-container — trust it over any prose here.
 
 Run every command from the **main checkout root**
 (`…-root/main`), not from inside a worktree.
@@ -201,12 +207,13 @@ the user wants to run the full test suite, a toolchain that only exists in the
 image, or anything else needing the project's container.
 
 Use **this** skill only for the lightweight `.claude/worktrees/` layout — quick
-isolated checkouts, agent scratch space, no container.
+isolated checkouts, agent scratch space, no *dedicated* container (they still
+run inside the ambient devcontainer).
 
 ## Docker leftovers (rare)
 
 Plain `git worktree remove` on a `.claude/worktrees/` entry leaves no docker
-state, because these worktrees never build a container. But if one somehow did
+state, because these worktrees never build their own container. But if one somehow did
 (e.g. someone ran `devcontainer.sh up` inside it), reconcile with:
 
 ```bash
