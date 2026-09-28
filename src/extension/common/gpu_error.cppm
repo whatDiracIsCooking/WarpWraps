@@ -67,13 +67,13 @@ const char *error_string<wwrError_t>(wwrError_t error) noexcept {
 // Template Instantiations
 // ============================================================================
 
-// Explicitly instantiate DefaultErrorPolicy for wwrError_t
-template class DefaultErrorPolicy<wwrError_t>;
+// Explicitly instantiate AbortPolicy for wwrError_t
+template class AbortPolicy<wwrError_t>;
 
 // Explicitly instantiate gpu_check for wwrError_t
 template bool gpu_check<wwrError_t>(const wwrError_t error, std::source_location location);
 
-template bool gpu_check<wwrError_t, DefaultErrorPolicy<wwrError_t> &>(
-    const wwrError_t error, DefaultErrorPolicy<wwrError_t> &policy, std::source_location location);
+template bool gpu_check<wwrError_t, AbortPolicy<wwrError_t> &>(
+    const wwrError_t error, AbortPolicy<wwrError_t> &policy, std::source_location location);
 
 } // namespace wwr::extension

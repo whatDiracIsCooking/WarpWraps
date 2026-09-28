@@ -18,7 +18,7 @@ export module wwr.extension.common.error_handling:gpu_check;
 
 import :error_code;
 import :error_policy;
-import :default_error_policy;
+import :abort_policy;
 import std;
 
 // ============================================================================
@@ -42,7 +42,7 @@ export namespace wwr::extension {
 template<typename T>
 bool gpu_check(const T error, std::source_location location = std::source_location::current()) {
   if (error != success_code<T>()) {
-    DefaultErrorPolicy<T> policy;
+    AbortPolicy<T> policy;
     policy.handle_error(error, location);
     return false;
   }

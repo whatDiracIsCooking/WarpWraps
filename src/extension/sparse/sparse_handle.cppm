@@ -24,12 +24,12 @@ export namespace wwr::extension {
  * there, and records it -- read it back with dev_idx(). Destroys the handle on
  * destruction; supports move semantics, copy is deleted.
  *
- * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<wwrsparseStatus_t>)
+ * @tparam P_create Error policy type for creation (defaults to AbortPolicy<wwrsparseStatus_t>)
  * @tparam P_destroy Error policy type for destruction (defaults to P_create)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
-template<error_policy<wwrsparseStatus_t> P_create = DefaultErrorPolicy<wwrsparseStatus_t>,
+template<error_policy<wwrsparseStatus_t> P_create = AbortPolicy<wwrsparseStatus_t>,
          nothrow_error_policy<wwrsparseStatus_t> P_destroy = P_create>
 class WwrsparseHandleWrapper
     : public DeviceBoundHandle<wwrsparseHandle_t, WwrsparseHandleWrapper<P_create, P_destroy>, P_create,

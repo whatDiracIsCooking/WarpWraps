@@ -25,13 +25,13 @@ export namespace wwr::extension {
  * pageable host memory.
  *
  * @tparam T The element type stored in the buffer
- * @tparam P_alloc Error policy type for allocation (defaults to DefaultErrorPolicy<wwrError_t>)
+ * @tparam P_alloc Error policy type for allocation (defaults to AbortPolicy<wwrError_t>)
  * @tparam P_free Error policy type for deallocation (defaults to P_alloc)
  *
  * @note P_free MUST NOT THROW - it is called from the destructor.
  * @note Pinned memory is a limited resource - allocate conservatively
  */
-template<typename T, error_policy<wwrError_t> P_alloc = DefaultErrorPolicy<wwrError_t>,
+template<typename T, error_policy<wwrError_t> P_alloc = AbortPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_free = P_alloc>
 class PinnedBufferWrapper
     : public BaseBuffer<T, MemoryKind::Pinned, PinnedBufferWrapper<T, P_alloc, P_free>, P_alloc,

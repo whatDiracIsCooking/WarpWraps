@@ -41,12 +41,12 @@ export namespace wwr::extension {
  *       implicitly to wwrfftHandle); dev_idx() reports the device selected at
  *       wwrfftCreate, so keep that device current when configuring the plan.
  *
- * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<wwrfftResult_t>)
+ * @tparam P_create Error policy type for creation (defaults to AbortPolicy<wwrfftResult_t>)
  * @tparam P_destroy Error policy type for destruction (defaults to P_create)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
-template<error_policy<wwrfftResult_t> P_create = DefaultErrorPolicy<wwrfftResult_t>,
+template<error_policy<wwrfftResult_t> P_create = AbortPolicy<wwrfftResult_t>,
          nothrow_error_policy<wwrfftResult_t> P_destroy = P_create>
 class FftPlanWrapper
     : public DeviceBoundHandle<wwrfftHandle, FftPlanWrapper<P_create, P_destroy>, P_create,

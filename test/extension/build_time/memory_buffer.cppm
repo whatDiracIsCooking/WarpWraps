@@ -119,7 +119,7 @@ static_assert(!device_handle<MissingHandle>);
 
 // The buffer instantiates over a downstream handle and keeps its contract.
 using FakeDeviceBuffer =
-    DeviceBufferWrapper<float, DefaultErrorPolicy<wwrError_t>, DefaultErrorPolicy<wwrError_t>,
+    DeviceBufferWrapper<float, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
                         FakeHandle>;
 static_assert(buffer_base<FakeDeviceBuffer>);
 static_assert(std::is_nothrow_move_constructible_v<FakeDeviceBuffer>);

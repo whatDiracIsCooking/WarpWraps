@@ -12,7 +12,7 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 
 **Borrow-safe operations are free functions.** `sync`, `wait_event`, `begin_capture` (stream), `record`, `sync` (event), and `launch`, `upload` (executable graph) are free functions taking the raw handle (`wwrStream_t`/`wwrEvent_t`/`wwrGraphExec_t`). An owning wrapper and its view both convert to that handle, so one definition serves the owner, its view, and a bare handle alike (found by ADL on the wrapper/view types). Operations that *produce* an owned handle — `end_capture` (stream), `instantiate` (graph) — stay members, since they need the wrapper's error policy. A handle's `view()` (from `BaseHandle`/`DeviceBoundHandle`) returns its non-owning, copyable, trivially-destructible view.
 
-**The module ships the wrappers, not default-policy aliases for them.** Each `*Wrapper` takes its error policy as a template argument, defaulting to `DefaultErrorPolicy`. Binding one to the default is a one-line `using` a consumer writes once, for exactly the names it uses (`using GpuStream = GpuStreamWrapper<>;`) — see the [Usage](#usage) block and `example/warp_reduce`.
+**The module ships the wrappers, not default-policy aliases for them.** Each `*Wrapper` takes its error policy as a template argument, defaulting to `AbortPolicy`. Binding one to the default is a one-line `using` a consumer writes once, for exactly the names it uses (`using GpuStream = GpuStreamWrapper<>;`) — see the [Usage](#usage) block and `example/warp_reduce`.
 
 ## Partitions
 
@@ -36,12 +36,12 @@ Specializes three function templates from `wwr.extension.common` for `wwrError_t
 - `error_name<wwrError_t>(error)` — delegates to `wwrGetErrorName`
 - `error_string<wwrError_t>(error)` — delegates to `wwrGetErrorString`
 
-Also explicitly instantiates `DefaultErrorPolicy<wwrError_t>` and both overloads of `gpu_check<wwrError_t>`.
+Also explicitly instantiates `AbortPolicy<wwrError_t>` and both overloads of `gpu_check<wwrError_t>`.
 
 ### Stream (`gpu_stream`)
 
 ```cpp
-template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
+template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuStreamWrapper;
 ```
@@ -58,7 +58,7 @@ Graph capture: the free function `begin_capture(stream, mode = wwrStreamCaptureM
 ### Event (`gpu_event`)
 
 ```cpp
-template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
+template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuEventWrapper;
 ```
@@ -72,7 +72,7 @@ Destruction calls `wwrEventDestroy`.
 ### Memory pool (`gpu_mem_pool`)
 
 ```cpp
-template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
+template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuMemPoolWrapper;
 ```
@@ -86,7 +86,7 @@ Destruction calls `wwrMemPoolDestroy`.
 ### Graph (`gpu_graph`)
 
 ```cpp
-template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
+template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuGraphWrapper;
 ```
@@ -99,7 +99,7 @@ Constructors:
 ### Executable graph (`gpu_graph_exec`)
 
 ```cpp
-template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
+template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuGraphExecWrapper;
 ```

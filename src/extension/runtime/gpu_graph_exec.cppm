@@ -38,12 +38,12 @@ using GpuGraphExecView = HandleView<wwrGraphExec_t>;
  *       the stream passed to launch() belongs to. There is no device index to
  *       record. See device_bound_handle.cppm.
  *
- * @tparam P_create Error policy type for creation (defaults to DefaultErrorPolicy<wwrError_t>)
+ * @tparam P_create Error policy type for creation (defaults to AbortPolicy<wwrError_t>)
  * @tparam P_destroy Error policy type for destruction (defaults to P_create)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
-template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
+template<error_policy<wwrError_t> P_create = AbortPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuGraphExecWrapper
     : public BaseHandle<wwrGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create,

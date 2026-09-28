@@ -35,7 +35,7 @@ namespace wwr::extension::test {
 
 // An error policy that tallies failures into an external counter instead of
 // aborting, so a botched destroy is observable after the objects are gone
-// rather than terminating the process (which DefaultErrorPolicy would).
+// rather than terminating the process (which AbortPolicy would).
 struct CountingErrorPolicy {
   using error_type = wwrfftResult_t;
   int *errors = nullptr;

@@ -38,11 +38,11 @@ wwr_add_gtest_suite_tests(
   TARGET
   extension_memory_buffer_tests
   SUITES
+  AbortPolicyDeathTest
+  AbortPolicyTests
   AllocationFailureTests
   BufferViewTests
   CopyAndMemsetTests
-  DefaultErrorPolicyDeathTest
-  DefaultErrorPolicyTests
   DeviceBufferTests
   DeviceHandleTests
   GpuCheckDeathTest

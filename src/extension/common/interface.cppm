@@ -5,7 +5,7 @@
  * This module provides common, backend-neutral utilities for GPU error handling and extension functionality.
  * It aggregates:
  * - wwr.extension.common.error_handling - the backend-neutral error+check
- *     primitives (error_code, error_policy, default_error_policy, gpu_check),
+ *     primitives (error_code, error_policy, abort_policy, gpu_check),
  *     re-exported so they stay reachable through this umbrella module
  * - :gpu_error - wwrError_t specializations of the error_code utilities
  * - :device_scope - RAII guard that makes a device current and restores the previous one

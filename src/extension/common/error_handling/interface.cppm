@@ -9,7 +9,7 @@
  * error modules for the library status codes). It aggregates:
  * - :error_code - success_code / error_name / error_string templates
  * - :error_policy - the error_policy / nothrow_error_policy / typed_error_policy concepts
- * - :default_error_policy - DefaultErrorPolicy (prints to stderr, aborts)
+ * - :abort_policy - AbortPolicy (prints to stderr, aborts)
  * - :gpu_check - no-throw error checks routed through an error policy
  *
  * Usage:
@@ -24,5 +24,5 @@ export module wwr.extension.common.error_handling;
 
 export import :error_code;
 export import :error_policy;
-export import :default_error_policy;
+export import :abort_policy;
 export import :gpu_check;
