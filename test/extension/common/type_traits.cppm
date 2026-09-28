@@ -11,6 +11,7 @@ export module wwr.test.extension.common_error_handle;
 import std;
 import wwr.extension.common;
 import wwr.extension.handle;
+import wwr.runtime_api; // wwrError_t, for the device-access policy's error type
 
 namespace wwr::extension::test {
 
@@ -73,5 +74,65 @@ static_assert(std::is_move_assignable_v<FakeHandleWrapper>);
 static_assert(std::is_nothrow_move_constructible_v<FakeHandleWrapper>);
 static_assert(std::is_nothrow_move_assignable_v<FakeHandleWrapper>);
 static_assert(std::is_convertible_v<FakeHandleWrapper, FakeHandle>);
+
+} // namespace wwr::extension::test
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DeviceBoundHandle: the device-bound layer's compile-time contract
+//
+// The CRTP layer adds a member (dev_idx_), a second policy (policy_device_) and a
+// hand-written move on top of BaseHandle. None of its interesting guarantees are
+// runtime -- they are type-level -- so pin them here, where no GPU is needed:
+//   * it stays move-only and nothrow-movable through the added member and the
+//     hand-written move (a defaulted move that silently became a copy, or a
+//     policy that stopped being nothrow-movable, is the regression);
+//   * the conversion-to-handle it inherits survives the extra layer;
+//   * the device-access policy defaults to AbortPolicy<wwrError_t> and is typed
+//     to wwrError_t *independently* of the create policy's error type (int here)
+//     -- the very decoupling the single-constructor design exists to allow, and
+//   * view() is narrowed to the device-aware DeviceBoundHandleView (not the base
+//     HandleView) and is still deleted on rvalues.
+// The runtime ordering trick (select-before-create) needs a live device; it is
+// tested in test/extension/handle.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+namespace wwr::extension::test {
+
+// Instantiated exactly as a real device-bound wrapper is: a CRTP derived type,
+// a create policy typed to the handle's own status (int here, a stand-in for a
+// library handle's status enum), and the device policy left to default.
+class FakeDeviceHandleWrapper
+    : public DeviceBoundHandle<FakeHandle, FakeDeviceHandleWrapper, AbortPolicy<int>,
+                               AbortPolicy<int>> {
+public:
+  using DeviceBoundHandle::DeviceBoundHandle;
+  void create(FakeHandle *h, std::source_location) { *h = nullptr; }
+  void destroy(FakeHandle) {}
+};
+
+static_assert(!std::is_copy_constructible_v<FakeDeviceHandleWrapper>);
+static_assert(!std::is_copy_assignable_v<FakeDeviceHandleWrapper>);
+static_assert(std::is_move_constructible_v<FakeDeviceHandleWrapper>);
+static_assert(std::is_move_assignable_v<FakeDeviceHandleWrapper>);
+static_assert(std::is_nothrow_move_constructible_v<FakeDeviceHandleWrapper>);
+static_assert(std::is_nothrow_move_assignable_v<FakeDeviceHandleWrapper>);
+static_assert(std::is_convertible_v<FakeDeviceHandleWrapper, FakeHandle>);
+
+// The create policy is AbortPolicy<int>, yet the device policy defaults to
+// AbortPolicy<wwrError_t>: the device (set/get) calls carry error handling typed
+// to the runtime's own error enum regardless of the handle's status type.
+static_assert(
+    std::is_same_v<std::remove_cvref_t<decltype(std::declval<const FakeDeviceHandleWrapper &>()
+                                                    .device_policy())>,
+                   AbortPolicy<wwrError_t>>);
+
+// view() on an lvalue returns the device-aware view, hiding BaseHandle::view()'s
+// plain HandleView. (The rvalue overload is =delete, as in the base, so a
+// temporary cannot be viewed -- not asserted here because naming a deleted
+// function inside a requires-expression is a hard error under clang, not an
+// unsatisfied requirement.)
+static_assert(
+    std::is_same_v<decltype(std::declval<const FakeDeviceHandleWrapper &>().view()),
+                   DeviceBoundHandleView<FakeHandle>>);
 
 } // namespace wwr::extension::test
