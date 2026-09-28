@@ -36,22 +36,37 @@ export namespace wwr::extension {
  * @tparam T The element type stored in the buffer
  * @tparam P_alloc Error policy type for allocation
  * @tparam P_free Error policy type for deallocation
+ * @tparam P_device_access Error policy for the DeviceScope guard's device
+ *         switch (wwrGetDevice/wwrSetDevice) on the alloc and free paths;
+ *         defaults to AbortPolicy<wwrError_t>. Unlike P_alloc/P_free, this is
+ *         type-level only: a fresh instance is default-constructed for each
+ *         guard, not stored on the buffer. An alloc/free failure is expected
+ *         and handled, so its policy accumulates state per buffer; a failed
+ *         *device switch* means the runtime context is already unusable -- a
+ *         catastrophic, near-unreachable case whose policy needs no per-buffer
+ *         state, only a reaction (abort by default).
  * @tparam H Device handle backing the buffer; its tier picks the strategy
  *         (defaults to DeviceHandle)
  *
- * @note P_free MUST NOT THROW - it is called from the destructor.
+ * @note P_free MUST NOT THROW - it is called from the destructor. P_device_access
+ *       carries the same nothrow constraint: the free-path DeviceScope's switch
+ *       also runs during destruction.
  * @warning The synchronous (device_handle-only) tier frees with wwrFree, which
  *          implicitly synchronises the whole device -- so its destructor blocks
  *          the host. Prefer a stream-bearing handle in hot alloc/free paths.
  */
 template<typename T, error_policy<wwrError_t> P_alloc,
-         nothrow_error_policy<wwrError_t> P_free, device_handle H = DeviceHandle>
+         nothrow_error_policy<wwrError_t> P_free,
+         nothrow_error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>,
+         device_handle H = DeviceHandle>
 class DeviceBufferWrapper
-    : public BaseBuffer<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free, H>, P_alloc,
+    : public BaseBuffer<T, MemoryKind::Device,
+                        DeviceBufferWrapper<T, P_alloc, P_free, P_device_access, H>, P_alloc,
                         P_free> {
 private:
-  using Base =
-      BaseBuffer<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free, H>, P_alloc, P_free>;
+  using Base = BaseBuffer<T, MemoryKind::Device,
+                          DeviceBufferWrapper<T, P_alloc, P_free, P_device_access, H>, P_alloc,
+                          P_free>;
 
 public:
   /**
@@ -120,7 +135,7 @@ public:
   void deallocate(T *ptr, std::size_t num_elements) {
     if (ptr == nullptr)
       return;
-    DeviceScope scope{handle_->dev_idx()};
+    DeviceScope<P_device_access> scope{handle_->dev_idx()};
     if constexpr (device_handle_stream<H>)
       gpu_check(wwrFreeAsync(ptr, handle_->stream()), this->policy_free_);
     else
@@ -143,7 +158,7 @@ private:
   void allocate_block(std::size_t num_elements, std::source_location location) {
     if (!should_allocate(num_elements, location))
       return;
-    DeviceScope scope{handle_->dev_idx(), location};
+    DeviceScope<P_device_access> scope{handle_->dev_idx(), {}, location};
     const std::size_t size_bytes = num_elements * Base::element_size;
     auto ptr = reinterpret_cast<void **>(&this->data_);
     bool ok;

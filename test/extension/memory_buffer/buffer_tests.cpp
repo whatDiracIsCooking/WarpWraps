@@ -491,7 +491,7 @@ TEST(DeviceBufferTests, StreamTierRoundTripsWithoutPool) {
   // A stream-only handle drives the wwrMallocAsync/wwrFreeAsync branch: same
   // stream-ordered contract as the pool tier, just from the device default pool.
   auto h = std::make_shared<StreamTierHandle>(0);
-  DeviceBufferWrapper<float, Abort, Abort, StreamTierHandle> dev(32, h);
+  DeviceBufferWrapper<float, Abort, Abort, Abort, StreamTierHandle> dev(32, h);
   ASSERT_NE(dev.data(), nullptr);
   EXPECT_EQ(dev.num_elements(), std::size_t{32});
 
@@ -512,7 +512,7 @@ TEST(DeviceBufferTests, SyncTierAllocatesZeroInitialised) {
   // branch. The zero-init is synchronous, so it is already visible on readback;
   // the block frees via wwrFree in the destructor at scope exit.
   auto h = std::make_shared<SyncTierHandle>();
-  DeviceBufferWrapper<float, Abort, Abort, SyncTierHandle> dev(48, h);
+  DeviceBufferWrapper<float, Abort, Abort, Abort, SyncTierHandle> dev(48, h);
   ASSERT_NE(dev.data(), nullptr);
   EXPECT_EQ(dev.num_elements(), std::size_t{48});
 
