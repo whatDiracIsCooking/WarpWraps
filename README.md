@@ -234,7 +234,7 @@ handful that only one does, and how to reach them.
 | `wwr.wrappers.fft` | Generic templated FFT, transform kind selected at compile time, either backend |
 | `wwr.wrappers.sparse` | Generic templated sparse over the shared legacy-typed API (`bsrmv<float>(…)`, `gtsv2`, `csrgeam2`, …), either backend |
 | `wwr.extension.blas` / `.solver` / `.fft` / `.sparse` | RAII, device-bound vendor handles and the FFT plan, either backend |
-| `wwr.extension.memory_buffer` | `DeviceBuffer<T>`, `PinnedBuffer<T>`, `UnifiedBuffer<T>`, `HostBuffer<T>` and the view types |
+| `wwr.extension.memory_buffer` | `DeviceBufferWrapper<T>`, `PinnedBufferWrapper<T>`, `UnifiedBufferWrapper<T>`, `HostBufferWrapper<T>` and the view wrappers |
 | `wwr.extension.init_state` | Per-thread RNG state initialization on the device API, either backend |
 | `wwr.extension.random_normal` | Normal-distribution draws from those per-thread states, either backend |
 | `wwr.fp16` / `wwr.bf16` | Host-side fp16 / bf16 conversions, mapped onto the chosen backend's own type |

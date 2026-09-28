@@ -1,5 +1,5 @@
 // basic.cpp - Basic GPU runtime wrapper tests
-// Tests for the GpuStream, GpuEvent, GpuGraph(Exec), GpuMemPool and
+// Tests for the GpuStreamWrapper, GpuEventWrapper, GpuGraphWrapper(Exec), GpuMemPoolWrapper and
 // StreamEventPair wrappers
 //
 // A plain TU, not a module interface unit. Its self-registering test objects
@@ -20,11 +20,11 @@ import wwr.extension.runtime;
 namespace wwr::extension::test {
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// GpuStream Tests
+// GpuStreamWrapper Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TEST(GpuStreamTests, DefaultConstructor) {
-  GpuStream stream;
+  GpuStreamWrapper<> stream;
   EXPECT_NE(stream.get(), nullptr);
 
   // Default-constructed streams are non-blocking: they do not serialize against
@@ -35,48 +35,48 @@ TEST(GpuStreamTests, DefaultConstructor) {
 }
 
 TEST(GpuStreamTests, WithFlags) {
-  GpuStream stream(0, wwrStreamNonBlocking);
+  GpuStreamWrapper<> stream(0, wwrStreamNonBlocking);
   EXPECT_NE(stream.get(), nullptr);
 }
 
 TEST(GpuStreamTests, RecordsCreationDevice) {
   // The default constructor creates on device 0.
-  GpuStream stream;
+  GpuStreamWrapper<> stream;
   EXPECT_EQ(stream.dev_idx(), 0);
 
   // The (dev_idx, flags) constructor records the device it was told to use.
-  GpuStream flagged(0, wwrStreamNonBlocking);
+  GpuStreamWrapper<> flagged(0, wwrStreamNonBlocking);
   EXPECT_EQ(flagged.dev_idx(), 0);
 }
 
 TEST(GpuStreamTests, ConstructOnDevice) {
   // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
-  GpuStream stream(0);
+  GpuStreamWrapper<> stream(0);
   EXPECT_NE(stream.get(), nullptr);
   EXPECT_EQ(stream.dev_idx(), 0);
 }
 
 TEST(GpuStreamTests, MovePreservesDevice) {
-  GpuStream stream1;
+  GpuStreamWrapper<> stream1;
   const int dev = stream1.dev_idx();
 
-  GpuStream stream2(std::move(stream1));
+  GpuStreamWrapper<> stream2(std::move(stream1));
   EXPECT_EQ(stream2.dev_idx(), dev);
   EXPECT_EQ(stream1.dev_idx(), -1);
 }
 
 TEST(GpuStreamTests, MoveConstructor) {
-  GpuStream stream1;
+  GpuStreamWrapper<> stream1;
   wwrStream_t handle = stream1.get();
 
-  GpuStream stream2(std::move(stream1));
+  GpuStreamWrapper<> stream2(std::move(stream1));
   EXPECT_EQ(stream2.get(), handle);
   EXPECT_EQ(stream1.get(), nullptr);
 }
 
 TEST(GpuStreamTests, MoveAssignment) {
-  GpuStream stream1;
-  GpuStream stream2;
+  GpuStreamWrapper<> stream1;
+  GpuStreamWrapper<> stream2;
   wwrStream_t handle1 = stream1.get();
 
   stream2 = std::move(stream1);
@@ -88,17 +88,17 @@ TEST(GpuStreamTests, CaptureToGraph) {
   // The full capture -> instantiate -> launch -> synchronize round-trip:
   // work enqueued between begin_capture and end_capture is recorded into a
   // graph rather than run, then replayed by launching the instantiated exec.
-  GpuStream stream;
+  GpuStreamWrapper<> stream;
 
   void *buf = nullptr;
   ASSERT_EQ(wwrMalloc(&buf, sizeof(int)), wwrSuccess);
 
   ASSERT_EQ(begin_capture(stream), wwrSuccess);
   ASSERT_EQ(wwrMemsetAsync(buf, 0, sizeof(int), stream.get()), wwrSuccess);
-  GpuGraph graph = stream.end_capture();
+  GpuGraphWrapper<> graph = stream.end_capture();
   EXPECT_NE(graph.get(), nullptr);
 
-  GpuGraphExec exec = graph.instantiate();
+  GpuGraphExecWrapper<> exec = graph.instantiate();
   ASSERT_EQ(launch(exec, stream.get()), wwrSuccess);
   EXPECT_EQ(sync(stream), wwrSuccess);
 
@@ -111,9 +111,9 @@ TEST(GpuStreamTests, WaitEventOrdersWorkAcrossStreams) {
   // .get()). Enqueue work on `producer`, record an event on it, then make
   // `consumer` wait on that event through the wrapper method before its own
   // work. The whole chain draining with success is the observable contract.
-  GpuStream producer;
-  GpuStream consumer;
-  GpuEvent event;
+  GpuStreamWrapper<> producer;
+  GpuStreamWrapper<> consumer;
+  GpuEventWrapper<> event;
 
   void *buf = nullptr;
   ASSERT_EQ(wwrMalloc(&buf, sizeof(int)), wwrSuccess);
@@ -137,60 +137,60 @@ TEST(GpuStreamTests, WaitEventOrdersWorkAcrossStreams) {
 // converts to the handle, and the ops themselves are exercised by the owner
 // cases above.
 TEST(GpuStreamTests, ViewBorrowsHandleAndDrivesWork) {
-  GpuStream stream;
+  GpuStreamWrapper<> stream;
   GpuStreamView view = stream.view();
   ASSERT_EQ(view.get(), stream.get());
   ASSERT_EQ(view.dev_idx(), stream.dev_idx());
 
-  GpuEvent event;
+  GpuEventWrapper<> event;
   ASSERT_EQ(record(event, stream.get()), wwrSuccess);
   EXPECT_EQ(wait_event(view, event.get()), wwrSuccess);
   EXPECT_EQ(sync(view), wwrSuccess);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// GpuEvent Tests
+// GpuEventWrapper Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TEST(GpuEventTests, DefaultConstructor) {
-  GpuEvent event;
+  GpuEventWrapper<> event;
   EXPECT_NE(event.get(), nullptr);
 }
 
 TEST(GpuEventTests, WithFlags) {
-  GpuEvent event(0, wwrEventDisableTiming);
+  GpuEventWrapper<> event(0, wwrEventDisableTiming);
   EXPECT_NE(event.get(), nullptr);
 }
 
 TEST(GpuEventTests, RecordsCreationDevice) {
   // The default constructor creates on device 0.
-  GpuEvent event;
+  GpuEventWrapper<> event;
   EXPECT_EQ(event.dev_idx(), 0);
 
   // The (dev_idx, flags) constructor records the device it was told to use.
-  GpuEvent flagged(0, wwrEventDisableTiming);
+  GpuEventWrapper<> flagged(0, wwrEventDisableTiming);
   EXPECT_EQ(flagged.dev_idx(), 0);
 }
 
 TEST(GpuEventTests, ConstructOnDevice) {
   // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
-  GpuEvent event(0);
+  GpuEventWrapper<> event(0);
   EXPECT_NE(event.get(), nullptr);
   EXPECT_EQ(event.dev_idx(), 0);
 }
 
 TEST(GpuEventTests, MoveConstructor) {
-  GpuEvent event1;
+  GpuEventWrapper<> event1;
   wwrEvent_t handle = event1.get();
 
-  GpuEvent event2(std::move(event1));
+  GpuEventWrapper<> event2(std::move(event1));
   EXPECT_EQ(event2.get(), handle);
   EXPECT_EQ(event1.get(), nullptr);
 }
 
 TEST(GpuEventTests, MoveAssignment) {
-  GpuEvent event1;
-  GpuEvent event2;
+  GpuEventWrapper<> event1;
+  GpuEventWrapper<> event2;
   wwrEvent_t handle1 = event1.get();
 
   event2 = std::move(event1);
@@ -199,8 +199,8 @@ TEST(GpuEventTests, MoveAssignment) {
 }
 
 TEST(GpuEventTests, RecordAndSynchronize) {
-  GpuStream stream;
-  GpuEvent event;
+  GpuStreamWrapper<> stream;
+  GpuEventWrapper<> event;
 
   // Record event on stream
   ASSERT_EQ(wwrEventRecord(event.get(), stream.get()), wwrSuccess);
@@ -210,8 +210,8 @@ TEST(GpuEventTests, RecordAndSynchronize) {
 }
 
 TEST(GpuEventTests, QueryEvent) {
-  GpuStream stream;
-  GpuEvent event;
+  GpuStreamWrapper<> stream;
+  GpuEventWrapper<> event;
 
   // Record event on stream
   ASSERT_EQ(wwrEventRecord(event.get(), stream.get()), wwrSuccess);
@@ -227,8 +227,8 @@ TEST(GpuEventTests, MemberRecordAndSync) {
   // The suite records through the raw API elsewhere; this drives the record()/
   // sync() free functions on an owner, including the two-arg record(event,
   // stream, flags) overload (flag 0 is always valid).
-  GpuStream stream;
-  GpuEvent event;
+  GpuStreamWrapper<> stream;
+  GpuEventWrapper<> event;
 
   ASSERT_EQ(record(event, stream.get()), wwrSuccess);
   EXPECT_EQ(sync(event), wwrSuccess);
@@ -240,8 +240,8 @@ TEST(GpuEventTests, MemberRecordAndSync) {
 TEST(GpuEventTests, ViewBorrowsHandleAndDrivesWork) {
   // One borrowed op proves the view converts; record(event, stream, flags) is
   // already covered on the owner by MemberRecordAndSync (same free functions).
-  GpuStream stream;
-  GpuEvent event;
+  GpuStreamWrapper<> stream;
+  GpuEventWrapper<> event;
   GpuEventView view = event.view();
   ASSERT_EQ(view.get(), event.get());
   ASSERT_EQ(view.dev_idx(), event.dev_idx());
@@ -251,26 +251,26 @@ TEST(GpuEventTests, ViewBorrowsHandleAndDrivesWork) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// GpuGraph Tests
+// GpuGraphWrapper Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TEST(GpuGraphTests, DefaultConstructor) {
-  GpuGraph graph;
+  GpuGraphWrapper<> graph;
   EXPECT_NE(graph.get(), nullptr);
 }
 
 TEST(GpuGraphTests, MoveConstructor) {
-  GpuGraph graph1;
+  GpuGraphWrapper<> graph1;
   wwrGraph_t handle = graph1.get();
 
-  GpuGraph graph2(std::move(graph1));
+  GpuGraphWrapper<> graph2(std::move(graph1));
   EXPECT_EQ(graph2.get(), handle);
   EXPECT_EQ(graph1.get(), nullptr);
 }
 
 TEST(GpuGraphTests, MoveAssignment) {
-  GpuGraph graph1;
-  GpuGraph graph2;
+  GpuGraphWrapper<> graph1;
+  GpuGraphWrapper<> graph2;
   wwrGraph_t handle1 = graph1.get();
 
   graph2 = std::move(graph1);
@@ -279,45 +279,45 @@ TEST(GpuGraphTests, MoveAssignment) {
 }
 
 TEST(GpuGraphTests, Instantiate) {
-  GpuGraph graph;
-  GpuGraphExec exec = graph.instantiate();
+  GpuGraphWrapper<> graph;
+  GpuGraphExecWrapper<> exec = graph.instantiate();
   EXPECT_NE(exec.get(), nullptr);
 }
 
 TEST(GpuGraphTests, ViewBorrowsHandle) {
-  // GpuGraphView carries only the handle: a graph is not device-bound and its
+  // HandleView<wwrGraph_t> carries only the handle: a graph is not device-bound and its
   // ops (instantiate) produce owned objects, so the view has no borrow-safe
   // operations of its own. Check it mirrors the owner's handle.
-  GpuGraph graph;
-  GpuGraphView view = graph.view();
+  GpuGraphWrapper<> graph;
+  HandleView<wwrGraph_t> view = graph.view();
   EXPECT_EQ(view.get(), graph.get());
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// GpuGraphExec Tests
+// GpuGraphExecWrapper Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TEST(GpuGraphExecTests, ConstructFromGraph) {
-  GpuGraph graph;
-  GpuGraphExec exec(graph.get());
+  GpuGraphWrapper<> graph;
+  GpuGraphExecWrapper<> exec(graph.get());
   EXPECT_NE(exec.get(), nullptr);
 }
 
 TEST(GpuGraphExecTests, MoveConstructor) {
-  GpuGraph graph;
-  GpuGraphExec exec1(graph.get());
+  GpuGraphWrapper<> graph;
+  GpuGraphExecWrapper<> exec1(graph.get());
   wwrGraphExec_t handle = exec1.get();
 
-  GpuGraphExec exec2(std::move(exec1));
+  GpuGraphExecWrapper<> exec2(std::move(exec1));
   EXPECT_EQ(exec2.get(), handle);
   EXPECT_EQ(exec1.get(), nullptr);
 }
 
 TEST(GpuGraphExecTests, MoveAssignment) {
-  GpuGraph graph1;
-  GpuGraph graph2;
-  GpuGraphExec exec1(graph1.get());
-  GpuGraphExec exec2(graph2.get());
+  GpuGraphWrapper<> graph1;
+  GpuGraphWrapper<> graph2;
+  GpuGraphExecWrapper<> exec1(graph1.get());
+  GpuGraphExecWrapper<> exec2(graph2.get());
   wwrGraphExec_t handle1 = exec1.get();
 
   exec2 = std::move(exec1);
@@ -328,9 +328,9 @@ TEST(GpuGraphExecTests, MoveAssignment) {
 TEST(GpuGraphExecTests, LaunchEmptyGraph) {
   // An empty graph instantiates and launches as a no-op; this exercises the
   // full create -> instantiate -> launch -> synchronize round-trip.
-  GpuStream stream;
-  GpuGraph graph;
-  GpuGraphExec exec = graph.instantiate();
+  GpuStreamWrapper<> stream;
+  GpuGraphWrapper<> graph;
+  GpuGraphExecWrapper<> exec = graph.instantiate();
 
   ASSERT_EQ(launch(exec, stream.get()), wwrSuccess);
   EXPECT_EQ(sync(stream), wwrSuccess);
@@ -340,9 +340,9 @@ TEST(GpuGraphExecTests, UploadThenLaunch) {
   // upload() places the exec on the stream's device without launching it, and
   // nothing else exercises it. Following it with launch proves the uploaded
   // exec is the one that runs.
-  GpuStream stream;
-  GpuGraph graph;
-  GpuGraphExec exec = graph.instantiate();
+  GpuStreamWrapper<> stream;
+  GpuGraphWrapper<> graph;
+  GpuGraphExecWrapper<> exec = graph.instantiate();
 
   ASSERT_EQ(upload(exec, stream.get()), wwrSuccess);
   ASSERT_EQ(launch(exec, stream.get()), wwrSuccess);
@@ -352,9 +352,9 @@ TEST(GpuGraphExecTests, UploadThenLaunch) {
 TEST(GpuGraphExecTests, ViewBorrowsHandleAndDrivesWork) {
   // One borrowed op proves the view converts; upload() is covered on the owner
   // by UploadThenLaunch (same free functions).
-  GpuStream stream;
-  GpuGraph graph;
-  GpuGraphExec exec = graph.instantiate();
+  GpuStreamWrapper<> stream;
+  GpuGraphWrapper<> graph;
+  GpuGraphExecWrapper<> exec = graph.instantiate();
   GpuGraphExecView view = exec.view();
   ASSERT_EQ(view.get(), exec.get());
 
@@ -363,26 +363,26 @@ TEST(GpuGraphExecTests, ViewBorrowsHandleAndDrivesWork) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// GpuMemPool Tests
+// GpuMemPoolWrapper Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //
-// GpuMemPool is a DeviceBoundHandle, like GpuStream/GpuEvent, so it carries the
+// GpuMemPoolWrapper is a DeviceBoundHandle, like GpuStreamWrapper/GpuEventWrapper, so it carries the
 // same device-recording and move contract on top of the base handle -- these
 // mirror the stream/event cases and add the pool's own two extra constructors
 // (release-threshold and explicit-props) plus a live allocation round-trip.
 
 TEST(GpuMemPoolTests, DefaultConstructor) {
-  GpuMemPool pool;
+  GpuMemPoolWrapper<> pool;
   EXPECT_NE(pool.get(), nullptr);
 }
 
 TEST(GpuMemPoolTests, RecordsCreationDevice) {
-  GpuMemPool pool;
+  GpuMemPoolWrapper<> pool;
   EXPECT_EQ(pool.dev_idx(), 0);
 }
 
 TEST(GpuMemPoolTests, ConstructWithReleaseThreshold) {
-  GpuMemPool pool(0, 2u * 1024u * 1024u);
+  GpuMemPoolWrapper<> pool(0, 2u * 1024u * 1024u);
   EXPECT_NE(pool.get(), nullptr);
   EXPECT_EQ(pool.dev_idx(), 0);
 }
@@ -394,23 +394,23 @@ TEST(GpuMemPoolTests, ConstructFromProps) {
   props.location.type = wwrMemLocationTypeDevice;
   props.location.id = 0;
 
-  GpuMemPool pool(props);
+  GpuMemPoolWrapper<> pool(props);
   EXPECT_NE(pool.get(), nullptr);
   EXPECT_EQ(pool.dev_idx(), 0);
 }
 
 TEST(GpuMemPoolTests, MoveConstructor) {
-  GpuMemPool pool1;
+  GpuMemPoolWrapper<> pool1;
   wwrMemPool_t handle = pool1.get();
 
-  GpuMemPool pool2(std::move(pool1));
+  GpuMemPoolWrapper<> pool2(std::move(pool1));
   EXPECT_EQ(pool2.get(), handle);
   EXPECT_EQ(pool1.get(), nullptr);
 }
 
 TEST(GpuMemPoolTests, MoveAssignment) {
-  GpuMemPool pool1;
-  GpuMemPool pool2;
+  GpuMemPoolWrapper<> pool1;
+  GpuMemPoolWrapper<> pool2;
   wwrMemPool_t handle1 = pool1.get();
 
   pool2 = std::move(pool1);
@@ -419,10 +419,10 @@ TEST(GpuMemPoolTests, MoveAssignment) {
 }
 
 TEST(GpuMemPoolTests, MovePreservesDevice) {
-  GpuMemPool pool1;
+  GpuMemPoolWrapper<> pool1;
   const int dev = pool1.dev_idx();
 
-  GpuMemPool pool2(std::move(pool1));
+  GpuMemPoolWrapper<> pool2(std::move(pool1));
   EXPECT_EQ(pool2.dev_idx(), dev);
   EXPECT_EQ(pool1.dev_idx(), -1);
 }
@@ -430,8 +430,8 @@ TEST(GpuMemPoolTests, MovePreservesDevice) {
 TEST(GpuMemPoolTests, StreamOrderedAllocationRoundTrips) {
   // A live pool: allocate from it on a stream, then free back to it. Proves
   // the wrapped handle is a usable pool, not just a non-null pointer.
-  GpuMemPool pool;
-  GpuStream stream;
+  GpuMemPoolWrapper<> pool;
+  GpuStreamWrapper<> stream;
 
   void *ptr = nullptr;
   ASSERT_EQ(wwrMallocFromPoolAsync(&ptr, 1024, pool.get(), stream.get()), wwrSuccess);
@@ -443,11 +443,11 @@ TEST(GpuMemPoolTests, StreamOrderedAllocationRoundTrips) {
 }
 
 TEST(GpuMemPoolTests, ViewBorrowsHandle) {
-  // GpuMemPoolView carries the handle and device index but has no borrow-safe
+  // DeviceBoundHandleView<wwrMemPool_t> carries the handle and device index but has no borrow-safe
   // ops (a pool handle is consumed by allocation calls). Check it mirrors the
   // owner.
-  GpuMemPool pool;
-  GpuMemPoolView view = pool.view();
+  GpuMemPoolWrapper<> pool;
+  DeviceBoundHandleView<wwrMemPool_t> view = pool.view();
   EXPECT_EQ(view.get(), pool.get());
   EXPECT_EQ(view.dev_idx(), pool.dev_idx());
 }
@@ -456,11 +456,11 @@ TEST(GpuMemPoolTests, ViewBorrowsHandle) {
 // StreamEventPair Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //
-// StreamEventPair bundles a GpuStream and a GpuEvent. It is not a handle
+// StreamEventPair bundles a GpuStreamWrapper and a GpuEventWrapper. It is not a handle
 // wrapper of its own -- ownership is the two members', moved member-wise -- so
 // these check that each StreamEventConfig branch builds a live pair, that the
 // accessors agree with the raw getters, that record/sync work end to end, and
-// that a move empties the source's members (each GpuStream/GpuEvent nulls on
+// that a move empties the source's members (each GpuStreamWrapper/GpuEventWrapper nulls on
 // move).
 
 TEST(StreamEventPairTests, DefaultConstructor) {

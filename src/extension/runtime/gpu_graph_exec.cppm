@@ -2,7 +2,7 @@
  * @file gpu_graph_exec.cppm
  * @brief RAII wrapper for GPU executable graph handles
  *
- * Provides GpuGraphExec, an RAII wrapper for wwrGraphExec_t -- the executable
+ * Provides GpuGraphExecWrapper, an RAII wrapper for wwrGraphExec_t -- the executable
  * graph produced by instantiating a wwrGraph_t. The borrow-safe operations
  * (launch/upload) are free functions taking a raw wwrGraphExec_t, so one
  * definition serves the owner, its view, and a bare handle alike -- see the
@@ -19,9 +19,9 @@ import std;
 export namespace wwr::extension {
 
 /// @brief Non-owning, copyable view of an executable-graph handle. Returned by
-///        GpuGraphExec::view() (from BaseHandle; an exec is not device-bound, so
+///        GpuGraphExecWrapper::view() (from BaseHandle; an exec is not device-bound, so
 ///        it carries no device index); the borrow-safe operations are the free
-///        functions below, which act on it, on an owning GpuGraphExec, or on a
+///        functions below, which act on it, on an owning GpuGraphExecWrapper, or on a
 ///        raw wwrGraphExec_t.
 using GpuGraphExecView = HandleView<wwrGraphExec_t>;
 
@@ -75,7 +75,7 @@ public:
 };
 
 // Borrow-safe executable-graph operations. Free functions on the raw
-// wwrGraphExec_t: an owning GpuGraphExec and a GpuGraphExecView both convert to
+// wwrGraphExec_t: an owning GpuGraphExecWrapper and a GpuGraphExecView both convert to
 // it, so each op has one definition that works on the owner, the view, or a
 // bare handle.
 

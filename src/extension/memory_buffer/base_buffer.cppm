@@ -524,7 +524,7 @@ public:
  *         checks and their empty-view failure mode.
  *
  * Example:
- *   HostBuffer<float> buf(16);
+ *   HostBufferWrapper<float> buf(16);
  *   auto bytes = reinterpret_buffer_view<std::byte>(buf);  // 64-element byte view
  */
 template<typename T, typename U, MemoryKind K, typename OtherDerived,

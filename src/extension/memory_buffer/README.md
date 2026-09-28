@@ -8,14 +8,23 @@ RAII-based memory buffer management for all GPU-relevant memory kinds. Provides 
 
 ## Buffer Types
 
-All buffer types live in the `wwr::extension` namespace and are template aliases over their respective `*Wrapper` classes with default error policies.
+The module ships the `*Wrapper` classes (in the `wwr::extension` namespace); each takes its `P_alloc`/`P_free` error policies as template arguments, defaulting to `DefaultErrorPolicy`. It does **not** ship default-policy aliases for them — binding a wrapper to the default is a one-line `using` a consumer writes once, for the names it uses:
 
-| Alias | Memory kind | Allocation API | Host-accessible |
+```cpp
+template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T>;
+template<typename T> using PinnedBuffer  = PinnedBufferWrapper<T>;
+template<typename T> using UnifiedBuffer = UnifiedBufferWrapper<T>;
+template<typename T> using HostBuffer    = HostBufferWrapper<T>;
+```
+
+The examples below use those names (see also `example/warp_reduce`). Each wrapper class:
+
+| Wrapper | Memory kind | Allocation API | Host-accessible |
 |---|---|---|---|
-| `DeviceBuffer<T>` | GPU device memory | `wwrMallocFromPoolAsync` (from a `DeviceHandle`'s pool) | No |
-| `PinnedBuffer<T>` | Page-locked host memory | `wwrHostAlloc` (`wwrHostAllocDefault` unless flags are given) | Yes |
-| `UnifiedBuffer<T>` | Unified (managed) memory | `wwrMallocManaged` | Yes |
-| `HostBuffer<T>` | Standard host memory | `std::malloc` | Yes |
+| `DeviceBufferWrapper<T>` | GPU device memory | `wwrMallocFromPoolAsync` (from a `DeviceHandle`'s pool) | No |
+| `PinnedBufferWrapper<T>` | Page-locked host memory | `wwrHostAlloc` (`wwrHostAllocDefault` unless flags are given) | Yes |
+| `UnifiedBufferWrapper<T>` | Unified (managed) memory | `wwrMallocManaged` | Yes |
+| `HostBufferWrapper<T>` | Standard host memory | `std::malloc` | Yes |
 
 ### Common Interface (from `BaseBuffer`)
 
@@ -143,8 +152,9 @@ Both async overloads use `wwrMemcpyAsync` with `wwrMemcpyDefault` (direction inf
 ## Buffer Views
 
 `BufferViewWrapper<T, K, P_alloc, P_free>` is a non-owning view over any buffer of the same
-`T` and `K`, aliased per kind as `DeviceBufferView<T>`, `PinnedBufferView<T>`,
-`HostBufferView<T>` and `UnifiedBufferView<T>`.
+`T` and `K`. A consumer names one per kind with the same alias pattern —
+`template<typename T> using HostBufferView = BufferViewWrapper<T, MemoryKind::Host>;` and the
+`Device` / `Pinned` / `Unified` equivalents — and the examples below use those names.
 
 ```cpp
 HostBufferView<float> full(buf);            // whole buffer

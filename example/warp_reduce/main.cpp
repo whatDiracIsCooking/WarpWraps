@@ -26,6 +26,18 @@ import wwr.extension.memory_buffer;
 using namespace wwr;
 namespace ext = wwr::extension;
 
+// The extension layer ships the RAII wrappers themselves, not default-policy
+// aliases for them. Binding a wrapper to the default error policy is a one-line
+// `using` a consumer writes once, for exactly the names it uses -- so here they
+// are, this example's own. Pass a custom policy as the template argument
+// (DeviceBufferWrapper<T, MyPolicy>, GpuStreamWrapper<MyPolicy>) to route errors
+// somewhere other than the default abort-on-failure.
+template<typename T>
+using DeviceBuffer = ext::DeviceBufferWrapper<T>;
+template<typename T>
+using HostBuffer = ext::HostBufferWrapper<T>;
+using GpuStream = ext::GpuStreamWrapper<>;
+
 namespace {
 
 // One million ones: the exact sum is representable in float (integers are, up
@@ -47,14 +59,14 @@ int main() {
   // A DeviceBuffer is drawn from a shared DeviceHandle now; its default
   // allocation stream is what this example submits its copies and kernel on.
   auto device_handle = std::make_shared<ext::DeviceHandle>();
-  ext::GpuStream &stream = device_handle->alloc_stream();
+  GpuStream &stream = device_handle->alloc_stream();
 
-  ext::HostBuffer<float> host(kCount);
+  HostBuffer<float> host(kCount);
   std::fill_n(host.data(), kCount, 1.0F);
 
-  ext::DeviceBuffer<float> input(kCount, device_handle);
-  ext::DeviceBuffer<float> output(1, device_handle);
-  ext::HostBuffer<float> result(1);
+  DeviceBuffer<float> input(kCount, device_handle);
+  DeviceBuffer<float> output(1, device_handle);
+  HostBuffer<float> result(1);
 
   if (ext::copy(input, host, stream.get()) != wwrSuccess) {
     std::println(stderr, "host -> device copy failed");

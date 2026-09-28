@@ -12,6 +12,8 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 
 **Borrow-safe operations are free functions.** `sync`, `wait_event`, `begin_capture` (stream), `record`, `sync` (event), and `launch`, `upload` (executable graph) are free functions taking the raw handle (`wwrStream_t`/`wwrEvent_t`/`wwrGraphExec_t`). An owning wrapper and its view both convert to that handle, so one definition serves the owner, its view, and a bare handle alike (found by ADL on the wrapper/view types). Operations that *produce* an owned handle — `end_capture` (stream), `instantiate` (graph) — stay members, since they need the wrapper's error policy. A handle's `view()` (from `BaseHandle`/`DeviceBoundHandle`) returns its non-owning, copyable, trivially-destructible view.
 
+**The module ships the wrappers, not default-policy aliases for them.** Each `*Wrapper` takes its error policy as a template argument, defaulting to `DefaultErrorPolicy`. Binding one to the default is a one-line `using` a consumer writes once, for exactly the names it uses (`using GpuStream = GpuStreamWrapper<>;`) — see the [Usage](#usage) block and `example/warp_reduce`.
+
 ## Partitions
 
 | Partition | Description |
@@ -42,8 +44,6 @@ Also explicitly instantiates `DefaultErrorPolicy<wwrError_t>` and both overloads
 template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuStreamWrapper;
-
-using GpuStream = GpuStreamWrapper<>;
 ```
 
 Constructors:
@@ -53,7 +53,7 @@ Constructors:
 
 Destruction calls `wwrStreamDestroy`. Supports move semantics; copy is deleted.
 
-Graph capture: the free function `begin_capture(stream, mode = wwrStreamCaptureModeGlobal)` starts recording work submitted to the stream, and the owner's `end_capture()` member ends it and returns a `GpuGraph` owning the captured graph (via `GpuGraph::adopt`), so the whole `begin_capture → end_capture → instantiate → launch` flow stays RAII. `end_capture` stays a member because it mints an owned graph through the create policy.
+Graph capture: the free function `begin_capture(stream, mode = wwrStreamCaptureModeGlobal)` starts recording work submitted to the stream, and the owner's `end_capture()` member ends it and returns a `GpuGraphWrapper<>` owning the captured graph (via `GpuGraphWrapper::adopt`), so the whole `begin_capture → end_capture → instantiate → launch` flow stays RAII. `end_capture` stays a member because it mints an owned graph through the create policy.
 
 ### Event (`gpu_event`)
 
@@ -61,8 +61,6 @@ Graph capture: the free function `begin_capture(stream, mode = wwrStreamCaptureM
 template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuEventWrapper;
-
-using GpuEvent = GpuEventWrapper<>;
 ```
 
 Constructors:
@@ -77,8 +75,6 @@ Destruction calls `wwrEventDestroy`.
 template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuMemPoolWrapper;
-
-using GpuMemPool = GpuMemPoolWrapper<>;
 ```
 
 Constructors:
@@ -93,14 +89,12 @@ Destruction calls `wwrMemPoolDestroy`.
 template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuGraphWrapper;
-
-using GpuGraph = GpuGraphWrapper<>;
 ```
 
 Constructors:
 - Default — creates an empty graph with `wwrGraphCreate`
 
-`instantiate(unsigned long long flags = 0)` returns a `GpuGraphExec` for this graph. Destruction calls `wwrGraphDestroy`.
+`instantiate(unsigned long long flags = 0)` returns a `GpuGraphExecWrapper<>` for this graph. Destruction calls `wwrGraphDestroy`.
 
 ### Executable graph (`gpu_graph_exec`)
 
@@ -108,8 +102,6 @@ Constructors:
 template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuGraphExecWrapper;
-
-using GpuGraphExec = GpuGraphExecWrapper<>;
 ```
 
 Constructors:
@@ -128,15 +120,22 @@ class DeviceHandle;   // move-only
 ```
 
 Constructors:
-- `(int index = 0)` — queries `index`'s properties once (`wwrGetDeviceProperties`) and eagerly creates a `GpuStream` and a `GpuMemPool` on that device
+- `(int index = 0)` — queries `index`'s properties once (`wwrGetDeviceProperties`) and eagerly creates a stream and a memory pool on that device
 
-`activate()` makes this device current (`wwrSetDevice`) without restoring. `index()` returns the device index, `props()` returns the full `wwrDeviceProp` (`cudaDeviceProp` / `hipDeviceProp_t`) held directly — individual fields are not mirrored behind their own accessors — `alloc_stream()` returns the owned default allocation stream (usable anywhere a `wwrStream_t` is), and `mem_pool()` returns the owned default memory pool. A `DeviceBuffer` is built from a `std::shared_ptr<DeviceHandle>` and draws from that pool on that stream. Move-only, because it owns the stream and pool; a bad index or driver failure aborts through the default error policy.
+`activate()` makes this device current (`wwrSetDevice`) without restoring. `index()` returns the device index, `props()` returns the full `wwrDeviceProp` (`cudaDeviceProp` / `hipDeviceProp_t`) held directly — individual fields are not mirrored behind their own accessors — `alloc_stream()` returns the owned default allocation stream (usable anywhere a `wwrStream_t` is), and `mem_pool()` returns the owned default memory pool. A device buffer is built from a `std::shared_ptr<DeviceHandle>` and draws from that pool on that stream. Move-only, because it owns the stream and pool; a bad index or driver failure aborts through the default error policy.
 
 ## Usage
 
 ```cpp
 import wwr.extension.runtime;
 using namespace wwr::extension;
+
+// Bind the wrappers to the default error policy — your names, defined once.
+using GpuStream = GpuStreamWrapper<>;
+using GpuEvent = GpuEventWrapper<>;
+using GpuMemPool = GpuMemPoolWrapper<>;
+using GpuGraph = GpuGraphWrapper<>;
+using GpuGraphExec = GpuGraphExecWrapper<>;
 
 GpuStream stream;
 GpuEvent  event;

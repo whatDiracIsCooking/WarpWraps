@@ -2,7 +2,7 @@
  * @file gpu_mem_pool.cppm
  * @brief RAII wrapper for GPU memory pool handles
  *
- * Provides GpuMemPool class for automatic GPU memory pool management.
+ * Provides GpuMemPoolWrapper class for automatic GPU memory pool management.
  */
 
 export module wwr.extension.runtime:gpu_mem_pool;
@@ -47,10 +47,10 @@ private:
   }
 
 public:
-  // The `GpuMemPool(int dev_idx = 0)` default/per-device constructor, inherited
+  // The `GpuMemPoolWrapper(int dev_idx = 0)` default/per-device constructor, inherited
   // from DeviceBoundHandle. With dev_idx as the mandatory first argument there is no
   // longer any collision with the `(dev_idx, release_threshold)` overload below,
-  // so the base's device-index constructor is inherited like GpuStream/GpuEvent.
+  // so the base's device-index constructor is inherited like GpuStreamWrapper/GpuEventWrapper.
   using DeviceBoundHandle<wwrMemPool_t, GpuMemPoolWrapper<P_create, P_destroy>, P_create,
                        P_destroy>::DeviceBoundHandle;
 

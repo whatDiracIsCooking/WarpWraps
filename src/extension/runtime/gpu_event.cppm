@@ -2,7 +2,7 @@
  * @file gpu_event.cppm
  * @brief RAII wrapper for GPU event handles
  *
- * Provides GpuEvent for automatic GPU event management. The borrow-safe
+ * Provides GpuEventWrapper for automatic GPU event management. The borrow-safe
  * operations (record/sync) are free functions taking a raw wwrEvent_t, so one
  * definition serves the owner, its view, and a bare handle alike -- see the
  * free functions below and runtime/README.md.
@@ -18,9 +18,9 @@ import std;
 export namespace wwr::extension {
 
 /// @brief Non-owning, copyable view of an event handle (carries its device
-///        index). Returned by GpuEvent::view() (from DeviceBoundHandle); the
+///        index). Returned by GpuEventWrapper::view() (from DeviceBoundHandle); the
 ///        borrow-safe event operations are the free functions below, which act
-///        on it, on an owning GpuEvent, or on a raw wwrEvent_t.
+///        on it, on an owning GpuEventWrapper, or on a raw wwrEvent_t.
 using GpuEventView = DeviceBoundHandleView<wwrEvent_t>;
 
 /**
@@ -43,7 +43,7 @@ private:
       DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 public:
-  // The `GpuEvent(int dev_idx = 0)` default/per-device constructor, inherited
+  // The `GpuEventWrapper(int dev_idx = 0)` default/per-device constructor, inherited
   // from DeviceBoundHandle, which selects and records the owning device. view()
   // (device-aware, deleted on rvalues) is inherited from DeviceBoundHandle too.
   using DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create,
@@ -79,7 +79,7 @@ public:
 };
 
 // Borrow-safe event operations. Free functions on the raw wwrEvent_t: an owning
-// GpuEvent and a GpuEventView both convert to it, so each op has one definition
+// GpuEventWrapper and a GpuEventView both convert to it, so each op has one definition
 // that works on the owner, the view, or a bare handle. `sync` overloads with the
 // stream `sync` -- wwrEvent_t and wwrStream_t are distinct vendor pointer types
 // on both backends, so the overload is unambiguous.

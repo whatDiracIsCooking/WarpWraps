@@ -2,7 +2,7 @@
  * @file sparse_handle.cppm
  * @brief RAII wrapper for a GPU sparse handle
  *
- * Provides WwrsparseHandle class for automatic GPU sparse handle management.
+ * Provides WwrsparseHandleWrapper class for automatic GPU sparse handle management.
  */
 
 export module wwr.extension.sparse:sparse_handle;
@@ -39,7 +39,7 @@ private:
                               P_create, P_destroy>;
 
 public:
-  // The `WwrsparseHandle(int dev_idx = 0)` default/per-device constructor,
+  // The `WwrsparseHandleWrapper(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
   using DeviceBoundHandle<wwrsparseHandle_t, WwrsparseHandleWrapper<P_create, P_destroy>, P_create,
                        P_destroy>::DeviceBoundHandle;

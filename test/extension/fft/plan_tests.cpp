@@ -1,6 +1,6 @@
-// plan_tests.cpp - RAII contract of wwr.extension.fft's FftPlan
+// plan_tests.cpp - RAII contract of wwr.extension.fft's FftPlanWrapper
 //
-// FftPlan derives from DeviceBoundHandle like the other library handles, but it is
+// FftPlanWrapper derives from DeviceBoundHandle like the other library handles, but it is
 // the one handle whose liveness cannot ride the base's null sentinel:
 // wwrfftHandle is an integer on CUDA (cufftHandle is `int`) with no reserved
 // invalid value. BaseHandle handles that by tracking ownership with an
@@ -52,10 +52,10 @@ struct CountingErrorPolicy {
 
 using CountingPlan = FftPlanWrapper<CountingErrorPolicy>;
 
-static_assert(!std::is_copy_constructible_v<FftPlan>);
-static_assert(!std::is_copy_assignable_v<FftPlan>);
-static_assert(std::is_nothrow_move_constructible_v<FftPlan>);
-static_assert(std::is_nothrow_move_assignable_v<FftPlan>);
+static_assert(!std::is_copy_constructible_v<FftPlanWrapper<>>);
+static_assert(!std::is_copy_assignable_v<FftPlanWrapper<>>);
+static_assert(std::is_nothrow_move_constructible_v<FftPlanWrapper<>>);
+static_assert(std::is_nothrow_move_assignable_v<FftPlanWrapper<>>);
 
 TEST(FftPlanTests, ConstructAndDestroyReportNoError) {
   int errors = 0;
@@ -69,7 +69,7 @@ TEST(FftPlanTests, ImplicitConversionMatchesGet) {
   // The raw wwrfftMakePlan/wwrfftExec* calls documented in fft_plan.cppm rely on
   // operator wwrfftHandle(); the blas/solver/sparse handles all pin this and fft
   // did not. Only get() was exercised here before.
-  FftPlan plan;
+  FftPlanWrapper<> plan;
   wwrfftHandle raw = plan; // operator wwrfftHandle()
   EXPECT_EQ(raw, plan.get());
 }
@@ -141,18 +141,18 @@ TEST(FftPlanTests, SelfMoveAssignmentIsSafe) {
 TEST(FftPlanTests, RecordsCreationDevice) {
   // The default constructor creates on device 0; dev_idx is the (defaulted)
   // first constructor argument, and device 0 always exists.
-  FftPlan plan;
+  FftPlanWrapper<> plan;
   EXPECT_EQ(plan.dev_idx(), 0);
 
-  FftPlan on0(0);
+  FftPlanWrapper<> on0(0);
   EXPECT_EQ(on0.dev_idx(), 0);
 }
 
 TEST(FftPlanTests, MovePreservesDevice) {
-  FftPlan plan1;
+  FftPlanWrapper<> plan1;
   const int dev = plan1.dev_idx();
 
-  FftPlan plan2(std::move(plan1));
+  FftPlanWrapper<> plan2(std::move(plan1));
   EXPECT_EQ(plan2.dev_idx(), dev);
   EXPECT_EQ(plan1.dev_idx(), -1);
 }

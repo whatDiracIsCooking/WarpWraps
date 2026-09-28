@@ -2,7 +2,7 @@
  * @file solver_params.cppm
  * @brief RAII wrapper for GPU solver params
  *
- * Provides WwrsolverDnParams class for automatic GPU solver params management.
+ * Provides WwrsolverDnParamsWrapper class for automatic GPU solver params management.
  */
 
 export module wwr.extension.solver:solver_params;

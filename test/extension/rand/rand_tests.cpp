@@ -59,14 +59,14 @@ std::vector<OutputType> draw(const std::size_t count, const unsigned long long s
                              const OutputType scale = OutputType{1.0f},
                              const unsigned long long offset = 0) {
   auto handle = std::make_shared<DeviceHandle>(0);
-  GpuStream &stream = handle->alloc_stream();
-  DeviceBuffer<wwrrandState> states(count, handle);
-  DeviceBuffer<OutputType> values(count, handle);
+  GpuStreamWrapper<> &stream = handle->alloc_stream();
+  DeviceBufferWrapper<wwrrandState> states(count, handle);
+  DeviceBufferWrapper<OutputType> values(count, handle);
 
   init_state(stream.get(), count, states.data(), seed, sequence_offset, offset);
   random_normal(stream.get(), count, states.data(), values.data(), scale);
 
-  HostBuffer<OutputType> host(count);
+  HostBufferWrapper<OutputType> host(count);
   EXPECT_EQ(copy(host, values, stream.get()), wwrSuccess);
   EXPECT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
 
@@ -287,10 +287,10 @@ TEST(RandTests, StatesAdvanceAcrossCalls) {
   constexpr std::size_t n = 1000;
 
   auto handle = std::make_shared<DeviceHandle>(0);
-  GpuStream &stream = handle->alloc_stream();
-  DeviceBuffer<wwrrandState> states(n, handle);
-  DeviceBuffer<double> values(n, handle);
-  HostBuffer<double> host(n);
+  GpuStreamWrapper<> &stream = handle->alloc_stream();
+  DeviceBufferWrapper<wwrrandState> states(n, handle);
+  DeviceBufferWrapper<double> values(n, handle);
+  HostBufferWrapper<double> host(n);
 
   init_state(stream.get(), n, states.data(), kSeed);
 
@@ -319,9 +319,9 @@ TEST(RandTests, SequenceOffsetShiftsTheStreams) {
 // or touch the buffer.
 TEST(RandTests, ZeroCountIsANoOp) {
   auto handle = std::make_shared<DeviceHandle>(0);
-  GpuStream &stream = handle->alloc_stream();
-  DeviceBuffer<wwrrandState> states(4, handle);
-  DeviceBuffer<double> values(4, handle);
+  GpuStreamWrapper<> &stream = handle->alloc_stream();
+  DeviceBufferWrapper<wwrrandState> states(4, handle);
+  DeviceBufferWrapper<double> values(4, handle);
 
   ASSERT_EQ(memset(values, 0, stream.get()), wwrSuccess);
 
@@ -329,7 +329,7 @@ TEST(RandTests, ZeroCountIsANoOp) {
   random_normal(stream.get(), 0, states.data(), values.data());
   ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
 
-  HostBuffer<double> host(4);
+  HostBufferWrapper<double> host(4);
   ASSERT_EQ(copy(host, values, stream.get()), wwrSuccess);
   ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
 

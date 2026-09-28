@@ -8,7 +8,6 @@
  * aggregates:
  * - :sparse_error - Error code specializations for wwrsparseStatus_t
  * - :sparse_handle - RAII wrapper for wwrsparseHandle_t
- * - :convenience_sparse - Default-policy aliases (WwrsparseHandle, WwrsparseHandleView)
  *
  * Usage:
  *   import wwr.extension.sparse;
@@ -20,9 +19,8 @@ export module wwr.extension.sparse;
 import std;
 
 // Re-export the vendor sparse module: wwrsparseHandle_t is the return type of
-// WwrsparseHandle::get() and its conversion operator, so a consumer can name it
+// WwrsparseHandleWrapper::get() and its conversion operator, so a consumer can name it
 // without importing wwr.sparse separately.
 export import wwr.sparse;
 export import :sparse_error;
 export import :sparse_handle;
-export import :convenience_sparse;

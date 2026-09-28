@@ -8,7 +8,6 @@
  * - :solver_error - Error code specializations for wwrsolverStatus_t
  * - :solver_handle - RAII wrapper for wwrsolverDnHandle_t
  * - :solver_params - RAII wrapper for wwrsolverDnParams_t
- * - :convenience_solver - Default-policy aliases (WwrsolverDnHandle, WwrsolverDnHandleView, WwrsolverDnParams)
  *
  * Usage:
  *   import wwr.extension.solver;
@@ -26,4 +25,3 @@ export import wwr.solver;
 export import :solver_error;
 export import :solver_handle;
 export import :solver_params;
-export import :convenience_solver;

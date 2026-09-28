@@ -2,7 +2,7 @@
  * @file blas_handle.cppm
  * @brief RAII wrapper for a GPU BLAS handle
  *
- * Provides WwrblasHandle class for automatic GPU BLAS handle management.
+ * Provides WwrblasHandleWrapper class for automatic GPU BLAS handle management.
  */
 
 export module wwr.extension.blas:blas_handle;
@@ -39,7 +39,7 @@ private:
                               P_destroy>;
 
 public:
-  // The `WwrblasHandle(int dev_idx = 0)` default/per-device constructor,
+  // The `WwrblasHandleWrapper(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
   using DeviceBoundHandle<wwrblasHandle_t, WwrblasHandleWrapper<P_create, P_destroy>, P_create,
                        P_destroy>::DeviceBoundHandle;

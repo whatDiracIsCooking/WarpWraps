@@ -19,8 +19,8 @@
  *
  *   auto device = std::make_shared<DeviceHandle>();
  *   auto stream = device->alloc_stream().get();
- *   DeviceBuffer<wwrrandState> states(n, device);
- *   DeviceBuffer<float> values(n, device);
+ *   DeviceBufferWrapper<wwrrandState> states(n, device);
+ *   DeviceBufferWrapper<float> values(n, device);
  *
  *   init_state(stream, n, states.data(), seed);
  *   random_normal(stream, n, states.data(), values.data());

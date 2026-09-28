@@ -2,7 +2,7 @@
  * @file fft_plan.cppm
  * @brief RAII wrapper for a GPU FFT plan handle
  *
- * Provides FftPlan, which creates a bare plan handle with wwrfftCreate on
+ * Provides FftPlanWrapper, which creates a bare plan handle with wwrfftCreate on
  * construction and destroys it with wwrfftDestroy on destruction. Configure
  * the transform afterwards with the raw wwrfftMakePlan / wwrfftPlan functions
  * (the plan converts implicitly to wwrfftHandle), then run it with the typed
@@ -23,8 +23,8 @@ export namespace wwr::extension {
  * @brief RAII wrapper for a GPU FFT plan handle
  *
  * A cuFFT/hipFFT plan belongs to whatever device was current when it was
- * created, so this derives from DeviceBoundHandle exactly like WwrblasHandle /
- * WwrsolverDnHandle: construction selects dev_idx (the first constructor
+ * created, so this derives from DeviceBoundHandle exactly like WwrblasHandleWrapper /
+ * WwrsolverDnHandleWrapper: construction selects dev_idx (the first constructor
  * argument, default 0), creates the plan there, and records it -- read it back
  * with dev_idx(). Destroys the plan on destruction; supports move semantics,
  * copy is deleted.

@@ -8,7 +8,6 @@ export module wwr.extension.runtime:device_handle;
 
 import :gpu_stream;
 import :gpu_mem_pool;
-import :convenience_runtime;
 import wwr.runtime_api;
 import wwr.extension.common;
 import wwr.extension.handle;
@@ -20,16 +19,16 @@ export namespace wwr::extension {
  * @brief Identity, static properties and default allocation stream of one physical GPU
  *
  * Constructed from a device index; queries the runtime for that device's
- * properties once, at construction, and eagerly creates a GpuStream and a
- * GpuMemPool on that device -- alloc_stream() and mem_pool() -- for callers
- * that want to allocate device memory without managing their own stream or
- * pool (e.g. DeviceBuffer, which is built from a DeviceHandle and draws from
- * its pool on its stream). An out-of-range index
+ * properties once, at construction, and eagerly creates a stream and a memory
+ * pool on that device -- alloc_stream() and mem_pool() -- for callers that want
+ * to allocate device memory without managing their own stream or pool (e.g. a
+ * device buffer, which is built from a DeviceHandle and draws from its pool on
+ * its stream). An out-of-range index
  * or a driver failure aborts through the default error policy, matching the
  * GPU handle wrappers -- constructing a DeviceHandle means you intend to *use*
  * that device, which is not a recoverable operation in this layer.
  *
- * Move-only, because it owns a GpuStream and a GpuMemPool: two DeviceHandle
+ * Move-only, because it owns a stream and a memory pool: two DeviceHandle
  * instances must never both claim ownership of the same underlying stream or
  * pool. Every device-bound resource already takes its device by `int dev_idx`
  * (see DeviceBoundHandle in wwr.extension.common) rather than by DeviceHandle,
@@ -52,14 +51,14 @@ public:
   const wwrDeviceProp &props() const noexcept { return props_; }
 
   /// @brief The default allocation stream, created on this device at construction
-  GpuStream &alloc_stream() noexcept { return alloc_stream_; }
+  GpuStreamWrapper<> &alloc_stream() noexcept { return alloc_stream_; }
   /// @copydoc alloc_stream()
-  const GpuStream &alloc_stream() const noexcept { return alloc_stream_; }
+  const GpuStreamWrapper<> &alloc_stream() const noexcept { return alloc_stream_; }
 
   /// @brief The default memory pool, created on this device at construction
-  GpuMemPool &mem_pool() noexcept { return mem_pool_; }
+  GpuMemPoolWrapper<> &mem_pool() noexcept { return mem_pool_; }
   /// @copydoc mem_pool()
-  const GpuMemPool &mem_pool() const noexcept { return mem_pool_; }
+  const GpuMemPoolWrapper<> &mem_pool() const noexcept { return mem_pool_; }
 
 private:
   /// @brief Query one device's properties, aborting on failure
@@ -71,8 +70,8 @@ private:
 
   int index_ = 0;
   wwrDeviceProp props_{};
-  GpuStream alloc_stream_;
-  GpuMemPool mem_pool_;
+  GpuStreamWrapper<> alloc_stream_;
+  GpuMemPoolWrapper<> mem_pool_;
 };
 
 } // namespace wwr::extension

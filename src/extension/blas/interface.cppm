@@ -7,7 +7,6 @@
  * live separately in wwr.wrappers.blas. It aggregates:
  * - :blas_error - Error code specializations for wwrblasStatus_t
  * - :blas_handle - RAII wrapper for wwrblasHandle_t
- * - :convenience_blas - Default-policy aliases (WwrblasHandle, WwrblasHandleView)
  *
  * Usage:
  *   import wwr.extension.blas;
@@ -19,9 +18,8 @@ export module wwr.extension.blas;
 import std;
 
 // Re-export the vendor BLAS module: wwrblasHandle_t is the return type of
-// WwrblasHandle::get() and its conversion operator, so a consumer of this
+// WwrblasHandleWrapper::get() and its conversion operator, so a consumer of this
 // module can name it without importing wwr.blas separately.
 export import wwr.blas;
 export import :blas_error;
 export import :blas_handle;
-export import :convenience_blas;

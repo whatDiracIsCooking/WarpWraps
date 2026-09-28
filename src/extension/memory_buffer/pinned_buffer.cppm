@@ -2,7 +2,7 @@
  * @file pinned_buffer.cppm
  * @brief RAII wrapper for pinned (page-locked) host memory buffers
  *
- * Provides PinnedBuffer class for automatic pinned memory management.
+ * Provides PinnedBufferWrapper class for automatic pinned memory management.
  * Pinned memory enables faster DMA transfers between host and device.
  */
 
