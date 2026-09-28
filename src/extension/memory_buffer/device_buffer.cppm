@@ -21,25 +21,28 @@ export namespace wwr::extension {
  * @brief RAII wrapper for GPU device memory buffer
  *
  * Allocates device memory on construction and releases it on destruction. The
- * only way to build one is from a shared DeviceHandle: the block is drawn from
- * that handle's memory pool (wwrMallocFromPoolAsync) on its allocation stream,
- * and the handle is retained so both outlive the buffer. Device memory resides
- * on the GPU and provides the fastest access for device code.
+ * only way to build one is from a shared handle satisfying the device_handle
+ * concept: the block is drawn from that handle's memory pool
+ * (wwrMallocFromPoolAsync) on its allocation stream, and the handle is retained
+ * so both outlive the buffer. H defaults to wwr's DeviceHandle; downstream code
+ * may substitute its own conforming handle type. Device memory resides on the
+ * GPU and provides the fastest access for device code.
  *
  * @tparam T The element type stored in the buffer
  * @tparam P_alloc Error policy type for allocation (defaults to DefaultErrorPolicy<wwrError_t>)
  * @tparam P_free Error policy type for deallocation (defaults to P_alloc)
+ * @tparam H Device handle type backing the pool/stream (defaults to DeviceHandle)
  *
  * @note P_free MUST NOT THROW - it is called from the destructor.
  */
 template<typename T, error_policy<wwrError_t> P_alloc = DefaultErrorPolicy<wwrError_t>,
-         nothrow_error_policy<wwrError_t> P_free = P_alloc>
+         nothrow_error_policy<wwrError_t> P_free = P_alloc, device_handle H = DeviceHandle>
 class DeviceBufferWrapper
-    : public BaseBuffer<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free>, P_alloc,
+    : public BaseBuffer<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free, H>, P_alloc,
                         P_free> {
 private:
   using Base =
-      BaseBuffer<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free>, P_alloc, P_free>;
+      BaseBuffer<T, MemoryKind::Device, DeviceBufferWrapper<T, P_alloc, P_free, H>, P_alloc, P_free>;
 
 public:
   /**
@@ -60,7 +63,7 @@ public:
      *        its alloc_stream() carries it
      * @param location Source location where allocation was requested
      */
-  DeviceBufferWrapper(std::size_t num_elements, std::shared_ptr<DeviceHandle> handle,
+  DeviceBufferWrapper(std::size_t num_elements, std::shared_ptr<H> handle,
                       std::source_location location = std::source_location::current())
       : Base(typename Base::skip_default_alloc_t{}), handle_(std::move(handle)) {
     allocate_from_pool(num_elements, location);
@@ -79,7 +82,7 @@ public:
      * @param policy Error policy for both allocation and deallocation
      * @param location Source location where allocation was requested
      */
-  DeviceBufferWrapper(std::size_t num_elements, std::shared_ptr<DeviceHandle> handle,
+  DeviceBufferWrapper(std::size_t num_elements, std::shared_ptr<H> handle,
                       P_alloc policy,
                       std::source_location location = std::source_location::current())
       : Base(typename Base::skip_default_alloc_t{}), handle_(std::move(handle)) {
@@ -112,7 +115,8 @@ public:
     if (ptr == nullptr)
       return;
     DeviceScope scope{handle_->index()};
-    gpu_check(wwrFreeAsync(ptr, handle_->alloc_stream().get()), this->policy_free_);
+    const wwrStream_t stream = handle_->alloc_stream();
+    gpu_check(wwrFreeAsync(ptr, stream), this->policy_free_);
   }
 
 private:
@@ -129,7 +133,7 @@ private:
     if (!should_allocate(num_elements, location))
       return;
     DeviceScope scope{handle_->index(), location};
-    const wwrStream_t stream = handle_->alloc_stream().get();
+    const wwrStream_t stream = handle_->alloc_stream();
     const std::size_t size_bytes = num_elements * Base::element_size;
     if (!gpu_check(wwrMallocFromPoolAsync(reinterpret_cast<void **>(&this->data_), size_bytes,
                                           handle_->mem_pool(), stream),
@@ -158,9 +162,9 @@ private:
     return num_elements != 0;
   }
 
-  /// Retains the DeviceHandle (and thus its memory pool and allocation stream)
+  /// Retains the device handle (and thus its memory pool and allocation stream)
   /// so both outlive this buffer's wwrFreeAsync. Null only in the moved-from state.
-  std::shared_ptr<DeviceHandle> handle_;
+  std::shared_ptr<H> handle_;
 };
 
 } // namespace wwr::extension
