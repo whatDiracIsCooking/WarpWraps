@@ -13,7 +13,7 @@
 
 export module wwr.extension.common:device_scope;
 
-import wwr.extension.common.error_handling;
+import wwr.extension.error_handling;
 // gpu_check here uses the default AbortPolicy<wwrError_t>, which odr-uses
 // success_code<wwrError_t>() (and error_name/error_string). That specialization
 // lives in :gpu_error; without it reachable the compiler falls back to the

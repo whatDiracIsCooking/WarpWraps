@@ -12,7 +12,7 @@
  *   using namespace wwr::extension;
  */
 
-export module wwr.extension.common.error_handling:error_policy;
+export module wwr.extension.error_handling:error_policy;
 
 import std;
 

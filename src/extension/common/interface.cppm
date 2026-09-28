@@ -4,7 +4,7 @@
  *
  * This module provides common, backend-neutral utilities for GPU error handling and extension functionality.
  * It aggregates:
- * - wwr.extension.common.error_handling - the backend-neutral error+check
+ * - wwr.extension.error_handling - the backend-neutral error+check
  *     primitives (error_code, error_policy, abort_policy, gpu_check),
  *     re-exported so they stay reachable through this umbrella module
  * - :gpu_error - wwrError_t specializations of the error_code utilities
@@ -24,7 +24,7 @@ export module wwr.extension.common;
 
 import std;
 
-export import wwr.extension.common.error_handling;
+export import wwr.extension.error_handling;
 export import :gpu_error;
 export import :device_scope;
 export import :noncopyable;
