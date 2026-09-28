@@ -14,6 +14,7 @@
 
 export module wwr.extension.error_handling:error_policy;
 
+import :error_code;
 import std;
 
 export namespace wwr::extension {
@@ -64,9 +65,14 @@ concept nothrow_error_policy = error_policy<P, T> && requires(P p, T e, std::sou
  *       rather than from a separate handle-type -> error-type table. That table
  *       is unusable on HIP, where hipblas/hipsolver/hipsparse handles are all
  *       `void*` and so cannot key distinct error types; the policy always can.
+ *       The published error_type must itself be a registered error_type -- a
+ *       policy that names a type carrying no success_code / error_name /
+ *       error_string is rejected here, at the handle's P_create constraint,
+ *       rather than deep inside gpu_check when the handle is created or destroyed.
  */
 template<typename P>
-concept typed_error_policy =
-    requires { typename P::error_type; } && error_policy<P, typename P::error_type>;
+concept typed_error_policy = requires { typename P::error_type; } &&
+                             error_type<typename P::error_type> &&
+                             error_policy<P, typename P::error_type>;
 
 } // namespace wwr::extension
