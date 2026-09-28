@@ -13,6 +13,7 @@ if(WWR_COMPILE_TIME_ONLY)
 endif()
 
 add_subdirectory(runtime)
+add_subdirectory(handle)
 add_subdirectory(memory_buffer)
 # The RNG extension pair (init_state + random_normal) has no build-time half --
 # the cuRAND/hipRAND device functions it wraps cannot be called from host code,

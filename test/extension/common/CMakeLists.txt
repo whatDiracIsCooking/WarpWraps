@@ -13,6 +13,7 @@ wwr_add_cxx_module_library(
   wwr.complex
   wwr.fp16
   wwr.bf16
+  wwr.runtime_api
   wwr.extension.common
   wwr.extension.handle
 )
