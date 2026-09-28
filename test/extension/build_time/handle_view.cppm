@@ -124,11 +124,11 @@ template<typename Pc, typename Pd>
 struct SizeProbeHandle : BaseHandle<void *, SizeProbeHandle<Pc, Pd>, Pc, Pd> {};
 
 // Distinct empty policies cost nothing: the wrapper is just the pointer handle.
-static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<int>, SizeEmptyPolicy2<int>>) ==
+static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolicy2<wwrError_t>>) ==
               sizeof(void *));
 // The same-type default still pays for the second, otherwise-elided slot.
-static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<int>, SizeEmptyPolicy<int>>) >
-              sizeof(SizeProbeHandle<SizeEmptyPolicy<int>, SizeEmptyPolicy2<int>>));
+static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolicy<wwrError_t>>) >
+              sizeof(SizeProbeHandle<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolicy2<wwrError_t>>));
 
 // Never called: exists only to instantiate and type-check the borrow-safe free
 // functions on each owner, its view, and a raw handle, without a device.

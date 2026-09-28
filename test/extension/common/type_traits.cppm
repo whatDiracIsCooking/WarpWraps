@@ -13,7 +13,29 @@ import wwr.extension.common;
 import wwr.extension.handle;
 import wwr.runtime_api; // wwrError_t, for the device-access policy's error type
 
+// A registered stand-in error type. typed_error_policy now requires the policy's
+// published error_type to be a registered error_type, so a policy used with a
+// handle needs one -- but registration is just the three specializations (see
+// error_code.cppm), so we mint one here and stay free of any vendor/runtime type.
+namespace wwr::extension {
+enum class TestError { ok };
+template<>
+constexpr TestError success_code<TestError>() noexcept {
+  return TestError::ok;
+}
+template<>
+const char *error_name<TestError>(TestError) noexcept {
+  return "TestError";
+}
+template<>
+const char *error_string<TestError>(TestError) noexcept {
+  return "test error";
+}
+} // namespace wwr::extension
+
 namespace wwr::extension::test {
+
+using TestError = wwr::extension::TestError;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // error_policy / AbortPolicy
@@ -31,12 +53,18 @@ namespace wwr::extension::test {
 // slot, so pin nothrow_error_policy (its handle_error is noexcept) too.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+// error_policy stays purely structural: an unregistered stand-in like int is a
+// valid policy target, because the concept checks P's shape, not T's membership.
 static_assert(error_policy<AbortPolicy<int>, int>);
-static_assert(typed_error_policy<AbortPolicy<int>>);
 static_assert(nothrow_error_policy<AbortPolicy<int>, int>);
 static_assert(std::is_nothrow_move_constructible_v<AbortPolicy<int>>);
 static_assert(std::is_nothrow_move_assignable_v<AbortPolicy<int>>);
 static_assert(!error_policy<int, int>); // a bare int is not a policy
+
+// typed_error_policy additionally requires the *published* error_type to be a
+// registered error_type -- this is the check every handle's P_create goes through.
+static_assert(typed_error_policy<AbortPolicy<TestError>>);
+static_assert(!typed_error_policy<AbortPolicy<int>>); // int carries no error facilities
 
 } // namespace wwr::extension::test
 
@@ -50,7 +78,7 @@ static_assert(!error_policy<int, int>); // a bare int is not a policy
 // semantics silently wrong" class the build-time tier is for. We instantiate it
 // exactly as the real wrappers do -- a CRTP derived type plus an error policy --
 // against a stand-in handle so the check depends on no vendor type. The error
-// type is deduced from the policy (AbortPolicy<int>::error_type), not from
+// type is deduced from the policy (AbortPolicy<TestError>::error_type), not from
 // the handle type, so no per-handle table is needed here or in the real wrappers.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -60,7 +88,8 @@ struct fake_handle_tag;
 using FakeHandle = fake_handle_tag *;
 
 class FakeHandleWrapper
-    : public BaseHandle<FakeHandle, FakeHandleWrapper, AbortPolicy<int>, AbortPolicy<int>> {
+    : public BaseHandle<FakeHandle, FakeHandleWrapper, AbortPolicy<TestError>,
+                        AbortPolicy<TestError>> {
 public:
   using BaseHandle::BaseHandle;
   void create(FakeHandle *h, std::source_location) { *h = nullptr; }
@@ -88,8 +117,8 @@ static_assert(std::is_convertible_v<FakeHandleWrapper, FakeHandle>);
 //     policy that stopped being nothrow-movable, is the regression);
 //   * the conversion-to-handle it inherits survives the extra layer;
 //   * the device-access policy defaults to AbortPolicy<wwrError_t> and is typed
-//     to wwrError_t *independently* of the create policy's error type (int here)
-//     -- the very decoupling the single-constructor design exists to allow, and
+//     to wwrError_t *independently* of the create policy's error type (TestError
+//     here) -- the very decoupling the single-constructor design exists to allow, and
 //   * view() is narrowed to the device-aware DeviceBoundHandleView (not the base
 //     HandleView) and is still deleted on rvalues.
 // The runtime ordering trick (select-before-create) needs a live device; it is
@@ -99,11 +128,11 @@ static_assert(std::is_convertible_v<FakeHandleWrapper, FakeHandle>);
 namespace wwr::extension::test {
 
 // Instantiated exactly as a real device-bound wrapper is: a CRTP derived type,
-// a create policy typed to the handle's own status (int here, a stand-in for a
-// library handle's status enum), and the device policy left to default.
+// a create policy typed to the handle's own status (TestError here, a registered
+// stand-in for a library handle's status enum), and the device policy left to default.
 class FakeDeviceHandleWrapper
-    : public DeviceBoundHandle<FakeHandle, FakeDeviceHandleWrapper, AbortPolicy<int>,
-                               AbortPolicy<int>> {
+    : public DeviceBoundHandle<FakeHandle, FakeDeviceHandleWrapper, AbortPolicy<TestError>,
+                               AbortPolicy<TestError>> {
 public:
   using DeviceBoundHandle::DeviceBoundHandle;
   void create(FakeHandle *h, std::source_location) { *h = nullptr; }
@@ -118,7 +147,7 @@ static_assert(std::is_nothrow_move_constructible_v<FakeDeviceHandleWrapper>);
 static_assert(std::is_nothrow_move_assignable_v<FakeDeviceHandleWrapper>);
 static_assert(std::is_convertible_v<FakeDeviceHandleWrapper, FakeHandle>);
 
-// The create policy is AbortPolicy<int>, yet the device policy defaults to
+// The create policy is AbortPolicy<TestError>, yet the device policy defaults to
 // AbortPolicy<wwrError_t>: the device (set/get) calls carry error handling typed
 // to the runtime's own error enum regardless of the handle's status type.
 static_assert(
