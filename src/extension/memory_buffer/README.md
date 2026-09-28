@@ -21,7 +21,7 @@ The examples below use those names (see also `example/warp_reduce`). Each wrappe
 
 | Wrapper | Memory kind | Allocation API | Host-accessible |
 |---|---|---|---|
-| `DeviceBufferWrapper<T>` | GPU device memory | `wwrMallocFromPoolAsync` (from a `DeviceHandle`'s pool) | No |
+| `DeviceBufferWrapper<T>` | GPU device memory | pool / async / sync, by the handle's tier (default `DeviceHandle` → pool) | No |
 | `PinnedBufferWrapper<T>` | Page-locked host memory | `wwrHostAlloc` (`wwrHostAllocDefault` unless flags are given) | Yes |
 | `UnifiedBufferWrapper<T>` | Unified (managed) memory | `wwrMallocManaged` | Yes |
 | `HostBufferWrapper<T>` | Standard host memory | `std::malloc` | Yes |
@@ -68,20 +68,30 @@ instantiable; `storage_type` is `T` for every case in which the operator is enab
 
 **With error policy (all types except `DeviceBuffer`):** `Buffer<T> buf(n, policy);` or `Buffer<T> buf(n, policy_alloc, policy_free);`
 
-**Device buffers are always drawn from a shared `DeviceHandle`:**
+**Device buffers are drawn from a shared handle:**
 ```cpp
 auto device = std::make_shared<DeviceHandle>(0);
-DeviceBuffer<T> buf(n, device);          // wwrMallocFromPoolAsync from the handle's pool
+DeviceBuffer<T> buf(n, device);          // pool tier -> wwrMallocFromPoolAsync
 DeviceBuffer<T> buf(n, device, policy);  // ...with a custom error policy
 ```
 
-A `DeviceBuffer` selects the handle's device with `wwrSetDevice`, allocates `n` elements from
-the handle's memory pool (`mem_pool()`) on its `alloc_stream()`, and zero-initialises them on
-that stream. It keeps a `shared_ptr` to the handle, so the pool and stream — owned solely by
-the `DeviceHandle`, never shared on their own — outlive the buffer's `wwrFreeAsync`. The block
-is released with `wwrFreeAsync` on that same stream; `wwrFree` performs no implicit
-synchronisation for a pointer from the stream-ordered pool allocator, so using it would return
-the block while work still queued on the stream was reading and writing it.
+A `DeviceBuffer` selects the handle's device with `wwrSetDevice`, allocates `n` elements, and
+zero-initialises them, keeping a `shared_ptr` to the handle so whatever backs the allocation
+outlives the buffer's free. *How* it allocates is chosen at compile time by the handle's tier
+on the `device_handle` capability ladder (see `runtime/device_handle.cppm`):
+
+| Handle tier (concept it satisfies) | allocate | free |
+|---|---|---|
+| `device_handle_pool` (e.g. `DeviceHandle`) | `wwrMallocFromPoolAsync` from `pool()` on `stream()` | `wwrFreeAsync` on `stream()` |
+| `device_handle_stream` | `wwrMallocAsync` on `stream()` | `wwrFreeAsync` on `stream()` |
+| `device_handle` (`dev_idx()` only) | synchronous `wwrMalloc` | synchronous `wwrFree` |
+
+The two stream-bearing tiers release with `wwrFreeAsync` on the same stream the block was drawn
+on; `wwrFree` there would perform no implicit synchronisation for a stream-ordered pointer, so
+using it would return the block while work still queued on the stream was reading and writing
+it. The bare tier has only `wwrFree`, whose implicit device synchronisation is what makes it
+safe — and what makes that tier's destructor block the host, so prefer a stream-bearing handle
+in hot alloc/free paths.
 
 **Pinned-specific with flags:**
 ```cpp

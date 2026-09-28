@@ -63,7 +63,7 @@ int main() {
   // A DeviceBuffer is drawn from a shared DeviceHandle now; its default
   // allocation stream is what this example submits its copies and kernel on.
   auto device_handle = std::make_shared<ext::DeviceHandle>();
-  GpuStream &stream = device_handle->alloc_stream();
+  GpuStream &stream = device_handle->stream();
 
   HostBuffer<float> host(kCount);
   std::fill_n(host.data(), kCount, 1.0F);

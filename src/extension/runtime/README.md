@@ -122,7 +122,7 @@ class DeviceHandle;   // move-only
 Constructors:
 - `(int index = 0)` — queries `index`'s properties once (`wwrGetDeviceProperties`) and eagerly creates a stream and a memory pool on that device
 
-`activate()` makes this device current (`wwrSetDevice`) without restoring. `index()` returns the device index, `props()` returns the full `wwrDeviceProp` (`cudaDeviceProp` / `hipDeviceProp_t`) held directly — individual fields are not mirrored behind their own accessors — `alloc_stream()` returns the owned default allocation stream (usable anywhere a `wwrStream_t` is), and `mem_pool()` returns the owned default memory pool. A device buffer is built from a `std::shared_ptr<DeviceHandle>` and draws from that pool on that stream. Move-only, because it owns the stream and pool; a bad index or driver failure aborts through the default error policy.
+`activate()` makes this device current (`wwrSetDevice`) without restoring. `dev_idx()` returns the device index, `props()` returns the full `wwrDeviceProp` (`cudaDeviceProp` / `hipDeviceProp_t`) held directly — individual fields are not mirrored behind their own accessors — `stream()` returns the owned default allocation stream (usable anywhere a `wwrStream_t` is), and `pool()` returns the owned default memory pool. `DeviceHandle` is thus the fullest tier of the `device_handle` capability ladder (`dev_idx()` + `stream()` + `pool()`), so a device buffer built from a `std::shared_ptr<DeviceHandle>` draws from that pool on that stream. Move-only, because it owns the stream and pool; a bad index or driver failure aborts through the default error policy.
 
 ## Usage
 
