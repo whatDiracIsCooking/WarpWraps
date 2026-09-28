@@ -44,6 +44,37 @@ static_assert(buffer_typename<HostBufferWrapper<float>, float>);
 static_assert(HostBufferWrapper<void>::element_size == 1);
 static_assert(HostBufferWrapper<float>::element_size == sizeof(float));
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// [[no_unique_address]] on the alloc/free policy members (issue #67)
+//
+// A buffer's non-policy state is just data_ + num_elements_. Two DIFFERENT empty
+// policy types overlap other subobjects and vanish entirely, so a custom
+// alloc/free pair adds nothing. The DEFAULT (P_free = P_alloc, one stateless
+// type in both slots) does NOT shrink: [intro.object] forbids two same-type
+// empty subobjects from sharing an address, so the second still forces a byte
+// plus padding. Both facts are pinned so the attribute is not mistaken for
+// zero-cost on the common path (issue #71 collapses the same-type slot).
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+template<typename E>
+struct EmptyPolicyA {
+  using error_type = E;
+  void handle_error(E, std::source_location) noexcept {}
+};
+template<typename E>
+struct EmptyPolicyB {
+  using error_type = E;
+  void handle_error(E, std::source_location) noexcept {}
+};
+using HErr = stdHostMemoryError_t;
+
+// Distinct empty policies cost nothing: the buffer is exactly its data members.
+static_assert(sizeof(HostBufferWrapper<float, EmptyPolicyA<HErr>, EmptyPolicyB<HErr>>) ==
+              sizeof(float *) + sizeof(std::size_t));
+// The same-type default still pays for the second, otherwise-elided slot.
+static_assert(sizeof(HostBufferWrapper<float>) >
+              sizeof(HostBufferWrapper<float, EmptyPolicyA<HErr>, EmptyPolicyB<HErr>>));
+
 // A reinterpreting view is never formed by an implicit cross-type conversion,
 // and the reinterpret_view tag that selects the constructor is an in-module
 // detail (not re-exported), so the factory is the only public door. Assert both:

@@ -55,19 +55,23 @@ bool gpu_check(const T error, std::source_location location = std::source_locati
  * @tparam T The error code type
  * @tparam ErrorPolicy The error policy type (must satisfy error_policy<T>)
  * @param error The error code to check
- * @param policy The error policy to use for handling errors
+ * @param policy The error policy to use for handling errors, taken by forwarding
+ *        reference: a stateless policy temporary binds (the natural spelling
+ *        gpu_check(code, MyPolicy{})), while a named policy is passed through and
+ *        mutated in place -- handle_error records into the caller's own instance,
+ *        which the buffer/handle wrappers and the counting-policy tests rely on
  * @param location Source location (automatically captured)
  * @return true if error == success code, false otherwise
  *
  * @example
- *   CustomErrorPolicy<wwrError_t> policy;
- *   if (!gpu_check(wwrStreamCreate(&stream), policy)) {
+ *   if (!gpu_check(wwrStreamCreate(&stream), CustomErrorPolicy<wwrError_t>{})) {
  *       // Handle error using custom policy
  *       return;
  *   }
  */
-template<typename T, error_policy<T> ErrorPolicy>
-bool gpu_check(const T error, ErrorPolicy &policy,
+template<typename T, typename ErrorPolicy>
+  requires error_policy<std::remove_cvref_t<ErrorPolicy>, T>
+bool gpu_check(const T error, ErrorPolicy &&policy,
                std::source_location location = std::source_location::current()) {
   if (error != success_code<T>()) {
     policy.handle_error(error, location);

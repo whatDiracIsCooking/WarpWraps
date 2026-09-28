@@ -73,7 +73,7 @@ template class DefaultErrorPolicy<wwrError_t>;
 // Explicitly instantiate gpu_check for wwrError_t
 template bool gpu_check<wwrError_t>(const wwrError_t error, std::source_location location);
 
-template bool gpu_check<wwrError_t, DefaultErrorPolicy<wwrError_t>>(
+template bool gpu_check<wwrError_t, DefaultErrorPolicy<wwrError_t> &>(
     const wwrError_t error, DefaultErrorPolicy<wwrError_t> &policy, std::source_location location);
 
 } // namespace wwr::extension

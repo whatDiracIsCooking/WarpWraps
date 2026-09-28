@@ -152,7 +152,7 @@ template class DefaultErrorPolicy<stdHostMemoryError_t>;
 template bool gpu_check<stdHostMemoryError_t>(const stdHostMemoryError_t error,
                                               std::source_location location);
 
-template bool gpu_check<stdHostMemoryError_t, DefaultErrorPolicy<stdHostMemoryError_t>>(
+template bool gpu_check<stdHostMemoryError_t, DefaultErrorPolicy<stdHostMemoryError_t> &>(
     const stdHostMemoryError_t error, DefaultErrorPolicy<stdHostMemoryError_t> &policy,
     std::source_location location);
 

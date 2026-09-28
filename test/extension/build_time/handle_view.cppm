@@ -90,6 +90,41 @@ static_assert(std::is_same_v<decltype(std::declval<const WwrsolverDnHandleWrappe
 static_assert(
     std::is_same_v<decltype(std::declval<const WwrsparseHandleWrapper<> &>().view()), DeviceBoundHandleView<wwrsparseHandle_t>>);
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// [[no_unique_address]] on BaseHandle's policy members (issue #67)
+//
+// A pointer handle's only real state is the pointer itself (owns_ is already an
+// elided empty flag). Two DIFFERENT empty policy types overlap other subobjects
+// and vanish, so a custom create/destroy pair leaves the wrapper the size of the
+// bare handle. The DEFAULT (P_destroy = P_create, one stateless type) does NOT
+// shrink: [intro.object] forbids two same-type empty subobjects from sharing an
+// address, so the second still costs a slot. Both are pinned here so the
+// attribute is not mistaken for zero-cost on the common path (issue #71
+// collapses the same-type slot). A minimal local wrapper isolates the
+// policy-member cost -- the shipped GpuStreamWrapper etc. are DeviceBoundHandles
+// that also carry a device index.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+template<typename E>
+struct SizeEmptyPolicy {
+  using error_type = E;
+  void handle_error(E, std::source_location) noexcept {}
+};
+template<typename E>
+struct SizeEmptyPolicy2 {
+  using error_type = E;
+  void handle_error(E, std::source_location) noexcept {}
+};
+template<typename Pc, typename Pd>
+struct SizeProbeHandle : BaseHandle<void *, SizeProbeHandle<Pc, Pd>, Pc, Pd> {};
+
+// Distinct empty policies cost nothing: the wrapper is just the pointer handle.
+static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<int>, SizeEmptyPolicy2<int>>) ==
+              sizeof(void *));
+// The same-type default still pays for the second, otherwise-elided slot.
+static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<int>, SizeEmptyPolicy<int>>) >
+              sizeof(SizeProbeHandle<SizeEmptyPolicy<int>, SizeEmptyPolicy2<int>>));
+
 // Never called: exists only to instantiate and type-check the borrow-safe free
 // functions on each owner, its view, and a raw handle, without a device.
 [[maybe_unused]] void exercise(const GpuEventWrapper<> &event, const GpuStreamWrapper<> &stream,
