@@ -2,13 +2,15 @@
 //
 // gpu_check with no explicit policy routes a failure through
 // wwr::extension::DefaultErrorPolicy<T>. In a normal build that policy prints to
-// stderr and std::abort()s. Built with
+// stderr and std::abort()s. Configured with
 //
-//   -DWWR_DEFAULT_ERROR_POLICY_IMPL=<this dir>/custom_default_error_policy.h
+//   -DWWR_DEFAULT_ERROR_POLICY_MODULE=<this dir>/custom_default_error_policy.cppm
+//   -DWWR_DEFAULT_ERROR_POLICY_LINK=wwr.example.error_logger
 //
-// the same call instead runs custom_default_error_policy.h's handler, which logs and
-// CONTINUES -- so control returns here and gpu_check yields false rather than
-// aborting. Nothing in this file changes between the two builds; only which
+// the same call instead runs custom_default_error_policy.cppm's handler, which
+// logs (through the wwr.example.error_logger module it imports) and CONTINUES --
+// so control returns here and gpu_check yields false rather than aborting.
+// Nothing in this file changes between the two builds; only which
 // DefaultErrorPolicy the extension layer was compiled with does.
 //
 // Reaching the final line is the proof: a default build aborts before it; a

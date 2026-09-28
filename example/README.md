@@ -39,20 +39,30 @@ default-policy slot falls back to — the argless `gpu_check`, and the
 `P_create` / `P_alloc` / `P_free` / `P_destroy` template-argument defaults on
 the RAII wrappers. Its built-in body prints to `stderr` and `std::abort()`s. A
 build can replace that body without editing any wwr source or touching a single
-call site: point the CMake cache variable at a header of your own when you
-configure the tree —
+call site: point the CMake cache variables at a **whole partition file** of your
+own when you configure the tree —
 
 ```bash
 cmake --preset default \
-  -DWWR_DEFAULT_ERROR_POLICY_IMPL="$PWD/example/custom_default_error_policy/custom_default_error_policy.h"
+  -DWWR_DEFAULT_ERROR_POLICY_MODULE="$PWD/example/custom_default_error_policy/custom_default_error_policy.cppm" \
+  -DWWR_DEFAULT_ERROR_POLICY_LINK=wwr.example.error_logger
 cmake --build build --target wwr.example.custom_default_error_policy
 ```
 
-and `DefaultErrorPolicy<T>` derives from that header's
-`wwr::extension::DefaultErrorPolicyImpl<T>` instead. `custom_default_error_policy.h`
+and the `:default_error_policy` partition — and so `DefaultErrorPolicy<T>` —
+comes from your file instead of the built-in. `custom_default_error_policy.cppm`
 here logs and *continues* rather than aborting; its comments carry the one hard
 rule — `handle_error` must be `noexcept`, because the destruction-slot policies
 are `nothrow_error_policy`.
+
+Because the replacement is a real module unit, its purview `import`s whatever it
+needs: `import :error_code;` to reuse wwr's own `error_name` / `error_string`
+(which a global-module-fragment header could not reach), and
+`import wwr.example.error_logger;` to route through a module of your own. Name any
+such module target in `WWR_DEFAULT_ERROR_POLICY_LINK` so it is linked into the
+error-handling module. This mirrors the tree's own convention — imports live in
+the module purview, never the global module fragment (see `src/gpu_backend.h` and
+`src/complex.cppm`).
 
 The choice is **build-wide**: it re-compiles the one shared error-handling
 module, so every target in the tree — including the test suites — gets the
@@ -67,8 +77,9 @@ Needs no device. The demonstration is to run it *both ways* and compare:
 # Default build (no -D): the built-in policy prints and aborts (exit 134).
 ./build/example/custom_default_error_policy/wwr.example.custom_default_error_policy
 
-# Reconfigured with -DWWR_DEFAULT_ERROR_POLICY_IMPL=…/custom_default_error_policy.h:
-# the custom policy logs "[custom policy] …" and returns, so gpu_check yields
+# Reconfigured with -DWWR_DEFAULT_ERROR_POLICY_MODULE=…/custom_default_error_policy.cppm
+# (and -DWWR_DEFAULT_ERROR_POLICY_LINK=wwr.example.error_logger): the custom
+# policy logs "[wwr.example.error_logger] …" and returns, so gpu_check yields
 # false and the program exits 0.
 ```
 

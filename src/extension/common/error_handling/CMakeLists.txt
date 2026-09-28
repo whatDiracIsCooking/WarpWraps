@@ -6,6 +6,38 @@
 # wwr.extension.common re-exports it (and adds the wwrError_t specializations
 # in :gpu_error), so consumers reach these names through
 # `import wwr.extension.common;`.
+#
+# The :default_error_policy partition is a customization point. By default it is
+# the built-in "print and abort" body in default_error_policy.cppm. A build may
+# replace the WHOLE partition file: point WWR_DEFAULT_ERROR_POLICY_MODULE at a
+# .cppm that declares this module's :default_error_policy partition and exports
+# its own DefaultErrorPolicy<T>. Being a real module unit, the replacement may
+# `import` std, the sibling :error_code partition, or a module of your own --
+# name any such module target in WWR_DEFAULT_ERROR_POLICY_LINK so it is linked
+# and its BMI is reachable when this module is built. See default_error_policy.cppm
+# and example/custom_default_error_policy.
+set(WWR_DEFAULT_ERROR_POLICY_MODULE
+    ""
+    CACHE FILEPATH
+    "Replacement .cppm for the :default_error_policy partition (empty = built-in)"
+)
+set(WWR_DEFAULT_ERROR_POLICY_LINK
+    ""
+    CACHE STRING
+    "Module target(s) the replacement :default_error_policy partition imports"
+)
+
+# The built-in partition is a normal, same-directory source; an override lives
+# elsewhere in the tree, so it is added after the macro call with its own
+# FILE_SET base directory (a CXX_MODULES file set otherwise requires every file
+# under the calling directory). Leaving it out of PARTITIONS here also keeps the
+# built-in default_error_policy.cppm from being compiled alongside the
+# replacement -- two files cannot both declare the :default_error_policy partition.
+set(_wwr_default_error_policy default_error_policy.cppm)
+if(WWR_DEFAULT_ERROR_POLICY_MODULE)
+  set(_wwr_default_error_policy "")
+endif()
+
 wwr_add_cxx_module_library(
   NAME
   wwr.extension.common.error_handling
@@ -14,29 +46,19 @@ wwr_add_cxx_module_library(
   PARTITIONS
   error_code.cppm
   error_policy.cppm
-  default_error_policy.cppm
+  ${_wwr_default_error_policy}
   gpu_check.cppm
+  LINK_PUBLIC
+  ${WWR_DEFAULT_ERROR_POLICY_LINK}
   IMPORT_STD
 )
 
-# Optional custom default error policy. Point WWR_DEFAULT_ERROR_POLICY_IMPL at a
-# header defining wwr::extension::DefaultErrorPolicyImpl<T> and this module's
-# DefaultErrorPolicy derives from it instead of the built-in body (see
-# default_error_policy.cppm). PRIVATE: the macro only has to reach the
-# compilation of default_error_policy.cppm, which happens in this target.
-set(WWR_DEFAULT_ERROR_POLICY_IMPL
-    ""
-    CACHE FILEPATH
-    "Header providing wwr::extension::DefaultErrorPolicyImpl<T>"
-)
-if(WWR_DEFAULT_ERROR_POLICY_IMPL)
-  cmake_path(GET WWR_DEFAULT_ERROR_POLICY_IMPL PARENT_PATH _wwr_depol_dir)
-  cmake_path(GET WWR_DEFAULT_ERROR_POLICY_IMPL FILENAME _wwr_depol_name)
-  target_include_directories(
-    wwr.extension.common.error_handling PRIVATE "${_wwr_depol_dir}"
-  )
-  target_compile_definitions(
-    wwr.extension.common.error_handling PRIVATE
-    "WWR_DEFAULT_ERROR_POLICY_IMPL=\"${_wwr_depol_name}\""
+if(WWR_DEFAULT_ERROR_POLICY_MODULE)
+  cmake_path(GET WWR_DEFAULT_ERROR_POLICY_MODULE PARENT_PATH _wwr_depol_dir)
+  target_sources(
+    wwr.extension.common.error_handling PUBLIC
+    FILE_SET CXX_MODULES
+    BASE_DIRS "${_wwr_depol_dir}"
+    FILES "${WWR_DEFAULT_ERROR_POLICY_MODULE}"
   )
 endif()
