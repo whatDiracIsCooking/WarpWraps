@@ -35,11 +35,11 @@
  *   import wwr.extension.random_normal;
  *   using namespace wwr::extension;
  *
- *   auto device = std::make_shared<DeviceHandle>();
+ *   auto device = std::make_shared<MyDeviceHandle>();  // caller-supplied; this layer ships none
  *   auto stream = device->stream().get();
  *   using Abort = AbortPolicy<wwrError_t>;
- *   DeviceBufferWrapper<wwrrandState, Abort, Abort> states(n, device);
- *   DeviceBufferWrapper<float, Abort, Abort> values(n, device);
+ *   DeviceBufferWrapper<wwrrandState, Abort, Abort, MyDeviceHandle> states(n, device);
+ *   DeviceBufferWrapper<float, Abort, Abort, MyDeviceHandle> values(n, device);
  *   init_state(stream, n, states.data(), seed);
  *   random_normal(stream, n, states.data(), values.data());
  *

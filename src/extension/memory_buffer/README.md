@@ -11,17 +11,22 @@ RAII-based memory buffer management for all GPU-relevant memory kinds. Provides 
 The module ships the `*Wrapper` classes (in the `wwr::extension` namespace); each takes its `P_alloc`/`P_free` error policies as explicit template arguments — neither has a default, so every use names both. It does **not** ship default-policy aliases for them — binding a wrapper to a policy (e.g. `AbortPolicy`) is a one-line `using` a consumer writes once, for the names it uses:
 
 ```cpp
-template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
+template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, MyDeviceHandle>;
 template<typename T> using PinnedBuffer  = PinnedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 template<typename T> using UnifiedBuffer = UnifiedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 template<typename T> using HostBuffer    = HostBufferWrapper<T, AbortPolicy<stdHostMemoryError_t>, AbortPolicy<stdHostMemoryError_t>>;
 ```
 
+`DeviceBufferWrapper` takes a fourth argument the others don't: the handle type
+backing it. This layer ships **no** concrete handle — `MyDeviceHandle` above is
+the consumer's own, any type satisfying the `device_handle` ladder (see
+`handle/device_handle.cppm` and the one `example/warp_reduce/main.cpp` defines).
+
 The examples below use those names (see also `example/warp_reduce`). Each wrapper class:
 
 | Wrapper | Memory kind | Allocation API | Host-accessible |
 |---|---|---|---|
-| `DeviceBufferWrapper<T>` | GPU device memory | pool / async / sync, by the handle's tier (default `DeviceHandle` → pool) | No |
+| `DeviceBufferWrapper<T, …, H>` | GPU device memory | pool / async / sync, by the caller-supplied handle's tier | No |
 | `PinnedBufferWrapper<T>` | Page-locked host memory | `wwrHostAlloc` (`wwrHostAllocDefault` unless flags are given) | Yes |
 | `UnifiedBufferWrapper<T>` | Unified (managed) memory | `wwrMallocManaged` | Yes |
 | `HostBufferWrapper<T>` | Standard host memory | `std::malloc` | Yes |
@@ -68,21 +73,21 @@ instantiable; `storage_type` is `T` for every case in which the operator is enab
 
 **With error policy (all types except `DeviceBuffer`):** `Buffer<T> buf(n, policy);` or `Buffer<T> buf(n, policy_alloc, policy_free);`
 
-**Device buffers are drawn from a shared handle:**
+**Device buffers are drawn from a shared handle** (`MyDeviceHandle` is the consumer's own — see above):
 ```cpp
-auto device = std::make_shared<DeviceHandle>(0);
-DeviceBuffer<T> buf(n, device);          // pool tier -> wwrMallocFromPoolAsync
+auto device = std::make_shared<MyDeviceHandle>(0);
+DeviceBuffer<T> buf(n, device);          // strategy follows the handle's tier
 DeviceBuffer<T> buf(n, device, policy);  // ...with a custom error policy
 ```
 
 A `DeviceBuffer` selects the handle's device with `wwrSetDevice`, allocates `n` elements, and
 zero-initialises them, keeping a `shared_ptr` to the handle so whatever backs the allocation
 outlives the buffer's free. *How* it allocates is chosen at compile time by the handle's tier
-on the `device_handle` capability ladder (see `runtime/device_handle.cppm`):
+on the `device_handle` capability ladder (see `handle/device_handle.cppm`):
 
 | Handle tier (concept it satisfies) | allocate | free |
 |---|---|---|
-| `device_handle_pool` (e.g. `DeviceHandle`) | `wwrMallocFromPoolAsync` from `pool()` on `stream()` | `wwrFreeAsync` on `stream()` |
+| `device_handle_pool` | `wwrMallocFromPoolAsync` from `pool()` on `stream()` | `wwrFreeAsync` on `stream()` |
 | `device_handle_stream` | `wwrMallocAsync` on `stream()` | `wwrFreeAsync` on `stream()` |
 | `device_handle` (`dev_idx()` only) | synchronous `wwrMalloc` | synchronous `wwrFree` |
 

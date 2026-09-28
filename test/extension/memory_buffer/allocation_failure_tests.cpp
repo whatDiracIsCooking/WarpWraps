@@ -19,6 +19,7 @@ import wwr.runtime_api;
 import wwr.extension.common;
 import wwr.extension.runtime;
 import wwr.extension.memory_buffer;
+import wwr.test.shared.device_handle;
 
 #include "counting_policy.h"
 

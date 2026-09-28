@@ -1,57 +1,51 @@
 /**
  * @file device_handle.cppm
- * @brief Value object bundling one physical GPU's identity, properties, a
+ * @brief Test-side device handle: one physical GPU's identity, properties, a
  *        default allocation stream and a default memory pool
+ *
+ * A DeviceBuffer needs some concrete type satisfying the device_handle ladder to
+ * back it, but the library ships none -- the handle is the caller's to provide.
+ * This is the reference model the extension test suites allocate against: the
+ * fullest tier (dev_idx() + stream() + pool()), so a buffer built on it draws
+ * from that pool on that stream. It lived in src/extension/runtime before the
+ * ladder and the concrete handle were separated; it now lives here so the
+ * shipped library carries no concrete handle (and no forced AbortPolicy
+ * instantiation) of its own.
+ *
+ * Usage:
+ *   import wwr.test.shared.device_handle;
+ *   using namespace wwr::extension::test;
  */
 
-export module wwr.extension.runtime:device_handle;
+export module wwr.test.shared.device_handle;
 
-import :gpu_stream;
-import :gpu_mem_pool;
 import wwr.runtime_api;
 import wwr.extension.common;
 import wwr.extension.handle;
+import wwr.extension.runtime;
 import std;
 
-export namespace wwr::extension {
+export namespace wwr::extension::test {
 
 /**
- * @brief The device-handle capability ladder backing a DeviceBuffer
+ * @brief Abort-on-error policy for the test DeviceHandle's stream and pool
  *
- * Three refining concepts, each adding one accessor and thereby unlocking one
- * more allocation strategy in DeviceBufferWrapper:
- *
- *   device_handle         dev_idx()   -> synchronous wwrMalloc / wwrFree
- *   device_handle_stream  + stream()  -> wwrMallocAsync / wwrFreeAsync
- *   device_handle_pool    + pool()    -> wwrMallocFromPoolAsync (+ async free)
- *
- * Structural, like error_policy: any type exposing the accessors qualifies.
- * They yield raw backend handles, so downstream code can model a tier with its
- * own type instead of wwr's DeviceHandle -- returning a raw wwrStream_t /
- * wwrMemPool_t is fine, and GpuStream / GpuMemPool satisfy it via their
- * implicit conversions (BaseHandle::operator T). The requirement is stated as
- * convertible_to, never a specific `.get()`, precisely to keep that raw-handle
- * path valid.
- *
- * @note The accessors are required noexcept because DeviceBuffer reads them on
- *       the destructor (deallocate) path -- the same destructor-safety rule
- *       that motivates nothrow_error_policy.
+ * A private copy of the shipped AbortPolicy so this test fixture does not depend
+ * on it -- the point of relocating DeviceHandle here is to let the library drop
+ * its concrete AbortPolicy instantiations. handle_error is noexcept because it
+ * feeds the stream/pool destruction slots (nothrow_error_policy).
  */
-template<typename H>
-concept device_handle = requires(const H h) {
-  { h.dev_idx() } noexcept -> std::convertible_to<int>;
-};
-
-/// @brief A device_handle that also offers a stream -> enables async alloc/free
-template<typename H>
-concept device_handle_stream = device_handle<H> && requires(const H h) {
-  { h.stream() } noexcept -> std::convertible_to<wwrStream_t>;
-};
-
-/// @brief A device_handle_stream that also offers a pool -> enables pool alloc
-template<typename H>
-concept device_handle_pool = device_handle_stream<H> && requires(const H h) {
-  { h.pool() } noexcept -> std::convertible_to<wwrMemPool_t>;
+template<typename T>
+class AbortPolicy {
+public:
+  using error_type = T;
+  void handle_error(const T error, std::source_location location) noexcept {
+    if (error != success_code<T>()) {
+      std::print(std::cerr, "GPU error at {}:{} in {}: {} ({})\n", location.file_name(),
+                 location.line(), location.function_name(), error_name(error), error_string(error));
+      std::abort();
+    }
+  }
 };
 
 /**
@@ -62,15 +56,15 @@ concept device_handle_pool = device_handle_stream<H> && requires(const H h) {
  * pool on that device -- stream() and pool() -- for callers that want
  * to allocate device memory without managing their own stream or pool (e.g. a
  * device buffer, which is built from a DeviceHandle and draws from its pool on
- * its stream). An out-of-range index
- * or a driver failure aborts through the default error policy, matching the
- * GPU handle wrappers -- constructing a DeviceHandle means you intend to *use*
- * that device, which is not a recoverable operation in this layer.
+ * its stream). An out-of-range index or a driver failure aborts through the
+ * default error policy, matching the GPU handle wrappers -- constructing a
+ * DeviceHandle means you intend to *use* that device, which is not a recoverable
+ * operation in this layer.
  *
  * Move-only, because it owns a stream and a memory pool: two DeviceHandle
  * instances must never both claim ownership of the same underlying stream or
  * pool. Every device-bound resource already takes its device by `int dev_idx`
- * (see DeviceBoundHandle in wwr.extension.common) rather than by DeviceHandle,
+ * (see DeviceBoundHandle in wwr.extension.handle) rather than by DeviceHandle,
  * so this bundles a device rather than gating access to one.
  *
  * The full cudaDeviceProp / hipDeviceProp_t is held directly and exposed via
@@ -116,9 +110,9 @@ private:
   GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> pool_;
 };
 
-/// The in-tree reference model is the fullest tier -- pinning it also pins the
-/// two tiers it refines. Guards against an accessor later turning throwing or
+/// The reference model is the fullest tier -- pinning it also pins the two tiers
+/// it refines. Guards against an accessor later turning throwing or
 /// non-const-callable.
 static_assert(device_handle_pool<DeviceHandle>);
 
-} // namespace wwr::extension
+} // namespace wwr::extension::test

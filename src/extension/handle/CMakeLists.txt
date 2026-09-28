@@ -16,6 +16,7 @@ wwr_add_cxx_module_library(
   device_bound_handle.cppm
   handle_view.cppm
   device_bound_handle_view.cppm
+  device_handle.cppm
   LINK_PUBLIC
   wwr.extension.common
   wwr.runtime_api

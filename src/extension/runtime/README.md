@@ -23,7 +23,6 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 | `:gpu_mem_pool` | RAII wrapper for `wwrMemPool_t` |
 | `:gpu_graph` | RAII wrapper for `wwrGraph_t` |
 | `:gpu_graph_exec` | RAII wrapper for `wwrGraphExec_t` |
-| `:device_handle` | device identity, properties, default allocation stream and memory pool |
 
 ## Exported Types and Functions
 
@@ -102,17 +101,6 @@ The free functions `launch(exec, stream)` and `upload(exec, stream)` run the gra
 > Neither graph type is device-bound — both sit on `BaseHandle`, not `DeviceBoundHandle`. A graph describes work whose nodes may target different devices, and an executable graph runs on whatever device the stream passed to `launch()` belongs to, so there is no owning device to record.
 >
 > `wwrGraphInstantiate` is a hand-written forwarding function in `wwr.runtime_api`, not a plain alias: the backends' plain `*Instantiate` entry points disagree on signature beyond the prefix (CUDA takes flags, HIP takes an error-node/log-buffer triple), so `wwrGraphInstantiate(exec, graph, flags = 0)` forwards to `cudaGraphInstantiate` on CUDA and `hipGraphInstantiateWithFlags` on HIP — both of which take `(GraphExec_t*, Graph_t, unsigned long long)`.
-
-### Device handle (`device_handle`)
-
-```cpp
-class DeviceHandle;   // move-only
-```
-
-Constructors:
-- `(int index = 0)` — queries `index`'s properties once (`wwrGetDeviceProperties`) and eagerly creates a stream and a memory pool on that device
-
-`dev_idx()` returns the device index, `props()` returns the full `wwrDeviceProp` (`cudaDeviceProp` / `hipDeviceProp_t`) held directly — individual fields are not mirrored behind their own accessors — `stream()` returns the owned default allocation stream (usable anywhere a `wwrStream_t` is), and `pool()` returns the owned default memory pool. `DeviceHandle` is thus the fullest tier of the `device_handle` capability ladder (`dev_idx()` + `stream()` + `pool()`), so a device buffer built from a `std::shared_ptr<DeviceHandle>` draws from that pool on that stream. Move-only, because it owns the stream and pool; a bad index or driver failure aborts through the default error policy.
 
 ## Usage
 

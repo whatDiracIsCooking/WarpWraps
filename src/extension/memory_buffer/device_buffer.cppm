@@ -12,7 +12,7 @@ import :base_buffer;
 import :memory_kind;
 import wwr.runtime_api;
 import wwr.extension.common;
-import wwr.extension.runtime;
+import wwr.extension.handle;
 import std;
 
 export namespace wwr::extension {
@@ -29,13 +29,18 @@ export namespace wwr::extension {
  *   - device_handle_stream -> wwrMallocAsync on stream()
  *   - device_handle (only) -> synchronous wwrMalloc
  *
- * H defaults to wwr's DeviceHandle (the fullest tier, so the pool path);
- * downstream code may substitute any conforming handle. Device memory resides
- * on the GPU and provides the fastest access for device code.
+ * H has no default: this layer ships no concrete handle, so the caller supplies
+ * one satisfying the tier they want (see the device_handle ladder in
+ * wwr.extension.handle). Device memory resides on the GPU and provides the
+ * fastest access for device code.
  *
  * @tparam T The element type stored in the buffer
  * @tparam P_alloc Error policy type for allocation
  * @tparam P_free Error policy type for deallocation
+ * @tparam H Device handle backing the buffer; its tier picks the strategy.
+ *         Placed before P_device_access so it can stay defaultless while
+ *         P_device_access keeps a default (a defaulted parameter cannot precede
+ *         one without a default).
  * @tparam P_device_access Error policy for the DeviceScope guard's device
  *         switch (wwrGetDevice/wwrSetDevice) on the alloc and free paths;
  *         defaults to AbortPolicy<wwrError_t>. Unlike P_alloc/P_free, this is
@@ -45,8 +50,6 @@ export namespace wwr::extension {
  *         *device switch* means the runtime context is already unusable -- a
  *         catastrophic, near-unreachable case whose policy needs no per-buffer
  *         state, only a reaction (abort by default).
- * @tparam H Device handle backing the buffer; its tier picks the strategy
- *         (defaults to DeviceHandle)
  *
  * @note P_free MUST NOT THROW - it is called from the destructor. P_device_access
  *       carries the same nothrow constraint: the free-path DeviceScope's switch
@@ -56,16 +59,15 @@ export namespace wwr::extension {
  *          the host. Prefer a stream-bearing handle in hot alloc/free paths.
  */
 template<typename T, error_policy<wwrError_t> P_alloc,
-         nothrow_error_policy<wwrError_t> P_free,
-         nothrow_error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>,
-         device_handle H = DeviceHandle>
+         nothrow_error_policy<wwrError_t> P_free, device_handle H,
+         nothrow_error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
 class DeviceBufferWrapper
     : public BaseBuffer<T, MemoryKind::Device,
-                        DeviceBufferWrapper<T, P_alloc, P_free, P_device_access, H>, P_alloc,
+                        DeviceBufferWrapper<T, P_alloc, P_free, H, P_device_access>, P_alloc,
                         P_free> {
 private:
   using Base = BaseBuffer<T, MemoryKind::Device,
-                          DeviceBufferWrapper<T, P_alloc, P_free, P_device_access, H>, P_alloc,
+                          DeviceBufferWrapper<T, P_alloc, P_free, H, P_device_access>, P_alloc,
                           P_free>;
 
 public:

@@ -8,11 +8,11 @@
 // suite (allocation_failure_tests.cpp) use it, so it lives here rather than in
 // either TU.
 //
-// This header references types from wwr.extension.memory_buffer and the std
-// module, so it must be included AFTER those imports -- the failure-path TUs
-// are plain .cpp files, not module units, so there is no global module fragment
-// to include it into. It pulls in no headers of its own, so nothing here
-// conflicts with `import std;`.
+// This header references types from wwr.extension.memory_buffer, the test-side
+// DeviceHandle (wwr.test.shared.device_handle) and the std module, so it must be
+// included AFTER those imports -- the failure-path TUs are plain .cpp files, not
+// module units, so there is no global module fragment to include it into. It
+// pulls in no headers of its own, so nothing here conflicts with `import std;`.
 
 namespace wwr::extension::test {
 
@@ -48,7 +48,7 @@ using GpuPolicy = CountingPolicy<wwrError_t>;
 template<typename T>
 using CountedHostBuffer = HostBufferWrapper<T, HostPolicy, HostPolicy>;
 template<typename T>
-using CountedDeviceBuffer = DeviceBufferWrapper<T, GpuPolicy, GpuPolicy>;
+using CountedDeviceBuffer = DeviceBufferWrapper<T, GpuPolicy, GpuPolicy, DeviceHandle>;
 template<typename T>
 using CountedHostView = BufferViewWrapper<T, MemoryKind::Host, HostPolicy, HostPolicy>;
 
