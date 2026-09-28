@@ -161,15 +161,17 @@ view empty; the bounds check does not overflow for large offsets or counts.
 
 A view's element type may differ from the source buffer's. This is a byte
 reinterpretation, so it is never an implicit conversion — form it with the
-`reinterpret_buffer_view<T2>` factory (or, equivalently, the `reinterpret_view`
-tag constructor):
+`reinterpret_buffer_view<T2>` factory:
 
 ```cpp
 HostBuffer<float> buf(16);                            // 64 bytes
 auto bytes = reinterpret_buffer_view<std::byte>(buf); // HostBufferView<std::byte>, 64 elements
 auto ints  = reinterpret_buffer_view<int>(buf);       // HostBufferView<int>, 16 elements
-HostBufferView<std::byte> b(reinterpret_view, buf);   // the tag form, same result
 ```
+
+The factory is the only public door. A `reinterpret_view` tag constructor backs
+it, but that tag lives in an in-module partition (`:reinterpret_tag`) that the
+module does not re-export, so it cannot be named from outside.
 
 The byte span is preserved: `num_elements()` becomes `src.size_bytes() / sizeof(T2)`, and the
 source's memory kind and error policies are carried onto the view. Reinterpretation is reported
