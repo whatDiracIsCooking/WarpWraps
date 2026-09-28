@@ -125,7 +125,19 @@ static_assert(!same_type<WmmaBf16, wwr::wwrBfloat16>::value,
               "if ROCm has unified them, wmma.cuh needs updating");
 #endif
 
+// bf16 WMMA is arch-gated on CUDA in a way the half tile above is not: <mma.h>
+// only *defines* nvcuda::wmma::fragment<..., __nv_bfloat16, ...> for sm_80+, and
+// forward-declares it (incomplete type) below Ampere -- so this fragment resolves
+// only where the tensor cores that back it exist. The guard is therefore CUDA-and-
+// arch specific, evaluated in the device pass where __CUDA_ARCH__ is the real
+// target: a blanket #ifdef would silently drop the check on HIP, where rocWMMA
+// instantiates its bf16 fragment in BOTH compile passes (the host pass carries no
+// __CUDA_ARCH__) and it must keep firing. Pre-Ampere CUDA lands in the #else: a
+// real sm_75 card, and -- the reason this guard exists -- a GPU-less host where
+// -arch=native cannot query a driver and nvcc falls back to a default arch that
+// predates bf16, which is what lets this TU compile on an AMD-only box (issue #77).
 __global__ void wwr_wmma_bf16_fragments(const WmmaBf16 *a) {
+#if !defined(WWR_SELECTED_CUDA) || (defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 800)
   // Declaring them is the claim: instantiating the fragment is what fails on
   // an element type the backend's WMMA does not know.
   w::fragment<w::matrix_a, 16, 16, 16, WmmaBf16, w::row_major> fa;
@@ -136,4 +148,7 @@ __global__ void wwr_wmma_bf16_fragments(const WmmaBf16 *a) {
   w::load_matrix_sync(fa, a, 16);
   (void)fb;
   (void)acc;
+#else
+  (void)a;
+#endif
 }
