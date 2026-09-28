@@ -333,6 +333,18 @@ option(WWR_INSTALL "Generate install rules and the CMake package"
        ${PROJECT_IS_TOP_LEVEL}
 )
 
+# Whether the extension layer (src/extension) is part of the installed package.
+# The extension is always BUILT in-tree (the examples and the device suites link
+# it); this only decides whether wwr_install_package() also ships it. OFF by
+# default: the RAII/handle/buffer/error abstractions are a much larger surface
+# than the gpu* + wrappers core, and a consumer that wants only the core should
+# not pay to install them. Has no effect unless WWR_INSTALL is ON. The install
+# rules, and what a consumer sees when it asks for the layer that was not
+# shipped, live in cmake/wwr_install.cmake and cmake/wwrConfig.cmake.in.
+option(WWR_INSTALL_EXTENSION
+       "Install the extension layer (src/extension) as part of the package" OFF
+)
+
 # Some tests are proved by building: static_asserts on type traits, constexpr
 # values and enumerator values, checked as the test TU compiles. Those live in
 # test/cuda, test/hip and test/gpu (the wrappers) and test/extension/build_time

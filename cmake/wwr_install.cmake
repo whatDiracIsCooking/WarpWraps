@@ -117,6 +117,53 @@ function(_wwr_install_module_adjacent_headers target destination)
   endif()
 endfunction()
 
+# Install one collected target into the wwr-targets export set. Three shapes:
+#
+#   * an INTERFACE library has no artifact -- it is in the set only for its
+#     usage requirements and because targets linking it cannot be exported;
+#   * a module library ships its FILE_SET CXX_MODULES interface sources to a
+#     per-target destination (rule 2) plus its module-adjacent headers (rule 3);
+#   * a plain archive (a wwr_add_gpu_device_library .device target under
+#     src/extension) has no module file set, so it gets NO FILE_SET clause --
+#     naming a file set the target does not have is an error, not a no-op -- and
+#     only installs its archive; init_state/random_normal pull it in
+#     WHOLE_ARCHIVE.
+function(_wwr_install_target target)
+  get_target_property(_type ${target} TYPE)
+  if(_type STREQUAL "INTERFACE_LIBRARY")
+    install(TARGETS ${target} EXPORT wwr-targets)
+    return()
+  endif()
+
+  get_target_property(_module_sets ${target} CXX_MODULE_SETS)
+  if(_module_sets)
+    _wwr_module_destination(${target} _module_dir)
+    # cmake-lint: disable=E1122
+    # One DESTINATION per artifact kind is how install(TARGETS) is spelled:
+    # ARCHIVE, LIBRARY, RUNTIME and FILE_SET each take their own. cmake-lint
+    # models the command as a flat argument list and reads the repeats as a
+    # duplicated keyword.
+    install(
+      TARGETS ${target}
+      EXPORT wwr-targets
+      ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+              FILE_SET CXX_MODULES
+              DESTINATION "${_module_dir}"
+    )
+    _wwr_install_module_adjacent_headers(${target} "${_module_dir}")
+  else()
+    install(
+      TARGETS ${target}
+      EXPORT wwr-targets
+      ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    )
+  endif()
+endfunction()
+
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
@@ -144,6 +191,19 @@ function(wwr_install_package)
     "${PROJECT_SOURCE_DIR}/src/wrappers" _wrapper_targets RECURSE
   )
 
+  # The extension layer (src/extension) ships only on request -- see
+  # WWR_INSTALL_EXTENSION in the top-level CMakeLists.txt. Swept RECURSE so both
+  # its module libraries AND the wwr_add_gpu_device_library archives
+  # (wwr.extension.*.device) join the export set: init_state and random_normal
+  # name those archives under $<INSTALL_INTERFACE:> (WHOLE_ARCHIVE), so
+  # install(EXPORT) refuses the whole set unless they are members too.
+  set(_extension_targets "")
+  if(WWR_INSTALL_EXTENSION)
+    _wwr_collect_library_targets(
+      "${PROJECT_SOURCE_DIR}/src/extension" _extension_targets RECURSE
+    )
+  endif()
+
   # wwr_module_flags is defined in the top-level CMakeLists.txt rather than
   # under src/, so the sweep above does not reach it -- but three src/cuda
   # targets link it PUBLIC, which puts it in their INTERFACE_LINK_LIBRARIES and
@@ -160,7 +220,7 @@ function(wwr_install_package)
   )
 
   set(_targets ${_root_targets} ${_backend_targets} ${_gpu_targets}
-               ${_wrapper_targets}
+               ${_wrapper_targets} ${_extension_targets}
   )
   list(REMOVE_DUPLICATES _targets)
 
@@ -170,32 +230,9 @@ function(wwr_install_package)
   # Each target is installed on its own rather than in one install(TARGETS ...)
   # call, because FILE_SET CXX_MODULES needs a per-target DESTINATION (rule 2).
   # They all name the same EXPORT set, which is what makes them one package.
+  # _wwr_install_target picks the right install shape per target type.
   foreach(_target IN LISTS _targets)
-    get_target_property(_type ${_target} TYPE)
-
-    if(_type STREQUAL "INTERFACE_LIBRARY")
-      # An INTERFACE library has no artifact to install; it is in the export
-      # set for its usage requirements, and for the plain reason that targets
-      # linking it cannot be exported without it.
-      install(TARGETS ${_target} EXPORT wwr-targets)
-    else()
-      _wwr_module_destination(${_target} _module_dir)
-      # cmake-lint: disable=E1122
-      # One DESTINATION per artifact kind is how install(TARGETS) is spelled --
-      # ARCHIVE, LIBRARY, RUNTIME and FILE_SET each take their own. cmake-lint
-      # models the command as a flat argument list and reads the repeats as a
-      # duplicated keyword.
-      install(
-        TARGETS ${_target}
-        EXPORT wwr-targets
-        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-                FILE_SET CXX_MODULES
-                DESTINATION "${_module_dir}"
-      )
-      _wwr_install_module_adjacent_headers(${_target} "${_module_dir}")
-    endif()
+    _wwr_install_target(${_target})
   endforeach()
 
   # The .h/.cuh headers that are reached by include path rather than by sitting
@@ -229,17 +266,25 @@ function(wwr_install_package)
     PATTERN "*.cuh"
   )
 
-  # The extension layer (src/extension) is built in-tree but is NOT part of the
-  # installed package -- the target sweep above collects only the backend dir,
-  # the gpu* layer and src/wrappers. Its src/extension/bridge/ headers are
-  # #included solely by extension module units (wwr.extension.init_state,
-  # wwr.extension.random_normal) and by parallel_for.cuh, so with no
-  # extension target exported nothing in the package includes them and there is
-  # nothing to install. When the layer is made installable (a
-  # WWR_BUILD_EXTENSION
-  # opt-in), the rule that installs these headers belongs there, next to the
-  # sweep that adds the targets that need them -- so install-check can actually
-  # verify it.
+  # The extension layer's headers, shipped only when WWR_INSTALL_EXTENSION added
+  # its targets to the sweep above. The bridge headers, parallel_for.cuh and the
+  # two *_bridge.h are #included by the extension module units and by
+  # parallel_for.cuh through the src/-root spelling
+  # ("extension/bridge/gpu_stream_bridge.h", ...), so the extension subtree is
+  # mirrored under include/wwr/extension for those spellings to resolve
+  # unchanged after install -- the same shape, and the same reasoning, as the
+  # wrappers directory above. Kept next to the target sweep that needs them, so
+  # install-check.sh --extension actually compiles a consumer against them
+  # rather than the rule being assumed.
+  if(WWR_INSTALL_EXTENSION)
+    install(
+      DIRECTORY "${PROJECT_SOURCE_DIR}/src/extension/"
+      DESTINATION "${WWR_INSTALL_INCLUDEDIR}/extension"
+      FILES_MATCHING
+      PATTERN "*.h"
+      PATTERN "*.cuh"
+    )
+  endif()
 
   # CXX_MODULES_DIRECTORY is what makes this an installable module package
   # rather than a broken one: without it the export names targets whose module
@@ -267,6 +312,10 @@ function(wwr_install_package)
   # the mismatch as a link error or, worse, a wrong warp size at runtime.
   set(WWR_PACKAGE_BACKEND "${WWR_GPU_BACKEND}")
   set(WWR_PACKAGE_WARP_SIZE "${WWR_WARP_SIZE}")
+  # A boolean (ON/OFF), not a string: wwrConfig.cmake.in tests it directly and
+  # exposes it as the `extension` package component. Kept in step with the sweep
+  # and header rule above, all three keyed off the same option.
+  set(WWR_PACKAGE_HAS_EXTENSION "${WWR_INSTALL_EXTENSION}")
   set(WWR_PACKAGE_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}")
   set(WWR_PACKAGE_CXX_COMPILER_VERSION "${CMAKE_CXX_COMPILER_VERSION}")
   set(WWR_PACKAGE_CXX_STANDARD_LIBRARY "${CMAKE_CXX_STANDARD_LIBRARY}")

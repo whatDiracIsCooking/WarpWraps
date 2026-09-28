@@ -58,6 +58,23 @@ repos:
   # `git push --no-verify`. It is a local gate, not server-enforced -- CI is.
   - repo: local
     hooks:
+      # cmake-lint on commit, on the staged CMake files only -- the commit-stage
+      # counterpart to ruff above, and the same check CI's `lint` job runs over
+      # the whole tree. A linter, not a formatter, so it fits the commit stage's
+      # "lint only" rule (the deliberate no-formatter policy at the top of this
+      # file is about cmake-FORMAT, which rewrites files; cmake-lint only
+      # reports). `language: system` + `uv run` on purpose: it uses the pinned
+      # `cmakelang` from uv.lock and the repo's .cmake-format.yaml, exactly as CI
+      # does, rather than a second copy from a pre-commit mirror that could drift.
+      # `files` matches CI's `CMakeLists.txt` + `cmake/*.cmake` set; the
+      # `.cmake.in` template is excluded there and here (it ends in .in).
+      - id: cmake-lint
+        name: cmake-lint (on commit, staged CMake files)
+        entry: uv run cmake-lint
+        language: system
+        files: '(^|/)CMakeLists\.txt$|^cmake/.*\.cmake$'
+        verbose: true
+
       - id: prepush-tests
         name: fast test gate (pre-push, only when .py changed)
         entry: devtools/prepush-tests.sh

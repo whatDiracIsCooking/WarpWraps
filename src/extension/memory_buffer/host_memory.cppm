@@ -104,29 +104,6 @@ const char *error_string<stdHostMemoryError_t>(stdHostMemoryError_t error) noexc
 }
 
 // ============================================================================
-// Stream Insertion
-// ============================================================================
-
-/**
- * @brief Stream a host memory error code by name
- *
- * @param os The output stream
- * @param error The host memory error code
- * @return The stream, for chaining
- *
- * @note Found by ADL, which is what lets the test framework's expect::eq
- *       accept this enum: its comparison helpers are constrained on a
- *       `streamable` concept so a failed assertion can print both operands.
- *       A scoped enum has no implicit operator<<, so without this the
- *       constraint fails and the call is simply not viable.
- * @note Delegates to error_name rather than repeating the switch, so the
- *       streamed spelling cannot drift from the canonical one.
- */
-inline std::ostream &operator<<(std::ostream &os, const stdHostMemoryError_t error) {
-  return os << error_name(error);
-}
-
-// ============================================================================
 // Host Memory Allocation Wrappers
 // ============================================================================
 
