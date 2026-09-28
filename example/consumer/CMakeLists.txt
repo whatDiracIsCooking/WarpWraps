@@ -62,20 +62,22 @@ target_link_libraries(
           wwr::wwr.wrappers.solver
           wwr::wwr.wrappers.fft
           wwr::wwr.wrappers.sparse
-          wwr::wwr.wrappers.tx
 )
 
 # The extension layer is optional in the package (installed with
 # -DWWR_INSTALL_EXTENSION=ON). WWR_HAS_EXTENSION comes from wwrConfig.cmake and
-# says whether this install shipped it. When it did, link two extension modules
+# says whether this install shipped it. When it did, link the extension modules
 # and let main.cpp exercise them under WWR_CONSUMER_HAS_EXTENSION, which is the
 # only thing that proves the extension install rules (module sources, the src/
 # header tree, and the WHOLE_ARCHIVE device archives) actually re-attach in a
-# find_package consumer, exactly as the gpu*/wrapper half above does.
+# find_package consumer, exactly as the gpu*/wrapper half above does. tx lives
+# here too now -- it ships with the extension layer, not the always-installed
+# wrappers.
 if(WWR_HAS_EXTENSION)
   message(STATUS "wwr extension: available")
   target_link_libraries(
     consumer PRIVATE wwr::wwr.extension.runtime wwr::wwr.extension.random_normal
+                     wwr::wwr.extension.tx
   )
   target_compile_definitions(consumer PRIVATE WWR_CONSUMER_HAS_EXTENSION)
 else()
