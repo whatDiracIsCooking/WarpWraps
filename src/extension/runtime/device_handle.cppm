@@ -81,8 +81,11 @@ class DeviceHandle {
 public:
   explicit DeviceHandle(int index = 0,
                         std::source_location location = std::source_location::current())
-      : index_(index), props_(query_props(index, location)), stream_(index, location),
-        pool_(index, location) {}
+      : index_(index), props_(query_props(index, location)),
+        // The canonical DeviceBoundHandle ctor puts source_location after the
+        // (defaulted) policy block, so forwarding `location` names the three
+        // default policies first.
+        stream_(index, {}, {}, {}, location), pool_(index, {}, {}, {}, location) {}
 
   int dev_idx() const noexcept { return index_; }
 

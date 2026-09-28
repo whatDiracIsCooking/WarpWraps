@@ -62,7 +62,7 @@ static_assert(std::is_nothrow_move_assignable_v<FftPlanWrapper<Abort, Abort>>);
 TEST(FftPlanTests, ConstructAndDestroyReportNoError) {
   int errors = 0;
   {
-    CountingPlan plan{CountingErrorPolicy{&errors}};
+    CountingPlan plan{0, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
   }
   EXPECT_EQ(errors, 0);
 }
@@ -79,7 +79,7 @@ TEST(FftPlanTests, ImplicitConversionMatchesGet) {
 TEST(FftPlanTests, MoveConstructorTransfersOwnershipAndFreesOnce) {
   int errors = 0;
   {
-    CountingPlan source{CountingErrorPolicy{&errors}};
+    CountingPlan source{0, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
     wwrfftHandle raw = source.get();
 
     CountingPlan dest(std::move(source));
@@ -93,8 +93,8 @@ TEST(FftPlanTests, MoveConstructorTransfersOwnershipAndFreesOnce) {
 TEST(FftPlanTests, MoveAssignmentTransfersOwnershipAndFreesOnce) {
   int errors = 0;
   {
-    CountingPlan source{CountingErrorPolicy{&errors}};
-    CountingPlan dest{CountingErrorPolicy{&errors}};
+    CountingPlan source{0, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
+    CountingPlan dest{0, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
     wwrfftHandle raw = source.get();
 
     // dest's original plan is freed here (exactly once), then dest adopts
@@ -105,9 +105,10 @@ TEST(FftPlanTests, MoveAssignmentTransfersOwnershipAndFreesOnce) {
   EXPECT_EQ(errors, 0);
 }
 
-// The three-argument constructor threads SEPARATE create and destroy policies;
-// the cases above all use the single-policy ctor, which copies one into both. A
-// full construct -> move-assign -> destroy lifecycle with two distinct counters
+// The canonical constructor threads create and destroy policies in separate
+// positional slots; the single-policy shorthand that copied one into both is
+// gone, so the cases above pass the same counter as both explicitly. A full
+// construct -> move-assign -> destroy lifecycle with two DISTINCT counters
 // proves both are stored and moved independently and that the clean path touches
 // neither. (On the success path the two cannot be told apart -- distinguishing
 // them would need a forced failure, which a live wwrfft has no cheap way to
@@ -117,8 +118,8 @@ TEST(FftPlanTests, TwoPolicyConstructorThreadsBothPolicies) {
   int create_errors = 0;
   int destroy_errors = 0;
   {
-    TwoPolicyPlan source{CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
-    TwoPolicyPlan dest{CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
+    TwoPolicyPlan source{0, CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
+    TwoPolicyPlan dest{0, CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
     const wwrfftHandle raw = source.get();
 
     dest = std::move(source); // frees dest's original plan through policy_destroy_
@@ -131,7 +132,7 @@ TEST(FftPlanTests, TwoPolicyConstructorThreadsBothPolicies) {
 TEST(FftPlanTests, SelfMoveAssignmentIsSafe) {
   int errors = 0;
   {
-    CountingPlan plan{CountingErrorPolicy{&errors}};
+    CountingPlan plan{0, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
     wwrfftHandle raw = plan.get();
 
     plan = std::move(plan); // guarded self-assign: must not free itself

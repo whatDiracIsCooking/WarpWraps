@@ -9,6 +9,7 @@ export module wwr.extension.solver:solver_handle;
 
 import :solver_error;
 import wwr.solver;
+import wwr.runtime_api; // wwrError_t (the device-access policy's error type)
 import wwr.extension.common;
 import wwr.extension.handle;
 import std;
@@ -26,23 +27,28 @@ export namespace wwr::extension {
  *
  * @tparam P_create Error policy type for creation
  * @tparam P_destroy Error policy type for destruction
+ * @tparam P_device_access Error policy for the device set/get calls (defaults to abort)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
 template<error_policy<wwrsolverStatus_t> P_create,
-         nothrow_error_policy<wwrsolverStatus_t> P_destroy>
+         nothrow_error_policy<wwrsolverStatus_t> P_destroy,
+         error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
 class WwrsolverDnHandleWrapper
-    : public DeviceBoundHandle<wwrsolverDnHandle_t, WwrsolverDnHandleWrapper<P_create, P_destroy>,
-                            P_create, P_destroy> {
+    : public DeviceBoundHandle<wwrsolverDnHandle_t,
+                            WwrsolverDnHandleWrapper<P_create, P_destroy, P_device_access>,
+                            P_create, P_destroy, P_device_access> {
 private:
-  using Base = DeviceBoundHandle<wwrsolverDnHandle_t, WwrsolverDnHandleWrapper<P_create, P_destroy>,
-                              P_create, P_destroy>;
+  using Base = DeviceBoundHandle<wwrsolverDnHandle_t,
+                              WwrsolverDnHandleWrapper<P_create, P_destroy, P_device_access>,
+                              P_create, P_destroy, P_device_access>;
 
 public:
   // The `WwrsolverDnHandleWrapper(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
-  using DeviceBoundHandle<wwrsolverDnHandle_t, WwrsolverDnHandleWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::DeviceBoundHandle;
+  using DeviceBoundHandle<wwrsolverDnHandle_t,
+                       WwrsolverDnHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
+                       P_destroy, P_device_access>::DeviceBoundHandle;
 
   /// @brief Create a GPU solver handle
   /// @param handle Output parameter for the created handle
