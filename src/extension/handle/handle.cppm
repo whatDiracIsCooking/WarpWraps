@@ -158,8 +158,8 @@ public:
   /// @brief A non-owning, copyable view of this handle.
   ///
   /// Deleted on rvalues so a view cannot be taken from a temporary handle, which
-  /// would dangle immediately. Derived layers hide this with a richer view type
-  /// (device index, borrow-safe operations) where they have one.
+  /// would dangle immediately. Device-bound layers return a richer view that also
+  /// carries the device index; borrow-safe operations are free functions.
   HandleView<T> view() const & noexcept { return HandleView<T>{handle_}; }
   HandleView<T> view() && = delete;
 };

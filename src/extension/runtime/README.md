@@ -53,7 +53,7 @@ Constructors:
 
 Destruction calls `wwrStreamDestroy`. Supports move semantics; copy is deleted.
 
-Graph capture: `begin_capture(mode = wwrStreamCaptureModeGlobal)` starts recording work submitted to the stream, and `end_capture()` ends it and returns a `GpuGraph` owning the captured graph (via `GpuGraph::adopt`), so the whole `begin_capture → end_capture → instantiate → launch` flow stays RAII.
+Graph capture: the free function `begin_capture(stream, mode = wwrStreamCaptureModeGlobal)` starts recording work submitted to the stream, and the owner's `end_capture()` member ends it and returns a `GpuGraph` owning the captured graph (via `GpuGraph::adopt`), so the whole `begin_capture → end_capture → instantiate → launch` flow stays RAII. `end_capture` stays a member because it mints an owned graph through the create policy.
 
 ### Event (`gpu_event`)
 
@@ -115,7 +115,7 @@ using GpuGraphExec = GpuGraphExecWrapper<>;
 Constructors:
 - `(wwrGraph_t graph, unsigned long long flags = 0)` — instantiates `graph` with `wwrGraphInstantiate`
 
-`launch(wwrStream_t)` runs the graph; `upload(wwrStream_t)` uploads it without launching. Destruction calls `wwrGraphExecDestroy`.
+The free functions `launch(exec, stream)` and `upload(exec, stream)` run the graph and upload it without launching, respectively. Destruction calls `wwrGraphExecDestroy`.
 
 > Neither graph type is device-bound — both sit on `BaseHandle`, not `DeviceBoundHandle`. A graph describes work whose nodes may target different devices, and an executable graph runs on whatever device the stream passed to `launch()` belongs to, so there is no owning device to record.
 >
