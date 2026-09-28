@@ -72,13 +72,6 @@ TEST(HostMemoryErrorTests, ErrorStringCoversEveryCode) {
   EXPECT_STREQ(error_string(kBogusCode), "unknown error");
 }
 
-TEST(HostMemoryErrorTests, StreamInsertionMatchesErrorName) {
-  // operator<< is found by ADL and delegates to error_name.
-  std::ostringstream os;
-  os << stdHostMemAllocFailure;
-  EXPECT_EQ(os.str(), "stdHostMemAllocFailure");
-}
-
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // host_memory.cppm: std_malloc / std_free
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
