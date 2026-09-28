@@ -5,17 +5,6 @@
  * Usage:
  *   import wwr.extension.common;
  *   using namespace wwr::extension;
- *
- * The whole partition is a customization point: a build may REPLACE this file
- * without editing any other source. Point WWR_DEFAULT_ERROR_POLICY_MODULE at a
- * .cppm that declares this same partition
- * (`wwr.extension.common.error_handling:default_error_policy`) and exports its
- * own DefaultErrorPolicy<T>; see this directory's CMakeLists and
- * example/custom_default_error_policy. Because the replacement is a real module
- * unit -- not a header pulled into a global module fragment -- its purview may
- * `import` anything (std, the sibling :error_code partition, or a module of your
- * own, named in WWR_DEFAULT_ERROR_POLICY_LINK): imports go after the module
- * declaration, exactly like every other module in this tree.
  */
 
 export module wwr.extension.common.error_handling:default_error_policy;
@@ -38,11 +27,10 @@ export namespace wwr::extension {
  *
  * DefaultErrorPolicy is the name every default-policy slot resolves to (the
  * argless gpu_check and the P_create / P_alloc / P_free / P_destroy
- * template-argument defaults on the RAII wrappers). A build that swaps this
- * partition file keeps that name, so every default template argument, explicit
- * instantiation, and concept conformance is unaffected by the swap. A
- * replacement's handle_error MUST be noexcept -- the destruction-slot policies
- * require nothrow_error_policy.
+ * template-argument defaults on the RAII wrappers). A build that wants different
+ * behaviour passes an explicit policy at the call site instead. handle_error is
+ * noexcept because DefaultErrorPolicy is also the default for the destruction
+ * slots (P_free / P_destroy), which require nothrow_error_policy.
  */
 template<typename T>
 class DefaultErrorPolicy {
