@@ -23,7 +23,6 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 | `:gpu_mem_pool` | RAII wrapper for `wwrMemPool_t` |
 | `:gpu_graph` | RAII wrapper for `wwrGraph_t` |
 | `:gpu_graph_exec` | RAII wrapper for `wwrGraphExec_t` |
-| `:stream_event_pair` | Bundles a `wwrStream_t` and a `wwrEvent_t` (`StreamEventPair`) |
 | `:device_handle` | device identity, properties, default allocation stream and memory pool |
 
 ## Exported Types and Functions
@@ -103,15 +102,6 @@ The free functions `launch(exec, stream)` and `upload(exec, stream)` run the gra
 > Neither graph type is device-bound — both sit on `BaseHandle`, not `DeviceBoundHandle`. A graph describes work whose nodes may target different devices, and an executable graph runs on whatever device the stream passed to `launch()` belongs to, so there is no owning device to record.
 >
 > `wwrGraphInstantiate` is a hand-written forwarding function in `wwr.runtime_api`, not a plain alias: the backends' plain `*Instantiate` entry points disagree on signature beyond the prefix (CUDA takes flags, HIP takes an error-node/log-buffer triple), so `wwrGraphInstantiate(exec, graph, flags = 0)` forwards to `cudaGraphInstantiate` on CUDA and `hipGraphInstantiateWithFlags` on HIP — both of which take `(GraphExec_t*, Graph_t, unsigned long long)`.
-
-### Stream/event pair (`stream_event_pair`)
-
-```cpp
-struct StreamEventConfig;   // { int device; optional stream_flags/stream_priority/event_flags }
-class StreamEventPair;      // move-only
-```
-
-Bundles an owned stream and an owned event, both created (with `AbortPolicy`) on the device named by the `StreamEventConfig` (default device 0). Default-constructible, or from a `StreamEventConfig` for optional flags/priority. Exposes the owners via `gpu_stream()` / `gpu_event()`, the raw handles via `stream_raw()` / `event_raw()`, and convenience `record()` / `record(flags)`, `stream_sync()`, `event_sync()` wrapping the borrow-safe free functions.
 
 ### Device handle (`device_handle`)
 

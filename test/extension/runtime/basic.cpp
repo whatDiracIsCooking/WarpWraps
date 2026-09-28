@@ -1,6 +1,6 @@
 // basic.cpp - Basic GPU runtime wrapper tests
-// Tests for the GpuStreamWrapper, GpuEventWrapper, GpuGraphWrapper(Exec), GpuMemPoolWrapper and
-// StreamEventPair wrappers
+// Tests for the GpuStreamWrapper, GpuEventWrapper, GpuGraphWrapper(Exec) and
+// GpuMemPoolWrapper wrappers
 //
 // A plain TU, not a module interface unit. Its self-registering test objects
 // are compiled straight into the executable, so it needs no module for a
@@ -452,103 +452,6 @@ TEST(GpuMemPoolTests, ViewBorrowsHandle) {
   DeviceBoundHandleView<wwrMemPool_t> view = pool.view();
   EXPECT_EQ(view.get(), pool.get());
   EXPECT_EQ(view.dev_idx(), pool.dev_idx());
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// StreamEventPair Tests
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//
-// StreamEventPair bundles a GpuStreamWrapper and a GpuEventWrapper. It is not a handle
-// wrapper of its own -- ownership is the two members', moved member-wise -- so
-// these check that each StreamEventConfig branch builds a live pair, that the
-// accessors agree with the raw getters, that record/sync work end to end, and
-// that a move empties the source's members (each GpuStreamWrapper/GpuEventWrapper nulls on
-// move).
-
-TEST(StreamEventPairTests, DefaultConstructor) {
-  StreamEventPair pair;
-  EXPECT_NE(pair.stream_raw(), nullptr);
-  EXPECT_NE(pair.event_raw(), nullptr);
-  EXPECT_EQ(pair.gpu_stream().dev_idx(), 0);
-  EXPECT_EQ(pair.gpu_event().dev_idx(), 0);
-}
-
-TEST(StreamEventPairTests, ConstructWithStreamFlags) {
-  StreamEventConfig cfg;
-  cfg.device = 0;
-  cfg.stream_flags = wwrStreamNonBlocking;
-
-  StreamEventPair pair(cfg);
-  EXPECT_NE(pair.stream_raw(), nullptr);
-  EXPECT_NE(pair.event_raw(), nullptr);
-}
-
-TEST(StreamEventPairTests, ConstructWithStreamPriority) {
-  // Priority 0 is always in range; this drives make_stream's priority branch.
-  StreamEventConfig cfg;
-  cfg.device = 0;
-  cfg.stream_priority = 0;
-
-  StreamEventPair pair(cfg);
-  EXPECT_NE(pair.stream_raw(), nullptr);
-  EXPECT_NE(pair.event_raw(), nullptr);
-}
-
-TEST(StreamEventPairTests, ConstructWithEventFlags) {
-  StreamEventConfig cfg;
-  cfg.device = 0;
-  cfg.event_flags = wwrEventDisableTiming;
-
-  StreamEventPair pair(cfg);
-  EXPECT_NE(pair.stream_raw(), nullptr);
-  EXPECT_NE(pair.event_raw(), nullptr);
-}
-
-TEST(StreamEventPairTests, AccessorsMatchRawGetters) {
-  StreamEventPair pair;
-  EXPECT_EQ(pair.gpu_stream().get(), pair.stream_raw());
-  EXPECT_EQ(pair.gpu_event().get(), pair.event_raw());
-}
-
-TEST(StreamEventPairTests, RecordAndSync) {
-  StreamEventPair pair;
-  ASSERT_EQ(pair.record(), wwrSuccess);
-  EXPECT_EQ(pair.event_sync(), wwrSuccess);
-  EXPECT_EQ(pair.stream_sync(), wwrSuccess);
-}
-
-TEST(StreamEventPairTests, RecordWithFlagsAndSync) {
-  // The flagged record(flags) overload, which routes to the event's two-arg
-  // record; flag 0 is always valid.
-  StreamEventPair pair;
-  ASSERT_EQ(pair.record(0), wwrSuccess);
-  EXPECT_EQ(pair.event_sync(), wwrSuccess);
-  EXPECT_EQ(pair.stream_sync(), wwrSuccess);
-}
-
-TEST(StreamEventPairTests, MoveConstructor) {
-  StreamEventPair pair1;
-  wwrStream_t stream = pair1.stream_raw();
-  wwrEvent_t event = pair1.event_raw();
-
-  StreamEventPair pair2(std::move(pair1));
-  EXPECT_EQ(pair2.stream_raw(), stream);
-  EXPECT_EQ(pair2.event_raw(), event);
-  EXPECT_EQ(pair1.stream_raw(), nullptr);
-  EXPECT_EQ(pair1.event_raw(), nullptr);
-}
-
-TEST(StreamEventPairTests, MoveAssignment) {
-  StreamEventPair pair1;
-  StreamEventPair pair2;
-  wwrStream_t stream = pair1.stream_raw();
-  wwrEvent_t event = pair1.event_raw();
-
-  pair2 = std::move(pair1);
-  EXPECT_EQ(pair2.stream_raw(), stream);
-  EXPECT_EQ(pair2.event_raw(), event);
-  EXPECT_EQ(pair1.stream_raw(), nullptr);
-  EXPECT_EQ(pair1.event_raw(), nullptr);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
