@@ -26,5 +26,4 @@ export import :gpu_event;
 export import :gpu_mem_pool;
 export import :gpu_graph_exec;
 export import :gpu_graph;
-export import :stream_event_pair;
 export import :device_handle;

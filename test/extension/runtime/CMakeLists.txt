@@ -1,8 +1,8 @@
 # GPU runtime wrapper tests (backend-neutral: built and run for either
 # WWR_GPU_BACKEND)
-# RAII contract of GpuStream, GpuEvent, GpuGraph(Exec), GpuMemPool and the
-# StreamEventPair bundle, plus DeviceScope (from wwr.extension.common), the
-# device-current guard that restores the previous device on destruction
+# RAII contract of GpuStream, GpuEvent, GpuGraph(Exec) and GpuMemPool, plus
+# DeviceScope (from wwr.extension.common), the device-current guard that
+# restores the previous device on destruction
 #
 # Same shape as test/extension/memory_buffer: one plain .cpp compiled straight
 # into the executable, no module library, no WHOLE_ARCHIVE, one ctest entry per
@@ -31,7 +31,6 @@ wwr_add_gtest_suite_tests(
   GpuGraphTests
   GpuGraphExecTests
   GpuMemPoolTests
-  StreamEventPairTests
   DeviceScopeTests
   RuntimePolicyTests
   TIMEOUT
