@@ -1,15 +1,17 @@
 // main.cpp -- what using an installed wwr actually looks like.
 //
-// This consumes ONLY the parts of wwr that the package installs: the
-// backend-neutral gpu* layer (wwr.runtime_api, wwr.blas) and the wrappers
-// (wwr.wrappers.* -- the dispatch wrappers, plus the untyped tools-extension
-// wrapper wwr.wrappers.tx). It deliberately does NOT touch
-// the extension layer (wwr.extension.*, the RAII handle / buffer / error
-// abstractions) -- that layer is built in-tree but is not part of the installed
-// package, so a find_package consumer cannot see it. Restoring it to the
-// package is a separate decision (a WWR_BUILD_EXTENSION opt-in); until then
-// an installed consumer manages its own device memory and handles, exactly as
-// this file does.
+// This always consumes the core wwr package: the backend-neutral gpu* layer
+// (wwr.runtime_api, wwr.blas) and the wrappers (wwr.wrappers.* -- the dispatch
+// wrappers, plus the untyped tools-extension wrapper wwr.wrappers.tx).
+//
+// The extension layer (wwr.extension.*, the RAII handle / buffer / error
+// abstractions) is OPTIONAL in the package -- it ships only from a build
+// configured with -DWWR_INSTALL_EXTENSION=ON. This file consumes it too, guarded
+// by WWR_CONSUMER_HAS_EXTENSION, which the consumer's CMakeLists.txt defines from
+// the package's WWR_HAS_EXTENSION variable. So the one source builds against a
+// core-only install (managing its own device memory and handles, as
+// multiply_square does) and against a full one, and install-check.sh --extension
+// is what compiles this half.
 //
 // Two things are proved, and they fail differently:
 //
@@ -44,6 +46,11 @@ import wwr.wrappers.solver;
 import wwr.wrappers.fft;
 import wwr.wrappers.sparse;
 import wwr.wrappers.tx; // wwr::tx::mark, ScopedRange, range_start/stop
+
+#if defined(WWR_CONSUMER_HAS_EXTENSION)
+import wwr.extension.runtime;       // GpuStream and the rest of the RAII runtime
+import wwr.extension.random_normal; // random_normal<T>, backed by a device archive
+#endif
 
 // The gpu* names (wwrSuccess, wwrMalloc, WWRBLAS_OP_N, ...) and the wrappers
 // (gemm, potri, ...) are all exported in namespace wwr. A consumer is not
@@ -154,6 +161,28 @@ bool wrappers_link() {
   return true;
 }
 
+#if defined(WWR_CONSUMER_HAS_EXTENSION)
+// The extension layer, proved at compile and link time only -- no device
+// needed, same as wrappers_link above. Naming extension::GpuStream proves
+// wwr.extension.runtime's module sources installed and compiled here; taking the
+// address of random_normal<float> forces its WHOLE_ARCHIVE device archive
+// (wwr.extension.random_normal.device) to resolve and link, which is the
+// fragile part of the extension install -- the archive has to survive the export
+// set and re-attach in a find_package consumer.
+bool extension_link() {
+  static_assert(sizeof(extension::GpuStream) > 0);
+  static const void *volatile sink[] = {
+      reinterpret_cast<const void *>(&extension::random_normal<float>),
+  };
+  for (const void *volatile p : sink) {
+    if (p == nullptr)
+      return false;
+  }
+  std::println("ext    : extension runtime + random_normal resolved and linked");
+  return true;
+}
+#endif
+
 } // namespace
 
 int main() {
@@ -172,6 +201,11 @@ int main() {
   // install regardless of whether a GPU is present to run the gemm.
   if (!wrappers_link())
     return 1;
+
+#if defined(WWR_CONSUMER_HAS_EXTENSION)
+  if (!extension_link())
+    return 1;
+#endif
 
   int device = 0;
   if (wwrGetDevice(&device) != wwrSuccess) {

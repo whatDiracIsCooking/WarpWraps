@@ -213,6 +213,22 @@ throwaway prefix and building `example/consumer` against it. `cpp-tier.sh`
 cannot: it never installs, so an export regression passes it cleanly. Every
 defect in the list above was found that way rather than reasoned about.
 
+### The extension layer is opt-in
+
+The sweep above installs the backend dir, the gpu\* layer and `src/wrappers`
+unconditionally. The extension layer (`src/extension`) ships **only** when the
+build sets `-DWWR_INSTALL_EXTENSION=ON` — off by default, because the
+RAII/handle/buffer/error abstractions are a far larger surface than the core and
+a consumer that wants only the core should not pay to install them. When on, the
+sweep also collects `src/extension` (its module libraries *and* the
+`wwr_add_gpu_device_library` `.device` archives), the extension header subtree is
+mirrored under `include/wwr/extension`, and the package records
+`WWR_HAS_EXTENSION` — exposed by `wwrConfig.cmake` both as a plain variable and
+as the `extension` component, so `find_package(wwr COMPONENTS extension)` is
+refused on a core-only install. `devtools/install-check.sh --extension` installs
+with it on and has `example/consumer` consume an extension module, which is what
+proves the rule.
+
 ### Forcing a device archive into an exported target
 
 A module whose kernel lives in a separate `.device` library (`init_state`,
