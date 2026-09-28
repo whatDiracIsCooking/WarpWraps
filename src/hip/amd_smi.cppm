@@ -1,6 +1,6 @@
 /**
  * @file amd_smi.cppm
- * @brief AMD SMI (System Management Interface) module wrapper for gpumod project
+ * @brief AMD SMI (System Management Interface) module wrapper for wwr project
  *
  * Wraps amd_smi/amdsmi.h -- the newer AMD device management library, meant to
  * eventually supersede wwr.hip.rocm_smi. Both are real, independently

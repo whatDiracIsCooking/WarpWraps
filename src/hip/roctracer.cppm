@@ -1,6 +1,6 @@
 /**
  * @file roctracer.cppm
- * @brief ROCtracer (ROC Profiling Tools Interface) module wrapper for gpumod project
+ * @brief ROCtracer (ROC Profiling Tools Interface) module wrapper for wwr project
  *
  * Wraps roctracer/roctracer.h -- ROCm's runtime callback and
  * asynchronous-activity tracing API, HIP's rough counterpart to CUPTI (see

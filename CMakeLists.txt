@@ -325,9 +325,9 @@ endif()
 # Whether to generate install rules and the CMake package (see
 # cmake/wwr_install.cmake). Defaults to ON for a top-level build and OFF when
 # this project is pulled into another one with add_subdirectory or FetchContent:
-# a consumer embedding gpumod that way links its targets directly and has no use
-# for gpumod's install rules, while `make install` in the OUTER project would
-# otherwise drag gpumod's headers and module sources into that project's install
+# a consumer embedding wwr that way links its targets directly and has no use
+# for wwr's install rules, while `make install` in the OUTER project would
+# otherwise drag wwr's headers and module sources into that project's install
 # tree uninvited.
 option(WWR_INSTALL "Generate install rules and the CMake package"
        ${PROJECT_IS_TOP_LEVEL}

@@ -27,7 +27,7 @@
 # Prefix for this project's docker volumes and per-worktree build images, and
 # the name of the devcontainer. Must match devcontainer.json (see above).
 # It ends up in docker resource names, so keep it lowercase.
-PROJECT_NAME=${PROJECT_NAME:-gpumod}
+PROJECT_NAME=${PROJECT_NAME:-wwr}
 
 # Which devcontainer.json devcontainer.sh drives. Relative paths resolve
 # against the repo root, so this works from any cwd and from any worktree.

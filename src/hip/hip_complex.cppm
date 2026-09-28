@@ -1,6 +1,6 @@
 /**
  * @file hip_complex.cppm
- * @brief HIP Complex Number API module wrapper for gpumod project
+ * @brief HIP Complex Number API module wrapper for wwr project
  *
  * Wraps hip/hip_complex.h for C++23 module-based code: types and host-side
  * functions for complex number manipulation. CUDA counterpart:

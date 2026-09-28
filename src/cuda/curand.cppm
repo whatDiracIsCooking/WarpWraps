@@ -1,6 +1,6 @@
 /**
  * @file curand.cppm
- * @brief cuRAND API module wrapper for gpumod project
+ * @brief cuRAND API module wrapper for wwr project
  *
  * This module wraps the cuRAND API for use in C++20/C++23 module-based code.
  * It exports types, constants, and host-side functions for cuRAND library management

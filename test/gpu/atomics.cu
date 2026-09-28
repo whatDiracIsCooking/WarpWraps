@@ -5,7 +5,7 @@
 // There is no src atomics header to test -- the atomic builtins ride the
 // vendor runtime header, which runtime.cuh already switches
 // (<cuda_runtime.h> vs <hip/hip_runtime.h>), so any device TU that includes it
-// has them for free, under one identical spelling on both backends. gpumod does
+// has them for free, under one identical spelling on both backends. wwr does
 // NOT wrap them: like cooperative_groups.cuh (see src's
 // README), a forwarding function per name would only rename each name to
 // itself, and the one real divergence -- AMD FP-atomic codegen, gated on

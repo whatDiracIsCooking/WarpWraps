@@ -185,7 +185,7 @@ exotic: a consumer of a C++23 module package *compiles the installed module
 sources*, so a `.cppm` with a `PRIVATE` include directory or define builds
 perfectly here, installs without error, and then fails in every consumer —
 `PRIVATE` requirements are not exported. `install-check.sh` installs to a
-throwaway prefix and builds `example/consumer` (which reaches gpumod through
+throwaway prefix and builds `example/consumer` (which reaches wwr through
 `find_package` alone) against it.
 
 Steps 1–3 answer the question; step 4 runs the binary and needs a device. On a

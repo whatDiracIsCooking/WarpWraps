@@ -73,7 +73,7 @@ one out agree with `PROJECT_NAME` in `devtools/config.sh`.
 `doctor` ran somewhere `git rev-parse --path-format=absolute --git-common-dir`
 returns nothing, so the path `devcontainer.sh` would inject as `WWR_GIT_DIR`
 is empty and the container's `.git` mount would fail. Run doctor from inside the
-gpumod checkout.
+wwr checkout.
 
 **`[FAIL] DEVCONTAINER_CONFIG does not exist`** — `devtools/config.sh` points at
 a `devcontainer.json` that is not there, and *every* `devcontainer.sh` command

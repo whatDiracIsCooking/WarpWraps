@@ -1,6 +1,6 @@
 /**
  * @file hiprand_kernel.cppm
- * @brief hipRAND device-state API module wrapper for gpumod project
+ * @brief hipRAND device-state API module wrapper for wwr project
  *
  * Wraps hiprand/hiprand_kernel.h for the device-side generator STATE TYPES
  * only. CUDA counterpart: the "Device API Types" section of

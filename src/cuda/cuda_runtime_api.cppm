@@ -1,6 +1,6 @@
 /**
  * @file cuda_runtime_api.cppm
- * @brief CUDA runtime API module wrapper for gpumod project
+ * @brief CUDA runtime API module wrapper for wwr project
  *
  * This module wraps the CUDA runtime API for use in C++20/C++23 module-based code.
  * It exports types, constants, and functions needed for CUDA memory management,

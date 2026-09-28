@@ -1,18 +1,18 @@
-# A standalone project that consumes an INSTALLED gpumod.
+# A standalone project that consumes an INSTALLED wwr.
 #
 # Deliberately not part of the main build: the whole point is that it knows
-# nothing about gpumod's source tree and reaches it only through
+# nothing about wwr's source tree and reaches it only through
 # find_package(wwr). devtools/install-check.sh builds it that way -- install
-# gpumod to a throwaway prefix, then configure this against that prefix -- which
+# wwr to a throwaway prefix, then configure this against that prefix -- which
 # is the only way an install rule can actually be verified rather than assumed.
 #
 # Everything above project() is the toolchain setup a consumer needs too. It is
-# not gpumod boilerplate leaking out; it is the consequence of consuming a C++23
-# module package. The consumer's build COMPILES gpumod's module interface
+# not wwr boilerplate leaking out; it is the consequence of consuming a C++23
+# module package. The consumer's build COMPILES wwr's module interface
 # sources (a BMI is not portable, so the package ships sources -- see
-# cmake/wwr_install.cmake in the gpumod tree), and those sources `import
+# cmake/wwr_install.cmake in the wwr tree), and those sources `import
 # std;`. So the flags that make `import std` work have to be set here, before
-# project(), exactly as gpumod's own top-level CMakeLists.txt sets them.
+# project(), exactly as wwr's own top-level CMakeLists.txt sets them.
 
 cmake_minimum_required(VERSION 4.2)
 
@@ -34,9 +34,9 @@ set(CMAKE_CXX_EXTENSIONS ON)
 add_link_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
 add_link_options($<$<COMPILE_LANGUAGE:CXX>:-lc++abi>)
 
-# The one line that is actually about gpumod.
+# The one line that is actually about wwr.
 #
-# CONFIG mode: gpumod ships a package config (wwrConfig.cmake), not a Find
+# CONFIG mode: wwr ships a package config (wwrConfig.cmake), not a Find
 # module. Point CMAKE_PREFIX_PATH at the install prefix to locate it.
 find_package(wwr 0.1 REQUIRED)
 
@@ -45,7 +45,7 @@ message(STATUS "wwr warp size: ${WWR_WARP_SIZE}")
 
 add_executable(consumer main.cpp)
 
-# The :: spellings are the exported names. Linking them brings in gpumod's
+# The :: spellings are the exported names. Linking them brings in wwr's
 # module sources, which this build compiles -- `import wwr.wrappers.blas;`
 # in main.cpp resolves because of these lines and nothing else.
 #

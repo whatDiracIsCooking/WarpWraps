@@ -1,6 +1,6 @@
 /**
  * @file hipsolver.cppm
- * @brief hipSOLVER API module wrapper for gpumod project
+ * @brief hipSOLVER API module wrapper for wwr project
  *
  * Wraps hipsolver/hipsolver.h. CUDA counterparts: wwr.cuda.cusolverDn and
  * wwr.cuda.cusolverSp together -- hipSOLVER's single umbrella header pulls

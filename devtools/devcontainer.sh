@@ -233,7 +233,7 @@ require_git_dir() {
         --git-common-dir 2>/dev/null || true)
   if [ -z "$d" ] || [ ! -d "$d" ]; then
     echo "error: cannot resolve this repo's git dir for the container mount." >&2
-    echo "       run devtools/devcontainer.sh from inside the gpumod checkout." >&2
+    echo "       run devtools/devcontainer.sh from inside the wwr checkout." >&2
     exit 1
   fi
   export WWR_GIT_DIR="$d"

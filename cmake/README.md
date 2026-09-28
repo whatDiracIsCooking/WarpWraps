@@ -188,7 +188,7 @@ WWR_ADD_CXX_MODULE_LIBRARY(
 `wwr_install.cmake` emits every install rule and generates the package that
 `find_package(wwr)` finds. The top-level `CMakeLists.txt` calls
 `wwr_install_package()` once, last, when `WWR_INSTALL` is on — which it is
-for a top-level build and is not when gpumod is embedded via `add_subdirectory`
+for a top-level build and is not when wwr is embedded via `add_subdirectory`
 or `FetchContent`.
 
 **Nothing has to be registered.** The function reads the buildsystem back and

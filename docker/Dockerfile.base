@@ -17,7 +17,7 @@
 # `hip` so the two cannot drift apart.
 #
 #   docker/build.sh base          # the normal way: tags <PROJECT_NAME>:base
-#   DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.base -t gpumod:base .
+#   DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile.base -t wwr:base .
 #
 # RUN THAT FROM THE REPO ROOT. The trailing `.` is the build context and it is
 # the repo root, not this directory: this file COPYs pyproject.toml and uv.lock,
@@ -29,14 +29,14 @@
 # the same file and a single `docker build --target cuda` did everything. Split
 # apart, a child can only name an IMAGE, so it takes an ARG:
 #
-#   ARG PARENT_IMAGE=gpumod:base
+#   ARG PARENT_IMAGE=wwr:base
 #   FROM ${PARENT_IMAGE}
 #
 # which means the parent must exist and be tagged BEFORE the child builds. That
 # ordering is the whole cost of the split, and `docker/build.sh` is what pays it
 # -- it walks the chain for whichever target you name. Build a child by hand
 # with no parent tagged and docker does not fall back to building it; it tries
-# to PULL, and fails with `pull access denied for gpumod, repository does not
+# to PULL, and fails with `pull access denied for wwr, repository does not
 # exist`, which reads like a registry problem rather than a missing local build.
 #
 # The .devcontainer/*/devcontainer.json files run exactly one `docker build` and
@@ -199,7 +199,7 @@ ARG LLVM_VERSION
 # devtools/config.sh -- devtools/doctor.sh warns when they drift. Labels are
 # inherited, so the GPU children carry it too; each of those re-stamps it
 # anyway, to keep the build arg they are passed consumed where it is declared.
-ARG PROJECT_NAME=gpumod
+ARG PROJECT_NAME=wwr
 LABEL devcontainer.project="${PROJECT_NAME}"
 
 COPY --link --from=build-tools /usr/local/bin/cmake /usr/local/bin/cmake

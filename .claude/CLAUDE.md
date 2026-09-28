@@ -2,8 +2,8 @@
 
 ## What this is
 
-`gpumod` — C++23 module wrappers for the CUDA and HIP GPU APIs, plus the
-type-safe abstractions built on them. The vendor headers are exposed as
+**Warp Wraps** (`wwr`) — C++23 module wrappers for the CUDA and HIP GPU APIs,
+plus the type-safe abstractions built on them. The vendor headers are exposed as
 importable named modules (`import wwr.cuda.cublas_v2;`), the `gpu*` layer
 directly under `src/` maps backend-neutral `gpu*` names onto whichever backend
 was selected, and `src/wrappers` is written once against those names.
@@ -13,13 +13,12 @@ was selected, and `src/wrappers` is written once against those names.
 language is enabled at all. A HIP build needs no CUDA toolkit; a CUDA build
 needs no ROCm.
 
-The project is being renamed to **Warp Wraps** (`wwr`). The C++ and CMake
-identity is already `wwr`: namespace `wwr`, modules `wwr.*`, macros and CMake
-options `WWR_*`, CMake helpers `wwr_*`, CMake targets `wwr.*` aliased to
-`wwr::*`, and the installed package (`find_package(wwr)`). Still `gpumod`: the
-repo, the Python project, and the docker/devcontainer naming below.
-`PROJECT_NAME` in `devtools/config.sh` is `gpumod` too — it names docker
-volumes, images and the devcontainer, and `doctor.sh` warns when it and any
+The identity is `wwr` throughout: namespace `wwr`, modules `wwr.*`, macros and
+CMake options `WWR_*`, CMake helpers `wwr_*`, CMake targets `wwr.*` aliased to
+`wwr::*`, the installed package (`find_package(wwr)`), the Python project
+(`pyproject.toml`), and the docker/devcontainer naming below. `PROJECT_NAME` in
+`devtools/config.sh` is `wwr` — it names docker volumes, images and the
+devcontainer, and `doctor.sh` warns when it and any
 `.devcontainer/*/devcontainer.json` disagree.
 
 ## Setup

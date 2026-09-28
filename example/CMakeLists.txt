@@ -1,8 +1,8 @@
 # The in-tree examples. See README.md for what belongs here.
 #
 # consumer/ is deliberately absent: it is a standalone project with its own
-# project() call, configured against an INSTALLED gpumod by
-# devtools/install-check.sh. Adding it here would give it gpumod's source tree,
+# project() call, configured against an INSTALLED wwr by
+# devtools/install-check.sh. Adding it here would give it wwr's source tree,
 # which is the one thing it must not have.
 #
 # Added unconditionally, WWR_COMPILE_TIME_ONLY included, so

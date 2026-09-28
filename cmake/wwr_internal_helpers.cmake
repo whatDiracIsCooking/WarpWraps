@@ -1,5 +1,5 @@
 # WWR_INTERNAL_HELPERS.cmake Shared internal helpers used by multiple
-# gpumod macros. Not part of the public API.
+# wwr macros. Not part of the public API.
 
 # Fail with a uniform "<label>: <arg> is required" message if any named argument
 # is unset. `label` names the calling macro for the error, `prefix` is its

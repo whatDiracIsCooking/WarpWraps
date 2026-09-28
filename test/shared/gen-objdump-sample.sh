@@ -2,7 +2,7 @@
 # Regenerate test/shared/objdump_sample.txt from the real llvm-objdump.
 #
 #   docker run --rm -v "$PWD:$PWD" -w "$PWD" -u "$(id -u):$(id -g)" \
-#     gpumod:latest test/shared/gen-objdump-sample.sh > test/shared/objdump_sample.txt
+#     wwr:latest test/shared/gen-objdump-sample.sh > test/shared/objdump_sample.txt
 #
 # Must run where llvm-objdump and clang are, i.e. inside the image -- the point
 # of the sample is that it is the REAL tool's output, committed so the parser

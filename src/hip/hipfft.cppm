@@ -1,6 +1,6 @@
 /**
  * @file hipfft.cppm
- * @brief hipFFT API module wrapper for gpumod project
+ * @brief hipFFT API module wrapper for wwr project
  *
  * Wraps hipfft/hipfft.h. CUDA counterpart: wwr.cuda.cufft.
  *

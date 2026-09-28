@@ -1,6 +1,6 @@
 /**
  * @file hiprand.cppm
- * @brief hipRAND API module wrapper for gpumod project
+ * @brief hipRAND API module wrapper for wwr project
  *
  * Wraps hiprand/hiprand.h -- the hipRAND *host* API only. CUDA counterpart:
  * wwr.cuda.curand, which additionally wraps curand_kernel.h for the

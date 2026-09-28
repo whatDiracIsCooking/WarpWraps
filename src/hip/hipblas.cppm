@@ -1,6 +1,6 @@
 /**
  * @file hipblas.cppm
- * @brief hipBLAS API module wrapper for gpumod project
+ * @brief hipBLAS API module wrapper for wwr project
  *
  * Wraps hipblas/hipblas.h. CUDA counterpart: wwr.cuda.cublas_v2.
  *

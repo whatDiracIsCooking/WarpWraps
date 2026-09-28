@@ -1,6 +1,6 @@
 /**
  * @file gpu_check.cppm
- * @brief GPU error checking for gpumod project
+ * @brief GPU error checking for wwr project
  *
  * Provides simple no-throw error checking for any error code type with a
  * success_code<T>() specialization (wwrError_t, library status codes, ...).

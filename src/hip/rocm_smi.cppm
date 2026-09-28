@@ -1,6 +1,6 @@
 /**
  * @file rocm_smi.cppm
- * @brief ROCm SMI (System Management Interface) module wrapper for gpumod project
+ * @brief ROCm SMI (System Management Interface) module wrapper for wwr project
  *
  * This module wraps rocm_smi/rocm_smi.h -- the legacy/stable AMD GPU device
  * management and monitoring library. See src/hip/README.md "Why nvml became two
