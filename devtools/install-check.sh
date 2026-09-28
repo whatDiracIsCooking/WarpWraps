@@ -46,6 +46,11 @@
 #                   where they are. For inspecting what actually got installed.
 #   --no-run        stop after building the consumer. Use on a box with no
 #                   device when you only want the compile-and-link answer.
+#   --extension     configure wwr with -DWWR_INSTALL_EXTENSION=ON so the
+#                   package also ships src/extension, and let example/consumer
+#                   consume it (WWR_HAS_EXTENSION drives that automatically).
+#                   Without this the extension layer is not installed and the
+#                   consumer builds against the core package alone.
 #
 # Exit status is the first failing step's.
 #: -- help stops here --
@@ -58,6 +63,7 @@ preset=$CMAKE_PRESET
 prefix=""
 keep=0
 run=1
+extension=0
 
 while [ $# -gt 0 ]; do
   case $1 in
@@ -65,6 +71,7 @@ while [ $# -gt 0 ]; do
     --prefix) prefix=${2:?--prefix needs a value}; shift 2 ;;
     --keep) keep=1; shift ;;
     --no-run) run=0; shift ;;
+    --extension) extension=1; shift ;;
     -h | --help)
       sed -n '2,/^#: -- help stops here --$/p' "${BASH_SOURCE[0]}" |
         sed 's/^# \{0,1\}//; $d'
@@ -109,7 +116,17 @@ step "1/4  configure wwr (preset: $preset)"
 # ---------------------------------------------------------------------------
 # -B overrides the preset's own binaryDir so this tier keeps its cache separate
 # from cpp-tier.sh's, per the comment above.
-cmake --preset "$preset" -B "$build_dir" -DWWR_INSTALL=ON
+# Pass WWR_INSTALL_EXTENSION explicitly BOTH ways, never just when on: this tier
+# reuses $build_dir across runs, and a cached ON from an earlier --extension run
+# would otherwise persist into a plain run and quietly install the extension the
+# caller did not ask for.
+install_args=(-DWWR_INSTALL=ON)
+if [ "$extension" -eq 1 ]; then
+  install_args+=(-DWWR_INSTALL_EXTENSION=ON)
+else
+  install_args+=(-DWWR_INSTALL_EXTENSION=OFF)
+fi
+cmake --preset "$preset" -B "$build_dir" "${install_args[@]}"
 
 # ---------------------------------------------------------------------------
 step "2/4  build and install into $prefix"
@@ -135,6 +152,28 @@ for required in \
     exit 1
   fi
 done
+
+# With --extension, prove the three distinctive kinds of extension artifact
+# actually landed -- a mirrored src/ header, a module interface source, and a
+# device-kernel archive -- before the consumer (step 3) is asked to compile
+# against them. These are the pieces an install-rule regression is most likely to
+# drop, and a missing one gives a clearer message here than a compile or link
+# error there.
+if [ "$extension" -eq 1 ]; then
+  ext_missing=0
+  ext_bridge="include/wwr/extension/bridge/gpu_stream_bridge.h"
+  ext_module="include/wwr/modules/extension/runtime/interface.cppm"
+  [ -f "$prefix/$ext_bridge" ] ||
+    { echo "install-check.sh: FAIL -- extension header not installed: $ext_bridge" >&2; ext_missing=1; }
+  [ -f "$prefix/$ext_module" ] ||
+    { echo "install-check.sh: FAIL -- extension module source not installed: $ext_module" >&2; ext_missing=1; }
+  # LIBDIR is lib or lib64 depending on the distro, so match on name rather than
+  # a fixed path.
+  find "$prefix" -name 'libwwr.extension.random_normal.device.a' | grep -q . ||
+    { echo "install-check.sh: FAIL -- extension device archive not installed" >&2; ext_missing=1; }
+  [ "$ext_missing" -eq 0 ] || exit 1
+  echo "  extension layer installed (headers, module sources, device archives)"
+fi
 
 # ---------------------------------------------------------------------------
 step "3/4  configure and build example/consumer against the install"

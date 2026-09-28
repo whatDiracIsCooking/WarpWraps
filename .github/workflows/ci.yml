@@ -19,7 +19,9 @@
 #   cpp (hip)     the same shape for HIP: the whole tree through clang's
 #                 -x hip front end, then the same `-LE gpu`
 #   install-check install to a throwaway prefix, then build example/consumer
-#                 against it. The only tier that sees an export regression.
+#                 against it -- once for the core package, once with the
+#                 extension layer added. The only tier that sees an export
+#                 regression.
 #   ci-ok         an aggregate that fails unless every job above either
 #                 succeeded or, for the two gated jobs on a docs-only change,
 #                 was skipped -- the one check name stable enough to require in
@@ -345,6 +347,20 @@ jobs:
         run: |
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
           devtools/install-check.sh --preset ci-cuda --no-run
+      # The core run above installs everything BUT the extension layer; this run
+      # ships it too (-DWWR_INSTALL_EXTENSION=ON) and has example/consumer compile
+      # against two extension modules, which is the only thing that proves the
+      # extension's install rules -- its module sources, the mirrored src/ header
+      # tree, and the WHOLE_ARCHIVE device archives -- re-attach in a consumer.
+      # A separate step so a regression in only that path reads as its own red
+      # mark; it reuses the build dir and ccache, so the wwr rebuild is
+      # incremental (the extension is compiled in-tree either way).
+      - name: package tier (with extension)
+        env:
+          BUILD_JOBS: '4'
+        run: |
+          export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
+          devtools/install-check.sh --preset ci-cuda --no-run --extension
 
   # THE AGGREGATE GATE. One job whose only purpose is to be the single required
   # status check in a branch ruleset.
