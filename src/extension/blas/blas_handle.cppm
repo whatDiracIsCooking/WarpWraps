@@ -9,6 +9,7 @@ export module wwr.extension.blas:blas_handle;
 
 import :blas_error;
 import wwr.blas;
+import wwr.runtime_api; // wwrError_t (the device-access policy's error type)
 import wwr.extension.common;
 import wwr.extension.handle;
 import std;
@@ -26,23 +27,27 @@ export namespace wwr::extension {
  *
  * @tparam P_create Error policy type for creation
  * @tparam P_destroy Error policy type for destruction
+ * @tparam P_device_access Error policy for the device set/get calls (defaults to abort)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
 template<error_policy<wwrblasStatus_t> P_create,
-         nothrow_error_policy<wwrblasStatus_t> P_destroy>
+         nothrow_error_policy<wwrblasStatus_t> P_destroy,
+         error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
 class WwrblasHandleWrapper
-    : public DeviceBoundHandle<wwrblasHandle_t, WwrblasHandleWrapper<P_create, P_destroy>, P_create,
-                            P_destroy> {
+    : public DeviceBoundHandle<wwrblasHandle_t,
+                            WwrblasHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
+                            P_destroy, P_device_access> {
 private:
-  using Base = DeviceBoundHandle<wwrblasHandle_t, WwrblasHandleWrapper<P_create, P_destroy>, P_create,
-                              P_destroy>;
+  using Base = DeviceBoundHandle<wwrblasHandle_t,
+                              WwrblasHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
+                              P_destroy, P_device_access>;
 
 public:
   // The `WwrblasHandleWrapper(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
-  using DeviceBoundHandle<wwrblasHandle_t, WwrblasHandleWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::DeviceBoundHandle;
+  using DeviceBoundHandle<wwrblasHandle_t, WwrblasHandleWrapper<P_create, P_destroy, P_device_access>,
+                       P_create, P_destroy, P_device_access>::DeviceBoundHandle;
 
   /// @brief Create a GPU BLAS handle
   /// @param handle Output parameter for the created handle

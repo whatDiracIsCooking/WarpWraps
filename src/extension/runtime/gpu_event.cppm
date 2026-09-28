@@ -31,23 +31,26 @@ using GpuEventView = DeviceBoundHandleView<wwrEvent_t>;
  *
  * @tparam P_create Error policy type for creation
  * @tparam P_destroy Error policy type for destruction
+ * @tparam P_device_access Error policy for the device set/get calls (defaults to abort)
  *
  * @note P_destroy MUST NOT THROW - it is called from the destructor.
  */
 template<error_policy<wwrError_t> P_create,
-         nothrow_error_policy<wwrError_t> P_destroy>
-class GpuEventWrapper : public DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy>,
-                                                 P_create, P_destroy> {
+         nothrow_error_policy<wwrError_t> P_destroy,
+         error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
+class GpuEventWrapper
+    : public DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy, P_device_access>,
+                               P_create, P_destroy, P_device_access> {
 private:
-  using Base =
-      DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy>;
+  using Base = DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy, P_device_access>,
+                                 P_create, P_destroy, P_device_access>;
 
 public:
   // The `GpuEventWrapper(int dev_idx = 0)` default/per-device constructor, inherited
   // from DeviceBoundHandle, which selects and records the owning device. view()
   // (device-aware, deleted on rvalues) is inherited from DeviceBoundHandle too.
-  using DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create,
-                          P_destroy>::DeviceBoundHandle;
+  using DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy, P_device_access>,
+                          P_create, P_destroy, P_device_access>::DeviceBoundHandle;
 
   /// @brief Create a GPU event on `dev_idx` with flags
   /// @param dev_idx Device to create the event on

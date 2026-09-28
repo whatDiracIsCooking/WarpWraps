@@ -50,76 +50,84 @@ export namespace wwr::extension {
  * @tparam Derived The concrete class inheriting from this layer (CRTP)
  * @tparam P_create The error policy type for creation
  * @tparam P_destroy The error policy type for destruction
+ * @tparam P_device_access The error policy for the device (wwrSetDevice/
+ *         wwrGetDevice) calls; typed to wwrError_t regardless of the handle's own
+ *         status type, defaulted to AbortPolicy<wwrError_t>
  */
 template<typename T, typename Derived, typed_error_policy P_create,
-         nothrow_error_policy<typename P_create::error_type> P_destroy>
+         nothrow_error_policy<typename P_create::error_type> P_destroy,
+         error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
 class DeviceBoundHandle : public BaseHandle<T, Derived, P_create, P_destroy> {
 private:
   using Base = BaseHandle<T, Derived, P_create, P_destroy>;
 
-  // Select `dev_idx` as the current device, then yield `loc`. A return-value
-  // adapter over select_device: it exists only to carry the void select into
-  // the base-initializer argument slot, which is evaluated -- i.e. the device
-  // is selected -- BEFORE Base runs Derived::create, so the handle is created
-  // on `dev_idx`.
-  static std::source_location on_device(int dev_idx, std::source_location loc) {
-    select_device(dev_idx, loc);
+  // Select `dev_idx` as the current device through `dev_policy`, then yield
+  // `loc`. A return-value adapter: it exists only to carry the void select into
+  // the base-initializer argument slot, which is evaluated -- i.e. the device is
+  // selected -- BEFORE Base runs Derived::create, so the handle is created on
+  // `dev_idx`. It runs before any DeviceBoundHandle member is alive, so it takes
+  // the constructor's `dev_policy` *parameter* by reference (policy_device_ does
+  // not exist yet); the constructor then moves that same policy into
+  // policy_device_, carrying forward whatever select recorded into it.
+  static std::source_location on_device(P_device_access &dev_policy, int dev_idx,
+                                        std::source_location loc) {
+    gpu_check(wwrSetDevice(dev_idx), dev_policy, loc);
     return loc;
   }
 
 protected:
   int dev_idx_ = -1; ///< Index of the device the handle was created on (-1 until recorded)
+  [[no_unique_address]] P_device_access policy_device_{}; ///< Policy for the device (set/get) calls
 
   /// @brief Construct without creating the handle; derived selects the device,
-  ///        creates the raw handle, then records it (see the class note).
+  ///        creates the raw handle, then records it (see the class note). Leaves
+  ///        policy_device_ default-constructed -- the skip-create wrappers take no
+  ///        device policy, matching how they take no create/destroy policy either.
   DeviceBoundHandle(typename Base::skip_default_create_t tag) noexcept : Base(tag) {}
 
   /// @brief Make `dev_idx` the current device (call before creating a handle on it).
-  ///        Static, so it can run before the instance exists; uses the default
-  ///        checker, which aborts on failure.
-  static void select_device(int dev_idx,
-                            std::source_location location = std::source_location::current()) {
-    gpu_check(wwrSetDevice(dev_idx), location);
+  ///        Routes wwrSetDevice through policy_device_, so device-selection error
+  ///        handling is under the caller's control (defaults to abort).
+  void select_device(int dev_idx,
+                     std::source_location location = std::source_location::current()) {
+    gpu_check(wwrSetDevice(dev_idx), policy_device_, location);
   }
 
   /// @brief Record the current device as this handle's owner (call after creating the handle).
-  ///        Uses the default checker (aborts on failure), not policy_create_:
-  ///        wwrGetDevice returns wwrError_t, which a library handle's error
-  ///        policy is not typed to accept (it is typed to wwrblasStatus_t and
-  ///        the like), so routing it through policy_create_ only compiles for
-  ///        the wwrError_t-typed handles -- the same reason select_device is a
-  ///        plain default-checked call.
-  void record_device() { gpu_check(wwrGetDevice(&dev_idx_)); }
+  ///        Routes wwrGetDevice through policy_device_ (typed to wwrError_t), NOT
+  ///        policy_create_: a library handle's create policy is typed to its own
+  ///        status enum (wwrblasStatus_t and the like), which wwrGetDevice's
+  ///        wwrError_t would not satisfy. A dedicated wwrError_t device policy is
+  ///        exactly what lets both device calls carry error handling on every handle.
+  void record_device(std::source_location location = std::source_location::current()) {
+    gpu_check(wwrGetDevice(&dev_idx_), policy_device_, location);
+  }
 
 public:
-  /// @brief Create on `dev_idx` (default 0): select it, run Derived::create, record it.
+  /// @brief The one create path: select `dev_idx`, run Derived::create, record it.
   ///
-  /// This is the only create path DeviceBoundHandle offers, and it is why every
-  /// child names its device as the first constructor argument. `dev_idx`
-  /// defaults to 0 so the common single-GPU case stays `Derived{}`, but there is
-  /// deliberately no overload that omits it.
-  explicit DeviceBoundHandle(int dev_idx = 0,
-                          std::source_location location = std::source_location::current())
-      : Base(on_device(dev_idx, location)) {
-    record_device();
-  }
-
-  /// @brief Create on `dev_idx` (default 0) with a custom error policy.
-  DeviceBoundHandle(P_create policy, int dev_idx = 0,
-                 std::source_location location = std::source_location::current())
-      : Base(std::move(policy), on_device(dev_idx, location)) {
-    record_device();
-  }
-
-  /// @brief Create on `dev_idx` (default 0) with distinct create/destroy policies.
-  DeviceBoundHandle(P_create policy_create, P_destroy policy_destroy, int dev_idx = 0,
-                 std::source_location location = std::source_location::current())
-      : Base(std::move(policy_create), std::move(policy_destroy), on_device(dev_idx, location)) {
-    record_device();
+  /// A single canonical constructor with every policy in a fixed positional slot,
+  /// all defaulted. This is deliberate: because a runtime handle's create-error
+  /// type IS wwrError_t, P_create and P_device_access can be the same type, so a
+  /// pair of ctors distinguished only by "which policy" would share a signature
+  /// -- ill-formed. One constructor sidesteps that collision entirely.
+  ///
+  /// `dev_idx` stays first so the common `Derived{}` / `Derived{5}` cases are
+  /// unchanged; source_location stays last so passing policies still captures the
+  /// caller automatically. `policy_device` is threaded into on_device by reference
+  /// (it must -- policy_device_ is not alive yet) and then moved into policy_device_.
+  explicit DeviceBoundHandle(int dev_idx = 0, P_create policy_create = {},
+                             P_destroy policy_destroy = {}, P_device_access policy_device = {},
+                             std::source_location location = std::source_location::current())
+      : Base(std::move(policy_create), std::move(policy_destroy),
+             on_device(policy_device, dev_idx, location)),
+        policy_device_(std::move(policy_device)) {
+    record_device(location);
   }
 
   DeviceBoundHandle(DeviceBoundHandle &&other) noexcept
-      : Base(std::move(other)), dev_idx_(other.dev_idx_) {
+      : Base(std::move(other)), dev_idx_(other.dev_idx_),
+        policy_device_(std::move(other.policy_device_)) {
     other.dev_idx_ = -1;
   }
 
@@ -127,6 +135,7 @@ public:
     if (this != &other) {
       Base::operator=(std::move(other));
       dev_idx_ = other.dev_idx_;
+      policy_device_ = std::move(other.policy_device_);
       other.dev_idx_ = -1;
     }
     return *this;
@@ -134,6 +143,10 @@ public:
 
   /// @brief Index of the physical device this handle belongs to (-1 if not yet recorded)
   int dev_idx() const noexcept { return dev_idx_; }
+
+  /// @brief The policy handling this handle's device (set/get) calls, for reading
+  ///        back any state a stateful device policy accumulated during construction.
+  const P_device_access &device_policy() const noexcept { return policy_device_; }
 
   /// @brief A non-owning, copyable view of this handle, carrying its device index.
   ///
