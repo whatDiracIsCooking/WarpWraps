@@ -18,7 +18,7 @@ export module wwr.extension.blas;
 import std;
 
 // Re-export the vendor BLAS module: wwrblasHandle_t is the return type of
-// WwrblasHandleWrapper::get() and its conversion operator, so a consumer of this
+// BlasHandleWrapper::get() and its conversion operator, so a consumer of this
 // module can name it without importing wwr.blas separately.
 export import wwr.blas;
 export import :blas_error;

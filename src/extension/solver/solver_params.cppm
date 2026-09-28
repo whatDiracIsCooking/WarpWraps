@@ -2,7 +2,7 @@
  * @file solver_params.cppm
  * @brief RAII wrapper for GPU solver params
  *
- * Provides WwrsolverDnParamsWrapper class for automatic GPU solver params management.
+ * Provides SolverDnParamsWrapper class for automatic GPU solver params management.
  */
 
 export module wwr.extension.solver:solver_params;
@@ -28,16 +28,16 @@ export namespace wwr::extension {
  */
 template<error_policy<wwrsolverStatus_t> P_create,
          nothrow_error_policy<wwrsolverStatus_t> P_destroy>
-class WwrsolverDnParamsWrapper
-    : public BaseHandle<wwrsolverDnParams_t, WwrsolverDnParamsWrapper<P_create, P_destroy>,
+class SolverDnParamsWrapper
+    : public BaseHandle<wwrsolverDnParams_t, SolverDnParamsWrapper<P_create, P_destroy>,
                            P_create, P_destroy> {
 private:
-  using Base = BaseHandle<wwrsolverDnParams_t, WwrsolverDnParamsWrapper<P_create, P_destroy>,
+  using Base = BaseHandle<wwrsolverDnParams_t, SolverDnParamsWrapper<P_create, P_destroy>,
                              P_create, P_destroy>;
 
 public:
   // Default constructors - inherited from base
-  using BaseHandle<wwrsolverDnParams_t, WwrsolverDnParamsWrapper<P_create, P_destroy>, P_create,
+  using BaseHandle<wwrsolverDnParams_t, SolverDnParamsWrapper<P_create, P_destroy>, P_create,
                       P_destroy>::BaseHandle;
 
   /// @brief Create GPU solver params

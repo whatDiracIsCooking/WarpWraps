@@ -62,7 +62,7 @@ static_assert(is_view_value<DeviceBoundHandleView<wwrEvent_t>>);
 // Owners are move-only; a view is never taken by copying an owner.
 static_assert(!std::is_copy_constructible_v<GpuEventWrapper<Abort, Abort>>);
 static_assert(!std::is_copy_constructible_v<GpuStreamWrapper<Abort, Abort>>);
-static_assert(!std::is_copy_constructible_v<WwrblasHandleWrapper<BlasAbort, BlasAbort>>);
+static_assert(!std::is_copy_constructible_v<BlasHandleWrapper<BlasAbort, BlasAbort>>);
 static_assert(std::is_nothrow_move_constructible_v<GpuEventWrapper<Abort, Abort>>);
 
 // Views convert to the raw handle, exactly as the owners do.
@@ -89,11 +89,11 @@ static_assert(
 static_assert(std::is_same_v<decltype(std::declval<const GpuMemPoolWrapper<Abort, Abort> &>().view()), DeviceBoundHandleView<wwrMemPool_t>>);
 static_assert(std::is_same_v<decltype(std::declval<const GpuGraphWrapper<Abort, Abort> &>().view()), HandleView<wwrGraph_t>>);
 static_assert(
-    std::is_same_v<decltype(std::declval<const WwrblasHandleWrapper<BlasAbort, BlasAbort> &>().view()), DeviceBoundHandleView<wwrblasHandle_t>>);
-static_assert(std::is_same_v<decltype(std::declval<const WwrsolverDnHandleWrapper<SolverAbort, SolverAbort> &>().view()),
+    std::is_same_v<decltype(std::declval<const BlasHandleWrapper<BlasAbort, BlasAbort> &>().view()), DeviceBoundHandleView<wwrblasHandle_t>>);
+static_assert(std::is_same_v<decltype(std::declval<const SolverDnHandleWrapper<SolverAbort, SolverAbort> &>().view()),
                              DeviceBoundHandleView<wwrsolverDnHandle_t>>);
 static_assert(
-    std::is_same_v<decltype(std::declval<const WwrsparseHandleWrapper<SparseAbort, SparseAbort> &>().view()), DeviceBoundHandleView<wwrsparseHandle_t>>);
+    std::is_same_v<decltype(std::declval<const SparseHandleWrapper<SparseAbort, SparseAbort> &>().view()), DeviceBoundHandleView<wwrsparseHandle_t>>);
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // [[no_unique_address]] on BaseHandle's policy members (issue #67)

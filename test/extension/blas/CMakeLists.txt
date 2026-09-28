@@ -21,7 +21,7 @@ wwr_add_gtest_suite_tests(
   TARGET
   extension_blas_tests
   SUITES
-  WwrblasHandleTests
+  BlasHandleTests
   TIMEOUT
   30
   REQUIRES_GPU

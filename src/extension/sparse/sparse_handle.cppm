@@ -2,7 +2,7 @@
  * @file sparse_handle.cppm
  * @brief RAII wrapper for a GPU sparse handle
  *
- * Provides WwrsparseHandleWrapper class for automatic GPU sparse handle management.
+ * Provides SparseHandleWrapper class for automatic GPU sparse handle management.
  */
 
 export module wwr.extension.sparse:sparse_handle;
@@ -34,20 +34,20 @@ export namespace wwr::extension {
 template<error_policy<wwrsparseStatus_t> P_create,
          nothrow_error_policy<wwrsparseStatus_t> P_destroy,
          error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
-class WwrsparseHandleWrapper
+class SparseHandleWrapper
     : public DeviceBoundHandle<wwrsparseHandle_t,
-                            WwrsparseHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
+                            SparseHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
                             P_destroy, P_device_access> {
 private:
   using Base = DeviceBoundHandle<wwrsparseHandle_t,
-                              WwrsparseHandleWrapper<P_create, P_destroy, P_device_access>,
+                              SparseHandleWrapper<P_create, P_destroy, P_device_access>,
                               P_create, P_destroy, P_device_access>;
 
 public:
-  // The `WwrsparseHandleWrapper(int dev_idx = 0)` default/per-device constructor,
+  // The `SparseHandleWrapper(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
   using DeviceBoundHandle<wwrsparseHandle_t,
-                       WwrsparseHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
+                       SparseHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
                        P_destroy, P_device_access>::DeviceBoundHandle;
 
   /// @brief Create a GPU sparse handle

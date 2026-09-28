@@ -2,7 +2,7 @@
  * @file blas_handle.cppm
  * @brief RAII wrapper for a GPU BLAS handle
  *
- * Provides WwrblasHandleWrapper class for automatic GPU BLAS handle management.
+ * Provides BlasHandleWrapper class for automatic GPU BLAS handle management.
  */
 
 export module wwr.extension.blas:blas_handle;
@@ -34,19 +34,19 @@ export namespace wwr::extension {
 template<error_policy<wwrblasStatus_t> P_create,
          nothrow_error_policy<wwrblasStatus_t> P_destroy,
          error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
-class WwrblasHandleWrapper
+class BlasHandleWrapper
     : public DeviceBoundHandle<wwrblasHandle_t,
-                            WwrblasHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
+                            BlasHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
                             P_destroy, P_device_access> {
 private:
   using Base = DeviceBoundHandle<wwrblasHandle_t,
-                              WwrblasHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
+                              BlasHandleWrapper<P_create, P_destroy, P_device_access>, P_create,
                               P_destroy, P_device_access>;
 
 public:
-  // The `WwrblasHandleWrapper(int dev_idx = 0)` default/per-device constructor,
+  // The `BlasHandleWrapper(int dev_idx = 0)` default/per-device constructor,
   // inherited from DeviceBoundHandle, which selects and records the owning device.
-  using DeviceBoundHandle<wwrblasHandle_t, WwrblasHandleWrapper<P_create, P_destroy, P_device_access>,
+  using DeviceBoundHandle<wwrblasHandle_t, BlasHandleWrapper<P_create, P_destroy, P_device_access>,
                        P_create, P_destroy, P_device_access>::DeviceBoundHandle;
 
   /// @brief Create a GPU BLAS handle

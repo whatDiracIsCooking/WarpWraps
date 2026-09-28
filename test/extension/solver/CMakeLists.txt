@@ -20,7 +20,7 @@ wwr_add_gtest_suite_tests(
   TARGET
   extension_solver_tests
   SUITES
-  WwrsolverDnHandleTests
+  SolverDnHandleTests
   WwrsolverDnParamsTests
   TIMEOUT
   30

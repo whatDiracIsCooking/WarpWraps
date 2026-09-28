@@ -1,6 +1,6 @@
-// handle_tests.cpp - RAII contract of wwr.extension.sparse's WwrsparseHandleWrapper
+// handle_tests.cpp - RAII contract of wwr.extension.sparse's SparseHandleWrapper
 //
-// WwrsparseHandleWrapper is a DeviceBoundHandle specialisation over wwrsparseHandle_t: it
+// SparseHandleWrapper is a DeviceBoundHandle specialisation over wwrsparseHandle_t: it
 // records the device it was created on, since a cuSPARSE handle is
 // device-bound. See test/extension/blas/handle_tests.cpp for the shape and why
 // get() nulling on the moved-from object is the double-free guard.
@@ -28,36 +28,36 @@ struct CountingSparsePolicy {
   static void reset() { errors = 0; }
   void handle_error(wwrsparseStatus_t, std::source_location) noexcept { ++errors; }
 };
-using CountingSparseHandle = WwrsparseHandleWrapper<CountingSparsePolicy, CountingSparsePolicy>;
+using CountingSparseHandle = SparseHandleWrapper<CountingSparsePolicy, CountingSparsePolicy>;
 
-static_assert(!std::is_copy_constructible_v<WwrsparseHandleWrapper<Abort, Abort>>);
-static_assert(!std::is_copy_assignable_v<WwrsparseHandleWrapper<Abort, Abort>>);
-static_assert(std::is_nothrow_move_constructible_v<WwrsparseHandleWrapper<Abort, Abort>>);
-static_assert(std::is_nothrow_move_assignable_v<WwrsparseHandleWrapper<Abort, Abort>>);
+static_assert(!std::is_copy_constructible_v<SparseHandleWrapper<Abort, Abort>>);
+static_assert(!std::is_copy_assignable_v<SparseHandleWrapper<Abort, Abort>>);
+static_assert(std::is_nothrow_move_constructible_v<SparseHandleWrapper<Abort, Abort>>);
+static_assert(std::is_nothrow_move_assignable_v<SparseHandleWrapper<Abort, Abort>>);
 
-TEST(WwrsparseHandleTests, DefaultConstructorCreatesHandle) {
-  WwrsparseHandleWrapper<Abort, Abort> handle;
+TEST(SparseHandleTests, DefaultConstructorCreatesHandle) {
+  SparseHandleWrapper<Abort, Abort> handle;
   EXPECT_NE(handle.get(), nullptr);
 }
 
-TEST(WwrsparseHandleTests, ImplicitConversionMatchesGet) {
-  WwrsparseHandleWrapper<Abort, Abort> handle;
+TEST(SparseHandleTests, ImplicitConversionMatchesGet) {
+  SparseHandleWrapper<Abort, Abort> handle;
   wwrsparseHandle_t raw = handle; // operator wwrsparseHandle_t()
   EXPECT_EQ(raw, handle.get());
 }
 
-TEST(WwrsparseHandleTests, MoveConstructorTransfersOwnership) {
-  WwrsparseHandleWrapper<Abort, Abort> handle1;
+TEST(SparseHandleTests, MoveConstructorTransfersOwnership) {
+  SparseHandleWrapper<Abort, Abort> handle1;
   wwrsparseHandle_t raw = handle1.get();
 
-  WwrsparseHandleWrapper<Abort, Abort> handle2(std::move(handle1));
+  SparseHandleWrapper<Abort, Abort> handle2(std::move(handle1));
   EXPECT_EQ(handle2.get(), raw);
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
-TEST(WwrsparseHandleTests, MoveAssignmentTransfersOwnership) {
-  WwrsparseHandleWrapper<Abort, Abort> handle1;
-  WwrsparseHandleWrapper<Abort, Abort> handle2;
+TEST(SparseHandleTests, MoveAssignmentTransfersOwnership) {
+  SparseHandleWrapper<Abort, Abort> handle1;
+  SparseHandleWrapper<Abort, Abort> handle2;
   wwrsparseHandle_t raw = handle1.get();
 
   handle2 = std::move(handle1);
@@ -65,45 +65,45 @@ TEST(WwrsparseHandleTests, MoveAssignmentTransfersOwnership) {
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
-TEST(WwrsparseHandleTests, SelfMoveAssignmentKeepsHandle) {
-  WwrsparseHandleWrapper<Abort, Abort> handle;
+TEST(SparseHandleTests, SelfMoveAssignmentKeepsHandle) {
+  SparseHandleWrapper<Abort, Abort> handle;
   wwrsparseHandle_t raw = handle.get();
 
   handle = std::move(handle);
   EXPECT_EQ(handle.get(), raw);
 }
 
-TEST(WwrsparseHandleTests, RecordsCreationDevice) {
+TEST(SparseHandleTests, RecordsCreationDevice) {
   // The default constructor creates on device 0.
-  WwrsparseHandleWrapper<Abort, Abort> handle;
+  SparseHandleWrapper<Abort, Abort> handle;
   EXPECT_EQ(handle.dev_idx(), 0);
 
   // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
-  WwrsparseHandleWrapper<Abort, Abort> on0(0);
+  SparseHandleWrapper<Abort, Abort> on0(0);
   EXPECT_EQ(on0.dev_idx(), 0);
 }
 
-TEST(WwrsparseHandleTests, MovePreservesDevice) {
-  WwrsparseHandleWrapper<Abort, Abort> handle1;
+TEST(SparseHandleTests, MovePreservesDevice) {
+  SparseHandleWrapper<Abort, Abort> handle1;
   const int dev = handle1.dev_idx();
 
-  WwrsparseHandleWrapper<Abort, Abort> handle2(std::move(handle1));
+  SparseHandleWrapper<Abort, Abort> handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
 }
 
-TEST(WwrsparseHandleTests, ViewMirrorsOwnerHandleAndDevice) {
+TEST(SparseHandleTests, ViewMirrorsOwnerHandleAndDevice) {
   // view() is inherited from DeviceBoundHandle and only compile-tested elsewhere;
   // this reads the borrowed handle/device back from a live handle. The view is
   // a bare DeviceBoundHandleView with no borrow-safe ops (a cuSPARSE call consumes
   // the raw handle), so mirroring get()/dev_idx() is its whole job.
-  WwrsparseHandleWrapper<Abort, Abort> handle;
+  SparseHandleWrapper<Abort, Abort> handle;
   const DeviceBoundHandleView<wwrsparseHandle_t> view = handle.view();
   EXPECT_EQ(view.get(), handle.get());
   EXPECT_EQ(view.dev_idx(), handle.dev_idx());
 }
 
-TEST(WwrsparseHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
+TEST(SparseHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
   // Sparse had no policy test at all (fft already proves this for its plan).
   // Substitutes a counting policy for the default (aborting) one, proving the
   // custom P_create/P_destroy thread through the handle and that a
