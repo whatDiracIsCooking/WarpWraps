@@ -15,25 +15,13 @@ export module wwr.extension.memory_buffer:base_buffer;
 import std;
 import wwr.extension.common;
 import :memory_kind;
+// Plain import, not export import: the tag is nameable here (the reinterpreting
+// constructor and reinterpret_buffer_view() below both name it) but the primary
+// interface unit does not re-export this partition, so it stays out of the
+// module's public API. See reinterpret_tag.cppm.
+import :reinterpret_tag;
 
 export namespace wwr::extension {
-
-// ============================================================================
-// Reinterpreting-view tag
-// ============================================================================
-
-/**
- * @brief Tag selecting the reinterpreting (cross-type) view constructor
- *
- * Reinterpreting a buffer's bytes as a different element type is a sharp
- * operation, so it is never an implicit conversion: a view whose element type
- * differs from its source's is only ever formed by naming this tag, or through
- * the reinterpret_buffer_view() factory below (which names it for you).
- */
-struct reinterpret_view_tag_t {
-  explicit reinterpret_view_tag_t() = default;
-};
-inline constexpr reinterpret_view_tag_t reinterpret_view{};
 
 // ============================================================================
 // Buffer Base Class

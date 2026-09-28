@@ -34,6 +34,12 @@ export import :memory_kind;
 export import :base_buffer;
 export import :host_memory;
 
+// :reinterpret_tag is intentionally NOT re-exported. base_buffer imports it
+// with a plain `import` so the reinterpreting view constructor and
+// reinterpret_buffer_view() can name the tag, but keeping it off the public
+// interface means consumers reach the reinterpreting view only through the
+// factory - naming reinterpret_view directly is an in-module detail.
+
 export import :device_buffer;
 export import :pinned_buffer;
 export import :unified_buffer;
