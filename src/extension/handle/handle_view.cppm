@@ -26,7 +26,7 @@ export namespace wwr::extension {
 /// borrowed handle, and a view can outlive the owner it was taken from -- it is
 /// the caller's responsibility not to use a dangling view, exactly as with a
 /// raw pointer or std::string_view. Domain operations (sync, record, ...) are
-/// added by inheriting an accessor mixin alongside this base.
+/// free functions taking the raw handle, which this view converts to.
 template<typename T>
 class HandleView {
 protected:
