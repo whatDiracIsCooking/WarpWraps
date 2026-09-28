@@ -447,6 +447,10 @@ endif()
 # the gpu* layer's compile-time tests: every gpu* name is the backend's own.
 add_subdirectory(test/gpu)
 add_subdirectory(test/wrappers)
+# Shared test-support modules (e.g. the DeviceHandle the extension suites
+# allocate against). Added before test/extension -- and unconditionally, since
+# its build-time half needs DeviceHandle under WWR_COMPILE_TIME_ONLY too.
+add_subdirectory(test/shared)
 # the extension layer's tests: build-time static_asserts plus GoogleTest runtime
 # suites (runtime/memory_buffer/rand need a device).
 add_subdirectory(test/extension)

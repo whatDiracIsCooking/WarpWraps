@@ -21,8 +21,9 @@ wwr_add_cxx_module_library(
   memory_buffer.cppm
   LINK_PUBLIC
   wwr.extension.common
-  wwr.extension.runtime
+  wwr.extension.handle
   wwr.extension.memory_buffer
+  wwr.test.shared.device_handle
 )
 
 add_dependencies(compile_time_tests wwr.test.extension.memory_buffer)

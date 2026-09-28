@@ -5,8 +5,9 @@ export module wwr.test.extension.memory_buffer;
 import std;
 import wwr.runtime_api;
 import wwr.extension.common;
-import wwr.extension.runtime;
+import wwr.extension.handle;
 import wwr.extension.memory_buffer;
+import wwr.test.shared.device_handle;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Compile-time contract of the buffer types
@@ -24,11 +25,11 @@ using HostAbort = AbortPolicy<stdHostMemoryError_t>;
 
 static_assert(!std::is_copy_constructible_v<HostBufferWrapper<float, HostAbort, HostAbort>>);
 static_assert(!std::is_copy_assignable_v<HostBufferWrapper<float, HostAbort, HostAbort>>);
-static_assert(!std::is_copy_constructible_v<DeviceBufferWrapper<float, Abort, Abort>>);
+static_assert(!std::is_copy_constructible_v<DeviceBufferWrapper<float, Abort, Abort, DeviceHandle>>);
 static_assert(std::is_nothrow_move_constructible_v<HostBufferWrapper<float, HostAbort, HostAbort>>);
 static_assert(std::is_nothrow_move_assignable_v<HostBufferWrapper<float, HostAbort, HostAbort>>);
-static_assert(std::is_nothrow_move_constructible_v<DeviceBufferWrapper<float, Abort, Abort>>);
-static_assert(std::is_nothrow_move_assignable_v<DeviceBufferWrapper<float, Abort, Abort>>);
+static_assert(std::is_nothrow_move_constructible_v<DeviceBufferWrapper<float, Abort, Abort, DeviceHandle>>);
+static_assert(std::is_nothrow_move_assignable_v<DeviceBufferWrapper<float, Abort, Abort, DeviceHandle>>);
 static_assert(std::is_nothrow_move_constructible_v<PinnedBufferWrapper<float, Abort, Abort>>);
 static_assert(std::is_nothrow_move_constructible_v<UnifiedBufferWrapper<float, Abort, Abort>>);
 
@@ -39,8 +40,8 @@ static_assert(BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>::
 static_assert(!HostBufferWrapper<float, HostAbort, HostAbort>::is_view);
 static_assert(buffer_base<HostBufferWrapper<float, HostAbort, HostAbort>>);
 static_assert(buffer_base<BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>>);
-static_assert(buffer_base<DeviceBufferWrapper<float, Abort, Abort>>);
-static_assert(same_value_type<HostBufferWrapper<float, HostAbort, HostAbort>, DeviceBufferWrapper<float, Abort, Abort>>);
+static_assert(buffer_base<DeviceBufferWrapper<float, Abort, Abort, DeviceHandle>>);
+static_assert(same_value_type<HostBufferWrapper<float, HostAbort, HostAbort>, DeviceBufferWrapper<float, Abort, Abort, DeviceHandle>>);
 static_assert(buffer_typename<HostBufferWrapper<float, HostAbort, HostAbort>, float>);
 
 // void buffers store bytes.
@@ -91,8 +92,8 @@ static_assert(std::same_as<decltype(reinterpret_buffer_view<std::byte>(
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // The device_handle capability ladder and the DeviceBuffer handle axis
 //
-// DeviceBufferWrapper's fifth parameter lets downstream code back the buffer
-// with its own handle type. wwr's DeviceHandle is the reference model (the
+// DeviceBufferWrapper's fourth parameter lets downstream code back the buffer
+// with its own handle type. The test DeviceHandle is the reference model (the
 // fullest tier); the fakes below stand in for downstream handles and pin the
 // three concept tiers -- each adds one accessor and unlocks one strategy.
 // Raw backend handles straight out of the accessors, no GpuStream/GpuMemPool
@@ -141,7 +142,7 @@ static_assert(!device_handle<MissingHandle>);
 // The buffer instantiates over a downstream handle at every tier and keeps its
 // contract; construction from a shared handle holds throughout.
 template<typename H>
-using FakeBuffer = DeviceBufferWrapper<float, Abort, Abort, Abort, H>;
+using FakeBuffer = DeviceBufferWrapper<float, Abort, Abort, H>;
 static_assert(buffer_base<FakeBuffer<IndexOnlyFake>>);
 static_assert(buffer_base<FakeBuffer<StreamOnlyFake>>);
 static_assert(buffer_base<FakeBuffer<FakeHandle>>);

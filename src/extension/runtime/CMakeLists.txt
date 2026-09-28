@@ -9,7 +9,6 @@ wwr_add_cxx_module_library(
   gpu_mem_pool.cppm
   gpu_graph_exec.cppm
   gpu_graph.cppm
-  device_handle.cppm
   LINK_PUBLIC
   wwr.runtime_api
   wwr.extension.common

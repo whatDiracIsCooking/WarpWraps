@@ -28,6 +28,7 @@ wwr_add_gtest_executable(
   wwr.extension.memory_buffer
   wwr.extension.init_state
   wwr.extension.random_normal
+  wwr.test.shared.device_handle
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test

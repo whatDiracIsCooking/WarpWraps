@@ -8,7 +8,6 @@
  * - :gpu_mem_pool - RAII wrapper for GPU memory pools
  * - :gpu_graph - RAII wrapper for GPU graphs
  * - :gpu_graph_exec - RAII wrapper for GPU executable graphs
- * - :device_handle - device identity, properties, default allocation stream and memory pool
  *
  * Usage:
  *   import wwr.extension.runtime;
@@ -26,4 +25,3 @@ export import :gpu_event;
 export import :gpu_mem_pool;
 export import :gpu_graph_exec;
 export import :gpu_graph;
-export import :device_handle;

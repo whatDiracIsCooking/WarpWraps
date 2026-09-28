@@ -19,6 +19,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   wwr.runtime_api
   wwr.extension.common
+  wwr.extension.handle
   wwr.extension.runtime
   IMPORT_STD
 )
