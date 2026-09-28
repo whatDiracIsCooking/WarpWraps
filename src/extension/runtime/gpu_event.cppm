@@ -2,7 +2,10 @@
  * @file gpu_event.cppm
  * @brief RAII wrapper for GPU event handles
  *
- * Provides GpuEvent class for automatic GPU event management.
+ * Provides GpuEvent for automatic GPU event management. The borrow-safe
+ * operations (record/sync) are free functions taking a raw wwrEvent_t, so one
+ * definition serves the owner, its view, and a bare handle alike -- see the
+ * free functions below and runtime/README.md.
  */
 
 export module wwr.extension.runtime:gpu_event;
@@ -14,48 +17,11 @@ import std;
 
 export namespace wwr::extension {
 
-/**
- * @brief Borrow-safe event operations, shared by the owner and the view
- *
- * CRTP mixin keyed on Derived::get(): every method forwards to the borrowed
- * wwrEvent_t and touches no ownership state, so it is correct for both
- * GpuEventWrapper (owns the event) and GpuEventView (borrows it) with no
- * duplication. Ownership-producing operations, if any, stay on the owner.
- *
- * Methods are const: they mutate the GPU event, not the C++ object, exactly as
- * a pointer's operations are const on the pointer.
- */
-template<typename Derived>
-class GpuEventAccess {
-private:
-  const Derived &self() const noexcept { return static_cast<const Derived &>(*this); }
-
-public:
-  /// @brief Record the event on a stream
-  wwrError_t record(wwrStream_t stream) const { return wwrEventRecord(self().get(), stream); }
-
-  /// @brief Record the event on a stream with flags
-  wwrError_t record(wwrStream_t stream, const unsigned int flags) const {
-    return wwrEventRecordWithFlags(self().get(), stream, flags);
-  }
-
-  /// @brief Synchronize the GPU event
-  /// @return wwrSuccess on success, or a GPU error code on failure
-  wwrError_t sync() const { return wwrEventSynchronize(self().get()); }
-};
-
-/**
- * @brief Non-owning, copyable view over a GPU event
- *
- * Carries the borrowed handle plus its device index (via DeviceBoundHandleView) and
- * the borrow-safe event operations (via GpuEventAccess). Construct one from an
- * owning GpuEvent with `.view()`, or directly from a raw wwrEvent_t you did not
- * create. It destroys nothing, so it must not outlive the event it borrows.
- */
-class GpuEventView : public DeviceBoundHandleView<wwrEvent_t>, public GpuEventAccess<GpuEventView> {
-public:
-  using DeviceBoundHandleView<wwrEvent_t>::DeviceBoundHandleView;
-};
+/// @brief Non-owning, copyable view of an event handle (carries its device
+///        index). Returned by GpuEvent::view() (from DeviceBoundHandle); the
+///        borrow-safe event operations are the free functions below, which act
+///        on it, on an owning GpuEvent, or on a raw wwrEvent_t.
+using GpuEventView = DeviceBoundHandleView<wwrEvent_t>;
 
 /**
  * @brief RAII wrapper for GPU event
@@ -70,18 +36,18 @@ public:
  */
 template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
-class GpuEventWrapper
-    : public DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy>,
-      public GpuEventAccess<GpuEventWrapper<P_create, P_destroy>> {
+class GpuEventWrapper : public DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy>,
+                                                 P_create, P_destroy> {
 private:
   using Base =
       DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 public:
   // The `GpuEvent(int dev_idx = 0)` default/per-device constructor, inherited
-  // from DeviceBoundHandle, which selects and records the owning device.
+  // from DeviceBoundHandle, which selects and records the owning device. view()
+  // (device-aware, deleted on rvalues) is inherited from DeviceBoundHandle too.
   using DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::DeviceBoundHandle;
+                          P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU event on `dev_idx` with flags
   /// @param dev_idx Device to create the event on
@@ -102,15 +68,6 @@ public:
     gpu_check(wwrEventCreate(handle), this->policy_create_, location);
   }
 
-  // record()/sync() come from GpuEventAccess, shared with GpuEventView.
-
-  /// @brief A non-owning, copyable view of this event (handle + device index)
-  ///
-  /// Deleted on rvalues so a view cannot be taken from a temporary event, which
-  /// would dangle immediately: `GpuEvent{}.view()` does not compile.
-  GpuEventView view() const & noexcept { return GpuEventView{this->get(), this->dev_idx()}; }
-  GpuEventView view() && = delete;
-
   /// @brief Destroy a GPU event
   /// @param handle The event to destroy
   void destroy(wwrEvent_t handle) {
@@ -120,5 +77,24 @@ public:
     }
   }
 };
+
+// Borrow-safe event operations. Free functions on the raw wwrEvent_t: an owning
+// GpuEvent and a GpuEventView both convert to it, so each op has one definition
+// that works on the owner, the view, or a bare handle. `sync` overloads with the
+// stream `sync` -- wwrEvent_t and wwrStream_t are distinct vendor pointer types
+// on both backends, so the overload is unambiguous.
+
+/// @brief Record an event on a stream
+inline wwrError_t record(wwrEvent_t event, wwrStream_t stream) {
+  return wwrEventRecord(event, stream);
+}
+
+/// @brief Record an event on a stream with flags
+inline wwrError_t record(wwrEvent_t event, wwrStream_t stream, const unsigned int flags) {
+  return wwrEventRecordWithFlags(event, stream, flags);
+}
+
+/// @brief Synchronize a GPU event
+inline wwrError_t sync(wwrEvent_t event) { return wwrEventSynchronize(event); }
 
 } // namespace wwr::extension

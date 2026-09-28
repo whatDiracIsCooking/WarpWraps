@@ -2,7 +2,12 @@
  * @file gpu_stream.cppm
  * @brief RAII wrapper for GPU stream handles
  *
- * Provides GpuStream class for automatic GPU stream management.
+ * Provides GpuStream for automatic GPU stream management. The borrow-safe
+ * operations (sync/wait_event/begin_capture) are free functions taking a raw
+ * wwrStream_t, so one definition serves the owner, its view, and a bare handle
+ * (the default stream, or one owned elsewhere) alike -- see the free functions
+ * below and runtime/README.md. end_capture stays a member: it mints an owned
+ * GpuGraph through the create policy, which a borrow has no business doing.
  */
 
 export module wwr.extension.runtime:gpu_stream;
@@ -15,54 +20,11 @@ import std;
 
 export namespace wwr::extension {
 
-/**
- * @brief Borrow-safe stream operations, shared by the owner and the view
- *
- * CRTP mixin keyed on Derived::get(): every method forwards to the borrowed
- * wwrStream_t and touches no ownership state, so it is correct for both
- * GpuStreamWrapper (owns the stream) and GpuStreamView (borrows it) with no
- * duplication. end_capture stays on the owner: it produces an owned GpuGraph
- * through the create policy, which a non-owning view has no business doing.
- *
- * Methods are const: they mutate the GPU stream, not the C++ object.
- */
-template<typename Derived>
-class GpuStreamAccess {
-private:
-  const Derived &self() const noexcept { return static_cast<const Derived &>(*this); }
-
-public:
-  /// @brief Wait for an event on this stream
-  wwrError_t wait_event(wwrEvent_t event, const unsigned int flags = 0) const {
-    return wwrStreamWaitEvent(self().get(), event, flags);
-  }
-
-  /// @brief Begin capturing work submitted to this stream into a graph
-  /// @param mode Capture mode (defaults to wwrStreamCaptureModeGlobal)
-  /// @return wwrSuccess on success, or a GPU error code on failure
-  wwrError_t begin_capture(const wwrStreamCaptureMode mode = wwrStreamCaptureModeGlobal) const {
-    return wwrStreamBeginCapture(self().get(), mode);
-  }
-
-  /// @brief Synchronize the GPU stream
-  /// @return wwrSuccess on success, or a GPU error code on failure
-  wwrError_t sync() const { return wwrStreamSynchronize(self().get()); }
-};
-
-/**
- * @brief Non-owning, copyable view over a GPU stream
- *
- * Carries the borrowed handle plus its device index (via DeviceBoundHandleView) and
- * the borrow-safe stream operations (via GpuStreamAccess). Construct one from an
- * owning GpuStream with `.view()`, or directly from a raw wwrStream_t you did not
- * create -- the default stream (0), or a stream owned elsewhere. It destroys
- * nothing, so it must not outlive the stream it borrows.
- */
-class GpuStreamView : public DeviceBoundHandleView<wwrStream_t>,
-                      public GpuStreamAccess<GpuStreamView> {
-public:
-  using DeviceBoundHandleView<wwrStream_t>::DeviceBoundHandleView;
-};
+/// @brief Non-owning, copyable view of a stream handle (carries its device
+///        index). Returned by GpuStream::view() (from DeviceBoundHandle); the
+///        borrow-safe stream operations are the free functions below, which act
+///        on it, on an owning GpuStream, or on a raw wwrStream_t.
+using GpuStreamView = DeviceBoundHandleView<wwrStream_t>;
 
 /**
  * @brief RAII wrapper for GPU stream
@@ -78,17 +40,17 @@ public:
 template<error_policy<wwrError_t> P_create = DefaultErrorPolicy<wwrError_t>,
          nothrow_error_policy<wwrError_t> P_destroy = P_create>
 class GpuStreamWrapper : public DeviceBoundHandle<wwrStream_t, GpuStreamWrapper<P_create, P_destroy>,
-                                               P_create, P_destroy>,
-                         public GpuStreamAccess<GpuStreamWrapper<P_create, P_destroy>> {
+                                                  P_create, P_destroy> {
 private:
   using Base =
       DeviceBoundHandle<wwrStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 public:
   // The `GpuStream(int dev_idx = 0)` default/per-device constructor, inherited
-  // from DeviceBoundHandle, which selects and records the owning device.
+  // from DeviceBoundHandle, which selects and records the owning device. view()
+  // (device-aware, deleted on rvalues) is inherited from DeviceBoundHandle too.
   using DeviceBoundHandle<wwrStream_t, GpuStreamWrapper<P_create, P_destroy>, P_create,
-                       P_destroy>::DeviceBoundHandle;
+                          P_destroy>::DeviceBoundHandle;
 
   /// @brief Create a GPU stream on `dev_idx` with flags
   /// @param dev_idx Device to create the stream on
@@ -129,14 +91,12 @@ public:
               location);
   }
 
-  // wait_event()/begin_capture()/sync() come from GpuStreamAccess, shared with
-  // GpuStreamView.
-
   /// @brief End capture on this stream and return the captured graph
   ///
   /// Wraps the graph the runtime produced in an owning GpuGraph (via
   /// GpuGraph::adopt), so the whole capture -> instantiate -> launch flow stays
-  /// RAII. Errors go through the create policy, matching construction.
+  /// RAII. Errors go through the create policy, matching construction. Stays a
+  /// member (not a free function) because it produces an owned graph.
   ///
   /// @param location Source location where capture end was requested
   /// @return A GpuGraph owning the captured graph
@@ -147,13 +107,6 @@ public:
     return GpuGraphWrapper<P_create, P_destroy>::adopt(graph);
   }
 
-  /// @brief A non-owning, copyable view of this stream (handle + device index)
-  ///
-  /// Deleted on rvalues so a view cannot be taken from a temporary stream, which
-  /// would dangle immediately.
-  GpuStreamView view() const & noexcept { return GpuStreamView{this->get(), this->dev_idx()}; }
-  GpuStreamView view() && = delete;
-
   /// @brief Destroy a GPU stream
   /// @param handle The stream to destroy
   void destroy(wwrStream_t handle) {
@@ -163,5 +116,25 @@ public:
     }
   }
 };
+
+// Borrow-safe stream operations. Free functions on the raw wwrStream_t: an
+// owning GpuStream and a GpuStreamView both convert to it, so each op has one
+// definition that works on the owner, the view, or a bare handle. Found by ADL
+// on the wrapper/view types (both in wwr::extension); a bare handle needs
+// qualification. They mutate the GPU stream, not any C++ object.
+
+/// @brief Wait for an event on a stream
+inline wwrError_t wait_event(wwrStream_t stream, wwrEvent_t event, const unsigned int flags = 0) {
+  return wwrStreamWaitEvent(stream, event, flags);
+}
+
+/// @brief Begin capturing work submitted to a stream into a graph
+inline wwrError_t begin_capture(wwrStream_t stream,
+                                const wwrStreamCaptureMode mode = wwrStreamCaptureModeGlobal) {
+  return wwrStreamBeginCapture(stream, mode);
+}
+
+/// @brief Synchronize a GPU stream
+inline wwrError_t sync(wwrStream_t stream) { return wwrStreamSynchronize(stream); }
 
 } // namespace wwr::extension

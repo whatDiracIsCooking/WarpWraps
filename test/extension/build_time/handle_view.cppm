@@ -15,12 +15,12 @@ import wwr.extension.sparse;
 // Compile-time contract of the handle views
 //
 // An owning handle is move-only and never owns twice; a view borrows the same
-// handle but is a freely copyable, trivially destructible value. Where the owner
-// has borrow-safe operations they come from one shared CRTP mixin, so owner and
-// view expose them identically with no duplication; ownership-producing
-// operations (end_capture, instantiate) stay on the owner. `.view()` returns the
-// richest view a handle has -- device-aware and/or operation-carrying -- and is
-// deleted on rvalues so a temporary cannot be viewed.
+// handle but is a freely copyable, trivially destructible value. Borrow-safe
+// operations are free functions taking the raw handle, so the owner, its view
+// and a bare handle all reach one definition; ownership-producing operations
+// (end_capture, instantiate) stay members of the owner. `.view()` returns the
+// richest view a handle has -- device-aware where the handle is device-bound --
+// and is deleted on rvalues so a temporary cannot be viewed.
 //
 // This TU deliberately imports all three vendor-handle extension modules
 // (blas/solver/sparse) TOGETHER. That used to be ill-formed on HIP, where those
@@ -90,30 +90,30 @@ static_assert(std::is_same_v<decltype(std::declval<const WwrsolverDnHandle &>().
 static_assert(
     std::is_same_v<decltype(std::declval<const WwrsparseHandle &>().view()), WwrsparseHandleView>);
 
-// Never called: exists only to instantiate and type-check the borrow-safe
-// operations shared by each owner and its view, without a device.
+// Never called: exists only to instantiate and type-check the borrow-safe free
+// functions on each owner, its view, and a raw handle, without a device.
 [[maybe_unused]] void exercise(const GpuEvent &event, const GpuStream &stream,
                                const GpuGraphExec &exec, wwrStream_t raw_stream,
                                wwrEvent_t raw_event) {
   const GpuEventView ev = event.view();
   (void)ev.get();
   (void)ev.dev_idx();
-  (void)ev.record(raw_stream);
-  (void)ev.record(raw_stream, 0u);
-  (void)ev.sync();
-  (void)event.sync(); // same op on the owner, via the shared mixin
+  (void)record(ev, raw_stream);
+  (void)record(ev, raw_stream, 0u);
+  (void)sync(ev);
+  (void)sync(event); // same free function on the owner
 
   const GpuStreamView sv = stream.view();
   (void)sv.dev_idx();
-  (void)sv.wait_event(raw_event);
-  (void)sv.begin_capture();
-  (void)sv.sync();
-  (void)stream.wait_event(raw_event); // owner shares the mixin
+  (void)wait_event(sv, raw_event);
+  (void)begin_capture(sv);
+  (void)sync(sv);
+  (void)wait_event(stream, raw_event); // owner: same free function
 
   const GpuGraphExecView xv = exec.view();
-  (void)xv.launch(raw_stream);
-  (void)xv.upload(raw_stream);
-  (void)exec.launch(raw_stream); // owner shares the mixin
+  (void)launch(xv, raw_stream);
+  (void)upload(xv, raw_stream);
+  (void)launch(exec, raw_stream); // owner: same free function
 }
 
 } // namespace wwr::extension::test
