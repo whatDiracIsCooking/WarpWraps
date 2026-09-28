@@ -365,11 +365,16 @@ cmake --preset default -B build-h100 -DCMAKE_CUDA_ARCHITECTURES="90"
 cmake --build build-h100
 ```
 
-**Nothing may go below sm_75.** CUDA 13's nvcc floor is `compute_75`, so
-`CMAKE_CUDA_ARCHITECTURES=70` fails at *configure* with `nvcc fatal :
-Unsupported gpu architecture 'compute_70'` — reported as "Check for working
-CUDA compiler - broken", with the real line further up the output. That is how
-`volta` and `portable` stayed broken across the whole CUDA 13 bump.
+**Nothing may go below sm_80.** wwr wraps and tests bf16 tensor-core WMMA
+(`test/gpu/wmma.cu`), an Ampere feature — `nvcuda::wmma::fragment<…,
+__nv_bfloat16, …>` is only defined for sm_80+ — so the CUDA backend rejects an
+explicit sub-80 `CMAKE_CUDA_ARCHITECTURES` at *configure* with `wwr requires
+CUDA architecture 80 (Ampere) or newer for bf16 WMMA`. (`native` and the `all*`
+keywords are resolved by nvcc, not that check, and pass through.) The toolkit
+floor is lower still — CUDA 13's nvcc rejects anything below `compute_75` — but
+wwr's is the binding one; a real guard here is why `volta` (sm_70) and
+`portable` cannot quietly return the way they stayed broken across the CUDA 13
+bump.
 
 ---
 
@@ -582,8 +587,10 @@ memory-hungry per job, and an OOM-killed compiler surfaces as a bare
 - **`CMAKE_CUDA_ARCHITECTURES=native` queries a live device at configure time.**
   No GPU, no configure. Use `ci-cuda` (pinned `86`) when the build host has no
   card, or `-D` an architecture onto any preset.
-- **CUDA 13 has an sm_75 floor.** A pre-Turing card needs a 12.x
-  `CUDA_VERSION` in `docker/Dockerfile.cuda`. There are no per-architecture
-  presets any more — see "Presets".
+- **wwr requires sm_80 (Ampere).** The CUDA backend rejects an explicit sub-80
+  `CMAKE_CUDA_ARCHITECTURES` at configure, because it wraps and tests bf16 WMMA
+  (an sm_80+ feature). The toolkit floor is lower (CUDA 13's nvcc bottoms out at
+  `compute_75`), but wwr's is what binds. There are no per-architecture presets
+  any more — see "Presets".
 - Lint is deliberately narrow (`E,F,I,UP,B`) and there is **no formatter hook**.
   `ruff check .` is clean — keep it that way.

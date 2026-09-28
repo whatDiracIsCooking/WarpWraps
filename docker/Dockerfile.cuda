@@ -21,9 +21,11 @@
 # refuse to start under `--gpus all` with
 #   nvidia-container-cli: requirement error: unsatisfied condition: cuda>=X.Y
 # `nvidia-smi` reports the driver's ceiling as "CUDA Version:". Note also that
-# CUDA 13 dropped Maxwell/Pascal/Volta -- its nvcc floor is compute_75, so a
-# pre-Turing card needs a 12.x toolkit, which also means dropping the `volta`
-# preset from CMakePresets.json.
+# CUDA 13 dropped Maxwell/Pascal/Volta -- its nvcc floor is compute_75. wwr's
+# own floor is higher: sm_80 (Ampere), enforced at configure in CMakeLists.txt
+# because it wraps and tests bf16 WMMA. So a pre-Ampere card is unsupported
+# regardless of toolkit, and the `volta` preset stayed dropped from
+# CMakePresets.json.
 ARG PROJECT_NAME=wwr
 ARG PARENT_IMAGE=${PROJECT_NAME}:base
 FROM ${PARENT_IMAGE}
@@ -62,9 +64,10 @@ ENV CUDAToolkit_ROOT=/usr/local/cuda \
 # does not set CMAKE_CUDA_ARCHITECTURES; the `default` preset sets it to
 # `native`, which compiles only for the card in the build machine -- use the
 # ci-cuda preset, which pins 86, when the build host has no card. Keep this at
-# 75 or above: this toolkit's floor is compute_75 (see the CUDA_VERSION note at
-# the top of this file), and a lower value fails at CONFIGURE time, not at
-# build. There are no per-architecture presets; devtools/config.sh has why.
+# 80 or above: wwr's floor is sm_80 (Ampere), enforced at CONFIGURE in
+# CMakeLists.txt because it wraps and tests bf16 WMMA -- a lower value fails
+# there, well before the toolkit's own compute_75 floor is reached. There are
+# no per-architecture presets; devtools/config.sh has why.
 ARG CUDA_ARCH=86
 ENV CUDA_ARCH=${CUDA_ARCH} \
     CUDAARCHS=${CUDA_ARCH}
