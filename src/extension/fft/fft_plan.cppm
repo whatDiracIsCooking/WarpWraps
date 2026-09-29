@@ -80,7 +80,7 @@ public:
   /// @brief Destroy a GPU FFT plan handle
   /// @param handle The plan to destroy
   void destroy(wwrfftHandle handle) {
-    gpu_check(wwrfftDestroy(handle), this->policy_destroy_);
+    gpu_check(wwrfftDestroy(handle), this->destroy_policy());
   }
 
   /// @brief Bind the work stream onto the plan (StreamBoundHandle hook)

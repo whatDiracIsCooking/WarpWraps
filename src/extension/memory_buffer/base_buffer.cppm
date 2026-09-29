@@ -126,7 +126,7 @@ public:
   BaseBuffer(const std::size_t num_elements, P_alloc policy,
              const std::source_location location = std::source_location::current())
     requires(!IsView)
-      : policy_alloc_(std::move(policy)), policy_free_(policy_alloc_) {
+      : policy_alloc_(std::move(policy)), policy_free_(P_free(policy_alloc_)) {
     allocate_checked(num_elements, location);
   }
 
@@ -268,7 +268,7 @@ public:
   ~BaseBuffer() {
     if constexpr (!IsView) {
       if (data_ != nullptr) {
-        policy_free_.handle_error(MemoryInvalidValue<K>::value, std::source_location::current());
+        free_policy_ref().handle_error(MemoryInvalidValue<K>::value, std::source_location::current());
       }
     }
   }
@@ -397,13 +397,22 @@ public:
      * @brief Get the deallocation error policy
      * @return Const reference to the deallocation error policy
      */
-  const P_free &free_policy() const noexcept { return policy_free_; }
+  const P_free &free_policy() const noexcept { return policy_free_.resolve(policy_alloc_); }
 
 protected:
   T *data_ = nullptr;            ///< Pointer to allocated memory
   std::size_t num_elements_ = 0; ///< Number of elements (not bytes)
-  [[no_unique_address]] P_alloc policy_alloc_{}; ///< Error policy for allocation operations
-  [[no_unique_address]] P_free policy_free_{};   ///< Error policy for deallocation operations
+
+  // policy_alloc_ is the canonical, always-stored slot. policy_free_ elides into
+  // it when both are the same empty type (the common default), so reach the free
+  // policy through free_policy() / free_policy_ref(), never the raw slot.
+  [[no_unique_address]] P_alloc policy_alloc_{};
+  [[no_unique_address]] policy_slot<P_free, P_alloc> policy_free_{};
+
+  /// Mutable free policy for the (de)allocation call sites -- resolves to the
+  /// alloc policy when the free slot collapsed. gpu_check/handle_error mutate a
+  /// stateful policy in place, hence non-const.
+  P_free &free_policy_ref() noexcept { return policy_free_.resolve(policy_alloc_); }
 
   // Tag type for derived classes to skip default allocation
   struct skip_default_alloc_t {};

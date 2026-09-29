@@ -50,15 +50,16 @@ static_assert(HostBufferWrapper<void, HostAbort, HostAbort>::element_size == 1);
 static_assert(HostBufferWrapper<float, HostAbort, HostAbort>::element_size == sizeof(float));
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// [[no_unique_address]] on the alloc/free policy members (issue #67)
+// Zero-cost alloc/free policy slots (issues #67, #71)
 //
 // A buffer's non-policy state is just data_ + num_elements_. Two DIFFERENT empty
-// policy types overlap other subobjects and vanish entirely, so a custom
-// alloc/free pair adds nothing. The DEFAULT (P_free = P_alloc, one stateless
-// type in both slots) does NOT shrink: [intro.object] forbids two same-type
-// empty subobjects from sharing an address, so the second still forces a byte
-// plus padding. Both facts are pinned so the attribute is not mistaken for
-// zero-cost on the common path (issue #71 collapses the same-type slot).
+// policy types overlap other subobjects and vanish under [[no_unique_address]]
+// (#67). The same-type DEFAULT (P_free = P_alloc) cannot share an address --
+// [intro.object] forbids two same-type empty subobjects from doing so -- so #71
+// collapses the free slot into the alloc slot via policy_slot: same-type empty
+// policies store a single instance, making the common path as free as the
+// distinct case. A stateful policy is never collapsed and still costs its bytes.
+// The 16-byte data floor has no slack, so its sizeof witnesses the win directly.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 template<typename E>
@@ -71,14 +72,27 @@ struct EmptyPolicyB {
   using error_type = E;
   void handle_error(E, std::source_location) noexcept {}
 };
+template<typename E>
+struct StatefulPolicy {
+  using error_type = E;
+  int count = 0; // real state -- must survive, so this slot is never collapsed
+  void handle_error(E, std::source_location) noexcept { ++count; }
+};
 using HErr = stdHostMemoryError_t;
+
+// policy_slot contract: a same-type empty free slot elides; a stateful one stays.
+static_assert(std::is_empty_v<policy_slot<EmptyPolicyA<HErr>, EmptyPolicyA<HErr>>>);
+static_assert(!std::is_empty_v<policy_slot<StatefulPolicy<HErr>, StatefulPolicy<HErr>>>);
 
 // Distinct empty policies cost nothing: the buffer is exactly its data members.
 static_assert(sizeof(HostBufferWrapper<float, EmptyPolicyA<HErr>, EmptyPolicyB<HErr>>) ==
               sizeof(float *) + sizeof(std::size_t));
-// The same-type default still pays for the second, otherwise-elided slot.
-static_assert(sizeof(HostBufferWrapper<float, HostAbort, HostAbort>) >
-              sizeof(HostBufferWrapper<float, EmptyPolicyA<HErr>, EmptyPolicyB<HErr>>));
+// #71: the same-type default is now equally free -- the collapsed slot vanishes.
+static_assert(sizeof(HostBufferWrapper<float, HostAbort, HostAbort>) ==
+              sizeof(float *) + sizeof(std::size_t));
+// A stateful policy is not collapsed, so it still enlarges the buffer.
+static_assert(sizeof(HostBufferWrapper<float, StatefulPolicy<HErr>, StatefulPolicy<HErr>>) >
+              sizeof(float *) + sizeof(std::size_t));
 
 // A reinterpreting view is never formed by an implicit cross-type conversion,
 // and the reinterpret_view tag that selects the constructor is an in-module

@@ -82,7 +82,7 @@ public:
   /// @param handle The graph to destroy
   void destroy(wwrGraph_t handle) {
     if (handle != nullptr) {
-      gpu_check(wwrGraphDestroy(handle), this->policy_destroy_);
+      gpu_check(wwrGraphDestroy(handle), this->destroy_policy());
     }
   }
 };

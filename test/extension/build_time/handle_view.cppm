@@ -119,18 +119,21 @@ static_assert(
     std::is_same_v<decltype(std::declval<const SparseHandleWrapper<SparseAbort, SparseAbort, DeviceHandle, Abort> &>().view()), StreamBoundHandleView<wwrsparseHandle_t>>);
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// [[no_unique_address]] on BaseHandle's policy members (issue #67)
+// Zero-cost policy slots on BaseHandle (issues #67, #71)
 //
 // A pointer handle's only real state is the pointer itself (owns_ is already an
 // elided empty flag). Two DIFFERENT empty policy types overlap other subobjects
-// and vanish, so a custom create/destroy pair leaves the wrapper the size of the
-// bare handle. The DEFAULT (P_destroy = P_create, one stateless type) does NOT
-// shrink: [intro.object] forbids two same-type empty subobjects from sharing an
-// address, so the second still costs a slot. Both are pinned here so the
-// attribute is not mistaken for zero-cost on the common path (issue #71
-// collapses the same-type slot). A minimal local wrapper isolates the
-// policy-member cost -- the shipped StreamWrapper etc. are DeviceBoundHandles
-// that also carry a device index.
+// and vanish under [[no_unique_address]] (#67). The same-type DEFAULT (P_destroy
+// = P_create) cannot share an address -- [intro.object] forbids two same-type
+// empty subobjects from doing so -- so #71 collapses the second slot into the
+// first via policy_slot: same-type empty policies now store a single instance,
+// making the common path as free as the distinct case. A stateful policy is
+// never collapsed (it has state to keep), so it still costs its bytes.
+//
+// policy_slot is checked directly below (padding-independent), then the pointer
+// handle -- whose 8 bytes have no slack -- witnesses the object-level win. The
+// shipped StreamWrapper etc. are DeviceBoundHandles that also carry a device
+// index, whose tail padding would mask the bytes, so they are not probed here.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 template<typename E>
@@ -143,15 +146,30 @@ struct SizeEmptyPolicy2 {
   using error_type = E;
   void handle_error(E, std::source_location) noexcept {}
 };
+template<typename E>
+struct SizeStatefulPolicy {
+  using error_type = E;
+  int count = 0; // real state -- must survive, so this slot is never collapsed
+  void handle_error(E, std::source_location) noexcept { ++count; }
+};
+
+// policy_slot contract: a same-type empty second slot elides to nothing; a
+// distinct empty one keeps its (still zero-size) member; a stateful one is kept.
+static_assert(std::is_empty_v<policy_slot<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolicy<wwrError_t>>>);
+static_assert(!std::is_empty_v<policy_slot<SizeStatefulPolicy<wwrError_t>, SizeStatefulPolicy<wwrError_t>>>);
+
 template<typename Pc, typename Pd>
 struct SizeProbeHandle : BaseHandle<void *, SizeProbeHandle<Pc, Pd>, Pc, Pd> {};
 
 // Distinct empty policies cost nothing: the wrapper is just the pointer handle.
 static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolicy2<wwrError_t>>) ==
               sizeof(void *));
-// The same-type default still pays for the second, otherwise-elided slot.
-static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolicy<wwrError_t>>) >
-              sizeof(SizeProbeHandle<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolicy2<wwrError_t>>));
+// #71: the same-type default is now equally free -- the collapsed slot vanishes.
+static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolicy<wwrError_t>>) ==
+              sizeof(void *));
+// A stateful policy is not collapsed, so it still enlarges the wrapper.
+static_assert(sizeof(SizeProbeHandle<SizeStatefulPolicy<wwrError_t>, SizeStatefulPolicy<wwrError_t>>) >
+              sizeof(void *));
 
 // Never called: exists only to instantiate and type-check the borrow-safe free
 // functions on each owner, its view, and a raw handle, without a device.

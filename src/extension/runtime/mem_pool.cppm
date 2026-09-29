@@ -111,7 +111,7 @@ public:
   /// @param handle The memory pool to destroy
   void destroy(wwrMemPool_t handle) {
     if (handle != nullptr) {
-      gpu_check(wwrMemPoolDestroy(handle), this->policy_destroy_);
+      gpu_check(wwrMemPoolDestroy(handle), this->destroy_policy());
     }
   }
 };

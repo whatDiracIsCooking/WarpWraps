@@ -51,7 +51,7 @@ public:
   /// @param params The params to destroy
   void destroy(wwrsolverDnParams_t params) {
     if (params != nullptr) {
-      gpu_check(wwrsolverDnDestroyParams(params), this->policy_destroy_);
+      gpu_check(wwrsolverDnDestroyParams(params), this->destroy_policy());
     }
   }
 };
