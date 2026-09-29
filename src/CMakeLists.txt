@@ -88,6 +88,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_raw_complex wwr.cuda.cuComplex)
   set(_gpu_raw_fp16 wwr.cuda.cuda_fp16)
   set(_gpu_raw_bf16 wwr.cuda.cuda_bf16)
+  set(_gpu_raw_fp8 wwr.cuda.cuda_fp8)
   set(_gpu_raw_blas wwr.cuda.cublas_v2)
   set(_gpu_raw_blaslt wwr.cuda.cublasLt)
   set(_gpu_raw_solver wwr.cuda.cusolverDn)
@@ -100,6 +101,7 @@ else()
   set(_gpu_raw_complex wwr.hip.hip_complex)
   set(_gpu_raw_fp16 wwr.hip.hip_fp16)
   set(_gpu_raw_bf16 wwr.hip.hip_bf16)
+  set(_gpu_raw_fp8 wwr.hip.hip_fp8)
   set(_gpu_raw_blas wwr.hip.hipblas)
   set(_gpu_raw_blaslt wwr.hip.hipblaslt)
   set(_gpu_raw_solver wwr.hip.hipsolver)
@@ -159,6 +161,33 @@ wwr_add_cxx_module_library(
   wwr_backend
   IMPORT_STD
 )
+
+wwr_add_cxx_module_library(
+  NAME
+  wwr.fp8
+  PRIMARY_INTERFACE
+  fp8.cppm
+  LINK_PUBLIC
+  ${_gpu_raw_fp8}
+  LINK_PRIVATE
+  wwr_backend
+  IMPORT_STD
+)
+
+# wwr.fp6 / wwr.fp4 -- BLOCKED on the HIP backend, not registered
+#
+# src/fp6.cppm and src/fp4.cppm exist as complete, reviewed source (same shape
+# as fp8.cppm) but are NOT wired in, because their HIP raw dependencies
+# wwr.hip.hip_fp6 / wwr.hip.hip_fp4 do not build with this toolchain:
+# amd_detail/amd_hip_ocp_types.h #errors outside real `-x hip` device mode or a
+# genuine GCC >= 13 front end. See src/hip/CMakeLists.txt's "HIP FP4 / FP6 --
+# BLOCKED" comment and src/hip/README.md, "wwr.hip.hip_fp4 / wwr.hip.hip_fp6 --
+# blocked, not built". A build targets one backend and CI compiles both plus the
+# cross-backend check, so registering these would fail the HIP path. The CUDA
+# raw modules (wwr.cuda.cuda_fp6 / cuda_fp4) do build, so these flip on the day
+# the HIP raw modules do -- add the wwr_add_cxx_module_library() calls
+# (LINK_PUBLIC wwr.cuda.cuda_fp6 / wwr.hip.hip_fp6, etc.) and the test/gpu
+# entries then.
 
 wwr_add_cxx_module_library(
   NAME

@@ -193,6 +193,19 @@ So `wwr.hip.hip_fp4` and `wwr.hip.hip_fp6` must never appear in the same
 translation unit's global module fragment. `hip_fp4.cppm` includes only
 `hip_fp4.h`; `hip_fp6.cppm` includes only `hip_fp6.h`.
 
+The neutral layer keeps the split: `src/fp4.cppm` and `src/fp6.cppm` are
+separate modules (never a combined `fp_narrow`), each `import`ing only its own
+raw module. Importing rather than `#include`ing means neither ever puts a
+vendor header in its TU, so the clash cannot recur there — but the modules stay
+separate anyway so the neutral layering matches the raw one, and their neutral
+rounding-mode enum is spelled per type (`wwrFp4Round*` / `wwrFp6Round*`) rather
+than a shared `wwrRound*`, so a TU may import both without an ODR clash on a
+module-attached inline constant. Both are present as reviewed source but
+excluded from the build, because their HIP raw modules are (the
+`amd_hip_ocp_types.h` toolchain `#error` — see `src/hip/README.md`, "wwr.hip.hip_fp4
+/ wwr.hip.hip_fp6 — blocked, not built"); the neutral `wwr.fp8`, whose HIP raw
+module *is* live, is wired in normally.
+
 ## 12. `static inline` vendor functions need forwarding wrappers
 
 A function declared `static inline` in the global namespace has

@@ -18,6 +18,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_test_raw_complex wwr.cuda.cuComplex)
   set(_gpu_test_raw_fp16 wwr.cuda.cuda_fp16)
   set(_gpu_test_raw_bf16 wwr.cuda.cuda_bf16)
+  set(_gpu_test_raw_fp8 wwr.cuda.cuda_fp8)
   set(_gpu_test_raw_blas wwr.cuda.cublas_v2)
   set(_gpu_test_raw_blaslt wwr.cuda.cublasLt)
   set(_gpu_test_raw_solver wwr.cuda.cusolverDn)
@@ -30,6 +31,7 @@ else()
   set(_gpu_test_raw_complex wwr.hip.hip_complex)
   set(_gpu_test_raw_fp16 wwr.hip.hip_fp16)
   set(_gpu_test_raw_bf16 wwr.hip.hip_bf16)
+  set(_gpu_test_raw_fp8 wwr.hip.hip_fp8)
   set(_gpu_test_raw_blas wwr.hip.hipblas)
   set(_gpu_test_raw_blaslt wwr.hip.hipblaslt)
   set(_gpu_test_raw_solver wwr.hip.hipsolver)
@@ -46,6 +48,11 @@ set(GPU_TEST_LIBRARIES
     complex
     fp16
     bf16
+    fp8
+    # fp6, fp4 deliberately NOT listed -- their gpu* modules are BLOCKED on the
+    # HIP backend (see src/CMakeLists.txt's "wwr.fp6 / wwr.fp4 -- BLOCKED"
+    # comment and src/hip/README.md). test/gpu/fp6.cppm and test/gpu/fp4.cppm
+    # exist as reviewed source and flip on with the modules.
     blas
     blaslt
     solver
