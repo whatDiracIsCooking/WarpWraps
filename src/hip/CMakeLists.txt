@@ -333,3 +333,22 @@ wwr_add_cxx_module_library(
   hip::hiprand
   IMPORT_STD
 )
+
+# RCCL (ROCm Communication Collectives Library)
+#
+# CUDA counterpart: nccl.cppm. RCCL is a source-compatible reimplementation of
+# NCCL, so the two wrap the identical nccl* surface -- see src/ccl.cppm for the
+# backend-neutral layer. roc::rccl (from find_package(rccl)) carries
+# /opt/rocm/include, so `#include <rccl/rccl.h>` resolves; hip::host is linked
+# alongside because rccl.h pulls in <hip/hip_runtime.h> and <hip/hip_fp16.h> and
+# roc::rccl does not guarantee to bring the HIP runtime's include path itself.
+wwr_add_cxx_module_library(
+  NAME
+  wwr.hip.rccl
+  PRIMARY_INTERFACE
+  rccl.cppm
+  LINK_PUBLIC
+  roc::rccl
+  hip::host
+  IMPORT_STD
+)

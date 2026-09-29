@@ -27,6 +27,7 @@ written once against `gpu*` names and builds unchanged for either backend.
 | `wwr.sparse` | `wwr.cuda.cusparse` | `wwr.hip.hipsparse` |
 | `wwr.fft` | `wwr.cuda.cufft` | `wwr.hip.hipfft` |
 | `wwr.rand` | `wwr.cuda.curand` | `wwr.hip.hiprand` + `wwr.hip.hiprand_kernel` |
+| `wwr.ccl` | `wwr.cuda.nccl` | `wwr.hip.rccl` |
 
 `gpu.fp8` is the narrow-float scalar layer above `fp16` / `bf16`, scoped to the
 intersection of the vendor type pair: the OCP `E4M3`/`E5M2` fp8 formats, plus
@@ -142,6 +143,37 @@ them. Three things to watch:
 `test/gpu/rand.cppm`. `src/extension/init_state` and `src/extension/random_normal`
 now use the state types and, through `rand.cuh`, the device functions; the rest
 of the host API is still checked only by that test.
+
+`gpu.ccl` covers multi-GPU **collectives** — NCCL / RCCL. This is the one
+popular vendor library where the two backends genuinely agree on the API: RCCL
+is a source-compatible reimplementation of NCCL, so both spell the entire
+surface with the identical `nccl*` / `NCCL_*` names and there is no prefix
+divergence to bridge (`wwrcclAllReduce` is `ncclAllReduce` on both). It carries
+the measured intersection — 36 functions (the collectives, P2P
+`wwrcclSend`/`Recv`, communicator lifecycle, grouping, custom reductions), the
+10 shared types, the reduction-op / datatype enums, and the scalar flag
+constants. Three things to watch:
+
+- **The surface is measured, not assumed — against the installed libraries.**
+  RCCL's version leads the packaged NCCL's, so a few RCCL names —
+  `ncclGather`/`Scatter`, `ncclAllToAll{,v}`, `ncclAllReduceWithBias`, and
+  `ncclResetDebugInit` (in NCCL's upstream header, but not the `libnccl-dev` the
+  CUDA image ships) — have no counterpart in the installed NCCL and are therefore
+  **absent from `wwr.ccl`**, reachable only through the raw `wwr.hip.rccl`
+  module. Run `devtools/header_intersection.py --cuda nccl.h --hip rccl.h` to
+  reproduce.
+- The `NCCL_*` values are `#define` macros, which a module cannot re-export; the
+  raw modules turn the scalar flag/param ones into `constexpr` (as `cufft` does
+  for its direction flags) and `wwr.ccl` aliases those to `WWRCCL_*`. The
+  version macros (`NCCL_MAJOR`, `NCCL_VERSION_CODE`) are not aliased — their
+  values are backend-specific and `wwrcclGetVersion` is the portable query — and
+  the two struct-initializer macros (`NCCL_CONFIG_INITIALIZER`,
+  `NCCL_SIM_INFO_INITIALIZER`) are omitted too.
+- Like `gpu.rand`, every name is checked in full by `test/gpu/ccl.cppm` (there
+  is no runtime or dispatch test downstream — the collectives need a real
+  multi-GPU job to run), and enumerator **values** are pinned there per backend.
+  NCCL's CUDA library is not part of the CUDA toolkit; `docker/Dockerfile.cuda`
+  installs `libnccl-dev`, while RCCL is already in the base ROCm image.
 
 ## How a name is mapped
 

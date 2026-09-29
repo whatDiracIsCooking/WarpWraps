@@ -38,7 +38,15 @@ apt-get update
 # The versioned meta-package, not `cuda` or `cuda-toolkit`: those pull the
 # driver, which must come from the host through the NVIDIA container runtime.
 # Installing a driver inside the image conflicts with the injected one.
-apt-get install -y --no-install-recommends "cuda-toolkit-${CUDA_VERSION}"
+#
+# libnccl-dev: NCCL (multi-GPU collectives) is NOT part of the cuda-toolkit
+# meta-package -- it ships as its own package from the same NVIDIA repo. wwr.cuda.nccl
+# needs its nccl.h and libnccl.so (the CUDA counterpart to ROCm's rccl, which is
+# in the base ROCm install). Unversioned so apt resolves the build matching the
+# installed toolkit. RCCL's HIP side is already present; see docker/install-rocm.sh.
+apt-get install -y --no-install-recommends \
+  "cuda-toolkit-${CUDA_VERSION}" \
+  libnccl-dev
 
 # /usr/local/cuda is a symlink the packages maintain, so a 13.0 -> 13.1 bump
 # does not leave anything pointing at a directory that no longer exists.

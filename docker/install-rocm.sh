@@ -75,14 +75,20 @@ apt-get install -y --no-install-recommends \
 #   4.5G  hipblaslt/library      Tensile kernel objects, loaded at RUN time by
 #   644M  rocblas/library        libhipblaslt.so / librocblas.so. The .so files
 #   1.7G  rocfft/                themselves stay; only the kernel data goes.
-#   572M  rccl                   multi-GPU collectives; nothing here wraps them
-#   459M  rocalution             sparse iterative solvers; likewise
+#   459M  rocalution             sparse iterative solvers; nothing here wraps them
 #   226M  hiptensor              tensor contraction; likewise
 #
-# ~12.9GB of ~20.5GB, and none of it is a link-time dependency -- which is the
+# ~12.3GB of ~20.5GB, and none of it is a link-time dependency -- which is the
 # test that decides what may go on this list. Adding anything here that a
 # hipcc link actually needs surfaces as an undefined symbol in the ci-hip tier,
 # not as a silent wrong answer, so the failure mode is at least loud.
+#
+# rccl (572M) used to be on this list -- "multi-GPU collectives; nothing here
+# wraps them". wwr.hip.rccl now wraps it (issue #100), so roc::rccl is a
+# link-time dependency of the ci-hip build and rccl/rccl-dev must STAY: pruning
+# it would fail find_package(rccl) at configure, exactly the loud failure the
+# rule above describes. The figures above predate its retention and are now
+# ~570MB larger for it.
 #
 # Since ci-hip became a full build it also LINKS and LOADS the runtime test
 # binaries, so the SuiteListIsComplete guards now dlopen librocblas,
@@ -96,17 +102,18 @@ apt-get install -y --no-install-recommends \
 # bytes in the parent, and the image does not shrink at all. That is also why
 # :hip and :hip-ci cannot share the ROCm layer -- each is a full install.
 #
-# The four whole packages go through apt rather than rm, so that removing one
+# The three whole packages go through apt rather than rm, so that removing one
 # something else needs FAILS here instead of at link time. They pull out the
 # rocm-hip-sdk / rocm-hip-libraries meta-packages with them, which carry no
 # files of their own. --auto-remove is deliberately NOT passed: it would widen
 # the removal to whatever else those metas were the last reference to, which is
-# exactly the kind of quiet cascade this list is written to avoid.
+# exactly the kind of quiet cascade this list is written to avoid. rccl/rccl-dev
+# are deliberately NOT here anymore -- wwr.hip.rccl links roc::rccl (see the
+# table above).
 if [ "${ROCM_PRUNE:-0}" = "1" ]; then
   echo "install-rocm.sh: ROCM_PRUNE=1 -- building the compile-only variant"
   apt-get purge -y \
     composablekernel-dev \
-    rccl rccl-dev \
     rocalution rocalution-dev \
     hiptensor hiptensor-dev
   rm -rf \

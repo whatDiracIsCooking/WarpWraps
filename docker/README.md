@@ -130,10 +130,12 @@ since `latest` is what `WWR_IMAGE` resolves to and must keep meaning the
 full CUDA dev image. Parents are not pushed because a child image is
 self-contained; publishing `:base` too would upload 1.45GB nothing pulls.
 
-**`ROCM_PRUNE=1` takes the ROCm image from 20.5GB to 7.05GB**, dropping
-Tensile/rocFFT kernel objects, composable-kernel archives, rccl, rocalution and
-hiptensor — none of which a *compile* links. `docker/install-rocm.sh` carries
-the list and the reason each entry is safe.
+**`ROCM_PRUNE=1` takes the ROCm image down** (~570MB larger than the old 7.05GB
+now that rccl stays), dropping Tensile/rocFFT kernel objects, composable-kernel
+archives, rocalution and hiptensor — none of which a *compile* links. rccl used
+to be on that list; `wwr.hip.rccl` now wraps it, so it is a link-time dependency
+and is retained. `docker/install-rocm.sh` carries the list and the reason each
+entry is safe.
 
 It is an **optimisation**, worth ~13GB less to pull on every CI run and a
 3-minute push instead of many. It is not what makes a HIP job possible: a

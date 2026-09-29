@@ -158,6 +158,25 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
                                          "${WWR_cusolverMg_LIBRARY}"
     )
   endif()
+
+  # libnccl is likewise not a FindCUDAToolkit component (no CUDA::nccl target) --
+  # src/cuda/CMakeLists.txt finds it by hand and links it through the imported
+  # target wwr::cuda_nccl, so the name is recreated here, same as cusolverMg.
+  if(NOT TARGET wwr::cuda_nccl)
+    find_library(WWR_nccl_LIBRARY NAMES nccl HINTS ${CUDAToolkit_LIBRARY_DIR})
+    if(NOT WWR_nccl_LIBRARY)
+      set(wwr_FOUND FALSE)
+      set(wwr_NOT_FOUND_MESSAGE
+          "libnccl not found. NCCL is not part of the CUDA Toolkit; install "
+          "libnccl-dev, or pass -DWWR_nccl_LIBRARY=<path>."
+      )
+      return()
+    endif()
+    add_library(wwr::cuda_nccl UNKNOWN IMPORTED)
+    set_target_properties(
+      wwr::cuda_nccl PROPERTIES IMPORTED_LOCATION "${WWR_nccl_LIBRARY}"
+    )
+  endif()
 else()
   find_dependency(hip)
   find_dependency(rocm_smi)
@@ -169,6 +188,7 @@ else()
   find_dependency(hipsparse)
   find_dependency(hipfft)
   find_dependency(hiprand)
+  find_dependency(rccl)
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/wwr-targets.cmake")

@@ -96,6 +96,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_raw_fft wwr.cuda.cufft)
   set(_gpu_raw_rand wwr.cuda.curand)
   set(_gpu_raw_tx wwr.cuda.nvToolsExt)
+  set(_gpu_raw_ccl wwr.cuda.nccl)
 else()
   set(_gpu_raw_runtime_api wwr.hip.hip_runtime_api)
   set(_gpu_raw_complex wwr.hip.hip_complex)
@@ -112,6 +113,7 @@ else()
   # (host API + device generator state types) -- see src/hip/CMakeLists.txt.
   set(_gpu_raw_rand wwr.hip.hiprand wwr.hip.hiprand_kernel)
   set(_gpu_raw_tx wwr.hip.roctx)
+  set(_gpu_raw_ccl wwr.hip.rccl)
 endif()
 
 wwr_add_cxx_module_library(
@@ -272,6 +274,18 @@ wwr_add_cxx_module_library(
   tx.cppm
   LINK_PUBLIC
   ${_gpu_raw_tx}
+  LINK_PRIVATE
+  wwr_backend
+  IMPORT_STD
+)
+
+wwr_add_cxx_module_library(
+  NAME
+  wwr.ccl
+  PRIMARY_INTERFACE
+  ccl.cppm
+  LINK_PUBLIC
+  ${_gpu_raw_ccl}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD

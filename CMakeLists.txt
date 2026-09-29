@@ -247,6 +247,11 @@ else()
   # wwr.hip.hipfftXt does not add a second find_package call.
   find_package(hipfft CONFIG REQUIRED)
   find_package(hiprand CONFIG REQUIRED)
+  # RCCL (multi-GPU collectives) ships its own ROCm CMake package providing the
+  # roc::rccl imported target -- wwr.hip.rccl links it. NCCL's CUDA counterpart
+  # is NOT a FindCUDAToolkit component, so wwr.cuda.nccl find_library's it by
+  # hand instead (see src/cuda/CMakeLists.txt).
+  find_package(rccl CONFIG REQUIRED)
 endif()
 
 # nvcc (and hipcc) link against libstdc++ internally. When the host linker is
