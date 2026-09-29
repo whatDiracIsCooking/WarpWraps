@@ -196,6 +196,22 @@ If the branch did *not* merge — the `pr` skill stopped before merging (its
 "When NOT to merge" cases) — there is nothing to reclaim: leave the worktree in
 place and say so. `full` cleans up a *shipped* worktree, never an unmerged one.
 
+**The teardown commands are not gated by `protect-main`.** The guard denies
+only path-mutating git subcommands (`apply`/`rm`/`mv`/`restore`/`clean`/`stash`/
+`checkout`), `reset --hard`/`--merge`, and a `commit` while the primary checkout
+is on `main` — `worktree` and `branch` match none of those, and
+`.claude/worktrees/` is a path carve-out besides. So `git worktree remove` and
+`git branch -d`/`-D` run cleanly from the main checkout with no escape hatch
+(verified live: both are allowed at `cwd=main` in the same session where a
+`git reset --hard` there is denied).
+
+If some *other* step ever does trip the guard on `main`, the escape is a real
+environment variable set for the whole session (`CLAUDE_ALLOW_MAIN_EDITS=1`),
+**not** an inline `CLAUDE_ALLOW_MAIN_EDITS=1 git …` prefix on the command.
+`protect-main` is a PreToolUse hook that reads the variable from its own process
+environment and never executes the command, so an inline assignment — which
+would only reach the subprocess the tool spawns — does not bypass it.
+
 ## When NOT to use this skill
 
 This repo has a **second, heavier** worktree system for full container-backed
