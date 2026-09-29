@@ -474,3 +474,94 @@ To falsify this, install cuDNN and MIOpen and run
 `devtools/header_intersection.py --cuda cudnn.h --hip miopen.h`. This section is
 reasoned from the two APIs' documented shapes, not measured on this file's
 toolchain — neither header ships in the images.
+
+## 20. Scoped, ordered atomics: two spellings for one operation
+
+Measured 2026-09-29 in `docker/build.sh combined` (clang 20.1.8, CUDA 13.0.88,
+ROCm 7.2.4). `src/atomic.cuh` wraps the atomics that carry an explicit memory
+order and thread scope — the surface *above* the common atomics §15 covers.
+The common ones (`atomicAdd`/`CAS`/…) are spelled identically on both backends
+and wrapped by nothing; these are not, so a forwarder does work rather than
+renaming a name to itself. CUDA spells the operation
+`cuda::atomic_ref<T, Scope>` (libcu++'s `<cuda/atomic>`); HIP spells it a
+`__hip_atomic_*` clang builtin. `test/gpu/atomic.cu` pins that every forwarder ×
+every portable scope resolves under both front ends — the compile is the whole
+test, exactly as for `atomics.cu`.
+
+**libhipcxx is absent, so builtin forwarding is the only portable design.** The
+issue that motivated this (#123) left one fact to measure: whether the pinned
+ROCm ships a libcu++ counterpart (`<hip/std/atomic>`, `<hip/atomic>`). It does
+not — neither `/opt/rocm/include/hip/std/` nor `/opt/rocm/include/hip/atomic`
+exists in ROCm 7.2.4; the only atomic headers are the builtin-backed
+`amd_detail/amd_hip_atomic.h`. So a thin `namespace` alias in the
+`cooperative_groups.cuh` shape is not available, and the operations are
+forwarded to the `__hip_atomic_*` builtins one by one.
+
+**The HIP builtins accept the whole surface, with a runtime order and scope.**
+Verified by compiling a device TU to a `gfx1200` object (not merely
+`-fsyntax-only`): `__hip_atomic_{load,store,exchange,compare_exchange_strong,
+compare_exchange_weak,fetch_add,fetch_sub,fetch_and,fetch_or,fetch_xor,
+fetch_min,fetch_max}` all resolve for `int`/`unsigned`/`unsigned long long`,
+with `fetch_add`/`fetch_min`/`fetch_max` also for `float`/`double`, and both the
+`__ATOMIC_*` order and the `__HIP_MEMORY_SCOPE_*` scope may be a non-constant
+argument — the AMDGPU backend lowers a runtime value, it does not require a
+compile-time constant. libcu++'s `cuda::atomic_ref` carries the same set; note
+`fetch_min`/`fetch_max` are on the `cuda::` `atomic_ref` (from `<cuda/atomic>`),
+not the plain `cuda::std::atomic_ref`, so the header includes `<cuda/atomic>`.
+
+**Scope is a template parameter, order a function argument.** libcu++ forces the
+split: `cuda::atomic_ref<T, Scope>` takes the scope as a *template* argument,
+while `.fetch_add(v, order)` takes the order as a runtime one. The HIP builtin
+takes both as function arguments and (measured above) accepts a runtime value
+for each, so it follows the shape libcu++ dictates without complaint. `wwr`
+defines its own `wwrThreadScope` / `wwrMemoryOrder` enums — neither vendor's
+spelling is portable — and maps each to the vendor constant in a `constexpr`
+helper (a template `if constexpr` for the scope, a `switch` for the order).
+
+**The scope mapping, verified against both memory models.** A wrong row here is
+silent — it compiles on both and gives up an ordering guarantee at runtime on
+one, the §16 class of trap — so it is read off the two models, not eyeballed:
+
+| `wwrThreadScope` | CUDA `cuda::thread_scope_*` | HIP `__HIP_MEMORY_SCOPE_*` | Ordering visible to |
+|---|---|---|---|
+| `thread` | `thread_scope_thread` | `SINGLETHREAD` | the issuing thread only |
+| `block` | `thread_scope_block` | `WORKGROUP` | the CTA / work-group |
+| `device` | `thread_scope_device` | `AGENT` | all threads on the GPU |
+| `system` | `thread_scope_system` | `SYSTEM` | the whole system (host + all agents) |
+
+The four rows pair exactly: a HIP work-group is CUDA's thread block, a HIP agent
+is the device, and both models' system scope spans host and peer agents. The two
+that do not pair stay vendor-only, reached by naming the vendor form directly:
+CUDA's `thread_scope_cluster` (a Hopper cluster of CTAs, between block and
+device) has no HIP counterpart, and HIP's `WAVEFRONT` (between single-thread and
+work-group) has no libcu++ `atomic_ref` scope. That is the same line §15 draws
+around `atomicAdd_block`/`_system` and AMD's `unsafeAtomicAdd`. The order map is
+a plain 1:1 — relaxed/acquire/release/acq_rel/seq_cst to the matching
+`cuda::memory_order_*` or `__ATOMIC_*`; `consume` is omitted, both models
+folding it into `acquire`.
+
+**No extra include dir is needed, contrary to #123's premise.** #123 measured
+that CUDA 13.0 relocated `<cuda/atomic>` from `include/cuda/atomic` to
+`include/cccl/cuda/atomic` and expected `wwr.device` to need a
+version-conditional include dir, reporting that `CUDA::cudart` did not carry the
+`cccl` directory. Under this repo's pinned CMake 4.2 it does: FindCUDAToolkit
+lists both `…/include` and `…/include/cccl` in `CUDAToolkit_INCLUDE_DIRS` *and*
+in `CUDA::cudart`'s `INTERFACE_INCLUDE_DIRECTORIES` (verified on 13.0.88), so the
+header is found through the `CUDA::cudart` `wwr.device` already links, and
+`src/CMakeLists.txt` adds nothing. A pre-13 toolkit finds it at the old path
+through the same target. (The `-I` gap #123 hit was a bare `clang -I…/include`,
+without the toolkit's own include set.)
+
+**What a compile cannot prove.** Ordering *semantics* — that an
+`acquire`/`release` pair means the same thing on both — cannot be shown by a
+compile, and a runtime memory-model test is a flake generator, so it is not
+attempted; the mapping table above is the claim, read from the two models.
+`-munsafe-fp-atomics` stays as §15 has it: never set by `wwr`, passed by the TU
+that wants AMD's native FP-atomic codegen on its own `wwr_add_gpu_device_library`
+target.
+
+A raw `wwr.cuda.atomic` / gpu-layer module was declined (#123): the audience is
+device code, which imports no modules, so a module would serve only host-side
+`cuda::atomic` over managed memory, has no signature-identity assertion the way
+every other raw `.cppm` does, and precompiles to a 21MB BMI against 6.8MB for
+the largest raw module today.

@@ -60,6 +60,13 @@ target_compile_definitions(
   INTERFACE WWR_WARP_SIZE=${WWR_WARP_SIZE}
 )
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
+  # CUDA::cudart carries the toolkit's include path, which is where atomic.cuh's
+  # <cuda/atomic> (libcu++) lives. CUDA 13.0 relocated that header from
+  # include/cuda/atomic to include/cccl/cuda/atomic, but CMake 4.2's
+  # FindCUDAToolkit adds the cccl dir to CUDA::cudart's interface for exactly
+  # that reason (verified: CUDAToolkit_INCLUDE_DIRS and CUDA::cudart both list
+  # .../include and .../include/cccl on 13.0.88), so no extra include dir is
+  # needed here. See docs/architecture.md §20.
   target_link_libraries(wwr.device INTERFACE CUDA::cudart)
 else()
   target_link_libraries(wwr.device INTERFACE hip::host)

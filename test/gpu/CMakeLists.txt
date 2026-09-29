@@ -240,6 +240,26 @@ add_dependencies(
   compile_time_tests wwr.test.gpu.atomics.device
 )
 
+# atomic.cu (singular) tests src/atomic.cuh, the scoped/ordered atomics wwr
+# DOES wrap -- the surface above atomics.cu's bare common atomics, where the two
+# backends diverge (cuda::atomic_ref vs a __hip_atomic_* builtin). The claim it
+# CAN break -- every forwarder x every portable scope resolving under BOTH front
+# ends -- is a device-compile claim, so this is a device TU. Building it is the
+# assertion; no ctest entry, no launch (ordering semantics need a card, not a
+# compile). Reached through wwr.device, which carries atomic.cuh and, on CUDA
+# 13+, the cccl include dir <cuda/atomic> needs.
+wwr_add_gpu_device_library(
+  NAME
+  wwr.test.gpu.atomic.device
+  SOURCES
+  atomic.cu
+  LINK_PRIVATE
+  wwr.device
+)
+add_dependencies(
+  compile_time_tests wwr.test.gpu.atomic.device
+)
+
 # math.cuh is the same shape of test as fp16.cuh / atomics.cu: its wrappers are
 # __device__ templates over vendor math intrinsics (::expf/::exp, ...) that only
 # a device pass can name, and the claim they can break -- every function
