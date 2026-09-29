@@ -81,7 +81,7 @@ constexpr std::size_t kCount = 1'000'000;
 } // namespace
 
 int main() {
-  // wwrGetDevice, not a device COUNT: the gpu* layer re-exports the former
+  // wwrGetDevice, not a device COUNT: the wwr* layer re-exports the former
   // and not the latter, and one reachable device is the whole question here.
   int device = 0;
   if (wwrGetDevice(&device) != wwrSuccess) {

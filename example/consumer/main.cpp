@@ -1,6 +1,6 @@
 // main.cpp -- what using an installed wwr actually looks like.
 //
-// This always consumes the core wwr package: the backend-neutral gpu* layer
+// This always consumes the core wwr package: the backend-neutral wwr* layer
 // (wwr.runtime_api, wwr.blas) and the dispatch wrappers (wwr.wrappers.*).
 //
 // The extension layer (wwr.extension.*, the RAII handle / buffer / error
@@ -53,7 +53,7 @@ import wwr.extension.random_normal; // random_normal<T>, backed by a device arch
 import wwr.extension.tx;            // wwr::extension::ScopedRange
 #endif
 
-// The gpu* names (wwrSuccess, wwrMalloc, WWRBLAS_OP_N, ...) and the wrappers
+// The wwr* names (wwrSuccess, wwrMalloc, WWRBLAS_OP_N, ...) and the wrappers
 // (gemm, potri, ...) are all exported in namespace wwr. A consumer is not
 // inside it, so unlike this project's own tests it has to say so.
 using namespace wwr;

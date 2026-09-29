@@ -1,5 +1,5 @@
 # The layer dropdown is the load-bearing field. This tree is four layers deep
-# on purpose -- vendor re-export, backend-neutral gpu* aliases, type-safe
+# on purpose -- vendor re-export, backend-neutral wwr* aliases, type-safe
 # wrappers, RAII extension -- and which one a request belongs in decides both
 # what has to be written twice (once per backend) and what verifies it.
 name: Feature request
@@ -29,7 +29,7 @@ body:
       description: See docs/architecture.md if this is not obvious.
       options:
         - 'src/cuda or src/hip — a vendor header exposed as a named module'
-        - 'src/*.cppm — a backend-neutral gpu* alias'
+        - 'src/*.cppm — a backend-neutral wwr* alias'
         - 'src/wrappers — a type-safe wrapper over a vendor API'
         - 'src/extension — RAII, buffers, kernels, handles'
         - 'devtools/, docker/, CI'
@@ -44,7 +44,7 @@ body:
       label: Backend parity
       description: >-
         Anything under `src/` below the vendor re-exports has to exist for both
-        backends, and `test/shared/alias_coverage.py` enforces it for the `gpu*`
+        backends, and `test/shared/alias_coverage.py` enforces it for the `wwr*`
         layer. A CUDA-only addition there fails the guard rather than merging
         half-done.
       options:

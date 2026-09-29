@@ -1,8 +1,8 @@
 /**
  * @file runtime_api.cppm
- * @brief Backend-neutral GPU runtime API: gpu* names for cuda* / hip*
+ * @brief Backend-neutral GPU runtime API: wwr* names for cuda* / hip*
  *
- * Exports gpu-prefixed aliases of the CUDA runtime API (cuda_runtime_api.h)
+ * Exports wwr-prefixed aliases of the CUDA runtime API (cuda_runtime_api.h)
  * or the HIP runtime API (hip_runtime_api.h), whichever backend this build is
  * configured for. See backend.h for the switch.
  *
@@ -102,7 +102,7 @@ WWR_RT_VALUE(MemAttachHost)
 // Functions
 // ========================================================================
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables): each gpu*
+// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables): each wwr*
 // below is a deliberate constexpr reference to the selected backend's entry
 // point (via WWR_FUNCTION or a hand-written overload binding). A reference to
 // a vendor function has no const form, so the check cannot be satisfied without

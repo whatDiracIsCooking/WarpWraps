@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Intersect a CUDA vendor header with its HIP counterpart to find the shared API.
 
-A ``src/<m>.cppm`` gpu* module is only as complete as the intersection of the two
+A ``src/<m>.cppm`` wwr* module is only as complete as the intersection of the two
 vendor APIs it bridges: every symbol that BOTH cuRAND and hipRAND expose is a
-symbol ``wwr.rand`` could carry a ``gpu*`` name for, and any it skips is a
+symbol ``wwr.rand`` could carry a ``wwr*`` name for, and any it skips is a
 coverage hole. This script computes that intersection straight from the vendor
 ``.h`` files, so "did we cover everything the two backends agree on?" becomes a
 diff instead of a manual read of two headers.
@@ -58,7 +58,7 @@ the intersection (~300/320) and the tail is the unused remainder; solver and
 sparse read as near-empty for a different reason -- cusolverDn* vs hipsolver* and
 cusparse's opaque generic API barely intersect by NAME at all, so the scan is
 blind there. For all four, completeness is enforced elsewhere: the compiler (an
-unresolved gpu* name cannot be consumed), ``test/shared/alias_coverage.py``
+unresolved wwr* name cannot be consumed), ``test/shared/alias_coverage.py``
 (every alias defined has a test), and the dispatch tables that
 ``test/shared/dispatch.py`` checks (every wrapper calls the right alias).
 
@@ -71,7 +71,7 @@ Usage:
         --hip  /opt/rocm/include/hiprand/hiprand.h \\
                /opt/rocm/include/hiprand/hiprand_kernel.h
 
-    # Confirm the gpu* rand layer wraps the whole shared surface:
+    # Confirm the wwr* rand layer wraps the whole shared surface:
     devtools/header_intersection.py --cuda curand.h --hip hiprand.h \\
         --coverage src/rand.cppm src/rand.cuh
 """
@@ -198,7 +198,7 @@ class Side:
 
         ``curandGenerator_st`` (struct tag) and ``curandOrdering`` (enum tag) are
         the implementation spellings of ``curandGenerator_t`` / ``curandOrdering_t``
-        -- the ``_t`` is the name the gpu* layer aliases, and wrapping the raw tag
+        -- the ``_t`` is the name the wwr* layer aliases, and wrapping the raw tag
         would be pointless. Folding the tag's names into its ``_t`` sibling keeps
         it from being reported as an uncovered "shared symbol". Applied identically
         to both backends, so it never drops a name the two genuinely share.
@@ -334,7 +334,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cuda-prefix", help="pin the CUDA prefix (else auto)")
     parser.add_argument("--hip-prefix", help="pin the HIP prefix (else auto)")
     parser.add_argument("--coverage", nargs="+", type=Path, metavar="SRC",
-                        help="src file(s) -- e.g. a gpu* module and its .cuh -- to "
+                        help="src file(s) -- e.g. a wwr* module and its .cuh -- to "
                              "check the intersection against by literal name; a "
                              "shared symbol counts as covered when either backend's "
                              "name appears verbatim (so token-pasted dispatch call "

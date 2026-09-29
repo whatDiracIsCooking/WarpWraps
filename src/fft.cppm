@@ -10,7 +10,7 @@
  * Backend differences resolved here, not above:
  *
  * - Direction flags: WWRFFT_FORWARD / WWRFFT_INVERSE follow cuFFT's spelling
- *   (hipFFT spells the inverse HIPFFT_BACKWARD), as the gpu* layer does throughout.
+ *   (hipFFT spells the inverse HIPFFT_BACKWARD), as the wwr* layer does throughout.
  * - Result codes: only the 14 codes both backends export get a WWRFFT_* alias;
  *   a backend-specific code is reached through the raw module.
  * - Status strings: wwrfftGetStatusName / wwrfftGetStatusString are hand-written

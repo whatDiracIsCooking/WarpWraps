@@ -78,7 +78,7 @@ make-functions are the portable way to build one.
 
 The float-to-half conversions need no such treatment: `__float2half` and
 `__float2bfloat16` are spelled identically by both vendors. They are re-exposed
-under `gpu*` names anyway, for the layering reason in §5.
+under `wwr*` names anyway, for the layering reason in §5.
 
 ## 4. Forwarding templates where `WWR_FUNCTION` cannot reach
 
@@ -98,7 +98,7 @@ name an overload set**, which rules it out in three places:
 
 ## 5. const-correctness divergences between the vendors
 
-Resolved inside the gpu* layer, never above it. In each case the neutral `gpu*`
+Resolved inside the wwr* layer, never above it. In each case the neutral `wwr*`
 signature is the const-correct one, and the other backend gets a forwarding
 function with a `const_cast` into an API that only reads those arguments.
 
@@ -136,7 +136,7 @@ matter.
 A `.cu` (or `-x hip` device-compiled) translation unit imports no modules at
 all, by this project's convention — neither `src/extension/init_state/init_state.cu`
 nor `src/extension/random_normal/random_normal.cu` `import`s anything. That is what
-forces the `.cuh` half of the gpu* layer to exist at all: the same `gpu*` names have
+forces the `.cuh` half of the wwr* layer to exist at all: the same `wwr*` names have
 to be reachable by `#include`, with the backend picked from the compiler's own
 device-compile macro rather than from a CMake define.
 
@@ -282,7 +282,7 @@ such care, since a bare forward declaration in it already has external linkage.
 
 That constraint is also why a bridge header's types come from `#include`-only
 headers rather than an `import`: a GMF can `#include` but cannot `import`. The
-the gpu* layer's bridge headers give the *same* types the modules export, so exported
+the wwr* layer's bridge headers give the *same* types the modules export, so exported
 wrappers pass arguments straight through with no conversion and the device side
 needs no cast.
 
@@ -442,7 +442,7 @@ handle-and-descriptor libraries, and a convolution forward pass reads the same i
 each (`Create` → set a tensor descriptor → set a convolution descriptor → find an
 algorithm → `ConvolutionForward`). AMD built MIOpen that way on purpose, and
 `hipify` renames the calls mechanically. But `wwr` does not bind at that altitude.
-A `gpu*` alias binds at the *symbol + signature* altitude — `header_intersection.py`
+A `wwr*` alias binds at the *symbol + signature* altitude — `header_intersection.py`
 matches the identifier after the vendor prefix, and `WWR_FUNCTION` binds a
 *reference* to the backend function, restating no signature (see §4, §12) — and
 there the two libraries do not meet:
@@ -560,7 +560,7 @@ attempted; the mapping table above is the claim, read from the two models.
 that wants AMD's native FP-atomic codegen on its own `wwr_add_gpu_device_library`
 target.
 
-A raw `wwr.cuda.atomic` / gpu-layer module was declined (#123): the audience is
+A raw `wwr.cuda.atomic` / wwr* layer module was declined (#123): the audience is
 device code, which imports no modules, so a module would serve only host-side
 `cuda::atomic` over managed memory, has no signature-identity assertion the way
 every other raw `.cppm` does, and precompiles to a 21MB BMI against 6.8MB for

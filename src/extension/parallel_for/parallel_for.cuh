@@ -7,7 +7,7 @@
 /// why this does not use Thrust.
 ///
 /// `#include`d directly into a .cu (CUDA) or `-x hip` device-compiled (HIP)
-/// translation unit, so it reaches the backend through the gpu* layer's
+/// translation unit, so it reaches the backend through the wwr* layer's
 /// runtime.cuh rather than backend.h: there is no module involved at
 /// the point of use. Link `wwr.device`.
 ///
@@ -25,7 +25,7 @@
 #include <type_traits>
 
 // WWR_GRID_CONSTANT and WWR_WARP_SIZE, then wwrStream_t for
-// the signature below. Both are the gpu* layer's, reached bare through
+// the signature below. Both are the wwr* layer's, reached bare through
 // wwr.device's include path. runtime.cuh is also the device-pass
 // gate: it #errors outside a CUDA or HIP device compile, so this header carries
 // no guard of its own.

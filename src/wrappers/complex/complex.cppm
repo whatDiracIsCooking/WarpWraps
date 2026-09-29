@@ -1,9 +1,9 @@
 /**
  * @file complex.cppm
  * @brief wwr::complex<T> -- an ergonomic, operator-carrying value type over the
- *        gpu* complex types, for host TUs
+ *        wwr* complex types, for host TUs
  *
- * The gpu* complex layer (wwr.complex / complex.cuh) is deliberately
+ * The wwr* complex layer (wwr.complex / complex.cuh) is deliberately
  * operator-less: cuComplex is a bare float2 aggregate where hipComplex is a
  * class, so `a * b` and brace-initialisation are not portable and arithmetic
  * lives in the wwrC* functions (docs/architecture.md, section 3). This wrapper
@@ -57,21 +57,21 @@ export namespace wwr {
 // complex<T>
 //
 // An aggregate value type: {re, im}, both T. real_fp constrains T to float or
-// double -- the two precisions the gpu* complex layer names -- and
+// double -- the two precisions the wwr* complex layer names -- and
 // RealToComplexType maps it to the vendor type (wwrFloatComplex /
 // wwrDoubleComplex). Both come from wwr.wrappers.common.
 // ========================================================================
 
 template<real_fp T>
 struct complex {
-  /// The gpu* complex type this value converts to: float -> wwrFloatComplex,
+  /// The wwr* complex type this value converts to: float -> wwrFloatComplex,
   /// double -> wwrDoubleComplex.
   using vendor_type = RealToComplexType<T>;
 
   T re;
   T im;
 
-  /// @brief Convert to the gpu* vendor complex type, through the portable
+  /// @brief Convert to the wwr* vendor complex type, through the portable
   ///        make_wwr*Complex (not a reinterpret_cast: same layout, distinct
   ///        type). Implicit, so a complex<T> drops straight into a call site
   ///        that expects wwrFloatComplex / wwrDoubleComplex.
@@ -145,7 +145,7 @@ struct complex {
 // ========================================================================
 // Reverse conversion
 //
-// Read a gpu* vendor value back into a complex<T>, through the portable
+// Read a wwr* vendor value back into a complex<T>, through the portable
 // wwrCreal* / wwrCimag* accessors (the vendor types expose no portable .x/.y).
 // Two overloads: wwrFloatComplex (== wwrComplex) and wwrDoubleComplex.
 // ========================================================================

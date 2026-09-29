@@ -1,5 +1,5 @@
 # Backend-neutral extension tests -- src/extension's tests, written against the
-# gpu* names and built for either WWR_GPU_BACKEND.
+# wwr* names and built for either WWR_GPU_BACKEND.
 #
 # The build-time halves (static_asserts) must be configured under
 # WWR_COMPILE_TIME_ONLY too, so their directories are added before the early

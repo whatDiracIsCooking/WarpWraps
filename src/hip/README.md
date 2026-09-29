@@ -223,7 +223,7 @@ marker-and-range surface both backends share -- markers (`roctxMarkA`), nested
 push/pop ranges (`roctxRangePushA` / `roctxRangePop`), asynchronous start/stop
 ranges (`roctxRangeStartA` / `roctxRangeStop`), and the range-id type
 (`roctx_range_id_t`, a `uint64_t`). This is nearly the whole of the classic
-`roctx.h`; a neutral `gpu*` layer can sit on exactly this set.
+`roctx.h`; a neutral `wwr*` layer can sit on exactly this set.
 
 Two name-shape differences from NVTX are worth flagging: the async-range
 terminator is `roctxRangeStop` where NVTX spells it `nvtxRangeEnd`, and the

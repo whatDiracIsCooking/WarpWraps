@@ -86,7 +86,7 @@ endfunction()
 function(_wwr_module_destination target out_var)
   get_target_property(_source_dir ${target} SOURCE_DIR)
   file(RELATIVE_PATH _relative "${PROJECT_SOURCE_DIR}/src" "${_source_dir}")
-  # The gpu* layer lives directly in src/, so its relative path is empty and its
+  # The wwr* layer lives directly in src/, so its relative path is empty and its
   # module sources install at the MODULEDIR root; everything else mirrors to a
   # subdirectory (cuda/, wrappers/blas, ...).
   if(_relative STREQUAL "")
@@ -183,7 +183,7 @@ function(wwr_install_package)
   endif()
 
   _wwr_collect_library_targets("${_backend_dir}" _backend_targets RECURSE)
-  # The gpu* layer is defined directly in src/CMakeLists.txt, so it is collected
+  # The wwr* layer is defined directly in src/CMakeLists.txt, so it is collected
   # from src/ NON-recursively; recursing would re-collect src/cuda, src/hip and
   # src/wrappers, which are swept separately above and below.
   _wwr_collect_library_targets("${PROJECT_SOURCE_DIR}/src" _gpu_targets)
@@ -240,7 +240,7 @@ function(wwr_install_package)
   # what makes the include spellings resolve unchanged -- see the
   # INSTALL_INTERFACE include directories on the targets themselves.
   #
-  # The gpu* layer's backend-switch headers (backend.h, selected_backend.h,
+  # The wwr* layer's backend-switch headers (backend.h, selected_backend.h,
   # device_guard.h) and its device-side .cuh headers are included bare (e.g.
   # "backend.h") and live directly in src/, so a NON-recursive glob is
   # exactly this set and they install at the include root. install(DIRECTORY)

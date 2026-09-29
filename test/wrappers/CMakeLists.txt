@@ -1,4 +1,4 @@
-# Backend-neutral extension tests -- src/wrappers's tests, written against gpu*
+# Backend-neutral extension tests -- src/wrappers's tests, written against wwr*
 # names and built for either WWR_GPU_BACKEND.
 #
 # Each module's directory holds both kinds of test for that module: the

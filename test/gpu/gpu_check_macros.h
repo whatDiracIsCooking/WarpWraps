@@ -1,9 +1,9 @@
-// gpu_check_macros.h - identity checks for the gpu* layer compile-time tests
+// gpu_check_macros.h - identity checks for the wwr* layer compile-time tests
 //
 // Each src name must be exactly the backend name it stands for: the same
 // type, the same constant (type and value), the same function. The expected
 // backend name is spelled out in full at every use, rather than derived with
-// the gpu* layer's own WWR_SELECT/prefix-pasting macros, so a mistake in those macros
+// the wwr* layer's own WWR_SELECT/prefix-pasting macros, so a mistake in those macros
 // cannot be mirrored here and pass.
 
 #pragma once

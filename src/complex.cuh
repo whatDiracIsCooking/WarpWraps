@@ -11,7 +11,7 @@
  * host-allocated buffer and a kernel parameter named here agree, and an extern
  * template declared in a .cppm links against a definition compiled in a .cu.
  *
- * Construction and arithmetic go through gpu* functions rather than operators
+ * Construction and arithmetic go through wwr* functions rather than operators
  * because cuComplex is an operator-less float2 aggregate where hipComplex is a
  * class -- so `a * b` and brace-initialisation are not portable, and the
  * vendors' C-style functions are the only spelling that exists on both. Half
@@ -107,12 +107,12 @@ __device__ __forceinline__ wwrComplex make_wwrComplex(const float re, const floa
 // ========================================================================
 // Arithmetic and accessors
 //
-// Through gpu* functions rather than operators, for the same reason
+// Through wwr* functions rather than operators, for the same reason
 // construction is (docs/architecture.md §3): cuFloatComplex is a plain float2
 // with no arithmetic operators, so `a * b` compiles under HIP -- whose
 // hipComplex is a class that defines them -- and fails under CUDA with no
 // operator match. The vendors' C-style functions exist on both and are the
-// portable spelling; the gpu* names carry the divergent cu*/hip* spellings.
+// portable spelling; the wwr* names carry the divergent cu*/hip* spellings.
 //
 // __device__ __forceinline__ like construction above. The arguments are taken
 // by value, as the vendors declare them -- wwrFloatComplex is 8 bytes,
@@ -277,7 +277,7 @@ __device__ __forceinline__ wwrDoubleComplex wwrCdiv(const wwrDoubleComplex a,
 // The other portable functions the vendors name with the bare Complex token
 // (alongside make_wwrComplex above): widen a single-precision value to double,
 // or narrow it back. HIP's Complex-named extras -- hipCsqabs*, hipCfma* -- have
-// no cuComplex.h counterpart, so they are not part of the gpu* surface.
+// no cuComplex.h counterpart, so they are not part of the wwr* surface.
 // ========================================================================
 
 /// @brief Widen a single-precision complex value to double precision

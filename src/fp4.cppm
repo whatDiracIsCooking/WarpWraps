@@ -5,11 +5,11 @@
  * Exports the surface CUDA's cuda_fp4.h and HIP's hip_fp4.h share -- the E2M1
  * scalar type (plus its x2/x4 packed variants), the storage typedefs, the
  * interpretation enum, and the float/double narrowing conversions -- under one
- * set of gpu* names in namespace wwr. See backend.h for the switch.
+ * set of wwr* names in namespace wwr. See backend.h for the switch.
  * Companion to fp8.cppm and fp6.cppm.
  *
  * Both vendors define the one fp4 format (E2M1), so the whole scalar surface
- * intersects; the divergence is only in spelling, which the gpu* names absorb.
+ * intersects; the divergence is only in spelling, which the wwr* names absorb.
  *
  * BLOCKED ON THE HIP BACKEND, so this module is NOT registered in
  * src/CMakeLists.txt (nor its test in test/gpu/CMakeLists.txt) -- it exists as
@@ -42,7 +42,7 @@
  *
  * Like complex.cppm, this module includes no vendor header in its GMF: the raw
  * modules already export host wrappers for the static-inline __nv_cvt_* /
- * __hip_cvt_* conversions (docs/architecture.md section 12), so the gpu*
+ * __hip_cvt_* conversions (docs/architecture.md section 12), so the wwr*
  * forwarders reach them through the import via WWR_SELECT.
  *
  * Usage:

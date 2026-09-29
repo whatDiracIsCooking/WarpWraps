@@ -4,7 +4,7 @@
  *
  * Wraps the marker-and-range core of nvtx3/nvToolsExt.h -- the profiler
  * annotation surface that has a one-to-one HIP counterpart in wwr.hip.roctx
- * (rocTX). Scoped deliberately to what both backends share, so a neutral gpu*
+ * (rocTX). Scoped deliberately to what both backends share, so a neutral wwr*
  * layer can sit on exactly this set.
  *
  * NVTX3's functions are header-only static inline -- NVTX_DECLSPEC resolves to

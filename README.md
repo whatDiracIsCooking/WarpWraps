@@ -6,7 +6,7 @@ libraries as importable C++23 modules, then builds type-safe abstractions on top
 of them.
 
 A build targets exactly one GPU backend, CUDA or HIP (`WWR_GPU_BACKEND`).
-The `gpu*` layer directly under `src/` maps backend-neutral `gpu*` names
+The `wwr*` layer directly under `src/` maps backend-neutral `wwr*` names
 (`wwrStream_t`, `wwrStreamCreate`, `wwrFloatComplex`, …) onto the chosen
 backend, and `src/wrappers` is written once against those names.
 
@@ -164,14 +164,14 @@ CMakeLists.txt        Toolchain discovery, backend switch, project(), options
 CMakePresets.json     Configure/build/test presets
 cmake/                The macros that define every target in the project
 deps/                 GoogleTest (fetched from source at configure time)
-src/*.cppm,*.cuh,*.h  The gpu* backend switch: gpu* names for the chosen backend
+src/*.cppm,*.cuh,*.h  The wwr* backend switch: wwr* names for the chosen backend
 src/cuda/             Low-level CUDA API module wrappers (CUDA backend)
 src/hip/              Low-level ROCm/HIP API module wrappers (HIP backend)
 src/wrappers/         Backend-neutral higher-level abstractions
 example/consumer/     A standalone project that uses an INSTALLED wwr
 test/shared/          link_check.h; dispatch.py + alias_coverage.py and their pytest suites
 test/cuda/, test/hip/ Compile-time checks for the low-level wrappers
-test/gpu/             Compile-time checks that every gpu* name is the backend's, + fp16/bf16 conversions
+test/gpu/             Compile-time checks that every wwr* name is the backend's, + fp16/bf16 conversions
 test/wrappers/        Build-time dispatch checks for the blas/solver/fft/sparse wrappers (built, not run)
 test/extension/       Extension tests: static_assert build-time checks and the runtime GoogleTest suites
 docker/               The batch path: compose.yaml, the SDK install scripts
@@ -216,7 +216,7 @@ rocm_smi/amd_smi and hiprtc.
 
 Type-safe abstractions, RAII resource management and utility kernels, all in the
 `wwr` namespace. **Every one of them is backend-neutral**: they are
-written once against the gpu* layer's `gpu*` names and build for either backend.
+written once against the wwr* layer's `wwr*` names and build for either backend.
 There is no per-backend extension tree.
 
 That is the layer's contract — `wwr.wrappers.*` adapts the functions **both**
@@ -462,7 +462,7 @@ uncovered and are not gaps. `--html` writes a browsable report under
 
 The Python suite is three files, each beside the script it tests:
 `test/shared/test_dispatch.py` for the build-time dispatch checker,
-`test/shared/test_alias_coverage.py` for the `gpu*` alias-coverage guard, and
+`test/shared/test_alias_coverage.py` for the `wwr*` alias-coverage guard, and
 `.claude/hooks/test_protect_main.py` for the main-checkout guard. None touches a
 built binary. There is no fast/slow split: `slow-tier.sh` and the `slow` marker
 were retired once the suite fit in a second.

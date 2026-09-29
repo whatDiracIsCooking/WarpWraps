@@ -1,5 +1,5 @@
 // Compile-time test for src/bf16.cuh, the device-compile bfloat16 layer.
-// Unlike the .cppm gpu* tests beside it, this header defines __device__ functions
+// Unlike the .cppm wwr* tests beside it, this header defines __device__ functions
 // over vendor types that only a device pass can name, so -- like
 // cooperative_groups.cu -- the test is a device TU and building it under the
 // selected backend IS the assertion. The kernel is never launched: every name

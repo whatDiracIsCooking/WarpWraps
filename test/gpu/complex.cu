@@ -1,5 +1,5 @@
 // Compile-time test for src/complex.cuh, the device-compile complex layer.
-// Unlike the .cppm gpu* tests beside it, this header defines __device__
+// Unlike the .cppm wwr* tests beside it, this header defines __device__
 // functions over vendor types that only a device pass can name, so -- like
 // cooperative_groups.cu -- the test is a device TU and building it under the
 // selected backend IS the assertion. The kernels are never launched: every name

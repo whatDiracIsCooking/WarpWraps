@@ -1,14 +1,14 @@
-# src -- the backend-neutral gpu* layer, plus the wiring of the trees around it
+# src -- the backend-neutral wwr* layer, plus the wiring of the trees around it
 #
-# The gpu* modules live directly in this directory. Each re-exports one raw
-# library module (src/cuda or src/hip) under gpu-prefixed names, picked at
+# The wwr* modules live directly in this directory. Each re-exports one raw
+# library module (src/cuda or src/hip) under wwr-prefixed names, picked at
 # configure time by WWR_GPU_BACKEND. This is the only place in the project
 # that names both backends; everything built on top (src/wrappers) is written
-# once against gpu* names. See README.md.
+# once against wwr* names. See README.md.
 #
 # This file also owns the order the src/ trees are added: the chosen backend's
-# raw 1:1 wrappers first (the gpu* modules below link them), then those modules,
-# then src/wrappers (written once against the gpu* names).
+# raw 1:1 wrappers first (the wwr* modules below link them), then those modules,
+# then src/wrappers (written once against the wwr* names).
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
   add_subdirectory(cuda)
 else()
@@ -16,12 +16,12 @@ else()
 endif()
 
 # The backend define (WWR_GPU_BACKEND_*) and the src/-root include path for
-# the gpu* layer's headers (selected_backend.h, backend.h, runtime.cuh,
+# the wwr* layer's headers (selected_backend.h, backend.h, runtime.cuh,
 # device_guard.h). Linked PRIVATE by every module below, and by test/gpu and the
 # bridge-using modules (init_state, random_normal), which read
 # selected_backend.h from a host compile with no __CUDACC__/__HIP__ to switch
 # on. Linking it does NOT license a backend #if in the consumer -- the #if lives
-# only in the gpu* layer's headers.
+# only in the wwr* layer's headers.
 add_library(wwr_backend INTERFACE)
 target_compile_definitions(
   wwr_backend INTERFACE WWR_GPU_BACKEND_${WWR_GPU_BACKEND}
@@ -37,7 +37,7 @@ target_include_directories(
 # -- the counterpart to wwr_backend for code reached by #include, not import
 # (a kernel TU imports no modules). Carries NO WWR_GPU_BACKEND define: these
 # headers pick their backend from __CUDACC__/__HIP__, so this is safe to link
-# from outside the gpu* layer (wwr.extension.parallel_for is the intended
+# from outside the wwr* layer (wwr.extension.parallel_for is the intended
 # consumer). Never hip::device here -- see src/hip/README.md, "Link hip::host,
 # never hip::device", and cmake/wwr_add_gpu_device_library.cmake for the
 # per-kernel target that does.
@@ -89,38 +89,38 @@ else()
   target_link_libraries(wwr.rand.device INTERFACE hip::hiprand)
 endif()
 
-# Raw module each gpu module wraps, per backend.
+# Raw module each wwr* module wraps, per backend.
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
-  set(_gpu_raw_runtime_api wwr.cuda.cuda_runtime_api)
-  set(_gpu_raw_complex wwr.cuda.cuComplex)
-  set(_gpu_raw_fp16 wwr.cuda.cuda_fp16)
-  set(_gpu_raw_bf16 wwr.cuda.cuda_bf16)
-  set(_gpu_raw_fp8 wwr.cuda.cuda_fp8)
-  set(_gpu_raw_blas wwr.cuda.cublas_v2)
-  set(_gpu_raw_blaslt wwr.cuda.cublasLt)
-  set(_gpu_raw_solver wwr.cuda.cusolverDn)
-  set(_gpu_raw_sparse wwr.cuda.cusparse)
-  set(_gpu_raw_fft wwr.cuda.cufft)
-  set(_gpu_raw_rand wwr.cuda.curand)
-  set(_gpu_raw_tx wwr.cuda.nvToolsExt)
-  set(_gpu_raw_ccl wwr.cuda.nccl)
+  set(_raw_runtime_api wwr.cuda.cuda_runtime_api)
+  set(_raw_complex wwr.cuda.cuComplex)
+  set(_raw_fp16 wwr.cuda.cuda_fp16)
+  set(_raw_bf16 wwr.cuda.cuda_bf16)
+  set(_raw_fp8 wwr.cuda.cuda_fp8)
+  set(_raw_blas wwr.cuda.cublas_v2)
+  set(_raw_blaslt wwr.cuda.cublasLt)
+  set(_raw_solver wwr.cuda.cusolverDn)
+  set(_raw_sparse wwr.cuda.cusparse)
+  set(_raw_fft wwr.cuda.cufft)
+  set(_raw_rand wwr.cuda.curand)
+  set(_raw_tx wwr.cuda.nvToolsExt)
+  set(_raw_ccl wwr.cuda.nccl)
 else()
-  set(_gpu_raw_runtime_api wwr.hip.hip_runtime_api)
-  set(_gpu_raw_complex wwr.hip.hip_complex)
-  set(_gpu_raw_fp16 wwr.hip.hip_fp16)
-  set(_gpu_raw_bf16 wwr.hip.hip_bf16)
-  set(_gpu_raw_fp8 wwr.hip.hip_fp8)
-  set(_gpu_raw_blas wwr.hip.hipblas)
-  set(_gpu_raw_blaslt wwr.hip.hipblaslt)
-  set(_gpu_raw_solver wwr.hip.hipsolver)
-  set(_gpu_raw_sparse wwr.hip.hipsparse)
-  set(_gpu_raw_fft wwr.hip.hipfft)
+  set(_raw_runtime_api wwr.hip.hip_runtime_api)
+  set(_raw_complex wwr.hip.hip_complex)
+  set(_raw_fp16 wwr.hip.hip_fp16)
+  set(_raw_bf16 wwr.hip.hip_bf16)
+  set(_raw_fp8 wwr.hip.hip_fp8)
+  set(_raw_blas wwr.hip.hipblas)
+  set(_raw_blaslt wwr.hip.hipblaslt)
+  set(_raw_solver wwr.hip.hipsolver)
+  set(_raw_sparse wwr.hip.hipsparse)
+  set(_raw_fft wwr.hip.hipfft)
   # Two modules where CUDA has one: cuRAND wraps curand.h and curand_kernel.h
   # together, hipRAND keeps hiprand_kernel.h separate. rand.cppm needs both
   # (host API + device generator state types) -- see src/hip/CMakeLists.txt.
-  set(_gpu_raw_rand wwr.hip.hiprand wwr.hip.hiprand_kernel)
-  set(_gpu_raw_tx wwr.hip.roctx)
-  set(_gpu_raw_ccl wwr.hip.rccl)
+  set(_raw_rand wwr.hip.hiprand wwr.hip.hiprand_kernel)
+  set(_raw_tx wwr.hip.roctx)
+  set(_raw_ccl wwr.hip.rccl)
 endif()
 
 wwr_add_cxx_module_library(
@@ -129,7 +129,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   runtime_api.cppm
   LINK_PUBLIC
-  ${_gpu_raw_runtime_api}
+  ${_raw_runtime_api}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD
@@ -141,7 +141,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   complex.cppm
   LINK_PUBLIC
-  ${_gpu_raw_complex}
+  ${_raw_complex}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD
@@ -153,7 +153,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   fp16.cppm
   LINK_PUBLIC
-  ${_gpu_raw_fp16}
+  ${_raw_fp16}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD
@@ -165,7 +165,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   bf16.cppm
   LINK_PUBLIC
-  ${_gpu_raw_bf16}
+  ${_raw_bf16}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD
@@ -177,7 +177,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   fp8.cppm
   LINK_PUBLIC
-  ${_gpu_raw_fp8}
+  ${_raw_fp8}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD
@@ -204,7 +204,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   blas.cppm
   LINK_PUBLIC
-  ${_gpu_raw_blas}
+  ${_raw_blas}
   wwr.complex
   LINK_PRIVATE
   wwr_backend
@@ -217,7 +217,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   blaslt.cppm
   LINK_PUBLIC
-  ${_gpu_raw_blaslt}
+  ${_raw_blaslt}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD
@@ -229,7 +229,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   solver.cppm
   LINK_PUBLIC
-  ${_gpu_raw_solver}
+  ${_raw_solver}
   wwr.complex
   wwr.blas
   LINK_PRIVATE
@@ -243,7 +243,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   sparse.cppm
   LINK_PUBLIC
-  ${_gpu_raw_sparse}
+  ${_raw_sparse}
   wwr.complex
   LINK_PRIVATE
   wwr_backend
@@ -256,7 +256,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   fft.cppm
   LINK_PUBLIC
-  ${_gpu_raw_fft}
+  ${_raw_fft}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD
@@ -268,7 +268,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   rand.cppm
   LINK_PUBLIC
-  ${_gpu_raw_rand}
+  ${_raw_rand}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD
@@ -280,7 +280,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   tx.cppm
   LINK_PUBLIC
-  ${_gpu_raw_tx}
+  ${_raw_tx}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD
@@ -292,7 +292,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   ccl.cppm
   LINK_PUBLIC
-  ${_gpu_raw_ccl}
+  ${_raw_ccl}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD
@@ -310,8 +310,8 @@ wwr_add_cxx_module_library(
 #
 # Derived from BUILDSYSTEM_TARGETS so a module added above cannot be forgotten;
 # the INTERFACE libraries here have no units to compile and are skipped.
-get_property(_gpu_targets DIRECTORY PROPERTY BUILDSYSTEM_TARGETS)
-foreach(_target IN LISTS _gpu_targets)
+get_property(_wwr_targets DIRECTORY PROPERTY BUILDSYSTEM_TARGETS)
+foreach(_target IN LISTS _wwr_targets)
   get_target_property(_type ${_target} TYPE)
   if(_type STREQUAL "STATIC_LIBRARY")
     target_link_libraries(
@@ -319,16 +319,16 @@ foreach(_target IN LISTS _gpu_targets)
     )
   endif()
 endforeach()
-unset(_gpu_targets)
+unset(_wwr_targets)
 unset(_target)
 unset(_type)
 
-# The wrappers, written once against the gpu* names above. Added last so the
+# The wrappers, written once against the wwr* names above. Added last so the
 # wwr.* module targets they link already exist.
 add_subdirectory(wrappers)
 
 # The extension layer -- higher-level RAII/error-handling abstractions built on
-# the gpu* names (runtime, memory_buffer, parallel_for, rand, and the
+# the wwr* names (runtime, memory_buffer, parallel_for, rand, and the
 # error/handle layer for blas/solver/fft/sparse). Added after wrappers; it too
-# is written once against the gpu* module targets above.
+# is written once against the wwr* module targets above.
 add_subdirectory(extension)
