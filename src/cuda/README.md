@@ -180,6 +180,33 @@ NCCL is **not** part of the `cuda-toolkit` meta-package, and there is no
 `libnccl` and wraps it in an installable imported target (as it does for
 `cusolverMg`); `docker/Dockerfile.cuda` installs `libnccl-dev`.
 
+### `wwr.cuda.nvcomp`
+
+**Import:** `import wwr.cuda.nvcomp;`
+
+Wraps nvCOMP — NVIDIA's GPU lossless-compression library: the batched low-level
+interface (LLIF) for LZ4, Snappy, Cascaded, Deflate, GZIP, Zstd, GDeflate,
+Bitcomp and ANS, the CRC32 checksum API, and the shared status/type enums. HIP
+counterpart: `wwr.hip.hipcomp`. There is deliberately **no** backend-neutral
+`wwr.comp` layer: nvCOMP is 5.3 while hipCOMP is a hipify of nvCOMP 2.2, so the
+batched signatures diverge (split compress/decompress opts, an extra
+device-status parameter, Sync/Async temp-size queries) and a `wwr*` alias could
+not present one portable signature — see issue #110. The C++ HLIF managers and
+the version macros are not wrapped.
+
+The vendor headers declare their default-option structs, per-algorithm
+chunk-size limits, alignment requirements and CRC32 model presets as file-scope
+`static const` (internal linkage), which a module cannot name in an `export`ed
+declaration. They are re-declared in `wwr::cuda` (integral limits as `inline
+constexpr`, struct values as `inline const`), the same forwarding workaround
+`cuComplex` uses for `cuComplex.h`'s static-inline functions.
+
+nvCOMP is not a FindCUDAToolkit component; it ships its own CMake config package
+providing `nvcomp::nvcomp`, so `CMakeLists.txt` `find_package(nvcomp)`s it and
+the module links that plus `CUDA::cudart`. `docker/install-cuda.sh` installs the
+`nvcomp-cuda-*` apt package and republishes it under `/opt/nvidia/nvcomp` on
+`CMAKE_PREFIX_PATH`.
+
 ## Build
 
 Defined in `CMakeLists.txt` using the project-local

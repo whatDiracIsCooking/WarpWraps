@@ -352,3 +352,21 @@ wwr_add_cxx_module_library(
   hip::host
   IMPORT_STD
 )
+
+# hipCOMP (GPU lossless compression)
+#
+# CUDA counterpart: nvcomp.cppm. hipCOMP is a hipify of nvCOMP branch-2.2 and is
+# NOT part of ROCm proper -- it is built from source into /opt/rocm-ds (see
+# docker/install-rocm-ds.sh), which ships the hipcomp::hipcomp imported target
+# find_package(hipcomp) resolves off CMAKE_PREFIX_PATH. hip::host is linked
+# alongside because hipcomp.h pulls in <hip/hip_runtime.h> for hipStream_t.
+wwr_add_cxx_module_library(
+  NAME
+  wwr.hip.hipcomp
+  PRIMARY_INTERFACE
+  hipcomp.cppm
+  LINK_PUBLIC
+  hipcomp::hipcomp
+  hip::host
+  IMPORT_STD
+)

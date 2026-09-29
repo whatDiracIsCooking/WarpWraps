@@ -31,6 +31,7 @@ set(HIP_TEST_LIBRARIES
     hipfftXt
     hiprand
     hiprand_kernel
+    hipcomp
 )
 
 foreach(_lib IN LISTS HIP_TEST_LIBRARIES)

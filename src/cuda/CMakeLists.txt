@@ -357,6 +357,26 @@ wwr_add_cxx_module_library(
   PUBLIC
 )
 
+# nvCOMP (GPU lossless compression) -- HIP counterpart: wwr.hip.hipcomp.
+#
+# nvCOMP is not part of the base CUDA toolkit and is NOT a FindCUDAToolkit
+# component; it ships its own CMake config package providing the nvcomp::nvcomp
+# imported target (see docker/install-cuda.sh, which republishes it under a
+# fixed /opt/nvidia/nvcomp prefix on CMAKE_PREFIX_PATH). CUDA::cudart is linked
+# alongside for the cudaStream_t the batched async signatures take.
+wwr_add_cxx_module_library(
+  NAME
+  wwr.cuda.nvcomp
+  PRIMARY_INTERFACE
+  nvcomp.cppm
+  LINK_PUBLIC
+  nvcomp::nvcomp
+  CUDA::cudart
+  IMPORT_STD
+  INCLUDE_CUDA_TOOLKIT
+  PUBLIC
+)
+
 # NVML (NVIDIA Management Library)
 wwr_add_cxx_module_library(
   NAME

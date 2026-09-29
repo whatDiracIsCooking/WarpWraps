@@ -41,6 +41,7 @@ set(CUDA_TEST_LIBRARIES
     cufile
     nvJitLink
     nvjpeg
+    nvcomp
     nvml
     nvrtc
 )
