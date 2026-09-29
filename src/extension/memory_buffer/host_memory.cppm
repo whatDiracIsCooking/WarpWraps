@@ -141,16 +141,4 @@ stdHostMemoryError_t std_free(void *ptr) noexcept {
   return stdHostMemSuccess;
 }
 
-// ============================================================================
-// Template Instantiations
-// ============================================================================
-
-// Explicitly instantiate AbortPolicy for stdHostMemoryError_t
-template class AbortPolicy<stdHostMemoryError_t>;
-
-// Explicitly instantiate gpu_check for stdHostMemoryError_t
-template bool gpu_check<stdHostMemoryError_t, AbortPolicy<stdHostMemoryError_t> &>(
-    const stdHostMemoryError_t error, AbortPolicy<stdHostMemoryError_t> &policy,
-    std::source_location location);
-
 } // namespace wwr::extension

@@ -5,8 +5,8 @@
 # blas/solver/fft/sparse error+handle modules and the runtime and memory_buffer
 # modules all link this.
 #
-# The error+check primitives (error_code, error_policy, abort_policy,
-# gpu_check) live in the sibling wwr.extension.error_handling module (in
+# The error+check primitives (error_code, error_policy, gpu_check) live in the
+# sibling wwr.extension.error_handling module (in
 # src/extension/error_handling); this module links it PUBLIC and re-exports it,
 # then adds the wwrError_t specializations (:gpu_error) on top. The RAII
 # GPU-handle layer built on this foundation is another sibling module

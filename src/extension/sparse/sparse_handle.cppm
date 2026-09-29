@@ -33,7 +33,7 @@ export namespace wwr::extension {
  */
 template<error_policy<wwrsparseStatus_t> P_create,
          nothrow_error_policy<wwrsparseStatus_t> P_destroy,
-         error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
+         error_policy<wwrError_t> P_device_access>
 class SparseHandleWrapper
     : public DeviceBoundHandle<wwrsparseHandle_t,
                             SparseHandleWrapper<P_create, P_destroy, P_device_access>, P_create,

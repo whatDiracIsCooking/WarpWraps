@@ -8,18 +8,20 @@ RAII-based memory buffer management for all GPU-relevant memory kinds. Provides 
 
 ## Buffer Types
 
-The module ships the `*Wrapper` classes (in the `wwr::extension` namespace); each takes its `P_alloc`/`P_free` error policies as explicit template arguments — neither has a default, so every use names both. It does **not** ship default-policy aliases for them — binding a wrapper to a policy (e.g. `AbortPolicy`) is a one-line `using` a consumer writes once, for the names it uses:
+The module ships the `*Wrapper` classes (in the `wwr::extension` namespace); each takes its `P_alloc`/`P_free` error policies as explicit template arguments — neither has a default, so every use names both. It ships **no** error policy either: `AbortPolicy` below is the consumer's own abort-on-failure policy (see `example/warp_reduce`). Binding a wrapper to a policy is a one-line `using` a consumer writes once, for the names it uses:
 
 ```cpp
-template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, MyDeviceHandle>;
+// DeviceBufferWrapper is device-bound: its last arg is the device-access policy.
+template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, MyDeviceHandle, AbortPolicy<wwrError_t>>;
 template<typename T> using PinnedBuffer  = PinnedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 template<typename T> using UnifiedBuffer = UnifiedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 template<typename T> using HostBuffer    = HostBufferWrapper<T, AbortPolicy<stdHostMemoryError_t>, AbortPolicy<stdHostMemoryError_t>>;
 ```
 
-`DeviceBufferWrapper` takes a fourth argument the others don't: the handle type
-backing it. This layer ships **no** concrete handle — `MyDeviceHandle` above is
-the consumer's own, any type satisfying the `device_handle` ladder (see
+`DeviceBufferWrapper` takes two arguments the others don't: the handle type
+backing it (fourth), and — because it is device-bound — the device-access error
+policy (fifth). This layer ships **no** concrete handle — `MyDeviceHandle` above
+is the consumer's own, any type satisfying the `device_handle` ladder (see
 `handle/device_handle.cppm` and the one `example/warp_reduce/main.cpp` defines).
 
 The examples below use those names (see also `example/warp_reduce`). Each wrapper class:
@@ -110,7 +112,7 @@ UnifiedBuffer<T> buf(n, wwrMemAttachHost);   // wwrMallocManaged with flags
 
 ## Error Handling
 
-Error policies are parameterised via `P_alloc` and `P_free` template arguments. The default is `AbortPolicy<ErrorType>`. The error type varies by memory kind:
+Error policies are parameterised via `P_alloc` and `P_free` template arguments; there is no default, so every use names them (the library ships no policy). The error type varies by memory kind:
 
 | Kind | Error type |
 |---|---|
@@ -235,6 +237,6 @@ Each buffer type exposes `static constexpr MemoryKind memory_kind` and the boole
 
 | Dependency | Purpose |
 |---|---|
-| `wwr.extension.common` | Error policy concepts, `gpu_check`, `AbortPolicy` |
+| `wwr.extension.common` | Error policy concepts, `gpu_check` |
 | `wwr.extension.runtime` | `gpu_check` overloads for `wwrError_t` |
 | `wwr.runtime_api` | gpu* memory allocation APIs (CUDA or HIP runtime) |

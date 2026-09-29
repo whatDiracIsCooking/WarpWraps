@@ -47,7 +47,7 @@ import wwr.wrappers.fft;
 import wwr.wrappers.sparse;
 
 #if defined(WWR_CONSUMER_HAS_EXTENSION)
-import wwr.extension.common;        // AbortPolicy<E>, the error policies the wrappers take
+import wwr.extension.common;        // success_code/error_name/error_string, error_policy concepts
 import wwr.extension.runtime;       // GpuStreamWrapper and the rest of the RAII runtime
 import wwr.extension.random_normal; // random_normal<T>, backed by a device archive
 import wwr.extension.tx;            // wwr::extension::ScopedRange
@@ -170,9 +170,24 @@ bool wrappers_link() {
 // (wwr.extension.random_normal.device) to resolve and link, which is the
 // fragile part of the extension install -- the archive has to survive the export
 // set and re-attach in a find_package consumer.
+// The library ships no error policy -- a consumer brings its own. This is this
+// consumer's: print to stderr and abort on failure. It only names the wrapper's
+// policy arguments below; nothing here runs it.
+template<typename T>
+struct AbortPolicy {
+  using error_type = T;
+  void handle_error(const T error, std::source_location loc) noexcept {
+    if (error != extension::success_code<T>()) {
+      std::println(stderr, "GPU error at {}:{} in {}: {} ({})", loc.file_name(), loc.line(),
+                   loc.function_name(), extension::error_name(error), extension::error_string(error));
+      std::abort();
+    }
+  }
+};
+
 bool extension_link() {
-  static_assert(sizeof(extension::GpuStreamWrapper<extension::AbortPolicy<wwrError_t>,
-                                                   extension::AbortPolicy<wwrError_t>>) > 0);
+  static_assert(sizeof(extension::GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
+                                                   AbortPolicy<wwrError_t>>) > 0);
   static const void *volatile sink[] = {
       reinterpret_cast<const void *>(&extension::random_normal<float>),
   };

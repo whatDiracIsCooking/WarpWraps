@@ -9,8 +9,10 @@ wwr_add_gtest_executable(
   SOURCES
   handle_tests.cpp
   LINK
+  wwr.runtime_api
   wwr.extension.sparse
   wwr.extension.handle
+  wwr.test.shared.abort_policy
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test file,

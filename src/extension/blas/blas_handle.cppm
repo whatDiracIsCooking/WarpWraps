@@ -33,7 +33,7 @@ export namespace wwr::extension {
  */
 template<error_policy<wwrblasStatus_t> P_create,
          nothrow_error_policy<wwrblasStatus_t> P_destroy,
-         error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
+         error_policy<wwrError_t> P_device_access>
 class BlasHandleWrapper
     : public DeviceBoundHandle<wwrblasHandle_t,
                             BlasHandleWrapper<P_create, P_destroy, P_device_access>, P_create,

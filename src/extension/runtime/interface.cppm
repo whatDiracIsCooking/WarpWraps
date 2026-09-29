@@ -13,9 +13,11 @@
  *   import wwr.extension.runtime;
  *   using namespace wwr::extension;
  *
- *   GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> stream;
- *   GpuEventWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> event;
- *   GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> mem_pool;
+ *   // AbortPolicy here is your own abort-on-failure policy; the library ships none.
+ *   // These wrappers are device-bound, so the third arg is the device-access policy.
+ *   GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> stream;
+ *   GpuEventWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> event;
+ *   GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> mem_pool;
  */
 
 export module wwr.extension.runtime;

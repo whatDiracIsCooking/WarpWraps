@@ -10,6 +10,7 @@ import wwr.extension.runtime;
 import wwr.extension.blas;
 import wwr.extension.solver;
 import wwr.extension.sparse;
+import wwr.test.shared.abort_policy;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Compile-time contract of the handle views
@@ -60,10 +61,10 @@ static_assert(is_view_value<HandleView<wwrEvent_t>>);
 static_assert(is_view_value<DeviceBoundHandleView<wwrEvent_t>>);
 
 // Owners are move-only; a view is never taken by copying an owner.
-static_assert(!std::is_copy_constructible_v<GpuEventWrapper<Abort, Abort>>);
-static_assert(!std::is_copy_constructible_v<GpuStreamWrapper<Abort, Abort>>);
-static_assert(!std::is_copy_constructible_v<BlasHandleWrapper<BlasAbort, BlasAbort>>);
-static_assert(std::is_nothrow_move_constructible_v<GpuEventWrapper<Abort, Abort>>);
+static_assert(!std::is_copy_constructible_v<GpuEventWrapper<Abort, Abort, Abort>>);
+static_assert(!std::is_copy_constructible_v<GpuStreamWrapper<Abort, Abort, Abort>>);
+static_assert(!std::is_copy_constructible_v<BlasHandleWrapper<BlasAbort, BlasAbort, Abort>>);
+static_assert(std::is_nothrow_move_constructible_v<GpuEventWrapper<Abort, Abort, Abort>>);
 
 // Views convert to the raw handle, exactly as the owners do.
 static_assert(std::is_convertible_v<GpuEventView, wwrEvent_t>);
@@ -81,19 +82,19 @@ static_assert(std::is_constructible_v<GpuGraphExecView, wwrGraphExec_t>);
 // (which would dangle immediately); that guard fires at the call site, not as a
 // trait here -- the deleted overload still wins overload resolution, so calling
 // it is a hard error rather than a detectable unsatisfied requirement.
-static_assert(requires(const GpuEventWrapper<Abort, Abort> &e) { e.view(); });
-static_assert(std::is_same_v<decltype(std::declval<const GpuEventWrapper<Abort, Abort> &>().view()), GpuEventView>);
-static_assert(std::is_same_v<decltype(std::declval<const GpuStreamWrapper<Abort, Abort> &>().view()), GpuStreamView>);
+static_assert(requires(const GpuEventWrapper<Abort, Abort, Abort> &e) { e.view(); });
+static_assert(std::is_same_v<decltype(std::declval<const GpuEventWrapper<Abort, Abort, Abort> &>().view()), GpuEventView>);
+static_assert(std::is_same_v<decltype(std::declval<const GpuStreamWrapper<Abort, Abort, Abort> &>().view()), GpuStreamView>);
 static_assert(
     std::is_same_v<decltype(std::declval<const GpuGraphExecWrapper<Abort, Abort> &>().view()), GpuGraphExecView>);
-static_assert(std::is_same_v<decltype(std::declval<const GpuMemPoolWrapper<Abort, Abort> &>().view()), DeviceBoundHandleView<wwrMemPool_t>>);
+static_assert(std::is_same_v<decltype(std::declval<const GpuMemPoolWrapper<Abort, Abort, Abort> &>().view()), DeviceBoundHandleView<wwrMemPool_t>>);
 static_assert(std::is_same_v<decltype(std::declval<const GpuGraphWrapper<Abort, Abort> &>().view()), HandleView<wwrGraph_t>>);
 static_assert(
-    std::is_same_v<decltype(std::declval<const BlasHandleWrapper<BlasAbort, BlasAbort> &>().view()), DeviceBoundHandleView<wwrblasHandle_t>>);
-static_assert(std::is_same_v<decltype(std::declval<const SolverDnHandleWrapper<SolverAbort, SolverAbort> &>().view()),
+    std::is_same_v<decltype(std::declval<const BlasHandleWrapper<BlasAbort, BlasAbort, Abort> &>().view()), DeviceBoundHandleView<wwrblasHandle_t>>);
+static_assert(std::is_same_v<decltype(std::declval<const SolverDnHandleWrapper<SolverAbort, SolverAbort, Abort> &>().view()),
                              DeviceBoundHandleView<wwrsolverDnHandle_t>>);
 static_assert(
-    std::is_same_v<decltype(std::declval<const SparseHandleWrapper<SparseAbort, SparseAbort> &>().view()), DeviceBoundHandleView<wwrsparseHandle_t>>);
+    std::is_same_v<decltype(std::declval<const SparseHandleWrapper<SparseAbort, SparseAbort, Abort> &>().view()), DeviceBoundHandleView<wwrsparseHandle_t>>);
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // [[no_unique_address]] on BaseHandle's policy members (issue #67)
@@ -132,8 +133,8 @@ static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolic
 
 // Never called: exists only to instantiate and type-check the borrow-safe free
 // functions on each owner, its view, and a raw handle, without a device.
-[[maybe_unused]] void exercise(const GpuEventWrapper<Abort, Abort> &event,
-                               const GpuStreamWrapper<Abort, Abort> &stream,
+[[maybe_unused]] void exercise(const GpuEventWrapper<Abort, Abort, Abort> &event,
+                               const GpuStreamWrapper<Abort, Abort, Abort> &stream,
                                const GpuGraphExecWrapper<Abort, Abort> &exec,
                                wwrStream_t raw_stream, wwrEvent_t raw_event) {
   const GpuEventView ev = event.view();

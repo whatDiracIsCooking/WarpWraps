@@ -23,30 +23,10 @@ import wwr.runtime_api;
 import wwr.extension.common;
 import wwr.extension.handle;
 import wwr.extension.runtime;
+import wwr.test.shared.abort_policy; // AbortPolicy for this fixture's stream/pool
 import std;
 
 export namespace wwr::extension::test {
-
-/**
- * @brief Abort-on-error policy for the test DeviceHandle's stream and pool
- *
- * A private copy of the shipped AbortPolicy so this test fixture does not depend
- * on it -- the point of relocating DeviceHandle here is to let the library drop
- * its concrete AbortPolicy instantiations. handle_error is noexcept because it
- * feeds the stream/pool destruction slots (nothrow_error_policy).
- */
-template<typename T>
-class AbortPolicy {
-public:
-  using error_type = T;
-  void handle_error(const T error, std::source_location location) noexcept {
-    if (error != success_code<T>()) {
-      std::print(std::cerr, "GPU error at {}:{} in {}: {} ({})\n", location.file_name(),
-                 location.line(), location.function_name(), error_name(error), error_string(error));
-      std::abort();
-    }
-  }
-};
 
 /**
  * @brief Identity, static properties and default allocation stream of one physical GPU
@@ -72,6 +52,12 @@ public:
  * total memory, compute capability) behind their own accessors.
  */
 class DeviceHandle {
+  // stream_ and pool_ bind all three policy slots (create, destroy,
+  // device-access) to abort-on-failure.
+  using Abort = AbortPolicy<wwrError_t>;
+  using Stream = GpuStreamWrapper<Abort, Abort, Abort>;
+  using Pool = GpuMemPoolWrapper<Abort, Abort, Abort>;
+
 public:
   explicit DeviceHandle(int index = 0,
                         std::source_location location = std::source_location::current())
@@ -87,27 +73,27 @@ public:
   const wwrDeviceProp &props() const noexcept { return props_; }
 
   /// @brief The default allocation stream, created on this device at construction
-  GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &stream() noexcept { return stream_; }
+  Stream &stream() noexcept { return stream_; }
   /// @copydoc stream()
-  const GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &stream() const noexcept { return stream_; }
+  const Stream &stream() const noexcept { return stream_; }
 
   /// @brief The default memory pool, created on this device at construction
-  GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &pool() noexcept { return pool_; }
+  Pool &pool() noexcept { return pool_; }
   /// @copydoc pool()
-  const GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> &pool() const noexcept { return pool_; }
+  const Pool &pool() const noexcept { return pool_; }
 
 private:
   /// @brief Query one device's properties, aborting on failure
   static wwrDeviceProp query_props(int index, std::source_location location) {
     wwrDeviceProp prop{};
-    gpu_check(wwrGetDeviceProperties(&prop, index), AbortPolicy<wwrError_t>{}, location);
+    gpu_check(wwrGetDeviceProperties(&prop, index), Abort{}, location);
     return prop;
   }
 
   int index_ = 0;
   wwrDeviceProp props_{};
-  GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> stream_;
-  GpuMemPoolWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>> pool_;
+  Stream stream_;
+  Pool pool_;
 };
 
 /// The reference model is the fullest tier -- pinning it also pins the two tiers

@@ -6,17 +6,18 @@
  *   import wwr.extension.common;
  *
  *   {
- *     DeviceScope scope{target_idx};  // target_idx is now current
- *     ...                             // work on target_idx
- *   }                                 // previous device restored
+ *     DeviceScope<MyPolicy> scope{target_idx};  // target_idx is now current
+ *     ...                                       // work on target_idx
+ *   }                                           // previous device restored
+ *
+ *   // MyPolicy is your own error_policy<wwrError_t>; the library ships none.
  */
 
 export module wwr.extension.common:device_scope;
 
 import wwr.extension.error_handling;
-// The AbortPolicy<wwrError_t> path -- the default P_device_access, and the
-// explicit restore policy in the destructor below -- odr-uses
-// success_code<wwrError_t>() (and error_name/error_string). That specialization
+// The constructor and destructor route their gpu_check calls through
+// policy_device_, which odr-uses success_code<wwrError_t>(). That specialization
 // lives in :gpu_error; without it reachable the compiler falls back to the
 // inline-but-undefined primary template (-Wundefined-inline, and an ill-formed
 // implicit instantiation). Acyclic: :gpu_error imports none of :device_scope's
@@ -36,24 +37,25 @@ export namespace wwr::extension {
  * wwrError_t-returning and carry [[nodiscard]] on some backends, so the return
  * cannot simply be dropped -- each goes through gpu_check.
  *
- * The two calls that *enter* the scope (record the original, switch to the
- * target) route through P_device_access, so device-selection error handling is
- * under the caller's control (defaulting to abort). This mirrors
- * DeviceBoundHandle's P_device_access, and like it stays the plain
- * error_policy: a caller may hand in a throwing policy to propagate a bad-index
- * failure out of the constructor as an exception.
+ * Every wwrGetDevice/wwrSetDevice call -- the two that *enter* the scope and the
+ * one that restores on destruction -- routes through the same retained
+ * P_device_access, so device-selection error handling is entirely the caller's,
+ * and the library keeps no error policy of its own. This mirrors
+ * DeviceBoundHandle's P_device_access; it stays the plain error_policy so a
+ * caller may hand in a throwing policy to propagate a bad-index failure out of
+ * the constructor as an exception.
  *
- * The restore on destruction deliberately does *not* use that policy: it runs
- * from the destructor, where a throwing policy would std::terminate, and a
- * failed restore means the runtime context is already unusable -- at which
- * point aborting is the only sane response. So the restore passes an explicit
- * AbortPolicy<wwrError_t> (abort-on-failure) regardless of P_device_access.
+ * The restore runs from the destructor, which is noexcept: a policy that
+ * *throws* on a failed restore therefore terminates rather than propagates, so
+ * a device policy that must survive destruction should be nothrow (one that
+ * aborts, say). The buffer wrappers that nest a DeviceScope on their free path
+ * already require exactly that (nothrow_error_policy).
  *
- * @tparam P_device_access The error policy for the entering wwrGetDevice/
- *         wwrSetDevice calls; typed to wwrError_t, defaulted to
- *         AbortPolicy<wwrError_t>.
+ * @tparam P_device_access The error policy for the wwrGetDevice/wwrSetDevice
+ *         calls; typed to wwrError_t (what those calls return), independent of
+ *         any handle's own status type. No default -- the caller names the policy.
  */
-template<error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
+template<error_policy<wwrError_t> P_device_access>
 struct DeviceScope : private NonCopyable {
   int original_idx = -1; ///< Device current at construction, restored on destruction
 
@@ -68,7 +70,9 @@ struct DeviceScope : private NonCopyable {
     gpu_check(wwrSetDevice(target_idx), policy_device_, location);
   }
 
-  ~DeviceScope() { gpu_check(wwrSetDevice(original_idx), AbortPolicy<wwrError_t>{}); }
+  // Restore symmetrically, through the same policy the entry calls used (see the
+  // class note on the noexcept-destructor caveat for throwing policies).
+  ~DeviceScope() { gpu_check(wwrSetDevice(original_idx), policy_device_); }
 
   // Copy operations are implicitly deleted via the NonCopyable base. The
   // user-declared destructor suppresses the implicit moves, so the guard stays

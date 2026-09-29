@@ -16,6 +16,7 @@ wwr_add_cxx_module_library(
   wwr.runtime_api
   wwr.extension.common
   wwr.extension.handle
+  wwr.test.shared.abort_policy
 )
 
 add_dependencies(
