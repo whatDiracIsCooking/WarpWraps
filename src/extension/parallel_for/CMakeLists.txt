@@ -8,7 +8,7 @@
 # src/extension, this is a device-code header (parallel_for.cuh), not a C++20
 # module -- consumers #include it directly into a .cu (CUDA) or
 # device-compiled (HIP) translation unit. See parallel_for.cuh's own header
-# comment for why gpu_backend.h's module-name-switch technique does not apply
+# comment for why backend.h's module-name-switch technique does not apply
 # here, and how backend selection is done instead (src/runtime.cuh,
 # keyed off the compiler's own __CUDACC__ / __HIP__ / __HIPCC__ device-compile
 # macros).
@@ -43,7 +43,7 @@ target_include_directories(
 target_link_libraries(wwr.extension.parallel_for INTERFACE wwr.device)
 
 # wwr.extension.bridge carries the same src/ include root, named explicitly
-# because parallel_for.cuh includes "extension/bridge/gpu_stream_bridge.h": the
+# because parallel_for.cuh includes "extension/bridge/stream_bridge.h": the
 # dependency on the bridge headers is real and should be declared, not left to
 # ride wwr.device's include path.
 target_link_libraries(

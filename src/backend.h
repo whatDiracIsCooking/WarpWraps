@@ -1,5 +1,5 @@
 /**
- * @file gpu_backend.h
+ * @file backend.h
  * @brief The CUDA-or-HIP switch point for src modules
  *
  * Included ONLY in the global module fragment of a src module. Every such

@@ -13,7 +13,7 @@
  *
  * The legitimate readers are the switch points that include it: device_guard.h
  * directly, and the four .cuh headers transitively through it. The two bridges
- * (gpu_stream_bridge.h and rand_state_bridge.h, now in src/extension/bridge/)
+ * (stream_bridge.h and rand_state_bridge.h, now in src/extension/bridge/)
  * include it directly too -- directly rather than through device_guard.h,
  * because a bridge compiles in a host TU and so must not carry its device-pass
  * #error. Linking wwr_backend grants the ability to write a backend #if

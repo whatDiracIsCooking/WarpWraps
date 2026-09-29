@@ -2,7 +2,7 @@
  * @file rand_state_bridge.h
  * @brief wwr::wwrrandState for translation units that cannot `import`
  *
- * gpu_stream_bridge.h's counterpart for the one other type that crosses a
+ * stream_bridge.h's counterpart for the one other type that crosses a
  * host/device boundary by pointer. Same reach -- a .cpp, a .cppm's global
  * module fragment, a .cu or a .cuh -- and the same backend selection, from
  * selected_backend.h.

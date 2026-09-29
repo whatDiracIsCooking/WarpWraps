@@ -177,7 +177,7 @@ constants. Three things to watch:
 
 ## How a name is mapped
 
-`gpu_backend.h` holds the switch. It is included only in a `src` module's
+`backend.h` holds the switch. It is included only in a `src` module's
 global module fragment, and module units do not export macros, so nothing
 outside this directory can see it.
 
@@ -209,7 +209,7 @@ translation unit — a `.cu` under CUDA, a `-x hip` compiled source under HIP �
 imports no modules at all, so none of the modules above can serve it. The
 nine `.cuh` headers are the counterpart for that case: same `gpu*` names,
 reached by `#include`, with the backend resolved through `selected_backend.h`
-(which reads the compiler's own device-compile macro before `gpu_backend.h`'s
+(which reads the compiler's own device-compile macro before `backend.h`'s
 CMake define) rather than by an `import`. Each also `#error`s if included
 outside a device-compile pass — a *separate* check on `__CUDACC__` / `__HIP__`
 / `__HIPCC__`, because `selected_backend.h` would otherwise resolve a backend
@@ -290,12 +290,12 @@ and HIP's `wavefront` stay vendor-only, as §15 leaves `atomicAdd_block`/`_syste
 out. libhipcxx (`<hip/std/atomic>`) is absent from the pinned ROCm, so the
 builtin forwarding is the only portable design — measured, in §20.
 
-`wwrStream_t` is not among them: it lives in `gpu_stream_bridge.h`, `_bridge.h`
+`wwrStream_t` is not among them: it lives in `stream_bridge.h`, `_bridge.h`
 rather than `.cuh` precisely because it does *not* `#error` outside a device
-pass -- see "The switch points" below. `gpu_stream_bridge.h` and
+pass -- see "The switch points" below. `stream_bridge.h` and
 `rand_state_bridge.h` live in `src/extension/bridge/` (exposed by the
 `wwr.extension.bridge` INTERFACE target), reached as
-`extension/bridge/gpu_stream_bridge.h` through the `src/` include root and
+`extension/bridge/stream_bridge.h` through the `src/` include root and
 `#include`d (not imported) by the init_state and random_normal module units and by
 `parallel_for.cuh` -- see "`_bridge`, and why the extension is not enough" below
 for what they do.
@@ -348,9 +348,9 @@ three build on its answer rather than re-deriving it.
 | Header | For | Picks the backend from |
 |---|---|---|
 | `selected_backend.h` | **anything** | `__CUDACC__` / `__HIP__` / `__HIPCC__` first, then `WWR_GPU_BACKEND_*`. Defines `WWR_SELECTED_CUDA` / `WWR_SELECTED_HIP` and nothing else |
-| `gpu_backend.h` | the `.cppm`s here | `WWR_GPU_BACKEND_*`; expands to names an `import` provides |
+| `backend.h` | the `.cppm`s here | `WWR_GPU_BACKEND_*`; expands to names an `import` provides |
 | `runtime.cuh` | device-compiled TUs (`.cu`, `.cuh`) | `WWR_SELECTED_*` (via `device_guard.h`), after `#error`ing outside a device pass |
-| `gpu_stream_bridge.h`, `rand_state_bridge.h` | **anything** (`.cpp`, `.cppm`, `.cu`, `.cuh`) | `WWR_SELECTED_*` (via `selected_backend.h`), *without* `#error`ing outside a device pass |
+| `stream_bridge.h`, `rand_state_bridge.h` | **anything** (`.cpp`, `.cppm`, `.cu`, `.cuh`) | `WWR_SELECTED_*` (via `selected_backend.h`), *without* `#error`ing outside a device pass |
 
 The bridge headers are the fourth: they carry a declaration across the
 host/device boundary, so unlike the device `.cuh` they must compile in a host
@@ -377,11 +377,11 @@ only separates the last one:
 
 | Class | Compiles in a host TU | Compiles in a device pass | Named |
 |---|:---:|:---:|---|
-| host-only | ✅ | ❌ | `*.h` — `gpu_backend.h`, and `dispatch_macros.h` under `src/wrappers` |
+| host-only | ✅ | ❌ | `*.h` — `backend.h`, and `dispatch_macros.h` under `src/wrappers` |
 | **bridge** | ✅ | ✅ | `*_bridge.h` |
 | device-only | ❌ | ✅ | `*.cuh` — `runtime.cuh`, `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `fp8.cuh`, `cooperative_groups.cuh`, `rand.cuh`, `parallel_for.cuh` |
 
-So `.h` on its own does *not* mean "safe from a `.cu`" — `gpu_backend.h` is `.h`
+So `.h` on its own does *not* mean "safe from a `.cu`" — `backend.h` is `.h`
 and host-only. The `_bridge` suffix marks the middle class explicitly, and it
 means one specific thing: **this header carries a declaration across the
 host/device boundary**, so the host TU that declares and the device TU that
@@ -391,7 +391,7 @@ There are exactly four, two here and two above, consumed by
 
 | Bridge | Carries |
 |---|---|
-| `gpu_stream_bridge.h` | `wwr::wwrStream_t` |
+| `stream_bridge.h` | `wwr::wwrStream_t` |
 | `rand_state_bridge.h` | `wwr::wwrrandState` |
 | `extension/init_state/init_state_bridge.h` | `device::init_state()` |
 | `extension/random_normal/random_normal_bridge.h` | `device::random_normal()` |
@@ -404,13 +404,13 @@ appear in a signature.
 A bridge is needed at all because a module unit's **global module fragment** can
 `#include` but cannot `import`, and a declaration shared with a plain
 (non-module) TU has to live there to keep ordinary external linkage. That rules
-out `gpu_backend.h` (its macros name imported entities) *and* `runtime.cuh`
+out `backend.h` (its macros name imported entities) *and* `runtime.cuh`
 (a module interface unit is a host compile, so its `#error` fires).
 `selected_backend.h` falling back to the CMake define only when no device pass
 is in progress is what lets one header serve both, and is why
 `wwr.device` still carries no define.
 
-`rand_state_bridge.h` is `gpu_stream_bridge.h`'s counterpart for `wwrrandState`.
+`rand_state_bridge.h` is `stream_bridge.h`'s counterpart for `wwrrandState`.
 It only *forward-declares* the vendor struct -- a pointer parameter
 needs the type declared, not complete -- so it keeps `curand_kernel.h` /
 `hiprand_kernel.h` out of host compiles entirely.
@@ -425,7 +425,7 @@ written for; their header comments have the full reasoning.
 exported `gpu*` name is exactly the backend entity it stands for: the same
 type, the same constant (type and value), the same function (plus
 `WWR_LINK_CHECK`). The expected backend names are written out in full rather than
-derived with `gpu_backend.h`'s macros, so a mistake in those macros shows up as
+derived with `backend.h`'s macros, so a mistake in those macros shows up as
 a failing test instead of being repeated in it. Add a line there whenever you
 add a name here.
 

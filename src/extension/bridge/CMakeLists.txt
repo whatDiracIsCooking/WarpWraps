@@ -1,7 +1,7 @@
 # Bridge headers -- carry wwrStream_t / wwrrandState across the host/device
 # boundary by #include, for translation units that cannot `import`.
 #
-# gpu_stream_bridge.h and rand_state_bridge.h each forward-declare (or minimally
+# stream_bridge.h and rand_state_bridge.h each forward-declare (or minimally
 # include) one vendor type and alias it under a gpu* name, picked by
 # src/selected_backend.h. A .cpp, a .cppm's global module fragment, a .cu or a
 # .cuh reaches them; see each header's own comment.
@@ -15,7 +15,7 @@
 add_library(wwr.extension.bridge INTERFACE)
 
 # The include root is src/ itself, not this directory: the headers are reached
-# as "extension/bridge/gpu_stream_bridge.h" and themselves include the src/-root
+# as "extension/bridge/stream_bridge.h" and themselves include the src/-root
 # header "selected_backend.h". The installed tree mirrors src/ under
 # include/wwr/ (cmake/wwr_install.cmake stages this directory there), so
 # both spellings resolve unchanged after install.

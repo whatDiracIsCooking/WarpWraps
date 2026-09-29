@@ -3,7 +3,7 @@
 # The extension layer's backend-neutral error-handling primitives: a standalone
 # sibling module under src/extension, imports only std -- no gpu* names, no
 # runtime API. wwr.extension.common links it PUBLIC and re-exports it (and adds
-# the wwrError_t specializations in :gpu_error), so consumers reach these names
+# the wwrError_t specializations in :error), so consumers reach these names
 # through `import wwr.extension.common;`.
 #
 # The layer ships no default error policy: every gpu_check call and every RAII

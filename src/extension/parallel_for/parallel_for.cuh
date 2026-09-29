@@ -8,7 +8,7 @@
 ///
 /// `#include`d directly into a .cu (CUDA) or `-x hip` device-compiled (HIP)
 /// translation unit, so it reaches the backend through the gpu* layer's
-/// runtime.cuh rather than gpu_backend.h: there is no module involved at
+/// runtime.cuh rather than backend.h: there is no module involved at
 /// the point of use. Link `wwr.device`.
 ///
 /// A functor's `operator()` is plain `__device__` on both backends. Its
@@ -29,7 +29,7 @@
 // wwr.device's include path. runtime.cuh is also the device-pass
 // gate: it #errors outside a CUDA or HIP device compile, so this header carries
 // no guard of its own.
-#include "extension/bridge/gpu_stream_bridge.h"
+#include "extension/bridge/stream_bridge.h"
 #include "runtime.cuh"
 
 namespace wwr::extension {

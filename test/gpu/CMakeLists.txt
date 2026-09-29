@@ -8,7 +8,7 @@
 # Like the gpu* layer, unlike everything else above it, these tests name both
 # backends, so they link wwr_backend PRIVATE for the backend
 # define. They spell each expected backend name out in full instead of using
-# gpu_backend.h's macros, so a mistake there cannot be mirrored here.
+# backend.h's macros, so a mistake there cannot be mirrored here.
 #
 # gpu_compile_tests below is the one thing that runs (ctest label
 # compile_time). Expected exit code: 0

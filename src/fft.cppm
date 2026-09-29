@@ -5,7 +5,7 @@
  * wwrfft<name> stands for cufft<name> on a CUDA build and hipfft<name> on a HIP
  * build. Only the base (single-GPU) API is wrapped here -- the multi-GPU
  * eXtended surface is reached through wwr.cuda.cufftXt / wwr.hip.hipfftXt
- * directly. See gpu_backend.h.
+ * directly. See backend.h.
  *
  * Backend differences resolved here, not above:
  *
@@ -28,7 +28,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 export module wwr.fft;
 

@@ -12,7 +12,7 @@
 // backend is a source-compatible reimplementation of the CUDA one, so both
 // spell the entire surface with the identical nccl* / NCCL_* names. The names
 // below are therefore still the vendor's own, spelled in full (never a
-// gpu_backend.h macro) -- a backend-selected `using namespace` just points them
+// backend.h macro) -- a backend-selected `using namespace` just points them
 // at wwr::cuda or wwr::hip. Enumerator VALUES are pinned here regardless, since
 // matching names never guarantee matching values (see rand.cppm).
 //

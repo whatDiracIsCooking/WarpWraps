@@ -5,7 +5,7 @@
  * Exports the surface CUDA's cuda_fp4.h and HIP's hip_fp4.h share -- the E2M1
  * scalar type (plus its x2/x4 packed variants), the storage typedefs, the
  * interpretation enum, and the float/double narrowing conversions -- under one
- * set of gpu* names in namespace wwr. See gpu_backend.h for the switch.
+ * set of gpu* names in namespace wwr. See backend.h for the switch.
  * Companion to fp8.cppm and fp6.cppm.
  *
  * Both vendors define the one fp4 format (E2M1), so the whole scalar surface
@@ -55,7 +55,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 export module wwr.fp4;
 

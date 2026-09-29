@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "extension/bridge/gpu_stream_bridge.h"
+#include "extension/bridge/stream_bridge.h"
 #include "extension/bridge/rand_state_bridge.h"
 
 #include <cstddef>

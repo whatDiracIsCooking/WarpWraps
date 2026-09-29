@@ -6,7 +6,7 @@
  * hipsolverDn<X><basename> for the legacy (int-based) API, and
  * wwrsolverDnX<basename> for the modern (cusolverDnParams_t-based,
  * int64_t-dimensioned) one. Every function is written out in full, one line
- * each. See gpu_backend.h.
+ * each. See backend.h.
  *
  * Both backends' legacy linear-solver and eigen/SVD partitions match 1:1
  * (32 and 48 functions), so every legacy function is listed.
@@ -26,7 +26,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 #if defined(WWR_GPU_BACKEND_CUDA)
 #include <library_types.h>

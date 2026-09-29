@@ -33,7 +33,7 @@ wwr_add_gpu_device_library(
 # function that a plain TU defines (see init_state_bridge.h's own header).
 #
 # LINK_PRIVATE wwr_backend is for the two bridges init_state_bridge.h pulls
-# in there (extension/bridge/gpu_stream_bridge.h,
+# in there (extension/bridge/stream_bridge.h,
 # extension/bridge/rand_state_bridge.h): a GMF cannot `import`, so wwrStream_t
 # and wwrrandState have to arrive by #include, and selected_backend.h behind
 # them reads WWR_GPU_BACKEND_{CUDA,HIP} when there is no device-compile pass

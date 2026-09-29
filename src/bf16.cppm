@@ -2,7 +2,7 @@
  * @file bf16.cppm
  * @brief Backend-neutral bfloat16 type: wwrBfloat16 for __nv_bfloat16 / __hip_bfloat16
  *
- * See gpu_backend.h.
+ * See backend.h.
  *
  * Usage:
  *   import wwr.bf16;
@@ -10,7 +10,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 // The float<->bfloat16 conversions are static-inline in the vendor header (see
 // docs/architecture.md section 12), so the vendor module cannot export them and
