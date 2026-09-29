@@ -18,7 +18,7 @@
 import std;
 import wwr.runtime_api; // wwrError_t, for the device-access policy
 import wwr.extension.common; // the error_policy concept, for the counting policy
-import wwr.extension.handle; // BaseHandle, StreamBoundHandle, DeviceBoundHandleView
+import wwr.extension.handle; // BaseHandle, StreamBoundHandle, StreamBoundHandleView
 import wwr.extension.runtime; // GpuStreamWrapper, so owner->stream().get() has a complete type
 import wwr.extension.solver; // re-exports wwr.solver, so the raw handle/params types are in scope
 import wwr.test.shared.abort_policy; // AbortPolicy for this file's instantiations
@@ -124,16 +124,17 @@ TEST(SolverDnHandleTests, MovePreservesDevice) {
   EXPECT_EQ(handle1.dev_idx(), -1);
 }
 
-TEST(SolverDnHandleTests, ViewMirrorsOwnerHandleAndDevice) {
-  // view() is inherited from DeviceBoundHandle and only compile-tested elsewhere;
-  // this reads the borrowed handle/device back from a live handle. The view is
-  // a bare DeviceBoundHandleView with no borrow-safe ops (a cuSOLVER call consumes
-  // the raw handle), so mirroring get()/dev_idx() is its whole job.
+TEST(SolverDnHandleTests, ViewMirrorsOwnerHandleDeviceAndStream) {
+  // view() is inherited from StreamBoundHandle and only compile-tested elsewhere;
+  // this reads the borrowed handle/device/stream back from a live handle. The view
+  // is a StreamBoundHandleView with no borrow-safe ops (a cuSOLVER call consumes
+  // the raw handle), so mirroring get()/dev_idx()/stream() is its whole job.
   auto owner = std::make_shared<DeviceHandle>(0);
   SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
-  const DeviceBoundHandleView<wwrsolverDnHandle_t> view = handle.view();
+  const StreamBoundHandleView<wwrsolverDnHandle_t> view = handle.view();
   EXPECT_EQ(view.get(), handle.get());
   EXPECT_EQ(view.dev_idx(), handle.dev_idx());
+  EXPECT_EQ(view.stream(), handle.stream());
 }
 
 TEST(SolverDnHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {

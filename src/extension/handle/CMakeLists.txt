@@ -18,6 +18,7 @@ wwr_add_cxx_module_library(
   stream_bound_handle.cppm
   handle_view.cppm
   device_bound_handle_view.cppm
+  stream_bound_handle_view.cppm
   device_handle.cppm
   LINK_PUBLIC
   wwr.extension.common
