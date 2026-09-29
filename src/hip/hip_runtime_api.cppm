@@ -68,6 +68,9 @@ static_assert(hipMemAttachGlobal == 0x01, "hipMemAttachGlobal value mismatch");
 static_assert(hipMemAttachHost == 0x02, "hipMemAttachHost value mismatch");
 static_assert(hipMemAttachSingle == 0x04, "hipMemAttachSingle value mismatch");
 
+static_assert(hipArrayDefault == 0x00, "hipArrayDefault value mismatch");
+static_assert(hipArraySurfaceLoadStore == 0x02, "hipArraySurfaceLoadStore value mismatch");
+
 // Undefine macros so we can create constexpr variables with the same names
 #undef hipHostMallocDefault
 #undef hipHostMallocPortable
@@ -92,6 +95,8 @@ static_assert(hipMemAttachSingle == 0x04, "hipMemAttachSingle value mismatch");
 #undef hipMemAttachGlobal
 #undef hipMemAttachHost
 #undef hipMemAttachSingle
+#undef hipArrayDefault
+#undef hipArraySurfaceLoadStore
 
 export module wwr.hip.hip_runtime_api;
 
@@ -141,6 +146,11 @@ constexpr unsigned int hipDeviceLmemResizeToMax = 0x10;
 constexpr unsigned int hipMemAttachGlobal = 0x01;
 constexpr unsigned int hipMemAttachHost = 0x02;
 constexpr unsigned int hipMemAttachSingle = 0x04;
+
+// hipMallocArray flags -- hipArraySurfaceLoadStore must be set to bind a
+// surface object to the array (hipCreateSurfaceObject requires it).
+constexpr unsigned int hipArrayDefault = 0x00;
+constexpr unsigned int hipArraySurfaceLoadStore = 0x02;
 
 // ========================================================================
 // Types

@@ -100,6 +100,30 @@ protected:
   // Allows derived classes to manually create handles with custom parameters
   BaseHandle(skip_default_create_t) noexcept {}
 
+  // Skip automatic creation but still store the create/destroy policies. The
+  // parameterless skip constructor above leaves both policies default-built,
+  // which is all a pointer handle whose creation cannot fail through a stateful
+  // policy needs (gpu_mem_pool). A handle that must create itself in its own
+  // constructor -- because it needs arguments create() cannot carry -- and wants
+  // a caller-supplied policy on that create (e.g. a texture/surface object under
+  // a counting policy) threads them through here, then calls adopt().
+  BaseHandle(skip_default_create_t, P_create policy_create, P_destroy policy_destroy)
+      : policy_create_(std::move(policy_create)), policy_destroy_(std::move(policy_destroy)) {}
+
+  /// @brief Record that a handle the derived class created for itself (through a
+  ///        skip_default_create constructor) is live and owned. For a flagged
+  ///        handle -- no in-band null, e.g. a CUDA texture object -- this sets the
+  ///        ownership bit from the create call's success bool; for a pointer
+  ///        handle liveness is the null sentinel, already carried by handle_, so
+  ///        the bool is ignored. This is the skip-create counterpart to
+  ///        run_create's flag handling, for wrappers that cannot route creation
+  ///        through the create() hook.
+  void adopt(bool created) noexcept {
+    if constexpr (!has_null_sentinel) {
+      owns_ = created;
+    }
+  }
+
 public:
   BaseHandle(std::source_location location = std::source_location::current()) {
     run_create(location);

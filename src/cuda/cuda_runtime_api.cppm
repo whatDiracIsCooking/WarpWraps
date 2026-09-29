@@ -35,6 +35,9 @@ static_assert(cudaStreamNonBlocking == 0x01, "cudaStreamNonBlocking value mismat
 static_assert(cudaMemAttachGlobal == 0x01, "cudaMemAttachGlobal value mismatch");
 static_assert(cudaMemAttachHost == 0x02, "cudaMemAttachHost value mismatch");
 
+static_assert(cudaArrayDefault == 0x00, "cudaArrayDefault value mismatch");
+static_assert(cudaArraySurfaceLoadStore == 0x02, "cudaArraySurfaceLoadStore value mismatch");
+
 // Undefine macros so we can create constexpr variables with the same names
 #undef cudaHostAllocDefault
 #undef cudaHostAllocPortable
@@ -48,6 +51,8 @@ static_assert(cudaMemAttachHost == 0x02, "cudaMemAttachHost value mismatch");
 #undef cudaStreamNonBlocking
 #undef cudaMemAttachGlobal
 #undef cudaMemAttachHost
+#undef cudaArrayDefault
+#undef cudaArraySurfaceLoadStore
 
 export module wwr.cuda.cuda_runtime_api;
 
@@ -82,6 +87,11 @@ constexpr unsigned int cudaStreamNonBlocking = 0x01;
 // cudaMallocManaged flags
 constexpr unsigned int cudaMemAttachGlobal = 0x01;
 constexpr unsigned int cudaMemAttachHost = 0x02;
+
+// cudaMallocArray flags -- cudaArraySurfaceLoadStore must be set to bind a
+// surface object to the array (cudaCreateSurfaceObject requires it).
+constexpr unsigned int cudaArrayDefault = 0x00;
+constexpr unsigned int cudaArraySurfaceLoadStore = 0x02;
 
 // ========================================================================
 // Core Types

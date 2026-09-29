@@ -59,6 +59,22 @@ WWR_RT_TYPE(MemcpyKind)
 WWR_RT_TYPE(Graph_t)
 WWR_RT_TYPE(GraphExec_t)
 
+// Texture and surface objects. On CUDA the object handles are 64-bit integers
+// with no reserved invalid value (uint64); on HIP they are pointers. The RAII
+// wrappers in wwr.extension.{texture,surface} ride that difference through
+// BaseHandle's two liveness paths. wwrArray_t is the array backing a surface
+// (and a valid texture source); the descriptor structs and wwrChannelFormatDesc
+// are what the create calls take.
+WWR_RT_TYPE(TextureObject_t)
+WWR_RT_TYPE(SurfaceObject_t)
+WWR_RT_TYPE(ResourceDesc)
+WWR_RT_TYPE(TextureDesc)
+WWR_RT_TYPE(ResourceViewDesc)
+WWR_RT_TYPE(ChannelFormatDesc)
+WWR_RT_TYPE(ChannelFormatKind)
+WWR_RT_TYPE(ResourceType)
+WWR_RT_TYPE(Array_t)
+
 // ========================================================================
 // Constants
 // ========================================================================
@@ -97,6 +113,21 @@ WWR_VALUE(wwrHostAllocWriteCombined, cudaHostAllocWriteCombined, hipHostMallocWr
 // Managed memory attach flags
 WWR_RT_VALUE(MemAttachGlobal)
 WWR_RT_VALUE(MemAttachHost)
+
+// Channel-format kinds -- the element interpretation in a wwrChannelFormatDesc
+WWR_RT_VALUE(ChannelFormatKindSigned)
+WWR_RT_VALUE(ChannelFormatKindUnsigned)
+WWR_RT_VALUE(ChannelFormatKindFloat)
+
+// Resource kinds -- which arm of a wwrResourceDesc is populated
+WWR_RT_VALUE(ResourceTypeArray)
+WWR_RT_VALUE(ResourceTypeLinear)
+
+// Array allocation flags. wwrArraySurfaceLoadStore must be set when allocating
+// the array a surface object binds to (see the vendor modules' constexpr
+// wrappers -- the backends spell these as macros).
+WWR_RT_VALUE(ArrayDefault)
+WWR_RT_VALUE(ArraySurfaceLoadStore)
 
 // ========================================================================
 // Functions
@@ -203,6 +234,19 @@ WWR_RT_FUNCTION(FreeHost)
 inline constexpr wwrError_t (&wwrMallocManaged)(void **, std::size_t,
                                                 unsigned int) = WWR_SELECT(cudaMallocManaged,
                                                                               hipMallocManaged);
+
+// CUDA array allocation -- the backing store a surface object binds to, and a
+// valid texture source. Both are plain (non-overloaded) functions, so a
+// WWR_FUNCTION reference names them directly; the reference carries no default
+// arguments, so callers pass width, height and flags explicitly.
+WWR_RT_FUNCTION(MallocArray)
+WWR_RT_FUNCTION(FreeArray)
+
+// Texture and surface objects
+WWR_RT_FUNCTION(CreateTextureObject)
+WWR_RT_FUNCTION(DestroyTextureObject)
+WWR_RT_FUNCTION(CreateSurfaceObject)
+WWR_RT_FUNCTION(DestroySurfaceObject)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 
 } // namespace wwr
