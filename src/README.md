@@ -20,12 +20,35 @@ written once against `gpu*` names and builds unchanged for either backend.
 | `wwr.complex` | `wwr.cuda.cuComplex` | `wwr.hip.hip_complex` |
 | `wwr.fp16` | `wwr.cuda.cuda_fp16` | `wwr.hip.hip_fp16` |
 | `wwr.bf16` | `wwr.cuda.cuda_bf16` | `wwr.hip.hip_bf16` |
+| `wwr.fp8` | `wwr.cuda.cuda_fp8` | `wwr.hip.hip_fp8` |
 | `wwr.blas` | `wwr.cuda.cublas_v2` | `wwr.hip.hipblas` |
 | `wwr.blaslt` | `wwr.cuda.cublasLt` | `wwr.hip.hipblaslt` |
 | `wwr.solver` | `wwr.cuda.cusolverDn` | `wwr.hip.hipsolver` |
 | `wwr.sparse` | `wwr.cuda.cusparse` | `wwr.hip.hipsparse` |
 | `wwr.fft` | `wwr.cuda.cufft` | `wwr.hip.hipfft` |
 | `wwr.rand` | `wwr.cuda.curand` | `wwr.hip.hiprand` + `wwr.hip.hiprand_kernel` |
+
+`gpu.fp8` is the narrow-float scalar layer above `fp16` / `bf16`, scoped to the
+intersection of the vendor type pair: the OCP `E4M3`/`E5M2` fp8 formats, plus
+their storage typedefs, the saturation and interpretation enums, and
+float/double *narrowing* conversions. HIP's fnuz fp8 formats and CUDA's `e8m0`
+scaling factor have no counterpart and stay in the raw modules. Widening back to
+float goes through the scalar types' own `operator float`, which both vendors
+carry — there is no direct storage→float vendor call. Unlike `fp16.cppm`, this
+module `import`s its raw counterpart rather than `#include`ing the vendor
+header, so `docs/architecture.md` §10 (hip_fp8 needs `<algorithm>`) is handled
+once in the raw module and never recurs here. See the file header.
+
+**`gpu.fp6` and `gpu.fp4` are written but BLOCKED on the HIP backend**, so they
+are not registered in `CMakeLists.txt` — `src/fp6.cppm` / `src/fp4.cppm` exist
+as complete, reviewed source (same shape as `fp8.cppm`, kept `import`-based and
+as separate modules per §11, with per-type `wwrFp4Round*` / `wwrFp6Round*`
+rounding enums so both can be co-imported without an ODR clash). Their HIP raw
+dependencies `wwr.hip.hip_fp6` / `wwr.hip.hip_fp4` do not build with this
+toolchain (`amd_detail/amd_hip_ocp_types.h` `#error`s outside real `-x hip`
+device mode or GCC ≥ 13 — see `src/hip/README.md`), and a build must compile for
+either backend, so wiring them would fail the HIP path. They flip on with their
+raw modules.
 
 `gpu.blas` names follow cuBLAS's typed names without the `_v2` suffix:
 `wwrblasSgemm` is `cublasSgemm_v2` or `hipblasSgemm`, and `wwrblasSgemm_64` is
