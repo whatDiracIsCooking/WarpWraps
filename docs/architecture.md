@@ -417,3 +417,46 @@ contract, in the same category as "`P_free` must not throw": the type system adm
 the violation, and the rule is what keeps callers out of it. If an owner ever needs
 to cache and re-vend a handle it anchored, that back-edge must be a `weak_ptr`
 (non-owning) — but no code does this today.
+
+## 19. cuDNN / MIOpen: architectural mirror, no wrappable intersection
+
+A scope decision, not a vendor fact — deep-learning primitives (cuDNN on CUDA,
+MIOpen on ROCm) are deliberately left unwrapped, and this records why so the
+"MIOpen mirrors cuDNN" folklore does not reopen it.
+
+The folklore is true at the *workflow* altitude: both are C-style,
+handle-and-descriptor libraries, and a convolution forward pass reads the same in
+each (`Create` → set a tensor descriptor → set a convolution descriptor → find an
+algorithm → `ConvolutionForward`). AMD built MIOpen that way on purpose, and
+`hipify` renames the calls mechanically. But `wwr` does not bind at that altitude.
+A `gpu*` alias binds at the *symbol + signature* altitude — `header_intersection.py`
+matches the identifier after the vendor prefix, and `WWR_FUNCTION` binds a
+*reference* to the backend function, restating no signature (see §4, §12) — and
+there the two libraries do not meet:
+
+- **Names diverge even on the shared workflow.** `cudnnSetTensor4dDescriptor` is
+  `miopenSet4dTensorDescriptor` (word order); `cudnnSetConvolution2dDescriptor` is
+  `miopenInitConvolutionDescriptor` (different verb). Roughly half of even the core
+  conv path fails the suffix match, and the miss rate climbs outside it.
+- **Signatures diverge where names agree.** `cudnnConvolutionForward` and
+  `miopenConvolutionForward` order their workspace arguments differently and take
+  different algorithm-enum types; the descriptors are distinct opaque types with
+  distinct setters. A `WWR_FUNCTION` reference cannot bridge that — every entry
+  would need a hand-written forwarding shim inside a backend `#if`, which is the
+  escape hatch for one-off mismatches, not a whole surface.
+- **The surfaces are diverging, not converging.** Modern cuDNN (v8/v9) has moved to
+  the `cudnnBackend*` graph API, for which MIOpen has no analogue; MIOpen's
+  Find-DB / solver interface (`miopenFindSolutions` / `miopenRunSolution`) has no
+  cuDNN counterpart.
+
+So a portable `gpu.dnn` would be a hand-written translation layer, not a re-export,
+and belongs (if ever) at the `src/wrappers` altitude over the handful of ops that
+genuinely map — worth it only for a concrete consumer needing portable convolution,
+which a wrapping library does not have. Contrast NPP (CUDA-only, ~10.8k public
+symbols, no ROCm analogue at all) and NCCL/RCCL (issue #100), the one popular
+library where both backends *do* share the surface verbatim.
+
+To falsify this, install cuDNN and MIOpen and run
+`devtools/header_intersection.py --cuda cudnn.h --hip miopen.h`. This section is
+reasoned from the two APIs' documented shapes, not measured on this file's
+toolchain — neither header ships in the images.
