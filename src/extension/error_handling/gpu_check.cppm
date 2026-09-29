@@ -9,7 +9,7 @@
  * Usage:
  *   import wwr.extension.common;
  *
- *   if (!gpu_check(wwrStreamCreate(&stream))) {
+ *   if (!gpu_check(wwrStreamCreate(&stream), MyPolicy{})) {
  *       return;  // handle error
  *   }
  */
@@ -18,7 +18,6 @@ export module wwr.extension.error_handling:gpu_check;
 
 import :error_code;
 import :error_policy;
-import :abort_policy;
 import std;
 
 // ============================================================================
@@ -27,30 +26,7 @@ import std;
 export namespace wwr::extension {
 
 /**
- * @brief Check an error code with the default error policy
- *
- * @param error The error code to check
- * @param location Source location (automatically captured)
- * @return true if error == success code, false otherwise
- *
- * @example
- *   if (!gpu_check(wwrStreamCreate(&stream))) {
- *       // Handle error (will print to stderr and abort)
- *       return;
- *   }
- */
-template<typename T>
-bool gpu_check(const T error, std::source_location location = std::source_location::current()) {
-  if (error != success_code<T>()) {
-    AbortPolicy<T> policy;
-    policy.handle_error(error, location);
-    return false;
-  }
-  return true;
-}
-
-/**
- * @brief Check an error code with a custom error policy
+ * @brief Check an error code, handing any failure to an error policy
  *
  * @tparam T The error code type
  * @tparam ErrorPolicy The error policy type (must satisfy error_policy<T>)

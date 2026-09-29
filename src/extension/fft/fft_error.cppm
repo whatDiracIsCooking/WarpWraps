@@ -69,8 +69,6 @@ const char *error_string<wwrfftResult_t>(wwrfftResult_t error) noexcept {
 template class AbortPolicy<wwrfftResult_t>;
 
 // Explicitly instantiate gpu_check for wwrfftResult_t
-template bool gpu_check<wwrfftResult_t>(const wwrfftResult_t error, std::source_location location);
-
 template bool gpu_check<wwrfftResult_t, AbortPolicy<wwrfftResult_t> &>(
     const wwrfftResult_t error, AbortPolicy<wwrfftResult_t> &policy,
     std::source_location location);
