@@ -37,7 +37,7 @@ const complex<float> back = to_complex(v); // and back
   scalar) — computed on the components as hidden friends / members. A declared
   friend or member does not disqualify the aggregate.
 - **Implicit conversion** to `wwrFloatComplex` / `wwrDoubleComplex` (through the
-  portable `make_gpu*Complex`, *not* a `reinterpret_cast`), so a value drops
+  portable `make_wwr*Complex`, *not* a `reinterpret_cast`), so a value drops
   straight into a call site that expects one. `to_complex()` reads a vendor
   value back — layout is `{T, T}`, matching the vendor type.
 

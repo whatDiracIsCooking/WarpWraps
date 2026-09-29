@@ -14,7 +14,7 @@
  * the module says inline. The component arithmetic is constexpr on both sides
  * (it folds in a device constant expression too); only the conversion operator
  * and to_complex are non-constexpr, because they route through the vendor
- * make_gpu*Complex / wwrCreal* functions, which are not. The two copies define
+ * make_wwr*Complex / wwrCreal* functions, which are not. The two copies define
  * the same-layout type under the same name, so a complex<T> built on the host
  * and one named in a kernel agree -- the invariant a reinterpret_cast-free
  * conversion depends on. Link wwr.device.
@@ -27,7 +27,7 @@
  * The wrapper carries operators because it is a type we own; the gpu* complex
  * layer beneath (complex.cuh) stays operator-less on purpose, since cuComplex
  * is a float2 aggregate and hipComplex a class (docs/architecture.md,
- * section 3). This header reaches make_gpu*Complex and the wwrCreal* accessors
+ * section 3). This header reaches make_wwr*Complex and the wwrCreal* accessors
  * through that lower header by the same spelling the module reaches them by
  * import.
  *
@@ -39,7 +39,7 @@
 #pragma once
 
 // The gpu* complex layer: device_guard.h (WWR_SELECTED_*, and #errors outside a
-// device pass), the vendor types, make_gpu*Complex and the wwrCreal*/wwrCimag*
+// device pass), the vendor types, make_wwr*Complex and the wwrCreal*/wwrCimag*
 // accessors this wrapper is built on.
 #include "complex.cuh"
 
@@ -69,14 +69,14 @@ struct complex {
   T im;
 
   /// @brief Convert to the gpu* vendor complex type, through the portable
-  ///        make_gpu*Complex (not a reinterpret_cast: same layout, distinct
+  ///        make_wwr*Complex (not a reinterpret_cast: same layout, distinct
   ///        type). Implicit, so a complex<T> drops straight into a call that
   ///        expects wwrFloatComplex / wwrDoubleComplex.
   __device__ __forceinline__ operator vendor_type() const {
     if constexpr (std::is_same_v<T, float>) {
-      return make_gpuFloatComplex(re, im);
+      return make_wwrFloatComplex(re, im);
     } else {
-      return make_gpuDoubleComplex(re, im);
+      return make_wwrDoubleComplex(re, im);
     }
   }
 

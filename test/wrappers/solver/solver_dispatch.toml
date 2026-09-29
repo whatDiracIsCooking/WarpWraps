@@ -27,7 +27,7 @@
 # but have no explicit instantiations, so they emit no object code for this
 # check to read -- and they name wwrsolverDnXpotrf and friends directly in C++
 # rather than token-pasting a type letter, which is the class of mistake this
-# check exists to catch. Their type mapping is get_gpusolver_type<T>(), checked
+# check exists to catch. Their type mapping is get_wwrsolver_type<T>(), checked
 # by static_assert in type_traits.cppm next to this file instead.
 
 [check]

@@ -5,7 +5,7 @@
 # them. The legacy typed API picks its entry point by token-pasting a type
 # letter, which no static_assert can see, so solver_dispatch.toml checks it in
 # the compiled objects. The modern (X-prefixed) API passes
-# get_gpusolver_type<T>() as a runtime value instead, which no disassembly can
+# get_wwrsolver_type<T>() as a runtime value instead, which no disassembly can
 # see, so type_traits.cppm checks that with static_asserts. Between them they
 # cover every instantiation: the wrappers are token-paste forwarders with no
 # body of their own, so a pasted name and a mapped data type are the whole of

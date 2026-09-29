@@ -69,7 +69,7 @@ group type on CUDA but not on HIP; tiles are bounded by `WWR_WARP_SIZE`;
 HIP counterpart; and `thread_block::group_dim()` is static on CUDA but a
 non-const member on HIP.
 
-## 3. Complex construction goes through `make_gpu*Complex`
+## 3. Complex construction goes through `make_wwr*Complex`
 
 `cuFloatComplex` is `float2`, a plain aggregate; `hipFloatComplex` is a
 `HIP_vector_type<float, 2>` class. Brace-initialising `wwrFloatComplex{re, im}`
