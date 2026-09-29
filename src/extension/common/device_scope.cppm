@@ -14,7 +14,8 @@
 export module wwr.extension.common:device_scope;
 
 import wwr.extension.error_handling;
-// gpu_check here uses the default AbortPolicy<wwrError_t>, which odr-uses
+// The AbortPolicy<wwrError_t> path -- the default P_device_access, and the
+// explicit restore policy in the destructor below -- odr-uses
 // success_code<wwrError_t>() (and error_name/error_string). That specialization
 // lives in :gpu_error; without it reachable the compiler falls back to the
 // inline-but-undefined primary template (-Wundefined-inline, and an ill-formed
@@ -45,8 +46,8 @@ export namespace wwr::extension {
  * The restore on destruction deliberately does *not* use that policy: it runs
  * from the destructor, where a throwing policy would std::terminate, and a
  * failed restore means the runtime context is already unusable -- at which
- * point aborting is the only sane response. So the restore keeps the fixed
- * default (abort-on-failure) path regardless of P_device_access.
+ * point aborting is the only sane response. So the restore passes an explicit
+ * AbortPolicy<wwrError_t> (abort-on-failure) regardless of P_device_access.
  *
  * @tparam P_device_access The error policy for the entering wwrGetDevice/
  *         wwrSetDevice calls; typed to wwrError_t, defaulted to
@@ -67,7 +68,7 @@ struct DeviceScope : private NonCopyable {
     gpu_check(wwrSetDevice(target_idx), policy_device_, location);
   }
 
-  ~DeviceScope() { gpu_check(wwrSetDevice(original_idx)); }
+  ~DeviceScope() { gpu_check(wwrSetDevice(original_idx), AbortPolicy<wwrError_t>{}); }
 
   // Copy operations are implicitly deleted via the NonCopyable base. The
   // user-declared destructor suppresses the implicit moves, so the guard stays

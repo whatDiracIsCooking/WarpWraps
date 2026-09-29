@@ -311,9 +311,9 @@ through `wwr.sparse` or the raw `wwr.cuda.cusparse` /
 **RAII handles** — a CRTP base owns any opaque vendor handle. Move-only;
 destruction calls the vendor destroy function.
 
-**Error handling** — `gpu_check(error[, policy[, location]])` routes status codes
-through a pluggable error policy. The default policy prints to `stderr` and
-calls `std::abort()`.
+**Error handling** — `gpu_check(error, policy[, location])` routes status codes
+through an error policy the caller supplies; there is no default. `AbortPolicy`
+(the commonly-bound choice) prints to `stderr` and calls `std::abort()`.
 
 **Dispatch macros** — `dispatch_macros.h` (next to the sources in
 `src/wrappers/blas`, `src/wrappers/solver`, `src/wrappers/sparse` and

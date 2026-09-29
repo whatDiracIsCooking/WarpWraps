@@ -71,8 +71,6 @@ const char *error_string<wwrError_t>(wwrError_t error) noexcept {
 template class AbortPolicy<wwrError_t>;
 
 // Explicitly instantiate gpu_check for wwrError_t
-template bool gpu_check<wwrError_t>(const wwrError_t error, std::source_location location);
-
 template bool gpu_check<wwrError_t, AbortPolicy<wwrError_t> &>(
     const wwrError_t error, AbortPolicy<wwrError_t> &policy, std::source_location location);
 

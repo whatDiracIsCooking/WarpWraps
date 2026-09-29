@@ -100,7 +100,7 @@ private:
   /// @brief Query one device's properties, aborting on failure
   static wwrDeviceProp query_props(int index, std::source_location location) {
     wwrDeviceProp prop{};
-    gpu_check(wwrGetDeviceProperties(&prop, index), location);
+    gpu_check(wwrGetDeviceProperties(&prop, index), AbortPolicy<wwrError_t>{}, location);
     return prop;
   }
 

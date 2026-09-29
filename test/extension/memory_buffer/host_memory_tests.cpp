@@ -6,11 +6,12 @@
 // that host error type, so none of this needs a device. The file compiles into
 // the same executable as buffer_tests.cpp.
 //
-// The failure paths of AbortPolicy and the single-argument gpu_check end
-// in std::abort(), so they are covered with death tests -- named *DeathTest so
-// GoogleTest runs them before any suite in the binary that touches CUDA.
-// gpu_check's custom-policy overload returns false instead of aborting, so that
-// branch is covered directly with a non-aborting policy.
+// The failure paths of AbortPolicy -- directly, and through gpu_check handed an
+// AbortPolicy -- end in std::abort(), so they are covered with death tests --
+// named *DeathTest so GoogleTest runs them before any suite in the binary that
+// touches CUDA. gpu_check hands failures to whatever policy it is given and
+// returns false rather than aborting, so that branch is covered directly with a
+// non-aborting policy.
 
 #include <gtest/gtest.h>
 
@@ -119,8 +120,8 @@ TEST(AbortPolicyDeathTest, FailureAborts) {
 // gpu_check.cppm
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-TEST(GpuCheckTests, DefaultPolicySuccessReturnsTrue) {
-  EXPECT_TRUE(gpu_check(stdHostMemSuccess));
+TEST(GpuCheckTests, AbortPolicySuccessReturnsTrue) {
+  EXPECT_TRUE(gpu_check(stdHostMemSuccess, AbortPolicy<stdHostMemoryError_t>{}));
 }
 
 TEST(GpuCheckTests, CustomPolicySuccessReturnsTrue) {
@@ -136,8 +137,9 @@ TEST(GpuCheckTests, CustomPolicyFailureReturnsFalse) {
   EXPECT_EQ(policy.last(), stdHostMemAllocFailure);
 }
 
-TEST(GpuCheckDeathTest, DefaultPolicyFailureAborts) {
-  EXPECT_DEATH((void)gpu_check(stdHostMemAllocFailure), "GPU error at");
+TEST(GpuCheckDeathTest, AbortPolicyFailureAborts) {
+  EXPECT_DEATH((void)gpu_check(stdHostMemAllocFailure, AbortPolicy<stdHostMemoryError_t>{}),
+               "GPU error at");
 }
 
 } // namespace wwr::extension::test
