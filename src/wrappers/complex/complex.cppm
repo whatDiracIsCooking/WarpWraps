@@ -28,7 +28,7 @@
  *
  * The device-compile counterpart is device_complex.cuh: the SAME struct, the
  * SAME bodies, __device__ __forceinline__ where this says inline (the component
- * arithmetic is constexpr on both sides). Both reach make_gpu*Complex /
+ * arithmetic is constexpr on both sides). Both reach make_wwr*Complex /
  * wwrCreal* by the same spelling -- this module through import wwr.complex, the
  * header through include complex.cuh -- so a kernel and a host TU agree on
  * layout.
@@ -72,14 +72,14 @@ struct complex {
   T im;
 
   /// @brief Convert to the gpu* vendor complex type, through the portable
-  ///        make_gpu*Complex (not a reinterpret_cast: same layout, distinct
+  ///        make_wwr*Complex (not a reinterpret_cast: same layout, distinct
   ///        type). Implicit, so a complex<T> drops straight into a call site
   ///        that expects wwrFloatComplex / wwrDoubleComplex.
   operator vendor_type() const {
     if constexpr (std::is_same_v<T, float>) {
-      return make_gpuFloatComplex(re, im);
+      return make_wwrFloatComplex(re, im);
     } else {
-      return make_gpuDoubleComplex(re, im);
+      return make_wwrDoubleComplex(re, im);
     }
   }
 

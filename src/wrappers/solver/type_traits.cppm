@@ -34,7 +34,7 @@ export namespace wwr {
  * @return The corresponding wwrsolverDataType_t enumeration value
  */
 template<usual_fp T>
-constexpr wwrsolverDataType_t get_gpusolver_type() noexcept {
+constexpr wwrsolverDataType_t get_wwrsolver_type() noexcept {
   if constexpr (std::is_same_v<T, float>) {
     return WWRSOLVER_R_32F;
   } else if constexpr (std::is_same_v<T, double>) {

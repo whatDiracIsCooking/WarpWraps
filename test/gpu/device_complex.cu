@@ -3,7 +3,7 @@
 // a device TU whose *building* under the selected backend IS the assertion: the
 // wwr::complex<T> struct, its operators and both conversion directions only have
 // meaning in a device pass (they route through complex.cuh's __device__
-// make_gpu*Complex / wwrCreal*), and the claim they can break is that the whole
+// make_wwr*Complex / wwrCreal*), and the claim they can break is that the whole
 // surface instantiates for float and double, through one include switch, on both
 // backends. The kernels below are never launched.
 //

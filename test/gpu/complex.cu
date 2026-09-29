@@ -73,8 +73,8 @@ static_assert(!std::is_aggregate_v<wwrFloatComplex>,
 // only portable spelling because cuFloatComplex has no operator* (see the
 // static_assert above).
 __global__ void wwr_fp_complex_float(float *out) {
-  const wwrFloatComplex a = make_gpuFloatComplex(1.0f, 2.0f);
-  const wwrFloatComplex b = make_gpuFloatComplex(3.0f, -1.0f);
+  const wwrFloatComplex a = make_wwrFloatComplex(1.0f, 2.0f);
+  const wwrFloatComplex b = make_wwrFloatComplex(3.0f, -1.0f);
 
   const wwrFloatComplex sum = wwrCaddf(a, b);
   const wwrFloatComplex dif = wwrCsubf(a, b);
@@ -91,8 +91,8 @@ __global__ void wwr_fp_complex_float(float *out) {
 
 // Double-precision complex: the same surface over wwrDoubleComplex.
 __global__ void wwr_fp_complex_double(double *out) {
-  const wwrDoubleComplex a = make_gpuDoubleComplex(1.0, 2.0);
-  const wwrDoubleComplex b = make_gpuDoubleComplex(3.0, -1.0);
+  const wwrDoubleComplex a = make_wwrDoubleComplex(1.0, 2.0);
+  const wwrDoubleComplex b = make_wwrDoubleComplex(3.0, -1.0);
 
   const wwrDoubleComplex sum = wwrCadd(a, b);
   const wwrDoubleComplex dif = wwrCsub(a, b);
@@ -107,12 +107,12 @@ __global__ void wwr_fp_complex_double(double *out) {
   out[0] = acc;
 }
 
-// The Complex-named surface: the make_gpuComplex alias and the two precision
+// The Complex-named surface: the make_wwrComplex alias and the two precision
 // conversions -- the portable functions the vendors name with the bare Complex
 // token. FloatToDouble widens, DoubleToFloat narrows; the round trip exercises
 // both, fed by the alias constructor.
 __global__ void wwr_fp_complex_convert(double *out) {
-  const wwrComplex c = make_gpuComplex(1.5f, -2.5f);
+  const wwrComplex c = make_wwrComplex(1.5f, -2.5f);
   const wwrDoubleComplex wide = wwrComplexFloatToDouble(c);
   const wwrFloatComplex narrow = wwrComplexDoubleToFloat(wide);
 

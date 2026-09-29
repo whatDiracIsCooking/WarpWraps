@@ -4,7 +4,7 @@
  *        cuComplex / hipComplex
  *
  * The host-module counterpart to complex.cuh: wwrFloatComplex /
- * wwrDoubleComplex / wwrComplex, make_gpu*Complex, the wwrC* arithmetic and
+ * wwrDoubleComplex / wwrComplex, make_wwr*Complex, the wwrC* arithmetic and
  * accessors, and the wwrComplexFloatToDouble / wwrComplexDoubleToFloat precision
  * conversions, whichever backend this build is configured for. See
  * backend.h. Companion to fp16.cppm and bf16.cppm.
@@ -12,7 +12,7 @@
  * Usage:
  *   import wwr.complex;
  *
- *   wwrDoubleComplex z = make_gpuDoubleComplex(1.0, 2.0);
+ *   wwrDoubleComplex z = make_wwrDoubleComplex(1.0, 2.0);
  *
  * The wrappers below duplicate complex.cuh's surface on purpose, the same way
  * fp16.cppm duplicates fp16.cuh: a host TU reaches this construction and
@@ -70,18 +70,18 @@ WWR_COMPLEX_TYPE(Complex)
 // ========================================================================
 
 /// @brief Build a single-precision complex value from its two components
-inline wwrFloatComplex make_gpuFloatComplex(const float re, const float im) {
+inline wwrFloatComplex make_wwrFloatComplex(const float re, const float im) {
   return WWR_SELECT(make_cuFloatComplex, make_hipFloatComplex)(re, im);
 }
 
 /// @brief Build a double-precision complex value from its two components
-inline wwrDoubleComplex make_gpuDoubleComplex(const double re, const double im) {
+inline wwrDoubleComplex make_wwrDoubleComplex(const double re, const double im) {
   return WWR_SELECT(make_cuDoubleComplex, make_hipDoubleComplex)(re, im);
 }
 
 /// @brief Build a single-precision complex value (the vendors' make_*Complex
-///        alias for make_gpuFloatComplex -- wwrComplex is wwrFloatComplex)
-inline wwrComplex make_gpuComplex(const float re, const float im) {
+///        alias for make_wwrFloatComplex -- wwrComplex is wwrFloatComplex)
+inline wwrComplex make_wwrComplex(const float re, const float im) {
   return WWR_SELECT(make_cuComplex, make_hipComplex)(re, im);
 }
 
@@ -183,7 +183,7 @@ inline wwrDoubleComplex wwrCdiv(const wwrDoubleComplex a, const wwrDoubleComplex
 // Precision conversion
 //
 // The other portable functions the vendors name with the bare Complex token
-// (alongside make_gpuComplex above): widen a single-precision value to double,
+// (alongside make_wwrComplex above): widen a single-precision value to double,
 // or narrow it back. HIP's Complex-named extras -- hipCsqabs*, hipCfma* -- have
 // no cuComplex.h counterpart, so they are not part of the gpu* surface.
 // ========================================================================

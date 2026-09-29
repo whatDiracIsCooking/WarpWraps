@@ -98,7 +98,7 @@ WWR_TYPE(wwrFp8x4E5m2, __nv_fp8x4_e5m2, __hip_fp8x4_e5m2)
 //
 // Forwarding functions, not WWR_FUNCTION reference bindings: they route
 // through the raw module's own host wrappers, which WWR_SELECT names, the same
-// way complex.cppm's make_gpu*Complex do. The argument order -- (value,
+// way complex.cppm's make_wwr*Complex do. The argument order -- (value,
 // saturation, interpretation) -- is the one both vendors declare.
 // ========================================================================
 

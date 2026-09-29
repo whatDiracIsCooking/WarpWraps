@@ -3,7 +3,7 @@
  * @brief Complex types and portable arithmetic for device-compiled TUs
  *
  * The device-compile counterpart to complex.cppm: wwrFloatComplex /
- * wwrDoubleComplex / wwrComplex, make_gpu*Complex, the wwrC* arithmetic and
+ * wwrDoubleComplex / wwrComplex, make_wwr*Complex, the wwrC* arithmetic and
  * accessors, and the wwrComplexFloatToDouble / wwrComplexDoubleToFloat precision
  * conversions. Link wwr.device. Companion to fp16.cuh and bf16.cuh.
  *
@@ -76,7 +76,7 @@ using wwrComplex = ::hipComplex;
 // ========================================================================
 
 /// @brief Build a single-precision complex value from its two components
-__device__ __forceinline__ wwrFloatComplex make_gpuFloatComplex(const float re, const float im) {
+__device__ __forceinline__ wwrFloatComplex make_wwrFloatComplex(const float re, const float im) {
 #if defined(WWR_SELECTED_CUDA)
   return ::make_cuFloatComplex(re, im);
 #else
@@ -85,7 +85,7 @@ __device__ __forceinline__ wwrFloatComplex make_gpuFloatComplex(const float re, 
 }
 
 /// @brief Build a double-precision complex value from its two components
-__device__ __forceinline__ wwrDoubleComplex make_gpuDoubleComplex(const double re,
+__device__ __forceinline__ wwrDoubleComplex make_wwrDoubleComplex(const double re,
                                                                   const double im) {
 #if defined(WWR_SELECTED_CUDA)
   return ::make_cuDoubleComplex(re, im);
@@ -95,8 +95,8 @@ __device__ __forceinline__ wwrDoubleComplex make_gpuDoubleComplex(const double r
 }
 
 /// @brief Build a single-precision complex value (the vendors' make_*Complex
-///        alias for make_gpuFloatComplex -- wwrComplex is wwrFloatComplex)
-__device__ __forceinline__ wwrComplex make_gpuComplex(const float re, const float im) {
+///        alias for make_wwrFloatComplex -- wwrComplex is wwrFloatComplex)
+__device__ __forceinline__ wwrComplex make_wwrComplex(const float re, const float im) {
 #if defined(WWR_SELECTED_CUDA)
   return ::make_cuComplex(re, im);
 #else
@@ -275,7 +275,7 @@ __device__ __forceinline__ wwrDoubleComplex wwrCdiv(const wwrDoubleComplex a,
 // Precision conversion
 //
 // The other portable functions the vendors name with the bare Complex token
-// (alongside make_gpuComplex above): widen a single-precision value to double,
+// (alongside make_wwrComplex above): widen a single-precision value to double,
 // or narrow it back. HIP's Complex-named extras -- hipCsqabs*, hipCfma* -- have
 // no cuComplex.h counterpart, so they are not part of the gpu* surface.
 // ========================================================================

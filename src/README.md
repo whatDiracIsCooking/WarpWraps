@@ -229,7 +229,7 @@ share it regardless of which target they are in.
 | Header | Provides | Link |
 |---|---|---|
 | `runtime.cuh` | `WWR_GRID_CONSTANT`, `WWR_WARP_SIZE` | `wwr.device` |
-| `complex.cuh` | `wwrFloatComplex`, `wwrDoubleComplex`, `wwrComplex`, `make_gpu*Complex`, `wwrCreal*`/`wwrCimag*`, `wwrCabs*`, `wwrConj*`, `wwrCadd*`/`wwrCsub*`/`wwrCmul*`/`wwrCdiv*` | `wwr.device` |
+| `complex.cuh` | `wwrFloatComplex`, `wwrDoubleComplex`, `wwrComplex`, `make_wwr*Complex`, `wwrCreal*`/`wwrCimag*`, `wwrCabs*`, `wwrConj*`, `wwrCadd*`/`wwrCsub*`/`wwrCmul*`/`wwrCdiv*` | `wwr.device` |
 | `fp16.cuh` | `wwrHalf`, `wwrFloat2Half`, `wwrHalf2Float` | `wwr.device` |
 | `bf16.cuh` | `wwrBfloat16`, `wwrFloat2Bfloat16`, `wwrBfloat162Float` | `wwr.device` |
 | `fp8.cuh` | `wwrFp8Storage`/`x2`/`x4`, `wwrSaturation` (`wwrNosat`, `wwrSatfinite`), `wwrFp8Interpretation` (`wwrE4m3`, `wwrE5m2`), `wwrFp8E4m3`/`E5m2` (+`x2`/`x4`), `wwrFloat2Fp8`, `wwrDouble2Fp8` | `wwr.device` |
