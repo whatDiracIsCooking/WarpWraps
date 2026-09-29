@@ -21,8 +21,9 @@ import wwr.test.shared.device_handle; // DeviceHandle, the stream owner the libr
 // operations are free functions taking the raw handle, so the owner, its view
 // and a bare handle all reach one definition; ownership-producing operations
 // (end_capture, instantiate) stay members of the owner. `.view()` returns the
-// richest view a handle has -- device-aware where the handle is device-bound --
-// and is deleted on rvalues so a temporary cannot be viewed.
+// richest view a handle has -- device-aware where the handle is device-bound, and
+// additionally stream-aware where it is stream-bound (the library handles) -- and
+// is deleted on rvalues so a temporary cannot be viewed.
 //
 // This TU deliberately imports all three vendor-handle extension modules
 // (blas/solver/sparse) TOGETHER. That used to be ill-formed on HIP, where those
@@ -53,13 +54,15 @@ static_assert(is_view_value<GpuStreamView>);
 static_assert(is_view_value<GpuGraphExecView>);
 static_assert(is_view_value<DeviceBoundHandleView<wwrMemPool_t>>);
 static_assert(is_view_value<HandleView<wwrGraph_t>>);
-static_assert(is_view_value<DeviceBoundHandleView<wwrblasHandle_t>>);
-static_assert(is_view_value<DeviceBoundHandleView<wwrsolverDnHandle_t>>);
-static_assert(is_view_value<DeviceBoundHandleView<wwrsparseHandle_t>>);
+// The library handles are stream-bound, so their views carry a stream too.
+static_assert(is_view_value<StreamBoundHandleView<wwrblasHandle_t>>);
+static_assert(is_view_value<StreamBoundHandleView<wwrsolverDnHandle_t>>);
+static_assert(is_view_value<StreamBoundHandleView<wwrsparseHandle_t>>);
 
 // The generic view bases carry the same semantics.
 static_assert(is_view_value<HandleView<wwrEvent_t>>);
 static_assert(is_view_value<DeviceBoundHandleView<wwrEvent_t>>);
+static_assert(is_view_value<StreamBoundHandleView<wwrEvent_t>>);
 
 // Owners are move-only; a view is never taken by copying an owner.
 static_assert(!std::is_copy_constructible_v<GpuEventWrapper<Abort, Abort, Abort>>);
@@ -78,6 +81,23 @@ static_assert(std::is_constructible_v<GpuStreamView, wwrStream_t>);
 static_assert(std::is_constructible_v<GpuStreamView, wwrStream_t, int>);
 static_assert(std::is_constructible_v<GpuGraphExecView, wwrGraphExec_t>);
 
+// The stream-bound view adds the stream to that: from a bare handle (device and
+// stream unknown) or from a handle plus its device index and bound stream. It
+// converts to the raw handle exactly as every other view does.
+static_assert(std::is_constructible_v<StreamBoundHandleView<wwrblasHandle_t>, wwrblasHandle_t>);
+static_assert(std::is_constructible_v<StreamBoundHandleView<wwrblasHandle_t>, wwrblasHandle_t, int,
+                                      wwrStream_t>);
+static_assert(std::is_convertible_v<StreamBoundHandleView<wwrblasHandle_t>, wwrblasHandle_t>);
+
+// It carries the whole device_handle capability ladder up through stream(): a
+// borrowed library handle answers both dev_idx() and stream(), so a DeviceBuffer
+// can draw async allocations on it. The plain DeviceBoundHandleView stops one rung
+// short -- device_handle but not device_handle_stream -- which is the difference
+// this new view adds.
+static_assert(device_handle_stream<StreamBoundHandleView<wwrblasHandle_t>>);
+static_assert(device_handle<DeviceBoundHandleView<wwrblasHandle_t>>);
+static_assert(!device_handle_stream<DeviceBoundHandleView<wwrblasHandle_t>>);
+
 // .view() is offered on an lvalue owner and returns the richest view the handle
 // has. Its rvalue overload is deleted so a view cannot be taken from a temporary
 // (which would dangle immediately); that guard fires at the call site, not as a
@@ -90,12 +110,13 @@ static_assert(
     std::is_same_v<decltype(std::declval<const GpuGraphExecWrapper<Abort, Abort> &>().view()), GpuGraphExecView>);
 static_assert(std::is_same_v<decltype(std::declval<const GpuMemPoolWrapper<Abort, Abort, Abort> &>().view()), DeviceBoundHandleView<wwrMemPool_t>>);
 static_assert(std::is_same_v<decltype(std::declval<const GpuGraphWrapper<Abort, Abort> &>().view()), HandleView<wwrGraph_t>>);
+// The library handles are stream-bound, so their .view() is the stream-aware view.
 static_assert(
-    std::is_same_v<decltype(std::declval<const BlasHandleWrapper<BlasAbort, BlasAbort, DeviceHandle, Abort> &>().view()), DeviceBoundHandleView<wwrblasHandle_t>>);
+    std::is_same_v<decltype(std::declval<const BlasHandleWrapper<BlasAbort, BlasAbort, DeviceHandle, Abort> &>().view()), StreamBoundHandleView<wwrblasHandle_t>>);
 static_assert(std::is_same_v<decltype(std::declval<const SolverDnHandleWrapper<SolverAbort, SolverAbort, DeviceHandle, Abort> &>().view()),
-                             DeviceBoundHandleView<wwrsolverDnHandle_t>>);
+                             StreamBoundHandleView<wwrsolverDnHandle_t>>);
 static_assert(
-    std::is_same_v<decltype(std::declval<const SparseHandleWrapper<SparseAbort, SparseAbort, DeviceHandle, Abort> &>().view()), DeviceBoundHandleView<wwrsparseHandle_t>>);
+    std::is_same_v<decltype(std::declval<const SparseHandleWrapper<SparseAbort, SparseAbort, DeviceHandle, Abort> &>().view()), StreamBoundHandleView<wwrsparseHandle_t>>);
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // [[no_unique_address]] on BaseHandle's policy members (issue #67)

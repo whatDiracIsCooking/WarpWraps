@@ -24,6 +24,7 @@ export module wwr.extension.handle:stream_bound_handle;
 
 import :handle;
 import :device_bound_handle;
+import :stream_bound_handle_view;
 import :device_handle; // the device_handle_stream concept the owner must satisfy
 import wwr.extension.common; // error_policy concepts
 import wwr.runtime_api; // wwrStream_t, wwrError_t
@@ -132,6 +133,17 @@ public:
   ///        this a device_handle_stream. Undefined on a moved-from handle (null
   ///        owner), matching DeviceBufferWrapper's moved-from contract.
   wwrStream_t stream() const noexcept { return owner_->stream(); }
+
+  /// @brief A non-owning, copyable view of this handle, carrying its device index
+  ///        and bound work stream.
+  ///
+  /// Hides DeviceBoundHandle::view() to return the stream-aware view. The stream
+  /// is captured as a bare handle at view() time; the view retains nothing, so it
+  /// must not outlive this handle's owner. Deleted on rvalues, as the bases are.
+  StreamBoundHandleView<T> view() const & noexcept {
+    return StreamBoundHandleView<T>{this->get(), this->dev_idx(), stream()};
+  }
+  StreamBoundHandleView<T> view() && = delete;
 };
 
 } // namespace wwr::extension
