@@ -61,7 +61,7 @@ public:
   /// @param handle The handle to destroy
   void destroy(wwrsparseHandle_t handle) {
     if (handle != nullptr) {
-      gpu_check(wwrsparseDestroy(handle), this->policy_destroy_);
+      gpu_check(wwrsparseDestroy(handle), this->destroy_policy());
     }
   }
 

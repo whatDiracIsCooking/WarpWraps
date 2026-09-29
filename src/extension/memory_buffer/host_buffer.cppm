@@ -86,7 +86,7 @@ public:
     if (ptr != nullptr) {
       const auto error = std_free(ptr);
       if (error != stdHostMemSuccess) {
-        this->policy_free_.handle_error(error, std::source_location::current());
+        this->free_policy_ref().handle_error(error, std::source_location::current());
       }
     }
   }

@@ -77,7 +77,30 @@ private:
 
 protected:
   int dev_idx_ = -1; ///< Index of the device the handle was created on (-1 until recorded)
-  [[no_unique_address]] P_device_access policy_device_{}; ///< Policy for the device (set/get) calls
+
+  // The device policy is a third slot on top of Base's create/destroy pair. When
+  // it is the same empty type as one of them (the common runtime-handle case,
+  // where all three are wwrError_t policies) it stores nothing and borrows that
+  // instance -- reach it through device_policy_ref(), never the raw slot.
+  [[no_unique_address]] policy_slot<P_device_access, P_create, P_destroy> policy_device_{};
+
+  // The instance serving the device (set/get) calls: its own, or the base's
+  // create/destroy policy when collapsed. Picks destroy only when device matches
+  // destroy but not create (the {destroy,device} partition); create otherwise.
+  P_device_access &device_policy_ref() noexcept {
+    if constexpr (std::same_as<P_device_access, P_destroy> &&
+                  !std::same_as<P_device_access, P_create>)
+      return policy_device_.resolve(this->destroy_policy());
+    else
+      return policy_device_.resolve(this->create_policy());
+  }
+  const P_device_access &device_policy_ref() const noexcept {
+    if constexpr (std::same_as<P_device_access, P_destroy> &&
+                  !std::same_as<P_device_access, P_create>)
+      return policy_device_.resolve(this->destroy_policy());
+    else
+      return policy_device_.resolve(this->create_policy());
+  }
 
   /// @brief Construct without creating the handle; derived selects the device,
   ///        creates the raw handle, then records it (see the class note). Leaves
@@ -86,21 +109,25 @@ protected:
   DeviceBoundHandle(typename Base::skip_default_create_t tag) noexcept : Base(tag) {}
 
   /// @brief Make `dev_idx` the current device (call before creating a handle on it).
-  ///        Routes wwrSetDevice through policy_device_, so device-selection error
-  ///        handling is under the caller's control.
+  ///        Routes wwrSetDevice through the device policy, so device-selection
+  ///        error handling is under the caller's control.
   void select_device(int dev_idx,
                      std::source_location location = std::source_location::current()) {
-    gpu_check(wwrSetDevice(dev_idx), policy_device_, location);
+    gpu_check(wwrSetDevice(dev_idx), device_policy_ref(), location);
   }
 
   /// @brief Record the current device as this handle's owner (call after creating the handle).
-  ///        Routes wwrGetDevice through policy_device_ (typed to wwrError_t), NOT
-  ///        policy_create_: a library handle's create policy is typed to its own
-  ///        status enum (wwrblasStatus_t and the like), which wwrGetDevice's
-  ///        wwrError_t would not satisfy. A dedicated wwrError_t device policy is
-  ///        exactly what lets both device calls carry error handling on every handle.
+  ///        Routes wwrGetDevice through the device policy (typed to wwrError_t),
+  ///        NOT the create policy: a library handle's create policy is typed to
+  ///        its own status enum (wwrblasStatus_t and the like), which
+  ///        wwrGetDevice's wwrError_t would not satisfy. A dedicated wwrError_t
+  ///        device policy is exactly what lets both device calls carry error
+  ///        handling on every handle. When the device policy collapses into the
+  ///        create/destroy slot (only for a runtime handle, whose create policy
+  ///        IS a wwrError_t policy of the same empty type), device_policy_ref()
+  ///        yields that instance -- same type, no state, identical behaviour.
   void record_device(std::source_location location = std::source_location::current()) {
-    gpu_check(wwrGetDevice(&dev_idx_), policy_device_, location);
+    gpu_check(wwrGetDevice(&dev_idx_), device_policy_ref(), location);
   }
 
 public:
@@ -146,7 +173,7 @@ public:
 
   /// @brief The policy handling this handle's device (set/get) calls, for reading
   ///        back any state a stateful device policy accumulated during construction.
-  const P_device_access &device_policy() const noexcept { return policy_device_; }
+  const P_device_access &device_policy() const noexcept { return device_policy_ref(); }
 
   /// @brief A non-owning, copyable view of this handle, carrying its device index.
   ///

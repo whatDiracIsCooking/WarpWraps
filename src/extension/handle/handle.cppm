@@ -82,8 +82,16 @@ private:
   }
 
 protected:
+  // policy_create_ is the canonical, always-stored slot. policy_destroy_ elides
+  // itself into it when both are the same empty type (the common default), so
+  // reach the destroy policy through destroy_policy(), never the raw member.
   [[no_unique_address]] P_create policy_create_{};
-  [[no_unique_address]] P_destroy policy_destroy_{};
+  [[no_unique_address]] policy_slot<P_destroy, P_create> policy_destroy_{};
+
+  P_create &create_policy() noexcept { return policy_create_; }
+  const P_create &create_policy() const noexcept { return policy_create_; }
+  P_destroy &destroy_policy() noexcept { return policy_destroy_.resolve(policy_create_); }
+  const P_destroy &destroy_policy() const noexcept { return policy_destroy_.resolve(policy_create_); }
 
   // Tag type for derived classes to skip default handle creation
   struct skip_default_create_t {};
@@ -98,7 +106,7 @@ public:
   }
 
   BaseHandle(P_create policy, std::source_location location = std::source_location::current())
-      : policy_create_(policy), policy_destroy_(std::move(policy)) {
+      : policy_create_(policy), policy_destroy_(P_destroy(std::move(policy))) {
     run_create(location);
   }
 

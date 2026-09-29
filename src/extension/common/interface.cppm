@@ -10,6 +10,7 @@
  * - :error - wwrError_t specializations of the error_code utilities
  * - :device_scope - RAII guard that makes a device current and restores the previous one
  * - :noncopyable - Mixin deleting copy operations while allowing moves
+ * - :policy_slot - Storage that collapses a same-type empty policy slot to nothing
  *
  * The RAII GPU-handle layer that once lived here (BaseHandle, DeviceBoundHandle
  * and their views) is now its own module, wwr.extension.handle, which
@@ -28,3 +29,4 @@ export import wwr.extension.error_handling;
 export import :error;
 export import :device_scope;
 export import :noncopyable;
+export import :policy_slot;

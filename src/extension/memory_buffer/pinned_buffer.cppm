@@ -109,7 +109,7 @@ public:
      */
   void deallocate(T *ptr, std::size_t num_elements) {
     if (ptr != nullptr) {
-      gpu_check(wwrFreeHost(ptr), this->policy_free_);
+      gpu_check(wwrFreeHost(ptr), this->free_policy_ref());
     }
   }
 };

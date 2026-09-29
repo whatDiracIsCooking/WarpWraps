@@ -75,8 +75,8 @@ public:
   /// @param handle The event to destroy
   void destroy(wwrEvent_t handle) {
     if (handle != nullptr) {
-      gpu_check(wwrEventSynchronize(handle), this->policy_destroy_);
-      gpu_check(wwrEventDestroy(handle), this->policy_destroy_);
+      gpu_check(wwrEventSynchronize(handle), this->destroy_policy());
+      gpu_check(wwrEventDestroy(handle), this->destroy_policy());
     }
   }
 };

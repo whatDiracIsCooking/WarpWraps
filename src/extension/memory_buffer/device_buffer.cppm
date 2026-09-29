@@ -105,7 +105,7 @@ public:
                       std::source_location location = std::source_location::current())
       : Base(typename Base::skip_default_alloc_t{}), handle_(std::move(handle)) {
     this->policy_alloc_ = std::move(policy);
-    this->policy_free_ = this->policy_alloc_;
+    this->free_policy_ref() = this->policy_alloc_;
     allocate_block(num_elements, location);
   }
 
@@ -135,9 +135,9 @@ public:
       return;
     DeviceScope<P_device_access> scope{handle_->dev_idx()};
     if constexpr (device_handle_stream<H>)
-      gpu_check(wwrFreeAsync(ptr, handle_->stream()), this->policy_free_);
+      gpu_check(wwrFreeAsync(ptr, handle_->stream()), this->free_policy_ref());
     else
-      gpu_check(wwrFree(ptr), this->policy_free_);
+      gpu_check(wwrFree(ptr), this->free_policy_ref());
   }
 
 private:

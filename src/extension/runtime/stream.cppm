@@ -114,8 +114,8 @@ public:
   /// @param handle The stream to destroy
   void destroy(wwrStream_t handle) {
     if (handle != nullptr) {
-      gpu_check(wwrStreamSynchronize(handle), this->policy_destroy_);
-      gpu_check(wwrStreamDestroy(handle), this->policy_destroy_);
+      gpu_check(wwrStreamSynchronize(handle), this->destroy_policy());
+      gpu_check(wwrStreamDestroy(handle), this->destroy_policy());
     }
   }
 };

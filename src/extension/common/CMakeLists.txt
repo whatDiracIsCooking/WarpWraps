@@ -20,6 +20,7 @@ wwr_add_cxx_module_library(
   error.cppm
   device_scope.cppm
   noncopyable.cppm
+  policy_slot.cppm
   LINK_PUBLIC
   wwr.runtime_api
   wwr.extension.error_handling
