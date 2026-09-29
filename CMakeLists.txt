@@ -263,6 +263,11 @@ else()
   # hipcomp::hipcomp imported target -- wwr.hip.hipcomp links it. See
   # src/hip/CMakeLists.txt and docker/install-rocm-ds.sh.
   find_package(hipcomp CONFIG REQUIRED)
+  # hipTensor is NOT found via its CMake package here: hiptensor::hiptensor
+  # lists hip::device in its interface, which would force device compilation
+  # onto every host consumer of wwr.tensor (see src/hip/CMakeLists.txt). Like
+  # the config-less cuTENSOR on the CUDA side, wwr.hip.hiptensor
+  # find_path/find_library's libhiptensor and its header by hand instead.
 endif()
 
 # nvcc (and hipcc) link against libstdc++ internally. When the host linker is

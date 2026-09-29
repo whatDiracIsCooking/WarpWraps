@@ -207,6 +207,38 @@ the module links that plus `CUDA::cudart`. `docker/install-cuda.sh` installs the
 `nvcomp-cuda-*` apt package and republishes it under `/opt/nvidia/nvcomp` on
 `CMAKE_PREFIX_PATH`.
 
+### `wwr.cuda.cutensor`
+
+**Import:** `import wwr.cuda.cutensor;`
+
+Wraps `cutensor.h` — NVIDIA's tensor primitives library (contraction, reduction,
+permutation, element-wise). HIP counterpart: `wwr.hip.hiptensor`, an
+*independent* implementation (built on composable-kernel), **not** a
+source-compatible reimplementation — so unlike NCCL/RCCL the two share only a
+measured intersection. See `src/tensor.cppm` for the backend-neutral
+`wwrtensor*` layer. Exports the full public surface of `cutensor.h`:
+
+- **Types** — the opaque `cutensorHandle_t` / `cutensorTensorDescriptor_t` /
+  `cutensorOperationDescriptor_t` / `cutensorPlan_t` / `cutensorPlanPreference_t`
+  / `cutensorComputeDescriptor_t` / `cutensorBlockSparseTensorDescriptor_t`, the
+  `cutensorDataType_t` alias, the `cutensorOperator_t` / `cutensorStatus_t` /
+  `cutensorAlgo_t` / attribute / mode enums, and `cutensorLoggerCallback_t`.
+- **Host API** — library context, plan/kernel cache, tensor descriptors,
+  operation construction (element-wise, permutation, contraction — including the
+  trinary and block-sparse variants — and reduction), plan lifecycle, execution
+  (`cutensorContract`, `cutensorReduce`, `cutensorPermute`, …), and logging.
+- **Data-type constants** — `CUTENSOR_R_16F` … are internal-linkage `const`
+  variables in `cutensor/types.h`; a module cannot export those, so they are
+  re-declared here as `inline constexpr` (mirroring how `nccl` handles its
+  `#define`s). The compute-descriptor globals (`CUTENSOR_COMPUTE_DESC_*`) are
+  `extern const` opaque pointers and re-export directly.
+
+cuTENSOR ships **no** CMake config package and is not a FindCUDAToolkit
+component, so `CMakeLists.txt` `find_path`/`find_library`s it and wraps it in an
+installable imported target carrying both the library and its include dir;
+`docker/install-cuda.sh` republishes the apt install under
+`/opt/nvidia/cutensor` on `CMAKE_PREFIX_PATH`.
+
 ## Build
 
 Defined in `CMakeLists.txt` using the project-local

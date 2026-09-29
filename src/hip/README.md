@@ -741,6 +741,52 @@ target `find_package(hipcomp CONFIG REQUIRED)` resolves off `CMAKE_PREFIX_PATH`.
 The module links that plus `hip::host` (for the `hipStream_t` the async
 signatures take, which `hipcomp.h` pulls in via `<hip/hip_runtime.h>`).
 
+### `wwr.hip.hiptensor`
+
+**Import:** `import wwr.hip.hiptensor;`
+
+Wraps `hiptensor/hiptensor.h` -- AMD's tensor primitives library (contraction,
+reduction, permutation, element-wise), built on composable-kernel. CUDA
+counterpart: `wwr.cuda.cutensor`. See `src/tensor.cppm` for the backend-neutral
+`wwrtensor*` layer.
+
+**Why the library is found by hand, not via its CMake package.** hipTensor
+*does* ship a package, but `hiptensor::hiptensor` lists `hip::device` in its
+`INTERFACE_LINK_LIBRARIES`, and `hip::device` carries `-x hip` /
+`--offload-arch` as interface *compile* options. Linked PUBLIC that would force
+**device** compilation onto every downstream host consumer of `wwr.tensor` --
+flipping e.g. `gpu_compile_tests`' `main.cpp` (which does `import std;`) into an
+`amdgcn` TU that cannot load the host `std` BMI (`docs/architecture.md`
+section 8). `roc::rccl` has no such interface; only `hiptensor::hiptensor` does.
+So -- exactly as `src/cuda/CMakeLists.txt` wraps the config-less cuTENSOR, and
+as `nccl`/`cusolverMg` wrap a bare library -- `CMakeLists.txt` `find_path`s the
+header and `find_library`s `libhiptensor.so`, wraps them in an installable
+imported target `wwr::hip_hiptensor`, and links **`hip::host`** alongside (the
+header pulls in `<hip/hip_runtime.h>` and `<hip/library_types.h>`). This module
+and its consumers then compile as **host**, like every other `wwr.hip.*`, and
+`wwrConfig.cmake` recreates `wwr::hip_hiptensor` for installed consumers.
+
+Unlike RCCL/NCCL, hipTensor is **not** a source-compatible reimplementation of
+cuTENSOR -- it is an independent API that mirrors cuTENSOR's naming closely.
+This module exports the full public surface of the header: the opaque handle /
+descriptor / plan types, the `hiptensorDataType_t` / `hiptensorOperator_t` /
+`hiptensorStatus_t` / `hiptensorComputeDescriptor_t` / attribute / mode enums
+and all their enumerators (the data-type and compute-descriptor constants are
+enumerators here, re-exported directly with `using` -- the opposite of
+cuTENSOR's `const`-variable / `extern const`-pointer treatment), and the host
+API (library context, plan/kernel cache, descriptors, operation construction and
+execution, logging).
+
+**hipTensor-only names, exported here but absent from `wwr.tensor`.**
+`hiptensorGetHiprtVersion`, the `hiptensorLogLevel_t` logging-level enum (no
+cuTENSOR counterpart -- `cutensorLoggerSetLevel` takes a plain `int32_t`), and
+`HIPTENSOR_ALGO_ACTOR_CRITIC` have no cuTENSOR twin, so the `wwrtensor*` layer
+leaves them out; they are reachable only through this module.
+
+**hipTensor stays in the pruned CI image.** Like rccl, it was on
+`docker/install-rocm.sh`'s `ROCM_PRUNE` list; now that this module links
+`libhiptensor` it is a link-time dependency and is retained.
+
 ### `hip_profile.h`: no module -- nothing to wrap
 
 `hip/hip_profile.h` was evaluated for a `wwr.hip.hip_profile` module

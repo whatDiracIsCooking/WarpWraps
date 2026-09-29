@@ -10,11 +10,17 @@
 #     [LINK_PRIVATE  <lib ...>]
 #     [WHOLE_ARCHIVE <target ...>]   # force objects in, for self-registering
 #                                    # tests
-#     [LINK_LIBSTDCXX])              # link libstdc++.so.6 explicitly
+#     [LINK_LIBSTDCXX]               # link libstdc++.so.6 explicitly
+#     [NO_RUN])                      # build + link only, no ctest entry -- for
+#                                    # a link check whose linked library cannot
+#                                    # be RUN on the build host (e.g. one that
+#                                    # aborts in a global ctor without a
+#                                    # supported GPU). The link IS the
+#                                    # assertion; TIMEOUT is ignored.
 macro(wwr_add_test_executable)
   cmake_parse_arguments(
     _TEX
-    "LINK_LIBSTDCXX" # Boolean options
+    "LINK_LIBSTDCXX;NO_RUN" # Boolean options
     "NAME;MAIN;TIMEOUT" # Single-value arguments
     "LINK_PRIVATE;WHOLE_ARCHIVE" # Multi-value arguments
     ${ARGN}
@@ -55,7 +61,9 @@ macro(wwr_add_test_executable)
   set_target_properties(${_TEX_NAME} PROPERTIES CXX_MODULE_STD 1)
   _wwr_disable_cuda_device_linking(${_TEX_NAME})
 
-  add_test(NAME ${_TEX_NAME} COMMAND ${_TEX_NAME})
-  set_tests_properties(${_TEX_NAME} PROPERTIES TIMEOUT ${_TEX_TIMEOUT})
+  if(NOT _TEX_NO_RUN)
+    add_test(NAME ${_TEX_NAME} COMMAND ${_TEX_NAME})
+    set_tests_properties(${_TEX_NAME} PROPERTIES TIMEOUT ${_TEX_TIMEOUT})
+  endif()
 
 endmacro()

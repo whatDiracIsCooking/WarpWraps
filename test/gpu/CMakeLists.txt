@@ -27,6 +27,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_test_raw_rand wwr.cuda.curand)
   set(_gpu_test_raw_tx wwr.cuda.nvToolsExt)
   set(_gpu_test_raw_ccl wwr.cuda.nccl)
+  set(_gpu_test_raw_tensor wwr.cuda.cutensor)
 else()
   set(_gpu_test_raw_runtime_api wwr.hip.hip_runtime_api)
   set(_gpu_test_raw_complex wwr.hip.hip_complex)
@@ -43,6 +44,7 @@ else()
   set(_gpu_test_raw_rand wwr.hip.hiprand wwr.hip.hiprand_kernel)
   set(_gpu_test_raw_tx wwr.hip.roctx)
   set(_gpu_test_raw_ccl wwr.hip.rccl)
+  set(_gpu_test_raw_tensor wwr.hip.hiptensor)
 endif()
 
 set(GPU_TEST_LIBRARIES
@@ -102,6 +104,49 @@ wwr_add_test_executable(
 )
 
 add_dependencies(compile_time_tests gpu_compile_tests)
+
+# tensor is the one wwr* compile-time test kept OUT of the shared, RUN
+# gpu_compile_tests binary above: on HIP, libhiptensor.so runs a device probe in
+# a global constructor that aborts at process startup on any host without a
+# supported AMD GPU -- "unsupported host device detected" on an unsupported card
+# (gfx1200 here), "no ROCm-capable device is detected" with none, e.g. CI's
+# GPU-less runners (hiptensor/library/src/hip_device.cpp). A runnable binary
+# that links it therefore cannot reach main(). So tensor is verified exactly
+# like the device-library tests below: the module's static_asserts are proved
+# when it COMPILES, and its own executable is BUILT (WWR_LINK_CHECK forces every
+# wwrtensor* symbol to resolve against libcutensor / libhiptensor -- the link IS
+# the assertion) but carries NO ctest entry and is never launched. Uniform
+# across backends: cuTENSOR does not abort this way, but one code path is
+# simpler, and the shared runner already proves the run/print path elsewhere.
+wwr_add_cxx_module_library(
+  NAME
+  wwr.test.gpu.tensor
+  IMPORT_STD
+  NO_CUDA_DEVICE_LINKING
+  PRIMARY_INTERFACE
+  tensor.cppm
+  LINK_PUBLIC
+  wwr.tensor
+  ${_gpu_test_raw_tensor}
+  LINK_PRIVATE
+  wwr_backend
+  INCLUDE_DIRS_PRIVATE
+  ${PROJECT_SOURCE_DIR}
+)
+add_dependencies(compile_time_tests wwr.test.gpu.tensor)
+
+wwr_add_test_executable(
+  NAME
+  gpu_compile_tests_tensor
+  MAIN
+  tensor_link_check.cpp
+  LINK_PRIVATE
+  wwr.test.gpu.tensor
+  WHOLE_ARCHIVE
+  wwr.test.gpu.tensor
+  NO_RUN
+)
+add_dependencies(compile_time_tests gpu_compile_tests_tensor)
 set_tests_properties(gpu_compile_tests PROPERTIES LABELS compile_time)
 
 # cooperative_groups.cuh is the odd one out among the wwr* tests above: it

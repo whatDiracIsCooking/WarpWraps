@@ -104,6 +104,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_raw_rand wwr.cuda.curand)
   set(_raw_tx wwr.cuda.nvToolsExt)
   set(_raw_ccl wwr.cuda.nccl)
+  set(_raw_tensor wwr.cuda.cutensor)
 else()
   set(_raw_runtime_api wwr.hip.hip_runtime_api)
   set(_raw_complex wwr.hip.hip_complex)
@@ -121,6 +122,7 @@ else()
   set(_raw_rand wwr.hip.hiprand wwr.hip.hiprand_kernel)
   set(_raw_tx wwr.hip.roctx)
   set(_raw_ccl wwr.hip.rccl)
+  set(_raw_tensor wwr.hip.hiptensor)
 endif()
 
 wwr_add_cxx_module_library(
@@ -293,6 +295,18 @@ wwr_add_cxx_module_library(
   ccl.cppm
   LINK_PUBLIC
   ${_raw_ccl}
+  LINK_PRIVATE
+  wwr_backend
+  IMPORT_STD
+)
+
+wwr_add_cxx_module_library(
+  NAME
+  wwr.tensor
+  PRIMARY_INTERFACE
+  tensor.cppm
+  LINK_PUBLIC
+  ${_raw_tensor}
   LINK_PRIVATE
   wwr_backend
   IMPORT_STD

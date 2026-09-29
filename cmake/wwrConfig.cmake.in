@@ -182,6 +182,32 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   # its own CMake config package providing nvcomp::nvcomp, which wwr.cuda.nvcomp
   # links -- so re-find it the ordinary way.
   find_dependency(nvcomp)
+
+  # cuTENSOR ships no CMake config package and is not a FindCUDAToolkit
+  # component, so src/cuda/CMakeLists.txt finds its header and library by hand
+  # and links them through the imported target wwr::cuda_cutensor, recreated
+  # here from CMAKE_PREFIX_PATH (docker/install-cuda.sh puts /opt/nvidia/cutensor
+  # there). Unlike nccl, the header is off any default path, so the include dir
+  # is part of the target too.
+  if(NOT TARGET wwr::cuda_cutensor)
+    find_path(WWR_cutensor_INCLUDE_DIR cutensor.h)
+    find_library(WWR_cutensor_LIBRARY NAMES cutensor)
+    if(NOT WWR_cutensor_INCLUDE_DIR OR NOT WWR_cutensor_LIBRARY)
+      set(wwr_FOUND FALSE)
+      set(wwr_NOT_FOUND_MESSAGE
+          "cuTENSOR not found. It ships no CMake config and is not part of the "
+          "CUDA Toolkit; put its prefix on CMAKE_PREFIX_PATH, or pass "
+          "-DWWR_cutensor_INCLUDE_DIR=<dir> -DWWR_cutensor_LIBRARY=<path>."
+      )
+      return()
+    endif()
+    add_library(wwr::cuda_cutensor UNKNOWN IMPORTED)
+    set_target_properties(
+      wwr::cuda_cutensor
+      PROPERTIES IMPORTED_LOCATION "${WWR_cutensor_LIBRARY}"
+                 INTERFACE_INCLUDE_DIRECTORIES "${WWR_cutensor_INCLUDE_DIR}"
+    )
+  endif()
 else()
   find_dependency(hip)
   find_dependency(rocm_smi)
@@ -195,6 +221,32 @@ else()
   find_dependency(hiprand)
   find_dependency(rccl)
   find_dependency(hipcomp)
+
+  # hipTensor is linked through the hand-wrapped imported target
+  # wwr::hip_hiptensor (NOT hiptensor::hiptensor, whose hip::device interface
+  # would force device compilation on host consumers -- see
+  # src/hip/CMakeLists.txt), so the name is recreated here, same as cuTENSOR
+  # above and nccl on the CUDA side.
+  if(NOT TARGET wwr::hip_hiptensor)
+    find_path(WWR_hiptensor_INCLUDE_DIR hiptensor/hiptensor.h
+              HINTS ${ROCM_PATH} $ENV{ROCM_PATH} /opt/rocm PATH_SUFFIXES include)
+    find_library(WWR_hiptensor_LIBRARY NAMES hiptensor
+                 HINTS ${ROCM_PATH} $ENV{ROCM_PATH} /opt/rocm PATH_SUFFIXES lib)
+    if(NOT WWR_hiptensor_INCLUDE_DIR OR NOT WWR_hiptensor_LIBRARY)
+      set(wwr_FOUND FALSE)
+      set(wwr_NOT_FOUND_MESSAGE
+          "hipTensor not found. Install hiptensor-dev (part of rocm-hip-sdk), "
+          "or pass -DWWR_hiptensor_INCLUDE_DIR=<dir> -DWWR_hiptensor_LIBRARY=<path>."
+      )
+      return()
+    endif()
+    add_library(wwr::hip_hiptensor UNKNOWN IMPORTED)
+    set_target_properties(
+      wwr::hip_hiptensor
+      PROPERTIES IMPORTED_LOCATION "${WWR_hiptensor_LIBRARY}"
+                 INTERFACE_INCLUDE_DIRECTORIES "${WWR_hiptensor_INCLUDE_DIR}"
+    )
+  endif()
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/wwr-targets.cmake")
