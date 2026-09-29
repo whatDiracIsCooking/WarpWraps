@@ -177,6 +177,11 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
       wwr::cuda_nccl PROPERTIES IMPORTED_LOCATION "${WWR_nccl_LIBRARY}"
     )
   endif()
+
+  # nvCOMP is not a FindCUDAToolkit component either, but unlike nccl it ships
+  # its own CMake config package providing nvcomp::nvcomp, which wwr.cuda.nvcomp
+  # links -- so re-find it the ordinary way.
+  find_dependency(nvcomp)
 else()
   find_dependency(hip)
   find_dependency(rocm_smi)
@@ -189,6 +194,7 @@ else()
   find_dependency(hipfft)
   find_dependency(hiprand)
   find_dependency(rccl)
+  find_dependency(hipcomp)
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/wwr-targets.cmake")

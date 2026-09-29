@@ -713,6 +713,34 @@ struct-initializer macros, for the reasons `wwr.cuda.nccl` gives.
 list used to drop rccl ("nothing here wraps them"); now that this module links
 `roc::rccl` it is a link-time dependency and is retained.
 
+### `wwr.hip.hipcomp`
+
+**Import:** `import wwr.hip.hipcomp;`
+
+Wraps hipCOMP — AMD's GPU lossless-compression library: the batched low-level
+interface for LZ4, Snappy, Cascaded, GDeflate, Bitcomp and ANS, the generic
+metadata-driven decompress entry points, and the shared status/type enums. CUDA
+counterpart: `wwr.cuda.nvcomp`. hipCOMP is a hipify of NVIDIA/nvcomp
+`branch-2.2`, so its surface matches nvCOMP 2.2 — several major versions behind
+the 5.3 the CUDA image ships. That version skew is why there is deliberately
+**no** backend-neutral `wwr.comp` layer above the pair: the batched signatures
+diverge, so a `wwr*` alias could not present one portable signature. See issue
+#110. hipCOMP self-describes as an early-access preview and marks every algorithm
+experimental; this module re-exports the header surface (a compile/link
+contract), not a runtime guarantee. The C++ HLIF managers are not wrapped.
+
+The vendor headers declare their default-option structs as file-scope `static
+const` (internal linkage), which a module cannot name in an `export`ed
+declaration. They are re-declared in `wwr::hip` as `inline const`, the same
+forwarding workaround `wwr.cuda.cuComplex` uses for `cuComplex.h`'s static-inline
+functions.
+
+hipCOMP is **not** part of ROCm proper — `docker/install-rocm-ds.sh` builds it
+from source into `/opt/rocm-ds`, which ships the `hipcomp::hipcomp` imported
+target `find_package(hipcomp CONFIG REQUIRED)` resolves off `CMAKE_PREFIX_PATH`.
+The module links that plus `hip::host` (for the `hipStream_t` the async
+signatures take, which `hipcomp.h` pulls in via `<hip/hip_runtime.h>`).
+
 ### `hip_profile.h`: no module -- nothing to wrap
 
 `hip/hip_profile.h` was evaluated for a `wwr.hip.hip_profile` module

@@ -207,6 +207,12 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
       )
     endif()
   endforeach()
+
+  # nvCOMP (GPU lossless compression) is not a FindCUDAToolkit component; it
+  # ships its own CMake config package providing nvcomp::nvcomp, which
+  # wwr.cuda.nvcomp links. See src/cuda/CMakeLists.txt and
+  # docker/install-cuda.sh.
+  find_package(nvcomp CONFIG REQUIRED)
 else()
   # Seed GPU_TARGETS from the environment before find_package(hip).
   #
@@ -252,6 +258,11 @@ else()
   # is NOT a FindCUDAToolkit component, so wwr.cuda.nccl find_library's it by
   # hand instead (see src/cuda/CMakeLists.txt).
   find_package(rccl CONFIG REQUIRED)
+  # hipCOMP (GPU lossless compression) is built from source into /opt/rocm-ds
+  # (not part of ROCm proper) and ships its own CMake package providing the
+  # hipcomp::hipcomp imported target -- wwr.hip.hipcomp links it. See
+  # src/hip/CMakeLists.txt and docker/install-rocm-ds.sh.
+  find_package(hipcomp CONFIG REQUIRED)
 endif()
 
 # nvcc (and hipcc) link against libstdc++ internally. When the host linker is
