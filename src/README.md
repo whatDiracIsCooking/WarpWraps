@@ -126,16 +126,19 @@ popular vendor library where the two backends genuinely agree on the API: RCCL
 is a source-compatible reimplementation of NCCL, so both spell the entire
 surface with the identical `nccl*` / `NCCL_*` names and there is no prefix
 divergence to bridge (`wwrcclAllReduce` is `ncclAllReduce` on both). It carries
-the measured intersection — 37 functions (the collectives, P2P
+the measured intersection — 36 functions (the collectives, P2P
 `wwrcclSend`/`Recv`, communicator lifecycle, grouping, custom reductions), the
 10 shared types, the reduction-op / datatype enums, and the scalar flag
 constants. Three things to watch:
 
-- **The surface is measured, not assumed.** RCCL's version leads NCCL's, so a
-  few RCCL collectives — `ncclGather`/`Scatter`, `ncclAllToAll{,v}`,
-  `ncclAllReduceWithBias` — have no NCCL counterpart and are therefore **absent
-  from `wwr.ccl`**, reachable only through the raw `wwr.hip.rccl` module. Run
-  `devtools/header_intersection.py --cuda nccl.h --hip rccl.h` to reproduce.
+- **The surface is measured, not assumed — against the installed libraries.**
+  RCCL's version leads the packaged NCCL's, so a few RCCL names —
+  `ncclGather`/`Scatter`, `ncclAllToAll{,v}`, `ncclAllReduceWithBias`, and
+  `ncclResetDebugInit` (in NCCL's upstream header, but not the `libnccl-dev` the
+  CUDA image ships) — have no counterpart in the installed NCCL and are therefore
+  **absent from `wwr.ccl`**, reachable only through the raw `wwr.hip.rccl`
+  module. Run `devtools/header_intersection.py --cuda nccl.h --hip rccl.h` to
+  reproduce.
 - The `NCCL_*` values are `#define` macros, which a module cannot re-export; the
   raw modules turn the scalar flag/param ones into `constexpr` (as `cufft` does
   for its direction flags) and `wwr.ccl` aliases those to `WWRCCL_*`. The

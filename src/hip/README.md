@@ -695,10 +695,12 @@ types, enums and host API listed for `wwr.cuda.nccl`, turning the scalar
 leads NCCL's, so it carries collectives NCCL has no counterpart for:
 `ncclGather` / `ncclScatter` (`RCCL_GATHER_SCATTER`), `ncclAllToAll` /
 `ncclAllToAllv` (`RCCL_ALLTOALLV`), and `ncclAllReduceWithBias`
-(`RCCL_ALLREDUCE_WITH_BIAS`). A raw module is a faithful 1:1 of its backend, so
-they are exported here -- but the `wwrccl*` layer spans only the measured
-intersection and leaves them out, so they are reachable only through this
-module, never portably.
+(`RCCL_ALLREDUCE_WITH_BIAS`). `ncclResetDebugInit` is a subtler case of the same
+thing: it *is* in NCCL's upstream header, but the `libnccl-dev` the CUDA image
+installs predates it, so the measured intersection excludes it too. A raw module
+is a faithful 1:1 of its backend, so all of these are exported here -- but the
+`wwrccl*` layer spans only the measured intersection and leaves them out, so they
+are reachable only through this module, never portably.
 
 Left out: the `msccl*` algorithm entry points
 (`mscclLoadAlgo`/`RunAlgo`/`UnloadAlgo`, `mscclAlgoHandle_t`), marked

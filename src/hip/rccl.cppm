@@ -188,7 +188,6 @@ using ::ncclGetUniqueId;
 using ::ncclCommGetAsyncError;
 using ::ncclGetErrorString;
 using ::ncclGetLastError;
-using ::ncclResetDebugInit;
 
 // ========================================================================
 // Communicator information
@@ -231,6 +230,11 @@ using ::ncclAllToAll;
 using ::ncclAllToAllv;
 using ::ncclGather;
 using ::ncclScatter;
+
+// Present in RCCL and in NCCL's upstream header, but the packaged libnccl-dev
+// the CUDA image installs predates it -- so it is outside the measured
+// intersection and absent from the wwrccl* layer, reachable only here.
+using ::ncclResetDebugInit;
 
 // ========================================================================
 // Group semantics

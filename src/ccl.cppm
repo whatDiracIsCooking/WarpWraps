@@ -9,11 +9,14 @@
  * NCCL_<X>, each written out in full. See gpu_backend.h.
  *
  * This layer carries the measured intersection of the two vendor headers (run
- * devtools/header_intersection.py --cuda nccl.h --hip rccl.h to reproduce it).
- * RCCL's version leads NCCL's here, so a handful of RCCL collectives have no
- * NCCL counterpart and are therefore ABSENT -- reachable only through the raw
+ * devtools/header_intersection.py --cuda nccl.h --hip rccl.h to reproduce it) --
+ * measured against the ACTUALLY INSTALLED libraries, not an upstream tag. RCCL's
+ * version leads the packaged NCCL here, so a handful of RCCL names have no NCCL
+ * counterpart and are therefore ABSENT -- reachable only through the raw
  * wwr.hip.rccl module, never portably:
  *   - ncclGather / ncclScatter, ncclAllToAll / ncclAllToAllv, ncclAllReduceWithBias
+ *   - ncclResetDebugInit (in NCCL's upstream header too, but the libnccl-dev the
+ *     CUDA image ships predates it)
  *
  * The compile-time NCCL_MAJOR / NCCL_VERSION_CODE macros are not aliased: their
  * values are backend-specific, and the runtime wwrcclGetVersion query is the
@@ -174,7 +177,6 @@ WWR_FUNCTION(wwrcclCommAbort, ncclCommAbort, ncclCommAbort)
 
 WWR_FUNCTION(wwrcclGetErrorString, ncclGetErrorString, ncclGetErrorString)
 WWR_FUNCTION(wwrcclGetLastError, ncclGetLastError, ncclGetLastError)
-WWR_FUNCTION(wwrcclResetDebugInit, ncclResetDebugInit, ncclResetDebugInit)
 WWR_FUNCTION(wwrcclCommGetAsyncError, ncclCommGetAsyncError, ncclCommGetAsyncError)
 
 // ========================================================================

@@ -179,11 +179,14 @@ using ::ncclGetUniqueId;
 
 // ========================================================================
 // Error checking
+//
+// ncclResetDebugInit (present in RCCL and in NCCL's upstream header) is NOT
+// wrapped: the packaged libnccl-dev the CUDA image installs predates it, so it
+// is not in the measured NCCL/RCCL intersection. See src/ccl.cppm.
 // ========================================================================
 using ::ncclCommGetAsyncError;
 using ::ncclGetErrorString;
 using ::ncclGetLastError;
-using ::ncclResetDebugInit;
 
 // ========================================================================
 // Communicator information
