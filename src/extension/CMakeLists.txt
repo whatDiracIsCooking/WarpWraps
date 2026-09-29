@@ -21,6 +21,10 @@ add_subdirectory(blas)
 add_subdirectory(solver)
 add_subdirectory(fft)
 add_subdirectory(sparse)
+# texture/surface: thin BaseHandle RAII wrappers, each linking handle + common +
+# runtime_api (all added above); independent of each other, order-free here.
+add_subdirectory(texture)
+add_subdirectory(surface)
 add_subdirectory(init_state)
 add_subdirectory(random_normal)
 add_subdirectory(tx)

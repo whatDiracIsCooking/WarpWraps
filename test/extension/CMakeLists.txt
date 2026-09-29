@@ -27,3 +27,9 @@ add_subdirectory(blas)
 add_subdirectory(solver)
 add_subdirectory(sparse)
 add_subdirectory(fft)
+
+# The texture / surface object wrappers. RAII over a vendor handle whose
+# create/destroy needs a live GPU context (and a backing CUDA array), so these
+# are runtime only -- the destroy-exactly-once contract is the whole test.
+add_subdirectory(texture)
+add_subdirectory(surface)

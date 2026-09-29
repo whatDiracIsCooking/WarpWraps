@@ -116,6 +116,30 @@ WWR_SAME_VALUE(wwrMemAttachGlobal, cudaMemAttachGlobal)
 WWR_SAME_VALUE(wwrMemAttachHost, cudaMemAttachHost)
 WWR_SAME_FUNCTION(wwrMallocManaged, cudaMallocManaged)
 
+// Texture and surface objects
+WWR_SAME_TYPE(wwrTextureObject_t, cudaTextureObject_t)
+WWR_SAME_TYPE(wwrSurfaceObject_t, cudaSurfaceObject_t)
+WWR_SAME_TYPE(wwrResourceDesc, cudaResourceDesc)
+WWR_SAME_TYPE(wwrTextureDesc, cudaTextureDesc)
+WWR_SAME_TYPE(wwrResourceViewDesc, cudaResourceViewDesc)
+WWR_SAME_TYPE(wwrChannelFormatDesc, cudaChannelFormatDesc)
+WWR_SAME_TYPE(wwrChannelFormatKind, cudaChannelFormatKind)
+WWR_SAME_TYPE(wwrResourceType, cudaResourceType)
+WWR_SAME_TYPE(wwrArray_t, cudaArray_t)
+WWR_SAME_VALUE(wwrChannelFormatKindSigned, cudaChannelFormatKindSigned)
+WWR_SAME_VALUE(wwrChannelFormatKindUnsigned, cudaChannelFormatKindUnsigned)
+WWR_SAME_VALUE(wwrChannelFormatKindFloat, cudaChannelFormatKindFloat)
+WWR_SAME_VALUE(wwrResourceTypeArray, cudaResourceTypeArray)
+WWR_SAME_VALUE(wwrResourceTypeLinear, cudaResourceTypeLinear)
+WWR_SAME_VALUE(wwrArrayDefault, cudaArrayDefault)
+WWR_SAME_VALUE(wwrArraySurfaceLoadStore, cudaArraySurfaceLoadStore)
+WWR_SAME_FUNCTION(wwrMallocArray, cudaMallocArray)
+WWR_SAME_FUNCTION(wwrFreeArray, cudaFreeArray)
+WWR_SAME_FUNCTION(wwrCreateTextureObject, cudaCreateTextureObject)
+WWR_SAME_FUNCTION(wwrDestroyTextureObject, cudaDestroyTextureObject)
+WWR_SAME_FUNCTION(wwrCreateSurfaceObject, cudaCreateSurfaceObject)
+WWR_SAME_FUNCTION(wwrDestroySurfaceObject, cudaDestroySurfaceObject)
+
 #else
 
 // ────────────────────────────────────────────────────────────────────────
@@ -225,6 +249,30 @@ static_assert(&wwrMallocManaged == static_cast<hipError_t (*)(void **, std::size
                                        &hipMallocManaged),
               "wwrMallocManaged is not hipMallocManaged(void**, size_t, unsigned)");
 WWR_LINK_CHECK(wwrMallocManaged)
+
+// Texture and surface objects
+WWR_SAME_TYPE(wwrTextureObject_t, hipTextureObject_t)
+WWR_SAME_TYPE(wwrSurfaceObject_t, hipSurfaceObject_t)
+WWR_SAME_TYPE(wwrResourceDesc, hipResourceDesc)
+WWR_SAME_TYPE(wwrTextureDesc, hipTextureDesc)
+WWR_SAME_TYPE(wwrResourceViewDesc, hipResourceViewDesc)
+WWR_SAME_TYPE(wwrChannelFormatDesc, hipChannelFormatDesc)
+WWR_SAME_TYPE(wwrChannelFormatKind, hipChannelFormatKind)
+WWR_SAME_TYPE(wwrResourceType, hipResourceType)
+WWR_SAME_TYPE(wwrArray_t, hipArray_t)
+WWR_SAME_VALUE(wwrChannelFormatKindSigned, hipChannelFormatKindSigned)
+WWR_SAME_VALUE(wwrChannelFormatKindUnsigned, hipChannelFormatKindUnsigned)
+WWR_SAME_VALUE(wwrChannelFormatKindFloat, hipChannelFormatKindFloat)
+WWR_SAME_VALUE(wwrResourceTypeArray, hipResourceTypeArray)
+WWR_SAME_VALUE(wwrResourceTypeLinear, hipResourceTypeLinear)
+WWR_SAME_VALUE(wwrArrayDefault, hipArrayDefault)
+WWR_SAME_VALUE(wwrArraySurfaceLoadStore, hipArraySurfaceLoadStore)
+WWR_SAME_FUNCTION(wwrMallocArray, hipMallocArray)
+WWR_SAME_FUNCTION(wwrFreeArray, hipFreeArray)
+WWR_SAME_FUNCTION(wwrCreateTextureObject, hipCreateTextureObject)
+WWR_SAME_FUNCTION(wwrDestroyTextureObject, hipDestroyTextureObject)
+WWR_SAME_FUNCTION(wwrCreateSurfaceObject, hipCreateSurfaceObject)
+WWR_SAME_FUNCTION(wwrDestroySurfaceObject, hipDestroySurfaceObject)
 
 #endif
 
