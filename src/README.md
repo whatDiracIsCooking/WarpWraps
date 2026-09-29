@@ -207,7 +207,7 @@ fails to compile on that backend.
 A `.cppm` here is a module, and code that imports one is host code. A kernel
 translation unit — a `.cu` under CUDA, a `-x hip` compiled source under HIP —
 imports no modules at all, so none of the modules above can serve it. The
-six `.cuh` headers are the counterpart for that case: same `gpu*` names,
+eight `.cuh` headers are the counterpart for that case: same `gpu*` names,
 reached by `#include`, with the backend resolved through `selected_backend.h`
 (which reads the compiler's own device-compile macro before `gpu_backend.h`'s
 CMake define) rather than by an `import`. Each also `#error`s if included
@@ -215,14 +215,14 @@ outside a device-compile pass — a *separate* check on `__CUDACC__` / `__HIP__`
 / `__HIPCC__`, because `selected_backend.h` would otherwise resolve a backend
 in a host compile too, and what these carry is device-only.
 
-All six reach both — the backend selection and that guard — through one
+All eight reach both — the backend selection and that guard — through one
 header, `device_guard.h`, which is `selected_backend.h` plus the device-pass
-`#error` and nothing else. Four include it directly; `cooperative_groups.cuh`
+`#error` and nothing else. Six include it directly; `cooperative_groups.cuh`
 and `wmma.cuh` reach it through `runtime.cuh`, which they include for
 `WWR_WARP_SIZE` anyway. The guard cannot move into `selected_backend.h`
 itself, which is "for anything" and must not `#error` in the host compiles the
 bridges do; `device_guard.h` is the device-only layer above it that can. It
-carries no vendor header and no target-specific content, so all seven `.cuh`
+carries no vendor header and no target-specific content, so all eight `.cuh`
 share it regardless of which target they are in.
 
 | Header | Provides | Link |
@@ -231,6 +231,7 @@ share it regardless of which target they are in.
 | `complex.cuh` | `wwrFloatComplex`, `wwrDoubleComplex`, `wwrComplex`, `make_gpu*Complex`, `wwrCreal*`/`wwrCimag*`, `wwrCabs*`, `wwrConj*`, `wwrCadd*`/`wwrCsub*`/`wwrCmul*`/`wwrCdiv*` | `wwr.device` |
 | `fp16.cuh` | `wwrHalf`, `wwrFloat2Half`, `wwrHalf2Float` | `wwr.device` |
 | `bf16.cuh` | `wwrBfloat16`, `wwrFloat2Bfloat16`, `wwrBfloat162Float` | `wwr.device` |
+| `fp8.cuh` | `wwrFp8Storage`/`x2`/`x4`, `wwrSaturation` (`wwrNosat`, `wwrSatfinite`), `wwrFp8Interpretation` (`wwrE4m3`, `wwrE5m2`), `wwrFp8E4m3`/`E5m2` (+`x2`/`x4`), `wwrFloat2Fp8`, `wwrDouble2Fp8` | `wwr.device` |
 | `cooperative_groups.cuh` | nothing of its own — the vendor's `namespace cooperative_groups`, reached through the one `#include` that differs | `wwr.device` |
 | `wmma.cuh` | `wwrwmma`, aliasing the vendor's `nvcuda::wmma` / `rocwmma` — the namespace is the only name here, the spellings inside it agree | `wwr.device` |
 | `rand.cuh` | the generator state types, `wwrrand_init`, `wwrrand_normal`, `wwrrand_normal2`, `wwrrand_normal_double`, `wwrrand_normal2_double` | `wwr.rand.device` |
@@ -239,7 +240,7 @@ share it regardless of which target they are in.
 counterpart, and cannot have one: every cooperative-groups and WMMA entity is
 `__device__`-only, so there is nothing a module could export to host code. They
 are also the two `.cuh` here that `#include` `runtime.cuh` rather than
-reaching `device_guard.h` directly as the other four do — they get the `#error`
+reaching `device_guard.h` directly as the other six do — they get the `#error`
 and the runtime header through it, and hand the including kernel
 `WWR_WARP_SIZE`, which is what a portable tile size is built from for one and
 a wave index for the other, both APIs being whole-warp collectives.
@@ -353,7 +354,7 @@ only separates the last one:
 |---|:---:|:---:|---|
 | host-only | ✅ | ❌ | `*.h` — `gpu_backend.h`, and `dispatch_macros.h` under `src/wrappers` |
 | **bridge** | ✅ | ✅ | `*_bridge.h` |
-| device-only | ❌ | ✅ | `*.cuh` — `runtime.cuh`, `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `cooperative_groups.cuh`, `rand.cuh`, `parallel_for.cuh` |
+| device-only | ❌ | ✅ | `*.cuh` — `runtime.cuh`, `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `fp8.cuh`, `cooperative_groups.cuh`, `rand.cuh`, `parallel_for.cuh` |
 
 So `.h` on its own does *not* mean "safe from a `.cu`" — `gpu_backend.h` is `.h`
 and host-only. The `_bridge` suffix marks the middle class explicitly, and it

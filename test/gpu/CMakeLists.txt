@@ -181,6 +181,23 @@ wwr_add_gpu_device_library(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.bf16.device)
 
+# fp8.cuh is fp16.cuh / bf16.cuh's shape: its __device__ narrowing forwarders
+# and the fp8 scalar/storage types they name can only be reached by a device
+# pass, and the claim it can break -- every wwrFp8* name and narrowing resolving
+# on both backends through one include switch, and (on HIP) <hip/hip_fp8.h>
+# compiling cleanly in a real -x hip pass -- is a device-compile claim. Building
+# it is the assertion; no ctest entry, no launch. Reached through wwr.device,
+# the same include path a real device consumer uses.
+wwr_add_gpu_device_library(
+  NAME
+  wwr.test.gpu.fp8.device
+  SOURCES
+  fp8.cu
+  LINK_PRIVATE
+  wwr.device
+)
+add_dependencies(compile_time_tests wwr.test.gpu.fp8.device)
+
 # wmma.cu is cooperative_groups.cu's shape with a weaker starting guarantee.
 # wmma.cuh exports one name -- the wwr::wwrwmma alias -- so there is still
 # nothing for a .cppm module test to compare, and every WMMA entity is
