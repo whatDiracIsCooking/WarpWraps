@@ -32,3 +32,28 @@ wwr_add_gtest_suite_tests(
   30
   REQUIRES_GPU
 )
+
+# BaseHandle::valid() liveness query (see valid.cpp): a pure query with no
+# runtime calls, so -- unlike the device-bound suite above -- it is NOT
+# REQUIRES_GPU and runs in CI. The create() failures are simulated by a
+# RecordingPolicy test double, no card needed.
+wwr_add_gtest_executable(
+  NAME
+  handle_valid_tests
+  SOURCES
+  valid.cpp
+  LINK
+  wwr.runtime_api
+  wwr.extension.common
+  wwr.extension.handle
+  wwr.test.shared.recording_policy
+)
+
+wwr_add_gtest_suite_tests(
+  TARGET
+  handle_valid_tests
+  SUITES
+  BaseHandleValidTests
+  TIMEOUT
+  30
+)
