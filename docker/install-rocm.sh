@@ -76,9 +76,9 @@ apt-get install -y --no-install-recommends \
 #   644M  rocblas/library        libhipblaslt.so / librocblas.so. The .so files
 #   1.7G  rocfft/                themselves stay; only the kernel data goes.
 #   459M  rocalution             sparse iterative solvers; nothing here wraps them
-#   226M  hiptensor              tensor contraction; likewise
 #
-# ~12.3GB of ~20.5GB, and none of it is a link-time dependency -- which is the
+# ~12.1GB of ~20.5GB (it was ~12.3GB before hiptensor came off the list below),
+# and none of it is a link-time dependency -- which is the
 # test that decides what may go on this list. Adding anything here that a
 # hipcc link actually needs surfaces as an undefined symbol in the ci-hip tier,
 # not as a silent wrong answer, so the failure mode is at least loud.
@@ -89,6 +89,17 @@ apt-get install -y --no-install-recommends \
 # it would fail find_package(rccl) at configure, exactly the loud failure the
 # rule above describes. The figures above predate its retention and are now
 # ~570MB larger for it.
+#
+# hiptensor (226M) left this list the same way and for the same reason: it was
+# "tensor contraction; nothing here wraps them" until the cuTENSOR/hipTensor
+# pair was wrapped, and it is the ONE half of that pair that costs this image
+# nothing extra to keep -- rocm-hip-sdk already installs hiptensor-dev through
+# rocm-hip-libraries, where the CUDA side had to add a package (see
+# docker/install-cuda.sh). Pruning it now fails find_package(hiptensor).
+#
+# composablekernel-dev STAYS on the list even though hiptensor is built on CK:
+# what comes out is CK's static archives, which hiptensor consumed when IT was
+# compiled. Linking libhiptensor.so does not re-link them.
 #
 # Since ci-hip became a full build it also LINKS and LOADS the runtime test
 # binaries, so the SuiteListIsComplete guards now dlopen librocblas,
@@ -102,20 +113,19 @@ apt-get install -y --no-install-recommends \
 # bytes in the parent, and the image does not shrink at all. That is also why
 # :hip and :hip-ci cannot share the ROCm layer -- each is a full install.
 #
-# The three whole packages go through apt rather than rm, so that removing one
+# The whole packages go through apt rather than rm, so that removing one
 # something else needs FAILS here instead of at link time. They pull out the
 # rocm-hip-sdk / rocm-hip-libraries meta-packages with them, which carry no
 # files of their own. --auto-remove is deliberately NOT passed: it would widen
 # the removal to whatever else those metas were the last reference to, which is
 # exactly the kind of quiet cascade this list is written to avoid. rccl/rccl-dev
 # are deliberately NOT here anymore -- wwr.hip.rccl links roc::rccl (see the
-# table above).
+# table above), and neither are hiptensor/hiptensor-dev.
 if [ "${ROCM_PRUNE:-0}" = "1" ]; then
   echo "install-rocm.sh: ROCM_PRUNE=1 -- building the compile-only variant"
   apt-get purge -y \
     composablekernel-dev \
-    rocalution rocalution-dev \
-    hiptensor hiptensor-dev
+    rocalution rocalution-dev
   rm -rf \
     /opt/rocm/lib/hipblaslt/library \
     /opt/rocm/lib/rocblas/library \

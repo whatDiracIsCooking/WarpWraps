@@ -58,6 +58,31 @@ ENV CUDAToolkit_ROOT=/usr/local/cuda \
     PATH=/usr/local/cuda/bin:${PATH} \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
 
+# cuGraph, which is NOT in the CUDA repo the layer above installs from -- it is
+# RAPIDS, and ships as a wheel. install-cugraph.sh has why that is acceptable
+# here and why it is deliberately not a pyproject.toml dependency.
+#
+# The two versions differ because RAPIDS releases libcuvs on its own cadence;
+# they are separate args so a bump does not have to move both. This is the
+# heaviest single addition to this image (~770MB of wheels), so it is also the
+# first thing to look at if :cuda-ci pull time becomes the CI bottleneck.
+ARG CUGRAPH_VERSION=26.8.0
+ARG CUVS_VERSION=26.8.1
+RUN --mount=type=bind,source=docker/install-cugraph.sh,target=/tmp/install-cugraph.sh \
+    CUDA_VERSION="${CUDA_VERSION}" CUGRAPH_VERSION="${CUGRAPH_VERSION}" \
+    CUVS_VERSION="${CUVS_VERSION}" bash /tmp/install-cugraph.sh
+
+# The three libraries added on top of the toolkit -- cuTENSOR, nvCOMP, cuGraph
+# -- all install OFF the default search paths, so this is what makes
+# find_package/find_path see them. /opt/nvidia/* are the fixed-name prefixes
+# install-cuda.sh builds by discovery; /opt/rapids/* are the wheel directories.
+#
+# NOTE for anything that configures with an explicit -DCMAKE_PREFIX_PATH: a
+# -D cache entry SHADOWS this variable rather than extending it
+# (devtools/install-check.sh passes one), so such a caller has to append these
+# itself once the build depends on them.
+ENV CMAKE_PREFIX_PATH=/opt/nvidia/cutensor:/opt/nvidia/nvcomp:/opt/rapids/libcugraph:/opt/rapids/libraft:/opt/rapids/librmm:/opt/rapids/libcuvs
+
 # The target architecture, as a build arg so a cluster build can widen it:
 #   --build-arg CUDA_ARCH="80;86;90"
 # 86 is Ampere consumer (RTX 30xx). CUDAARCHS is what CMake reads when a preset

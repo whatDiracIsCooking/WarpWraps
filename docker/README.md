@@ -61,7 +61,7 @@ Four files beside this one, in a diamond:
                  /           \
   Dockerfile.cuda             Dockerfile.hip
             |                       :
-  Dockerfile.combined ..............:  (reuses install-rocm.sh, not the image)
+  Dockerfile.combined ..............:  (reuses the HIP scripts, not the image)
 ```
 
 `Dockerfile.cuda` is what these services and
@@ -83,7 +83,94 @@ It takes the tag prefix from `PROJECT_NAME` in `devtools/config.sh`, so
 `wwr:latest` — what `WWR_IMAGE` below defaults to — is always one of the
 two tags the CUDA image gets. Run it from anywhere; the context is always the
 repo root, because the files read `pyproject.toml`, `uv.lock` and
-`docker/install-{cuda,rocm}.sh` relative to it.
+`docker/install-*.sh` relative to it.
+
+### The vendor libraries, and where each one comes from
+
+Four install scripts, because the libraries this project wraps arrive by four
+different routes — and which route a library takes is not a style choice, it is
+whatever its vendor publishes:
+
+| Script | Mechanism | What it installs |
+|---|---|---|
+| `install-cuda.sh` | apt, NVIDIA's CUDA repo | the toolkit, plus NCCL, **cuTENSOR** and **nvCOMP** — three packages the `cuda-toolkit-*` meta does not pull |
+| `install-cugraph.sh` | PyPI wheels → `/opt/rapids` | **cuGraph** and the RAPIDS libraries it links (raft, rmm, cuvs). There is no apt package; RAPIDS ships conda and wheels only |
+| `install-rocm.sh` | apt, AMD's ROCm repo | the HIP SDK, which already includes hipTensor and RCCL |
+| `install-rocm-ds.sh` | git + cmake → `/opt/rocm-ds` | **hipCOMP** — AMD packages it nowhere; ROCm-DS has no apt channel |
+
+**cuGraph has no HIP counterpart in these images, on purpose.** rocGRAPH and
+hipGRAPH were built here and removed: they cannot be compiled for an RDNA
+target in usable time. Measured on one 24-core machine, same source, same
+patches — `gfx942` (wave64) finished in **19 minutes**; `gfx1200` (wave32, the
+default here) **stalled at 129/135 after ~2 hours** with single translation
+units past 2h each. `install-rocm-ds.sh` carries the detail and issue #126
+holds the API measurements for when ROCm-DS supports ROCm 7 on RDNA.
+
+Three things follow from that table and are worth knowing before you touch it:
+
+- **The CUDA image is now much heavier: 10.1GB → 13.1GB**, measured, split
+  ~2.05GB into the apt layer (cuTENSOR, and nvCOMP for ~70MB of it) and 949MB
+  into `/opt/rapids`. All of it lands in `:cuda-ci`, which `ci.yml` pulls on
+  every run. If pull time becomes the bottleneck, the CUDA counterpart of
+  `ROCM_PRUNE` starts with `libcugraph_mg.so` (277MB, multi-GPU).
+
+  A third GB was uv's wheel cache: `uv pip install` without `--no-cache` left
+  949MB at `/root/.cache/uv` — an exact copy of what it had just installed —
+  taking that layer to 1.95GB. `install-cugraph.sh` passes `--no-cache`. Worth
+  knowing the shape of that bug, because it is the same one `ROCM_PRUNE`
+  documents: layers are additive, so deleting the cache in a later `RUN` frees
+  nothing. It has to not be written in the first place.
+- **`/opt/rocm-ds` needs the network during `docker build`** — it clones and
+  compiles hipCOMP rather than installing a package. It costs ~3 minutes, all of
+  it hipCOMP's 28 objects.
+- **`GPU_TARGETS` must name exactly one target.** `USE_WARPSIZE_32` is a single
+  flag for the whole of hipCOMP, so a list naming both an RDNA and a CDNA card
+  has no correct value to take and `install-rocm-ds.sh` rejects it. The default
+  `gfx1200` is RDNA4, so wave32.
+
+### `WWR_WARP_SIZE`, and the one thing to know about it
+
+hipCOMP's `USE_WARPSIZE_32` is **OFF by default** and documented "e.g., for
+gfx1100 devices" — so an RDNA build without it is a silent wrong answer rather
+than a build failure. `install-rocm-ds.sh` derives it from `GPU_TARGETS`, which
+is the one place in the image that knows.
+
+**That value is baked into `libhipcomp.so` at image build time.** Configuring
+wwr later with a different `WWR_WARP_SIZE` cannot change it, and the two
+disagreeing produces no error and no warning — just wrong results from the
+compression kernels.
+
+So the image records what it actually compiled with:
+
+```cmake
+# /opt/rocm-ds/wwr-image-warp-size.cmake
+set(WWR_IMAGE_WARP_SIZE 32)
+set(WWR_IMAGE_GPU_TARGETS "gfx1200")
+```
+
+**Follow-up, belonging with the wrappers rather than the image:** `CMakeLists.txt`
+should include that file when it exists and fail when `WWR_WARP_SIZE` disagrees
+with `WWR_IMAGE_WARP_SIZE`. Until it does, the coupling is documented but not
+enforced on the wwr side.
+
+| Build arg | Default | Declared in |
+|---|---|---|
+| `CUGRAPH_VERSION` | `26.8.0` | `Dockerfile.cuda` |
+| `CUVS_VERSION` | `26.8.1` | `Dockerfile.cuda` (separate — RAPIDS releases cuVS on its own cadence) |
+| `HIPCOMP_VERSION` | `v2.2.0` | `Dockerfile.hip` **and** `Dockerfile.combined` |
+
+`HIPCOMP_VERSION` joins `ROCM_VERSION` and `GPU_TARGETS` on the list of args
+declared in two files that must be bumped together, for the same reason:
+`combined` cannot inherit from `hip`, so it re-runs the script instead.
+
+hipCOMP is pinned by **tag**, which is more than the ROCm-DS graph libraries
+offered — see the note above about why they are not here.
+
+Consumers find all of this through `CMAKE_PREFIX_PATH`, set in the image. Note
+that a configure passing its own `-DCMAKE_PREFIX_PATH` **shadows** the
+environment variable rather than extending it — `devtools/install-check.sh`
+does exactly that, so it will need to append these prefixes once the build
+depends on them.
 
 Anything after the target is passed through to every `docker build` in the
 chain, and any build arg set in the environment is forwarded to the file that
@@ -131,11 +218,16 @@ full CUDA dev image. Parents are not pushed because a child image is
 self-contained; publishing `:base` too would upload 1.45GB nothing pulls.
 
 **`ROCM_PRUNE=1` takes the ROCm image down** (~570MB larger than the old 7.05GB
-now that rccl stays), dropping Tensile/rocFFT kernel objects, composable-kernel
-archives, rocalution and hiptensor — none of which a *compile* links. rccl used
-to be on that list; `wwr.hip.rccl` now wraps it, so it is a link-time dependency
-and is retained. `docker/install-rocm.sh` carries the list and the reason each
-entry is safe.
+now that rccl stays, and ~226MB larger again now that hiptensor does), dropping
+Tensile/rocFFT kernel objects, composable-kernel archives and rocalution — none
+of which a *compile* links. rccl and hiptensor both used to be on that list and
+both came off it the same way: something started wrapping them, which makes them
+link-time dependencies, which makes pruning them a `find_package` failure at
+configure. `docker/install-rocm.sh` carries the list and the reason each entry
+is safe.
+
+The prune does **not** touch `/opt/rocm-ds` — hipCOMP is built from source into
+its own prefix, so nothing apt removes can reach it.
 
 It is an **optimisation**, worth ~13GB less to pull on every CI run and a
 3-minute push instead of many. It is not what makes a HIP job possible: a

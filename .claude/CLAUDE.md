@@ -63,14 +63,14 @@ file is the map; reach for the skill when you act.
                  /           \
   Dockerfile.cuda             Dockerfile.hip
             |                       :
-  Dockerfile.combined ..............:  (reuses install-rocm.sh, not the image)
+  Dockerfile.combined ..............:  (reuses the HIP scripts, not the image)
 ```
 
 | File | What it is |
 |---|---|
 | `docker/Dockerfile.base` | The vendor-neutral toolchain: clang-20 + libc++, CMake 4.2, Ninja, ccache, uv/Python. No GPU SDK. |
-| `docker/Dockerfile.cuda` | `base` + the CUDA toolkit. **The default backend**, and what the devcontainer and compose build. |
-| `docker/Dockerfile.hip` | `base` + ROCm. No CUDA at all. |
+| `docker/Dockerfile.cuda` | `base` + the CUDA toolkit, plus the libraries the toolkit does not carry: NCCL, cuTENSOR, nvCOMP (apt) and cuGraph (wheels, `/opt/rapids`). **The default backend**, and what the devcontainer and compose build. |
+| `docker/Dockerfile.hip` | `base` + ROCm, plus hipCOMP, which AMD packages nowhere — built from source into `/opt/rocm-ds`. No CUDA at all. |
 | `docker/Dockerfile.combined` | `cuda` + ROCm (~40GB). |
 
 The files chain by **tag**, not by stage — each child opens `FROM
@@ -79,9 +79,9 @@ ${PARENT_IMAGE}` — so **build them only with `docker/build.sh
 `:cuda` and `:latest`. Build a child by hand with no parent tagged and docker
 tries to *pull* it and fails with `pull access denied`. `combined` is a diamond
 only in intent: docker has no multiple inheritance, so it takes `cuda` as its
-parent and re-runs `docker/install-rocm.sh` (which is why `ROCM_VERSION` and
-`GPU_TARGETS` are declared in both `Dockerfile.hip` and `Dockerfile.combined` —
-bump them together).
+parent and re-runs `docker/install-rocm.sh` and `docker/install-rocm-ds.sh`
+(which is why `ROCM_VERSION`, `GPU_TARGETS` and `HIPCOMP_VERSION` are declared
+in both `Dockerfile.hip` and `Dockerfile.combined` — bump them together).
 
 Two front ends, both onto the `cuda` image: **`docker/compose.yaml`** for
 one-shot batch runs, and **`.devcontainer/cuda/`** (via `devtools/devcontainer.sh`)
@@ -89,9 +89,11 @@ for interactive work. They cannot share a build directory — a CMake cache
 records absolute paths and the two mount the workspace at different ones.
 
 Depth lives where it is used: `docker/README.md` has the variables, the six
-images (the `-ci` variants and `ROCM_PRUNE`), and the compose caveats;
-`docker/install-rocm.sh` has the prune list; the **devbox** skill drives all of
-it.
+images (the `-ci` variants and `ROCM_PRUNE`), the four install scripts and which
+vendor route each library arrives by, and the compose caveats;
+`docker/install-rocm.sh` has the prune list; `docker/install-rocm-ds.sh` has the
+wavefront-size constraint that makes `GPU_TARGETS` single-valued; the **devbox**
+skill drives all of it.
 
 ## What is gated, and what is not
 
