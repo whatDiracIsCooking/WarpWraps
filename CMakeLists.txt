@@ -311,10 +311,15 @@ add_library(wwr_module_flags INTERFACE)
 # ========================================================================
 # AddressSanitizer (host code only)
 # ========================================================================
-option(ENABLE_ASAN
+# Honour the pre-rename name for one release (see issue #129).
+if(DEFINED ENABLE_ASAN AND NOT DEFINED WWR_ENABLE_ASAN)
+  message(DEPRECATION "ENABLE_ASAN is now WWR_ENABLE_ASAN")
+  set(WWR_ENABLE_ASAN ${ENABLE_ASAN})
+endif()
+option(WWR_ENABLE_ASAN
        "Enable AddressSanitizer instrumentation for host (CXX) code" OFF
 )
-if(ENABLE_ASAN)
+if(WWR_ENABLE_ASAN)
   message(STATUS "AddressSanitizer enabled (host code only)")
   add_compile_options(
     $<$<COMPILE_LANGUAGE:CXX>:-fsanitize=address>
