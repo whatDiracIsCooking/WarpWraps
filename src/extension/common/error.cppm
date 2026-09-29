@@ -1,5 +1,5 @@
 /**
- * @file gpu_error.cppm
+ * @file error.cppm
  * @brief GPU runtime API error code specializations (wwrError_t)
  *
  * Provides the success_code / error_name / error_string specializations for
@@ -11,7 +11,7 @@
  * makes the device-bound base self-sufficient for all of its users.
  */
 
-export module wwr.extension.common:gpu_error;
+export module wwr.extension.common:error;
 
 import wwr.extension.error_handling;
 import wwr.runtime_api;

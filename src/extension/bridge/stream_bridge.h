@@ -1,5 +1,5 @@
 /**
- * @file gpu_stream_bridge.h
+ * @file stream_bridge.h
  * @brief wwr::wwrStream_t for translation units that cannot `import`
  *
  * A bridge header: it carries a declaration across the host/device boundary,
@@ -7,7 +7,7 @@
  * .cpp, a .cppm's global module fragment, a .cu or a .cuh.
  *
  * Neither of the other switch points can serve a module unit's global module
- * fragment -- gpu_backend.h expands to names only an `import` provides, and
+ * fragment -- backend.h expands to names only an `import` provides, and
  * runtime.cuh #errors outside a device pass. selected_backend.h covers
  * both, so this header needs no #if beyond choosing the alias.
  *

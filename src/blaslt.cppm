@@ -5,7 +5,7 @@
  * wwrblasLt<X> stands for cublasLt<X> on a CUDA build and hipblasLt<X> on a HIP
  * build -- the modern "Lt" GEMM surface (epilogue-fused / mixed-precision /
  * narrow-float matmul), the counterpart to wwr.blas's classic API. Each name is
- * written out in full, one line per name, as wwr.blas does. See gpu_backend.h.
+ * written out in full, one line per name, as wwr.blas does. See backend.h.
  *
  * The surface is exactly the intersection both backends spell the same, as
  * reported by `devtools/header_intersection.py --cuda cublasLt.h --hip
@@ -41,7 +41,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 export module wwr.blaslt;
 

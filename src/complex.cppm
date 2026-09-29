@@ -7,7 +7,7 @@
  * wwrDoubleComplex / wwrComplex, make_gpu*Complex, the wwrC* arithmetic and
  * accessors, and the wwrComplexFloatToDouble / wwrComplexDoubleToFloat precision
  * conversions, whichever backend this build is configured for. See
- * gpu_backend.h. Companion to fp16.cppm and bf16.cppm.
+ * backend.h. Companion to fp16.cppm and bf16.cppm.
  *
  * Usage:
  *   import wwr.complex;
@@ -38,7 +38,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 // Complex types: wwrX -> cuX / hipX
 #define WWR_COMPLEX_TYPE(x) WWR_TYPE(wwr##x, cu##x, hip##x)

@@ -6,7 +6,7 @@
  * E4M3 and E5M2 scalar types (plus their x2/x4 packed variants), the storage
  * typedefs, the saturation and interpretation enums, and the float/double
  * narrowing conversions -- under one set of gpu* names in namespace wwr. See
- * gpu_backend.h for the switch. Companion to fp6.cppm and fp4.cppm.
+ * backend.h for the switch. Companion to fp6.cppm and fp4.cppm.
  *
  * SCOPED TO THE INTERSECTION. HIP defines four fp8 formats (OCP e4m3/e5m2 and
  * AMD fnuz-encoded e4m3/e5m2); CUDA defines three (e4m3/e5m2 plus an e8m0
@@ -41,7 +41,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 export module wwr.fp8;
 

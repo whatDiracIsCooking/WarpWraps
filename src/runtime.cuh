@@ -3,7 +3,7 @@
  * @brief The CUDA-or-HIP device-compile macros for .cu translation units
  *
  * #included directly into a .cu or -x hip device-compiled TU, which imports no
- * modules and so cannot use gpu_backend.h. The backend comes from the
+ * modules and so cannot use backend.h. The backend comes from the
  * compiler's own device-compile macro; #errors outside a device pass. Link
  * wwr.device for the include path and the runtime headers.
  *

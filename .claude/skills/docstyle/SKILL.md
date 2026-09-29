@@ -83,7 +83,7 @@ plus the link.
 
 No other sections. No `-----` rules inside the block.
 
-`src/gpu_backend.h` is the model for a file that genuinely has a contract:
+`src/backend.h` is the model for a file that genuinely has a contract:
 its three macros with a one-line contract each, the one non-obvious constraint
 ("a function reference carries no default arguments, and cannot name an
 overload set"), and stop.
@@ -111,7 +111,7 @@ Write the present tense.
 wrong when a fifth lands, and says nothing about the file.
 
 **Pedagogy and rhetoric.** Rhetorical section headings (`Why a third switch
-point, when gpu_backend.h and runtime.cuh exist`), staged reveals (`It is
+point, when backend.h and runtime.cuh exist`), staged reveals (`It is
 tempting to stop at namespace cg = ... and be done. That is not done here, for
 two reasons`), dramatization (`which is the one thing this directory exists to
 prevent`). State the rule; trust the reader.

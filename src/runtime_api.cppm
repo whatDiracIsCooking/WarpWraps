@@ -4,7 +4,7 @@
  *
  * Exports gpu-prefixed aliases of the CUDA runtime API (cuda_runtime_api.h)
  * or the HIP runtime API (hip_runtime_api.h), whichever backend this build is
- * configured for. See gpu_backend.h for the switch.
+ * configured for. See backend.h for the switch.
  *
  * Only the names src/wrappers uses are listed. Add a name here, once, when
  * code above this layer needs it; a name that differs between the backends
@@ -19,7 +19,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 // Runtime API: wwrX -> cudaX / hipX
 #define WWR_RT_TYPE(x) WWR_TYPE(wwr##x, cuda##x, hip##x)
@@ -106,7 +106,7 @@ WWR_RT_VALUE(MemAttachHost)
 // below is a deliberate constexpr reference to the selected backend's entry
 // point (via WWR_FUNCTION or a hand-written overload binding). A reference to
 // a vendor function has no const form, so the check cannot be satisfied without
-// abandoning the alias pattern -- see gpu_backend.h.
+// abandoning the alias pattern -- see backend.h.
 
 // Errors
 WWR_RT_FUNCTION(GetErrorName)

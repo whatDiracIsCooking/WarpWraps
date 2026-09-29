@@ -4,7 +4,7 @@
  *
  * Both backends spell the type __half (cuda_fp16.h / hip_fp16.h); the alias
  * exists so code above src names every backend type the same way.
- * See gpu_backend.h.
+ * See backend.h.
  *
  * Usage:
  *   import wwr.fp16;
@@ -12,7 +12,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 // The float<->half conversions are static-inline in the vendor header (see
 // docs/architecture.md section 12), so the vendor module cannot export them and

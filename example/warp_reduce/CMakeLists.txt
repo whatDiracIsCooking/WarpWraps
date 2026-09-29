@@ -15,7 +15,7 @@
 
 # wwr.device carries cooperative_groups.cuh and runtime.cuh (and the
 # WWR_WARP_SIZE the tile size is built from); wwr.extension.bridge carries
-# "extension/bridge/gpu_stream_bridge.h", which warp_reduce_bridge.h includes.
+# "extension/bridge/stream_bridge.h", which warp_reduce_bridge.h includes.
 # PRIVATE, as every device-library link is: nothing that links this should
 # inherit a device-code include path.
 wwr_add_gpu_device_library(
@@ -34,7 +34,7 @@ wwr_add_gpu_device_library(
 # hand from the build directory.
 add_executable(wwr.example.warp_reduce main.cpp)
 
-# wwr.extension.bridge for gpu_stream_bridge.h, and wwr_backend for the
+# wwr.extension.bridge for stream_bridge.h, and wwr_backend for the
 # WWR_GPU_BACKEND_* define that selected_backend.h behind it reads when
 # there is no device-compile pass to supply __CUDACC__ / __HIP__ -- the same
 # pair, for the same reason, that src/extension/rand's module links.

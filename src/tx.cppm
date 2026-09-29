@@ -4,7 +4,7 @@
  *
  * Exports wwrtx-prefixed aliases of the marker-and-range profiler-annotation
  * core -- NVTX (nvtx3/nvToolsExt.h) on CUDA, rocTX (roctracer/roctx.h) on HIP,
- * whichever backend this build is configured for. See gpu_backend.h for the
+ * whichever backend this build is configured for. See backend.h for the
  * switch. This is the neutral layer src/wrappers is written against; it covers
  * the marker/range surface both vendors share (see src/cuda/nvToolsExt.cppm and
  * src/hip/roctx.cppm for what is deliberately left out of that surface).
@@ -36,7 +36,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 export module wwr.tx;
 

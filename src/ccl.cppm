@@ -6,7 +6,7 @@
  * on the API: RCCL is a source-compatible reimplementation of NCCL, so there is
  * no prefix divergence to bridge -- both spell the entire surface nccl* /
  * NCCL_*. wwrccl<X> stands for nccl<X> on either backend, WWRCCL_<X> for
- * NCCL_<X>, each written out in full. See gpu_backend.h.
+ * NCCL_<X>, each written out in full. See backend.h.
  *
  * This layer carries the measured intersection of the two vendor headers (run
  * devtools/header_intersection.py --cuda nccl.h --hip rccl.h to reproduce it) --
@@ -41,7 +41,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 export module wwr.ccl;
 

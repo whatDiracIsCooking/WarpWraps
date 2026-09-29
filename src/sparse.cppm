@@ -3,7 +3,7 @@
  * @brief Backend-neutral sparse: wwrsparse* names for cuSPARSE / hipSPARSE
  *
  * wwrsparse<X><name> stands for cusparse<X><name> on a CUDA build and
- * hipsparse<X><name> on a HIP build. See gpu_backend.h.
+ * hipsparse<X><name> on a HIP build. See backend.h.
  *
  * Only the names src/wrappers/sparse uses are listed, plus the handle, stream,
  * pointer-mode, error-string and matrix-descriptor helpers a caller needs. This
@@ -30,7 +30,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 export module wwr.sparse;
 

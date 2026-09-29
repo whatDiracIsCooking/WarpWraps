@@ -24,7 +24,7 @@ files are `wwr.device`, so neither leaks an include path across targets,
 which is the concern that keeps every other `.cuh` rooted directly at
 `device_guard.h`.
 
-The two bridges — `gpu_stream_bridge.h` and `rand_state_bridge.h` — reach
+The two bridges — `stream_bridge.h` and `rand_state_bridge.h` — reach
 `selected_backend.h` *directly*, not through `device_guard.h`: a bridge compiles
 in a host TU and so must not carry the "must be a device pass" `#error`. They
 appear below as leaves of `selected_backend.h` alongside `device_guard.h`. Both
@@ -45,16 +45,16 @@ selected_backend.h        no #includes — the leaf the switch/bridge layer rest
 │   ├── fp16.cuh           + <cuda_fp16.h>               | <hip/hip_fp16.h>
 │   ├── bf16.cuh           + <cuda_bf16.h>               | <hip/hip_bf16.h>
 │   └── rand.cuh           + <curand_kernel.h>           | <cstdio> <hiprand/hiprand_kernel.h>
-├── gpu_stream_bridge.h   + <cuda_runtime_api.h>        | <hip/hip_runtime_api.h>
+├── stream_bridge.h       + <cuda_runtime_api.h>        | <hip/hip_runtime_api.h>
 └── rand_state_bridge.h   forward-declares the vendor struct; no vendor header
 
-gpu_backend.h             no #includes — independent; consumed only by the .cppm modules
+backend.h                 no #includes — independent; consumed only by the .cppm modules
 ```
 
 The two columns after each `+` are the CUDA branch (`WWR_SELECTED_CUDA`) and
 the HIP branch (`WWR_SELECTED_HIP` / the `#else`); a translation unit sees
 exactly one. `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `runtime.cuh`,
-`cooperative_groups.cuh`, `wmma.cuh`, `rand.cuh` and `gpu_stream_bridge.h` pull
+`cooperative_groups.cuh`, `wmma.cuh`, `rand.cuh` and `stream_bridge.h` pull
 vendor headers; `rand_state_bridge.h` pulls none (it forward-declares the vendor
 struct), and `device_guard.h` pulls none — it carries only the guard. That guard
 is a check on `__CUDACC__` / `__HIP__` / `__HIPCC__`, separate from the backend
@@ -74,8 +74,8 @@ in `src/extension/bridge/`.
 |---|---|---|
 | `selected_backend.h` | (internal — `device_guard.h`; and the two bridges) | — (header-only, no target of its own) |
 | `device_guard.h` | (internal only — `runtime.cuh`, `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `rand.cuh`) | — (header-only, rides each `.cuh`'s target) |
-| `gpu_backend.h` | `blas.cppm`, `bf16.cppm`, `complex.cppm`, `fp16.cppm`, `rand.cppm`, `runtime_api.cppm`, `solver.cppm` | each module's own target |
-| `gpu_stream_bridge.h` | `extension/parallel_for/parallel_for.cuh`, `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h` | `wwr.extension.bridge` |
+| `backend.h` | `blas.cppm`, `bf16.cppm`, `complex.cppm`, `fp16.cppm`, `rand.cppm`, `runtime_api.cppm`, `solver.cppm` | each module's own target |
+| `stream_bridge.h` | `extension/parallel_for/parallel_for.cuh`, `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h` | `wwr.extension.bridge` |
 | `rand_state_bridge.h` | `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h` | `wwr.extension.bridge` |
 | `runtime.cuh` | `extension/parallel_for/parallel_for.cuh` (and, internally, `cooperative_groups.cuh`) | `wwr.device` |
 | `cooperative_groups.cuh` | (none yet — the warp-reduction example will be its first caller) | `wwr.device` |

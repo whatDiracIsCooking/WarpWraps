@@ -5,7 +5,7 @@
  * wwrblas<X> stands for cublas<X>_v2 where cuBLAS has a _v2 name pair and
  * cublas<X> otherwise, and for hipblas<X>, which has no _v2 names; 64-bit
  * variants are wwrblas<X>_64. Each is written out in full, one line per name.
- * See gpu_backend.h.
+ * See backend.h.
  *
  * Only the names src/wrappers/blas uses are listed, plus the handle, stream
  * and pointer-mode calls a caller needs. cuBLAS-only functions (gemm3m,
@@ -27,7 +27,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 export module wwr.blas;
 

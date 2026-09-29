@@ -18,11 +18,11 @@ export module wwr.extension.common:device_scope;
 import wwr.extension.error_handling;
 // The constructor and destructor route their gpu_check calls through
 // policy_device_, which odr-uses success_code<wwrError_t>(). That specialization
-// lives in :gpu_error; without it reachable the compiler falls back to the
+// lives in :error; without it reachable the compiler falls back to the
 // inline-but-undefined primary template (-Wundefined-inline, and an ill-formed
-// implicit instantiation). Acyclic: :gpu_error imports none of :device_scope's
+// implicit instantiation). Acyclic: :error imports none of :device_scope's
 // chain.
-import :gpu_error;
+import :error;
 import :noncopyable;
 import wwr.runtime_api;
 import std;

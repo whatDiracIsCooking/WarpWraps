@@ -3,7 +3,7 @@
  * @brief Primary interface for wwr.extension.handle
  *
  * The RAII GPU-handle layer, split out of wwr.extension.common so the error
- * foundation (error_code/gpu_error/gpu_check/error_policy) stays free of the
+ * foundation (error_code/error/gpu_check/error_policy) stays free of the
  * handle machinery. Built on that foundation -- it imports wwr.extension.common
  * for the error policies and NonCopyable, and wwr.runtime_api for the device
  * queries -- and aggregates:

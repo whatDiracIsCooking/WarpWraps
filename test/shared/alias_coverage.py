@@ -31,7 +31,7 @@ import tomllib
 from pathlib import Path
 
 # WWR_FUNCTION(wwr_name, ...) -- anchored at line start so the macro *definition*
-# in gpu_backend.h ("#define WWR_FUNCTION ...") and the paste inside
+# in backend.h ("#define WWR_FUNCTION ...") and the paste inside
 # WWR_RT_FUNCTION's definition are not read as invocations.
 _WWR_FUNCTION_RE = re.compile(r"^\s*WWR_FUNCTION\(\s*(\w+)\s*,")
 # WWR_RT_FUNCTION(X) expands to WWR_FUNCTION(wwrX, cudaX, hipX); alias is wwrX.

@@ -77,7 +77,7 @@ Two things in here are worth knowing before editing:
   — clang mangles it `f@wwr.extension.init_state` and it can never resolve to
   a definition from a plain TU, which is what `init_state.cu` is. A GMF can
   `#include` but not `import`, so the two types in the signature come from
-  `src/gpu_stream_bridge.h` and `src/rand_state_bridge.h` rather than from
+  `src/stream_bridge.h` and `src/rand_state_bridge.h` rather than from
   `import wwr.rand` — they are the same types, so nothing is cast anywhere.
   Reading the define those bridges need is why this module links `wwr_backend`
   PRIVATE.

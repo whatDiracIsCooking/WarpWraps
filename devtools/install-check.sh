@@ -161,7 +161,7 @@ done
 # error there.
 if [ "$extension" -eq 1 ]; then
   ext_missing=0
-  ext_bridge="include/wwr/extension/bridge/gpu_stream_bridge.h"
+  ext_bridge="include/wwr/extension/bridge/stream_bridge.h"
   ext_module="include/wwr/modules/extension/runtime/interface.cppm"
   [ -f "$prefix/$ext_bridge" ] ||
     { echo "install-check.sh: FAIL -- extension header not installed: $ext_bridge" >&2; ext_missing=1; }

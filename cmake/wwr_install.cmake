@@ -240,9 +240,9 @@ function(wwr_install_package)
   # what makes the include spellings resolve unchanged -- see the
   # INSTALL_INTERFACE include directories on the targets themselves.
   #
-  # The gpu* layer's backend-switch headers (gpu_backend.h, selected_backend.h,
+  # The gpu* layer's backend-switch headers (backend.h, selected_backend.h,
   # device_guard.h) and its device-side .cuh headers are included bare (e.g.
-  # "gpu_backend.h") and live directly in src/, so a NON-recursive glob is
+  # "backend.h") and live directly in src/, so a NON-recursive glob is
   # exactly this set and they install at the include root. install(DIRECTORY)
   # is wrong here: it would recurse into src/cuda, src/hip and src/wrappers,
   # whose headers are handled separately (wrappers', below; the backends have
@@ -270,7 +270,7 @@ function(wwr_install_package)
   # its targets to the sweep above. The bridge headers, parallel_for.cuh and the
   # two *_bridge.h are #included by the extension module units and by
   # parallel_for.cuh through the src/-root spelling
-  # ("extension/bridge/gpu_stream_bridge.h", ...), so the extension subtree is
+  # ("extension/bridge/stream_bridge.h", ...), so the extension subtree is
   # mirrored under include/wwr/extension for those spellings to resolve
   # unchanged after install -- the same shape, and the same reasoning, as the
   # wrappers directory above. Kept next to the target sweep that needs them, so

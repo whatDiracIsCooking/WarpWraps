@@ -10,7 +10,7 @@
  * half-specialized type (success_code but no error_string) is rejected by the
  * concept rather than crashing later in an error policy's handle_error.
  *
- * The wwrError_t specializations live in wwr.extension.common:gpu_error (they
+ * The wwrError_t specializations live in wwr.extension.common:error (they
  * back the device-bound handle base); library status types are specialized in
  * their own extension modules. error_type<T> is therefore only satisfied where
  * the type's module is reachable -- the same reachability every call already

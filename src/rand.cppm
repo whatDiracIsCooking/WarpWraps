@@ -7,7 +7,7 @@
  * and live in rand.cuh, while the state types are plain data and the host is
  * what sizes the per-thread state array. wwrrand<X> stands for curand<X> /
  * hiprand<X>, WWRRAND_<X> for CURAND_<X> / HIPRAND_<X>, each written out in
- * full. See gpu_backend.h.
+ * full. See backend.h.
  *
  * Everything the two host APIs share is listed. Absent for want of a
  * counterpart -- cuRAND: curandGetProperty, curandGeneratePoissonMethod,
@@ -32,7 +32,7 @@
 
 module;
 
-#include "gpu_backend.h"
+#include "backend.h"
 
 export module wwr.rand;
 

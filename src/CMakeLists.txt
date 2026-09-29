@@ -16,7 +16,7 @@ else()
 endif()
 
 # The backend define (WWR_GPU_BACKEND_*) and the src/-root include path for
-# the gpu* layer's headers (selected_backend.h, gpu_backend.h, runtime.cuh,
+# the gpu* layer's headers (selected_backend.h, backend.h, runtime.cuh,
 # device_guard.h). Linked PRIVATE by every module below, and by test/gpu and the
 # bridge-using modules (init_state, random_normal), which read
 # selected_backend.h from a host compile with no __CUDACC__/__HIP__ to switch
@@ -303,7 +303,7 @@ wwr_add_cxx_module_library(
 # requirements must be exported. wwr_backend is linked PRIVATE above, and
 # PRIVATE requirements are not exported -- so its include path and define would
 # be missing when an installed consumer compiles a .cppm, hitting
-# gpu_backend.h's #error case. Re-add it under $<INSTALL_INTERFACE:> only: BUILD
+# backend.h's #error case. Re-add it under $<INSTALL_INTERFACE:> only: BUILD
 # and INSTALL interfaces are exclusive, so the in-tree build is unchanged (and
 # the no-backend-#if rule stays enforced where it matters). See cmake/README.md,
 # "Install and the CMake package".
