@@ -1,9 +1,10 @@
 // handle_tests.cpp - RAII contract of wwr.extension.sparse's SparseHandleWrapper
 //
-// SparseHandleWrapper is a DeviceBoundHandle specialisation over wwrsparseHandle_t: it
-// records the device it was created on, since a cuSPARSE handle is
-// device-bound. See test/extension/blas/handle_tests.cpp for the shape and why
-// get() nulling on the moved-from object is the double-free guard.
+// SparseHandleWrapper is a StreamBoundHandle specialisation over wwrsparseHandle_t:
+// created from a shared stream owner, it records the owner's device, binds the
+// owner's stream (stream()), and retains the owner. See
+// test/extension/blas/handle_tests.cpp for the shape and why get() nulling on the
+// moved-from object is the double-free guard.
 //
 // Runtime, device-requiring: wwrsparseCreate needs a live GPU context.
 // Backend-neutral -- built and run for either WWR_GPU_BACKEND.
@@ -13,9 +14,11 @@
 import std;
 import wwr.runtime_api; // wwrError_t, for the device-access policy
 import wwr.extension.common; // the error_policy concept, for the counting policy
-import wwr.extension.handle; // DeviceBoundHandle(View)
+import wwr.extension.handle; // StreamBoundHandle, device_handle_stream, DeviceBoundHandleView
+import wwr.extension.runtime; // GpuStreamWrapper, so owner->stream().get() has a complete type
 import wwr.extension.sparse; // re-exports wwr.sparse, so wwrsparseHandle_t is in scope
 import wwr.test.shared.abort_policy; // AbortPolicy for this file's instantiations
+import wwr.test.shared.device_handle; // the reference stream owner
 
 namespace wwr::extension::test {
 // Bind abort-on-failure once, for this file's wrapper instantiations. The
@@ -25,44 +28,55 @@ using Abort = AbortPolicy<wwrsparseStatus_t>;
 using AbortDev = AbortPolicy<wwrError_t>;
 
 // A counting policy for the destroy-exactly-once check below; see
-// test/extension/blas/handle_tests.cpp for why the counter is a static (the
-// DeviceBoundHandle-inherited constructor takes no policy instance).
+// test/extension/blas/handle_tests.cpp for why the counter is a shared static.
 struct CountingSparsePolicy {
   using error_type = wwrsparseStatus_t;
   static inline int errors = 0;
   static void reset() { errors = 0; }
   void handle_error(wwrsparseStatus_t, std::source_location) noexcept { ++errors; }
 };
-using CountingSparseHandle = SparseHandleWrapper<CountingSparsePolicy, CountingSparsePolicy, AbortDev>;
+using CountingSparseHandle = SparseHandleWrapper<CountingSparsePolicy, CountingSparsePolicy, DeviceHandle, AbortDev>;
 
-static_assert(!std::is_copy_constructible_v<SparseHandleWrapper<Abort, Abort, AbortDev>>);
-static_assert(!std::is_copy_assignable_v<SparseHandleWrapper<Abort, Abort, AbortDev>>);
-static_assert(std::is_nothrow_move_constructible_v<SparseHandleWrapper<Abort, Abort, AbortDev>>);
-static_assert(std::is_nothrow_move_assignable_v<SparseHandleWrapper<Abort, Abort, AbortDev>>);
+static_assert(!std::is_copy_constructible_v<SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+static_assert(!std::is_copy_assignable_v<SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+static_assert(std::is_nothrow_move_constructible_v<SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+static_assert(std::is_nothrow_move_assignable_v<SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+// A bound handle is itself a stream owner -- it can back a DeviceBuffer's async tier.
+static_assert(device_handle_stream<SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
 
-TEST(SparseHandleTests, DefaultConstructorCreatesHandle) {
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle;
+TEST(SparseHandleTests, ConstructsLiveHandleFromOwner) {
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
   EXPECT_NE(handle.get(), nullptr);
 }
 
 TEST(SparseHandleTests, ImplicitConversionMatchesGet) {
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
   wwrsparseHandle_t raw = handle; // operator wwrsparseHandle_t()
   EXPECT_EQ(raw, handle.get());
 }
 
+TEST(SparseHandleTests, BindsOwnerStream) {
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
+  EXPECT_EQ(handle.stream(), owner->stream().get());
+}
+
 TEST(SparseHandleTests, MoveConstructorTransfersOwnership) {
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle1;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle1{owner};
   wwrsparseHandle_t raw = handle1.get();
 
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle2(std::move(handle1));
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle2(std::move(handle1));
   EXPECT_EQ(handle2.get(), raw);
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
 TEST(SparseHandleTests, MoveAssignmentTransfersOwnership) {
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle1;
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle2;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle1{owner};
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle2{owner};
   wwrsparseHandle_t raw = handle1.get();
 
   handle2 = std::move(handle1);
@@ -71,7 +85,8 @@ TEST(SparseHandleTests, MoveAssignmentTransfersOwnership) {
 }
 
 TEST(SparseHandleTests, SelfMoveAssignmentKeepsHandle) {
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
   wwrsparseHandle_t raw = handle.get();
 
   handle = std::move(handle);
@@ -79,20 +94,19 @@ TEST(SparseHandleTests, SelfMoveAssignmentKeepsHandle) {
 }
 
 TEST(SparseHandleTests, RecordsCreationDevice) {
-  // The default constructor creates on device 0.
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle;
-  EXPECT_EQ(handle.dev_idx(), 0);
-
-  // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
-  SparseHandleWrapper<Abort, Abort, AbortDev> on0(0);
-  EXPECT_EQ(on0.dev_idx(), 0);
+  // The handle is created on -- and records -- the owner's device.
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
+  EXPECT_EQ(handle.dev_idx(), owner->dev_idx());
+  EXPECT_EQ(handle.dev_idx(), 0); // device 0 always exists
 }
 
 TEST(SparseHandleTests, MovePreservesDevice) {
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle1;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle1{owner};
   const int dev = handle1.dev_idx();
 
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle2(std::move(handle1));
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
 }
@@ -102,7 +116,8 @@ TEST(SparseHandleTests, ViewMirrorsOwnerHandleAndDevice) {
   // this reads the borrowed handle/device back from a live handle. The view is
   // a bare DeviceBoundHandleView with no borrow-safe ops (a cuSPARSE call consumes
   // the raw handle), so mirroring get()/dev_idx() is its whole job.
-  SparseHandleWrapper<Abort, Abort, AbortDev> handle;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SparseHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
   const DeviceBoundHandleView<wwrsparseHandle_t> view = handle.view();
   EXPECT_EQ(view.get(), handle.get());
   EXPECT_EQ(view.dev_idx(), handle.dev_idx());
@@ -116,7 +131,8 @@ TEST(SparseHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
   // wwrsparseDestroy through the policy and bump the counter.
   CountingSparsePolicy::reset();
   {
-    CountingSparseHandle source;
+    auto owner = std::make_shared<DeviceHandle>(0);
+    CountingSparseHandle source{owner};
     const wwrsparseHandle_t raw = source.get();
 
     CountingSparseHandle dest(std::move(source));

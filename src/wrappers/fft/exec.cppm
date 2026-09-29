@@ -13,9 +13,11 @@
  *   import wwr.wrappers.fft;
  *   using namespace wwr;
  *
- *   // AbortPolicy is the caller's own (the library ships none); FftPlanWrapper is
- *   // device-bound, so its third arg is the wwrError_t device-access policy.
- *   FftPlanWrapper<AbortPolicy<wwrfftResult_t>, AbortPolicy<wwrfftResult_t>, AbortPolicy<wwrError_t>> plan;
+ *   // AbortPolicy is the caller's own (the library ships none). FftPlanWrapper is
+ *   // stream-bound: it takes the stream owner's type S then the wwrError_t
+ *   // device-access policy, and is built from a shared owner `device` (a
+ *   // device_handle_stream) whose stream it binds and keeps alive.
+ *   FftPlanWrapper<AbortPolicy<wwrfftResult_t>, AbortPolicy<wwrfftResult_t>, S, AbortPolicy<wwrError_t>> plan{device};
  *   wwrfftMakePlan1d(plan, n, WWRFFT_C2C, 1, &work);
  *   exec_c2c<float>(plan, in, out, WWRFFT_FORWARD);
  */

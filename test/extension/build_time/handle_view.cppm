@@ -11,6 +11,7 @@ import wwr.extension.blas;
 import wwr.extension.solver;
 import wwr.extension.sparse;
 import wwr.test.shared.abort_policy;
+import wwr.test.shared.device_handle; // DeviceHandle, the stream owner the library handles bind to
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Compile-time contract of the handle views
@@ -63,7 +64,7 @@ static_assert(is_view_value<DeviceBoundHandleView<wwrEvent_t>>);
 // Owners are move-only; a view is never taken by copying an owner.
 static_assert(!std::is_copy_constructible_v<GpuEventWrapper<Abort, Abort, Abort>>);
 static_assert(!std::is_copy_constructible_v<GpuStreamWrapper<Abort, Abort, Abort>>);
-static_assert(!std::is_copy_constructible_v<BlasHandleWrapper<BlasAbort, BlasAbort, Abort>>);
+static_assert(!std::is_copy_constructible_v<BlasHandleWrapper<BlasAbort, BlasAbort, DeviceHandle, Abort>>);
 static_assert(std::is_nothrow_move_constructible_v<GpuEventWrapper<Abort, Abort, Abort>>);
 
 // Views convert to the raw handle, exactly as the owners do.
@@ -90,11 +91,11 @@ static_assert(
 static_assert(std::is_same_v<decltype(std::declval<const GpuMemPoolWrapper<Abort, Abort, Abort> &>().view()), DeviceBoundHandleView<wwrMemPool_t>>);
 static_assert(std::is_same_v<decltype(std::declval<const GpuGraphWrapper<Abort, Abort> &>().view()), HandleView<wwrGraph_t>>);
 static_assert(
-    std::is_same_v<decltype(std::declval<const BlasHandleWrapper<BlasAbort, BlasAbort, Abort> &>().view()), DeviceBoundHandleView<wwrblasHandle_t>>);
-static_assert(std::is_same_v<decltype(std::declval<const SolverDnHandleWrapper<SolverAbort, SolverAbort, Abort> &>().view()),
+    std::is_same_v<decltype(std::declval<const BlasHandleWrapper<BlasAbort, BlasAbort, DeviceHandle, Abort> &>().view()), DeviceBoundHandleView<wwrblasHandle_t>>);
+static_assert(std::is_same_v<decltype(std::declval<const SolverDnHandleWrapper<SolverAbort, SolverAbort, DeviceHandle, Abort> &>().view()),
                              DeviceBoundHandleView<wwrsolverDnHandle_t>>);
 static_assert(
-    std::is_same_v<decltype(std::declval<const SparseHandleWrapper<SparseAbort, SparseAbort, Abort> &>().view()), DeviceBoundHandleView<wwrsparseHandle_t>>);
+    std::is_same_v<decltype(std::declval<const SparseHandleWrapper<SparseAbort, SparseAbort, DeviceHandle, Abort> &>().view()), DeviceBoundHandleView<wwrsparseHandle_t>>);
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // [[no_unique_address]] on BaseHandle's policy members (issue #67)

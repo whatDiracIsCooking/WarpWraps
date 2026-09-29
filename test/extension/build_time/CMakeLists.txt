@@ -43,6 +43,7 @@ wwr_add_cxx_module_library(
   wwr.extension.solver
   wwr.extension.sparse
   wwr.test.shared.abort_policy
+  wwr.test.shared.device_handle
 )
 
 add_dependencies(compile_time_tests wwr.test.extension.handle_view)

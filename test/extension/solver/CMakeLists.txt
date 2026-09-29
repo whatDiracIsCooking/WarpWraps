@@ -13,7 +13,9 @@ wwr_add_gtest_executable(
   wwr.runtime_api
   wwr.extension.solver
   wwr.extension.handle
+  wwr.extension.runtime
   wwr.test.shared.abort_policy
+  wwr.test.shared.device_handle
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test file,
