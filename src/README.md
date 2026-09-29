@@ -207,7 +207,7 @@ fails to compile on that backend.
 A `.cppm` here is a module, and code that imports one is host code. A kernel
 translation unit — a `.cu` under CUDA, a `-x hip` compiled source under HIP —
 imports no modules at all, so none of the modules above can serve it. The
-eight `.cuh` headers are the counterpart for that case: same `gpu*` names,
+nine `.cuh` headers are the counterpart for that case: same `gpu*` names,
 reached by `#include`, with the backend resolved through `selected_backend.h`
 (which reads the compiler's own device-compile macro before `gpu_backend.h`'s
 CMake define) rather than by an `import`. Each also `#error`s if included
@@ -215,14 +215,15 @@ outside a device-compile pass — a *separate* check on `__CUDACC__` / `__HIP__`
 / `__HIPCC__`, because `selected_backend.h` would otherwise resolve a backend
 in a host compile too, and what these carry is device-only.
 
-All eight reach both — the backend selection and that guard — through one
+All nine reach both — the backend selection and that guard — through one
 header, `device_guard.h`, which is `selected_backend.h` plus the device-pass
-`#error` and nothing else. Six include it directly; `cooperative_groups.cuh`
-and `wmma.cuh` reach it through `runtime.cuh`, which they include for
-`WWR_WARP_SIZE` anyway. The guard cannot move into `selected_backend.h`
+`#error` and nothing else. Six include it directly; `cooperative_groups.cuh`,
+`wmma.cuh` and `atomic.cuh` reach it through `runtime.cuh`, which they include
+anyway — the first two for `WWR_WARP_SIZE`, `atomic.cuh` for the vendor runtime
+header its builtins need. The guard cannot move into `selected_backend.h`
 itself, which is "for anything" and must not `#error` in the host compiles the
 bridges do; `device_guard.h` is the device-only layer above it that can. It
-carries no vendor header and no target-specific content, so all eight `.cuh`
+carries no vendor header and no target-specific content, so all nine `.cuh`
 share it regardless of which target they are in.
 
 | Header | Provides | Link |
@@ -234,16 +235,22 @@ share it regardless of which target they are in.
 | `fp8.cuh` | `wwrFp8Storage`/`x2`/`x4`, `wwrSaturation` (`wwrNosat`, `wwrSatfinite`), `wwrFp8Interpretation` (`wwrE4m3`, `wwrE5m2`), `wwrFp8E4m3`/`E5m2` (+`x2`/`x4`), `wwrFloat2Fp8`, `wwrDouble2Fp8` | `wwr.device` |
 | `cooperative_groups.cuh` | nothing of its own — the vendor's `namespace cooperative_groups`, reached through the one `#include` that differs | `wwr.device` |
 | `wmma.cuh` | `wwrwmma`, aliasing the vendor's `nvcuda::wmma` / `rocwmma` — the namespace is the only name here, the spellings inside it agree | `wwr.device` |
+| `atomic.cuh` | `wwrMemoryOrder`, `wwrThreadScope`, and the `wwrAtomic*` forwarders — `Load`/`Store`/`Exchange`, `CompareExchange{Strong,Weak}`, `Fetch{Add,Sub,And,Or,Xor,Min,Max}` — each carrying an explicit order and scope | `wwr.device` |
 | `rand.cuh` | the generator state types, `wwrrand_init`, `wwrrand_normal`, `wwrrand_normal2`, `wwrrand_normal_double`, `wwrrand_normal2_double` | `wwr.rand.device` |
 
-`cooperative_groups.cuh` and `wmma.cuh` are the two with no `.cppm`
-counterpart, and cannot have one: every cooperative-groups and WMMA entity is
-`__device__`-only, so there is nothing a module could export to host code. They
-are also the two `.cuh` here that `#include` `runtime.cuh` rather than
-reaching `device_guard.h` directly as the other six do — they get the `#error`
-and the runtime header through it, and hand the including kernel
-`WWR_WARP_SIZE`, which is what a portable tile size is built from for one and
+`cooperative_groups.cuh`, `wmma.cuh` and `atomic.cuh` are the three with no
+`.cppm` counterpart: every entity they hand a kernel is `__device__`-only, so
+there is nothing a module could export to host code — the cooperative-groups
+and WMMA entities structurally, and `atomic.cuh`'s forwarders because they are
+`__device__ __forceinline__` (a host-side `cuda::atomic` module was weighed and
+declined; docs/architecture.md §20). They are also the three `.cuh` here that
+`#include` `runtime.cuh` rather than reaching `device_guard.h` directly as the
+other six do — they get the `#error` and the runtime header through it.
+`cooperative_groups.cuh` and `wmma.cuh` do it for `WWR_WARP_SIZE`, which they
+hand the including kernel: what a portable tile size is built from for one and
 a wave index for the other, both APIs being whole-warp collectives.
+`atomic.cuh` does it for the runtime header itself, which on HIP declares the
+`__HIP_MEMORY_SCOPE_*` constants its builtins take.
 
 `cooperative_groups.cuh` is also the only one here that defines **no `gpu*`
 names at all**. Both
@@ -264,6 +271,24 @@ name, `wwrwmma`, and nothing else; the divergences it cannot absorb — 16x16x16
 being the only portable shape, `wwrBfloat16` not being a usable element type
 under HIP, and `fragment::num_elements` changing between HIP's two compile
 passes — are documented rather than wrapped.
+
+`atomic.cuh` is the one `.cuh` here that genuinely wraps. Where
+`cooperative_groups.cuh` renames nothing and `wmma.cuh` renames one namespace,
+this file forwards a real divergence: the scoped, memory-ordered atomics are
+`cuda::atomic_ref<T, Scope>` (from libcu++'s `<cuda/atomic>`) on CUDA and
+`__hip_atomic_*` clang builtins on HIP — two spellings for one operation. That
+clears the bar the **common** atomics do not: `atomicAdd`/`CAS`/… are spelled
+identically on both, ride the vendor runtime header, and are wrapped by nothing
+(docs/architecture.md §15, `test/gpu/atomics.cu`). It defines two enums of its
+own — `wwrMemoryOrder` and `wwrThreadScope`, because neither vendor's spelling
+is portable — and one `__device__ __forceinline__` forwarder per operation. The
+scope is a template parameter and the order a function argument, the split
+libcu++ forces. The four portable scopes and the mapping to each vendor's
+constant — silent to get wrong, the §16 class of trap — are in
+docs/architecture.md §20, verified against both memory models; CUDA's `cluster`
+and HIP's `wavefront` stay vendor-only, as §15 leaves `atomicAdd_block`/`_system`
+out. libhipcxx (`<hip/std/atomic>`) is absent from the pinned ROCm, so the
+builtin forwarding is the only portable design — measured, in §20.
 
 `wwrStream_t` is not among them: it lives in `gpu_stream_bridge.h`, `_bridge.h`
 rather than `.cuh` precisely because it does *not* `#error` outside a device
@@ -333,11 +358,11 @@ TU too — which is why they pick the backend through `selected_backend.h`
 directly rather than `device_guard.h`. See the next section for what makes a
 header a `_bridge`.
 
-The six device `.cuh` headers each ask two questions and keep them apart: "is
+The nine device `.cuh` headers each ask two questions and keep them apart: "is
 this a device pass?" (their own requirement — everything they define is
 device-compile syntax) and "which backend?" (`selected_backend.h`'s). Both
-answers arrive through one include, `device_guard.h` (`cooperative_groups.cuh`
-and `wmma.cuh` reaching it through `runtime.cuh`), which pairs
+answers arrive through one include, `device_guard.h` (`cooperative_groups.cuh`,
+`wmma.cuh` and `atomic.cuh` reaching it through `runtime.cuh`), which pairs
 `selected_backend.h` with the device-pass `#error`. The two cannot be folded
 into one ladder, because `selected_backend.h` answers the second from the CMake
 define in a host compile too, and would hand a device header a backend it must
