@@ -134,6 +134,23 @@ wwr_add_gpu_device_library(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.complex.device)
 
+# device_complex.cuh, the wwr::complex<T> value type built ON complex.cuh (its
+# operators and conversions route through the __device__ make_gpu*Complex /
+# wwrCreal* above), same shape of compile-only test as complex.cu / math.cu: the
+# claim is that the whole templated surface instantiates for float and double
+# through one include switch on both backends, plus the aggregate/layout
+# static_asserts the header depends on. Building it is the assertion; no ctest
+# entry, no launch. Reached through wwr.device.
+wwr_add_gpu_device_library(
+  NAME
+  wwr.test.gpu.device_complex.device
+  SOURCES
+  device_complex.cu
+  LINK_PRIVATE
+  wwr.device
+)
+add_dependencies(compile_time_tests wwr.test.gpu.device_complex.device)
+
 wwr_add_gpu_device_library(
   NAME
   wwr.test.gpu.fp16.device
