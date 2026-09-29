@@ -15,7 +15,7 @@ backend.
 > The wrappers here take the raw vendor handle (`wwrblasHandle_t`, …) and return
 > the raw vendor status (`wwrblasStatus_t`, …); this module carries no
 > error-handling or RAII layer of its own. Typed error policies —
-> `error_code`, `error_policy`, `abort_policy`, `gpu_check` — live in
+> `error_code`, `error_policy`, `gpu_check` — live in
 > `wwr.extension.common`, and the `BaseHandle` CRTP base lives in
 > `wwr.extension.handle`; each extension's `:*_error` / `:*_handle`
 > partitions build on them.

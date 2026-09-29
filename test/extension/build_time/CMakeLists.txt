@@ -42,6 +42,7 @@ wwr_add_cxx_module_library(
   wwr.extension.blas
   wwr.extension.solver
   wwr.extension.sparse
+  wwr.test.shared.abort_policy
 )
 
 add_dependencies(compile_time_tests wwr.test.extension.handle_view)

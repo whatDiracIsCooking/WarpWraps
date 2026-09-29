@@ -13,7 +13,9 @@
  *   import wwr.wrappers.fft;
  *   using namespace wwr;
  *
- *   FftPlanWrapper<AbortPolicy<wwrfftResult_t>, AbortPolicy<wwrfftResult_t>> plan;
+ *   // AbortPolicy is the caller's own (the library ships none); FftPlanWrapper is
+ *   // device-bound, so its third arg is the wwrError_t device-access policy.
+ *   FftPlanWrapper<AbortPolicy<wwrfftResult_t>, AbortPolicy<wwrfftResult_t>, AbortPolicy<wwrError_t>> plan;
  *   wwrfftMakePlan1d(plan, n, WWRFFT_C2C, 1, &work);
  *   exec_c2c<float>(plan, in, out, WWRFFT_FORWARD);
  */

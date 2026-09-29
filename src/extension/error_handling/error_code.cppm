@@ -8,7 +8,7 @@
  * an error type exactly when it specializes all three, so the specializations
  * *are* the registration -- there is no separate registry to keep in sync, and a
  * half-specialized type (success_code but no error_string) is rejected by the
- * concept rather than crashing later in AbortPolicy.
+ * concept rather than crashing later in an error policy's handle_error.
  *
  * The wwrError_t specializations live in wwr.extension.common:gpu_error (they
  * back the device-bound handle base); library status types are specialized in
@@ -89,7 +89,7 @@ const char *error_string(T code) noexcept = delete;
  * @note Satisfied iff T specializes all three facilities above. Deriving the
  *       concept from the facilities (rather than a separate opt-in flag) makes
  *       the specializations the single source of truth: a type cannot be an
- *       error_type without actually providing what gpu_check and AbortPolicy
+ *       error_type without actually providing what gpu_check and an error policy
  *       call, so partial registration is a concept failure, not a runtime crash.
  *       Calling a deleted primary in this requires-expression is a soft
  *       non-match, so error_type<T> is usable to constrain overloads and branch

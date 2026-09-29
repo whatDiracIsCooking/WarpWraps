@@ -52,11 +52,11 @@ export namespace wwr::extension {
  * @tparam P_destroy The error policy type for destruction
  * @tparam P_device_access The error policy for the device (wwrSetDevice/
  *         wwrGetDevice) calls; typed to wwrError_t regardless of the handle's own
- *         status type, defaulted to AbortPolicy<wwrError_t>
+ *         status type. No default -- the caller names the policy.
  */
 template<typename T, typename Derived, typed_error_policy P_create,
          nothrow_error_policy<typename P_create::error_type> P_destroy,
-         error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
+         error_policy<wwrError_t> P_device_access>
 class DeviceBoundHandle : public BaseHandle<T, Derived, P_create, P_destroy> {
 private:
   using Base = BaseHandle<T, Derived, P_create, P_destroy>;
@@ -87,7 +87,7 @@ protected:
 
   /// @brief Make `dev_idx` the current device (call before creating a handle on it).
   ///        Routes wwrSetDevice through policy_device_, so device-selection error
-  ///        handling is under the caller's control (defaults to abort).
+  ///        handling is under the caller's control.
   void select_device(int dev_idx,
                      std::source_location location = std::source_location::current()) {
     gpu_check(wwrSetDevice(dev_idx), policy_device_, location);

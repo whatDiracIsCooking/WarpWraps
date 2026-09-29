@@ -18,6 +18,7 @@
 import std;
 import wwr.extension.common;
 import wwr.extension.memory_buffer;
+import wwr.test.shared.abort_policy; // AbortPolicy resolves to the test one
 
 namespace wwr::extension::test {
 

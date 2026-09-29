@@ -27,13 +27,18 @@
 #include <gtest/gtest.h>
 
 import std;
+import wwr.runtime_api; // wwrError_t, for the device-access policy
 import wwr.extension.common; // the error_policy concept, for the counting policy
 import wwr.extension.handle; // BaseHandle, DeviceBoundHandle
 import wwr.extension.fft; // re-exports wwr.fft: wwrfftHandle, wwrfftResult_t, WWRFFT_SUCCESS
+import wwr.test.shared.abort_policy; // AbortPolicy for this file's instantiations
 
 namespace wwr::extension::test {
-// Bind abort-on-failure once, for this file's wrapper instantiations.
+// Bind abort-on-failure once, for this file's wrapper instantiations. The plan's
+// create/destroy policies are wwrfftResult_t-typed; P_device_access is
+// wwrError_t-typed (the device set/get calls), so it takes its own binding.
 using Abort = AbortPolicy<wwrfftResult_t>;
+using AbortDev = AbortPolicy<wwrError_t>;
 
 // An error policy that tallies failures into an external counter instead of
 // aborting, so a botched destroy is observable after the objects are gone
@@ -52,12 +57,12 @@ struct CountingErrorPolicy {
   }
 };
 
-using CountingPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy>;
+using CountingPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy, AbortDev>;
 
-static_assert(!std::is_copy_constructible_v<FftPlanWrapper<Abort, Abort>>);
-static_assert(!std::is_copy_assignable_v<FftPlanWrapper<Abort, Abort>>);
-static_assert(std::is_nothrow_move_constructible_v<FftPlanWrapper<Abort, Abort>>);
-static_assert(std::is_nothrow_move_assignable_v<FftPlanWrapper<Abort, Abort>>);
+static_assert(!std::is_copy_constructible_v<FftPlanWrapper<Abort, Abort, AbortDev>>);
+static_assert(!std::is_copy_assignable_v<FftPlanWrapper<Abort, Abort, AbortDev>>);
+static_assert(std::is_nothrow_move_constructible_v<FftPlanWrapper<Abort, Abort, AbortDev>>);
+static_assert(std::is_nothrow_move_assignable_v<FftPlanWrapper<Abort, Abort, AbortDev>>);
 
 TEST(FftPlanTests, ConstructAndDestroyReportNoError) {
   int errors = 0;
@@ -71,7 +76,7 @@ TEST(FftPlanTests, ImplicitConversionMatchesGet) {
   // The raw wwrfftMakePlan/wwrfftExec* calls documented in fft_plan.cppm rely on
   // operator wwrfftHandle(); the blas/solver/sparse handles all pin this and fft
   // did not. Only get() was exercised here before.
-  FftPlanWrapper<Abort, Abort> plan;
+  FftPlanWrapper<Abort, Abort, AbortDev> plan;
   wwrfftHandle raw = plan; // operator wwrfftHandle()
   EXPECT_EQ(raw, plan.get());
 }
@@ -114,7 +119,7 @@ TEST(FftPlanTests, MoveAssignmentTransfersOwnershipAndFreesOnce) {
 // them would need a forced failure, which a live wwrfft has no cheap way to
 // produce.)
 TEST(FftPlanTests, TwoPolicyConstructorThreadsBothPolicies) {
-  using TwoPolicyPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy>;
+  using TwoPolicyPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy, AbortDev>;
   int create_errors = 0;
   int destroy_errors = 0;
   {
@@ -144,18 +149,18 @@ TEST(FftPlanTests, SelfMoveAssignmentIsSafe) {
 TEST(FftPlanTests, RecordsCreationDevice) {
   // The default constructor creates on device 0; dev_idx is the (defaulted)
   // first constructor argument, and device 0 always exists.
-  FftPlanWrapper<Abort, Abort> plan;
+  FftPlanWrapper<Abort, Abort, AbortDev> plan;
   EXPECT_EQ(plan.dev_idx(), 0);
 
-  FftPlanWrapper<Abort, Abort> on0(0);
+  FftPlanWrapper<Abort, Abort, AbortDev> on0(0);
   EXPECT_EQ(on0.dev_idx(), 0);
 }
 
 TEST(FftPlanTests, MovePreservesDevice) {
-  FftPlanWrapper<Abort, Abort> plan1;
+  FftPlanWrapper<Abort, Abort, AbortDev> plan1;
   const int dev = plan1.dev_idx();
 
-  FftPlanWrapper<Abort, Abort> plan2(std::move(plan1));
+  FftPlanWrapper<Abort, Abort, AbortDev> plan2(std::move(plan1));
   EXPECT_EQ(plan2.dev_idx(), dev);
   EXPECT_EQ(plan1.dev_idx(), -1);
 }

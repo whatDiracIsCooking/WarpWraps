@@ -11,9 +11,9 @@ using namespace wwr::extension;
 
 auto device = std::make_shared<MyDeviceHandle>();  // caller-supplied; this layer ships none
 auto stream = device->stream().get();
-using Abort = AbortPolicy<wwrError_t>;
-DeviceBufferWrapper<wwrrandState, Abort, Abort, MyDeviceHandle> states(n, device);
-DeviceBufferWrapper<float, Abort, Abort, MyDeviceHandle> values(n, device);
+using Abort = AbortPolicy<wwrError_t>;  // your own policy; the library ships none
+DeviceBufferWrapper<wwrrandState, Abort, Abort, MyDeviceHandle, Abort> states(n, device);
+DeviceBufferWrapper<float, Abort, Abort, MyDeviceHandle, Abort> values(n, device);
 
 init_state(stream, n, states.data(), seed);
 random_normal(stream, n, states.data(), values.data());

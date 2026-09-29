@@ -61,16 +61,4 @@ const char *error_string<wwrblasStatus_t>(wwrblasStatus_t error) noexcept {
   return wwrblasGetStatusString(error);
 }
 
-// ============================================================================
-// Template Instantiations
-// ============================================================================
-
-// Explicitly instantiate AbortPolicy for wwrblasStatus_t
-template class AbortPolicy<wwrblasStatus_t>;
-
-// Explicitly instantiate gpu_check for wwrblasStatus_t
-template bool gpu_check<wwrblasStatus_t, AbortPolicy<wwrblasStatus_t> &>(
-    const wwrblasStatus_t error, AbortPolicy<wwrblasStatus_t> &policy,
-    std::source_location location);
-
 } // namespace wwr::extension

@@ -12,6 +12,7 @@ import std;
 import wwr.extension.common;
 import wwr.extension.handle;
 import wwr.runtime_api; // wwrError_t, for the device-access policy's error type
+import wwr.test.shared.abort_policy; // the test suite's abort-on-failure policy
 
 // A registered stand-in error type. typed_error_policy now requires the policy's
 // published error_type to be a registered error_type, so a policy used with a
@@ -40,8 +41,8 @@ using TestError = wwr::extension::TestError;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // error_policy / AbortPolicy
 //
-// The whole point of AbortPolicy is to be a valid policy: it is the
-// default template argument of every extension's handle wrapper, so if it
+// The whole point of AbortPolicy is to be a valid policy: the test suites hand
+// it to every handle wrapper (the create, destroy and device slots), so if it
 // stopped satisfying error_policy (say a member made it throw on move) every
 // handle would fail to compile with a constraint error far from the cause. Pin
 // it here, and pin that the concept actually rejects a non-policy type.
@@ -116,9 +117,9 @@ static_assert(std::is_convertible_v<FakeHandleWrapper, FakeHandle>);
 //     hand-written move (a defaulted move that silently became a copy, or a
 //     policy that stopped being nothrow-movable, is the regression);
 //   * the conversion-to-handle it inherits survives the extra layer;
-//   * the device-access policy defaults to AbortPolicy<wwrError_t> and is typed
-//     to wwrError_t *independently* of the create policy's error type (TestError
-//     here) -- the very decoupling the single-constructor design exists to allow, and
+//   * the device-access policy is typed to wwrError_t *independently* of the
+//     create policy's error type (TestError here) -- the very decoupling the
+//     single-constructor design exists to allow, and
 //   * view() is narrowed to the device-aware DeviceBoundHandleView (not the base
 //     HandleView) and is still deleted on rvalues.
 // The runtime ordering trick (select-before-create) needs a live device; it is
@@ -129,10 +130,11 @@ namespace wwr::extension::test {
 
 // Instantiated exactly as a real device-bound wrapper is: a CRTP derived type,
 // a create policy typed to the handle's own status (TestError here, a registered
-// stand-in for a library handle's status enum), and the device policy left to default.
+// stand-in for a library handle's status enum), and a device policy typed to
+// wwrError_t.
 class FakeDeviceHandleWrapper
     : public DeviceBoundHandle<FakeHandle, FakeDeviceHandleWrapper, AbortPolicy<TestError>,
-                               AbortPolicy<TestError>> {
+                               AbortPolicy<TestError>, AbortPolicy<wwrError_t>> {
 public:
   using DeviceBoundHandle::DeviceBoundHandle;
   void create(FakeHandle *h, std::source_location) { *h = nullptr; }
@@ -147,7 +149,7 @@ static_assert(std::is_nothrow_move_constructible_v<FakeDeviceHandleWrapper>);
 static_assert(std::is_nothrow_move_assignable_v<FakeDeviceHandleWrapper>);
 static_assert(std::is_convertible_v<FakeDeviceHandleWrapper, FakeHandle>);
 
-// The create policy is AbortPolicy<TestError>, yet the device policy defaults to
+// The create policy is AbortPolicy<TestError>, yet the device policy is
 // AbortPolicy<wwrError_t>: the device (set/get) calls carry error handling typed
 // to the runtime's own error enum regardless of the handle's status type.
 static_assert(

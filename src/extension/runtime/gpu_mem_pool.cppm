@@ -28,7 +28,7 @@ export namespace wwr::extension {
  */
 template<error_policy<wwrError_t> P_create,
          nothrow_error_policy<wwrError_t> P_destroy,
-         error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
+         error_policy<wwrError_t> P_device_access>
 class GpuMemPoolWrapper
     : public DeviceBoundHandle<wwrMemPool_t,
                                GpuMemPoolWrapper<P_create, P_destroy, P_device_access>, P_create,

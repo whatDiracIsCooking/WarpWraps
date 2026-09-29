@@ -6,10 +6,9 @@
 # the wwrError_t specializations in :gpu_error), so consumers reach these names
 # through `import wwr.extension.common;`.
 #
-# :abort_policy is the built-in "print and abort" AbortPolicy. A
-# build that wants different behaviour does not swap it -- it passes an explicit
-# policy at the call site (the gpu_check policy argument, or the P_* template
-# arguments on the RAII wrappers).
+# The layer ships no default error policy: every gpu_check call and every RAII
+# wrapper names the policy it wants (the gpu_check policy argument, or the P_*
+# template arguments on the wrappers). Policy choice belongs to the consumer.
 wwr_add_cxx_module_library(
   NAME
   wwr.extension.error_handling
@@ -18,7 +17,6 @@ wwr_add_cxx_module_library(
   PARTITIONS
   error_code.cppm
   error_policy.cppm
-  abort_policy.cppm
   gpu_check.cppm
   IMPORT_STD
 )

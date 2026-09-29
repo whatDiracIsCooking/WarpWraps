@@ -19,6 +19,7 @@ import std;
 import wwr.runtime_api;
 import wwr.extension.common;
 import wwr.extension.handle;
+import wwr.test.shared.abort_policy;
 
 namespace wwr::extension::test {
 namespace {

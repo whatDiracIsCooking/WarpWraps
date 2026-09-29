@@ -12,7 +12,7 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 
 **Borrow-safe operations are free functions.** `sync`, `wait_event`, `begin_capture` (stream), `record`, `sync` (event), and `launch`, `upload` (executable graph) are free functions taking the raw handle (`wwrStream_t`/`wwrEvent_t`/`wwrGraphExec_t`). An owning wrapper and its view both convert to that handle, so one definition serves the owner, its view, and a bare handle alike (found by ADL on the wrapper/view types). Operations that *produce* an owned handle — `end_capture` (stream), `instantiate` (graph) — stay members, since they need the wrapper's error policy. A handle's `view()` (from `BaseHandle`/`DeviceBoundHandle`) returns its non-owning, copyable, trivially-destructible view.
 
-**The module ships the wrappers, not default-policy aliases for them.** Each `*Wrapper` takes its create and destroy error policies as explicit template arguments — neither has a default, so every use names both. Binding them (e.g. to `AbortPolicy`) is a one-line `using` a consumer writes once, for exactly the names it uses (`using GpuStream = GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;`) — see the [Usage](#usage) block and `example/warp_reduce`.
+**The module ships the wrappers, not error policies for them.** Each `*Wrapper` takes its create and destroy error policies as explicit template arguments — neither has a default, so every use names both; the device-bound wrappers (stream, event, mem pool) take a third, the device-access policy. `AbortPolicy` is the consumer's own — the library ships none. Binding is a one-line `using` a consumer writes once, for exactly the names it uses (`using GpuStream = GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;`) — see the [Usage](#usage) block and `example/warp_reduce`.
 
 ## Partitions
 
@@ -108,11 +108,14 @@ The free functions `launch(exec, stream)` and `upload(exec, stream)` run the gra
 import wwr.extension.runtime;
 using namespace wwr::extension;
 
-// Bind the wrappers to an error policy — your names, defined once.
+// Bind the wrappers to an error policy — your names, defined once. AbortPolicy
+// is your own abort-on-failure policy; the library ships none.
 using Abort = AbortPolicy<wwrError_t>;
-using GpuStream = GpuStreamWrapper<Abort, Abort>;
-using GpuEvent = GpuEventWrapper<Abort, Abort>;
-using GpuMemPool = GpuMemPoolWrapper<Abort, Abort>;
+// Device-bound wrappers take a third policy: device access (wwrSetDevice/wwrGetDevice).
+using GpuStream = GpuStreamWrapper<Abort, Abort, Abort>;
+using GpuEvent = GpuEventWrapper<Abort, Abort, Abort>;
+using GpuMemPool = GpuMemPoolWrapper<Abort, Abort, Abort>;
+// Graphs and graph execs are not device-bound: two policies only.
 using GpuGraph = GpuGraphWrapper<Abort, Abort>;
 using GpuGraphExec = GpuGraphExecWrapper<Abort, Abort>;
 

@@ -38,18 +38,14 @@ export namespace wwr::extension {
  * @tparam P_alloc Error policy type for allocation
  * @tparam P_free Error policy type for deallocation
  * @tparam H Device handle backing the buffer; its tier picks the strategy.
- *         Placed before P_device_access so it can stay defaultless while
- *         P_device_access keeps a default (a defaulted parameter cannot precede
- *         one without a default).
  * @tparam P_device_access Error policy for the DeviceScope guard's device
- *         switch (wwrGetDevice/wwrSetDevice) on the alloc and free paths;
- *         defaults to AbortPolicy<wwrError_t>. Unlike P_alloc/P_free, this is
- *         type-level only: a fresh instance is default-constructed for each
- *         guard, not stored on the buffer. An alloc/free failure is expected
- *         and handled, so its policy accumulates state per buffer; a failed
- *         *device switch* means the runtime context is already unusable -- a
- *         catastrophic, near-unreachable case whose policy needs no per-buffer
- *         state, only a reaction (abort by default).
+ *         switch (wwrGetDevice/wwrSetDevice) on the alloc and free paths. Unlike
+ *         P_alloc/P_free, this is type-level only: a fresh instance is
+ *         default-constructed for each guard, not stored on the buffer. An
+ *         alloc/free failure is expected and handled, so its policy accumulates
+ *         state per buffer; a failed *device switch* means the runtime context
+ *         is already unusable -- a catastrophic, near-unreachable case whose
+ *         policy needs no per-buffer state, only a reaction.
  *
  * @note P_free MUST NOT THROW - it is called from the destructor. P_device_access
  *       carries the same nothrow constraint: the free-path DeviceScope's switch
@@ -60,7 +56,7 @@ export namespace wwr::extension {
  */
 template<typename T, error_policy<wwrError_t> P_alloc,
          nothrow_error_policy<wwrError_t> P_free, device_handle H,
-         nothrow_error_policy<wwrError_t> P_device_access = AbortPolicy<wwrError_t>>
+         nothrow_error_policy<wwrError_t> P_device_access>
 class DeviceBufferWrapper
     : public BaseBuffer<T, MemoryKind::Device,
                         DeviceBufferWrapper<T, P_alloc, P_free, H, P_device_access>, P_alloc,

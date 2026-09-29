@@ -61,16 +61,4 @@ const char *error_string<wwrfftResult_t>(wwrfftResult_t error) noexcept {
   return wwrfftGetStatusString(error);
 }
 
-// ============================================================================
-// Template Instantiations
-// ============================================================================
-
-// Explicitly instantiate AbortPolicy for wwrfftResult_t
-template class AbortPolicy<wwrfftResult_t>;
-
-// Explicitly instantiate gpu_check for wwrfftResult_t
-template bool gpu_check<wwrfftResult_t, AbortPolicy<wwrfftResult_t> &>(
-    const wwrfftResult_t error, AbortPolicy<wwrfftResult_t> &policy,
-    std::source_location location);
-
 } // namespace wwr::extension

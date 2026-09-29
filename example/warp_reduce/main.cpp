@@ -27,18 +27,32 @@ import wwr.extension.memory_buffer;
 using namespace wwr;
 namespace ext = wwr::extension;
 
-// The extension layer ships the RAII wrappers themselves, not default-policy
-// aliases for them. Each wrapper names its create/alloc and destroy/free error
-// policies explicitly -- neither has a default -- so binding them is a one-line
-// `using` a consumer writes once, for exactly the names it uses; here they are,
-// this example's own, bound to abort-on-failure. Swap in a custom policy pair
-// (e.g. DeviceBufferWrapper<T, MyAlloc, MyFree, H>, GpuStreamWrapper<MyCreate,
-// MyDestroy>) to route errors somewhere other than aborting.
+// The extension layer ships the RAII wrappers themselves, but no error policy --
+// policy choice belongs to the consumer. This is this example's own: print to
+// stderr and abort on any failure. A consumer wanting recovery or logging writes
+// a different policy and passes it as the wrappers' error-policy arguments.
+template<typename T>
+struct AbortPolicy {
+  using error_type = T;
+  void handle_error(const T error, std::source_location loc) noexcept {
+    if (error != ext::success_code<T>()) {
+      std::println(stderr, "GPU error at {}:{} in {}: {} ({})", loc.file_name(), loc.line(),
+                   loc.function_name(), ext::error_name(error), ext::error_string(error));
+      std::abort();
+    }
+  }
+};
+
+// Each wrapper names its error policies explicitly -- none has a default -- so
+// binding them is a one-line `using` a consumer writes once, for exactly the
+// names it uses. The device-bound wrappers (GpuStreamWrapper, DeviceBufferWrapper)
+// also name a wwrError_t device-access policy for their device set/get calls.
 template<typename T>
 using HostBuffer =
-    ext::HostBufferWrapper<T, ext::AbortPolicy<ext::stdHostMemoryError_t>,
-                           ext::AbortPolicy<ext::stdHostMemoryError_t>>;
-using GpuStream = ext::GpuStreamWrapper<ext::AbortPolicy<wwrError_t>, ext::AbortPolicy<wwrError_t>>;
+    ext::HostBufferWrapper<T, AbortPolicy<ext::stdHostMemoryError_t>,
+                           AbortPolicy<ext::stdHostMemoryError_t>>;
+using GpuStream =
+    ext::GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 
 // A DeviceBuffer is backed by whatever handle type the consumer provides: the
 // library ships no concrete one, only the device_handle capability ladder the
@@ -54,8 +68,9 @@ struct DeviceHandle {
   GpuStream stream_;
 };
 template<typename T>
-using DeviceBuffer = ext::DeviceBufferWrapper<T, ext::AbortPolicy<wwrError_t>,
-                                              ext::AbortPolicy<wwrError_t>, DeviceHandle>;
+using DeviceBuffer =
+    ext::DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, DeviceHandle,
+                             AbortPolicy<wwrError_t>>;
 
 namespace {
 
