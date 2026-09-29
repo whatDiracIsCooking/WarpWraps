@@ -19,7 +19,7 @@ import std;
 import wwr.runtime_api; // wwrError_t, for the device-access policy
 import wwr.extension.common; // the error_policy concept, for the counting policy
 import wwr.extension.handle; // BaseHandle, StreamBoundHandle, StreamBoundHandleView
-import wwr.extension.runtime; // GpuStreamWrapper, so owner->stream().get() has a complete type
+import wwr.extension.runtime; // StreamWrapper, so owner->stream().get() has a complete type
 import wwr.extension.solver; // re-exports wwr.solver, so the raw handle/params types are in scope
 import wwr.test.shared.abort_policy; // AbortPolicy for this file's instantiations
 import wwr.test.shared.device_handle; // the reference stream owner

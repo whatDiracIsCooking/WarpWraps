@@ -49,9 +49,9 @@ concept is_view_value = std::is_copy_constructible_v<View> && std::is_copy_assig
                         std::is_nothrow_default_constructible_v<View> &&
                         std::is_trivially_destructible_v<View>;
 
-static_assert(is_view_value<GpuEventView>);
-static_assert(is_view_value<GpuStreamView>);
-static_assert(is_view_value<GpuGraphExecView>);
+static_assert(is_view_value<EventView>);
+static_assert(is_view_value<StreamView>);
+static_assert(is_view_value<GraphExecView>);
 static_assert(is_view_value<DeviceBoundHandleView<wwrMemPool_t>>);
 static_assert(is_view_value<HandleView<wwrGraph_t>>);
 // The library handles are stream-bound, so their views carry a stream too.
@@ -65,21 +65,21 @@ static_assert(is_view_value<DeviceBoundHandleView<wwrEvent_t>>);
 static_assert(is_view_value<StreamBoundHandleView<wwrEvent_t>>);
 
 // Owners are move-only; a view is never taken by copying an owner.
-static_assert(!std::is_copy_constructible_v<GpuEventWrapper<Abort, Abort, Abort>>);
-static_assert(!std::is_copy_constructible_v<GpuStreamWrapper<Abort, Abort, Abort>>);
+static_assert(!std::is_copy_constructible_v<EventWrapper<Abort, Abort, Abort>>);
+static_assert(!std::is_copy_constructible_v<StreamWrapper<Abort, Abort, Abort>>);
 static_assert(!std::is_copy_constructible_v<BlasHandleWrapper<BlasAbort, BlasAbort, DeviceHandle, Abort>>);
-static_assert(std::is_nothrow_move_constructible_v<GpuEventWrapper<Abort, Abort, Abort>>);
+static_assert(std::is_nothrow_move_constructible_v<EventWrapper<Abort, Abort, Abort>>);
 
 // Views convert to the raw handle, exactly as the owners do.
-static_assert(std::is_convertible_v<GpuEventView, wwrEvent_t>);
-static_assert(std::is_convertible_v<GpuStreamView, wwrStream_t>);
-static_assert(std::is_convertible_v<GpuGraphExecView, wwrGraphExec_t>);
+static_assert(std::is_convertible_v<EventView, wwrEvent_t>);
+static_assert(std::is_convertible_v<StreamView, wwrStream_t>);
+static_assert(std::is_convertible_v<GraphExecView, wwrGraphExec_t>);
 
 // A view is constructible from a raw handle (device unknown) or, when bound,
 // from a handle plus its device index.
-static_assert(std::is_constructible_v<GpuStreamView, wwrStream_t>);
-static_assert(std::is_constructible_v<GpuStreamView, wwrStream_t, int>);
-static_assert(std::is_constructible_v<GpuGraphExecView, wwrGraphExec_t>);
+static_assert(std::is_constructible_v<StreamView, wwrStream_t>);
+static_assert(std::is_constructible_v<StreamView, wwrStream_t, int>);
+static_assert(std::is_constructible_v<GraphExecView, wwrGraphExec_t>);
 
 // The stream-bound view adds the stream to that: from a bare handle (device and
 // stream unknown) or from a handle plus its device index and bound stream. It
@@ -103,13 +103,13 @@ static_assert(!device_handle_stream<DeviceBoundHandleView<wwrblasHandle_t>>);
 // (which would dangle immediately); that guard fires at the call site, not as a
 // trait here -- the deleted overload still wins overload resolution, so calling
 // it is a hard error rather than a detectable unsatisfied requirement.
-static_assert(requires(const GpuEventWrapper<Abort, Abort, Abort> &e) { e.view(); });
-static_assert(std::is_same_v<decltype(std::declval<const GpuEventWrapper<Abort, Abort, Abort> &>().view()), GpuEventView>);
-static_assert(std::is_same_v<decltype(std::declval<const GpuStreamWrapper<Abort, Abort, Abort> &>().view()), GpuStreamView>);
+static_assert(requires(const EventWrapper<Abort, Abort, Abort> &e) { e.view(); });
+static_assert(std::is_same_v<decltype(std::declval<const EventWrapper<Abort, Abort, Abort> &>().view()), EventView>);
+static_assert(std::is_same_v<decltype(std::declval<const StreamWrapper<Abort, Abort, Abort> &>().view()), StreamView>);
 static_assert(
-    std::is_same_v<decltype(std::declval<const GpuGraphExecWrapper<Abort, Abort> &>().view()), GpuGraphExecView>);
-static_assert(std::is_same_v<decltype(std::declval<const GpuMemPoolWrapper<Abort, Abort, Abort> &>().view()), DeviceBoundHandleView<wwrMemPool_t>>);
-static_assert(std::is_same_v<decltype(std::declval<const GpuGraphWrapper<Abort, Abort> &>().view()), HandleView<wwrGraph_t>>);
+    std::is_same_v<decltype(std::declval<const GraphExecWrapper<Abort, Abort> &>().view()), GraphExecView>);
+static_assert(std::is_same_v<decltype(std::declval<const MemPoolWrapper<Abort, Abort, Abort> &>().view()), DeviceBoundHandleView<wwrMemPool_t>>);
+static_assert(std::is_same_v<decltype(std::declval<const GraphWrapper<Abort, Abort> &>().view()), HandleView<wwrGraph_t>>);
 // The library handles are stream-bound, so their .view() is the stream-aware view.
 static_assert(
     std::is_same_v<decltype(std::declval<const BlasHandleWrapper<BlasAbort, BlasAbort, DeviceHandle, Abort> &>().view()), StreamBoundHandleView<wwrblasHandle_t>>);
@@ -129,7 +129,7 @@ static_assert(
 // address, so the second still costs a slot. Both are pinned here so the
 // attribute is not mistaken for zero-cost on the common path (issue #71
 // collapses the same-type slot). A minimal local wrapper isolates the
-// policy-member cost -- the shipped GpuStreamWrapper etc. are DeviceBoundHandles
+// policy-member cost -- the shipped StreamWrapper etc. are DeviceBoundHandles
 // that also carry a device index.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -155,11 +155,11 @@ static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolic
 
 // Never called: exists only to instantiate and type-check the borrow-safe free
 // functions on each owner, its view, and a raw handle, without a device.
-[[maybe_unused]] void exercise(const GpuEventWrapper<Abort, Abort, Abort> &event,
-                               const GpuStreamWrapper<Abort, Abort, Abort> &stream,
-                               const GpuGraphExecWrapper<Abort, Abort> &exec,
+[[maybe_unused]] void exercise(const EventWrapper<Abort, Abort, Abort> &event,
+                               const StreamWrapper<Abort, Abort, Abort> &stream,
+                               const GraphExecWrapper<Abort, Abort> &exec,
                                wwrStream_t raw_stream, wwrEvent_t raw_event) {
-  const GpuEventView ev = event.view();
+  const EventView ev = event.view();
   (void)ev.get();
   (void)ev.dev_idx();
   (void)record(ev, raw_stream);
@@ -167,14 +167,14 @@ static_assert(sizeof(SizeProbeHandle<SizeEmptyPolicy<wwrError_t>, SizeEmptyPolic
   (void)sync(ev);
   (void)sync(event); // same free function on the owner
 
-  const GpuStreamView sv = stream.view();
+  const StreamView sv = stream.view();
   (void)sv.dev_idx();
   (void)wait_event(sv, raw_event);
   (void)begin_capture(sv);
   (void)sync(sv);
   (void)wait_event(stream, raw_event); // owner: same free function
 
-  const GpuGraphExecView xv = exec.view();
+  const GraphExecView xv = exec.view();
   (void)launch(xv, raw_stream);
   (void)upload(xv, raw_stream);
   (void)launch(exec, raw_stream); // owner: same free function

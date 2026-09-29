@@ -1,11 +1,11 @@
 /**
- * @file gpu_mem_pool.cppm
+ * @file mem_pool.cppm
  * @brief RAII wrapper for GPU memory pool handles
  *
- * Provides GpuMemPoolWrapper class for automatic GPU memory pool management.
+ * Provides MemPoolWrapper class for automatic GPU memory pool management.
  */
 
-export module wwr.extension.runtime:gpu_mem_pool;
+export module wwr.extension.runtime:mem_pool;
 
 import wwr.runtime_api;
 import wwr.extension.common;
@@ -29,13 +29,13 @@ export namespace wwr::extension {
 template<error_policy<wwrError_t> P_create,
          nothrow_error_policy<wwrError_t> P_destroy,
          error_policy<wwrError_t> P_device_access>
-class GpuMemPoolWrapper
+class MemPoolWrapper
     : public DeviceBoundHandle<wwrMemPool_t,
-                               GpuMemPoolWrapper<P_create, P_destroy, P_device_access>, P_create,
+                               MemPoolWrapper<P_create, P_destroy, P_device_access>, P_create,
                                P_destroy, P_device_access> {
 private:
   using Base = DeviceBoundHandle<wwrMemPool_t,
-                                 GpuMemPoolWrapper<P_create, P_destroy, P_device_access>, P_create,
+                                 MemPoolWrapper<P_create, P_destroy, P_device_access>, P_create,
                                  P_destroy, P_device_access>;
 
   /// @note Use 1MB as default release threshold
@@ -51,18 +51,18 @@ private:
   }
 
 public:
-  // The `GpuMemPoolWrapper(int dev_idx = 0)` default/per-device constructor, inherited
+  // The `MemPoolWrapper(int dev_idx = 0)` default/per-device constructor, inherited
   // from DeviceBoundHandle. With dev_idx as the mandatory first argument there is no
   // longer any collision with the `(dev_idx, release_threshold)` overload below,
-  // so the base's device-index constructor is inherited like GpuStreamWrapper/GpuEventWrapper.
-  using DeviceBoundHandle<wwrMemPool_t, GpuMemPoolWrapper<P_create, P_destroy, P_device_access>,
+  // so the base's device-index constructor is inherited like StreamWrapper/EventWrapper.
+  using DeviceBoundHandle<wwrMemPool_t, MemPoolWrapper<P_create, P_destroy, P_device_access>,
                        P_create, P_destroy, P_device_access>::DeviceBoundHandle;
 
   /// @brief Create a GPU memory pool on `dev_idx` with default properties and a custom release threshold
   /// @param dev_idx Device to create the pool on
   /// @param release_threshold Maximum bytes to hold in pool before returning memory to the OS
   /// @param location Source location where creation was requested
-  GpuMemPoolWrapper(const int dev_idx, const unsigned int release_threshold,
+  MemPoolWrapper(const int dev_idx, const unsigned int release_threshold,
                     std::source_location location = std::source_location::current())
       : Base(typename Base::skip_default_create_t{}) {
     Base::select_device(dev_idx, location);
@@ -78,7 +78,7 @@ public:
   /// @param props Properties for memory pool creation; props.location.id names the device
   /// @param release_threshold Maximum bytes to hold in pool before returning memory to the OS
   /// @param location Source location where creation was requested
-  GpuMemPoolWrapper(const wwrMemPoolProps &props,
+  MemPoolWrapper(const wwrMemPoolProps &props,
                     const unsigned int release_threshold = default_threshold,
                     std::source_location location = std::source_location::current())
       : Base(typename Base::skip_default_create_t{}) {

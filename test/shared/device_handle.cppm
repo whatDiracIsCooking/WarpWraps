@@ -55,8 +55,8 @@ class DeviceHandle {
   // stream_ and pool_ bind all three policy slots (create, destroy,
   // device-access) to abort-on-failure.
   using Abort = AbortPolicy<wwrError_t>;
-  using Stream = GpuStreamWrapper<Abort, Abort, Abort>;
-  using Pool = GpuMemPoolWrapper<Abort, Abort, Abort>;
+  using Stream = StreamWrapper<Abort, Abort, Abort>;
+  using Pool = MemPoolWrapper<Abort, Abort, Abort>;
 
 public:
   explicit DeviceHandle(int index = 0,

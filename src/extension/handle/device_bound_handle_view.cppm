@@ -10,7 +10,7 @@
  * Usage:
  *   import wwr.extension.handle;
  *
- *   using GpuEventView = DeviceBoundHandleView<wwrEvent_t>;
+ *   using EventView = DeviceBoundHandleView<wwrEvent_t>;
  */
 
 export module wwr.extension.handle:device_bound_handle_view;

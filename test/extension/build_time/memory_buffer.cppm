@@ -97,7 +97,7 @@ static_assert(std::same_as<decltype(reinterpret_buffer_view<std::byte>(
 // with its own handle type. The test DeviceHandle is the reference model (the
 // fullest tier); the fakes below stand in for downstream handles and pin the
 // three concept tiers -- each adds one accessor and unlocks one strategy.
-// Raw backend handles straight out of the accessors, no GpuStream/GpuMemPool
+// Raw backend handles straight out of the accessors, no Stream/MemPool
 // wrappers in sight -- which is what the convertible_to (not .get()) shape buys.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

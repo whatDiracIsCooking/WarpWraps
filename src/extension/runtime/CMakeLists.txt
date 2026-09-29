@@ -4,11 +4,11 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   interface.cppm
   PARTITIONS
-  gpu_stream.cppm
-  gpu_event.cppm
-  gpu_mem_pool.cppm
-  gpu_graph_exec.cppm
-  gpu_graph.cppm
+  stream.cppm
+  event.cppm
+  mem_pool.cppm
+  graph_exec.cppm
+  graph.cppm
   LINK_PUBLIC
   wwr.runtime_api
   wwr.extension.common

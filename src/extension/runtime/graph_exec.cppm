@@ -1,15 +1,15 @@
 /**
- * @file gpu_graph_exec.cppm
+ * @file graph_exec.cppm
  * @brief RAII wrapper for GPU executable graph handles
  *
- * Provides GpuGraphExecWrapper, an RAII wrapper for wwrGraphExec_t -- the executable
+ * Provides GraphExecWrapper, an RAII wrapper for wwrGraphExec_t -- the executable
  * graph produced by instantiating a wwrGraph_t. The borrow-safe operations
  * (launch/upload) are free functions taking a raw wwrGraphExec_t, so one
  * definition serves the owner, its view, and a bare handle alike -- see the
  * free functions below and runtime/README.md.
  */
 
-export module wwr.extension.runtime:gpu_graph_exec;
+export module wwr.extension.runtime:graph_exec;
 
 import wwr.runtime_api;
 import wwr.extension.common;
@@ -19,11 +19,11 @@ import std;
 export namespace wwr::extension {
 
 /// @brief Non-owning, copyable view of an executable-graph handle. Returned by
-///        GpuGraphExecWrapper::view() (from BaseHandle; an exec is not device-bound, so
+///        GraphExecWrapper::view() (from BaseHandle; an exec is not device-bound, so
 ///        it carries no device index); the borrow-safe operations are the free
-///        functions below, which act on it, on an owning GpuGraphExecWrapper, or on a
+///        functions below, which act on it, on an owning GraphExecWrapper, or on a
 ///        raw wwrGraphExec_t.
-using GpuGraphExecView = HandleView<wwrGraphExec_t>;
+using GraphExecView = HandleView<wwrGraphExec_t>;
 
 /**
  * @brief RAII wrapper for a GPU executable graph
@@ -45,12 +45,12 @@ using GpuGraphExecView = HandleView<wwrGraphExec_t>;
  */
 template<error_policy<wwrError_t> P_create,
          nothrow_error_policy<wwrError_t> P_destroy>
-class GpuGraphExecWrapper
-    : public BaseHandle<wwrGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create,
+class GraphExecWrapper
+    : public BaseHandle<wwrGraphExec_t, GraphExecWrapper<P_create, P_destroy>, P_create,
                         P_destroy> {
 private:
   using Base =
-      BaseHandle<wwrGraphExec_t, GpuGraphExecWrapper<P_create, P_destroy>, P_create, P_destroy>;
+      BaseHandle<wwrGraphExec_t, GraphExecWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 public:
   // view() (deleted on rvalues) is inherited from BaseHandle.
@@ -59,7 +59,7 @@ public:
   /// @param graph The source graph to instantiate (not owned; used only for this call)
   /// @param flags Instantiation flags (0 for none)
   /// @param location Source location where instantiation was requested
-  explicit GpuGraphExecWrapper(wwrGraph_t graph, const unsigned long long flags = 0,
+  explicit GraphExecWrapper(wwrGraph_t graph, const unsigned long long flags = 0,
                                std::source_location location = std::source_location::current())
       : Base(typename Base::skip_default_create_t{}) {
     gpu_check(wwrGraphInstantiate(&this->handle_, graph, flags), this->policy_create_, location);
@@ -75,7 +75,7 @@ public:
 };
 
 // Borrow-safe executable-graph operations. Free functions on the raw
-// wwrGraphExec_t: an owning GpuGraphExecWrapper and a GpuGraphExecView both convert to
+// wwrGraphExec_t: an owning GraphExecWrapper and a GraphExecView both convert to
 // it, so each op has one definition that works on the owner, the view, or a
 // bare handle.
 
