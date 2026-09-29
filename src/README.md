@@ -28,6 +28,7 @@ written once against `wwr*` names and builds unchanged for either backend.
 | `wwr.fft` | `wwr.cuda.cufft` | `wwr.hip.hipfft` |
 | `wwr.rand` | `wwr.cuda.curand` | `wwr.hip.hiprand` + `wwr.hip.hiprand_kernel` |
 | `wwr.ccl` | `wwr.cuda.nccl` | `wwr.hip.rccl` |
+| `wwr.tensor` | `wwr.cuda.cutensor` | `wwr.hip.hiptensor` |
 
 `gpu.fp8` is the narrow-float scalar layer above `fp16` / `bf16`, scoped to the
 intersection of the vendor type pair: the OCP `E4M3`/`E5M2` fp8 formats, plus
@@ -174,6 +175,46 @@ constants. Three things to watch:
   multi-GPU job to run), and enumerator **values** are pinned there per backend.
   NCCL's CUDA library is not part of the CUDA toolkit; `docker/Dockerfile.cuda`
   installs `libnccl-dev`, while RCCL is already in the base ROCm image.
+
+`gpu.tensor` covers **tensor primitives** — contraction, reduction, permutation,
+element-wise — cuTENSOR / hipTensor. Unlike `ccl`, this is **not a hipify pair**:
+cuTENSOR is closed-source over CUDA and hipTensor is built on composable-kernel,
+two independent implementations that merely mirror each other's naming. The
+intersection was therefore **measured, not assumed** (run
+`devtools/header_intersection.py` over the two headers to reproduce): of
+cuTENSOR 2.8.1.0's 45 functions and hipTensor 2.2.0's 38, **37 are shared by
+name with positionally identical signatures**, and `wwr.tensor` carries 36 of
+them plus 18 shared types and 93 value-agreeing constants (28 data types —
+hipTensor numbers `HIPTENSOR_R_*` to match `cudaDataType_t` — 29 operators, 11
+status codes, and the workspace/attribute/mode enums). The measurement made it a
+clear yes, opposite to the cuDNN/MIOpen verdict (`docs/architecture.md` §19).
+Three things to watch:
+
+- **Two divergences need more than an alias** (`docs/architecture.md` §4, §5).
+  The compute descriptors (`WWRTENSOR_COMPUTE_DESC_16F/16BF/32F/64F`) are
+  `extern const` opaque *pointers* on cuTENSOR but enum *values* on hipTensor —
+  no single macro spans both, so they sit in a per-backend `#if`; the neutral
+  `wwrtensorComputeDescriptor_t` type still matches the backend's own
+  `descCompute` parameter, so a caller passes them straight through.
+  `wwrtensorLoggerSetLevel` is a forwarding function, not an alias: cuTENSOR
+  takes `int32_t`, hipTensor its own `hiptensorLogLevel_t` enum, so the neutral
+  signature is a uniform `int32_t` (HIP casts).
+- **Backend-only names are absent**, reachable only through the raw modules: the
+  cuTENSOR block-sparse and trinary-contraction APIs, the extra
+  operators/algos/compute-descriptors, `cutensorGetCudartVersion` and
+  `cutensorPlanPreferenceGetAttribute`; and on the HIP side
+  `hiptensorGetHiprtVersion`, the `hiptensorLogLevel_t` enum, and
+  `HIPTENSOR_ALGO_ACTOR_CRITIC`. The `CUTENSOR_VERSION` / `HIPTENSOR_VERSION`
+  macros are backend-specific; `wwrtensorGetVersion` is the portable query.
+- Like `gpu.rand` / `gpu.ccl`, every name is checked in full by
+  `test/gpu/tensor.cppm`, with enumerator **values** pinned per backend. Both
+  libraries are found by hand: cuTENSOR ships no CMake config and is not a
+  CUDA-toolkit component (`docker/install-cuda.sh` republishes it under
+  `/opt/nvidia/cutensor`); hipTensor *has* a package, but `hiptensor::hiptensor`
+  drags `hip::device` into its interface, which would force device compilation
+  on host consumers, so `wwr.hip.hiptensor` `find_library`s `libhiptensor` and
+  links `hip::host` instead (see `src/hip/README.md`). hipTensor was kept off the
+  `ROCM_PRUNE` list.
 
 ## How a name is mapped
 

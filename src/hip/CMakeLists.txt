@@ -370,3 +370,54 @@ wwr_add_cxx_module_library(
   hip::host
   IMPORT_STD
 )
+
+# hipTensor (tensor contraction / reduction / permutation / element-wise)
+#
+# CUDA counterpart: cutensor.cppm. Unlike RCCL/NCCL, hipTensor is an
+# independent implementation, not a source-compatible reimplementation -- see
+# src/tensor.cppm for the measured intersection the wwrtensor* layer carries.
+#
+# hipTensor ships a CMake package, but its hiptensor::hiptensor target lists
+# `hip::device` in INTERFACE_LINK_LIBRARIES -- and hip::device carries `-x hip`
+# / --offload-arch as INTERFACE_COMPILE_OPTIONS. Linked PUBLIC, that would force
+# DEVICE compilation onto every downstream HOST consumer of wwr.tensor, flipping
+# e.g. gpu_compile_tests' main.cpp (which does `import std;`) into an
+# amdgcn TU that cannot load the host `std` BMI (docs/architecture.md, section 8
+# -- import std is not available to a device TU). rccl's roc::rccl does not do
+# this; only hiptensor::hiptensor does. So -- exactly as cuda/CMakeLists.txt
+# wraps the config-less cuTENSOR, and as nccl/cusolverMg wrap a bare library --
+# find libhiptensor.so and its header by hand and link hip::host, so this module
+# and its consumers compile as HOST like every other wwr.hip.* module. The
+# `#include <array>` in hiptensor.cppm keeps the host compile of the HIP headers
+# working (section 9). The header resolves via hip::host's /opt/rocm/include,
+# but the wrapper carries the include dir explicitly too, so it is
+# self-sufficient.
+find_path(
+  HIP_hiptensor_INCLUDE_DIR hiptensor/hiptensor.h
+  HINTS ${ROCM_PATH} $ENV{ROCM_PATH} /opt/rocm
+  PATH_SUFFIXES include REQUIRED
+)
+find_library(
+  HIP_hiptensor_LIBRARY hiptensor
+  HINTS ${ROCM_PATH} $ENV{ROCM_PATH} /opt/rocm
+  PATH_SUFFIXES lib REQUIRED
+)
+if(NOT TARGET wwr::hip_hiptensor)
+  add_library(wwr::hip_hiptensor UNKNOWN IMPORTED GLOBAL)
+  set_target_properties(
+    wwr::hip_hiptensor
+    PROPERTIES IMPORTED_LOCATION "${HIP_hiptensor_LIBRARY}"
+               INTERFACE_INCLUDE_DIRECTORIES "${HIP_hiptensor_INCLUDE_DIR}"
+  )
+endif()
+
+wwr_add_cxx_module_library(
+  NAME
+  wwr.hip.hiptensor
+  PRIMARY_INTERFACE
+  hiptensor.cppm
+  LINK_PUBLIC
+  wwr::hip_hiptensor
+  hip::host
+  IMPORT_STD
+)

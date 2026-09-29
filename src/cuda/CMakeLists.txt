@@ -432,3 +432,43 @@ wwr_add_cxx_module_library(
   INCLUDE_CUDA_TOOLKIT
   PUBLIC
 )
+
+# cuTENSOR (tensor contraction / reduction / permutation / element-wise)
+# -- HIP counterpart: wwr.hip.hiptensor.
+#
+# cuTENSOR ships no CMake config package and is not a FindCUDAToolkit component,
+# so find its header and library by hand. docker/install-cuda.sh republishes the
+# apt package's split install (/usr/include/libcutensor/13,
+# /usr/lib/<triplet>/libcutensor/13) as a fixed
+# /opt/nvidia/cutensor/{include,lib} prefix on CMAKE_PREFIX_PATH, which is what
+# find_path/find_library resolve here.
+# Unlike nccl.h, cutensor.h is NOT on a default include path, so the imported
+# target carries the include dir as well as the library; INCLUDE_CUDA_TOOLKIT
+# adds the toolkit include cutensor.h needs for <cuda_runtime.h> and
+# <library_types.h>. A bare find path in a PUBLIC link would hardcode this
+# machine's location into the exported package, so it is wrapped in an
+# installable imported target as nccl/cusolverMg are; wwrConfig.cmake re-finds
+# it on the consumer's machine. GLOBAL so the export set can see the name.
+find_path(CUDA_cutensor_INCLUDE_DIR cutensor.h REQUIRED)
+find_library(CUDA_cutensor_LIBRARY cutensor REQUIRED)
+if(NOT TARGET wwr::cuda_cutensor)
+  add_library(wwr::cuda_cutensor UNKNOWN IMPORTED GLOBAL)
+  set_target_properties(
+    wwr::cuda_cutensor
+    PROPERTIES IMPORTED_LOCATION "${CUDA_cutensor_LIBRARY}"
+               INTERFACE_INCLUDE_DIRECTORIES "${CUDA_cutensor_INCLUDE_DIR}"
+  )
+endif()
+
+wwr_add_cxx_module_library(
+  NAME
+  wwr.cuda.cutensor
+  PRIMARY_INTERFACE
+  cutensor.cppm
+  LINK_PUBLIC
+  CUDA::cudart
+  wwr::cuda_cutensor
+  IMPORT_STD
+  INCLUDE_CUDA_TOOLKIT
+  PUBLIC
+)
