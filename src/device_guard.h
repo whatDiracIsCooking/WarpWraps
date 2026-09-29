@@ -2,10 +2,10 @@
  * @file device_guard.h
  * @brief selected_backend.h + the "must be a device pass" guard, in one include
  *
- * The five device headers here (runtime.cuh, complex.cuh, fp16.cuh,
- * bf16.cuh, rand.cuh) open with the same two requirements: the selected backend,
- * and a refusal to compile outside a device pass. Factored here so the guard
- * exists once.
+ * The six device headers here (runtime.cuh, complex.cuh, fp16.cuh,
+ * bf16.cuh, fp8.cuh, rand.cuh) open with the same two requirements: the selected
+ * backend, and a refusal to compile outside a device pass. Factored here so the
+ * guard exists once.
  *
  * The two questions stay apart, as they must: "which
  * backend?" is selected_backend.h's, answered from the compiler's device macro
