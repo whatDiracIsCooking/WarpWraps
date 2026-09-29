@@ -453,8 +453,9 @@ So a portable `gpu.dnn` would be a hand-written translation layer, not a re-expo
 and belongs (if ever) at the `src/wrappers` altitude over the handful of ops that
 genuinely map — worth it only for a concrete consumer needing portable convolution,
 which a wrapping library does not have. Contrast NPP (CUDA-only, ~10.8k public
-symbols, no ROCm analogue at all) and NCCL/RCCL (issue #100), the one popular
-library where both backends *do* share the surface verbatim.
+symbols, no ROCm analogue at all) and NCCL/RCCL (issue #100, now `wwr.ccl`), the
+one popular library where both backends *do* share the surface verbatim — RCCL
+being a source-compatible reimplementation of NCCL, down to the `nccl*` names.
 
 To falsify this, install cuDNN and MIOpen and run
 `devtools/header_intersection.py --cuda cudnn.h --hip miopen.h`. This section is

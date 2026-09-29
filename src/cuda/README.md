@@ -153,10 +153,38 @@ Wraps `cuda_bf16.h`. Exports:
 BFloat16 uses 8 exponent bits (same range as `float`) and 7 mantissa bits,
 making it well-suited for deep learning workloads.
 
+### `wwr.cuda.nccl`
+
+**Import:** `import wwr.cuda.nccl;`
+
+Wraps `nccl.h` — NVIDIA's Collective Communications Library. HIP counterpart:
+`wwr.hip.rccl`, AMD's source-compatible reimplementation, which spells the whole
+surface with the identical `nccl*` / `NCCL_*` names. See `src/ccl.cppm` for the
+backend-neutral `wwrccl*` layer. Exports:
+
+- **Types** — `ncclComm_t`, `ncclUniqueId`, `ncclWindow_t`, `ncclResult_t`,
+  `ncclConfig_t`, `ncclSimInfo_t`, the `ncclRedOp_t` / `ncclDataType_t` /
+  `ncclScalarResidence_t` enums, and all their enumerators.
+- **Host API** — version query, buffer alloc, communicator lifecycle
+  (`ncclCommInitRank{,Config,Scalable}`, `ncclCommInitAll`,
+  `ncclCommSplit/Shrink/Finalize/Destroy/Abort`), error checking, communicator
+  info, buffer/window registration, custom reductions, the collectives
+  (`ncclAllReduce`, `ncclBroadcast`, `ncclReduce`, `ncclAllGather`,
+  `ncclReduceScatter`), P2P (`ncclSend`/`Recv`), and grouping.
+- **Constexpr flag values** — the scalar `NCCL_*` macros (`NCCL_UNIQUE_ID_BYTES`,
+  `NCCL_SPLIT_NOCOLOR`, the WIN/CTA/SHRINK flags, …), which a module cannot
+  re-export as macros, mirroring `cufft`'s treatment of its direction flags.
+
+NCCL is **not** part of the `cuda-toolkit` meta-package, and there is no
+`CUDA::nccl` FindCUDAToolkit target, so `CMakeLists.txt` `find_library`s
+`libnccl` and wraps it in an installable imported target (as it does for
+`cusolverMg`); `docker/Dockerfile.cuda` installs `libnccl-dev`.
+
 ## Build
 
 Defined in `CMakeLists.txt` using the project-local
 `wwr_add_cxx_module_library` CMake function. Each target links the
 appropriate CUDA toolkit component (`CUDA::cudart`, `CUDA::cublas`,
 `CUDA::cusolver`, `CUDA::curand`) and exposes CUDA toolkit include directories
-publicly.
+publicly. The few libraries with no FindCUDAToolkit component (`cusolverMg`,
+`nccl`) are `find_library`'d by hand instead.

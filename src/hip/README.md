@@ -673,6 +673,44 @@ Left out: `hipRandState_t` (the header's own `\deprecated` spelling of
 `hiprandMakeMTGP32KernelState` (this project wraps no MTGP32 host-side
 state-construction API on either backend), and every device function.
 
+### `wwr.hip.rccl`
+
+**Import:** `import wwr.hip.rccl;`
+
+Wraps `rccl/rccl.h` -- the ROCm Communication Collectives Library, AMD's
+**source-compatible reimplementation of NCCL**. CUDA counterpart:
+`wwr.cuda.nccl`. `find_package(rccl CONFIG REQUIRED)`, links **`roc::rccl`**
+(this one *is* `roc::`, verified from `rccl-targets.cmake`) plus `hip::host`,
+because `rccl.h` pulls in `<hip/hip_runtime.h>` and `<hip/hip_fp16.h>` and
+`roc::rccl` does not guarantee the HIP runtime's include path itself. See
+`src/ccl.cppm` for the backend-neutral `wwrccl*` layer.
+
+Because RCCL reimplements NCCL, it spells the entire surface with the identical
+`nccl*` / `NCCL_*` names -- there is no `rccl*` prefix -- so this module and
+`wwr.cuda.nccl` agree name-for-name across their shared surface. It exports the
+types, enums and host API listed for `wwr.cuda.nccl`, turning the scalar
+`NCCL_*` flag macros into `constexpr` values the same way.
+
+**RCCL-only names, exported here but absent from `wwr.ccl`.** RCCL's version
+leads NCCL's, so it carries collectives NCCL has no counterpart for:
+`ncclGather` / `ncclScatter` (`RCCL_GATHER_SCATTER`), `ncclAllToAll` /
+`ncclAllToAllv` (`RCCL_ALLTOALLV`), and `ncclAllReduceWithBias`
+(`RCCL_ALLREDUCE_WITH_BIAS`). A raw module is a faithful 1:1 of its backend, so
+they are exported here -- but the `wwrccl*` layer spans only the measured
+intersection and leaves them out, so they are reachable only through this
+module, never portably.
+
+Left out: the `msccl*` algorithm entry points
+(`mscclLoadAlgo`/`RunAlgo`/`UnloadAlgo`, `mscclAlgoHandle_t`), marked
+`@deprecated` "removed from the public API" in the header; the `pnccl*`
+profiling-interface duplicates; and the version / feature-test macros
+(`NCCL_MAJOR`, `NCCL_VERSION_CODE`, `RCCL_BFLOAT16`, ...) and the two
+struct-initializer macros, for the reasons `wwr.cuda.nccl` gives.
+
+**rccl stays in the pruned CI image.** `docker/install-rocm.sh`'s `ROCM_PRUNE`
+list used to drop rccl ("nothing here wraps them"); now that this module links
+`roc::rccl` it is a link-time dependency and is retained.
+
 ### `hip_profile.h`: no module -- nothing to wrap
 
 `hip/hip_profile.h` was evaluated for a `wwr.hip.hip_profile` module

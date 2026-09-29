@@ -382,3 +382,33 @@ wwr_add_cxx_module_library(
   INCLUDE_CUDA_TOOLKIT
   PUBLIC
 )
+
+# NCCL (Collective Communications) -- HIP counterpart: wwr.hip.rccl.
+#
+# NCCL is NOT a FindCUDAToolkit component (there is no CUDA::nccl target), so
+# find libnccl by hand and wrap it in an installable imported target, exactly as
+# cusolverMg above -- a bare find_library path in a PUBLIC link would hardcode
+# this machine's location into the exported package. libnccl-dev provides both
+# nccl.h (on the default include path; INCLUDE_CUDA_TOOLKIT adds the toolkit
+# include nccl.h needs for <cuda_runtime.h>) and libnccl.so. It is not in the
+# base CUDA toolkit -- Dockerfile.cuda installs it (see docker/Dockerfile.cuda).
+find_library(CUDA_nccl_LIBRARY nccl HINTS ${CUDAToolkit_LIBRARY_DIR} REQUIRED)
+if(NOT TARGET wwr::cuda_nccl)
+  add_library(wwr::cuda_nccl UNKNOWN IMPORTED GLOBAL)
+  set_target_properties(
+    wwr::cuda_nccl PROPERTIES IMPORTED_LOCATION "${CUDA_nccl_LIBRARY}"
+  )
+endif()
+
+wwr_add_cxx_module_library(
+  NAME
+  wwr.cuda.nccl
+  PRIMARY_INTERFACE
+  nccl.cppm
+  LINK_PUBLIC
+  CUDA::cudart
+  wwr::cuda_nccl
+  IMPORT_STD
+  INCLUDE_CUDA_TOOLKIT
+  PUBLIC
+)

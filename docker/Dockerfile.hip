@@ -27,9 +27,10 @@ FROM ${PARENT_IMAGE}
 
 ARG ROCM_VERSION=7.2.4
 
-# Drop the ~12.9GB of ROCm that only a RUNNING kernel needs -- the Tensile and
-# rocFFT kernel objects, composable-kernel's static archives, rccl, rocalution,
-# hiptensor. See install-rocm.sh for the measured list and why nothing on it is
+# Drop the ~12.3GB of ROCm that only a RUNNING kernel needs -- the Tensile and
+# rocFFT kernel objects, composable-kernel's static archives, rocalution,
+# hiptensor. (rccl is NOT dropped: wwr.hip.rccl links it -- see install-rocm.sh.)
+# See install-rocm.sh for the measured list and why nothing on it is
 # a link-time dependency. OFF here: this is the dev image and it runs kernels.
 # .github/workflows/images.yml sets it to 1 for the :hip-ci tag, whose only job
 # is to answer "does the other backend still compile" on a GitHub-hosted runner

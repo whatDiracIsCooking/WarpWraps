@@ -25,6 +25,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_test_raw_fft wwr.cuda.cufft)
   set(_gpu_test_raw_rand wwr.cuda.curand)
   set(_gpu_test_raw_tx wwr.cuda.nvToolsExt)
+  set(_gpu_test_raw_ccl wwr.cuda.nccl)
 else()
   set(_gpu_test_raw_runtime_api wwr.hip.hip_runtime_api)
   set(_gpu_test_raw_complex wwr.hip.hip_complex)
@@ -39,6 +40,7 @@ else()
   # their own module, where cuRAND keeps them in curand.cppm.
   set(_gpu_test_raw_rand wwr.hip.hiprand wwr.hip.hiprand_kernel)
   set(_gpu_test_raw_tx wwr.hip.roctx)
+  set(_gpu_test_raw_ccl wwr.hip.rccl)
 endif()
 
 set(GPU_TEST_LIBRARIES
@@ -53,6 +55,7 @@ set(GPU_TEST_LIBRARIES
     fft
     rand
     tx
+    ccl
 )
 
 set(_gpu_test_targets "")
