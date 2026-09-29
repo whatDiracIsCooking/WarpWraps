@@ -1,7 +1,7 @@
 # C++ Module Library
 #
 # Backend-neutral, shared foundation for the extension layer's error handling:
-# imports only std and the gpu* names, never src/cuda or src/hip. The
+# imports only std and the wwr* names, never src/cuda or src/hip. The
 # blas/solver/fft/sparse error+handle modules and the runtime and memory_buffer
 # modules all link this.
 #

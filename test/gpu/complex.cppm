@@ -1,6 +1,6 @@
 // complex.cppm - Compile-time tests for wwr.complex
 //
-// Every exported gpu* name is the backend's own type. See gpu_check_macros.h.
+// Every exported wwr* name is the backend's own type. See gpu_check_macros.h.
 
 module;
 

@@ -1,4 +1,4 @@
-# The `gpu*` backend switch (top level of `src/`)
+# The `wwr*` backend switch (top level of `src/`)
 
 A build targets exactly one GPU backend, chosen at configure time:
 
@@ -7,12 +7,12 @@ cmake --preset default                               # WWR_GPU_BACKEND=CUDA
 cmake --preset hip                                   # WWR_GPU_BACKEND=HIP
 ```
 
-Each module here — the `gpu*` layer, living directly under `src/` alongside the
+Each module here — the `wwr*` layer, living directly under `src/` alongside the
 `src/cuda`, `src/hip` and `src/wrappers` subdirectories — re-exports one raw
-library module (`src/cuda` or `src/hip`) under backend-neutral `gpu*` names in
+library module (`src/cuda` or `src/hip`) under backend-neutral `wwr*` names in
 namespace `wwr`. These modules are the **only** place in the project that
 names both backends; everything above them (`src/wrappers`, `test/wrappers`) is
-written once against `gpu*` names and builds unchanged for either backend.
+written once against `wwr*` names and builds unchanged for either backend.
 
 | Module | CUDA backend wraps | HIP backend wraps |
 |---|---|---|
@@ -207,7 +207,7 @@ fails to compile on that backend.
 A `.cppm` here is a module, and code that imports one is host code. A kernel
 translation unit — a `.cu` under CUDA, a `-x hip` compiled source under HIP —
 imports no modules at all, so none of the modules above can serve it. The
-nine `.cuh` headers are the counterpart for that case: same `gpu*` names,
+nine `.cuh` headers are the counterpart for that case: same `wwr*` names,
 reached by `#include`, with the backend resolved through `selected_backend.h`
 (which reads the compiler's own device-compile macro before `backend.h`'s
 CMake define) rather than by an `import`. Each also `#error`s if included
@@ -252,7 +252,7 @@ a wave index for the other, both APIs being whole-warp collectives.
 `atomic.cuh` does it for the runtime header itself, which on HIP declares the
 `__HIP_MEMORY_SCOPE_*` constants its builtins take.
 
-`cooperative_groups.cuh` is also the only one here that defines **no `gpu*`
+`cooperative_groups.cuh` is also the only one here that defines **no `wwr*`
 names at all**. Both
 vendors put cooperative groups in `namespace cooperative_groups` and agree on
 the spellings inside it, so there is no vendor name for this layer to hide and
@@ -422,7 +422,7 @@ written for; their header comments have the full reasoning.
 ## Tests
 
 `test/gpu` has one compile-time module per module here. It checks that every
-exported `gpu*` name is exactly the backend entity it stands for: the same
+exported `wwr*` name is exactly the backend entity it stands for: the same
 type, the same constant (type and value), the same function (plus
 `WWR_LINK_CHECK`). The expected backend names are written out in full rather than
 derived with `backend.h`'s macros, so a mistake in those macros shows up as

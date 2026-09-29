@@ -1,6 +1,6 @@
 # `src/` header dependency tree
 
-The `.h` and `.cuh` switch-point headers of the `gpu*` layer (directly under
+The `.h` and `.cuh` switch-point headers of the `wwr*` layer (directly under
 `src/`), plus the two bridges (now under `src/extension/bridge/`), as opposed to
 the `.cppm` modules. This records their include graph as it stands, so the
 flatness is visible at a glance and a new edge stands out in review. The bridges

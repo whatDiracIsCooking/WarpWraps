@@ -21,7 +21,7 @@
  * states) -- and the packed / __half_raw / bf16-raw conversions stay in the raw
  * modules. See docs/architecture.md, section 3.
  *
- * Unlike fp16.cuh, this is the first place the gpu* layer #includes the vendor
+ * Unlike fp16.cuh, this is the first place the wwr* layer #includes the vendor
  * fp8 header: fp8.cppm reaches its conversions by IMPORTING the raw module's
  * host wrappers, which a device TU cannot do, so a device pass includes the
  * vendor header and forwards to its __host__ __device__ static-inline

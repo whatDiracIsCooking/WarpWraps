@@ -4,7 +4,7 @@ Two different things, and only one of them is part of this build.
 
 | Directory | What it is | Who builds it |
 |---|---|---|
-| `warp_reduce/` | A warp-level reduction kernel written against the `gpu*` layer | the main build, on either backend |
+| `warp_reduce/` | A warp-level reduction kernel written against the `wwr*` layer | the main build, on either backend |
 | `consumer/` | A standalone project consuming an **installed** wwr | `devtools/install-check.sh` |
 
 `consumer/` has its own `project()` call and is not added by

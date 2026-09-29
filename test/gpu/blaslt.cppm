@@ -3,7 +3,7 @@
 // Every wwrblasLt* type, constant and function is checked against the backend
 // entity it stands for (see gpu_check_macros.h): same type, same constant
 // (type and value), same function (plus a link check). The expected backend
-// name is spelled out in full, not derived by the gpu* layer's own macros, so a
+// name is spelled out in full, not derived by the wwr* layer's own macros, so a
 // mistake in those macros cannot be mirrored here and pass.
 //
 // wwr.blaslt is a pure alias layer with no wrappers, so -- unlike test/gpu/blas

@@ -3,11 +3,11 @@
  * @brief wwr::complex<T> for device-compiled TUs -- the mirror of
  *        wwr.wrappers.complex
  *
- * Named device_complex.cuh, not complex.cuh, on purpose: the gpu* layer it
+ * Named device_complex.cuh, not complex.cuh, on purpose: the wwr* layer it
  * includes is src/complex.cuh, and a same-basename header here would shadow it
  * under quoted-include's search-own-directory-first rule (the #include below
  * would resolve to this file). The distinct stem lets "complex.cuh" reach the
- * gpu* header.
+ * wwr* header.
  *
  * The device-compile counterpart to wrappers/complex/complex.cppm: the SAME
  * aggregate {re, im}, the SAME bodies, spelled __device__ __forceinline__ where
@@ -24,7 +24,7 @@
  * re-defines the concept locally (kept identical -- see the note at its
  * definition below).
  *
- * The wrapper carries operators because it is a type we own; the gpu* complex
+ * The wrapper carries operators because it is a type we own; the wwr* complex
  * layer beneath (complex.cuh) stays operator-less on purpose, since cuComplex
  * is a float2 aggregate and hipComplex a class (docs/architecture.md,
  * section 3). This header reaches make_wwr*Complex and the wwrCreal* accessors
@@ -38,7 +38,7 @@
 
 #pragma once
 
-// The gpu* complex layer: device_guard.h (WWR_SELECTED_*, and #errors outside a
+// The wwr* complex layer: device_guard.h (WWR_SELECTED_*, and #errors outside a
 // device pass), the vendor types, make_wwr*Complex and the wwrCreal*/wwrCimag*
 // accessors this wrapper is built on.
 #include "complex.cuh"
@@ -60,7 +60,7 @@ concept real_fp = std::is_same_v<T, float> || std::is_same_v<T, double>;
 
 template<real_fp T>
 struct complex {
-  /// The gpu* complex type this value converts to: float -> wwrFloatComplex,
+  /// The wwr* complex type this value converts to: float -> wwrFloatComplex,
   /// double -> wwrDoubleComplex.
   using vendor_type =
       std::conditional_t<std::is_same_v<T, float>, wwrFloatComplex, wwrDoubleComplex>;
@@ -68,7 +68,7 @@ struct complex {
   T re;
   T im;
 
-  /// @brief Convert to the gpu* vendor complex type, through the portable
+  /// @brief Convert to the wwr* vendor complex type, through the portable
   ///        make_wwr*Complex (not a reinterpret_cast: same layout, distinct
   ///        type). Implicit, so a complex<T> drops straight into a call that
   ///        expects wwrFloatComplex / wwrDoubleComplex.
@@ -135,7 +135,7 @@ struct complex {
 };
 
 // ========================================================================
-// Reverse conversion -- read a gpu* vendor value back into a complex<T>,
+// Reverse conversion -- read a wwr* vendor value back into a complex<T>,
 // through the portable wwrCreal* / wwrCimag* accessors.
 // ========================================================================
 

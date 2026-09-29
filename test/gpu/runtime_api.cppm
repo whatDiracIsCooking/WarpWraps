@@ -1,6 +1,6 @@
 // runtime_api.cppm - Compile-time tests for wwr.runtime_api
 //
-// Every exported gpu* name is the backend's own entity. See gpu_check_macros.h.
+// Every exported wwr* name is the backend's own entity. See gpu_check_macros.h.
 
 module;
 

@@ -2,7 +2,7 @@
 //
 // Every wwrFp4* name must be exactly the backend entity it stands for. The
 // expected backend name is spelled out in full under one #if switch, so a
-// mistake in the gpu* layer's WWR_SELECT macros cannot be mirrored here and
+// mistake in the wwr* layer's WWR_SELECT macros cannot be mirrored here and
 // pass. See gpu_check_macros.h.
 //
 // This test imports only the fp4 raw module, never hip_fp6 -- keeping the two

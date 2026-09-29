@@ -3,7 +3,7 @@
 // Every wwrFp8* name must be exactly the backend entity it stands for: the same
 // storage/scalar type, the same enum constant (type and value). The expected
 // backend name is spelled out in full under one #if switch, so a mistake in the
-// gpu* layer's WWR_SELECT macros cannot be mirrored here and pass. See
+// wwr* layer's WWR_SELECT macros cannot be mirrored here and pass. See
 // gpu_check_macros.h.
 
 module;

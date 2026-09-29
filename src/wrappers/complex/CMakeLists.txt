@@ -1,7 +1,7 @@
 # C++ Module Library
 #
-# Backend-neutral: the ergonomic wwr::complex<T> value type over the gpu*
-# complex layer. Imports only std, wwr.complex (the gpu* types, make_wwr*Complex
+# Backend-neutral: the ergonomic wwr::complex<T> value type over the wwr*
+# complex layer. Imports only std, wwr.complex (the wwr* types, make_wwr*Complex
 # and the wwrCreal*/wwrCimag* accessors) and wwr.wrappers.common (real_fp,
 # RealToComplexType) -- never src/cuda or src/hip.
 #

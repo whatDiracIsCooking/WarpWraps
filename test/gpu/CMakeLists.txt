@@ -1,11 +1,11 @@
-# gpu* layer compile-time tests (built for either WWR_GPU_BACKEND)
+# wwr* layer compile-time tests (built for either WWR_GPU_BACKEND)
 #
-# One module per gpu* module, checking that every exported gpu* name is
+# One module per wwr* module, checking that every exported wwr* name is
 # exactly the backend entity it stands for: same type, same constant, same
 # function (plus WWR_LINK_CHECK). Same shape as test/cuda -- see that file's
 # header comment for the WWR_LINK_CHECK/WHOLE_ARCHIVE rationale.
 #
-# Like the gpu* layer, unlike everything else above it, these tests name both
+# Like the wwr* layer, unlike everything else above it, these tests name both
 # backends, so they link wwr_backend PRIVATE for the backend
 # define. They spell each expected backend name out in full instead of using
 # backend.h's macros, so a mistake there cannot be mirrored here.
@@ -51,7 +51,7 @@ set(GPU_TEST_LIBRARIES
     fp16
     bf16
     fp8
-    # fp6, fp4 deliberately NOT listed -- their gpu* modules are BLOCKED on the
+    # fp6, fp4 deliberately NOT listed -- their wwr* modules are BLOCKED on the
     # HIP backend (see src/CMakeLists.txt's "wwr.fp6 / wwr.fp4 -- BLOCKED"
     # comment and src/hip/README.md). test/gpu/fp6.cppm and test/gpu/fp4.cppm
     # exist as reviewed source and flip on with the modules.
@@ -104,7 +104,7 @@ wwr_add_test_executable(
 add_dependencies(compile_time_tests gpu_compile_tests)
 set_tests_properties(gpu_compile_tests PROPERTIES LABELS compile_time)
 
-# cooperative_groups.cuh is the odd one out among the gpu* tests above: it
+# cooperative_groups.cuh is the odd one out among the wwr* tests above: it
 # exports no names, so there is nothing for a .cppm module test to compare, and
 # every cooperative-groups entity is __device__-only, so a host-compiled module
 # test structurally cannot reach it. The claim it CAN break -- the vendor header
@@ -277,7 +277,7 @@ wwr_add_gpu_device_library(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.math.device)
 
-# Guard: every gpu* function alias in the gpu* layer is independently verified
+# Guard: every wwr* function alias in the wwr* layer is independently verified
 # by a WWR_SAME_FUNCTION restatement in the matching test/gpu module, or by a
 # dispatch-table entry that test/shared/dispatch.py checks against the objects.
 # The check is source-only (no objects), so it is a build-time custom target
@@ -298,18 +298,18 @@ add_custom_command(
     Python3::Interpreter "${_alias_script}" --root "${PROJECT_SOURCE_DIR}"
     --stamp "${_alias_stamp}"
   DEPENDS "${_alias_script}" ${_alias_inputs}
-  COMMENT "Checking gpu* alias coverage"
+  COMMENT "Checking wwr* alias coverage"
   VERBATIM
 )
 add_custom_target(
   gpu_alias_coverage ALL
   DEPENDS "${_alias_stamp}"
-  COMMENT "gpu* alias coverage check"
+  COMMENT "wwr* alias coverage check"
 )
 add_dependencies(compile_time_tests gpu_alias_coverage)
 
 # The one runtime test under test/gpu. The fp16 / bf16 host conversion wrappers
-# (unlike every other gpu* name here) run on the CPU, so they can be exercised
+# (unlike every other wwr* name here) run on the CPU, so they can be exercised
 # for real with no device -- the .cppm tests above prove they link, this proves
 # they compute. GoogleTest is not fetched under WWR_COMPILE_TIME_ONLY, so
 # this target is skipped there, exactly like test/cuda and test/hip one level

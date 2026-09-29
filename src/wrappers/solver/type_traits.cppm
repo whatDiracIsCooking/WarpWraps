@@ -4,7 +4,7 @@
  *
  * Re-exports wwr.wrappers.common (usual_fp/real_fp/complex_fp
  * concepts and ComplexToRealType, already backend-neutral over src's
- * gpu* complex types) and provides the wwrsolverDataType_t mapping the
+ * wwr* complex types) and provides the wwrsolverDataType_t mapping the
  * modern (X-prefixed) API needs.
  *
  * Usage:

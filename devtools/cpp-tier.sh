@@ -286,7 +286,7 @@ fi
 # import are governed by .clang-tidy's Header/ExcludeHeaderFilterRegex, which
 # drops the vendor re-export layer (the same set config.sh hides from coverage,
 # COVERAGE_IGNORE_REGEX) and, together with src/wrappers/.clang-tidy and the
-# gpu*-prefix exemptions, silences the names and signatures that mirror the
+# wwr*-prefix exemptions, silences the names and signatures that mirror the
 # vendor API by design. With those in place the src/*.cpp run is clean today, so
 # folding it into rc is now a small step -- left advisory only because
 # clang-tidy's C++23-module support is still incomplete and can emit the odd

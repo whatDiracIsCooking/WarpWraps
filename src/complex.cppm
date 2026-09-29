@@ -1,6 +1,6 @@
 /**
  * @file complex.cppm
- * @brief Backend-neutral complex types and arithmetic: gpu* names for
+ * @brief Backend-neutral complex types and arithmetic: wwr* names for
  *        cuComplex / hipComplex
  *
  * The host-module counterpart to complex.cuh: wwrFloatComplex /
@@ -22,7 +22,7 @@
  * The two copies name the SAME vendor types, so a host-allocated buffer and a
  * kernel parameter agree.
  *
- * Construction and arithmetic go through gpu* functions rather than operators
+ * Construction and arithmetic go through wwr* functions rather than operators
  * because cuComplex is an operator-less float2 aggregate where hipComplex is a
  * class -- so `a * b` and brace-initialisation are not portable, and the
  * vendors' C-style functions are the only spelling that exists on both. Half
@@ -32,7 +32,7 @@
  * Unlike fp16.cppm, this module includes no vendor header in its GMF: the raw
  * cuComplex / hip_complex modules already export host wrappers for these
  * functions (their static-inline vendor originals are wrapped there, section
- * 12), so the gpu* forwarders below reach them through the import via
+ * 12), so the wwr* forwarders below reach them through the import via
  * WWR_SELECT, exactly as the types do.
  */
 
@@ -88,12 +88,12 @@ inline wwrComplex make_wwrComplex(const float re, const float im) {
 // ========================================================================
 // Arithmetic and accessors
 //
-// Through gpu* functions rather than operators, for the same reason
+// Through wwr* functions rather than operators, for the same reason
 // construction is (docs/architecture.md §3): cuFloatComplex is a plain float2
 // with no arithmetic operators, so `a * b` compiles under HIP -- whose
 // hipComplex is a class that defines them -- and fails under CUDA with no
 // operator match. The vendors' C-style functions exist on both and are the
-// portable spelling; the gpu* names carry the divergent cu*/hip* spellings.
+// portable spelling; the wwr* names carry the divergent cu*/hip* spellings.
 //
 // The arguments are taken by value, as the vendors declare them --
 // wwrFloatComplex is 8 bytes, wwrDoubleComplex 16.
@@ -185,7 +185,7 @@ inline wwrDoubleComplex wwrCdiv(const wwrDoubleComplex a, const wwrDoubleComplex
 // The other portable functions the vendors name with the bare Complex token
 // (alongside make_wwrComplex above): widen a single-precision value to double,
 // or narrow it back. HIP's Complex-named extras -- hipCsqabs*, hipCfma* -- have
-// no cuComplex.h counterpart, so they are not part of the gpu* surface.
+// no cuComplex.h counterpart, so they are not part of the wwr* surface.
 // ========================================================================
 
 /// @brief Widen a single-precision complex value to double precision

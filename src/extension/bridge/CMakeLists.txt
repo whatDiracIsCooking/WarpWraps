@@ -2,7 +2,7 @@
 # boundary by #include, for translation units that cannot `import`.
 #
 # stream_bridge.h and rand_state_bridge.h each forward-declare (or minimally
-# include) one vendor type and alias it under a gpu* name, picked by
+# include) one vendor type and alias it under a wwr* name, picked by
 # src/selected_backend.h. A .cpp, a .cppm's global module fragment, a .cu or a
 # .cuh reaches them; see each header's own comment.
 #

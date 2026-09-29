@@ -143,7 +143,7 @@ COVERAGE_PRESET=${COVERAGE_PRESET:-coverage}
 #
 #   * src/cuda/*, src/hip/*  -- the vendor raw-module re-exports, which validate
 #     and re-declare the SDK headers at import time; there is no runtime surface.
-#   * src/{blas,complex,fft,rand,solver,sparse}.cppm -- the backend-neutral gpu*
+#   * src/{blas,complex,fft,rand,solver,sparse}.cppm -- the backend-neutral wwr*
 #     wrapper layer, whose one-line token-paste forwards are proved by the
 #     dispatch checks (test/shared/dispatch.py) and static_asserts, and were
 #     deliberately never given runtime suites (see CLAUDE.md, "Two kinds of C++

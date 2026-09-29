@@ -3,7 +3,7 @@
  * @brief Type system for GPU FFT operations
  *
  * Re-exports wwr.wrappers.common (the real_fp/complex_fp concepts and
- * type mappings, already backend-neutral over src's gpu* types) and maps
+ * type mappings, already backend-neutral over src's wwr* types) and maps
  * an FFT real precision to the FFT library's own complex element type.
  *
  * Usage:

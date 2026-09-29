@@ -5,7 +5,7 @@
  * Exports the surface CUDA's cuda_fp8.h and HIP's hip_fp8.h share -- the OCP
  * E4M3 and E5M2 scalar types (plus their x2/x4 packed variants), the storage
  * typedefs, the saturation and interpretation enums, and the float/double
- * narrowing conversions -- under one set of gpu* names in namespace wwr. See
+ * narrowing conversions -- under one set of wwr* names in namespace wwr. See
  * backend.h for the switch. Companion to fp6.cppm and fp4.cppm.
  *
  * SCOPED TO THE INTERSECTION. HIP defines four fp8 formats (OCP e4m3/e5m2 and
@@ -26,7 +26,7 @@
  * Unlike fp16.cppm, this module includes no vendor header in its GMF: the raw
  * wwr.hip.hip_fp8 / wwr.cuda.cuda_fp8 modules already export host wrappers for
  * the static-inline __nv_cvt_* / __hip_cvt_* conversions (docs/architecture.md
- * section 12), so the gpu* forwarders below reach them through the import via
+ * section 12), so the wwr* forwarders below reach them through the import via
  * WWR_SELECT, exactly as the types do. Importing rather than #including also
  * means docs/architecture.md section 10 (hip_fp8.h needs <algorithm> before it)
  * is handled once in the raw module and never recurs here.

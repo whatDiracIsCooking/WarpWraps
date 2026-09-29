@@ -5,7 +5,7 @@
  * Wraps roctracer/roctx.h -- rocTX, the HIP counterpart to NVTX (see
  * wwr.cuda.nvToolsExt). This is nearly the whole of the classic roctx.h,
  * scoped to the marker-and-range surface both backends share, so a neutral
- * gpu* layer can sit on exactly this set.
+ * wwr* layer can sit on exactly this set.
  *
  * Unlike NVTX's header-only static-inline functions, rocTX's are real
  * extern "C" symbols in libroctx64, so they re-export by name with `using ::`.

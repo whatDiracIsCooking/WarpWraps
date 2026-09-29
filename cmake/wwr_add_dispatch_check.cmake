@@ -7,7 +7,7 @@
 # Not a static_assert: C++ cannot see which function a wrapper body calls, so
 # test/shared/dispatch.py disassembles the module's compiled objects instead and
 # maps the relocations back through the WWR_FUNCTION table in the matching
-# gpu* module. It catches what the type system lets through -- an int widened
+# wwr* module. It catches what the type system lets through -- an int widened
 # into a _64 entry point, iamax dispatching to amin, potrf to potri. Like
 # WWR_LINK_CHECK, a failure fails the build. See the script's docstring for
 # the details, and each table's header for the module's own naming rule.
@@ -54,7 +54,7 @@ endfunction()
 # :param NAME: name of the custom target to create
 # :param TARGET: the module library whose objects are disassembled
 # :param TABLE: the TOML dispatch table, relative to the current source dir
-# :param GPU_SOURCE: the gpu* module holding WWR_FUNCTION, from the root
+# :param GPU_SOURCE: the wwr* module holding WWR_FUNCTION, from the root
 function(wwr_add_dispatch_check)
   cmake_parse_arguments(
     ARG

@@ -15,7 +15,7 @@
  * extension alone cannot say it: a `.cuh` is device-pass-only, but a plain
  * `.h` may be host-only. See src/README.md.
  *
- * The two pointer types come from the gpu* layer's include-only bridge headers
+ * The two pointer types come from the wwr* layer's include-only bridge headers
  * rather than an `import`, since a GMF cannot import. They are the SAME types
  * wwr.runtime_api / wwr.rand export, so the wrapper passes its arguments
  * straight through and the device side needs no cast. Reading the backend

@@ -117,7 +117,7 @@ message(
 #   CUDA -> src/cuda, test/cuda, and the CUDA toolkit
 #   HIP  -> src/hip, test/hip, and ROCm
 #
-# Either way the gpu* layer maps the gpu* names onto the chosen backend, and
+# Either way the wwr* layer maps the wwr* names onto the chosen backend, and
 # src/wrappers + test/wrappers are built on top of it, unchanged. A HIP build
 # needs no CUDA toolkit, and a CUDA build needs no ROCm.
 set(WWR_GPU_BACKEND
@@ -365,7 +365,7 @@ option(WWR_INSTALL "Generate install rules and the CMake package"
 # The extension is always BUILT in-tree (the examples and the device suites link
 # it); this only decides whether wwr_install_package() also ships it. OFF by
 # default: the RAII/handle/buffer/error abstractions are a much larger surface
-# than the gpu* + wrappers core, and a consumer that wants only the core should
+# than the wwr* + wrappers core, and a consumer that wants only the core should
 # not pay to install them. Has no effect unless WWR_INSTALL is ON. The install
 # rules, and what a consumer sees when it asks for the layer that was not
 # shipped, live in cmake/wwr_install.cmake and cmake/wwrConfig.cmake.in.
@@ -421,16 +421,16 @@ enable_testing()
 # Subdirectories
 # ========================================================================
 # src/ owns its own internal order: the raw 1:1 header modules for the chosen
-# backend, then the gpu* layer over them (which lives directly in src/), then
+# backend, then the wwr* layer over them (which lives directly in src/), then
 # the wrappers -- which are backend-neutral in full: src/wrappers is written
-# once against the gpu* names and builds for either backend. There is no
+# once against the wwr* names and builds for either backend. There is no
 # per-backend wrapper tree -- neither src/hip/extension nor src/cuda/extension
 # exists. wwr.wrappers.* adapts what both vendors offer, and a vendor-only
 # call goes through the
 # low-level module (wwr.cuda.cublas_v2, wwr.cuda.cusolverDn) directly.
 add_subdirectory(src)
 
-# The in-tree examples, written against the gpu* and extension layers the same
+# The in-tree examples, written against the wwr* and extension layers the same
 # way a consumer would write them. Added after src/ so the targets they link
 # exist, and unconditionally -- WWR_COMPILE_TIME_ONLY included -- so
 # devtools/cross-backend-check.sh compiles them for the other backend. See
@@ -449,7 +449,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
 else()
   add_subdirectory(test/hip)
 endif()
-# the gpu* layer's compile-time tests: every gpu* name is the backend's own.
+# the wwr* layer's compile-time tests: every wwr* name is the backend's own.
 add_subdirectory(test/gpu)
 add_subdirectory(test/wrappers)
 # Shared test-support modules (e.g. the DeviceHandle the extension suites

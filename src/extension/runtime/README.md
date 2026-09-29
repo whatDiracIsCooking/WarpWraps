@@ -1,6 +1,6 @@
 # wwr.extension.runtime
 
-C++23 module providing RAII wrappers for the GPU runtime API's core objects. Backend-neutral: written against `wwr.runtime_api`'s `gpu*` names, so the same source builds for the CUDA and the HIP backend (see `src/README.md`).
+C++23 module providing RAII wrappers for the GPU runtime API's core objects. Backend-neutral: written against `wwr.runtime_api`'s `wwr*` names, so the same source builds for the CUDA and the HIP backend (see `src/README.md`).
 
 ## Module Name
 

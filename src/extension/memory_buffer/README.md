@@ -239,4 +239,4 @@ Each buffer type exposes `static constexpr MemoryKind memory_kind` and the boole
 |---|---|
 | `wwr.extension.common` | Error policy concepts, `gpu_check` |
 | `wwr.extension.runtime` | `gpu_check` overloads for `wwrError_t` |
-| `wwr.runtime_api` | gpu* memory allocation APIs (CUDA or HIP runtime) |
+| `wwr.runtime_api` | wwr* memory allocation APIs (CUDA or HIP runtime) |

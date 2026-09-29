@@ -4,7 +4,7 @@
  *
  * This module provides C++20 concepts for constraining template parameters
  * to floating-point types commonly used in GPU BLAS/solver libraries. The
- * complex and half-precision types are the backend-neutral gpu* aliases from
+ * complex and half-precision types are the backend-neutral wwr* aliases from
  * src, so the concepts match cuComplex/__nv_bfloat16 on a CUDA build and
  * hipComplex/__hip_bfloat16 on a HIP build.
  *

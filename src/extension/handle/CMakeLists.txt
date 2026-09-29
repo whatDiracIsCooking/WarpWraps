@@ -3,10 +3,11 @@
 # The RAII GPU-handle layer (owning handles + non-owning views), split out of
 # wwr.extension.common so that module stays the pure error/policy foundation.
 # Links common back for the error policies, gpu_check and NonCopyable it builds
-# on, and runtime_api for the device queries GpuBoundHandle makes (wwrGetDevice/
-# wwrSetDevice). The runtime and memory_buffer modules derive concrete handles
-# from the device-bound base; the blas/solver/fft/sparse handle modules derive
-# from the stream-bound base layered on top of it. All link this.
+# on, and runtime_api for the device queries DeviceBoundHandle makes
+# (wwrGetDevice/wwrSetDevice). The runtime and memory_buffer modules derive
+# concrete handles from the device-bound base; the blas/solver/fft/sparse
+# handle modules derive from the stream-bound base layered on top of it. All
+# link this.
 wwr_add_cxx_module_library(
   NAME
   wwr.extension.handle

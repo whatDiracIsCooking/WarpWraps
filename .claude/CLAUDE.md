@@ -4,8 +4,8 @@
 
 **Warp Wraps** (`wwr`) — C++23 module wrappers for the CUDA and HIP GPU APIs,
 plus the type-safe abstractions built on them. The vendor headers are exposed as
-importable named modules (`import wwr.cuda.cublas_v2;`), the `gpu*` layer
-directly under `src/` maps backend-neutral `gpu*` names onto whichever backend
+importable named modules (`import wwr.cuda.cublas_v2;`), the `wwr*` layer
+directly under `src/` maps backend-neutral `wwr*` names onto whichever backend
 was selected, and `src/wrappers` is written once against those names.
 
 **A build targets exactly one backend.** `WWR_GPU_BACKEND` is `CUDA` or

@@ -107,7 +107,7 @@ expression on either backend"); the transcript goes in `architecture.md`.
 knows. A reader never told it used to be here does not need to be told it left.
 Write the present tense.
 
-**Self-referential repo facts.** `The fourth of the gpu* layer's device headers` —
+**Self-referential repo facts.** `The fourth of the wwr* layer's device headers` —
 wrong when a fifth lands, and says nothing about the file.
 
 **Pedagogy and rhetoric.** Rhetorical section headings (`Why a third switch

@@ -49,9 +49,9 @@ add_executable(consumer main.cpp)
 # module sources, which this build compiles -- `import wwr.wrappers.blas;`
 # in main.cpp resolves because of these lines and nothing else.
 #
-# The consumer imports two gpu* modules directly (wwr.runtime_api for device
+# The consumer imports two wwr* modules directly (wwr.runtime_api for device
 # memory, wwr.blas for the handle), so it names them here. The wrapper
-# targets each LINK_PUBLIC the gpu* module they wrap, so those names would
+# targets each LINK_PUBLIC the wwr* module they wrap, so those names would
 # arrive transitively too, but the example uses runtime_api/blas in its own
 # right and so depends on them in its own right.
 target_link_libraries(
@@ -70,7 +70,7 @@ target_link_libraries(
 # and let main.cpp exercise them under WWR_CONSUMER_HAS_EXTENSION, which is the
 # only thing that proves the extension install rules (module sources, the src/
 # header tree, and the WHOLE_ARCHIVE device archives) actually re-attach in a
-# find_package consumer, exactly as the gpu*/wrapper half above does. tx lives
+# find_package consumer, exactly as the wwr*/wrapper half above does. tx lives
 # here too now -- it ships with the extension layer, not the always-installed
 # wrappers.
 if(WWR_HAS_EXTENSION)
