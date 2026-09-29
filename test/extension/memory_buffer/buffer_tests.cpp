@@ -461,7 +461,7 @@ struct StreamTierHandle {
   int dev_idx() const noexcept { return dev_; }
   wwrStream_t stream() const noexcept { return stream_.get(); }
   int dev_;
-  GpuStreamWrapper<Abort, Abort, Abort> stream_;
+  StreamWrapper<Abort, Abort, Abort> stream_;
 };
 static_assert(device_handle_stream<StreamTierHandle>);
 static_assert(!device_handle_pool<StreamTierHandle>);
@@ -520,7 +520,7 @@ TEST(DeviceBufferTests, SyncTierAllocatesZeroInitialised) {
   EXPECT_EQ(dev.num_elements(), std::size_t{48});
 
   // The sync-tier block is a plain allocation, readable on any stream.
-  GpuStreamWrapper<Abort, Abort, Abort> stream(0);
+  StreamWrapper<Abort, Abort, Abort> stream(0);
   HostBufferWrapper<float, HostAbort, HostAbort> host(48);
   ASSERT_EQ(ext::copy(host, dev, stream.get()), wwrSuccess);
   ASSERT_EQ(wwrStreamSynchronize(stream.get()), wwrSuccess);
@@ -569,7 +569,7 @@ TEST(DeviceBufferTests, MoveAssignmentReleasesDeviceOwnership) {
   // constructor has no prior allocation to free, so this is the only test that
   // frees a live device block on a move.
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<Abort, Abort, Abort> &stream = dev_h->stream();
+  StreamWrapper<Abort, Abort, Abort> &stream = dev_h->stream();
   DeviceBufferWrapper<float, Abort, Abort, DeviceHandle, Abort> src(64, dev_h);
   DeviceBufferWrapper<float, Abort, Abort, DeviceHandle, Abort> dst(32, dev_h);
   float *const raw = src.data();
@@ -612,7 +612,7 @@ TEST(DeviceBufferTests, StreamOrderedAllocationsSurviveRepeatedChurn) {
   // reissued them to the next allocation. Freeing on the same stream
   // keeps each block alive until its work has drained.
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<Abort, Abort, Abort> &stream = dev_h->stream();
+  StreamWrapper<Abort, Abort, Abort> &stream = dev_h->stream();
   for (int iter = 0; iter < 64; ++iter) {
     DeviceBufferWrapper<float, Abort, Abort, DeviceHandle, Abort> buf(4096, dev_h);
     ASSERT_NE(buf.data(), nullptr) << "at iteration " << iter;
@@ -625,7 +625,7 @@ TEST(DeviceBufferTests, StreamOrderedAllocationsSurviveRepeatedChurn) {
 
 TEST(DeviceBufferTests, StreamOrderedBufferHoldsItsContents) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<Abort, Abort, Abort> &stream = dev_h->stream();
+  StreamWrapper<Abort, Abort, Abort> &stream = dev_h->stream();
   HostBufferWrapper<float, HostAbort, HostAbort> host(128);
   {
     DeviceBufferWrapper<float, Abort, Abort, DeviceHandle, Abort> dev(128, dev_h);
@@ -641,7 +641,7 @@ TEST(DeviceBufferTests, StreamOrderedBufferHoldsItsContents) {
 
 TEST(DeviceBufferTests, MovedStreamOrderedBufferFreesOnce) {
   auto dev_h = std::make_shared<DeviceHandle>(0);
-  GpuStreamWrapper<Abort, Abort, Abort> &stream = dev_h->stream();
+  StreamWrapper<Abort, Abort, Abort> &stream = dev_h->stream();
   {
     DeviceBufferWrapper<float, Abort, Abort, DeviceHandle, Abort> src(1024, dev_h);
     DeviceBufferWrapper<float, Abort, Abort, DeviceHandle, Abort> dst(std::move(src));

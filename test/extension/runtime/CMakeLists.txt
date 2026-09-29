@@ -1,6 +1,6 @@
 # GPU runtime wrapper tests (backend-neutral: built and run for either
 # WWR_GPU_BACKEND)
-# RAII contract of GpuStream, GpuEvent, GpuGraph(Exec) and GpuMemPool, plus
+# RAII contract of Stream, Event, Graph(Exec) and MemPool, plus
 # DeviceScope (from wwr.extension.common), the device-current guard that
 # restores the previous device on destruction
 #

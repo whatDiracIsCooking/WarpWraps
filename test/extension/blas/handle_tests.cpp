@@ -6,7 +6,7 @@
 // dev_idx()), binds the owner's stream (reported by stream()), retains the owner,
 // hands ownership across on move (leaving the source null and dev_idx() == -1 so
 // its destructor is a no-op), and destroys exactly once. These cases pin that
-// contract the same way test/extension/runtime/basic.cpp pins GpuStreamWrapper's --
+// contract the same way test/extension/runtime/basic.cpp pins StreamWrapper's --
 // through get(), whose nulling on the moved-from object is what proves the
 // destructor will not double-free.
 //
@@ -25,7 +25,7 @@ import std;
 import wwr.runtime_api; // wwrError_t, for the device-access policy
 import wwr.extension.common; // the error_policy concept, for the counting policy
 import wwr.extension.handle; // StreamBoundHandle, device_handle_stream, StreamBoundHandleView
-import wwr.extension.runtime; // GpuStreamWrapper, so owner->stream().get() has a complete type
+import wwr.extension.runtime; // StreamWrapper, so owner->stream().get() has a complete type
 import wwr.extension.blas; // re-exports wwr.blas, so wwrblasHandle_t is in scope
 import wwr.test.shared.abort_policy; // AbortPolicy for this file's instantiations
 import wwr.test.shared.device_handle; // the reference stream owner

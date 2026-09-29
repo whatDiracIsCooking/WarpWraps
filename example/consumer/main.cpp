@@ -48,7 +48,7 @@ import wwr.wrappers.sparse;
 
 #if defined(WWR_CONSUMER_HAS_EXTENSION)
 import wwr.extension.common;        // success_code/error_name/error_string, error_policy concepts
-import wwr.extension.runtime;       // GpuStreamWrapper and the rest of the RAII runtime
+import wwr.extension.runtime;       // StreamWrapper and the rest of the RAII runtime
 import wwr.extension.random_normal; // random_normal<T>, backed by a device archive
 import wwr.extension.tx;            // wwr::extension::ScopedRange
 #endif
@@ -164,7 +164,7 @@ bool wrappers_link() {
 
 #if defined(WWR_CONSUMER_HAS_EXTENSION)
 // The extension layer, proved at compile and link time only -- no device
-// needed, same as wrappers_link above. Naming extension::GpuStreamWrapper proves
+// needed, same as wrappers_link above. Naming extension::StreamWrapper proves
 // wwr.extension.runtime's module sources installed and compiled here; taking the
 // address of random_normal<float> forces its WHOLE_ARCHIVE device archive
 // (wwr.extension.random_normal.device) to resolve and link, which is the
@@ -186,7 +186,7 @@ struct AbortPolicy {
 };
 
 bool extension_link() {
-  static_assert(sizeof(extension::GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
+  static_assert(sizeof(extension::StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
                                                    AbortPolicy<wwrError_t>>) > 0);
   static const void *volatile sink[] = {
       reinterpret_cast<const void *>(&extension::random_normal<float>),

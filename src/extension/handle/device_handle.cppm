@@ -23,7 +23,7 @@ export namespace wwr::extension {
  * Structural, like error_policy: any type exposing the accessors qualifies.
  * They yield raw backend handles, so downstream code can model a tier with its
  * own type -- returning a raw wwrStream_t / wwrMemPool_t is fine, and
- * GpuStream / GpuMemPool satisfy it via their implicit conversions
+ * Stream / MemPool satisfy it via their implicit conversions
  * (BaseHandle::operator T). The requirement is stated as convertible_to, never
  * a specific `.get()`, precisely to keep that raw-handle path valid.
  *

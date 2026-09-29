@@ -45,14 +45,14 @@ struct AbortPolicy {
 
 // Each wrapper names its error policies explicitly -- none has a default -- so
 // binding them is a one-line `using` a consumer writes once, for exactly the
-// names it uses. The device-bound wrappers (GpuStreamWrapper, DeviceBufferWrapper)
+// names it uses. The device-bound wrappers (StreamWrapper, DeviceBufferWrapper)
 // also name a wwrError_t device-access policy for their device set/get calls.
 template<typename T>
 using HostBuffer =
     ext::HostBufferWrapper<T, AbortPolicy<ext::stdHostMemoryError_t>,
                            AbortPolicy<ext::stdHostMemoryError_t>>;
-using GpuStream =
-    ext::GpuStreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
+using Stream =
+    ext::StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 
 // A DeviceBuffer is backed by whatever handle type the consumer provides: the
 // library ships no concrete one, only the device_handle capability ladder the
@@ -62,10 +62,10 @@ using GpuStream =
 struct DeviceHandle {
   explicit DeviceHandle(int dev = 0) : dev_(dev), stream_(dev) {}
   int dev_idx() const noexcept { return dev_; }
-  GpuStream &stream() noexcept { return stream_; }
-  const GpuStream &stream() const noexcept { return stream_; }
+  Stream &stream() noexcept { return stream_; }
+  const Stream &stream() const noexcept { return stream_; }
   int dev_;
-  GpuStream stream_;
+  Stream stream_;
 };
 template<typename T>
 using DeviceBuffer =
@@ -93,7 +93,7 @@ int main() {
   // A DeviceBuffer is drawn from a shared handle; this one's owned stream is
   // what this example submits its copies and kernel on.
   auto device_handle = std::make_shared<DeviceHandle>();
-  GpuStream &stream = device_handle->stream();
+  Stream &stream = device_handle->stream();
 
   HostBuffer<float> host(kCount);
   std::fill_n(host.data(), kCount, 1.0F);

@@ -9,7 +9,7 @@
  * Usage:
  *   import wwr.extension.handle;
  *
- *   class GpuStreamWrapper : public DeviceBoundHandle<wwrStream_t, GpuStreamWrapper, ...> { ... };
+ *   class StreamWrapper : public DeviceBoundHandle<wwrStream_t, StreamWrapper, ...> { ... };
  */
 
 export module wwr.extension.handle:device_bound_handle;

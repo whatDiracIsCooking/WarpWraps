@@ -8,7 +8,7 @@
  * Usage:
  *   import wwr.extension.handle;
  *
- *   class GpuStreamWrapper : public BaseHandle<wwrStream_t, GpuStreamWrapper, ...> { ... };
+ *   class StreamWrapper : public BaseHandle<wwrStream_t, StreamWrapper, ...> { ... };
  */
 
 export module wwr.extension.handle:handle;

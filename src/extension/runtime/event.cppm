@@ -1,14 +1,14 @@
 /**
- * @file gpu_event.cppm
+ * @file event.cppm
  * @brief RAII wrapper for GPU event handles
  *
- * Provides GpuEventWrapper for automatic GPU event management. The borrow-safe
+ * Provides EventWrapper for automatic GPU event management. The borrow-safe
  * operations (record/sync) are free functions taking a raw wwrEvent_t, so one
  * definition serves the owner, its view, and a bare handle alike -- see the
  * free functions below and runtime/README.md.
  */
 
-export module wwr.extension.runtime:gpu_event;
+export module wwr.extension.runtime:event;
 
 import wwr.runtime_api;
 import wwr.extension.common;
@@ -18,10 +18,10 @@ import std;
 export namespace wwr::extension {
 
 /// @brief Non-owning, copyable view of an event handle (carries its device
-///        index). Returned by GpuEventWrapper::view() (from DeviceBoundHandle); the
+///        index). Returned by EventWrapper::view() (from DeviceBoundHandle); the
 ///        borrow-safe event operations are the free functions below, which act
-///        on it, on an owning GpuEventWrapper, or on a raw wwrEvent_t.
-using GpuEventView = DeviceBoundHandleView<wwrEvent_t>;
+///        on it, on an owning EventWrapper, or on a raw wwrEvent_t.
+using EventView = DeviceBoundHandleView<wwrEvent_t>;
 
 /**
  * @brief RAII wrapper for GPU event
@@ -38,25 +38,25 @@ using GpuEventView = DeviceBoundHandleView<wwrEvent_t>;
 template<error_policy<wwrError_t> P_create,
          nothrow_error_policy<wwrError_t> P_destroy,
          error_policy<wwrError_t> P_device_access>
-class GpuEventWrapper
-    : public DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy, P_device_access>,
+class EventWrapper
+    : public DeviceBoundHandle<wwrEvent_t, EventWrapper<P_create, P_destroy, P_device_access>,
                                P_create, P_destroy, P_device_access> {
 private:
-  using Base = DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy, P_device_access>,
+  using Base = DeviceBoundHandle<wwrEvent_t, EventWrapper<P_create, P_destroy, P_device_access>,
                                  P_create, P_destroy, P_device_access>;
 
 public:
-  // The `GpuEventWrapper(int dev_idx = 0)` default/per-device constructor, inherited
+  // The `EventWrapper(int dev_idx = 0)` default/per-device constructor, inherited
   // from DeviceBoundHandle, which selects and records the owning device. view()
   // (device-aware, deleted on rvalues) is inherited from DeviceBoundHandle too.
-  using DeviceBoundHandle<wwrEvent_t, GpuEventWrapper<P_create, P_destroy, P_device_access>,
+  using DeviceBoundHandle<wwrEvent_t, EventWrapper<P_create, P_destroy, P_device_access>,
                           P_create, P_destroy, P_device_access>::DeviceBoundHandle;
 
   /// @brief Create a GPU event on `dev_idx` with flags
   /// @param dev_idx Device to create the event on
   /// @param flags Flags for event creation (e.g., wwrEventDisableTiming, wwrEventBlockingSync)
   /// @param location Source location where creation was requested
-  GpuEventWrapper(const int dev_idx, const unsigned int flags,
+  EventWrapper(const int dev_idx, const unsigned int flags,
                   std::source_location location = std::source_location::current())
       : Base(typename Base::skip_default_create_t{}) {
     Base::select_device(dev_idx, location);
@@ -82,7 +82,7 @@ public:
 };
 
 // Borrow-safe event operations. Free functions on the raw wwrEvent_t: an owning
-// GpuEventWrapper and a GpuEventView both convert to it, so each op has one definition
+// EventWrapper and a EventView both convert to it, so each op has one definition
 // that works on the owner, the view, or a bare handle. `sync` overloads with the
 // stream `sync` -- wwrEvent_t and wwrStream_t are distinct vendor pointer types
 // on both backends, so the overload is unambiguous.

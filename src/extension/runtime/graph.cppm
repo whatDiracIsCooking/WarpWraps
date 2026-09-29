@@ -1,14 +1,14 @@
 /**
- * @file gpu_graph.cppm
+ * @file graph.cppm
  * @brief RAII wrapper for GPU graph handles
  *
- * Provides GpuGraphWrapper, an RAII wrapper for wwrGraph_t -- the mutable DAG that is
- * instantiated into an executable graph (GpuGraphExecWrapper).
+ * Provides GraphWrapper, an RAII wrapper for wwrGraph_t -- the mutable DAG that is
+ * instantiated into an executable graph (GraphExecWrapper).
  */
 
-export module wwr.extension.runtime:gpu_graph;
+export module wwr.extension.runtime:graph;
 
-import :gpu_graph_exec;
+import :graph_exec;
 import wwr.runtime_api;
 import wwr.extension.common;
 import wwr.extension.handle;
@@ -34,28 +34,28 @@ export namespace wwr::extension {
  */
 template<error_policy<wwrError_t> P_create,
          nothrow_error_policy<wwrError_t> P_destroy>
-class GpuGraphWrapper
-    : public BaseHandle<wwrGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create, P_destroy> {
+class GraphWrapper
+    : public BaseHandle<wwrGraph_t, GraphWrapper<P_create, P_destroy>, P_create, P_destroy> {
 private:
-  using Base = BaseHandle<wwrGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create, P_destroy>;
+  using Base = BaseHandle<wwrGraph_t, GraphWrapper<P_create, P_destroy>, P_create, P_destroy>;
 
 protected:
   // Construct without creating a handle; used by adopt() below.
-  GpuGraphWrapper(typename Base::skip_default_create_t tag) noexcept : Base(tag) {}
+  GraphWrapper(typename Base::skip_default_create_t tag) noexcept : Base(tag) {}
 
 public:
   // The default/policy constructors, inherited from BaseHandle; each routes
   // through create() below to build an empty graph.
-  using BaseHandle<wwrGraph_t, GpuGraphWrapper<P_create, P_destroy>, P_create,
+  using BaseHandle<wwrGraph_t, GraphWrapper<P_create, P_destroy>, P_create,
                       P_destroy>::BaseHandle;
 
   /// @brief Take ownership of an already-created raw graph handle.
   ///
   /// The handle is not created here -- it is one the runtime produced, e.g. by
   /// wwrStreamEndCapture. The returned wrapper owns it and destroys it with
-  /// wwrGraphDestroy like any other GpuGraphWrapper. Used by GpuStreamWrapper::end_capture.
-  static GpuGraphWrapper adopt(wwrGraph_t raw) noexcept {
-    GpuGraphWrapper graph{typename Base::skip_default_create_t{}};
+  /// wwrGraphDestroy like any other GraphWrapper. Used by StreamWrapper::end_capture.
+  static GraphWrapper adopt(wwrGraph_t raw) noexcept {
+    GraphWrapper graph{typename Base::skip_default_create_t{}};
     graph.handle_ = raw;
     return graph;
   }
@@ -71,11 +71,11 @@ public:
   /// @brief Instantiate this graph into an executable graph
   /// @param flags Instantiation flags (0 for none)
   /// @param location Source location where instantiation was requested
-  /// @return A GpuGraphExecWrapper owning the instantiated executable graph
-  GpuGraphExecWrapper<P_create, P_destroy>
+  /// @return A GraphExecWrapper owning the instantiated executable graph
+  GraphExecWrapper<P_create, P_destroy>
   instantiate(const unsigned long long flags = 0,
               std::source_location location = std::source_location::current()) {
-    return GpuGraphExecWrapper<P_create, P_destroy>(this->handle_, flags, location);
+    return GraphExecWrapper<P_create, P_destroy>(this->handle_, flags, location);
   }
 
   /// @brief Destroy the graph
