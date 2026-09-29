@@ -56,15 +56,6 @@ private:
   struct no_flag {};
   [[no_unique_address]] std::conditional_t<has_null_sentinel, no_flag, bool> owns_{};
 
-  // Does this wrapper currently own a handle that must be destroyed?
-  bool live() const noexcept {
-    if constexpr (has_null_sentinel) {
-      return handle_ != nullptr;
-    } else {
-      return owns_;
-    }
-  }
-
   // Give up ownership without destroying -- applied to the moved-from source so
   // its destructor becomes a no-op. Only the sentinel is cleared; a non-pointer
   // handle keeps its (now unowned) integer value, exactly as the pointer case
@@ -118,7 +109,7 @@ public:
   }
 
   ~BaseHandle() {
-    if (live()) {
+    if (valid()) {
       static_cast<Derived *>(this)->destroy(handle_);
     }
   }
@@ -135,7 +126,7 @@ public:
     // Self-assignment check
     if (this != &other) {
       // Destroy current handle if we own one
-      if (live()) {
+      if (valid()) {
         static_cast<Derived *>(this)->destroy(handle_);
       }
 
@@ -154,6 +145,23 @@ public:
 
   operator T() const noexcept { return handle_; }
   T get() const noexcept { return handle_; }
+
+  /// @brief Does this wrapper own a live handle -- one its destructor will
+  ///        destroy? False after a create() that failed without throwing (the
+  ///        recoverable record-and-continue policy path) or when moved-from.
+  ///        The single liveness predicate: the destructor and move-assignment
+  ///        gate on it too. Works for the value-handle case that get() cannot
+  ///        express -- a failed cufftHandle create leaves a garbage int, but
+  ///        owns_ still reads false here. Named rather than `explicit operator
+  ///        bool` because the non-explicit operator T() above would make
+  ///        `if (h)` ambiguous for pointer T.
+  bool valid() const noexcept {
+    if constexpr (has_null_sentinel) {
+      return handle_ != nullptr;
+    } else {
+      return owns_;
+    }
+  }
 
   /// @brief A non-owning, copyable view of this handle.
   ///

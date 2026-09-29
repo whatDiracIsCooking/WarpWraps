@@ -20,6 +20,21 @@ wwr_add_cxx_module_library(
   wwr.extension.common
 )
 
+# RecordingPolicy is the non-throwing record-and-continue counterpart to
+# AbortPolicy (see recording_policy.cppm): the suites that exercise recoverable
+# construction -- a create() that fails without terminating -- name it so the
+# wrapper is left un-owned and BaseHandle::valid() becomes observable.
+wwr_add_cxx_module_library(
+  NAME
+  wwr.test.shared.recording_policy
+  IMPORT_STD
+  NO_CUDA_DEVICE_LINKING
+  PRIMARY_INTERFACE
+  recording_policy.cppm
+  LINK_PUBLIC
+  wwr.extension.common
+)
+
 # DeviceHandle is the device_handle the extension suites allocate against, kept
 # out of the shipped library (see test/shared/device_handle.cppm).
 wwr_add_cxx_module_library(
