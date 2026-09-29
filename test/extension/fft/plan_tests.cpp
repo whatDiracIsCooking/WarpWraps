@@ -1,7 +1,7 @@
 // plan_tests.cpp - RAII contract of wwr.extension.fft's FftPlanWrapper
 //
-// FftPlanWrapper derives from DeviceBoundHandle like the other library handles, but it is
-// the one handle whose liveness cannot ride the base's null sentinel:
+// FftPlanWrapper derives from StreamBoundHandle like the other library handles,
+// but it is the one handle whose liveness cannot ride the base's null sentinel:
 // wwrfftHandle is an integer on CUDA (cufftHandle is `int`) with no reserved
 // invalid value. BaseHandle handles that by tracking ownership with an
 // explicit flag for handle types with no in-band null, so a moved-from plan is
@@ -9,10 +9,10 @@
 // from a live one through get(), which is exactly why a broken move would
 // double-free undetected by the public API.
 //
-// A cuFFT/hipFFT plan is device-bound, so DeviceBoundHandle's select-device /
-// record-device contract applies: dev_idx() reports the creation device and the
-// move clears it to -1. The cases below pin that alongside the double-free
-// contract.
+// A cuFFT/hipFFT plan is stream-bound: constructed from a shared stream owner, it
+// is created on the owner's device (dev_idx()), binds the owner's stream
+// (stream()), and retains the owner. The move clears dev_idx() to -1. The cases
+// below pin that alongside the double-free contract.
 //
 // So these cases assert the destroy-exactly-once contract directly, through a
 // counting error policy substituted for the default one. gpu_check routes a
@@ -29,9 +29,11 @@
 import std;
 import wwr.runtime_api; // wwrError_t, for the device-access policy
 import wwr.extension.common; // the error_policy concept, for the counting policy
-import wwr.extension.handle; // BaseHandle, DeviceBoundHandle
+import wwr.extension.handle; // BaseHandle, StreamBoundHandle, device_handle_stream
+import wwr.extension.runtime; // GpuStreamWrapper, so owner->stream().get() has a complete type
 import wwr.extension.fft; // re-exports wwr.fft: wwrfftHandle, wwrfftResult_t, WWRFFT_SUCCESS
 import wwr.test.shared.abort_policy; // AbortPolicy for this file's instantiations
+import wwr.test.shared.device_handle; // the reference stream owner
 
 namespace wwr::extension::test {
 // Bind abort-on-failure once, for this file's wrapper instantiations. The plan's
@@ -57,17 +59,20 @@ struct CountingErrorPolicy {
   }
 };
 
-using CountingPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy, AbortDev>;
+using CountingPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy, DeviceHandle, AbortDev>;
 
-static_assert(!std::is_copy_constructible_v<FftPlanWrapper<Abort, Abort, AbortDev>>);
-static_assert(!std::is_copy_assignable_v<FftPlanWrapper<Abort, Abort, AbortDev>>);
-static_assert(std::is_nothrow_move_constructible_v<FftPlanWrapper<Abort, Abort, AbortDev>>);
-static_assert(std::is_nothrow_move_assignable_v<FftPlanWrapper<Abort, Abort, AbortDev>>);
+static_assert(!std::is_copy_constructible_v<FftPlanWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+static_assert(!std::is_copy_assignable_v<FftPlanWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+static_assert(std::is_nothrow_move_constructible_v<FftPlanWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+static_assert(std::is_nothrow_move_assignable_v<FftPlanWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+// A bound plan is itself a stream owner -- it can back a DeviceBuffer's async tier.
+static_assert(device_handle_stream<FftPlanWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
 
 TEST(FftPlanTests, ConstructAndDestroyReportNoError) {
+  auto owner = std::make_shared<DeviceHandle>(0);
   int errors = 0;
   {
-    CountingPlan plan{0, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
+    CountingPlan plan{owner, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
   }
   EXPECT_EQ(errors, 0);
 }
@@ -76,15 +81,23 @@ TEST(FftPlanTests, ImplicitConversionMatchesGet) {
   // The raw wwrfftMakePlan/wwrfftExec* calls documented in fft_plan.cppm rely on
   // operator wwrfftHandle(); the blas/solver/sparse handles all pin this and fft
   // did not. Only get() was exercised here before.
-  FftPlanWrapper<Abort, Abort, AbortDev> plan;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  FftPlanWrapper<Abort, Abort, DeviceHandle, AbortDev> plan{owner};
   wwrfftHandle raw = plan; // operator wwrfftHandle()
   EXPECT_EQ(raw, plan.get());
 }
 
+TEST(FftPlanTests, BindsOwnerStream) {
+  auto owner = std::make_shared<DeviceHandle>(0);
+  FftPlanWrapper<Abort, Abort, DeviceHandle, AbortDev> plan{owner};
+  EXPECT_EQ(plan.stream(), owner->stream().get());
+}
+
 TEST(FftPlanTests, MoveConstructorTransfersOwnershipAndFreesOnce) {
+  auto owner = std::make_shared<DeviceHandle>(0);
   int errors = 0;
   {
-    CountingPlan source{0, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
+    CountingPlan source{owner, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
     wwrfftHandle raw = source.get();
 
     CountingPlan dest(std::move(source));
@@ -96,10 +109,11 @@ TEST(FftPlanTests, MoveConstructorTransfersOwnershipAndFreesOnce) {
 }
 
 TEST(FftPlanTests, MoveAssignmentTransfersOwnershipAndFreesOnce) {
+  auto owner = std::make_shared<DeviceHandle>(0);
   int errors = 0;
   {
-    CountingPlan source{0, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
-    CountingPlan dest{0, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
+    CountingPlan source{owner, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
+    CountingPlan dest{owner, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
     wwrfftHandle raw = source.get();
 
     // dest's original plan is freed here (exactly once), then dest adopts
@@ -111,20 +125,21 @@ TEST(FftPlanTests, MoveAssignmentTransfersOwnershipAndFreesOnce) {
 }
 
 // The canonical constructor threads create and destroy policies in separate
-// positional slots; the single-policy shorthand that copied one into both is
-// gone, so the cases above pass the same counter as both explicitly. A full
-// construct -> move-assign -> destroy lifecycle with two DISTINCT counters
-// proves both are stored and moved independently and that the clean path touches
-// neither. (On the success path the two cannot be told apart -- distinguishing
-// them would need a forced failure, which a live wwrfft has no cheap way to
-// produce.)
+// positional slots (after the stream owner); the single-policy shorthand that
+// copied one into both is gone, so the cases above pass the same counter as both
+// explicitly. A full construct -> move-assign -> destroy lifecycle with two
+// DISTINCT counters proves both are stored and moved independently and that the
+// clean path touches neither. (On the success path the two cannot be told apart
+// -- distinguishing them would need a forced failure, which a live wwrfft has no
+// cheap way to produce.)
 TEST(FftPlanTests, TwoPolicyConstructorThreadsBothPolicies) {
-  using TwoPolicyPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy, AbortDev>;
+  using TwoPolicyPlan = FftPlanWrapper<CountingErrorPolicy, CountingErrorPolicy, DeviceHandle, AbortDev>;
+  auto owner = std::make_shared<DeviceHandle>(0);
   int create_errors = 0;
   int destroy_errors = 0;
   {
-    TwoPolicyPlan source{0, CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
-    TwoPolicyPlan dest{0, CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
+    TwoPolicyPlan source{owner, CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
+    TwoPolicyPlan dest{owner, CountingErrorPolicy{&create_errors}, CountingErrorPolicy{&destroy_errors}};
     const wwrfftHandle raw = source.get();
 
     dest = std::move(source); // frees dest's original plan through policy_destroy_
@@ -135,9 +150,10 @@ TEST(FftPlanTests, TwoPolicyConstructorThreadsBothPolicies) {
 }
 
 TEST(FftPlanTests, SelfMoveAssignmentIsSafe) {
+  auto owner = std::make_shared<DeviceHandle>(0);
   int errors = 0;
   {
-    CountingPlan plan{0, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
+    CountingPlan plan{owner, CountingErrorPolicy{&errors}, CountingErrorPolicy{&errors}};
     wwrfftHandle raw = plan.get();
 
     plan = std::move(plan); // guarded self-assign: must not free itself
@@ -147,20 +163,19 @@ TEST(FftPlanTests, SelfMoveAssignmentIsSafe) {
 }
 
 TEST(FftPlanTests, RecordsCreationDevice) {
-  // The default constructor creates on device 0; dev_idx is the (defaulted)
-  // first constructor argument, and device 0 always exists.
-  FftPlanWrapper<Abort, Abort, AbortDev> plan;
+  // The plan is created on -- and records -- the owner's device; device 0 always exists.
+  auto owner = std::make_shared<DeviceHandle>(0);
+  FftPlanWrapper<Abort, Abort, DeviceHandle, AbortDev> plan{owner};
+  EXPECT_EQ(plan.dev_idx(), owner->dev_idx());
   EXPECT_EQ(plan.dev_idx(), 0);
-
-  FftPlanWrapper<Abort, Abort, AbortDev> on0(0);
-  EXPECT_EQ(on0.dev_idx(), 0);
 }
 
 TEST(FftPlanTests, MovePreservesDevice) {
-  FftPlanWrapper<Abort, Abort, AbortDev> plan1;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  FftPlanWrapper<Abort, Abort, DeviceHandle, AbortDev> plan1{owner};
   const int dev = plan1.dev_idx();
 
-  FftPlanWrapper<Abort, Abort, AbortDev> plan2(std::move(plan1));
+  FftPlanWrapper<Abort, Abort, DeviceHandle, AbortDev> plan2(std::move(plan1));
   EXPECT_EQ(plan2.dev_idx(), dev);
   EXPECT_EQ(plan1.dev_idx(), -1);
 }

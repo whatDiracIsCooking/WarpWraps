@@ -384,3 +384,36 @@ and confirm the warning is gone.
 **Separable compilation is OFF** on these libraries, as everywhere in the tree:
 `parallel_for.cuh`'s kernel is self-contained, so no device symbol crosses a TU
 boundary and relocatable device code would cost link time to buy nothing.
+
+## 18. Handle lifetime / ownership direction
+
+A design decision, not a vendor fact — but it belongs on the same record because
+it cannot be enforced structurally and a reader will otherwise rediscover it as a
+leak.
+
+`StreamBoundHandle` (`src/extension/handle/stream_bound_handle.cppm`) — the layer
+under the BLAS/solver/sparse/FFT handles — binds a work stream and enqueues
+asynchronous work on it, so the stream must outlive the handle. It guarantees that
+by shared-owning the stream's owner: `std::shared_ptr` to the owner, held for the
+handle's whole life. This is the same retention `DeviceBufferWrapper` uses to keep
+whatever backs an allocation alive past the buffer (`device_buffer.cppm`).
+
+**Ownership runs one direction only:**
+
+> `StreamBoundHandle → shared_ptr → stream owner`, **never** owner → handle.
+
+A stream owner (e.g. a `DeviceHandle`) must not, directly or transitively, own a
+`StreamBoundHandle` that anchors back to it. That is a reference cycle: two
+`shared_ptr`s each keeping the other alive, and neither refcount ever reaches
+zero — a leak. Nothing on the buffer↔handle side needs a `weak_ptr` for exactly
+this reason: the arrows only ever point from the shorter-lived thing to the
+longer-lived one.
+
+It **cannot be enforced structurally.** `device_handle{,_stream,_pool}` are
+concepts; the shipped library carries no concrete stream owner (the reference one,
+`DeviceHandle`, lives in `test/shared`); and a consumer importing all of
+`src/extension` can wire whatever ownership graph it likes. So this is a documented
+contract, in the same category as "`P_free` must not throw": the type system admits
+the violation, and the rule is what keeps callers out of it. If an owner ever needs
+to cache and re-vend a handle it anchored, that back-edge must be a `weak_ptr`
+(non-owning) — but no code does this today.

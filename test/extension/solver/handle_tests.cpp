@@ -1,12 +1,14 @@
 // handle_tests.cpp - RAII contract of wwr.extension.solver's two wrappers
 //
-// SolverDnHandleWrapper is a DeviceBoundHandle specialisation (over
-// wwrsolverDnHandle_t): it records the device it was created on, since a
-// cuSOLVER handle is device-bound. SolverDnParamsWrapper stays a BaseHandle
-// specialisation (over wwrsolverDnParams_t) -- params carry no device. See
-// test/extension/blas/handle_tests.cpp for the shape and why get() nulling on
-// the moved-from object is the double-free guard. Params is the second live
-// type the solver module owns, so it gets the same RAII contract as the handle.
+// SolverDnHandleWrapper is a StreamBoundHandle specialisation (over
+// wwrsolverDnHandle_t): created from a shared stream owner, it records the
+// owner's device, binds the owner's stream (stream()), and retains the owner.
+// SolverDnParamsWrapper stays a BaseHandle specialisation (over
+// wwrsolverDnParams_t) -- params carry no device and no stream, so they are
+// untouched by the stream-bound layer. See test/extension/blas/handle_tests.cpp
+// for the shape and why get() nulling on the moved-from object is the
+// double-free guard. Params is the second live type the solver module owns, so
+// it gets the same RAII contract as the handle.
 //
 // Runtime, device-requiring: wwrsolverDnCreate needs a live GPU context.
 // Backend-neutral -- built and run for either WWR_GPU_BACKEND.
@@ -16,9 +18,11 @@
 import std;
 import wwr.runtime_api; // wwrError_t, for the device-access policy
 import wwr.extension.common; // the error_policy concept, for the counting policy
-import wwr.extension.handle; // BaseHandle, DeviceBoundHandle(View)
+import wwr.extension.handle; // BaseHandle, StreamBoundHandle, DeviceBoundHandleView
+import wwr.extension.runtime; // GpuStreamWrapper, so owner->stream().get() has a complete type
 import wwr.extension.solver; // re-exports wwr.solver, so the raw handle/params types are in scope
 import wwr.test.shared.abort_policy; // AbortPolicy for this file's instantiations
+import wwr.test.shared.device_handle; // the reference stream owner
 
 namespace wwr::extension::test {
 // Bind abort-on-failure once, for this file's wrapper instantiations. The
@@ -28,20 +32,21 @@ using Abort = AbortPolicy<wwrsolverStatus_t>;
 using AbortDev = AbortPolicy<wwrError_t>;
 
 // A counting policy for the destroy-exactly-once check below; see
-// test/extension/blas/handle_tests.cpp for why the counter is a static (the
-// DeviceBoundHandle-inherited constructor takes no policy instance).
+// test/extension/blas/handle_tests.cpp for why the counter is a shared static.
 struct CountingSolverPolicy {
   using error_type = wwrsolverStatus_t;
   static inline int errors = 0;
   static void reset() { errors = 0; }
   void handle_error(wwrsolverStatus_t, std::source_location) noexcept { ++errors; }
 };
-using CountingSolverHandle = SolverDnHandleWrapper<CountingSolverPolicy, CountingSolverPolicy, AbortDev>;
+using CountingSolverHandle = SolverDnHandleWrapper<CountingSolverPolicy, CountingSolverPolicy, DeviceHandle, AbortDev>;
 
-static_assert(!std::is_copy_constructible_v<SolverDnHandleWrapper<Abort, Abort, AbortDev>>);
-static_assert(!std::is_copy_assignable_v<SolverDnHandleWrapper<Abort, Abort, AbortDev>>);
-static_assert(std::is_nothrow_move_constructible_v<SolverDnHandleWrapper<Abort, Abort, AbortDev>>);
-static_assert(std::is_nothrow_move_assignable_v<SolverDnHandleWrapper<Abort, Abort, AbortDev>>);
+static_assert(!std::is_copy_constructible_v<SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+static_assert(!std::is_copy_assignable_v<SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+static_assert(std::is_nothrow_move_constructible_v<SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+static_assert(std::is_nothrow_move_assignable_v<SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
+// A bound handle is itself a stream owner -- it can back a DeviceBuffer's async tier.
+static_assert(device_handle_stream<SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev>>);
 
 static_assert(!std::is_copy_constructible_v<SolverDnParamsWrapper<Abort, Abort>>);
 static_assert(!std::is_copy_assignable_v<SolverDnParamsWrapper<Abort, Abort>>);
@@ -52,29 +57,39 @@ static_assert(std::is_nothrow_move_assignable_v<SolverDnParamsWrapper<Abort, Abo
 // SolverDnHandleWrapper
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-TEST(SolverDnHandleTests, DefaultConstructorCreatesHandle) {
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle;
+TEST(SolverDnHandleTests, ConstructsLiveHandleFromOwner) {
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
   EXPECT_NE(handle.get(), nullptr);
 }
 
 TEST(SolverDnHandleTests, ImplicitConversionMatchesGet) {
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
   wwrsolverDnHandle_t raw = handle; // operator wwrsolverDnHandle_t()
   EXPECT_EQ(raw, handle.get());
 }
 
+TEST(SolverDnHandleTests, BindsOwnerStream) {
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
+  EXPECT_EQ(handle.stream(), owner->stream().get());
+}
+
 TEST(SolverDnHandleTests, MoveConstructorTransfersOwnership) {
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle1;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle1{owner};
   wwrsolverDnHandle_t raw = handle1.get();
 
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle2(std::move(handle1));
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle2(std::move(handle1));
   EXPECT_EQ(handle2.get(), raw);
   EXPECT_EQ(handle1.get(), nullptr);
 }
 
 TEST(SolverDnHandleTests, MoveAssignmentTransfersOwnership) {
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle1;
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle2;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle1{owner};
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle2{owner};
   wwrsolverDnHandle_t raw = handle1.get();
 
   handle2 = std::move(handle1);
@@ -83,7 +98,8 @@ TEST(SolverDnHandleTests, MoveAssignmentTransfersOwnership) {
 }
 
 TEST(SolverDnHandleTests, SelfMoveAssignmentKeepsHandle) {
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
   wwrsolverDnHandle_t raw = handle.get();
 
   handle = std::move(handle);
@@ -91,20 +107,19 @@ TEST(SolverDnHandleTests, SelfMoveAssignmentKeepsHandle) {
 }
 
 TEST(SolverDnHandleTests, RecordsCreationDevice) {
-  // The default constructor creates on device 0.
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle;
-  EXPECT_EQ(handle.dev_idx(), 0);
-
-  // dev_idx is the (defaulted) first constructor argument. Device 0 always exists.
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> on0(0);
-  EXPECT_EQ(on0.dev_idx(), 0);
+  // The handle is created on -- and records -- the owner's device.
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
+  EXPECT_EQ(handle.dev_idx(), owner->dev_idx());
+  EXPECT_EQ(handle.dev_idx(), 0); // device 0 always exists
 }
 
 TEST(SolverDnHandleTests, MovePreservesDevice) {
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle1;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle1{owner};
   const int dev = handle1.dev_idx();
 
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle2(std::move(handle1));
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle2(std::move(handle1));
   EXPECT_EQ(handle2.dev_idx(), dev);
   EXPECT_EQ(handle1.dev_idx(), -1);
 }
@@ -114,7 +129,8 @@ TEST(SolverDnHandleTests, ViewMirrorsOwnerHandleAndDevice) {
   // this reads the borrowed handle/device back from a live handle. The view is
   // a bare DeviceBoundHandleView with no borrow-safe ops (a cuSOLVER call consumes
   // the raw handle), so mirroring get()/dev_idx() is its whole job.
-  SolverDnHandleWrapper<Abort, Abort, AbortDev> handle;
+  auto owner = std::make_shared<DeviceHandle>(0);
+  SolverDnHandleWrapper<Abort, Abort, DeviceHandle, AbortDev> handle{owner};
   const DeviceBoundHandleView<wwrsolverDnHandle_t> view = handle.view();
   EXPECT_EQ(view.get(), handle.get());
   EXPECT_EQ(view.dev_idx(), handle.dev_idx());
@@ -127,7 +143,8 @@ TEST(SolverDnHandleTests, CustomPolicyFreesExactlyOnceAcrossMove) {
   // move tests only check get() == nullptr as an indirect proxy.
   CountingSolverPolicy::reset();
   {
-    CountingSolverHandle source;
+    auto owner = std::make_shared<DeviceHandle>(0);
+    CountingSolverHandle source{owner};
     const wwrsolverDnHandle_t raw = source.get();
 
     CountingSolverHandle dest(std::move(source));
