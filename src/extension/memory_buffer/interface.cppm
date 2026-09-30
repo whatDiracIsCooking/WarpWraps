@@ -17,7 +17,7 @@
  *   auto dev = std::make_shared<MyDeviceHandle>(0);  // caller-supplied; this layer ships none
  *   using Abort = AbortPolicy<wwrError_t>;  // your own policy; the library ships none
  *   // DeviceBufferWrapper is device-bound: its last arg is the device-access policy.
- *   DeviceBufferWrapper<float, Abort, Abort, MyDeviceHandle, Abort> dev_buf(1024, dev);  // Device memory
+ *   DeviceBufferWrapper<float, Abort, Abort, Abort, MyDeviceHandle> dev_buf(1024, dev);  // Device memory
  *   PinnedBufferWrapper<float, Abort, Abort> pin_buf(1024);       // Pinned host memory
  *   UnifiedBufferWrapper<float, Abort, Abort> uni_buf(1024);      // Unified memory
  *   HostBufferWrapper<float, AbortPolicy<stdHostMemoryError_t>,
