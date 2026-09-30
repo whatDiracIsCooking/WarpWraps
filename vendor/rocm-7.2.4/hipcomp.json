@@ -2,7 +2,7 @@
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
     "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
-    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /home/lostica/projects/WarpWraps/main/.claude/worktrees/vendor-manifests-pin/devtools/harvest_aggregates/hipcomp.h",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include devtools/harvest_aggregates/hipcomp.h",
     "config": {
       "backend": "HIP",
       "sdk_version": "ROCm 7.2.4",
@@ -16,7 +16,7 @@
       ]
     },
     "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
-    "header": "/home/lostica/projects/WarpWraps/main/.claude/worktrees/vendor-manifests-pin/devtools/harvest_aggregates/hipcomp.h",
+    "header": "devtools/harvest_aggregates/hipcomp.h",
     "prefix": "hipcomp",
     "symbol_count": 86
   },

@@ -48,7 +48,14 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HARVEST="$HERE/devtools/vendor_harvest.py"
-AGG="$HERE/devtools/harvest_aggregates"
+# The vendor headers under $AGG are repo-local, so they are named to the
+# harvester by a repo-RELATIVE path (and the harvest runs from $HERE): the tool
+# records that path verbatim in the manifest's "command" / "header", and an
+# absolute one would bake in the checkout location -- differing between a dev
+# tree and CI's /__w/... and making the diff job fail on the path alone. The SDK
+# headers stay absolute; /opt/... and /usr/... are the same everywhere.
+AGG="devtools/harvest_aggregates"
+cd "$HERE"
 
 # --- pins (the config tuple's SDK coordinate) --------------------------------
 CUDA_SDK="CUDA 13.0.x"          # recorded in every CUDA manifest's config tuple
