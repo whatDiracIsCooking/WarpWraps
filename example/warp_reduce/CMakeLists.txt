@@ -13,11 +13,11 @@
 # neither. cmake/wwr_add_gpu_device_library.cmake is where that split is
 # spelled out in full.
 
-# wwr.device carries cooperative_groups.cuh and runtime.cuh (and the
-# WWR_WARP_SIZE the tile size is built from); wwr.extension.bridge carries
-# "extension/bridge/stream_bridge.h", which warp_reduce_bridge.h includes.
-# PRIVATE, as every device-library link is: nothing that links this should
-# inherit a device-code include path.
+# wwr.device carries cooperative_groups.cuh, runtime.cuh and runtime.h (the
+# stream type warp_reduce_bridge.h names, plus the WWR_WARP_SIZE the tile size
+# is built from), all under the src/ include root it exposes. PRIVATE, as every
+# device-library link is: nothing that links this should inherit a device-code
+# include path.
 wwr_add_gpu_device_library(
   NAME
   wwr.example.warp_reduce.device
@@ -25,7 +25,6 @@ wwr_add_gpu_device_library(
   warp_reduce.cu
   LINK_PRIVATE
   wwr.device
-  wwr.extension.bridge
 )
 
 # The host half. No ctest entry: it needs a real device, and the runtime tier
@@ -34,18 +33,21 @@ wwr_add_gpu_device_library(
 # hand from the build directory.
 add_executable(wwr.example.warp_reduce main.cpp)
 
-# wwr.extension.bridge for stream_bridge.h, and wwr_backend for the
-# WWR_GPU_BACKEND_* define that selected_backend.h behind it reads when
+# wwr_backend for the WWR_GPU_BACKEND_* define that selected_backend.h (behind
+# runtime.h, which warp_reduce_bridge.h includes for wwrStream_t) reads when
 # there is no device-compile pass to supply __CUDACC__ / __HIP__ -- the same
-# pair, for the same reason, that src/extension/rand's module links.
+# reason src/extension/init_state's module links it. The src/ include root
+# that resolves "runtime.h" in this host compile is added explicitly below.
 target_link_libraries(
   wwr.example.warp_reduce
   PRIVATE wwr.runtime_api
           wwr.extension.runtime
           wwr.extension.memory_buffer
-          wwr.extension.bridge
           wwr_backend
           wwr.example.warp_reduce.device
+)
+target_include_directories(
+  wwr.example.warp_reduce PRIVATE ${CMAKE_SOURCE_DIR}/src
 )
 
 set_target_properties(

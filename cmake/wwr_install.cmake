@@ -267,10 +267,10 @@ function(wwr_install_package)
   )
 
   # The extension layer's headers, shipped only when WWR_INSTALL_EXTENSION added
-  # its targets to the sweep above. The bridge headers, parallel_for.cuh and the
-  # two *_bridge.h are #included by the extension module units and by
+  # its targets to the sweep above. rand_state_bridge.h, parallel_for.cuh and
+  # the two *_bridge.h are #included by the extension module units and by
   # parallel_for.cuh through the src/-root spelling
-  # ("extension/bridge/stream_bridge.h", ...), so the extension subtree is
+  # ("extension/bridge/rand_state_bridge.h", ...), so the extension subtree is
   # mirrored under include/wwr/extension for those spellings to resolve
   # unchanged after install -- the same shape, and the same reasoning, as the
   # wrappers directory above. Kept next to the target sweep that needs them, so

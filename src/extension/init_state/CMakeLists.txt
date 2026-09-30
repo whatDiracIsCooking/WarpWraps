@@ -32,13 +32,13 @@ wwr_add_gpu_device_library(
 # in its global module fragment -- the only way a module unit can declare a
 # function that a plain TU defines (see init_state_bridge.h's own header).
 #
-# LINK_PRIVATE wwr_backend is for the two bridges init_state_bridge.h pulls
-# in there (extension/bridge/stream_bridge.h,
+# LINK_PRIVATE wwr_backend is for the two include-only headers that
+# init_state_bridge.h pulls in there (runtime.h,
 # extension/bridge/rand_state_bridge.h): a GMF cannot `import`, so wwrStream_t
 # and wwrrandState have to arrive by #include, and selected_backend.h behind
-# them reads WWR_GPU_BACKEND_{CUDA,HIP} when there is no device-compile pass
-# to read __CUDACC__/__HIP__ from. PRIVATE, so the define reaches this module
-# unit and nothing that imports it.
+# them reads WWR_GPU_BACKEND_{CUDA,HIP} when there is no device-compile pass to
+# read __CUDACC__/__HIP__ from. PRIVATE, so the define reaches this module unit
+# and nothing that imports it.
 wwr_add_cxx_module_library(
   NAME
   wwr.extension.init_state
@@ -74,8 +74,8 @@ unset(_wa_install)
 
 # interface.cppm's two compile requirements (the src/ include root for
 # init_state_bridge.h, and wwr_backend for the WWR_GPU_BACKEND_* define
-# behind the bridges), granted to installed consumers under
-# $<INSTALL_INTERFACE:> because they are the ones compiling it -- see the
+# behind runtime.h and rand_state_bridge.h), granted to installed consumers
+# under $<INSTALL_INTERFACE:> because they are the ones compiling it -- see the
 # comment at the end of src/CMakeLists.txt. PRIVATE for the in-tree build,
 # unchanged.
 target_include_directories(

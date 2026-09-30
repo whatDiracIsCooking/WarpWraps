@@ -333,15 +333,20 @@ and HIP's `wavefront` stay vendor-only, as §15 leaves `atomicAdd_block`/`_syste
 out. libhipcxx (`<hip/std/atomic>`) is absent from the pinned ROCm, so the
 builtin forwarding is the only portable design — measured, in §20.
 
-`wwrStream_t` is not among them: it lives in `stream_bridge.h`, `_bridge.h`
-rather than `.cuh` precisely because it does *not* `#error` outside a device
-pass -- see "The switch points" below. `stream_bridge.h` and
-`rand_state_bridge.h` live in `src/extension/bridge/` (exposed by the
+`wwrStream_t` is not among them: it lives in `runtime.h`, a `.h` rather than a
+`.cuh` precisely because it does *not* `#error` outside a device pass -- see "The
+switch points" below. `runtime.h` is a src/-root *shared-type* header (a
+companion to `complex.h`): `#include`d, not imported, by `runtime.cuh` and the
+host TUs that declare a stream-taking function across the boundary in a GMF or
+plain `.cu` (the `*_bridge.h`, `example/warp_reduce`), reached bare through the
+`src/` include root. `wwr.runtime_api` exports the same `::cudaStream_t` /
+`::hipStream_t` to importers -- but `runtime_api.cppm` does not itself include
+`runtime.h`, because the vendor runtime macros would collide with its
+`WWR_RT_VALUE` expansions. The one remaining bridge,
+`rand_state_bridge.h`, lives in `src/extension/bridge/` (exposed by the
 `wwr.extension.bridge` INTERFACE target), reached as
-`extension/bridge/stream_bridge.h` through the `src/` include root and
-`#include`d (not imported) by the init_state and random_normal module units and by
-`parallel_for.cuh` -- see "`_bridge`, and why the extension is not enough" below
-for what they do.
+`extension/bridge/rand_state_bridge.h` -- see "`_bridge`, shared-type `.h`, and
+why the extension is not enough" below for what each does.
 
 The types are the *same types* the modules export under the same names, so a
 buffer allocated by host code that imports `wwr.rand` is exactly what a
@@ -393,13 +398,14 @@ three build on its answer rather than re-deriving it.
 | `selected_backend.h` | **anything** | `__CUDACC__` / `__HIP__` / `__HIPCC__` first, then `WWR_GPU_BACKEND_*`. Defines `WWR_SELECTED_CUDA` / `WWR_SELECTED_HIP` and nothing else |
 | `backend.h` | the `.cppm`s here | `WWR_GPU_BACKEND_*`; expands to names an `import` provides |
 | `runtime.cuh` | device-compiled TUs (`.cu`, `.cuh`) | `WWR_SELECTED_*` (via `device_guard.h`), after `#error`ing outside a device pass |
-| `stream_bridge.h`, `rand_state_bridge.h` | **anything** (`.cpp`, `.cppm`, `.cu`, `.cuh`) | `WWR_SELECTED_*` (via `selected_backend.h`), *without* `#error`ing outside a device pass |
+| `complex.h`, `runtime.h`, `rand_state_bridge.h` | **anything** (`.cpp`, `.cppm`, `.cu`, `.cuh`) | `WWR_SELECTED_*` (via `selected_backend.h`), *without* `#error`ing outside a device pass |
 
-The bridge headers are the fourth: they carry a declaration across the
-host/device boundary, so unlike the device `.cuh` they must compile in a host
-TU too — which is why they pick the backend through `selected_backend.h`
-directly rather than `device_guard.h`. See the next section for what makes a
-header a `_bridge`.
+The shared-type headers and the bridge are the fourth kind: they name (or
+forward-declare) a vendor type used on both sides of the host/device boundary, so
+unlike the device `.cuh` they must compile in a host TU too — which is why they
+pick the backend through `selected_backend.h` directly rather than
+`device_guard.h`. See the next section for what makes a header a `_bridge`, and
+why `complex.h` / `runtime.h` are `.h` rather than `_bridge.h`.
 
 The nine device `.cuh` headers each ask two questions and keep them apart: "is
 this a device pass?" (their own requirement — everything they define is
@@ -413,50 +419,58 @@ still refuse to serve — so `device_guard.h`, not `selected_backend.h`, is wher
 the guard sits. It is plumbing over `selected_backend.h`'s answer, not a fifth
 switch point: it picks no backend of its own.
 
-### `_bridge`, and why the extension is not enough
+### `_bridge`, shared-type `.h`, and why the extension is not enough
 
-Every header in `src/` falls into one of three classes, and the file extension
-only separates the last one:
+Every header in `src/` falls into one of four classes, and the file extension
+does not fully separate them:
 
 | Class | Compiles in a host TU | Compiles in a device pass | Named |
 |---|:---:|:---:|---|
 | host-only | ✅ | ❌ | `*.h` — `backend.h`, and `dispatch_macros.h` under `src/wrappers` |
+| shared-type | ✅ | ✅ | `*.h` — `complex.h`, `runtime.h` |
 | **bridge** | ✅ | ✅ | `*_bridge.h` |
 | device-only | ❌ | ✅ | `*.cuh` — `runtime.cuh`, `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `fp8.cuh`, `cooperative_groups.cuh`, `rand.cuh`, `parallel_for.cuh` |
 
-So `.h` on its own does *not* mean "safe from a `.cu`" — `backend.h` is `.h`
-and host-only. The `_bridge` suffix marks the middle class explicitly, and it
-means one specific thing: **this header carries a declaration across the
-host/device boundary**, so the host TU that declares and the device TU that
-defines see one identical spelling and the symbol mangles the same in both.
-There are exactly four, two here and two above, consumed by
-`src/extension/init_state`, `src/extension/random_normal` and `parallel_for.cuh`:
+So `.h` on its own does *not* mean "safe from a `.cu`" (`backend.h` is `.h` and
+host-only), and two `.h`s — `complex.h`, `runtime.h` — deliberately compile in
+both modes. What separates those *shared-type* headers from a `_bridge.h` is
+**what crosses**: a shared-type header names a vendor *type* that device code and
+a host TU (a module GMF, a plain `.cu`) both `#include` so they agree with the
+type the module exports (`wwrFloatComplex` via `complex.h`, `wwrStream_t` via
+`runtime.h`); a `_bridge.h` carries a *function declaration* across the boundary,
+so the host TU that declares and the device TU that defines see one identical
+spelling and the symbol mangles the same in both.
+
+There are exactly three bridges, one here and two above, consumed by
+`src/extension/init_state` and `src/extension/random_normal`:
 
 | Bridge | Carries |
 |---|---|
-| `stream_bridge.h` | `wwr::wwrStream_t` |
 | `rand_state_bridge.h` | `wwr::wwrrandState` |
 | `extension/init_state/init_state_bridge.h` | `device::init_state()` |
 | `extension/random_normal/random_normal_bridge.h` | `device::random_normal()` |
 
-`selected_backend.h` compiles in both modes too and is deliberately *not* a
-bridge: it declares nothing at all, so nothing of it crosses. It answers a
-configuration question that is the same for everyone, and its two macros never
-appear in a signature.
+`selected_backend.h` compiles in both modes too and is deliberately neither: it
+declares nothing at all, so nothing of it crosses. It answers a configuration
+question that is the same for everyone, and its two macros never appear in a
+signature.
 
-A bridge is needed at all because a module unit's **global module fragment** can
-`#include` but cannot `import`, and a declaration shared with a plain
-(non-module) TU has to live there to keep ordinary external linkage. That rules
-out `backend.h` (its macros name imported entities) *and* `runtime.cuh`
-(a module interface unit is a host compile, so its `#error` fires).
-`selected_backend.h` falling back to the CMake define only when no device pass
-is in progress is what lets one header serve both, and is why
-`wwr.device` still carries no define.
+Both patterns exist because a module unit's **global module fragment** can
+`#include` but cannot `import`, so a type or declaration it shares with a plain
+(non-module) TU has to arrive by `#include`. That rules out `backend.h` (its
+macros name imported entities) *and* `runtime.cuh` (a module interface unit is a
+host compile, so its `#error` fires). `selected_backend.h` falling back to the
+CMake define only when no device pass is in progress is what lets one header
+serve both, and is why `wwr.device` still carries no define.
 
-`rand_state_bridge.h` is `stream_bridge.h`'s counterpart for `wwrrandState`.
-It only *forward-declares* the vendor struct -- a pointer parameter
-needs the type declared, not complete -- so it keeps `curand_kernel.h` /
-`hiprand_kernel.h` out of host compiles entirely.
+`wwrStream_t` moved from a bridge to the shared-type header `runtime.h` because
+`runtime.cuh` and the host GMF consumers all reach it by `#include` and its vendor
+header is cheap. (`runtime_api.cppm` exports the same type by import, not by
+including `runtime.h` -- vendor runtime macros would collide with its
+`WWR_RT_VALUE` expansions.) `rand_state_bridge.h` could *not* follow: it only *forward-declares* the vendor
+struct -- a pointer parameter needs the type declared, not complete -- so it
+keeps `curand_kernel.h` / `hiprand_kernel.h` out of host compiles entirely, which
+a full-include shared-type header could not do.
 
 `extension/init_state/init_state_bridge.h` and
 `extension/random_normal/random_normal_bridge.h` are the consumers both were

@@ -21,6 +21,16 @@ module;
 
 #include "backend.h"
 
+// NB: this GMF must NOT #include runtime.h (or any vendor runtime header). The
+// vendor's cuda_runtime_api.h / hip_runtime_api.h #define preprocessor macros
+// (cudaStreamDefault, cudaEventDefault, cudaArrayDefault, ...) that collide with
+// the cuda##x / hip##x tokens in the WWR_RT_VALUE expansions below. The wwr*
+// names come from the import instead -- macros do not cross a module boundary.
+// wwrStream_t is exported from here via WWR_RT_TYPE(Stream_t) as ::cudaStream_t /
+// ::hipStream_t, the SAME vendor handle runtime.h names for device and GMF code,
+// so a stream still crosses the boundary as one type. (This is where runtime
+// diverges from complex.h, whose cuComplex.h defines no colliding macros.)
+
 // Runtime API: wwrX -> cudaX / hipX
 #define WWR_RT_TYPE(x) WWR_TYPE(wwr##x, cuda##x, hip##x)
 #define WWR_RT_VALUE(x) WWR_VALUE(wwr##x, cuda##x, hip##x)
@@ -50,6 +60,9 @@ WWR_RT_TYPE(Error_t)
 // versioned spelling is what the module actually exports.
 WWR_TYPE(wwrDeviceProp, cudaDeviceProp, hipDeviceProp_tR0600)
 
+// wwrStream_t is ::cudaStream_t / ::hipStream_t here (via the import), the same
+// vendor handle runtime.h names for device and GMF code -- see the GMF comment
+// above for why this comes from the import and not a shared #include.
 WWR_RT_TYPE(Stream_t)
 WWR_RT_TYPE(StreamCaptureMode)
 WWR_RT_TYPE(Event_t)

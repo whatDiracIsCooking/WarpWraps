@@ -11,7 +11,9 @@
  *   WWR_WARP_SIZE       warp/wavefront size, as a constant expression. Set
  *                       with -DWWR_WARP_SIZE (default 32; 64 for CDNA)
  *
- * wwrStream_t is NOT provided here.
+ * wwrStream_t comes from runtime.h, #included below -- the same vendor handle
+ * wwr.runtime_api exports to importers. The full runtime headers here are a
+ * superset of the minimal one runtime.h pulls.
  *
  * Nothing here is #undef'd; include it once, near the top of a device TU.
  */
@@ -20,6 +22,11 @@
 
 // WWR_SELECTED_CUDA / WWR_SELECTED_HIP, and #errors outside a device pass.
 #include "device_guard.h"
+
+// wwrStream_t -- the same vendor handle wwr.runtime_api exports, so a device TU
+// and a host-created stream name one type. Its minimal vendor header is subsumed
+// by the full runtime pulled in below.
+#include "runtime.h"
 
 // Past the guard, selected_backend.h's ladder took its answer from the same
 // compiler macro, so "device pass?" and "which backend?" cannot disagree.
