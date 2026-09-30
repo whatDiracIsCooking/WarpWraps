@@ -14,7 +14,8 @@
  *
  * The device FUNCTIONS are absent and cannot be here: they are
  * __device__-qualified, and a module unit is host code. They are reached
- * through src/rand.cuh instead. The state types are plain data, and the
+ * through src/rand.h's device-pass-gated section instead. The state types are
+ * plain data, and the
  * host is what allocates and sizes the per-thread array.
  *
  * hiprandState and hiprandStateXORWOW are DISTINCT types here, unlike cuRAND's

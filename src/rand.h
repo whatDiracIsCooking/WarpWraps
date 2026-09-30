@@ -2,15 +2,23 @@
  * @file rand.h
  * @brief The single cuRAND / hipRAND vendor-include point for the rand layer
  *
- * A src/-root shared-type header (companion to complex.h and runtime.h). Its
- * EXPORTED surface is the device generator state types -- the vendor types that
- * cross the host/device boundary by pointer -- aliased under wwr* names once,
- * for the whole rand layer to draw from: rand.cppm re-exports them, rand.cuh
- * defines its __device__ generators against them, and the extension bridges
- * (init_state_bridge.h, random_normal_bridge.h) name wwrrandState* in a global
- * module fragment where an `import` cannot reach. Like complex.h and runtime.h
- * it reaches selected_backend.h directly, not device_guard.h, so it carries no
- * device-pass #error and compiles in a host TU too.
+ * A src/-root header wrapping the whole rand vendor surface, split by compile
+ * context rather than by file. It carries three things:
+ *   - the device generator STATE TYPES (always) -- the vendor types that cross
+ *     the host/device boundary by pointer, aliased under wwr* names once;
+ *   - the vendor HOST declarations (always #included), which rand.cppm binds its
+ *     wwr* host names to (see below);
+ *   - the __device__ generator functions (only in a device pass -- the gated
+ *     section at the bottom).
+ * So rand.cppm re-exports the state types and binds the host API, a device .cu
+ * #includes this header to call the generators in a kernel, and the extension
+ * bridges (init_state_bridge.h, random_normal_bridge.h) name wwrrandState* in a
+ * global module fragment where an `import` cannot reach. It reaches
+ * selected_backend.h directly, not device_guard.h, so it carries no device-pass
+ * #error and compiles in a host TU too -- the device section gates itself out
+ * there. This is the `.h` + `.cppm` shape for a vendor header with BOTH host and
+ * device symbols; a purely device-only wrapper stays a `.cuh` with
+ * device_guard.h's #error (atomic, cooperative_groups, wmma, parallel_for).
  *
  * It also #includes the vendor HOST header (curand.h / hiprand.h) beside the
  * kernel one, so that it is the one place the vendor headers enter the rand
@@ -36,7 +44,7 @@
  * fragments must #include a bridge because a GMF cannot import. Every consumer
  * that `import`s wwr.rand or the extension modules pays nothing: the BMI exports
  * names, never the header. That bounded cost buys one source of truth -- for the
- * state-type list (in place of the copies rand.cppm, rand.cuh and the old
+ * state-type list (in place of the copies the old rand.cuh, rand.cppm and the
  * forward-declaring bridge each carried) and for the host API (in place of the
  * import). See docs/architecture.md, section 1, and src/README.md.
  *
@@ -57,9 +65,10 @@
 
 // Host API (curand.h) and device generator state types (curand_kernel.h). Both,
 // because this header is the single vendor-include point for the whole rand
-// layer: rand.cppm draws the host API from here, rand.cuh the device functions,
-// and both the state types. The host header is cheap; the kernel header is the
-// heavy one this arrangement is careful about (see below).
+// layer: rand.cppm draws the host API from here, a device .cu the __device__
+// generators (gated section at the bottom), and both the state types. The host
+// header is cheap; the kernel header is the heavy one this arrangement is
+// careful about (see below).
 #include <curand.h>
 #include <curand_kernel.h>
 
@@ -139,3 +148,103 @@ using wwrrandState_t = ::hiprandState_t;
 #endif
 
 } // namespace wwr
+
+// ========================================================================
+// Device generator functions -- present only in a device-compile pass
+//
+// The __device__-qualified generators, gated behind the compiler's own
+// device-pass macros so the rest of this header still compiles in a host TU
+// (where __device__ is not a keyword, so these must simply be ABSENT rather
+// than #error). A .cu that #includes rand.h gets them; rand.cppm and the
+// extension bridges, compiled as host C++, do not -- they use only the types
+// above and (rand.cppm) the host declarations. This is the device half that
+// once lived in the separate rand.cuh, folded in so a device consumer includes
+// one neutral header. Link wwr.rand.device for the include path and the RNG
+// library.
+//
+// One forwarding template per name, not a WWR_FUNCTION reference: the
+// generators are an overload set on CUDA and a function template on hipRAND,
+// and a reference can name neither. The State type is deduced, so a call reads
+// identically on both backends. Return types use the vector types both backends
+// spell identically (float2, double2) -- nothing to translate.
+//
+// These are __device__-only, callable only from device code -- e.g. a
+// parallel_for functor's __device__ operator(). See docs/architecture.md,
+// sections 1 and 4.
+// ========================================================================
+
+#if defined(__CUDACC__) || defined(__HIP__) || defined(__HIPCC__)
+
+namespace wwr {
+
+/// @brief Initialize one pseudorandom generator state
+///
+/// Wraps curand_init / hiprand_init -- the 4-argument pseudorandom form. The
+/// quasirandom (direction-vector) overloads are not wrapped; see this file's
+/// header.
+///
+/// @param seed Sequence seed; states sharing a seed but differing in
+///             `sequence` are independent
+/// @param sequence Sequence number for this state -- conventionally the
+///                 element index, so each thread draws its own stream
+/// @param offset How far into this state's sequence to start
+/// @param state [out] The state to initialize
+template<typename State>
+__device__ __forceinline__ void wwrrand_init(const unsigned long long seed,
+                                             const unsigned long long sequence,
+                                             const unsigned long long offset, State *state) {
+#if defined(WWR_SELECTED_CUDA)
+  ::curand_init(seed, sequence, offset, state);
+#else
+  ::hiprand_init(seed, sequence, offset, state);
+#endif
+}
+
+/// @brief Draw one float from the standard normal distribution (mean 0, stddev 1)
+template<typename State>
+__device__ __forceinline__ float wwrrand_normal(State *state) {
+#if defined(WWR_SELECTED_CUDA)
+  return ::curand_normal(state);
+#else
+  return ::hiprand_normal(state);
+#endif
+}
+
+/// @brief Draw two independent standard normal floats at once
+///
+/// Cheaper than two wwrrand_normal calls: both backends generate normals in
+/// pairs (Box-Muller), so the single-value form discards one half.
+template<typename State>
+__device__ __forceinline__ float2 wwrrand_normal2(State *state) {
+#if defined(WWR_SELECTED_CUDA)
+  return ::curand_normal2(state);
+#else
+  return ::hiprand_normal2(state);
+#endif
+}
+
+/// @brief Draw one double from the standard normal distribution
+template<typename State>
+__device__ __forceinline__ double wwrrand_normal_double(State *state) {
+#if defined(WWR_SELECTED_CUDA)
+  return ::curand_normal_double(state);
+#else
+  return ::hiprand_normal_double(state);
+#endif
+}
+
+/// @brief Draw two independent standard normal doubles at once
+///
+/// See wwrrand_normal2 for why the paired form is the cheaper one.
+template<typename State>
+__device__ __forceinline__ double2 wwrrand_normal2_double(State *state) {
+#if defined(WWR_SELECTED_CUDA)
+  return ::curand_normal2_double(state);
+#else
+  return ::hiprand_normal2_double(state);
+#endif
+}
+
+} // namespace wwr
+
+#endif // device-compile pass

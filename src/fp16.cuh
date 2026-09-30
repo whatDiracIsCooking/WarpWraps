@@ -17,7 +17,7 @@
  * way -- its type has no operators -- and lives in complex.cuh. See
  * docs/architecture.md, section 3.
  *
- * The conversions are __device__-only, like rand.cuh's forwarders: they serve a
+ * The conversions are __device__-only, like rand.h's device generators: they serve a
  * parallel_for functor's __device__ operator(). Host code reaches the same
  * conversions through fp16.cppm, which wraps them for the host.
  */

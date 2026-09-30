@@ -664,9 +664,9 @@ consumers should not pay for that. Same `hip::hiprand` imported target.
 `hiprand_normal_double`, `hiprand_normal2_double` and the rest of that
 header's callable surface are `__device__`-qualified, so they can only be
 called from a real device-compile pass -- and a kernel translation unit
-imports no modules. `src/rand.cuh` is how a device TU reaches them; a
-module unit is host code, and exporting them here would produce names nothing
-could call. The *state types* are different: they are plain data, and the
+imports no modules. `src/rand.h`'s device-pass-gated section is how a device TU
+reaches them; a module unit is host code, and exporting them here would produce
+names nothing could call. The *state types* are different: they are plain data, and the
 host is what allocates and sizes the per-thread state array.
 
 **`<cstdio>` is included before the header, and has to be.**

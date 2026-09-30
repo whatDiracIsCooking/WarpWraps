@@ -4,8 +4,8 @@
  *
  * The cuRAND / hipRAND host API, plus the device generator STATE TYPES and
  * nothing else of the device API: device functions are __device__-qualified
- * and live in rand.cuh, while the state types are plain data and the host is
- * what sizes the per-thread state array. wwrrand<X> stands for curand<X> /
+ * and live in rand.h's device-pass-gated section, while the state types are plain
+ * data and the host is what sizes the per-thread state array. wwrrand<X> stands for curand<X> /
  * hiprand<X>, WWRRAND_<X> for CURAND_<X> / HIPRAND_<X>, each written out in
  * full. See backend.h.
  *
@@ -39,9 +39,9 @@ module;
 // types") AND the host API (curand.h / hiprand.h), which this module binds to
 // directly with the _RAW macros. No raw vendor module is imported: the host API
 // is a real external-linkage library, so a reference or type alias needs only
-// the declarations this header supplies. The state-type header is also included
-// by rand.cuh and the extension bridges, so every one of them names one
-// identical type. See rand.h and backend.h.
+// the declarations this header supplies. rand.h is also included by the
+// extension bridges (and reached by a device .cu for its gated generators), so
+// every one of them names one identical state type. See rand.h and backend.h.
 #include "rand.h"
 
 export module wwr.rand;
@@ -216,8 +216,9 @@ WWR_FUNCTION_RAW(wwrrandGetScrambleConstants64, curandGetScrambleConstants64,
 // ========================================================================
 // Device generator state types (re-exported from rand.h)
 //
-// Types only -- the device functions that consume them live in rand.cuh,
-// for the reason in this file's header. What the host needs these for is
+// Types only -- the device functions that consume them live in rand.h's
+// device-pass-gated section, for the reason in this file's header. What the host
+// needs these for is
 // sizing and allocating the per-thread state array:
 //
 //   DeviceBufferWrapper<wwrrandState, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,

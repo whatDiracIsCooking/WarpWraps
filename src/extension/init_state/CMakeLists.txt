@@ -10,7 +10,7 @@
 # The device-kernel library (wwr_add_gpu_device_library handles the
 # per-backend compilation; see cmake/). The link line is what is local: PRIVATE,
 # as every device-library link is. wwr.extension.parallel_for carries
-# ${CMAKE_SOURCE_DIR}/src (so init_state_bridge.h and rand.cuh resolve) and
+# ${CMAKE_SOURCE_DIR}/src (so init_state_bridge.h and rand.h resolve) and
 # wwr.device; wwr.rand.device adds the cuRAND/hipRAND library.
 wwr_add_gpu_device_library(
   NAME
