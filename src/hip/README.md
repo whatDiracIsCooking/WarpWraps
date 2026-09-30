@@ -156,6 +156,16 @@ legacy `librocm_smi64` is not wrapped alongside it, and what that costs. A pure
 C `extern "C"` API, exported the same way as the modules above: every declared
 type, enumerator, and function via `using`.
 
+**28 of those names are version-guarded**, the largest such set in this tree.
+amd-smi moves faster than anything else in `src/hip` -- 26.1.0 at the ROCm 7.1
+floor, 26.2.2 at the 7.2.4 pin -- and 26.2 added the node handle, the DDR5 and
+LPDDR VRAM types, the power-cap type, NPM, the Peak Tops Limiter, and partition
+metrics. They sit behind `WWR_AMDSMI_SINCE_26_2`, which reads amd-smi's own
+`AMDSMI_LIB_VERSION_*` rather than `HIP_VERSION` (the two do not track each
+other). `test/hip/amd_smi.cppm` mirrors every guard, and additionally asserts
+`AMDSMI_VRAM_TYPE__MAX` both ways -- it aliases the last enumerator, so its
+value moves from 23 to 31 across that step.
+
 `amdsmi.h` guards a CPU/ESMI (E-SMS, AMD EPYC System Management Interface)
 extension surface -- RAPL MSR energy counters, HSMP system statistics,
 performance-boost-limit control, DDR bandwidth and DIMM statistics, xGMI/GMI3
@@ -760,6 +770,11 @@ Wraps `hiptensor/hiptensor.h` -- AMD's tensor primitives library (contraction,
 reduction, permutation, element-wise), built on composable-kernel. CUDA
 counterpart: `wwr.cuda.cutensor`. See `src/tensor.cppm` for the backend-neutral
 `wwrtensor*` layer.
+
+**Two header spellings.** hipTensor 2.2.0 (ROCm 7.2) added the C-linkage
+`hiptensor.h`; 2.1.0 (ROCm 7.1, the floor) ships only `hiptensor.hpp`, with the
+same declarations. The module picks with `__has_include` and the `find_path`
+takes both NAMES -- nothing in the exported surface differs.
 
 **Why the library is found by hand, not via its CMake package.** hipTensor
 *does* ship a package, but `hiptensor::hiptensor` lists `hip::device` in its

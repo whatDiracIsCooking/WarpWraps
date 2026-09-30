@@ -37,6 +37,14 @@ module;
 #include <array>
 #include <hipblaslt/hipblaslt.h>
 
+// hipBLASLt 1.2 (ROCm 7.2) added the two SIGMOID epilogues below; 1.1 (ROCm
+// 7.1, the floor -- docs/architecture.md, section 21) has neither, and a
+// using-declaration for an absent enumerator is a hard error. hipBLASLt carries
+// its own version, independent of HIP's, so the guard reads hipblaslt-version.h
+// (pulled in by hipblaslt.h) rather than HIP_VERSION.
+#define WWR_HIPBLASLT_SINCE_1_2                                                                    \
+  (HIPBLASLT_VERSION_MAJOR > 1 || (HIPBLASLT_VERSION_MAJOR == 1 && HIPBLASLT_VERSION_MINOR >= 2))
+
 export module wwr.hip.hipblaslt;
 
 import std;
@@ -64,8 +72,10 @@ using ::HIPBLASLT_EPILOGUE_RELU;
 using ::HIPBLASLT_EPILOGUE_RELU_AUX;
 using ::HIPBLASLT_EPILOGUE_RELU_AUX_BIAS;
 using ::HIPBLASLT_EPILOGUE_RELU_BIAS;
+#if WWR_HIPBLASLT_SINCE_1_2
 using ::HIPBLASLT_EPILOGUE_SIGMOID_BIAS_EXT;
 using ::HIPBLASLT_EPILOGUE_SIGMOID_EXT;
+#endif
 using ::HIPBLASLT_EPILOGUE_SWISH_BIAS_EXT;
 using ::HIPBLASLT_EPILOGUE_SWISH_EXT;
 using ::hipblasLtEpilogue_t;

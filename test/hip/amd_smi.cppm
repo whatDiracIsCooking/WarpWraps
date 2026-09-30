@@ -4,6 +4,16 @@ module;
 
 #include "test/shared/link_check.h"
 
+// The 28 names amd-smi 26.2 (ROCm 7.2) added are guarded in
+// src/hip/amd_smi.cppm and so are absent from this module's surface at the
+// ROCm 7.1 floor -- the assertions below have to be guarded identically or the
+// floor build fails on the TEST rather than the wrapper. This TU imports the
+// module and includes no amd-smi header, so it takes the version from
+// amdsmi.h. Keep the spelling in step with the wrapper's.
+#include <amd_smi/amdsmi.h>
+#define WWR_AMDSMI_SINCE_26_2                                                                      \
+  (AMDSMI_LIB_VERSION_MAJOR > 26 || (AMDSMI_LIB_VERSION_MAJOR == 26 && AMDSMI_LIB_VERSION_MINOR >= 2))
+
 export module wwr.test.hip.amd_smi;
 
 import std;
@@ -46,7 +56,9 @@ static_assert(std::is_enum_v<amdsmi_temperature_type_t>);
 static_assert(std::is_enum_v<amdsmi_fw_block_t>);
 static_assert(std::is_enum_v<amdsmi_vram_type_t>);
 static_assert(std::is_enum_v<amdsmi_card_form_factor_t>);
+#if WWR_AMDSMI_SINCE_26_2
 static_assert(std::is_enum_v<amdsmi_power_cap_type_t>);
+#endif
 static_assert(std::is_enum_v<amdsmi_cache_property_type_t>);
 static_assert(std::is_enum_v<amdsmi_link_type_t>);
 static_assert(std::is_enum_v<amdsmi_dev_perf_level_t>);
@@ -72,8 +84,10 @@ static_assert(std::is_enum_v<amdsmi_xgmi_link_status_type_t>);
 static_assert(std::is_enum_v<amdsmi_reg_type_t>);
 static_assert(std::is_enum_v<amdsmi_virtualization_mode_t>);
 static_assert(std::is_enum_v<amdsmi_affinity_scope_t>);
+#if WWR_AMDSMI_SINCE_26_2
 static_assert(std::is_enum_v<amdsmi_npm_status_t>);
 static_assert(std::is_enum_v<amdsmi_ptl_data_format_t>);
+#endif
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum values (generated from the compiled amdsmi.h values)
@@ -359,7 +373,9 @@ static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_HBM3E) == 5);
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_DDR2) == 10);
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_DDR3) == 11);
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_DDR4) == 12);
+#if WWR_AMDSMI_SINCE_26_2
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_DDR5) == 13);
+#endif
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_GDDR1) == 17);
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_GDDR2) == 18);
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_GDDR3) == 19);
@@ -367,9 +383,16 @@ static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_GDDR4) == 20);
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_GDDR5) == 21);
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_GDDR6) == 22);
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_GDDR7) == 23);
+// __MAX aliases the LAST enumerator, so it MOVES: LPDDR5 (31) at 26.2,
+// GDDR7 (23) at the floor's 26.1. Asserted both ways rather than dropped --
+// a sentinel that silently changed value is exactly what this file is for.
+#if WWR_AMDSMI_SINCE_26_2
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_LPDDR4) == 30);
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE_LPDDR5) == 31);
 static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE__MAX) == 31);
+#else
+static_assert(static_cast<long long>(AMDSMI_VRAM_TYPE__MAX) == 23);
+#endif
 
 // amdsmi_card_form_factor_t
 static_assert(static_cast<long long>(AMDSMI_CARD_FORM_FACTOR_PCIE) == 0);
@@ -378,8 +401,10 @@ static_assert(static_cast<long long>(AMDSMI_CARD_FORM_FACTOR_CEM) == 2);
 static_assert(static_cast<long long>(AMDSMI_CARD_FORM_FACTOR_UNKNOWN) == 3);
 
 // amdsmi_power_cap_type_t
+#if WWR_AMDSMI_SINCE_26_2
 static_assert(static_cast<long long>(AMDSMI_POWER_CAP_TYPE_PPT0) == 0);
 static_assert(static_cast<long long>(AMDSMI_POWER_CAP_TYPE_PPT1) == 1);
+#endif
 
 // amdsmi_cache_property_type_t
 static_assert(static_cast<long long>(AMDSMI_CACHE_PROPERTY_ENABLED) == 1);
@@ -623,6 +648,7 @@ static_assert(static_cast<long long>(AMDSMI_VIRTUALIZATION_MODE_PASSTHROUGH) == 
 static_assert(static_cast<long long>(AMDSMI_AFFINITY_SCOPE_NODE) == 0);
 static_assert(static_cast<long long>(AMDSMI_AFFINITY_SCOPE_SOCKET) == 1);
 
+#if WWR_AMDSMI_SINCE_26_2
 // amdsmi_npm_status_t
 static_assert(static_cast<long long>(AMDSMI_NPM_STATUS_DISABLED) == 0);
 static_assert(static_cast<long long>(AMDSMI_NPM_STATUS_ENABLED) == 1);
@@ -636,6 +662,7 @@ static_assert(static_cast<long long>(AMDSMI_PTL_DATA_FORMAT_F64) == 4);
 static_assert(static_cast<long long>(AMDSMI_PTL_DATA_FORMAT_F8) == 5);
 static_assert(static_cast<long long>(AMDSMI_PTL_DATA_FORMAT_VECTOR) == 6);
 static_assert(static_cast<long long>(AMDSMI_PTL_DATA_FORMAT_INVALID) == 4294967295);
+#endif
 
 // ────────────────────────────────────────────────────────────────────────
 // Struct / union traits: trivial copyability (C-interop guarantee)
@@ -693,7 +720,9 @@ static_assert(std::is_trivially_copyable_v<amdsmi_ras_feature_t>);
 static_assert(std::is_trivially_copyable_v<amdsmi_error_count_t>);
 static_assert(std::is_trivially_copyable_v<amdsmi_process_info_t>);
 static_assert(std::is_trivially_copyable_v<amdsmi_topology_nearest_t>);
+#if WWR_AMDSMI_SINCE_26_2
 static_assert(std::is_trivially_copyable_v<amdsmi_npm_info_t>);
+#endif
 static_assert(std::is_trivially_copyable_v<amdsmi_sock_info_t>);
 static_assert(std::is_trivially_copyable_v<amdsmi_cper_guid_t>);
 static_assert(std::is_trivially_copyable_v<amdsmi_cper_timestamp_t>);
@@ -708,7 +737,9 @@ static_assert(std::is_trivially_copyable_v<amdsmi_cper_hdr_t>);
 // `void*`-shaped opaque handles.
 static_assert(std::is_pointer_v<amdsmi_processor_handle>);
 static_assert(std::is_pointer_v<amdsmi_socket_handle>);
+#if WWR_AMDSMI_SINCE_26_2
 static_assert(std::is_pointer_v<amdsmi_node_handle>);
+#endif
 // amdsmi_process_handle_t (uint32_t), amdsmi_event_handle_t (uintptr_t), and
 // amdsmi_bit_field_t (uint64_t) are integral typedefs, not pointers -- sized to
 // match their underlying type.
@@ -728,7 +759,9 @@ WWR_LINK_CHECK(amdsmi_shut_down)
 WWR_LINK_CHECK(amdsmi_get_socket_handles)
 WWR_LINK_CHECK(amdsmi_get_socket_info)
 WWR_LINK_CHECK(amdsmi_get_processor_handles)
+#if WWR_AMDSMI_SINCE_26_2
 WWR_LINK_CHECK(amdsmi_get_node_handle)
+#endif
 WWR_LINK_CHECK(amdsmi_get_processor_type)
 WWR_LINK_CHECK(amdsmi_get_processor_handle_from_bdf)
 WWR_LINK_CHECK(amdsmi_get_gpu_device_bdf)
@@ -761,7 +794,9 @@ WWR_LINK_CHECK(amdsmi_get_energy_count)
 // Power Control
 WWR_LINK_CHECK(amdsmi_set_power_cap)
 WWR_LINK_CHECK(amdsmi_set_gpu_power_profile)
+#if WWR_AMDSMI_SINCE_26_2
 WWR_LINK_CHECK(amdsmi_get_supported_power_cap)
+#endif
 WWR_LINK_CHECK(amdsmi_get_cpu_socket_power)
 WWR_LINK_CHECK(amdsmi_get_cpu_socket_power_cap)
 WWR_LINK_CHECK(amdsmi_get_cpu_socket_power_cap_max)
@@ -801,7 +836,9 @@ WWR_LINK_CHECK(amdsmi_reset_gpu)
 WWR_LINK_CHECK(amdsmi_get_gpu_od_volt_info)
 WWR_LINK_CHECK(amdsmi_get_gpu_metrics_header_info)
 WWR_LINK_CHECK(amdsmi_get_gpu_metrics_info)
+#if WWR_AMDSMI_SINCE_26_2
 WWR_LINK_CHECK(amdsmi_get_gpu_partition_metrics_info)
+#endif
 WWR_LINK_CHECK(amdsmi_get_gpu_pm_metrics_info)
 WWR_LINK_CHECK(amdsmi_get_gpu_reg_table_info)
 WWR_LINK_CHECK(amdsmi_set_gpu_clk_range)
@@ -901,7 +938,9 @@ WWR_LINK_CHECK(amdsmi_get_gpu_board_info)
 WWR_LINK_CHECK(amdsmi_get_power_cap_info)
 WWR_LINK_CHECK(amdsmi_get_pcie_info)
 WWR_LINK_CHECK(amdsmi_get_gpu_xcd_counter)
+#if WWR_AMDSMI_SINCE_26_2
 WWR_LINK_CHECK(amdsmi_get_npm_info)
+#endif
 
 // Firmware & VBIOS queries
 WWR_LINK_CHECK(amdsmi_get_fw_info)
@@ -923,9 +962,11 @@ WWR_LINK_CHECK(amdsmi_get_gpu_process_list)
 WWR_LINK_CHECK(amdsmi_gpu_driver_reload)
 
 // Peak Tops Limiter
+#if WWR_AMDSMI_SINCE_26_2
 WWR_LINK_CHECK(amdsmi_get_gpu_ptl_state)
 WWR_LINK_CHECK(amdsmi_set_gpu_ptl_state)
 WWR_LINK_CHECK(amdsmi_get_gpu_ptl_formats)
 WWR_LINK_CHECK(amdsmi_set_gpu_ptl_formats)
+#endif
 
 } // namespace wwr::hip::test

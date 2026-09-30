@@ -10,7 +10,12 @@
  * process can hold, which depends on the ROCm version.
  *
  * It is a pure C API, and every type, enumerator and function it declares is
- * exported by name below.
+ * exported by name below -- every one the INSTALLED amd-smi declares. This is
+ * the fastest-moving library in src/hip: 28 of the names here arrived in
+ * amd-smi 26.2 (ROCm 7.2) and do not exist at the ROCm 7.1 floor, so they sit
+ * behind WWR_AMDSMI_SINCE_26_2 below, in six clusters (node handle, the DDR5/
+ * LPDDR VRAM types, the power-cap type, NPM, the Peak Tops Limiter, and
+ * partition metrics). See docs/architecture.md, section 21.
  *
  * The CPU/ESMI extension surface (RAPL MSR energy counters, HSMP statistics,
  * boost-limit control, DDR bandwidth, dimm statistics, xGMI/GMI3 link width,
@@ -26,6 +31,15 @@
 module;
 
 #include <amd_smi/amdsmi.h>
+
+// amd-smi carries its own version, unrelated to HIP's -- 26.1.0 at the ROCm
+// 7.1 floor, 26.2.2 at the 7.2.4 pin -- so the guard reads AMDSMI_LIB_VERSION_*
+// from amdsmi.h rather than HIP_VERSION. A using-declaration for a name that
+// does not exist is a hard error, which is why these are #if and not something
+// the linker would sort out. Raise the floor to 7.2 and every guard below
+// becomes dead code to delete.
+#define WWR_AMDSMI_SINCE_26_2                                                                      \
+  (AMDSMI_LIB_VERSION_MAJOR > 26 || (AMDSMI_LIB_VERSION_MAJOR == 26 && AMDSMI_LIB_VERSION_MINOR >= 2))
 
 export module wwr.hip.amd_smi;
 
@@ -56,7 +70,9 @@ using ::AMDSMI_CONTAINER_DOCKER;
 using ::AMDSMI_CONTAINER_LXC;
 using ::amdsmi_container_types_t;
 
+#if WWR_AMDSMI_SINCE_26_2
 using ::amdsmi_node_handle;
+#endif
 using ::amdsmi_processor_handle;
 using ::amdsmi_socket_handle;
 // processor_type_t
@@ -321,7 +337,9 @@ using ::AMDSMI_VRAM_TYPE__MAX;
 using ::AMDSMI_VRAM_TYPE_DDR2;
 using ::AMDSMI_VRAM_TYPE_DDR3;
 using ::AMDSMI_VRAM_TYPE_DDR4;
+#if WWR_AMDSMI_SINCE_26_2
 using ::AMDSMI_VRAM_TYPE_DDR5;
+#endif
 using ::AMDSMI_VRAM_TYPE_GDDR1;
 using ::AMDSMI_VRAM_TYPE_GDDR2;
 using ::AMDSMI_VRAM_TYPE_GDDR3;
@@ -334,8 +352,10 @@ using ::AMDSMI_VRAM_TYPE_HBM2;
 using ::AMDSMI_VRAM_TYPE_HBM2E;
 using ::AMDSMI_VRAM_TYPE_HBM3;
 using ::AMDSMI_VRAM_TYPE_HBM3E;
+#if WWR_AMDSMI_SINCE_26_2
 using ::AMDSMI_VRAM_TYPE_LPDDR4;
 using ::AMDSMI_VRAM_TYPE_LPDDR5;
+#endif
 using ::amdsmi_vram_type_t;
 using ::AMDSMI_VRAM_TYPE_UNKNOWN;
 
@@ -356,9 +376,11 @@ using ::AMDSMI_CARD_FORM_FACTOR_UNKNOWN;
 using ::amdsmi_pcie_info_t;
 using ::amdsmi_power_cap_info_t;
 // amdsmi_power_cap_type_t
+#if WWR_AMDSMI_SINCE_26_2
 using ::AMDSMI_POWER_CAP_TYPE_PPT0;
 using ::AMDSMI_POWER_CAP_TYPE_PPT1;
 using ::amdsmi_power_cap_type_t;
+#endif
 
 using ::amdsmi_vbios_info_t;
 // amdsmi_cache_property_type_t
@@ -673,6 +695,7 @@ using ::AMDSMI_AFFINITY_SCOPE_NODE;
 using ::AMDSMI_AFFINITY_SCOPE_SOCKET;
 using ::amdsmi_affinity_scope_t;
 
+#if WWR_AMDSMI_SINCE_26_2
 // amdsmi_npm_status_t
 using ::AMDSMI_NPM_STATUS_DISABLED;
 using ::AMDSMI_NPM_STATUS_ENABLED;
@@ -689,6 +712,7 @@ using ::AMDSMI_PTL_DATA_FORMAT_I8;
 using ::AMDSMI_PTL_DATA_FORMAT_INVALID;
 using ::amdsmi_ptl_data_format_t;
 using ::AMDSMI_PTL_DATA_FORMAT_VECTOR;
+#endif
 
 using ::amdsmi_cper_guid_t;
 using ::amdsmi_cper_hdr_t;
@@ -710,7 +734,9 @@ using ::amdsmi_get_gpu_device_bdf;
 using ::amdsmi_get_gpu_device_uuid;
 using ::amdsmi_get_gpu_enumeration_info;
 using ::amdsmi_get_gpu_virtualization_mode;
+#if WWR_AMDSMI_SINCE_26_2
 using ::amdsmi_get_node_handle;
+#endif
 using ::amdsmi_get_processor_handle_from_bdf;
 using ::amdsmi_get_processor_handles;
 using ::amdsmi_get_processor_type;
@@ -743,7 +769,9 @@ using ::amdsmi_get_cpu_pwr_svi_telemetry_all_rails;
 using ::amdsmi_get_cpu_socket_power;
 using ::amdsmi_get_cpu_socket_power_cap;
 using ::amdsmi_get_cpu_socket_power_cap_max;
+#if WWR_AMDSMI_SINCE_26_2
 using ::amdsmi_get_supported_power_cap;
+#endif
 using ::amdsmi_set_cpu_pwr_efficiency_mode;
 using ::amdsmi_set_cpu_socket_power_cap;
 using ::amdsmi_set_gpu_power_profile;
@@ -778,7 +806,9 @@ using ::amdsmi_get_gpu_metrics_info;
 using ::amdsmi_get_gpu_od_volt_curve_regions;
 using ::amdsmi_get_gpu_od_volt_info;
 using ::amdsmi_get_gpu_overdrive_level;
+#if WWR_AMDSMI_SINCE_26_2
 using ::amdsmi_get_gpu_partition_metrics_info;
+#endif
 using ::amdsmi_get_gpu_perf_level;
 using ::amdsmi_get_gpu_pm_metrics_info;
 using ::amdsmi_get_gpu_power_profile_presets;
@@ -879,7 +909,9 @@ using ::amdsmi_get_gpu_board_info;
 using ::amdsmi_get_gpu_kfd_info;
 using ::amdsmi_get_gpu_vram_info;
 using ::amdsmi_get_gpu_xcd_counter;
+#if WWR_AMDSMI_SINCE_26_2
 using ::amdsmi_get_npm_info;
+#endif
 using ::amdsmi_get_pcie_info;
 using ::amdsmi_get_power_cap_info;
 
@@ -903,9 +935,11 @@ using ::amdsmi_get_gpu_process_list;
 using ::amdsmi_gpu_driver_reload;
 
 // Peak Tops Limiter
+#if WWR_AMDSMI_SINCE_26_2
 using ::amdsmi_get_gpu_ptl_formats;
 using ::amdsmi_get_gpu_ptl_state;
 using ::amdsmi_set_gpu_ptl_formats;
 using ::amdsmi_set_gpu_ptl_state;
+#endif
 
 } // namespace wwr::hip

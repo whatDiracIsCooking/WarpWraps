@@ -4,6 +4,15 @@ module;
 
 #include "test/shared/link_check.h"
 
+// The two SIGMOID epilogues are guarded in src/hip/hipblaslt.cppm -- hipBLASLt
+// 1.2 (ROCm 7.2) added them and the 7.1 floor's 1.1 has neither -- so the
+// assertions below are guarded identically. This TU imports the module and
+// includes no hipBLASLt header, so it takes the version from the one that is
+// only macros. Keep the spelling in step with the wrapper's.
+#include <hipblaslt/hipblaslt-version.h>
+#define WWR_HIPBLASLT_SINCE_1_2                                                                    \
+  (HIPBLASLT_VERSION_MAJOR > 1 || (HIPBLASLT_VERSION_MAJOR == 1 && HIPBLASLT_VERSION_MINOR >= 2))
+
 export module wwr.test.hip.hipblaslt;
 
 import std;
@@ -59,8 +68,10 @@ static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_CLAMP_EXT) == 131072);
 static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_CLAMP_BIAS_EXT) == 131076);
 static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_CLAMP_AUX_EXT) == 131200);
 static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_CLAMP_AUX_BIAS_EXT) == 131204);
+#if WWR_HIPBLASLT_SINCE_1_2
 static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_SIGMOID_EXT) == 262144);
 static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_SIGMOID_BIAS_EXT) == 262148);
+#endif
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum values: hipblasLtMatrixLayoutAttribute_t

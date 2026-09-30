@@ -20,6 +20,11 @@
  * includes itself, gated on __HIP_PLATFORM_AMD__, which hip::host defines.
  * Nothing extra to include here.
  *
+ * Six names here are re-exported only above the ROCm floor -- see
+ * WWR_HIP_SINCE_7_2 below. src/hip/amd_smi.cppm and src/hip/hipblaslt.cppm
+ * carry the same pattern against their own libraries' versions;
+ * docs/architecture.md, section 21, has the whole inventory.
+ *
  * Usage:
  *   import wwr.hip.hip_runtime_api;
  */
@@ -28,6 +33,19 @@ module;
 
 #define __HIP_DISABLE_CPP_FUNCTIONS__ 1
 #include <hip/hip_runtime_api.h>
+
+// ROCm 7.2 added six names this module re-exports; the 7.1 FLOOR
+// (docs/architecture.md, section 21) declares none of them, and a
+// using-declaration for a name that does not exist is a hard error rather than
+// something the linker sorts out later. So each of the four sites below is
+// guarded on this, and the tree exports a surface that is a function of the
+// ROCm it was compiled against -- exactly what the pin/floor split means.
+//
+// HIP_VERSION is MAJOR*10000000 + MINOR*100000 + PATCH, so 70200000 is "7.2.0
+// or newer" and the patch field (a HIP SDK build number, unrelated to ROCm's
+// own patch -- see CMakeLists.txt's floor check) stays out of it. Raise the
+// floor to 7.2 and every guard below becomes dead code to delete.
+#define WWR_HIP_SINCE_7_2 (HIP_VERSION >= 70200000)
 
 // Validate HIP flag macro values at compile time before we #undef them.
 // These mirror CUDA's cudaHostAlloc*/cudaEvent*/cudaStream* groups in shape,
@@ -490,7 +508,9 @@ using ::hipDeviceAttributeGlobalL1CacheSupported;
 using ::hipDeviceAttributeHdpMemFlushCntl;
 using ::hipDeviceAttributeHdpRegFlushCntl;
 using ::hipDeviceAttributeHostNativeAtomicSupported;
+#if WWR_HIP_SINCE_7_2
 using ::hipDeviceAttributeHostNumaId;
+#endif
 using ::hipDeviceAttributeHostRegisterSupported;
 using ::hipDeviceAttributeImageSupport;
 using ::hipDeviceAttributeIntegrated;
@@ -1335,7 +1355,9 @@ using ::hipStreamAttachMemAsync;
 using ::hipStreamBatchMemOp;
 using ::hipStreamBeginCapture;
 using ::hipStreamBeginCaptureToGraph;
+#if WWR_HIP_SINCE_7_2
 using ::hipStreamCopyAttributes;
+#endif
 using ::hipStreamCreate;
 using ::hipStreamCreateWithFlags;
 using ::hipStreamCreateWithPriority;
@@ -1430,10 +1452,12 @@ inline hipError_t hipOccupancyMaxPotentialBlockSize(int *gridSize, int *blockSiz
   return ::hipOccupancyMaxPotentialBlockSize(gridSize, blockSize, f, dynSharedMemPerBlk,
                                              blockSizeLimit);
 }
+#if WWR_HIP_SINCE_7_2
 inline hipError_t hipOccupancyAvailableDynamicSMemPerBlock(size_t *dynamicSmemSize, const void *f,
                                                            int numBlocks, int blockSize) {
   return ::hipOccupancyAvailableDynamicSMemPerBlock(dynamicSmemSize, f, numBlocks, blockSize);
 }
+#endif
 using ::hipFuncGetAttribute;
 using ::hipFuncGetAttributes;
 using ::hipFuncSetAttribute;
@@ -1459,9 +1483,11 @@ using ::hipGetFuncBySymbol;
 // Module / Library / Linker Management
 // ------------------------------------------------------------------------
 using ::hipApiName;
+#if WWR_HIP_SINCE_7_2
 using ::hipKernelGetLibrary;
 using ::hipKernelGetName;
 using ::hipLibraryEnumerateKernels;
+#endif
 using ::hipLibraryGetKernel;
 using ::hipLibraryGetKernelCount;
 using ::hipLibraryLoadData;
