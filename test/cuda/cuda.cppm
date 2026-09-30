@@ -802,4 +802,47 @@ WWR_LINK_CHECK(cuCheckpointProcessCheckpoint)
 WWR_LINK_CHECK(cuCheckpointProcessRestore)
 WWR_LINK_CHECK(cuCheckpointProcessUnlock)
 
+
+// ────────────────────────────────────────────────────────────────────────
+// Additional link-time coverage (#117 completeness): re-exported functions
+// not previously link-checked.
+// ────────────────────────────────────────────────────────────────────────
+
+WWR_LINK_CHECK(cuMemHostAlloc)
+WWR_LINK_CHECK(cuMemcpyDtoA_v2)
+WWR_LINK_CHECK(cuMemcpyAtoD_v2)
+WWR_LINK_CHECK(cuMemcpyHtoA_v2)
+WWR_LINK_CHECK(cuMemcpyAtoH_v2)
+WWR_LINK_CHECK(cuMemcpyAtoA_v2)
+WWR_LINK_CHECK(cuMemcpyHtoAAsync_v2)
+WWR_LINK_CHECK(cuMemcpyAtoHAsync_v2)
+WWR_LINK_CHECK(cuMemsetD2D8_v2)
+WWR_LINK_CHECK(cuMemsetD2D16_v2)
+WWR_LINK_CHECK(cuMemsetD2D32_v2)
+WWR_LINK_CHECK(cuMemsetD2D8Async)
+WWR_LINK_CHECK(cuMemsetD2D16Async)
+WWR_LINK_CHECK(cuMemsetD2D32Async)
+WWR_LINK_CHECK(cuPointerSetAttribute)
+WWR_LINK_CHECK(cuMemAllocAsync)
+WWR_LINK_CHECK(cuStreamWriteValue32_v2)
+WWR_LINK_CHECK(cuStreamWriteValue64_v2)
+WWR_LINK_CHECK(cuOccupancyMaxPotentialBlockSize)
+WWR_LINK_CHECK(cuOccupancyMaxPotentialBlockSizeWithFlags)
+WWR_LINK_CHECK(cuCtxCreate_v4)
+WWR_LINK_CHECK(cuCtxPopCurrent_v2)
+WWR_LINK_CHECK(cuCtxPushCurrent_v2)
+WWR_LINK_CHECK(cuCtxGetApiVersion)
+WWR_LINK_CHECK(cuCtxAttach)
+WWR_LINK_CHECK(cuCtxDetach)
+WWR_LINK_CHECK(cuModuleGetTexRef)
+WWR_LINK_CHECK(cuModuleGetSurfRef)
+WWR_LINK_CHECK(cuModuleGetLoadingMode)
+WWR_LINK_CHECK(cuLibraryGetManaged)
+WWR_LINK_CHECK(cuLibraryGetUnifiedFunction)
+WWR_LINK_CHECK(cuDeviceGetLuid)
+WWR_LINK_CHECK(cuDeviceGetProperties)
+WWR_LINK_CHECK(cuDeviceGetByPCIBusId)
+WWR_LINK_CHECK(cuDeviceGetPCIBusId)
+WWR_LINK_CHECK(cuDeviceGetExecAffinitySupport)
+
 } // namespace wwr::test

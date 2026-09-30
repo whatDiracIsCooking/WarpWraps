@@ -490,4 +490,37 @@ WWR_LINK_CHECK(cusparseSpMMOp_createPlan)
 WWR_LINK_CHECK(cusparseSpMMOp)
 WWR_LINK_CHECK(cusparseSpMMOp_destroyPlan)
 
+
+// ────────────────────────────────────────────────────────────────────────
+// Additional link-time coverage (#117 completeness): re-exported functions
+// not previously link-checked.
+// ────────────────────────────────────────────────────────────────────────
+
+WWR_LINK_CHECK(cusparseCreateBsric02Info)
+WWR_LINK_CHECK(cusparseCreateBsrilu02Info)
+WWR_LINK_CHECK(cusparseCreateBsrsm2Info)
+WWR_LINK_CHECK(cusparseCreateBsrsv2Info)
+WWR_LINK_CHECK(cusparseCreateColorInfo)
+WWR_LINK_CHECK(cusparseCreateCsric02Info)
+WWR_LINK_CHECK(cusparseCreateCsrilu02Info)
+WWR_LINK_CHECK(cusparseCreateCsru2csrInfo)
+WWR_LINK_CHECK(cusparseCreatePruneInfo)
+WWR_LINK_CHECK(cusparseDestroyBsric02Info)
+WWR_LINK_CHECK(cusparseDestroyBsrilu02Info)
+WWR_LINK_CHECK(cusparseDestroyBsrsm2Info)
+WWR_LINK_CHECK(cusparseDestroyBsrsv2Info)
+WWR_LINK_CHECK(cusparseDestroyColorInfo)
+WWR_LINK_CHECK(cusparseDestroyCsric02Info)
+WWR_LINK_CHECK(cusparseDestroyCsrilu02Info)
+WWR_LINK_CHECK(cusparseDestroyCsru2csrInfo)
+WWR_LINK_CHECK(cusparseDestroyPruneInfo)
+WWR_LINK_CHECK(cusparseCcsr2gebsr_bufferSize)
+WWR_LINK_CHECK(cusparseCgebsr2gebsc_bufferSize)
+WWR_LINK_CHECK(cusparseDcsr2gebsr_bufferSize)
+WWR_LINK_CHECK(cusparseDgebsr2gebsc_bufferSize)
+WWR_LINK_CHECK(cusparseScsr2gebsr_bufferSize)
+WWR_LINK_CHECK(cusparseSgebsr2gebsc_bufferSize)
+WWR_LINK_CHECK(cusparseZcsr2gebsr_bufferSize)
+WWR_LINK_CHECK(cusparseZgebsr2gebsc_bufferSize)
+
 } // namespace wwr::cuda::test

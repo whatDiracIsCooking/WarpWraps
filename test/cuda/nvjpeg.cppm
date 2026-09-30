@@ -280,4 +280,13 @@ WWR_LINK_CHECK(nvjpegDecodeJpegDevice)
 // are declared without NVJPEGAPI in the header (transcoding helpers); WWR_LINK_CHECK is
 // intentionally omitted for those two symbols.
 
+
+// ────────────────────────────────────────────────────────────────────────
+// Additional link-time coverage (#117 completeness): re-exported functions
+// not previously link-checked.
+// ────────────────────────────────────────────────────────────────────────
+
+WWR_LINK_CHECK(nvjpegEncoderParamsCopyMetadata)
+WWR_LINK_CHECK(nvjpegEncoderParamsCopyQuantizationTables)
+
 } // namespace wwr::cuda::test
