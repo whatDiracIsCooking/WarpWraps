@@ -1,0 +1,367 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/local/cuda/include/nvrtc.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/usr/local/cuda/include/nvrtc.h",
+    "prefix": "nvrtc",
+    "symbol_count": 44
+  },
+  "symbols": [
+    {
+      "name": "NVRTC_ERROR_BUILTIN_OPERATION_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_BUILTIN_OPERATION_FAILURE = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "f4720d44ec17208e"
+    },
+    {
+      "name": "NVRTC_ERROR_CANCELLED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_CANCELLED = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "5a82d4c4dc58ba19"
+    },
+    {
+      "name": "NVRTC_ERROR_COMPILATION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_COMPILATION = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "b5b06678da03968c"
+    },
+    {
+      "name": "NVRTC_ERROR_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_INTERNAL_ERROR = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "a55fbaf8b6f0eb0b"
+    },
+    {
+      "name": "NVRTC_ERROR_INVALID_INPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_INVALID_INPUT = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "077447108b1125ff"
+    },
+    {
+      "name": "NVRTC_ERROR_INVALID_OPTION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_INVALID_OPTION = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "a8013fceb83ed703"
+    },
+    {
+      "name": "NVRTC_ERROR_INVALID_PROGRAM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_INVALID_PROGRAM = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "5174a2eb0710a83d"
+    },
+    {
+      "name": "NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "0352993cf437bbed"
+    },
+    {
+      "name": "NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "1c047316031a9e01"
+    },
+    {
+      "name": "NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "76c07a6dae98832e"
+    },
+    {
+      "name": "NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "875a1f39faf42e00"
+    },
+    {
+      "name": "NVRTC_ERROR_OUT_OF_MEMORY",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_OUT_OF_MEMORY = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "62c243ba93bb9244"
+    },
+    {
+      "name": "NVRTC_ERROR_PCH_CREATE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_PCH_CREATE = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "8ab4208ea70ae394"
+    },
+    {
+      "name": "NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "19862729ea5cad3b"
+    },
+    {
+      "name": "NVRTC_ERROR_PROGRAM_CREATION_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_PROGRAM_CREATION_FAILURE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "ecd0b8048fccd6f5"
+    },
+    {
+      "name": "NVRTC_ERROR_TIME_FILE_WRITE_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_TIME_FILE_WRITE_FAILED = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "c46bb6fcb0375c09"
+    },
+    {
+      "name": "NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED = 17",
+      "value": 17,
+      "value_explicit": true,
+      "decl_hash": "5f61d9d13e66c4e6"
+    },
+    {
+      "name": "NVRTC_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "NVRTC_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "6b17afbf0f429c3e"
+    },
+    {
+      "name": "nvrtcAddNameExpression",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcAddNameExpression(nvrtcProgram prog, const char *const name_expression)",
+      "decl_hash": "6660c859457c825b"
+    },
+    {
+      "name": "nvrtcCompileProgram",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char *const * options)",
+      "decl_hash": "e2886dcc6e82613f"
+    },
+    {
+      "name": "nvrtcCreateProgram",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcCreateProgram(nvrtcProgram * prog, const char * src, const char * name, int numHeaders, const char *const * headers, const char *const * includeNames)",
+      "decl_hash": "2851a312a2e403d3"
+    },
+    {
+      "name": "nvrtcDestroyProgram",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcDestroyProgram(nvrtcProgram * prog)",
+      "decl_hash": "a8534a3d55cf95a1"
+    },
+    {
+      "name": "nvrtcGetCUBIN",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char * cubin)",
+      "decl_hash": "0ff1cbf419abec37"
+    },
+    {
+      "name": "nvrtcGetCUBINSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t * cubinSizeRet)",
+      "decl_hash": "04439b99227bd8d1"
+    },
+    {
+      "name": "nvrtcGetErrorString",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "const char * nvrtcGetErrorString(nvrtcResult result)",
+      "decl_hash": "68eba0438a11e422"
+    },
+    {
+      "name": "nvrtcGetLTOIR",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char * LTOIR)",
+      "decl_hash": "89235d95d6eddf88"
+    },
+    {
+      "name": "nvrtcGetLTOIRSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t * LTOIRSizeRet)",
+      "decl_hash": "914e6a7b5fa15aed"
+    },
+    {
+      "name": "nvrtcGetLoweredName",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char *const name_expression, const char ** lowered_name)",
+      "decl_hash": "9c554e7f5e7111d4"
+    },
+    {
+      "name": "nvrtcGetNumSupportedArchs",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetNumSupportedArchs(int * numArchs)",
+      "decl_hash": "9b60c93c3f07ff0a"
+    },
+    {
+      "name": "nvrtcGetOptiXIR",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char * optixir)",
+      "decl_hash": "cac042f34108de12"
+    },
+    {
+      "name": "nvrtcGetOptiXIRSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t * optixirSizeRet)",
+      "decl_hash": "736685d9f5975fd4"
+    },
+    {
+      "name": "nvrtcGetPCHCreateStatus",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog)",
+      "decl_hash": "4899abb61552979c"
+    },
+    {
+      "name": "nvrtcGetPCHHeapSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetPCHHeapSize(size_t * ret)",
+      "decl_hash": "9f646d693179b56a"
+    },
+    {
+      "name": "nvrtcGetPCHHeapSizeRequired",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t * size)",
+      "decl_hash": "de6187ca358b77ea"
+    },
+    {
+      "name": "nvrtcGetPTX",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetPTX(nvrtcProgram prog, char * ptx)",
+      "decl_hash": "ed9f78289fef4960"
+    },
+    {
+      "name": "nvrtcGetPTXSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t * ptxSizeRet)",
+      "decl_hash": "343170dcce97b87d"
+    },
+    {
+      "name": "nvrtcGetProgramLog",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char * log)",
+      "decl_hash": "48018ecdbb6bfac7"
+    },
+    {
+      "name": "nvrtcGetProgramLogSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t * logSizeRet)",
+      "decl_hash": "0fbf943f733ddb48"
+    },
+    {
+      "name": "nvrtcGetSupportedArchs",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcGetSupportedArchs(int * supportedArchs)",
+      "decl_hash": "301f4213b7f59262"
+    },
+    {
+      "name": "nvrtcSetFlowCallback",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, int (*)(void *, void *) callback, void * payload)",
+      "decl_hash": "1e1895dee9fd81e2"
+    },
+    {
+      "name": "nvrtcSetPCHHeapSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcSetPCHHeapSize(size_t size)",
+      "decl_hash": "84b38c06dcf6b1ac"
+    },
+    {
+      "name": "nvrtcVersion",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "nvrtcResult nvrtcVersion(int * major, int * minor)",
+      "decl_hash": "2785759ff41c8bd0"
+    },
+    {
+      "name": "nvrtcProgram",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "typedef struct _nvrtcProgram * nvrtcProgram",
+      "decl_hash": "30c06408cc2378f6"
+    },
+    {
+      "name": "nvrtcResult",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvrtc.h",
+      "decl": "typedef enum nvrtcResult nvrtcResult",
+      "decl_hash": "2962bcb3f14460f3"
+    }
+  ]
+}

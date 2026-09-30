@@ -1,0 +1,863 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/local/cuda/include/curand.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/usr/local/cuda/include/curand.h",
+    "prefix": "curand",
+    "symbol_count": 106
+  },
+  "symbols": [
+    {
+      "name": "curandDiscreteDistribution_st",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "struct curandDiscreteDistribution_st",
+      "decl_hash": "d4bb8fbb8cbc6d0c"
+    },
+    {
+      "name": "curandDistributionM2Shift_st",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "struct curandDistributionM2Shift_st",
+      "decl_hash": "11684a7a5983fdd2"
+    },
+    {
+      "name": "curandDistributionShift_st",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "struct curandDistributionShift_st",
+      "decl_hash": "ded460349df59dc8"
+    },
+    {
+      "name": "curandGenerator_st",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "struct curandGenerator_st",
+      "decl_hash": "7f7a5d2f12d20ad3"
+    },
+    {
+      "name": "curandHistogramM2_st",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "struct curandHistogramM2_st",
+      "decl_hash": "f727919e1b017a2c"
+    },
+    {
+      "name": "CURAND_3RD",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_3RD = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "ddc9e1f4b0854b8d"
+    },
+    {
+      "name": "CURAND_BINARY_SEARCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_BINARY_SEARCH = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "86e8fb0409f09c98"
+    },
+    {
+      "name": "CURAND_CHOOSE_BEST",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_CHOOSE_BEST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "112326ac317ba847"
+    },
+    {
+      "name": "CURAND_DEFINITION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_DEFINITION = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "2864502051864931"
+    },
+    {
+      "name": "CURAND_DEVICE_API",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_DEVICE_API = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "48cd13b6caf2c362"
+    },
+    {
+      "name": "CURAND_DIRECTION_VECTORS_32_JOEKUO6",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_DIRECTION_VECTORS_32_JOEKUO6 = 101",
+      "value": 101,
+      "value_explicit": true,
+      "decl_hash": "0daacddcff276ffd"
+    },
+    {
+      "name": "CURAND_DIRECTION_VECTORS_64_JOEKUO6",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_DIRECTION_VECTORS_64_JOEKUO6 = 103",
+      "value": 103,
+      "value_explicit": true,
+      "decl_hash": "888c89dbf1f6b4f0"
+    },
+    {
+      "name": "CURAND_DISCRETE_GAUSS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_DISCRETE_GAUSS = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "5892da2c8b440992"
+    },
+    {
+      "name": "CURAND_FAST_REJECTION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_FAST_REJECTION = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "ce03a4d78e61d907"
+    },
+    {
+      "name": "CURAND_HITR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_HITR = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "adcac649c8f16838"
+    },
+    {
+      "name": "CURAND_ITR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_ITR = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "9b4630318a73045e"
+    },
+    {
+      "name": "CURAND_KNUTH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_KNUTH = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "fe8e61c1ca1366f5"
+    },
+    {
+      "name": "CURAND_M1",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_M1 = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "e78f5045767c90bb"
+    },
+    {
+      "name": "CURAND_M2",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_M2 = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "8e07e902d878b090"
+    },
+    {
+      "name": "CURAND_ORDERING_PSEUDO_BEST",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_ORDERING_PSEUDO_BEST = 100",
+      "value": 100,
+      "value_explicit": true,
+      "decl_hash": "3be3742950a983c8"
+    },
+    {
+      "name": "CURAND_ORDERING_PSEUDO_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_ORDERING_PSEUDO_DEFAULT = 101",
+      "value": 101,
+      "value_explicit": true,
+      "decl_hash": "23c067623eb705d6"
+    },
+    {
+      "name": "CURAND_ORDERING_PSEUDO_DYNAMIC",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_ORDERING_PSEUDO_DYNAMIC = 104",
+      "value": 104,
+      "value_explicit": true,
+      "decl_hash": "9b2df318e8a0c664"
+    },
+    {
+      "name": "CURAND_ORDERING_PSEUDO_LEGACY",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_ORDERING_PSEUDO_LEGACY = 103",
+      "value": 103,
+      "value_explicit": true,
+      "decl_hash": "5a352fe2cca08846"
+    },
+    {
+      "name": "CURAND_ORDERING_PSEUDO_SEEDED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_ORDERING_PSEUDO_SEEDED = 102",
+      "value": 102,
+      "value_explicit": true,
+      "decl_hash": "159ad113bc26028a"
+    },
+    {
+      "name": "CURAND_ORDERING_QUASI_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_ORDERING_QUASI_DEFAULT = 201",
+      "value": 201,
+      "value_explicit": true,
+      "decl_hash": "d107ff5e8b96e671"
+    },
+    {
+      "name": "CURAND_POISSON",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_POISSON = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "2770b94aa465aa67"
+    },
+    {
+      "name": "CURAND_REJECTION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_REJECTION = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "13159b51cbe24ff5"
+    },
+    {
+      "name": "CURAND_RNG_PSEUDO_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_PSEUDO_DEFAULT = 100",
+      "value": 100,
+      "value_explicit": true,
+      "decl_hash": "4c757212fea7b950"
+    },
+    {
+      "name": "CURAND_RNG_PSEUDO_MRG32K3A",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_PSEUDO_MRG32K3A = 121",
+      "value": 121,
+      "value_explicit": true,
+      "decl_hash": "84b560fed3f03046"
+    },
+    {
+      "name": "CURAND_RNG_PSEUDO_MT19937",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_PSEUDO_MT19937 = 142",
+      "value": 142,
+      "value_explicit": true,
+      "decl_hash": "8a701db227eff8a7"
+    },
+    {
+      "name": "CURAND_RNG_PSEUDO_MTGP32",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_PSEUDO_MTGP32 = 141",
+      "value": 141,
+      "value_explicit": true,
+      "decl_hash": "708388c4e3bb69fb"
+    },
+    {
+      "name": "CURAND_RNG_PSEUDO_PHILOX4_32_10",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_PSEUDO_PHILOX4_32_10 = 161",
+      "value": 161,
+      "value_explicit": true,
+      "decl_hash": "ddee27dd36d9035d"
+    },
+    {
+      "name": "CURAND_RNG_PSEUDO_XORWOW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_PSEUDO_XORWOW = 101",
+      "value": 101,
+      "value_explicit": true,
+      "decl_hash": "6fee122cf748010d"
+    },
+    {
+      "name": "CURAND_RNG_QUASI_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_QUASI_DEFAULT = 200",
+      "value": 200,
+      "value_explicit": true,
+      "decl_hash": "af7c6d5e7cc369f7"
+    },
+    {
+      "name": "CURAND_RNG_QUASI_SCRAMBLED_SOBOL32",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_QUASI_SCRAMBLED_SOBOL32 = 202",
+      "value": 202,
+      "value_explicit": true,
+      "decl_hash": "2ceaf65d10a11600"
+    },
+    {
+      "name": "CURAND_RNG_QUASI_SCRAMBLED_SOBOL64",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_QUASI_SCRAMBLED_SOBOL64 = 204",
+      "value": 204,
+      "value_explicit": true,
+      "decl_hash": "b0bd757a30b676a5"
+    },
+    {
+      "name": "CURAND_RNG_QUASI_SOBOL32",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_QUASI_SOBOL32 = 201",
+      "value": 201,
+      "value_explicit": true,
+      "decl_hash": "2991341648ef004d"
+    },
+    {
+      "name": "CURAND_RNG_QUASI_SOBOL64",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_QUASI_SOBOL64 = 203",
+      "value": 203,
+      "value_explicit": true,
+      "decl_hash": "86a2c054b989f1a8"
+    },
+    {
+      "name": "CURAND_RNG_TEST",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_RNG_TEST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "dfb26ef2cc60f01b"
+    },
+    {
+      "name": "CURAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6 = 102",
+      "value": 102,
+      "value_explicit": true,
+      "decl_hash": "d9c782a8f552c201"
+    },
+    {
+      "name": "CURAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6 = 104",
+      "value": 104,
+      "value_explicit": true,
+      "decl_hash": "9444fa4901cd5b50"
+    },
+    {
+      "name": "CURAND_STATUS_ALLOCATION_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_ALLOCATION_FAILED = 102",
+      "value": 102,
+      "value_explicit": true,
+      "decl_hash": "9188d44f1b4bf51b"
+    },
+    {
+      "name": "CURAND_STATUS_ARCH_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_ARCH_MISMATCH = 204",
+      "value": 204,
+      "value_explicit": true,
+      "decl_hash": "7258c36dc2f376f6"
+    },
+    {
+      "name": "CURAND_STATUS_DOUBLE_PRECISION_REQUIRED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_DOUBLE_PRECISION_REQUIRED = 106",
+      "value": 106,
+      "value_explicit": true,
+      "decl_hash": "0aed37c74be2ef4e"
+    },
+    {
+      "name": "CURAND_STATUS_INITIALIZATION_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_INITIALIZATION_FAILED = 203",
+      "value": 203,
+      "value_explicit": true,
+      "decl_hash": "cfb10ca8a033f7e2"
+    },
+    {
+      "name": "CURAND_STATUS_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_INTERNAL_ERROR = 999",
+      "value": 999,
+      "value_explicit": true,
+      "decl_hash": "cada6349d650f1b7"
+    },
+    {
+      "name": "CURAND_STATUS_LAUNCH_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_LAUNCH_FAILURE = 201",
+      "value": 201,
+      "value_explicit": true,
+      "decl_hash": "bc7505dcf89d3e83"
+    },
+    {
+      "name": "CURAND_STATUS_LENGTH_NOT_MULTIPLE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_LENGTH_NOT_MULTIPLE = 105",
+      "value": 105,
+      "value_explicit": true,
+      "decl_hash": "aecaffed352f6f95"
+    },
+    {
+      "name": "CURAND_STATUS_NOT_INITIALIZED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_NOT_INITIALIZED = 101",
+      "value": 101,
+      "value_explicit": true,
+      "decl_hash": "a37c95c3be649b2e"
+    },
+    {
+      "name": "CURAND_STATUS_OUT_OF_RANGE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_OUT_OF_RANGE = 104",
+      "value": 104,
+      "value_explicit": true,
+      "decl_hash": "7e9f690ffe7bdc4e"
+    },
+    {
+      "name": "CURAND_STATUS_PREEXISTING_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_PREEXISTING_FAILURE = 202",
+      "value": 202,
+      "value_explicit": true,
+      "decl_hash": "053809de7f8a4b83"
+    },
+    {
+      "name": "CURAND_STATUS_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "2866d304c19c0859"
+    },
+    {
+      "name": "CURAND_STATUS_TYPE_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_TYPE_ERROR = 103",
+      "value": 103,
+      "value_explicit": true,
+      "decl_hash": "2b272776c8eeaf54"
+    },
+    {
+      "name": "CURAND_STATUS_VERSION_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "CURAND_STATUS_VERSION_MISMATCH = 100",
+      "value": 100,
+      "value_explicit": true,
+      "decl_hash": "bec9864dbb20736f"
+    },
+    {
+      "name": "curandDirectionVectorSet",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "enum curandDirectionVectorSet",
+      "decl_hash": "adce901443c40a7e"
+    },
+    {
+      "name": "curandMethod",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "enum curandMethod",
+      "decl_hash": "51e2c2f676647e2a"
+    },
+    {
+      "name": "curandOrdering",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "enum curandOrdering",
+      "decl_hash": "bb54032faccc96f7"
+    },
+    {
+      "name": "curandRngType",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "enum curandRngType",
+      "decl_hash": "35cd5986c1dc3934"
+    },
+    {
+      "name": "curandStatus",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "enum curandStatus",
+      "decl_hash": "5a03c03e3b4516cf"
+    },
+    {
+      "name": "curandCreateGenerator",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandCreateGenerator(curandGenerator_t * generator, curandRngType_t rng_type)",
+      "decl_hash": "57ba5ab717e18d56"
+    },
+    {
+      "name": "curandCreateGeneratorHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandCreateGeneratorHost(curandGenerator_t * generator, curandRngType_t rng_type)",
+      "decl_hash": "db8dda24295ff71e"
+    },
+    {
+      "name": "curandCreatePoissonDistribution",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandCreatePoissonDistribution(double lambda, curandDiscreteDistribution_t * discrete_distribution)",
+      "decl_hash": "08da255458236f1b"
+    },
+    {
+      "name": "curandDestroyDistribution",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandDestroyDistribution(curandDiscreteDistribution_t discrete_distribution)",
+      "decl_hash": "724bfeae45e67881"
+    },
+    {
+      "name": "curandDestroyGenerator",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandDestroyGenerator(curandGenerator_t generator)",
+      "decl_hash": "5d7ec4e69f8804fb"
+    },
+    {
+      "name": "curandGenerate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerate(curandGenerator_t generator, unsigned int * outputPtr, size_t num)",
+      "decl_hash": "32fc480ff735f52e"
+    },
+    {
+      "name": "curandGenerateBinomial",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerateBinomial(curandGenerator_t generator, unsigned int * outputPtr, size_t num, unsigned int n, double p)",
+      "decl_hash": "d840d4c6306821db"
+    },
+    {
+      "name": "curandGenerateBinomialMethod",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerateBinomialMethod(curandGenerator_t generator, unsigned int * outputPtr, size_t num, unsigned int n, double p, curandMethod_t method)",
+      "decl_hash": "8618117fc85decd3"
+    },
+    {
+      "name": "curandGenerateLogNormal",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerateLogNormal(curandGenerator_t generator, float * outputPtr, size_t n, float mean, float stddev)",
+      "decl_hash": "0b2ade83f6af44e8"
+    },
+    {
+      "name": "curandGenerateLogNormalDouble",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerateLogNormalDouble(curandGenerator_t generator, double * outputPtr, size_t n, double mean, double stddev)",
+      "decl_hash": "30316c115463bc92"
+    },
+    {
+      "name": "curandGenerateLongLong",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerateLongLong(curandGenerator_t generator, unsigned long long * outputPtr, size_t num)",
+      "decl_hash": "4f82dc265d0d0d1a"
+    },
+    {
+      "name": "curandGenerateNormal",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerateNormal(curandGenerator_t generator, float * outputPtr, size_t n, float mean, float stddev)",
+      "decl_hash": "65afcc80a219b065"
+    },
+    {
+      "name": "curandGenerateNormalDouble",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerateNormalDouble(curandGenerator_t generator, double * outputPtr, size_t n, double mean, double stddev)",
+      "decl_hash": "e0bdd92327fa0317"
+    },
+    {
+      "name": "curandGeneratePoisson",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGeneratePoisson(curandGenerator_t generator, unsigned int * outputPtr, size_t n, double lambda)",
+      "decl_hash": "dbbc3cefbf6f8a51"
+    },
+    {
+      "name": "curandGeneratePoissonMethod",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGeneratePoissonMethod(curandGenerator_t generator, unsigned int * outputPtr, size_t n, double lambda, curandMethod_t method)",
+      "decl_hash": "a09ae8aba8696283"
+    },
+    {
+      "name": "curandGenerateSeeds",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerateSeeds(curandGenerator_t generator)",
+      "decl_hash": "c7936135cde77ccf"
+    },
+    {
+      "name": "curandGenerateUniform",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerateUniform(curandGenerator_t generator, float * outputPtr, size_t num)",
+      "decl_hash": "bab7857988465a58"
+    },
+    {
+      "name": "curandGenerateUniformDouble",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGenerateUniformDouble(curandGenerator_t generator, double * outputPtr, size_t num)",
+      "decl_hash": "7e93b1b9f7c7c124"
+    },
+    {
+      "name": "curandGetDirectionVectors32",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGetDirectionVectors32(curandDirectionVectors32_t ** vectors, curandDirectionVectorSet_t set)",
+      "decl_hash": "f7db790d2cb31053"
+    },
+    {
+      "name": "curandGetDirectionVectors64",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGetDirectionVectors64(curandDirectionVectors64_t ** vectors, curandDirectionVectorSet_t set)",
+      "decl_hash": "44fad9b56d1560cf"
+    },
+    {
+      "name": "curandGetProperty",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGetProperty(libraryPropertyType type, int * value)",
+      "decl_hash": "c7bcd47e99d565c4"
+    },
+    {
+      "name": "curandGetScrambleConstants32",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGetScrambleConstants32(unsigned int ** constants)",
+      "decl_hash": "5e5288bddd863ec8"
+    },
+    {
+      "name": "curandGetScrambleConstants64",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGetScrambleConstants64(unsigned long long ** constants)",
+      "decl_hash": "e9678a3d24cecef0"
+    },
+    {
+      "name": "curandGetVersion",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandGetVersion(int * version)",
+      "decl_hash": "6efe7c4df888db8d"
+    },
+    {
+      "name": "curandSetGeneratorOffset",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandSetGeneratorOffset(curandGenerator_t generator, unsigned long long offset)",
+      "decl_hash": "cfb7c2e9569d52f4"
+    },
+    {
+      "name": "curandSetGeneratorOrdering",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandSetGeneratorOrdering(curandGenerator_t generator, curandOrdering_t order)",
+      "decl_hash": "2dfccb29cd9f640b"
+    },
+    {
+      "name": "curandSetPseudoRandomGeneratorSeed",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandSetPseudoRandomGeneratorSeed(curandGenerator_t generator, unsigned long long seed)",
+      "decl_hash": "88b04855abf87761"
+    },
+    {
+      "name": "curandSetQuasiRandomGeneratorDimensions",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandSetQuasiRandomGeneratorDimensions(curandGenerator_t generator, unsigned int num_dimensions)",
+      "decl_hash": "b23d7872ae5587aa"
+    },
+    {
+      "name": "curandSetStream",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "curandStatus_t curandSetStream(curandGenerator_t generator, cudaStream_t stream)",
+      "decl_hash": "5760c890e5a2f4ff"
+    },
+    {
+      "name": "curandDirectionVectorSet_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef enum curandDirectionVectorSet curandDirectionVectorSet_t",
+      "decl_hash": "70391a3ad861275d"
+    },
+    {
+      "name": "curandDirectionVectors32_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef unsigned int[32] curandDirectionVectors32_t",
+      "decl_hash": "023964650125cf88"
+    },
+    {
+      "name": "curandDirectionVectors64_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef unsigned long long[64] curandDirectionVectors64_t",
+      "decl_hash": "1f968344f2083f77"
+    },
+    {
+      "name": "curandDiscreteDistribution_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef struct curandDiscreteDistribution_st * curandDiscreteDistribution_t",
+      "decl_hash": "f56a0c9c478f299b"
+    },
+    {
+      "name": "curandDistributionM2Shift_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef struct curandDistributionM2Shift_st * curandDistributionM2Shift_t",
+      "decl_hash": "1ee82c67badd1169"
+    },
+    {
+      "name": "curandDistributionShift_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef struct curandDistributionShift_st * curandDistributionShift_t",
+      "decl_hash": "512d44e7a1db9885"
+    },
+    {
+      "name": "curandDistribution_st",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef double curandDistribution_st",
+      "decl_hash": "1b86a4675ed6f1ec"
+    },
+    {
+      "name": "curandDistribution_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef curandDistribution_st * curandDistribution_t",
+      "decl_hash": "da0129cb143dc169"
+    },
+    {
+      "name": "curandGenerator_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef struct curandGenerator_st * curandGenerator_t",
+      "decl_hash": "01b6f35cd5933d53"
+    },
+    {
+      "name": "curandHistogramM2K_st",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef unsigned int curandHistogramM2K_st",
+      "decl_hash": "4c3d526ef705659b"
+    },
+    {
+      "name": "curandHistogramM2K_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef curandHistogramM2K_st * curandHistogramM2K_t",
+      "decl_hash": "8bdd9877eadf305f"
+    },
+    {
+      "name": "curandHistogramM2V_st",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef curandDistribution_st curandHistogramM2V_st",
+      "decl_hash": "54759910421cc1ee"
+    },
+    {
+      "name": "curandHistogramM2V_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef curandHistogramM2V_st * curandHistogramM2V_t",
+      "decl_hash": "59eb1bbac1d3e409"
+    },
+    {
+      "name": "curandHistogramM2_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef struct curandHistogramM2_st * curandHistogramM2_t",
+      "decl_hash": "3b438c05c0fe261b"
+    },
+    {
+      "name": "curandMethod_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef enum curandMethod curandMethod_t",
+      "decl_hash": "a19ae7932a573246"
+    },
+    {
+      "name": "curandOrdering_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef enum curandOrdering curandOrdering_t",
+      "decl_hash": "d7608ad806e99661"
+    },
+    {
+      "name": "curandRngType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef enum curandRngType curandRngType_t",
+      "decl_hash": "1d29a8fed26d1785"
+    },
+    {
+      "name": "curandStatus_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/curand.h",
+      "decl": "typedef enum curandStatus curandStatus_t",
+      "decl_hash": "d006a3f7287e0362"
+    }
+  ]
+}

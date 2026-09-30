@@ -1,0 +1,750 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/rccl/rccl.h",
+    "config": {
+      "backend": "HIP",
+      "sdk_version": "ROCm 7.2.4",
+      "arch": "gfx942",
+      "defines": [
+        "__HIP_PLATFORM_AMD__"
+      ],
+      "includes": [
+        "/opt/rocm/include",
+        "/opt/rocm-ds/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/opt/rocm/include/rccl/rccl.h",
+    "prefix": "nccl",
+    "symbol_count": 93
+  },
+  "symbols": [
+    {
+      "name": "ncclComm",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "struct ncclComm",
+      "decl_hash": "4eb1b67fb2e52297"
+    },
+    {
+      "name": "ncclConfig_v22700",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "struct ncclConfig_v22700",
+      "decl_hash": "a129e7c8e9665fc8"
+    },
+    {
+      "name": "ncclSimInfo_v22200",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "struct ncclSimInfo_v22200",
+      "decl_hash": "bcd029772cb5897a"
+    },
+    {
+      "name": "ncclWindow",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "struct ncclWindow",
+      "decl_hash": "ee4eda135220799a"
+    },
+    {
+      "name": "ncclAvg",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclAvg = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "2b12d15467c64163"
+    },
+    {
+      "name": "ncclBfloat16",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclBfloat16 = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "8677c19d129efca9"
+    },
+    {
+      "name": "ncclChar",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclChar = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "e46bf2037ad32aee"
+    },
+    {
+      "name": "ncclDouble",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclDouble = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "229952042bb16ce2"
+    },
+    {
+      "name": "ncclFloat",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclFloat = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "55d31b38d99be5a0"
+    },
+    {
+      "name": "ncclFloat16",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclFloat16 = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "19df881f2cbb04f5"
+    },
+    {
+      "name": "ncclFloat32",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclFloat32 = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "ca6c6816a42e876f"
+    },
+    {
+      "name": "ncclFloat64",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclFloat64 = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "4dedaaca3dd207da"
+    },
+    {
+      "name": "ncclFloat8e4m3",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclFloat8e4m3 = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "aa4c25d69bc11cce"
+    },
+    {
+      "name": "ncclFloat8e5m2",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclFloat8e5m2 = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "83cafbbd95b80a8d"
+    },
+    {
+      "name": "ncclHalf",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclHalf = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "46f263a983447e6e"
+    },
+    {
+      "name": "ncclInProgress",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclInProgress = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "247bf7648c69d447"
+    },
+    {
+      "name": "ncclInt",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclInt = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "bdf3230fb4a9f317"
+    },
+    {
+      "name": "ncclInt32",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclInt32 = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "14d4f94a4de4cabc"
+    },
+    {
+      "name": "ncclInt64",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclInt64 = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "f93138f7b1ddc1b1"
+    },
+    {
+      "name": "ncclInt8",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclInt8 = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "61df264810c28604"
+    },
+    {
+      "name": "ncclInternalError",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclInternalError = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "a5379f4b74b69646"
+    },
+    {
+      "name": "ncclInvalidArgument",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclInvalidArgument = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "9d765c0766412553"
+    },
+    {
+      "name": "ncclInvalidUsage",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclInvalidUsage = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "8ad48a18822b8671"
+    },
+    {
+      "name": "ncclMax",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclMax = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "2db624bf36dfd355"
+    },
+    {
+      "name": "ncclMaxRedOp",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclMaxRedOp = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "ee7b0d35132ee4b4"
+    },
+    {
+      "name": "ncclMin",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclMin = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "00dc786a4b1b96b2"
+    },
+    {
+      "name": "ncclNumOps",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclNumOps = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "3442ee8685a2e977"
+    },
+    {
+      "name": "ncclNumOps_dummy",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclNumOps_dummy = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "bb773e1fd1968dec"
+    },
+    {
+      "name": "ncclNumResults",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclNumResults = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "c44322eb7450c5cf"
+    },
+    {
+      "name": "ncclNumTypes",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclNumTypes = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "5be6633de2fca8b0"
+    },
+    {
+      "name": "ncclProd",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclProd = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "31b15c498acb6554"
+    },
+    {
+      "name": "ncclRemoteError",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclRemoteError = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "baae05d932d3a499"
+    },
+    {
+      "name": "ncclScalarDevice",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclScalarDevice = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "55bf941f7175bb89"
+    },
+    {
+      "name": "ncclScalarHostImmediate",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclScalarHostImmediate = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "e676080b30ed3693"
+    },
+    {
+      "name": "ncclSuccess",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclSuccess = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "020b824e9437a175"
+    },
+    {
+      "name": "ncclSum",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclSum = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "5b464a284ec21708"
+    },
+    {
+      "name": "ncclSystemError",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclSystemError = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "921c0709a880c126"
+    },
+    {
+      "name": "ncclUint32",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclUint32 = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "25b16ca0a2e27d18"
+    },
+    {
+      "name": "ncclUint64",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclUint64 = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "899096c65fbad6ec"
+    },
+    {
+      "name": "ncclUint8",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclUint8 = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "4232b1da5e0134e6"
+    },
+    {
+      "name": "ncclUnhandledCudaError",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclUnhandledCudaError = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "32872a3eeb247216"
+    },
+    {
+      "name": "ncclAllGather",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclAllGather(const void * sendbuff, void * recvbuff, size_t sendcount, ncclDataType_t datatype, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "2cdb9b7ea439e30b"
+    },
+    {
+      "name": "ncclAllReduce",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclAllReduce(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, ncclRedOp_t op, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "4bd50646ea9afbc4"
+    },
+    {
+      "name": "ncclAllReduceWithBias",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclAllReduceWithBias(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, ncclRedOp_t op, ncclComm_t comm, hipStream_t stream, const void * acc)",
+      "decl_hash": "6983fa35d0e6277b"
+    },
+    {
+      "name": "ncclAllToAll",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclAllToAll(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "04d5f40987ab893a"
+    },
+    {
+      "name": "ncclAllToAllv",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclAllToAllv(const void * sendbuff, const size_t * sendcounts, const size_t * sdispls, void * recvbuff, const size_t * recvcounts, const size_t * rdispls, ncclDataType_t datatype, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "dff2f26e56f3e985"
+    },
+    {
+      "name": "ncclBcast",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclBcast(void * buff, size_t count, ncclDataType_t datatype, int root, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "fa6a344c72d767d7"
+    },
+    {
+      "name": "ncclBroadcast",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclBroadcast(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, int root, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "dd80263dba401bb9"
+    },
+    {
+      "name": "ncclCommAbort",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommAbort(ncclComm_t comm)",
+      "decl_hash": "60615d565781ff17"
+    },
+    {
+      "name": "ncclCommCount",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommCount(const ncclComm_t comm, int * count)",
+      "decl_hash": "68346957b39f8b98"
+    },
+    {
+      "name": "ncclCommCuDevice",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommCuDevice(const ncclComm_t comm, int * device)",
+      "decl_hash": "a5d814b0bd010f75"
+    },
+    {
+      "name": "ncclCommDeregister",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommDeregister(const ncclComm_t comm, void * handle)",
+      "decl_hash": "a7e3b2ef2a30732f"
+    },
+    {
+      "name": "ncclCommDestroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommDestroy(ncclComm_t comm)",
+      "decl_hash": "554753a7506a3e85"
+    },
+    {
+      "name": "ncclCommFinalize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommFinalize(ncclComm_t comm)",
+      "decl_hash": "91790878b7691e98"
+    },
+    {
+      "name": "ncclCommGetAsyncError",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommGetAsyncError(ncclComm_t comm, ncclResult_t * asyncError)",
+      "decl_hash": "0238d13aabf9fc47"
+    },
+    {
+      "name": "ncclCommInitAll",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommInitAll(ncclComm_t * comm, int ndev, const int * devlist)",
+      "decl_hash": "66740c9e640a5fd5"
+    },
+    {
+      "name": "ncclCommInitRank",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommInitRank(ncclComm_t * comm, int nranks, ncclUniqueId commId, int rank)",
+      "decl_hash": "24afecc5f881b72a"
+    },
+    {
+      "name": "ncclCommInitRankConfig",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommInitRankConfig(ncclComm_t * comm, int nranks, ncclUniqueId commId, int rank, ncclConfig_t * config)",
+      "decl_hash": "9247bd5c39ec501a"
+    },
+    {
+      "name": "ncclCommInitRankScalable",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommInitRankScalable(ncclComm_t * newcomm, int nranks, int myrank, int nId, ncclUniqueId * commIds, ncclConfig_t * config)",
+      "decl_hash": "1a82bcd7f1b588f4"
+    },
+    {
+      "name": "ncclCommRegister",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommRegister(const ncclComm_t comm, void * buff, size_t size, void ** handle)",
+      "decl_hash": "5bb6973400c5d577"
+    },
+    {
+      "name": "ncclCommShrink",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommShrink(ncclComm_t comm, int * excludeRanksList, int excludeRanksCount, ncclComm_t * newcomm, ncclConfig_t * config, int shrinkFlags)",
+      "decl_hash": "d786f5c78f43627c"
+    },
+    {
+      "name": "ncclCommSplit",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommSplit(ncclComm_t comm, int color, int key, ncclComm_t * newcomm, ncclConfig_t * config)",
+      "decl_hash": "e98edf754fc97d6b"
+    },
+    {
+      "name": "ncclCommUserRank",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommUserRank(const ncclComm_t comm, int * rank)",
+      "decl_hash": "a7a452d8556b3a3a"
+    },
+    {
+      "name": "ncclCommWindowDeregister",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommWindowDeregister(ncclComm_t comm, ncclWindow_t win)",
+      "decl_hash": "21dfa03490e5014b"
+    },
+    {
+      "name": "ncclCommWindowRegister",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclCommWindowRegister(ncclComm_t comm, void * buff, size_t size, ncclWindow_t * win, int winFlags)",
+      "decl_hash": "1bf0bdf8ccf483a1"
+    },
+    {
+      "name": "ncclGather",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclGather(const void * sendbuff, void * recvbuff, size_t sendcount, ncclDataType_t datatype, int root, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "5e9f0a74ead0eca3"
+    },
+    {
+      "name": "ncclGetErrorString",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "const char * ncclGetErrorString(ncclResult_t result)",
+      "decl_hash": "0b4a00ebd26e0784"
+    },
+    {
+      "name": "ncclGetLastError",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "const char * ncclGetLastError(ncclComm_t comm)",
+      "decl_hash": "e7c11612001dc1ff"
+    },
+    {
+      "name": "ncclGetUniqueId",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclGetUniqueId(ncclUniqueId * uniqueId)",
+      "decl_hash": "eb610a09e54612a7"
+    },
+    {
+      "name": "ncclGetVersion",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclGetVersion(int * version)",
+      "decl_hash": "fd202cb2d764edd8"
+    },
+    {
+      "name": "ncclGroupEnd",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclGroupEnd()",
+      "decl_hash": "e84c2474e3c6c5c1"
+    },
+    {
+      "name": "ncclGroupSimulateEnd",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclGroupSimulateEnd(ncclSimInfo_t * simInfo)",
+      "decl_hash": "f4f3ff03af73c13b"
+    },
+    {
+      "name": "ncclGroupStart",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclGroupStart()",
+      "decl_hash": "dcb19caef17a3c0f"
+    },
+    {
+      "name": "ncclMemAlloc",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclMemAlloc(void ** ptr, size_t size)",
+      "decl_hash": "97bc49df200796e8"
+    },
+    {
+      "name": "ncclMemFree",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclMemFree(void * ptr)",
+      "decl_hash": "6cf654257281969d"
+    },
+    {
+      "name": "ncclRecv",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclRecv(void * recvbuff, size_t count, ncclDataType_t datatype, int peer, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "584d4f78121ba7bb"
+    },
+    {
+      "name": "ncclRedOpCreatePreMulSum",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclRedOpCreatePreMulSum(ncclRedOp_t * op, void * scalar, ncclDataType_t datatype, ncclScalarResidence_t residence, ncclComm_t comm)",
+      "decl_hash": "dac14f23039e6c32"
+    },
+    {
+      "name": "ncclRedOpDestroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclRedOpDestroy(ncclRedOp_t op, ncclComm_t comm)",
+      "decl_hash": "28dfa8b28174fde9"
+    },
+    {
+      "name": "ncclReduce",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclReduce(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, ncclRedOp_t op, int root, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "7ddb41cab7e0123a"
+    },
+    {
+      "name": "ncclReduceScatter",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclReduceScatter(const void * sendbuff, void * recvbuff, size_t recvcount, ncclDataType_t datatype, ncclRedOp_t op, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "0972f9a2a9906a43"
+    },
+    {
+      "name": "ncclResetDebugInit",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "void ncclResetDebugInit()",
+      "decl_hash": "8210ac82d42d50f4"
+    },
+    {
+      "name": "ncclScatter",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclScatter(const void * sendbuff, void * recvbuff, size_t recvcount, ncclDataType_t datatype, int root, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "dba68f3a47db0b00"
+    },
+    {
+      "name": "ncclSend",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "ncclResult_t ncclSend(const void * sendbuff, size_t count, ncclDataType_t datatype, int peer, ncclComm_t comm, hipStream_t stream)",
+      "decl_hash": "812dc4904e06f330"
+    },
+    {
+      "name": "ncclComm_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "typedef struct ncclComm * ncclComm_t",
+      "decl_hash": "041baa198aea2856"
+    },
+    {
+      "name": "ncclConfig_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "typedef struct ncclConfig_v22700 ncclConfig_t",
+      "decl_hash": "f341286bbb20b6ca"
+    },
+    {
+      "name": "ncclDataType_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "typedef enum ncclDataType_t ncclDataType_t",
+      "decl_hash": "1969348dd469faaf"
+    },
+    {
+      "name": "ncclRedOp_dummy_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "typedef enum ncclRedOp_dummy_t ncclRedOp_dummy_t",
+      "decl_hash": "3bd836caf68799ca"
+    },
+    {
+      "name": "ncclRedOp_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "typedef enum ncclRedOp_t ncclRedOp_t",
+      "decl_hash": "8515c82b50afee24"
+    },
+    {
+      "name": "ncclResult_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "typedef enum ncclResult_t ncclResult_t",
+      "decl_hash": "79acf358b154f201"
+    },
+    {
+      "name": "ncclScalarResidence_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "typedef enum ncclScalarResidence_t ncclScalarResidence_t",
+      "decl_hash": "39e2fa3bda2ffe35"
+    },
+    {
+      "name": "ncclSimInfo_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "typedef struct ncclSimInfo_v22200 ncclSimInfo_t",
+      "decl_hash": "d61c63e075ed17a8"
+    },
+    {
+      "name": "ncclUniqueId",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "typedef struct ncclUniqueId ncclUniqueId",
+      "decl_hash": "d94683da62af0115"
+    },
+    {
+      "name": "ncclWindow_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rccl/rccl.h",
+      "decl": "typedef struct ncclWindow * ncclWindow_t",
+      "decl_hash": "303ab5da16482f50"
+    }
+  ]
+}

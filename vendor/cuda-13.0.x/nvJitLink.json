@@ -1,0 +1,149 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/local/cuda/include/nvJitLink.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/usr/local/cuda/include/nvJitLink.h",
+    "prefix": "nv",
+    "symbol_count": 18
+  },
+  "symbols": [
+    {
+      "name": "nvJitLink",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "struct nvJitLink",
+      "decl_hash": "d95d27491f9b35ea"
+    },
+    {
+      "name": "nvJitLinkAddData",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkAddData(nvJitLinkHandle handle, nvJitLinkInputType inputType, const void * data, size_t size, const char * name)",
+      "decl_hash": "a01f97db7e5181e0"
+    },
+    {
+      "name": "nvJitLinkAddFile",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkAddFile(nvJitLinkHandle handle, nvJitLinkInputType inputType, const char * fileName)",
+      "decl_hash": "3fbd5ab6972b3acd"
+    },
+    {
+      "name": "nvJitLinkComplete",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkComplete(nvJitLinkHandle handle)",
+      "decl_hash": "b10959bcf7a5bdcf"
+    },
+    {
+      "name": "nvJitLinkCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkCreate(nvJitLinkHandle * handle, uint32_t numOptions, const char ** options)",
+      "decl_hash": "aac1803e422bf64b"
+    },
+    {
+      "name": "nvJitLinkDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkDestroy(nvJitLinkHandle * handle)",
+      "decl_hash": "07ee3268dfb6389a"
+    },
+    {
+      "name": "nvJitLinkGetErrorLog",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkGetErrorLog(nvJitLinkHandle handle, char * log)",
+      "decl_hash": "da01d4f23a42ebd4"
+    },
+    {
+      "name": "nvJitLinkGetErrorLogSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkGetErrorLogSize(nvJitLinkHandle handle, size_t * size)",
+      "decl_hash": "0e5a5e232c7fc53d"
+    },
+    {
+      "name": "nvJitLinkGetInfoLog",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkGetInfoLog(nvJitLinkHandle handle, char * log)",
+      "decl_hash": "7f6ce87871917a63"
+    },
+    {
+      "name": "nvJitLinkGetInfoLogSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkGetInfoLogSize(nvJitLinkHandle handle, size_t * size)",
+      "decl_hash": "414877886ee49eaf"
+    },
+    {
+      "name": "nvJitLinkGetLinkedCubin",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkGetLinkedCubin(nvJitLinkHandle handle, void * cubin)",
+      "decl_hash": "211075d1a8f7f1da"
+    },
+    {
+      "name": "nvJitLinkGetLinkedCubinSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkGetLinkedCubinSize(nvJitLinkHandle handle, size_t * size)",
+      "decl_hash": "c2169cced6a2e8a2"
+    },
+    {
+      "name": "nvJitLinkGetLinkedPtx",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkGetLinkedPtx(nvJitLinkHandle handle, char * ptx)",
+      "decl_hash": "ce353b5f35ffa7f5"
+    },
+    {
+      "name": "nvJitLinkGetLinkedPtxSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkGetLinkedPtxSize(nvJitLinkHandle handle, size_t * size)",
+      "decl_hash": "79102221e9dff5eb"
+    },
+    {
+      "name": "nvJitLinkVersion",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "nvJitLinkResult nvJitLinkVersion(unsigned int * major, unsigned int * minor)",
+      "decl_hash": "79f1aba5c0369fcc"
+    },
+    {
+      "name": "nvJitLinkHandle",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "typedef struct nvJitLink * nvJitLinkHandle",
+      "decl_hash": "d2ff456dac04bf30"
+    },
+    {
+      "name": "nvJitLinkInputType",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "typedef enum nvJitLinkInputType nvJitLinkInputType",
+      "decl_hash": "014f7e777d8903ab"
+    },
+    {
+      "name": "nvJitLinkResult",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "typedef enum nvJitLinkResult nvJitLinkResult",
+      "decl_hash": "b605e19bba8ef787"
+    }
+  ]
+}

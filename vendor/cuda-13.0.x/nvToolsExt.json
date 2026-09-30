@@ -1,0 +1,2600 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/local/cuda/include/nvtx3/nvToolsExt.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+    "prefix": "nvtx",
+    "symbol_count": 325
+  },
+  "symbols": [
+    {
+      "name": "nvtxDomainRegistration_st",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "struct nvtxDomainRegistration_st",
+      "decl_hash": "f277e622ff597a27"
+    },
+    {
+      "name": "nvtxEventAttributes_v2",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "struct nvtxEventAttributes_v2",
+      "decl_hash": "7a0ba8a64673c73a"
+    },
+    {
+      "name": "nvtxGlobals_t",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImpl.h",
+      "decl": "struct nvtxGlobals_t",
+      "decl_hash": "e27267ef20060c16",
+      "exported": true
+    },
+    {
+      "name": "nvtxMessageValue_t",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "struct nvtxMessageValue_t",
+      "decl_hash": "fa27e119ce94a6b0"
+    },
+    {
+      "name": "nvtxResourceAttributes_v0",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "struct nvtxResourceAttributes_v0",
+      "decl_hash": "3b9d580bf85621c2"
+    },
+    {
+      "name": "nvtxResourceHandle",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "struct nvtxResourceHandle",
+      "decl_hash": "de35b6f3103b97c7"
+    },
+    {
+      "name": "nvtxStringRegistration_st",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "struct nvtxStringRegistration_st",
+      "decl_hash": "5a7a221af8f95e7e"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainCreateA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainCreateA = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "4f950960e00739b0"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainCreateW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainCreateW = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "9543f1fa901f652c"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainDestroy",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainDestroy = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "03dc74296b18a58c"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainMarkEx",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainMarkEx = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "d79dfeb24c53dd1b"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainNameCategoryA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainNameCategoryA = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "f40276dd86d24a00"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainNameCategoryW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainNameCategoryW = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "14649c22cde5b74a"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainRangeEnd",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainRangeEnd = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "8c6b0ec77a82137b"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainRangePop",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainRangePop = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "48e831267dc41865"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainRangePushEx",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainRangePushEx = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "d5fedeaa6ce115d4"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainRangeStartEx",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainRangeStartEx = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "09c717a43ba92eec"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainRegisterStringA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainRegisterStringA = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "48ed15454c06aac6"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainRegisterStringW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainRegisterStringW = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "612f7e4ff866c6c2"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainResourceCreate",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainResourceCreate = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "5bc04165139aefdf"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_DomainResourceDestroy",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_DomainResourceDestroy = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "ec5cb4b01fbba75b"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_FORCE_INT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_FORCE_INT = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "bbb629cacd26a6f1"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "2052d6551c8a1bea"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_Initialize",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_Initialize = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "f81fd9a9c224aa57"
+    },
+    {
+      "name": "NVTX_CBID_CORE2_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE2_SIZE = None",
+      "value": 16,
+      "value_explicit": false,
+      "decl_hash": "2c52a85f16cb8b21"
+    },
+    {
+      "name": "NVTX_CBID_CORE_FORCE_INT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_FORCE_INT = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "249b8b56767e40ce"
+    },
+    {
+      "name": "NVTX_CBID_CORE_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "5536732ebbbea1be"
+    },
+    {
+      "name": "NVTX_CBID_CORE_MarkA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_MarkA = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "c4e5426ffdf91266"
+    },
+    {
+      "name": "NVTX_CBID_CORE_MarkEx",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_MarkEx = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "0895e49e1ce30d2f"
+    },
+    {
+      "name": "NVTX_CBID_CORE_MarkW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_MarkW = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "a5063f6c9f68d138"
+    },
+    {
+      "name": "NVTX_CBID_CORE_NameCategoryA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_NameCategoryA = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "a0f7f0476268e6c1"
+    },
+    {
+      "name": "NVTX_CBID_CORE_NameCategoryW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_NameCategoryW = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "87efffbe27c6b5b6"
+    },
+    {
+      "name": "NVTX_CBID_CORE_NameOsThreadA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_NameOsThreadA = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "52edd9a470f13f3d"
+    },
+    {
+      "name": "NVTX_CBID_CORE_NameOsThreadW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_NameOsThreadW = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "36113564842d5b3a"
+    },
+    {
+      "name": "NVTX_CBID_CORE_RangeEnd",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_RangeEnd = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "ce0a715054bed378"
+    },
+    {
+      "name": "NVTX_CBID_CORE_RangePop",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_RangePop = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "7a249ac8240e8dd3"
+    },
+    {
+      "name": "NVTX_CBID_CORE_RangePushA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_RangePushA = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "fd22b4876d51ca44"
+    },
+    {
+      "name": "NVTX_CBID_CORE_RangePushEx",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_RangePushEx = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "fac6b02573faf587"
+    },
+    {
+      "name": "NVTX_CBID_CORE_RangePushW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_RangePushW = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "3d4df7ea369f803b"
+    },
+    {
+      "name": "NVTX_CBID_CORE_RangeStartA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_RangeStartA = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "b499c96c4e92129b"
+    },
+    {
+      "name": "NVTX_CBID_CORE_RangeStartEx",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_RangeStartEx = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "9bbd8fc634d581a2"
+    },
+    {
+      "name": "NVTX_CBID_CORE_RangeStartW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_RangeStartW = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "055b7bc5c769f8f5"
+    },
+    {
+      "name": "NVTX_CBID_CORE_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CORE_SIZE = None",
+      "value": 16,
+      "value_explicit": false,
+      "decl_hash": "c19b3c0469366244"
+    },
+    {
+      "name": "NVTX_CBID_CUDART_FORCE_INT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDART_FORCE_INT = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "99b76e0a8dc9b968"
+    },
+    {
+      "name": "NVTX_CBID_CUDART_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDART_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "f8f5de2b192450e3"
+    },
+    {
+      "name": "NVTX_CBID_CUDART_NameCudaDeviceA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDART_NameCudaDeviceA = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "b6a8ec3b045d5c69"
+    },
+    {
+      "name": "NVTX_CBID_CUDART_NameCudaDeviceW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDART_NameCudaDeviceW = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "c0b69effccb21467"
+    },
+    {
+      "name": "NVTX_CBID_CUDART_NameCudaEventA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDART_NameCudaEventA = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "afcfed9a798b6430"
+    },
+    {
+      "name": "NVTX_CBID_CUDART_NameCudaEventW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDART_NameCudaEventW = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "a0195e7c63d82445"
+    },
+    {
+      "name": "NVTX_CBID_CUDART_NameCudaStreamA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDART_NameCudaStreamA = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "2d10a557a2cfe44c"
+    },
+    {
+      "name": "NVTX_CBID_CUDART_NameCudaStreamW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDART_NameCudaStreamW = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "9591fad98e8a9aed"
+    },
+    {
+      "name": "NVTX_CBID_CUDART_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDART_SIZE = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "7a5e13ccf256fde7"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_FORCE_INT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_FORCE_INT = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "ca2d77c0dcd5aa39"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "728543f33339144d"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_NameCuContextA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_NameCuContextA = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "67ff2f35b0ed30de"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_NameCuContextW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_NameCuContextW = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "e3fbb1589cc75e5d"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_NameCuDeviceA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_NameCuDeviceA = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "0d6f9d2306b989ab"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_NameCuDeviceW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_NameCuDeviceW = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "b4709668e8430018"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_NameCuEventA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_NameCuEventA = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "5303690bec269c35"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_NameCuEventW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_NameCuEventW = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "36b8800b6fa3a6c5"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_NameCuStreamA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_NameCuStreamA = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "e96f3c3a1b02547c"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_NameCuStreamW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_NameCuStreamW = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "df828aeecbed7e1a"
+    },
+    {
+      "name": "NVTX_CBID_CUDA_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_CUDA_SIZE = None",
+      "value": 9,
+      "value_explicit": false,
+      "decl_hash": "f0d1b72c5cd33e21"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_FORCE_INT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_FORCE_INT = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "d70e688b2a17054b"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "76fa785a8a62f2d1"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClCommandQueueA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClCommandQueueA = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "2b0e729a46e90fc8"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClCommandQueueW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClCommandQueueW = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "84398953c5baf5b7"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClContextA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClContextA = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "44e02df11d2de3b0"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClContextW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClContextW = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "4fed7ebbf7d8cae2"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClDeviceA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClDeviceA = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "7b956dfa6dfc9ec8"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClDeviceW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClDeviceW = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "edc71698d7e18409"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClEventA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClEventA = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "1f4710728ea45f2f"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClEventW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClEventW = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "86f3b5100b15a6f8"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClMemObjectA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClMemObjectA = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "30dd894e3a7ed60b"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClMemObjectW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClMemObjectW = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "f85b65601bbf15a7"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClProgramA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClProgramA = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "780c16bd00bbd94b"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClProgramW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClProgramW = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "9fb0a531b19f5d9f"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClSamplerA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClSamplerA = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "f2e449ffdd5edb5d"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_NameClSamplerW",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_NameClSamplerW = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "fb63fa46b67f0d10"
+    },
+    {
+      "name": "NVTX_CBID_OPENCL_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_OPENCL_SIZE = None",
+      "value": 15,
+      "value_explicit": false,
+      "decl_hash": "54238ae5c13709a7"
+    },
+    {
+      "name": "NVTX_CBID_SYNC_DomainSyncUserAcquireFailed",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_SYNC_DomainSyncUserAcquireFailed = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "1f808c0e99a0d566"
+    },
+    {
+      "name": "NVTX_CBID_SYNC_DomainSyncUserAcquireStart",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_SYNC_DomainSyncUserAcquireStart = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "55263fc9c3321b78"
+    },
+    {
+      "name": "NVTX_CBID_SYNC_DomainSyncUserAcquireSuccess",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_SYNC_DomainSyncUserAcquireSuccess = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "c1ed133ff7577af7"
+    },
+    {
+      "name": "NVTX_CBID_SYNC_DomainSyncUserCreate",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_SYNC_DomainSyncUserCreate = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "a28a86ab759888c7"
+    },
+    {
+      "name": "NVTX_CBID_SYNC_DomainSyncUserDestroy",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_SYNC_DomainSyncUserDestroy = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "05a1ea92f4d9e002"
+    },
+    {
+      "name": "NVTX_CBID_SYNC_DomainSyncUserReleasing",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_SYNC_DomainSyncUserReleasing = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "b7edbb98e555fcf1"
+    },
+    {
+      "name": "NVTX_CBID_SYNC_FORCE_INT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_SYNC_FORCE_INT = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "e8789130968340e1"
+    },
+    {
+      "name": "NVTX_CBID_SYNC_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_SYNC_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "9ec8ed32d57bc584"
+    },
+    {
+      "name": "NVTX_CBID_SYNC_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CBID_SYNC_SIZE = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "ebe061206652c96d"
+    },
+    {
+      "name": "NVTX_CB_MODULE_CORE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CB_MODULE_CORE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "ed2845e61e064ec2"
+    },
+    {
+      "name": "NVTX_CB_MODULE_CORE2",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CB_MODULE_CORE2 = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "a6010ce84519ca77"
+    },
+    {
+      "name": "NVTX_CB_MODULE_CUDA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CB_MODULE_CUDA = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "43bc28f380d079a7"
+    },
+    {
+      "name": "NVTX_CB_MODULE_CUDART",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CB_MODULE_CUDART = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "868685673b9dcc58"
+    },
+    {
+      "name": "NVTX_CB_MODULE_FORCE_INT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CB_MODULE_FORCE_INT = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "5a1732218e862f37"
+    },
+    {
+      "name": "NVTX_CB_MODULE_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CB_MODULE_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "90c5ea576d43dac1"
+    },
+    {
+      "name": "NVTX_CB_MODULE_OPENCL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CB_MODULE_OPENCL = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "69b4a86686c58541"
+    },
+    {
+      "name": "NVTX_CB_MODULE_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CB_MODULE_SIZE = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "d93dbad1bdddfe7a"
+    },
+    {
+      "name": "NVTX_CB_MODULE_SYNC",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_CB_MODULE_SYNC = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "c1713a06f0699cea"
+    },
+    {
+      "name": "NVTX_COLOR_ARGB",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_COLOR_ARGB = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "ca5e05274e9a0cda"
+    },
+    {
+      "name": "NVTX_COLOR_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_COLOR_UNKNOWN = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "ac29ab17981d8f2a"
+    },
+    {
+      "name": "NVTX_ETID_CALLBACKS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_ETID_CALLBACKS = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "6c6c556daf6603d5"
+    },
+    {
+      "name": "NVTX_ETID_FORCE_INT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_ETID_FORCE_INT = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "9babc45604fbe0ce"
+    },
+    {
+      "name": "NVTX_ETID_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_ETID_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "fa7c84c2f01bd4b4"
+    },
+    {
+      "name": "NVTX_ETID_RESERVED0",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_ETID_RESERVED0 = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "638575edbf8acfe0"
+    },
+    {
+      "name": "NVTX_ETID_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_ETID_SIZE = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "687746e3c0b5e92c"
+    },
+    {
+      "name": "NVTX_ETID_VERSIONINFO",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "NVTX_ETID_VERSIONINFO = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "4c4fec7bd4d05d3c"
+    },
+    {
+      "name": "NVTX_MESSAGE_TYPE_ASCII",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_MESSAGE_TYPE_ASCII = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "d39a72498d3db8e3"
+    },
+    {
+      "name": "NVTX_MESSAGE_TYPE_REGISTERED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_MESSAGE_TYPE_REGISTERED = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "80167cd15de7891e"
+    },
+    {
+      "name": "NVTX_MESSAGE_TYPE_UNICODE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_MESSAGE_TYPE_UNICODE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "a320176ccbe28847"
+    },
+    {
+      "name": "NVTX_MESSAGE_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_MESSAGE_UNKNOWN = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "dde8955016037ee7"
+    },
+    {
+      "name": "NVTX_PAYLOAD_TYPE_DOUBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_PAYLOAD_TYPE_DOUBLE = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "5fb35da2219b70d0"
+    },
+    {
+      "name": "NVTX_PAYLOAD_TYPE_FLOAT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_PAYLOAD_TYPE_FLOAT = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "f0d4dc6baea21a23"
+    },
+    {
+      "name": "NVTX_PAYLOAD_TYPE_INT32",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_PAYLOAD_TYPE_INT32 = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "fcf2987961840b0a"
+    },
+    {
+      "name": "NVTX_PAYLOAD_TYPE_INT64",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_PAYLOAD_TYPE_INT64 = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "faf5b11e033fa528"
+    },
+    {
+      "name": "NVTX_PAYLOAD_TYPE_UNSIGNED_INT32",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_PAYLOAD_TYPE_UNSIGNED_INT32 = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "c45fce0d56ae115f"
+    },
+    {
+      "name": "NVTX_PAYLOAD_TYPE_UNSIGNED_INT64",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_PAYLOAD_TYPE_UNSIGNED_INT64 = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "fd80f116cbe08847"
+    },
+    {
+      "name": "NVTX_PAYLOAD_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_PAYLOAD_UNKNOWN = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "66f381e0bd785b45"
+    },
+    {
+      "name": "NVTX_RESOURCE_TYPE_GENERIC_HANDLE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_RESOURCE_TYPE_GENERIC_HANDLE = 65538",
+      "value": 65538,
+      "value_explicit": true,
+      "decl_hash": "fa7fb47221033e24"
+    },
+    {
+      "name": "NVTX_RESOURCE_TYPE_GENERIC_POINTER",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_RESOURCE_TYPE_GENERIC_POINTER = 65537",
+      "value": 65537,
+      "value_explicit": true,
+      "decl_hash": "69234016d9e465c3"
+    },
+    {
+      "name": "NVTX_RESOURCE_TYPE_GENERIC_THREAD_NATIVE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_RESOURCE_TYPE_GENERIC_THREAD_NATIVE = 65539",
+      "value": 65539,
+      "value_explicit": true,
+      "decl_hash": "ea67941d1eaeb7bc"
+    },
+    {
+      "name": "NVTX_RESOURCE_TYPE_GENERIC_THREAD_POSIX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_RESOURCE_TYPE_GENERIC_THREAD_POSIX = 65540",
+      "value": 65540,
+      "value_explicit": true,
+      "decl_hash": "269ee8f021b61208"
+    },
+    {
+      "name": "NVTX_RESOURCE_TYPE_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "NVTX_RESOURCE_TYPE_UNKNOWN = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "0841cbfc2bc55d9d"
+    },
+    {
+      "name": "nvtxColorType_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "enum nvtxColorType_t",
+      "decl_hash": "dfeb440576cdf920"
+    },
+    {
+      "name": "nvtxMessageType_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "enum nvtxMessageType_t",
+      "decl_hash": "860f7cca92b1935f"
+    },
+    {
+      "name": "nvtxPayloadType_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "enum nvtxPayloadType_t",
+      "decl_hash": "393d075701487ff0"
+    },
+    {
+      "name": "nvtxResourceGenericType_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "enum nvtxResourceGenericType_t",
+      "decl_hash": "b7144e9cb6b52067"
+    },
+    {
+      "name": "nvtxDomainCreateA",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxDomainHandle_t nvtxDomainCreateA(const char * message)",
+      "decl_hash": "515b5353b0537481"
+    },
+    {
+      "name": "nvtxDomainCreateA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxDomainHandle_t nvtxDomainCreateA_impl_init_v3(const char * message)",
+      "decl_hash": "ea62ef917b6aa053",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainCreateW",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxDomainHandle_t nvtxDomainCreateW(const wchar_t * message)",
+      "decl_hash": "0e683cf7469546f0"
+    },
+    {
+      "name": "nvtxDomainCreateW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxDomainHandle_t nvtxDomainCreateW_impl_init_v3(const wchar_t * message)",
+      "decl_hash": "fb721ae2cc85a2be",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainDestroy(nvtxDomainHandle_t domain)",
+      "decl_hash": "e1dd852c14ff4529"
+    },
+    {
+      "name": "nvtxDomainDestroy_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainDestroy_impl_init_v3(nvtxDomainHandle_t domain)",
+      "decl_hash": "3ae8d20491ab36b9",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainMarkEx",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainMarkEx(nvtxDomainHandle_t domain, const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "f1591b9eb252719b"
+    },
+    {
+      "name": "nvtxDomainMarkEx_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainMarkEx_impl_init_v3(nvtxDomainHandle_t domain, const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "b4627a14374916f0",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainNameCategoryA",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainNameCategoryA(nvtxDomainHandle_t domain, uint32_t category, const char * name)",
+      "decl_hash": "836d23e1a3ef2116"
+    },
+    {
+      "name": "nvtxDomainNameCategoryA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainNameCategoryA_impl_init_v3(nvtxDomainHandle_t domain, uint32_t category, const char * name)",
+      "decl_hash": "af6c0d2f240949ef",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainNameCategoryW",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainNameCategoryW(nvtxDomainHandle_t domain, uint32_t category, const wchar_t * name)",
+      "decl_hash": "61d0fff3ce51844d"
+    },
+    {
+      "name": "nvtxDomainNameCategoryW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainNameCategoryW_impl_init_v3(nvtxDomainHandle_t domain, uint32_t category, const wchar_t * name)",
+      "decl_hash": "033f7cd75fd63b41",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainRangeEnd",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainRangeEnd(nvtxDomainHandle_t domain, nvtxRangeId_t id)",
+      "decl_hash": "c00af619b226b8b5"
+    },
+    {
+      "name": "nvtxDomainRangeEnd_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainRangeEnd_impl_init_v3(nvtxDomainHandle_t domain, nvtxRangeId_t id)",
+      "decl_hash": "94976262610786c9",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainRangePop",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxDomainRangePop(nvtxDomainHandle_t domain)",
+      "decl_hash": "ac7ee7a0dfe985e9"
+    },
+    {
+      "name": "nvtxDomainRangePop_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxDomainRangePop_impl_init_v3(nvtxDomainHandle_t domain)",
+      "decl_hash": "6bb588f48829597b",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainRangePushEx",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxDomainRangePushEx(nvtxDomainHandle_t domain, const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "a6938075baa0ba04"
+    },
+    {
+      "name": "nvtxDomainRangePushEx_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxDomainRangePushEx_impl_init_v3(nvtxDomainHandle_t domain, const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "65029220ca3f193d",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainRangeStartEx",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxRangeId_t nvtxDomainRangeStartEx(nvtxDomainHandle_t domain, const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "57316cdd0744b37c"
+    },
+    {
+      "name": "nvtxDomainRangeStartEx_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxRangeId_t nvtxDomainRangeStartEx_impl_init_v3(nvtxDomainHandle_t domain, const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "6f4d32f640a1046a",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainRegisterStringA",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxStringHandle_t nvtxDomainRegisterStringA(nvtxDomainHandle_t domain, const char * string)",
+      "decl_hash": "233efc02064caea2"
+    },
+    {
+      "name": "nvtxDomainRegisterStringA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxStringHandle_t nvtxDomainRegisterStringA_impl_init_v3(nvtxDomainHandle_t domain, const char * string)",
+      "decl_hash": "7185ee930fadff64",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainRegisterStringW",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxStringHandle_t nvtxDomainRegisterStringW(nvtxDomainHandle_t domain, const wchar_t * string)",
+      "decl_hash": "27bbfdee725bd574"
+    },
+    {
+      "name": "nvtxDomainRegisterStringW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxStringHandle_t nvtxDomainRegisterStringW_impl_init_v3(nvtxDomainHandle_t domain, const wchar_t * string)",
+      "decl_hash": "7c9ceab1b7511027",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainResourceCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxResourceHandle_t nvtxDomainResourceCreate(nvtxDomainHandle_t domain, nvtxResourceAttributes_t * attribs)",
+      "decl_hash": "0afc086e6d03037e"
+    },
+    {
+      "name": "nvtxDomainResourceCreate_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxResourceHandle_t nvtxDomainResourceCreate_impl_init_v3(nvtxDomainHandle_t domain, nvtxResourceAttributes_t * attribs)",
+      "decl_hash": "3054823213f2cda7",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainResourceDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainResourceDestroy(nvtxResourceHandle_t resource)",
+      "decl_hash": "b4750634cd6edac8"
+    },
+    {
+      "name": "nvtxDomainResourceDestroy_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainResourceDestroy_impl_init_v3(nvtxResourceHandle_t resource)",
+      "decl_hash": "86d66c533dff27ae",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainSyncUserAcquireFailed_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainSyncUserAcquireFailed_impl_init_v3(nvtx_nvtxSyncUser_t handle)",
+      "decl_hash": "944be913d5edb326",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainSyncUserAcquireStart_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainSyncUserAcquireStart_impl_init_v3(nvtx_nvtxSyncUser_t handle)",
+      "decl_hash": "48a0d651f076d60b",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainSyncUserAcquireSuccess_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainSyncUserAcquireSuccess_impl_init_v3(nvtx_nvtxSyncUser_t handle)",
+      "decl_hash": "559208728a9db8e1",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainSyncUserCreate_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtx_nvtxSyncUser_t nvtxDomainSyncUserCreate_impl_init_v3(nvtxDomainHandle_t domain, const nvtx_nvtxSyncUserAttributes_t * attribs)",
+      "decl_hash": "68337414e58d782e",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainSyncUserDestroy_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainSyncUserDestroy_impl_init_v3(nvtx_nvtxSyncUser_t handle)",
+      "decl_hash": "3d4a3f0a2044d113",
+      "exported": true
+    },
+    {
+      "name": "nvtxDomainSyncUserReleasing_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxDomainSyncUserReleasing_impl_init_v3(nvtx_nvtxSyncUser_t handle)",
+      "decl_hash": "70551eaa318077bc",
+      "exported": true
+    },
+    {
+      "name": "nvtxEtiGetModuleFunctionTable_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxEtiGetModuleFunctionTable_v3(NvtxCallbackModule callback_module, NvtxFunctionTable * out_table, unsigned int * out_size)",
+      "decl_hash": "dce77582e21b3be0",
+      "exported": true
+    },
+    {
+      "name": "nvtxEtiSetInjectionNvtxVersion_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxEtiSetInjectionNvtxVersion_v3(uint32_t version)",
+      "decl_hash": "2e601308cd937019",
+      "exported": true
+    },
+    {
+      "name": "nvtxGetExportTable_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "const void * nvtxGetExportTable_v3(uint32_t exportTableId)",
+      "decl_hash": "939d716706925590",
+      "exported": true
+    },
+    {
+      "name": "nvtxInitOnce_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImpl.h",
+      "decl": "void nvtxInitOnce_v3()",
+      "decl_hash": "3dacdfe72397df01",
+      "exported": true
+    },
+    {
+      "name": "nvtxInitialize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxInitialize(const void * reserved)",
+      "decl_hash": "3a4cbb0c9fd08d19"
+    },
+    {
+      "name": "nvtxInitializeInjectionLibrary_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImpl.h",
+      "decl": "int nvtxInitializeInjectionLibrary_v3()",
+      "decl_hash": "14fa3d12a16eada9",
+      "exported": true
+    },
+    {
+      "name": "nvtxInitialize_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxInitialize_impl_init_v3(const void * reserved)",
+      "decl_hash": "4f6ae9697c5d1ac7",
+      "exported": true
+    },
+    {
+      "name": "nvtxMarkA",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxMarkA(const char * message)",
+      "decl_hash": "6c15b0be478f7116"
+    },
+    {
+      "name": "nvtxMarkA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxMarkA_impl_init_v3(const char * message)",
+      "decl_hash": "c777f3be509804b6",
+      "exported": true
+    },
+    {
+      "name": "nvtxMarkEx",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxMarkEx(const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "2887b9b368ca6dc1"
+    },
+    {
+      "name": "nvtxMarkEx_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxMarkEx_impl_init_v3(const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "a0d3acf79b2886d3",
+      "exported": true
+    },
+    {
+      "name": "nvtxMarkW",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxMarkW(const wchar_t * message)",
+      "decl_hash": "314abfaaa38ac169"
+    },
+    {
+      "name": "nvtxMarkW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxMarkW_impl_init_v3(const wchar_t * message)",
+      "decl_hash": "b8e5c0832db066a9",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCategoryA",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCategoryA(uint32_t category, const char * name)",
+      "decl_hash": "42b3b831fc55301b"
+    },
+    {
+      "name": "nvtxNameCategoryA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCategoryA_impl_init_v3(uint32_t category, const char * name)",
+      "decl_hash": "825840ffc48f3a77",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCategoryW",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCategoryW(uint32_t category, const wchar_t * name)",
+      "decl_hash": "2c3171d2873cebe0"
+    },
+    {
+      "name": "nvtxNameCategoryW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCategoryW_impl_init_v3(uint32_t category, const wchar_t * name)",
+      "decl_hash": "e4c6281d599b6b19",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClCommandQueueA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClCommandQueueA_impl_init_v3(nvtx_cl_command_queue command_queue, const char * name)",
+      "decl_hash": "be105aa1bcef78bd",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClCommandQueueW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClCommandQueueW_impl_init_v3(nvtx_cl_command_queue command_queue, const wchar_t * name)",
+      "decl_hash": "11443d78ac7efe02",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClContextA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClContextA_impl_init_v3(nvtx_cl_context context, const char * name)",
+      "decl_hash": "51e8bc32a221c038",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClContextW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClContextW_impl_init_v3(nvtx_cl_context context, const wchar_t * name)",
+      "decl_hash": "11c94d2b3ef41053",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClDeviceA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClDeviceA_impl_init_v3(nvtx_cl_device_id device, const char * name)",
+      "decl_hash": "5dcff785be92990d",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClDeviceW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClDeviceW_impl_init_v3(nvtx_cl_device_id device, const wchar_t * name)",
+      "decl_hash": "b3407f2777520415",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClEventA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClEventA_impl_init_v3(nvtx_cl_event evnt, const char * name)",
+      "decl_hash": "7621911f21bb64f3",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClEventW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClEventW_impl_init_v3(nvtx_cl_event evnt, const wchar_t * name)",
+      "decl_hash": "4dc2e229ffb7d51b",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClMemObjectA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClMemObjectA_impl_init_v3(nvtx_cl_mem memobj, const char * name)",
+      "decl_hash": "92605acabcd992d1",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClMemObjectW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClMemObjectW_impl_init_v3(nvtx_cl_mem memobj, const wchar_t * name)",
+      "decl_hash": "4fde058a23028f63",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClProgramA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClProgramA_impl_init_v3(nvtx_cl_program program, const char * name)",
+      "decl_hash": "d2c5e5d163490d54",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClProgramW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClProgramW_impl_init_v3(nvtx_cl_program program, const wchar_t * name)",
+      "decl_hash": "e3564c697ac43ed8",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClSamplerA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClSamplerA_impl_init_v3(nvtx_cl_sampler sampler, const char * name)",
+      "decl_hash": "067be92be2e4aae8",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameClSamplerW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameClSamplerW_impl_init_v3(nvtx_cl_sampler sampler, const wchar_t * name)",
+      "decl_hash": "5641812348392701",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCuContextA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCuContextA_impl_init_v3(nvtx_CUcontext context, const char * name)",
+      "decl_hash": "e1f111577df9f6e9",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCuContextW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCuContextW_impl_init_v3(nvtx_CUcontext context, const wchar_t * name)",
+      "decl_hash": "bba1a1e8cf150bcb",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCuDeviceA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCuDeviceA_impl_init_v3(nvtx_CUdevice device, const char * name)",
+      "decl_hash": "a987a0d99964213c",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCuDeviceW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCuDeviceW_impl_init_v3(nvtx_CUdevice device, const wchar_t * name)",
+      "decl_hash": "d9bf7bc813a261f7",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCuEventA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCuEventA_impl_init_v3(nvtx_CUevent event, const char * name)",
+      "decl_hash": "5106bf952f9b84ad",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCuEventW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCuEventW_impl_init_v3(nvtx_CUevent event, const wchar_t * name)",
+      "decl_hash": "9d15737dfeb4526f",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCuStreamA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCuStreamA_impl_init_v3(nvtx_CUstream stream, const char * name)",
+      "decl_hash": "79a9677725051cf2",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCuStreamW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCuStreamW_impl_init_v3(nvtx_CUstream stream, const wchar_t * name)",
+      "decl_hash": "f9bee848ee255b8d",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCudaDeviceA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCudaDeviceA_impl_init_v3(int device, const char * name)",
+      "decl_hash": "ad047b31a5c78895",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCudaDeviceW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCudaDeviceW_impl_init_v3(int device, const wchar_t * name)",
+      "decl_hash": "225aaae3b632d542",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCudaEventA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCudaEventA_impl_init_v3(nvtx_cudaEvent_t event, const char * name)",
+      "decl_hash": "052a78b090adf73b",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCudaEventW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCudaEventW_impl_init_v3(nvtx_cudaEvent_t event, const wchar_t * name)",
+      "decl_hash": "dbe944989b89e15d",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCudaStreamA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCudaStreamA_impl_init_v3(nvtx_cudaStream_t stream, const char * name)",
+      "decl_hash": "6a8105905c8bb348",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameCudaStreamW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameCudaStreamW_impl_init_v3(nvtx_cudaStream_t stream, const wchar_t * name)",
+      "decl_hash": "e146c2b71d63d955",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameOsThreadA",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameOsThreadA(uint32_t threadId, const char * name)",
+      "decl_hash": "efdad6a898a0abb5"
+    },
+    {
+      "name": "nvtxNameOsThreadA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameOsThreadA_impl_init_v3(uint32_t threadId, const char * name)",
+      "decl_hash": "0cbfaddaa9b6a142",
+      "exported": true
+    },
+    {
+      "name": "nvtxNameOsThreadW",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameOsThreadW(uint32_t threadId, const wchar_t * name)",
+      "decl_hash": "3e68459fa3b86f88"
+    },
+    {
+      "name": "nvtxNameOsThreadW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxNameOsThreadW_impl_init_v3(uint32_t threadId, const wchar_t * name)",
+      "decl_hash": "ed6e10c558803277",
+      "exported": true
+    },
+    {
+      "name": "nvtxRangeEnd",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxRangeEnd(nvtxRangeId_t id)",
+      "decl_hash": "383a36cc0e3781c6"
+    },
+    {
+      "name": "nvtxRangeEnd_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxRangeEnd_impl_init_v3(nvtxRangeId_t id)",
+      "decl_hash": "2b13514572a193fc",
+      "exported": true
+    },
+    {
+      "name": "nvtxRangePop",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxRangePop()",
+      "decl_hash": "0848abe4346923fd"
+    },
+    {
+      "name": "nvtxRangePop_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxRangePop_impl_init_v3()",
+      "decl_hash": "7c7262374ae6d0dc",
+      "exported": true
+    },
+    {
+      "name": "nvtxRangePushA",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxRangePushA(const char * message)",
+      "decl_hash": "b6ec6114106e2143"
+    },
+    {
+      "name": "nvtxRangePushA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxRangePushA_impl_init_v3(const char * message)",
+      "decl_hash": "19cea61c4e063f9d",
+      "exported": true
+    },
+    {
+      "name": "nvtxRangePushEx",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxRangePushEx(const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "2ff25af0377b0c9e"
+    },
+    {
+      "name": "nvtxRangePushEx_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxRangePushEx_impl_init_v3(const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "7e25229cb9966a9d",
+      "exported": true
+    },
+    {
+      "name": "nvtxRangePushW",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxRangePushW(const wchar_t * message)",
+      "decl_hash": "b73d430f63907e71"
+    },
+    {
+      "name": "nvtxRangePushW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "int nvtxRangePushW_impl_init_v3(const wchar_t * message)",
+      "decl_hash": "f68c1af0599cd7e1",
+      "exported": true
+    },
+    {
+      "name": "nvtxRangeStartA",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxRangeId_t nvtxRangeStartA(const char * message)",
+      "decl_hash": "867a2ed630a7726f"
+    },
+    {
+      "name": "nvtxRangeStartA_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxRangeId_t nvtxRangeStartA_impl_init_v3(const char * message)",
+      "decl_hash": "23205a7e9f1a33ff",
+      "exported": true
+    },
+    {
+      "name": "nvtxRangeStartEx",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxRangeId_t nvtxRangeStartEx(const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "84075498ab2c4229"
+    },
+    {
+      "name": "nvtxRangeStartEx_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxRangeId_t nvtxRangeStartEx_impl_init_v3(const nvtxEventAttributes_t * eventAttrib)",
+      "decl_hash": "ad7542102115482f",
+      "exported": true
+    },
+    {
+      "name": "nvtxRangeStartW",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxRangeId_t nvtxRangeStartW(const wchar_t * message)",
+      "decl_hash": "3721f55fa6c502c3"
+    },
+    {
+      "name": "nvtxRangeStartW_impl_init_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "nvtxRangeId_t nvtxRangeStartW_impl_init_v3(const wchar_t * message)",
+      "decl_hash": "2c5afdea5daf66df",
+      "exported": true
+    },
+    {
+      "name": "nvtxSetInitFunctionsToNoops_v3",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImplCore.h",
+      "decl": "void nvtxSetInitFunctionsToNoops_v3(int forceAllToNoops)",
+      "decl_hash": "2774b7b24896782d",
+      "exported": true
+    },
+    {
+      "name": "nvtxColorType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef enum nvtxColorType_t nvtxColorType_t",
+      "decl_hash": "7a551f9431c5e5cf"
+    },
+    {
+      "name": "nvtxDomainCreateA_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef nvtxDomainHandle_t (*)(const char *) nvtxDomainCreateA_impl_fntype",
+      "decl_hash": "bcd643900a02f516"
+    },
+    {
+      "name": "nvtxDomainCreateW_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef nvtxDomainHandle_t (*)(const wchar_t *) nvtxDomainCreateW_impl_fntype",
+      "decl_hash": "cfa2854ea6422398"
+    },
+    {
+      "name": "nvtxDomainDestroy_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtxDomainHandle_t) nvtxDomainDestroy_impl_fntype",
+      "decl_hash": "2ff70bf30e16db64"
+    },
+    {
+      "name": "nvtxDomainHandle_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef nvtxDomainRegistration * nvtxDomainHandle_t",
+      "decl_hash": "226c4c36fa7e2137"
+    },
+    {
+      "name": "nvtxDomainMarkEx_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtxDomainHandle_t, const nvtxEventAttributes_t *) nvtxDomainMarkEx_impl_fntype",
+      "decl_hash": "927b15b7792328f3"
+    },
+    {
+      "name": "nvtxDomainNameCategoryA_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtxDomainHandle_t, uint32_t, const char *) nvtxDomainNameCategoryA_impl_fntype",
+      "decl_hash": "eb11bce27afdf4ca"
+    },
+    {
+      "name": "nvtxDomainNameCategoryW_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtxDomainHandle_t, uint32_t, const wchar_t *) nvtxDomainNameCategoryW_impl_fntype",
+      "decl_hash": "ff7c3fb419040323"
+    },
+    {
+      "name": "nvtxDomainRangeEnd_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtxDomainHandle_t, nvtxRangeId_t) nvtxDomainRangeEnd_impl_fntype",
+      "decl_hash": "59f8153215aab487"
+    },
+    {
+      "name": "nvtxDomainRangePop_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef int (*)(nvtxDomainHandle_t) nvtxDomainRangePop_impl_fntype",
+      "decl_hash": "3b67e6f96d9eb311"
+    },
+    {
+      "name": "nvtxDomainRangePushEx_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef int (*)(nvtxDomainHandle_t, const nvtxEventAttributes_t *) nvtxDomainRangePushEx_impl_fntype",
+      "decl_hash": "9c45ad34ad01a45a"
+    },
+    {
+      "name": "nvtxDomainRangeStartEx_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef nvtxRangeId_t (*)(nvtxDomainHandle_t, const nvtxEventAttributes_t *) nvtxDomainRangeStartEx_impl_fntype",
+      "decl_hash": "1d8a051c34861269"
+    },
+    {
+      "name": "nvtxDomainRegisterStringA_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef nvtxStringHandle_t (*)(nvtxDomainHandle_t, const char *) nvtxDomainRegisterStringA_impl_fntype",
+      "decl_hash": "9fbd303a47a2ac74"
+    },
+    {
+      "name": "nvtxDomainRegisterStringW_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef nvtxStringHandle_t (*)(nvtxDomainHandle_t, const wchar_t *) nvtxDomainRegisterStringW_impl_fntype",
+      "decl_hash": "e16d3ee6912782f8"
+    },
+    {
+      "name": "nvtxDomainRegistration",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef struct nvtxDomainRegistration_st nvtxDomainRegistration",
+      "decl_hash": "3b8e090d72a0fa69"
+    },
+    {
+      "name": "nvtxDomainResourceCreate_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef nvtxResourceHandle_t (*)(nvtxDomainHandle_t, nvtxResourceAttributes_t *) nvtxDomainResourceCreate_impl_fntype",
+      "decl_hash": "4b6dbed2b5ff9810"
+    },
+    {
+      "name": "nvtxDomainResourceDestroy_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtxResourceHandle_t) nvtxDomainResourceDestroy_impl_fntype",
+      "decl_hash": "1c2d7395cc5b8803"
+    },
+    {
+      "name": "nvtxDomainSyncUserAcquireFailed_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_nvtxSyncUser_t) nvtxDomainSyncUserAcquireFailed_fakeimpl_fntype",
+      "decl_hash": "45bf6a805e2cc47d"
+    },
+    {
+      "name": "nvtxDomainSyncUserAcquireStart_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_nvtxSyncUser_t) nvtxDomainSyncUserAcquireStart_fakeimpl_fntype",
+      "decl_hash": "b2474b815cb69692"
+    },
+    {
+      "name": "nvtxDomainSyncUserAcquireSuccess_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_nvtxSyncUser_t) nvtxDomainSyncUserAcquireSuccess_fakeimpl_fntype",
+      "decl_hash": "81d3f0045b090d31"
+    },
+    {
+      "name": "nvtxDomainSyncUserCreate_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef nvtx_nvtxSyncUser_t (*)(nvtxDomainHandle_t, const nvtx_nvtxSyncUserAttributes_t *) nvtxDomainSyncUserCreate_fakeimpl_fntype",
+      "decl_hash": "c23a282ab3adfbad"
+    },
+    {
+      "name": "nvtxDomainSyncUserDestroy_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_nvtxSyncUser_t) nvtxDomainSyncUserDestroy_fakeimpl_fntype",
+      "decl_hash": "c7bfd01bf64361b2"
+    },
+    {
+      "name": "nvtxDomainSyncUserReleasing_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_nvtxSyncUser_t) nvtxDomainSyncUserReleasing_fakeimpl_fntype",
+      "decl_hash": "aca7a84cefec0fc8"
+    },
+    {
+      "name": "nvtxEventAttributes_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef struct nvtxEventAttributes_v2 nvtxEventAttributes_t",
+      "decl_hash": "98fb9b18c8b5de6b"
+    },
+    {
+      "name": "nvtxEventAttributes_v2",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef struct nvtxEventAttributes_v2 nvtxEventAttributes_v2",
+      "decl_hash": "241640d51c7cd062"
+    },
+    {
+      "name": "nvtxGlobals_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImpl.h",
+      "decl": "typedef struct nvtxGlobals_t nvtxGlobals_t",
+      "decl_hash": "f981e5886b64a3b7"
+    },
+    {
+      "name": "nvtxInitialize_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(const void *) nvtxInitialize_impl_fntype",
+      "decl_hash": "fbff302d2dbb9125"
+    },
+    {
+      "name": "nvtxMarkA_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(const char *) nvtxMarkA_impl_fntype",
+      "decl_hash": "41c89b502dc62351"
+    },
+    {
+      "name": "nvtxMarkEx_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(const nvtxEventAttributes_t *) nvtxMarkEx_impl_fntype",
+      "decl_hash": "3a369541980865e2"
+    },
+    {
+      "name": "nvtxMarkW_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(const wchar_t *) nvtxMarkW_impl_fntype",
+      "decl_hash": "b553c33a5bcb4144"
+    },
+    {
+      "name": "nvtxMessageType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef enum nvtxMessageType_t nvtxMessageType_t",
+      "decl_hash": "ec7af0dd104bae36"
+    },
+    {
+      "name": "nvtxMessageValue_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef union nvtxMessageValue_t nvtxMessageValue_t",
+      "decl_hash": "b9a9a3418dd30890"
+    },
+    {
+      "name": "nvtxNameCategoryA_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(uint32_t, const char *) nvtxNameCategoryA_impl_fntype",
+      "decl_hash": "4e3002244729e856"
+    },
+    {
+      "name": "nvtxNameCategoryW_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(uint32_t, const wchar_t *) nvtxNameCategoryW_impl_fntype",
+      "decl_hash": "d511a7f0ecda0dca"
+    },
+    {
+      "name": "nvtxNameClCommandQueueA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_command_queue, const char *) nvtxNameClCommandQueueA_fakeimpl_fntype",
+      "decl_hash": "74969e73f30c75cd"
+    },
+    {
+      "name": "nvtxNameClCommandQueueW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_command_queue, const wchar_t *) nvtxNameClCommandQueueW_fakeimpl_fntype",
+      "decl_hash": "12b0562e4d8c2618"
+    },
+    {
+      "name": "nvtxNameClContextA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_context, const char *) nvtxNameClContextA_fakeimpl_fntype",
+      "decl_hash": "62ab463679fdef4b"
+    },
+    {
+      "name": "nvtxNameClContextW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_context, const wchar_t *) nvtxNameClContextW_fakeimpl_fntype",
+      "decl_hash": "7f736c7b8343ab4e"
+    },
+    {
+      "name": "nvtxNameClDeviceA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_device_id, const char *) nvtxNameClDeviceA_fakeimpl_fntype",
+      "decl_hash": "c4f5b47aec34bb4a"
+    },
+    {
+      "name": "nvtxNameClDeviceW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_device_id, const wchar_t *) nvtxNameClDeviceW_fakeimpl_fntype",
+      "decl_hash": "8e5d399303745df8"
+    },
+    {
+      "name": "nvtxNameClEventA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_event, const char *) nvtxNameClEventA_fakeimpl_fntype",
+      "decl_hash": "2f7b95b368504c0f"
+    },
+    {
+      "name": "nvtxNameClEventW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_event, const wchar_t *) nvtxNameClEventW_fakeimpl_fntype",
+      "decl_hash": "b4f052e4a7d0cf54"
+    },
+    {
+      "name": "nvtxNameClMemObjectA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_mem, const char *) nvtxNameClMemObjectA_fakeimpl_fntype",
+      "decl_hash": "4249ef94e177785e"
+    },
+    {
+      "name": "nvtxNameClMemObjectW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_mem, const wchar_t *) nvtxNameClMemObjectW_fakeimpl_fntype",
+      "decl_hash": "cd956606da2e07c7"
+    },
+    {
+      "name": "nvtxNameClProgramA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_program, const char *) nvtxNameClProgramA_fakeimpl_fntype",
+      "decl_hash": "f5899ac57a613caa"
+    },
+    {
+      "name": "nvtxNameClProgramW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_program, const wchar_t *) nvtxNameClProgramW_fakeimpl_fntype",
+      "decl_hash": "541f7fbecf8ff292"
+    },
+    {
+      "name": "nvtxNameClSamplerA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_sampler, const char *) nvtxNameClSamplerA_fakeimpl_fntype",
+      "decl_hash": "7e7aa1958cb4e2d2"
+    },
+    {
+      "name": "nvtxNameClSamplerW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cl_sampler, const wchar_t *) nvtxNameClSamplerW_fakeimpl_fntype",
+      "decl_hash": "7934aa91e39b8f5c"
+    },
+    {
+      "name": "nvtxNameCuContextA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_CUcontext, const char *) nvtxNameCuContextA_fakeimpl_fntype",
+      "decl_hash": "818365104e88546a"
+    },
+    {
+      "name": "nvtxNameCuContextW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_CUcontext, const wchar_t *) nvtxNameCuContextW_fakeimpl_fntype",
+      "decl_hash": "65ad9e629ba04b48"
+    },
+    {
+      "name": "nvtxNameCuDeviceA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_CUdevice, const char *) nvtxNameCuDeviceA_fakeimpl_fntype",
+      "decl_hash": "55a6198ed5bcd1b7"
+    },
+    {
+      "name": "nvtxNameCuDeviceW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_CUdevice, const wchar_t *) nvtxNameCuDeviceW_fakeimpl_fntype",
+      "decl_hash": "01d223ab73f0c2f3"
+    },
+    {
+      "name": "nvtxNameCuEventA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_CUevent, const char *) nvtxNameCuEventA_fakeimpl_fntype",
+      "decl_hash": "1a4367e24db2612f"
+    },
+    {
+      "name": "nvtxNameCuEventW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_CUevent, const wchar_t *) nvtxNameCuEventW_fakeimpl_fntype",
+      "decl_hash": "55dc07c7639b9c6e"
+    },
+    {
+      "name": "nvtxNameCuStreamA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_CUstream, const char *) nvtxNameCuStreamA_fakeimpl_fntype",
+      "decl_hash": "25f798287f2087c8"
+    },
+    {
+      "name": "nvtxNameCuStreamW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_CUstream, const wchar_t *) nvtxNameCuStreamW_fakeimpl_fntype",
+      "decl_hash": "99818013e20e4fc5"
+    },
+    {
+      "name": "nvtxNameCudaDeviceA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(int, const char *) nvtxNameCudaDeviceA_fakeimpl_fntype",
+      "decl_hash": "87733ef508bf70bd"
+    },
+    {
+      "name": "nvtxNameCudaDeviceW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(int, const wchar_t *) nvtxNameCudaDeviceW_fakeimpl_fntype",
+      "decl_hash": "62eef1870ccea0ce"
+    },
+    {
+      "name": "nvtxNameCudaEventA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cudaEvent_t, const char *) nvtxNameCudaEventA_fakeimpl_fntype",
+      "decl_hash": "bd861d1868185345"
+    },
+    {
+      "name": "nvtxNameCudaEventW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cudaEvent_t, const wchar_t *) nvtxNameCudaEventW_fakeimpl_fntype",
+      "decl_hash": "0e7623dbdc37a287"
+    },
+    {
+      "name": "nvtxNameCudaStreamA_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cudaStream_t, const char *) nvtxNameCudaStreamA_fakeimpl_fntype",
+      "decl_hash": "478854eef75d78ed"
+    },
+    {
+      "name": "nvtxNameCudaStreamW_fakeimpl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtx_cudaStream_t, const wchar_t *) nvtxNameCudaStreamW_fakeimpl_fntype",
+      "decl_hash": "398be5bcd3698ab7"
+    },
+    {
+      "name": "nvtxNameOsThreadA_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(uint32_t, const char *) nvtxNameOsThreadA_impl_fntype",
+      "decl_hash": "7266869ad446bc94"
+    },
+    {
+      "name": "nvtxNameOsThreadW_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(uint32_t, const wchar_t *) nvtxNameOsThreadW_impl_fntype",
+      "decl_hash": "322704edfbb55e5b"
+    },
+    {
+      "name": "nvtxPayloadType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef enum nvtxPayloadType_t nvtxPayloadType_t",
+      "decl_hash": "00cbddf3ce1977a1"
+    },
+    {
+      "name": "nvtxRangeEnd_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void (*)(nvtxRangeId_t) nvtxRangeEnd_impl_fntype",
+      "decl_hash": "dd9e5906ac65b23d"
+    },
+    {
+      "name": "nvtxRangeId_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef uint64_t nvtxRangeId_t",
+      "decl_hash": "c03edb1a89827189"
+    },
+    {
+      "name": "nvtxRangePop_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef int (*)() nvtxRangePop_impl_fntype",
+      "decl_hash": "22856c0871d75c4f"
+    },
+    {
+      "name": "nvtxRangePushA_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef int (*)(const char *) nvtxRangePushA_impl_fntype",
+      "decl_hash": "43d80b3a44e2cb94"
+    },
+    {
+      "name": "nvtxRangePushEx_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef int (*)(const nvtxEventAttributes_t *) nvtxRangePushEx_impl_fntype",
+      "decl_hash": "62b816bd49f21ed6"
+    },
+    {
+      "name": "nvtxRangePushW_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef int (*)(const wchar_t *) nvtxRangePushW_impl_fntype",
+      "decl_hash": "e7193a6785896453"
+    },
+    {
+      "name": "nvtxRangeStartA_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef nvtxRangeId_t (*)(const char *) nvtxRangeStartA_impl_fntype",
+      "decl_hash": "a8fd1a58a8d8fe14"
+    },
+    {
+      "name": "nvtxRangeStartEx_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef nvtxRangeId_t (*)(const nvtxEventAttributes_t *) nvtxRangeStartEx_impl_fntype",
+      "decl_hash": "718f3c1cd8b4af9e"
+    },
+    {
+      "name": "nvtxRangeStartW_impl_fntype",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef nvtxRangeId_t (*)(const wchar_t *) nvtxRangeStartW_impl_fntype",
+      "decl_hash": "9745d23a781ea438"
+    },
+    {
+      "name": "nvtxResourceAttributes_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef struct nvtxResourceAttributes_v0 nvtxResourceAttributes_t",
+      "decl_hash": "2ca010fb9af2a13e"
+    },
+    {
+      "name": "nvtxResourceAttributes_v0",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef struct nvtxResourceAttributes_v0 nvtxResourceAttributes_v0",
+      "decl_hash": "a871d101b3cf7b69"
+    },
+    {
+      "name": "nvtxResourceGenericType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef enum nvtxResourceGenericType_t nvtxResourceGenericType_t",
+      "decl_hash": "300b08604e1528b2"
+    },
+    {
+      "name": "nvtxResourceHandle_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef struct nvtxResourceHandle * nvtxResourceHandle_t",
+      "decl_hash": "4465902183766806"
+    },
+    {
+      "name": "nvtxStringHandle_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef nvtxStringRegistration * nvtxStringHandle_t",
+      "decl_hash": "e9a422843bb6d51d"
+    },
+    {
+      "name": "nvtxStringRegistration",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvToolsExt.h",
+      "decl": "typedef struct nvtxStringRegistration_st nvtxStringRegistration",
+      "decl_hash": "bb98e764a98cb352"
+    },
+    {
+      "name": "nvtx_CUcontext",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_CUcontext",
+      "decl_hash": "2793123902316443"
+    },
+    {
+      "name": "nvtx_CUdevice",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef int nvtx_CUdevice",
+      "decl_hash": "fdc83f42de09a9ff"
+    },
+    {
+      "name": "nvtx_CUevent",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_CUevent",
+      "decl_hash": "51c52c01edbcd720"
+    },
+    {
+      "name": "nvtx_CUstream",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_CUstream",
+      "decl_hash": "45fb9b1aeb5927c0"
+    },
+    {
+      "name": "nvtx_cl_command_queue",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cl_command_queue",
+      "decl_hash": "8a6d4aa9fe33e323"
+    },
+    {
+      "name": "nvtx_cl_context",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cl_context",
+      "decl_hash": "a4ebbf62845bf479"
+    },
+    {
+      "name": "nvtx_cl_device_id",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cl_device_id",
+      "decl_hash": "3497a2afbc3be276"
+    },
+    {
+      "name": "nvtx_cl_event",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cl_event",
+      "decl_hash": "20b88942d6e0d383"
+    },
+    {
+      "name": "nvtx_cl_kernel",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cl_kernel",
+      "decl_hash": "f4d849b1c24ee2d8"
+    },
+    {
+      "name": "nvtx_cl_mem",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cl_mem",
+      "decl_hash": "16861efe540f8f99"
+    },
+    {
+      "name": "nvtx_cl_platform_id",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cl_platform_id",
+      "decl_hash": "6dfc7be8f2aa2a89"
+    },
+    {
+      "name": "nvtx_cl_program",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cl_program",
+      "decl_hash": "3710b016558421f9"
+    },
+    {
+      "name": "nvtx_cl_sampler",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cl_sampler",
+      "decl_hash": "b14f993781c2e393"
+    },
+    {
+      "name": "nvtx_cudaEvent_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cudaEvent_t",
+      "decl_hash": "671e2fed3a36717a"
+    },
+    {
+      "name": "nvtx_cudaStream_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_cudaStream_t",
+      "decl_hash": "c044ac4c9deb0206"
+    },
+    {
+      "name": "nvtx_nvtxSyncUserAttributes_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void nvtx_nvtxSyncUserAttributes_t",
+      "decl_hash": "a61f37493fcb66ff"
+    },
+    {
+      "name": "nvtx_nvtxSyncUser_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxTypes.h",
+      "decl": "typedef void * nvtx_nvtxSyncUser_t",
+      "decl_hash": "a70ca89530b18c85"
+    },
+    {
+      "name": "nvtxEnvVarName",
+      "kind": "VarDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImpl.h",
+      "decl": "const char *const nvtxEnvVarName",
+      "decl_hash": "0016b1ce096e4c9c"
+    },
+    {
+      "name": "nvtxGlobals_v3",
+      "kind": "VarDecl",
+      "header": "/usr/local/cuda/include/nvtx3/nvtxDetail/nvtxImpl.h",
+      "decl": "nvtxGlobals_t nvtxGlobals_v3",
+      "decl_hash": "54fea0c0ddbabad9",
+      "exported": true
+    }
+  ]
+}

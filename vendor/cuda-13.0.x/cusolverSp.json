@@ -1,0 +1,1268 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/local/cuda/include/cusolverSp.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/usr/local/cuda/include/cusolverSp.h",
+    "prefix": "cusolver",
+    "symbol_count": 149
+  },
+  "symbols": [
+    {
+      "name": "cusolverSpContext",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "struct cusolverSpContext",
+      "decl_hash": "6d9cd23fc04e2adf"
+    },
+    {
+      "name": "CUSOLVER_ALG_0",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_ALG_0 = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "78c2895aa0781bd4"
+    },
+    {
+      "name": "CUSOLVER_ALG_1",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_ALG_1 = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "c1df5dd9e08433eb"
+    },
+    {
+      "name": "CUSOLVER_ALG_2",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_ALG_2 = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "ce1ecdfac45cd209"
+    },
+    {
+      "name": "CUSOLVER_ALLOW_NON_DETERMINISTIC_RESULTS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_ALLOW_NON_DETERMINISTIC_RESULTS = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "26036c6fad0778f3"
+    },
+    {
+      "name": "CUSOLVER_C_16BF",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_C_16BF = 1216",
+      "value": 1216,
+      "value_explicit": true,
+      "decl_hash": "8ad8c3e35d2d2f7e"
+    },
+    {
+      "name": "CUSOLVER_C_16F",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_C_16F = 1215",
+      "value": 1215,
+      "value_explicit": true,
+      "decl_hash": "c368bf7b5720279d"
+    },
+    {
+      "name": "CUSOLVER_C_32F",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_C_32F = 1214",
+      "value": 1214,
+      "value_explicit": true,
+      "decl_hash": "936316f93a3e8133"
+    },
+    {
+      "name": "CUSOLVER_C_64F",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_C_64F = 1213",
+      "value": 1213,
+      "value_explicit": true,
+      "decl_hash": "5b438ab0717fa670"
+    },
+    {
+      "name": "CUSOLVER_C_8I",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_C_8I = 1211",
+      "value": 1211,
+      "value_explicit": true,
+      "decl_hash": "40256ea812ba10bf"
+    },
+    {
+      "name": "CUSOLVER_C_8U",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_C_8U = 1212",
+      "value": 1212,
+      "value_explicit": true,
+      "decl_hash": "4bc9c007465f7aae"
+    },
+    {
+      "name": "CUSOLVER_C_AP",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_C_AP = 1218",
+      "value": 1218,
+      "value_explicit": true,
+      "decl_hash": "97d0823b509b6341"
+    },
+    {
+      "name": "CUSOLVER_C_TF32",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_C_TF32 = 1217",
+      "value": 1217,
+      "value_explicit": true,
+      "decl_hash": "963cbe402384947a"
+    },
+    {
+      "name": "CUSOLVER_DEFAULT_MATH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_DEFAULT_MATH = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "ab6e60ff31ed509d"
+    },
+    {
+      "name": "CUSOLVER_DETERMINISTIC_RESULTS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_DETERMINISTIC_RESULTS = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "258c75c2dd5b1d88"
+    },
+    {
+      "name": "CUSOLVER_EIG_MODE_NOVECTOR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_EIG_MODE_NOVECTOR = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "959863b5fdc1b045"
+    },
+    {
+      "name": "CUSOLVER_EIG_MODE_VECTOR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_EIG_MODE_VECTOR = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "450172abb2838445"
+    },
+    {
+      "name": "CUSOLVER_EIG_RANGE_ALL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_EIG_RANGE_ALL = 1001",
+      "value": 1001,
+      "value_explicit": true,
+      "decl_hash": "173d66e1535de199"
+    },
+    {
+      "name": "CUSOLVER_EIG_RANGE_I",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_EIG_RANGE_I = 1002",
+      "value": 1002,
+      "value_explicit": true,
+      "decl_hash": "50c6958222645ee4"
+    },
+    {
+      "name": "CUSOLVER_EIG_RANGE_V",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_EIG_RANGE_V = 1003",
+      "value": 1003,
+      "value_explicit": true,
+      "decl_hash": "2b30b5d3e55202e3"
+    },
+    {
+      "name": "CUSOLVER_EIG_TYPE_1",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_EIG_TYPE_1 = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "ebf5f71181c1fe4a"
+    },
+    {
+      "name": "CUSOLVER_EIG_TYPE_2",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_EIG_TYPE_2 = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "5c79de51b827bcad"
+    },
+    {
+      "name": "CUSOLVER_EIG_TYPE_3",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_EIG_TYPE_3 = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "9f38b37d3e0af349"
+    },
+    {
+      "name": "CUSOLVER_FP32_EMULATED_BF16X9_MATH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_FP32_EMULATED_BF16X9_MATH = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "7c1b339d8abfcea6"
+    },
+    {
+      "name": "CUSOLVER_FRO_NORM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_FRO_NORM = 107",
+      "value": 107,
+      "value_explicit": true,
+      "decl_hash": "7e9d0f5ac32a3bfc"
+    },
+    {
+      "name": "CUSOLVER_INF_NORM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_INF_NORM = 104",
+      "value": 104,
+      "value_explicit": true,
+      "decl_hash": "4df05cc3e8458f00"
+    },
+    {
+      "name": "CUSOLVER_IRS_REFINE_CLASSICAL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_IRS_REFINE_CLASSICAL = 1102",
+      "value": 1102,
+      "value_explicit": true,
+      "decl_hash": "8204c64daac1c6c5"
+    },
+    {
+      "name": "CUSOLVER_IRS_REFINE_CLASSICAL_GMRES",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_IRS_REFINE_CLASSICAL_GMRES = 1103",
+      "value": 1103,
+      "value_explicit": true,
+      "decl_hash": "ebda1c954f85de22"
+    },
+    {
+      "name": "CUSOLVER_IRS_REFINE_GMRES",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_IRS_REFINE_GMRES = 1104",
+      "value": 1104,
+      "value_explicit": true,
+      "decl_hash": "b6f564ea3472d9b5"
+    },
+    {
+      "name": "CUSOLVER_IRS_REFINE_GMRES_GMRES",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_IRS_REFINE_GMRES_GMRES = 1105",
+      "value": 1105,
+      "value_explicit": true,
+      "decl_hash": "1689724e84e6410a"
+    },
+    {
+      "name": "CUSOLVER_IRS_REFINE_GMRES_NOPCOND",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_IRS_REFINE_GMRES_NOPCOND = 1106",
+      "value": 1106,
+      "value_explicit": true,
+      "decl_hash": "29392a9c04c5eba0"
+    },
+    {
+      "name": "CUSOLVER_IRS_REFINE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_IRS_REFINE_NONE = 1101",
+      "value": 1101,
+      "value_explicit": true,
+      "decl_hash": "8664b3485ea6ff18"
+    },
+    {
+      "name": "CUSOLVER_IRS_REFINE_NOT_SET",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_IRS_REFINE_NOT_SET = 1100",
+      "value": 1100,
+      "value_explicit": true,
+      "decl_hash": "107c43a245577967"
+    },
+    {
+      "name": "CUSOLVER_MAX_NORM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_MAX_NORM = 105",
+      "value": 105,
+      "value_explicit": true,
+      "decl_hash": "d4038da936880a28"
+    },
+    {
+      "name": "CUSOLVER_ONE_NORM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_ONE_NORM = 106",
+      "value": 106,
+      "value_explicit": true,
+      "decl_hash": "79b51a3bd4b48ceb"
+    },
+    {
+      "name": "CUSOLVER_PREC_DD",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_PREC_DD = 1150",
+      "value": 1150,
+      "value_explicit": true,
+      "decl_hash": "512d86ba755c2896"
+    },
+    {
+      "name": "CUSOLVER_PREC_SHT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_PREC_SHT = 1152",
+      "value": 1152,
+      "value_explicit": true,
+      "decl_hash": "cbefbe6e905d7638"
+    },
+    {
+      "name": "CUSOLVER_PREC_SS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_PREC_SS = 1151",
+      "value": 1151,
+      "value_explicit": true,
+      "decl_hash": "627f37ab101343f6"
+    },
+    {
+      "name": "CUSOLVER_R_16BF",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_R_16BF = 1206",
+      "value": 1206,
+      "value_explicit": true,
+      "decl_hash": "b34a4f1f4e030eee"
+    },
+    {
+      "name": "CUSOLVER_R_16F",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_R_16F = 1205",
+      "value": 1205,
+      "value_explicit": true,
+      "decl_hash": "d025598da20b1aac"
+    },
+    {
+      "name": "CUSOLVER_R_32F",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_R_32F = 1204",
+      "value": 1204,
+      "value_explicit": true,
+      "decl_hash": "16c63201bd36fdac"
+    },
+    {
+      "name": "CUSOLVER_R_64F",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_R_64F = 1203",
+      "value": 1203,
+      "value_explicit": true,
+      "decl_hash": "6cfa8004b90431f5"
+    },
+    {
+      "name": "CUSOLVER_R_8I",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_R_8I = 1201",
+      "value": 1201,
+      "value_explicit": true,
+      "decl_hash": "a3beb2849be89173"
+    },
+    {
+      "name": "CUSOLVER_R_8U",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_R_8U = 1202",
+      "value": 1202,
+      "value_explicit": true,
+      "decl_hash": "e469ba31f493d471"
+    },
+    {
+      "name": "CUSOLVER_R_AP",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_R_AP = 1208",
+      "value": 1208,
+      "value_explicit": true,
+      "decl_hash": "87ce9b7f63e80967"
+    },
+    {
+      "name": "CUSOLVER_R_TF32",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_R_TF32 = 1207",
+      "value": 1207,
+      "value_explicit": true,
+      "decl_hash": "9523ba8e586a1327"
+    },
+    {
+      "name": "CUSOLVER_STATUS_ALLOC_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_ALLOC_FAILED = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "2e7894dc52e17f64"
+    },
+    {
+      "name": "CUSOLVER_STATUS_ARCH_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_ARCH_MISMATCH = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "b3fc55fa356f990a"
+    },
+    {
+      "name": "CUSOLVER_STATUS_EXECUTION_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_EXECUTION_FAILED = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "ec35601df7d050f8"
+    },
+    {
+      "name": "CUSOLVER_STATUS_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_INTERNAL_ERROR = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "76f2959da87ce0a5"
+    },
+    {
+      "name": "CUSOLVER_STATUS_INVALID_LICENSE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_INVALID_LICENSE = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "050fed7bf27ceb7a"
+    },
+    {
+      "name": "CUSOLVER_STATUS_INVALID_VALUE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_INVALID_VALUE = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "4d2a4e3dd16f393a"
+    },
+    {
+      "name": "CUSOLVER_STATUS_INVALID_WORKSPACE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_INVALID_WORKSPACE = 31",
+      "value": 31,
+      "value_explicit": true,
+      "decl_hash": "8e0a4b219ef64bb2"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_INFOS_NOT_DESTROYED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_INFOS_NOT_DESTROYED = 26",
+      "value": 26,
+      "value_explicit": true,
+      "decl_hash": "9c30cb2bb1194d66"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_INFOS_NOT_INITIALIZED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_INFOS_NOT_INITIALIZED = 25",
+      "value": 25,
+      "value_explicit": true,
+      "decl_hash": "d8733d8bab62fbe0"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_INTERNAL_ERROR = 20",
+      "value": 20,
+      "value_explicit": true,
+      "decl_hash": "9c022fdf89fab265"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_MATRIX_SINGULAR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_MATRIX_SINGULAR = 30",
+      "value": 30,
+      "value_explicit": true,
+      "decl_hash": "1162779a5e69a15a"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_NOT_SUPPORTED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_NOT_SUPPORTED = 21",
+      "value": 21,
+      "value_explicit": true,
+      "decl_hash": "3a17bd23161e80d2"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_NRHS_NOT_SUPPORTED_FOR_REFINE_GMRES",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_NRHS_NOT_SUPPORTED_FOR_REFINE_GMRES = 23",
+      "value": 23,
+      "value_explicit": true,
+      "decl_hash": "e2fa073b1b164f4b"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_OUT_OF_RANGE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_OUT_OF_RANGE = 22",
+      "value": 22,
+      "value_explicit": true,
+      "decl_hash": "fb08d261276c8a69"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_PARAMS_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_PARAMS_INVALID = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "c4afbcf99051b8fc"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_PARAMS_INVALID_MAXITER",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_PARAMS_INVALID_MAXITER = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "218a12a40d7868b6"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_PARAMS_INVALID_PREC",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_PARAMS_INVALID_PREC = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "b0d61a416deb9a22"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_PARAMS_INVALID_REFINE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_PARAMS_INVALID_REFINE = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "06fd80baba5ef3c9"
+    },
+    {
+      "name": "CUSOLVER_STATUS_IRS_PARAMS_NOT_INITIALIZED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_IRS_PARAMS_NOT_INITIALIZED = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "c5db53b2cd6fdcaa"
+    },
+    {
+      "name": "CUSOLVER_STATUS_MAPPING_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_MAPPING_ERROR = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "3efa811409176a9d"
+    },
+    {
+      "name": "CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "c64fd46baa9da989"
+    },
+    {
+      "name": "CUSOLVER_STATUS_NOT_INITIALIZED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_NOT_INITIALIZED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "d27492eb88924a32"
+    },
+    {
+      "name": "CUSOLVER_STATUS_NOT_SUPPORTED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_NOT_SUPPORTED = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "97c4ee77bb4e3ae9"
+    },
+    {
+      "name": "CUSOLVER_STATUS_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "a25a6a9a58e61289"
+    },
+    {
+      "name": "CUSOLVER_STATUS_ZERO_PIVOT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "CUSOLVER_STATUS_ZERO_PIVOT = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "822711a8f2d36006"
+    },
+    {
+      "name": "cusolverGetProperty",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "cusolverStatus_t cusolverGetProperty(libraryPropertyType type, int * value)",
+      "decl_hash": "cf421289ce38d5fd"
+    },
+    {
+      "name": "cusolverGetVersion",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "cusolverStatus_t cusolverGetVersion(int * version)",
+      "decl_hash": "84d0357974394c7d"
+    },
+    {
+      "name": "cusolverSpCcsreigsHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsreigsHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, cuComplex left_bottom_corner, cuComplex right_upper_corner, int * num_eigs)",
+      "decl_hash": "959ef370f8a3cf45",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsreigvsi",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsreigvsi(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, cuComplex mu0, const cuComplex * x0, int maxite, float eps, cuComplex * mu, cuComplex * x)",
+      "decl_hash": "621e247cbde51bca",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsreigvsiHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsreigvsiHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, cuComplex mu0, const cuComplex * x0, int maxite, float tol, cuComplex * mu, cuComplex * x)",
+      "decl_hash": "c93a1ae52b4cefd3",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsrlsqvqrHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsrlsqvqrHost(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, const cuComplex * b, float tol, int * rankA, cuComplex * x, int * p, float * min_norm)",
+      "decl_hash": "c4b52ef6693cdedf",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsrlsvchol",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsrlsvchol(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrVal, const int * csrRowPtr, const int * csrColInd, const cuComplex * b, float tol, int reorder, cuComplex * x, int * singularity)",
+      "decl_hash": "1a2dd67c4e1bec86",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsrlsvcholHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsrlsvcholHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrVal, const int * csrRowPtr, const int * csrColInd, const cuComplex * b, float tol, int reorder, cuComplex * x, int * singularity)",
+      "decl_hash": "a80f3783f73108b1",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsrlsvluHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsrlsvluHost(cusolverSpHandle_t handle, int n, int nnzA, const cusparseMatDescr_t descrA, const cuComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, const cuComplex * b, float tol, int reorder, cuComplex * x, int * singularity)",
+      "decl_hash": "a52290ef3147f458",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsrlsvqr",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsrlsvqr(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrVal, const int * csrRowPtr, const int * csrColInd, const cuComplex * b, float tol, int reorder, cuComplex * x, int * singularity)",
+      "decl_hash": "ab9bc16315acb0ef",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsrlsvqrHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsrlsvqrHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, const cuComplex * b, float tol, int reorder, cuComplex * x, int * singularity)",
+      "decl_hash": "c4c9f2c7e209068f",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsrqrBufferInfoBatched",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsrqrBufferInfoBatched(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrVal, const int * csrRowPtr, const int * csrColInd, int batchSize, csrqrInfo_t info, size_t * internalDataInBytes, size_t * workspaceInBytes)",
+      "decl_hash": "fa333c87b7bb5c18",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsrqrsvBatched",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsrqrsvBatched(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, const cuComplex * b, cuComplex * x, int batchSize, csrqrInfo_t info, void * pBuffer)",
+      "decl_hash": "c6d5f59a505f457a",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCcsrzfdHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCcsrzfdHost(cusolverSpHandle_t handle, int n, int nnz, const cusparseMatDescr_t descrA, const cuComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, int * P, int * numnz)",
+      "decl_hash": "b364324408ad940a",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCreate(cusolverSpHandle_t * handle)",
+      "decl_hash": "bbd776b123b3b6b6",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpCreateCsrqrInfo",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpCreateCsrqrInfo(csrqrInfo_t * info)",
+      "decl_hash": "adf6d782fdc50acc",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsreigsHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsreigsHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const double * csrValA, const int * csrRowPtrA, const int * csrColIndA, cuDoubleComplex left_bottom_corner, cuDoubleComplex right_upper_corner, int * num_eigs)",
+      "decl_hash": "7f56b17e0e19667c",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsreigvsi",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsreigvsi(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const double * csrValA, const int * csrRowPtrA, const int * csrColIndA, double mu0, const double * x0, int maxite, double eps, double * mu, double * x)",
+      "decl_hash": "7b12121e22d6431c",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsreigvsiHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsreigvsiHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const double * csrValA, const int * csrRowPtrA, const int * csrColIndA, double mu0, const double * x0, int maxite, double tol, double * mu, double * x)",
+      "decl_hash": "38f6f3fc9ef25e57",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsrlsqvqrHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsrlsqvqrHost(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const double * csrValA, const int * csrRowPtrA, const int * csrColIndA, const double * b, double tol, int * rankA, double * x, int * p, double * min_norm)",
+      "decl_hash": "ecbf29a9ced5eccd",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsrlsvchol",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsrlsvchol(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const double * csrVal, const int * csrRowPtr, const int * csrColInd, const double * b, double tol, int reorder, double * x, int * singularity)",
+      "decl_hash": "4ac403aecf4da986",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsrlsvcholHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsrlsvcholHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const double * csrVal, const int * csrRowPtr, const int * csrColInd, const double * b, double tol, int reorder, double * x, int * singularity)",
+      "decl_hash": "e11e937be123ed38",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsrlsvluHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsrlsvluHost(cusolverSpHandle_t handle, int n, int nnzA, const cusparseMatDescr_t descrA, const double * csrValA, const int * csrRowPtrA, const int * csrColIndA, const double * b, double tol, int reorder, double * x, int * singularity)",
+      "decl_hash": "0cd0003d344cc3d4",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsrlsvqr",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsrlsvqr(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const double * csrVal, const int * csrRowPtr, const int * csrColInd, const double * b, double tol, int reorder, double * x, int * singularity)",
+      "decl_hash": "cdb8dab0946233fa",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsrlsvqrHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsrlsvqrHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const double * csrValA, const int * csrRowPtrA, const int * csrColIndA, const double * b, double tol, int reorder, double * x, int * singularity)",
+      "decl_hash": "90df407d1fa0c021",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsrqrBufferInfoBatched",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsrqrBufferInfoBatched(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const double * csrVal, const int * csrRowPtr, const int * csrColInd, int batchSize, csrqrInfo_t info, size_t * internalDataInBytes, size_t * workspaceInBytes)",
+      "decl_hash": "1836ba7e5a13fcb7",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsrqrsvBatched",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsrqrsvBatched(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const double * csrValA, const int * csrRowPtrA, const int * csrColIndA, const double * b, double * x, int batchSize, csrqrInfo_t info, void * pBuffer)",
+      "decl_hash": "28a3f1fe369e986c",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDcsrzfdHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDcsrzfdHost(cusolverSpHandle_t handle, int n, int nnz, const cusparseMatDescr_t descrA, const double * csrValA, const int * csrRowPtrA, const int * csrColIndA, int * P, int * numnz)",
+      "decl_hash": "b86b298bbd312ba6",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDestroy(cusolverSpHandle_t handle)",
+      "decl_hash": "8920f8125b38c6bc",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpDestroyCsrqrInfo",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpDestroyCsrqrInfo(csrqrInfo_t info)",
+      "decl_hash": "f38cd16800e2eafb",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpGetStream",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpGetStream(cusolverSpHandle_t handle, cudaStream_t * streamId)",
+      "decl_hash": "700e56336c748920",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsreigsHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsreigsHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const float * csrValA, const int * csrRowPtrA, const int * csrColIndA, cuComplex left_bottom_corner, cuComplex right_upper_corner, int * num_eigs)",
+      "decl_hash": "b2411f9d564254b1",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsreigvsi",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsreigvsi(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const float * csrValA, const int * csrRowPtrA, const int * csrColIndA, float mu0, const float * x0, int maxite, float eps, float * mu, float * x)",
+      "decl_hash": "0e9f8e2dede5eb31",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsreigvsiHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsreigvsiHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const float * csrValA, const int * csrRowPtrA, const int * csrColIndA, float mu0, const float * x0, int maxite, float tol, float * mu, float * x)",
+      "decl_hash": "bb8d6ce8e1430573",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsrlsqvqrHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsrlsqvqrHost(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const float * csrValA, const int * csrRowPtrA, const int * csrColIndA, const float * b, float tol, int * rankA, float * x, int * p, float * min_norm)",
+      "decl_hash": "5a3c76b59bf45f2d",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsrlsvchol",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsrlsvchol(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const float * csrVal, const int * csrRowPtr, const int * csrColInd, const float * b, float tol, int reorder, float * x, int * singularity)",
+      "decl_hash": "194a362768350b35",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsrlsvcholHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsrlsvcholHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const float * csrVal, const int * csrRowPtr, const int * csrColInd, const float * b, float tol, int reorder, float * x, int * singularity)",
+      "decl_hash": "16945c1dd853aea8",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsrlsvluHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsrlsvluHost(cusolverSpHandle_t handle, int n, int nnzA, const cusparseMatDescr_t descrA, const float * csrValA, const int * csrRowPtrA, const int * csrColIndA, const float * b, float tol, int reorder, float * x, int * singularity)",
+      "decl_hash": "1717c4f5ea1bf01a",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsrlsvqr",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsrlsvqr(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const float * csrVal, const int * csrRowPtr, const int * csrColInd, const float * b, float tol, int reorder, float * x, int * singularity)",
+      "decl_hash": "ad16eabb0b0e4f75",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsrlsvqrHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsrlsvqrHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const float * csrValA, const int * csrRowPtrA, const int * csrColIndA, const float * b, float tol, int reorder, float * x, int * singularity)",
+      "decl_hash": "cef0d373b451f563",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsrqrBufferInfoBatched",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsrqrBufferInfoBatched(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const float * csrVal, const int * csrRowPtr, const int * csrColInd, int batchSize, csrqrInfo_t info, size_t * internalDataInBytes, size_t * workspaceInBytes)",
+      "decl_hash": "637fc480b170156c",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsrqrsvBatched",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsrqrsvBatched(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const float * csrValA, const int * csrRowPtrA, const int * csrColIndA, const float * b, float * x, int batchSize, csrqrInfo_t info, void * pBuffer)",
+      "decl_hash": "ba04f880b219f67d",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpScsrzfdHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpScsrzfdHost(cusolverSpHandle_t handle, int n, int nnz, const cusparseMatDescr_t descrA, const float * csrValA, const int * csrRowPtrA, const int * csrColIndA, int * P, int * numnz)",
+      "decl_hash": "4884ed91d76e7af3",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpSetStream",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpSetStream(cusolverSpHandle_t handle, cudaStream_t streamId)",
+      "decl_hash": "fe3e8493bc44f9ff",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpXcsrissymHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpXcsrissymHost(cusolverSpHandle_t handle, int m, int nnzA, const cusparseMatDescr_t descrA, const int * csrRowPtrA, const int * csrEndPtrA, const int * csrColIndA, int * issym)",
+      "decl_hash": "6f53df8acd816c66",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpXcsrmetisndHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpXcsrmetisndHost(cusolverSpHandle_t handle, int n, int nnzA, const cusparseMatDescr_t descrA, const int * csrRowPtrA, const int * csrColIndA, const int64_t * options, int * p)",
+      "decl_hash": "30f9bf4e1849211b",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpXcsrpermHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpXcsrpermHost(cusolverSpHandle_t handle, int m, int n, int nnzA, const cusparseMatDescr_t descrA, int * csrRowPtrA, int * csrColIndA, const int * p, const int * q, int * map, void * pBuffer)",
+      "decl_hash": "e4b1e60e2c21e310",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpXcsrperm_bufferSizeHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpXcsrperm_bufferSizeHost(cusolverSpHandle_t handle, int m, int n, int nnzA, const cusparseMatDescr_t descrA, const int * csrRowPtrA, const int * csrColIndA, const int * p, const int * q, size_t * bufferSizeInBytes)",
+      "decl_hash": "f11339016ebd0bfd",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpXcsrqrAnalysisBatched",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpXcsrqrAnalysisBatched(cusolverSpHandle_t handle, int m, int n, int nnzA, const cusparseMatDescr_t descrA, const int * csrRowPtrA, const int * csrColIndA, csrqrInfo_t info)",
+      "decl_hash": "9b871dd2f7169b4d",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpXcsrsymamdHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpXcsrsymamdHost(cusolverSpHandle_t handle, int n, int nnzA, const cusparseMatDescr_t descrA, const int * csrRowPtrA, const int * csrColIndA, int * p)",
+      "decl_hash": "cc3ae2d38d559534",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpXcsrsymmdqHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpXcsrsymmdqHost(cusolverSpHandle_t handle, int n, int nnzA, const cusparseMatDescr_t descrA, const int * csrRowPtrA, const int * csrColIndA, int * p)",
+      "decl_hash": "c4a1ed6fb7e336b8",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpXcsrsymrcmHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpXcsrsymrcmHost(cusolverSpHandle_t handle, int n, int nnzA, const cusparseMatDescr_t descrA, const int * csrRowPtrA, const int * csrColIndA, int * p)",
+      "decl_hash": "781498a12960945d",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsreigsHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsreigsHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, cuDoubleComplex left_bottom_corner, cuDoubleComplex right_upper_corner, int * num_eigs)",
+      "decl_hash": "f3142b66063af2be",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsreigvsi",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsreigvsi(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, cuDoubleComplex mu0, const cuDoubleComplex * x0, int maxite, double eps, cuDoubleComplex * mu, cuDoubleComplex * x)",
+      "decl_hash": "af19e0406bb5a5ce",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsreigvsiHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsreigvsiHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, cuDoubleComplex mu0, const cuDoubleComplex * x0, int maxite, double tol, cuDoubleComplex * mu, cuDoubleComplex * x)",
+      "decl_hash": "f622bb069e1a996b",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsrlsqvqrHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsrlsqvqrHost(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, const cuDoubleComplex * b, double tol, int * rankA, cuDoubleComplex * x, int * p, double * min_norm)",
+      "decl_hash": "f18cf320238cbfac",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsrlsvchol",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsrlsvchol(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrVal, const int * csrRowPtr, const int * csrColInd, const cuDoubleComplex * b, double tol, int reorder, cuDoubleComplex * x, int * singularity)",
+      "decl_hash": "bad2f1c5b810cc56",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsrlsvcholHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsrlsvcholHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrVal, const int * csrRowPtr, const int * csrColInd, const cuDoubleComplex * b, double tol, int reorder, cuDoubleComplex * x, int * singularity)",
+      "decl_hash": "a296b36a34f4eea6",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsrlsvluHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsrlsvluHost(cusolverSpHandle_t handle, int n, int nnzA, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, const cuDoubleComplex * b, double tol, int reorder, cuDoubleComplex * x, int * singularity)",
+      "decl_hash": "c513d737258fbe37",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsrlsvqr",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsrlsvqr(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrVal, const int * csrRowPtr, const int * csrColInd, const cuDoubleComplex * b, double tol, int reorder, cuDoubleComplex * x, int * singularity)",
+      "decl_hash": "12450b69a1d111e7",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsrlsvqrHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsrlsvqrHost(cusolverSpHandle_t handle, int m, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, const cuDoubleComplex * b, double tol, int reorder, cuDoubleComplex * x, int * singularity)",
+      "decl_hash": "22f1f0b4f7dbc437",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsrqrBufferInfoBatched",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsrqrBufferInfoBatched(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrVal, const int * csrRowPtr, const int * csrColInd, int batchSize, csrqrInfo_t info, size_t * internalDataInBytes, size_t * workspaceInBytes)",
+      "decl_hash": "1114044a9e4dd2ae",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsrqrsvBatched",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsrqrsvBatched(cusolverSpHandle_t handle, int m, int n, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, const cuDoubleComplex * b, cuDoubleComplex * x, int batchSize, csrqrInfo_t info, void * pBuffer)",
+      "decl_hash": "416fa2d5527cc435",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverSpZcsrzfdHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "cusolverStatus_t cusolverSpZcsrzfdHost(cusolverSpHandle_t handle, int n, int nnz, const cusparseMatDescr_t descrA, const cuDoubleComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, int * P, int * numnz)",
+      "decl_hash": "365cf60cd87a950f",
+      "deprecated": true
+    },
+    {
+      "name": "cusolverAlgMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverAlgMode_t cusolverAlgMode_t",
+      "decl_hash": "c64f82cf8a8fce51"
+    },
+    {
+      "name": "cusolverDeterministicMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverDeterministicMode_t cusolverDeterministicMode_t",
+      "decl_hash": "4b514047ff9e3390"
+    },
+    {
+      "name": "cusolverDirectMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverDirectMode_t cusolverDirectMode_t",
+      "decl_hash": "6f7c47ad47521899"
+    },
+    {
+      "name": "cusolverEigMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverEigMode_t cusolverEigMode_t",
+      "decl_hash": "1732a68f2c773a80"
+    },
+    {
+      "name": "cusolverEigRange_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverEigRange_t cusolverEigRange_t",
+      "decl_hash": "0c2f283787280cd1"
+    },
+    {
+      "name": "cusolverEigType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverEigType_t cusolverEigType_t",
+      "decl_hash": "82a52a73866adf24"
+    },
+    {
+      "name": "cusolverIRSRefinement_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverIRSRefinement_t cusolverIRSRefinement_t",
+      "decl_hash": "2ae8dd3dc6d207e5"
+    },
+    {
+      "name": "cusolverMathMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverMathMode_t cusolverMathMode_t",
+      "decl_hash": "9bbf9941a155987e"
+    },
+    {
+      "name": "cusolverNorm_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverNorm_t cusolverNorm_t",
+      "decl_hash": "58db7eeee509310c"
+    },
+    {
+      "name": "cusolverPrecType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverPrecType_t cusolverPrecType_t",
+      "decl_hash": "2227ebfe57db312b"
+    },
+    {
+      "name": "cusolverSpHandle_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolverSp.h",
+      "decl": "typedef struct cusolverSpContext * cusolverSpHandle_t",
+      "decl_hash": "3c5cf1f8b4309527"
+    },
+    {
+      "name": "cusolverStatus_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverStatus_t cusolverStatus_t",
+      "decl_hash": "7933eb4f089c8548"
+    },
+    {
+      "name": "cusolverStorevMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef enum cusolverStorevMode_t cusolverStorevMode_t",
+      "decl_hash": "ccb6f041dcd11017"
+    },
+    {
+      "name": "cusolver_int_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cusolver_common.h",
+      "decl": "typedef int cusolver_int_t",
+      "decl_hash": "9008666ff99828d2"
+    }
+  ]
+}
