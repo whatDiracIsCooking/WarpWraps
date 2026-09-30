@@ -19,23 +19,26 @@ export namespace wwr::extension {
 /**
  * @brief A type that yields a raw wwrblasHandle_t -- the co-ownable BLAS handle
  *
- * Structural, like device_handle: any type exposing a noexcept get() returning
- * wwrblasHandle_t qualifies, which BlasHandleWrapper does through BaseHandle. A
- * consumer that only needs "something a wwrblasHandle_t comes from" -- e.g.
- * PointerModeScope, which shared-owns one for its lifetime -- constrains on this
- * instead of templating on BlasHandleWrapper's full <P_create, P_destroy, S,
- * P_device_access> list, none of which it uses.
+ * Structural, like device_handle: a type qualifies either by *being* a
+ * wwrblasHandle_t itself, or by exposing a noexcept get() returning one (which
+ * BlasHandleWrapper does through BaseHandle). A consumer that only needs
+ * "something a wwrblasHandle_t comes from" -- e.g. PointerModeScope, which
+ * shared-owns one for its lifetime -- constrains on this instead of templating on
+ * BlasHandleWrapper's full <P_create, P_destroy, S, P_device_access> list, none of
+ * which it uses.
  *
- * The return must be *exactly* wwrblasHandle_t (same_as), not merely convertible:
- * on HIP wwrblasHandle_t is void*, so a convertible_to check would admit any
- * object pointer -- e.g. a StreamWrapper's wwrStream_t (ihipStream_t*) -- and
- * silently accept the wrong handle. same_as still cannot separate blas from
- * solver/sparse on HIP (all three vendor handles ARE void* there) -- the same
- * irreducible void* aliasing the typed_error_policy note describes -- but it does
- * keep the distinct stream/event/pool handle types out.
+ * Both arms test the type with same_as, not convertible_to: on HIP wwrblasHandle_t
+ * is void*, so a convertible check would admit any object pointer -- e.g. a
+ * StreamWrapper's wwrStream_t (ihipStream_t*) -- and silently accept the wrong
+ * handle. Requiring *exactly* wwrblasHandle_t keeps the raw arm just as tight as
+ * the get() arm: a wwrStream_t (ihipStream_t*, not void*) satisfies neither.
+ * same_as still cannot separate blas from solver/sparse on HIP (all three vendor
+ * handles ARE void* there) -- the same irreducible void* aliasing the
+ * typed_error_policy note describes -- but it does keep the distinct
+ * stream/event/pool handle types out.
  */
 template<typename H>
-concept blas_handle = requires(const H h) {
+concept blas_handle = std::same_as<H, wwrblasHandle_t> || requires(const H h) {
   { h.get() } noexcept -> std::same_as<wwrblasHandle_t>;
 };
 
