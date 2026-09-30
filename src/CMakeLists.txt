@@ -109,7 +109,6 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_raw_solver wwr::cuda::cusolverDn)
   set(_raw_sparse wwr::cuda::cusparse)
   set(_raw_fft wwr::cuda::cufft)
-  set(_raw_rand wwr::cuda::curand)
   set(_raw_tx wwr::cuda::nvToolsExt)
   set(_raw_ccl wwr::cuda::nccl)
   set(_raw_tensor wwr::cuda::cutensor)
@@ -125,10 +124,6 @@ else()
   set(_raw_solver wwr::hip::hipsolver)
   set(_raw_sparse wwr::hip::hipsparse)
   set(_raw_fft wwr::hip::hipfft)
-  # Two modules where CUDA has one: cuRAND wraps curand.h and curand_kernel.h
-  # together, hipRAND keeps hiprand_kernel.h separate. rand.cppm needs both
-  # (host API + device generator state types) -- see src/hip/CMakeLists.txt.
-  set(_raw_rand wwr::hip::hiprand wwr::hip::hiprand_kernel)
   set(_raw_tx wwr::hip::roctx)
   set(_raw_ccl wwr::hip::rccl)
   set(_raw_tensor wwr::hip::hiptensor)
@@ -274,13 +269,22 @@ wwr_add_cxx_module_library(
   IMPORT_STD
 )
 
+# wwr.rand wraps the vendor RNG *library* directly, not a raw vendor module: its
+# GMF #includes rand.h, which pulls in curand.h/curand_kernel.h (or the hipRAND
+# pair), and the host API is a real external-linkage library, so binding wwr*
+# references to the declarations needs only the prototype plus the link library.
+# wwr::rand::device already carries exactly that pair -- the vendor lib and the
+# src/-root include path -- so link it, PUBLIC (a consumer calling wwrrand*
+# links the vendor lib too). The raw modules (wwr.cuda.curand, wwr.hip.hiprand,
+# wwr.hip.hiprand_kernel) stay as single-vendor surfaces, off this path. See
+# src/rand.h and src/README.md.
 wwr_add_cxx_module_library(
   NAME
   wwr.rand
   PRIMARY_INTERFACE
   rand.cppm
   LINK_PUBLIC
-  ${_raw_rand}
+  wwr::rand::device
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
