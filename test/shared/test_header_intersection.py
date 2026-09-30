@@ -36,12 +36,12 @@ ROCM = ROOT / "vendor" / "rocm-7.2.4"
 
 RAND_CUDA = [CUDA / "curand.json", CUDA / "curand_kernel.json"]
 RAND_HIP = [ROCM / "hiprand.json", ROCM / "hiprand_kernel.json"]
-# rand.cppm carries the host API, rand.cuh the __device__ generators, and rand.h
-# the generator state types (the curandState*_t device types below live there):
-# all three are scanned so the whole shared surface is covered.
+# rand.cppm carries the host API; rand.h carries the generator state types (the
+# curandState*_t device types below) and, in its device-pass-gated section, the
+# __device__ generators (folded in from the former rand.cuh). Both are scanned so
+# the whole shared surface is covered.
 RAND_SRC = [
     ROOT / "src" / "rand.cppm",
-    ROOT / "src" / "rand.cuh",
     ROOT / "src" / "rand.h",
 ]
 

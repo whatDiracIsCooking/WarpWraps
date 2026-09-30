@@ -83,14 +83,14 @@ satisfied:
 | `random_normal_bridge.h` | included by both | the declaration they share |
 
 `random_normal.cu` is shared unchanged between backends. `.cu`/`.cuh` here means
-*device-compiled, whichever backend* — the same sense as the `.cuh` headers it
-includes (`src/rand.cuh`, `parallel_for.cuh`), none of which is CUDA-only
+*device-compiled, whichever backend* — the same sense as the device headers it
+includes (`src/rand.h`'s gated section, `parallel_for.cuh`), none of which is CUDA-only
 either. CMake maps `.cu` to CUDA on its own; under HIP the `LANGUAGE` is
 overridden back to `CXX` (a HIP build enables no CUDA language at all) and
 `hip::device` is linked, into a small dedicated static library so those flags
 never reach the module units. All of that lives in
 `wwr_add_gpu_device_library` (`cmake/`), which this `CMakeLists.txt` calls.
-There is no per-backend `#if` in the source: `src/rand.cuh` and
+There is no per-backend `#if` in the source: `src/rand.h` and
 `src/fp_types.cuh` resolve every difference, so the functor is written once.
 
 `random_normal_bridge.h` is deliberately `.h`, not `.cuh`: every `.cuh` in this

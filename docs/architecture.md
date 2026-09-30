@@ -37,11 +37,11 @@ compiles on CUDA and fails on HIP. Pick one spelling and keep it. Pinned by
 backends' opposite answers separately.
 
 **Where the alias lives, and how it coexists with `import wwr.rand`.**
-The state-type aliases live once, in the src/-root shared-type header `rand.h`,
+The state-type aliases live once, in the src/-root header `rand.h`,
 which `#include`s the vendor kernel header and so names the real `::curandState`
-/ `::hiprandState` typedefs directly. `rand.cppm` re-exports them, and `rand.cuh`
-and the two `*_bridge.h` include the same header, so all four name one identical
-type. The asymmetry is the vendor divergence above: on CUDA `::curandState` and
+/ `::hiprandState` typedefs directly. `rand.cppm` re-exports them, `rand.h`'s own
+device-pass-gated generators name them, and the two `*_bridge.h` include the same
+header, so all name one identical type. The asymmetry is the vendor divergence above: on CUDA `::curandState` and
 `::curandStateXORWOW` are the one type, while on HIP the default state is its own
 struct, so the HIP branch names `::hiprandState` and nothing else.
 
@@ -90,10 +90,11 @@ under `wwr*` names anyway, for the layering reason in §5.
 cannot drift. A function reference carries no default arguments and **cannot
 name an overload set**, which rules it out in three places:
 
-- **`rand.cuh`'s generators.** `curand_normal` and friends are an *overload set*
-  on CUDA (one per state type) and a *function template* on hipRAND (one
+- **`rand.h`'s device generators.** `curand_normal` and friends are an *overload
+  set* on CUDA (one per state type) and a *function template* on hipRAND (one
   template, constrained by a `check_state_type` static_assert). A reference can
-  name neither, so each is a thin `__device__` template over the state type.
+  name neither, so each is a thin `__device__` template over the state type,
+  in `rand.h`'s device-pass-gated section (folded in from the former `rand.cuh`).
 - **`wwrMalloc`.** `hipMalloc` has a `template<class T>` overload, so the
   reference is given an explicit type to select one:
   `inline constexpr wwrError_t (&wwrMalloc)(void**, std::size_t) = ...;`
@@ -130,7 +131,7 @@ values happen to agree. **Use the names; never store or compare the numbers.**
 so the failure — `error: use of undeclared identifier 'printf'` — appears only
 when the hipRAND header is reached first.
 
-`<cstdio>` is therefore included ahead of it in both `src/rand.cuh` and
+`<cstdio>` is therefore included ahead of it in both `src/rand.h` and
 `src/hip/hiprand_kernel.cppm`, so the consuming TU's include order cannot
 matter.
 

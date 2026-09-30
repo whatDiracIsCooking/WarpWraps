@@ -4,10 +4,12 @@ The `.h` and `.cuh` switch-point and shared-type headers of the `wwr*` layer
 (directly under `src/`), as opposed to the `.cppm` modules. This records their
 include graph as it stands, so the flatness is visible at a glance and a new edge
 stands out in review. `complex.h`, `runtime.h` and `rand.h` are *shared-type*
-headers — a device `.cuh` and a host TU that cannot `import` in context both
-include one to name the same vendor type the modules export; they reach
-`selected_backend.h` directly, so they compile in a host TU without the
-device-pass `#error`.
+headers — a host TU that cannot `import` in context (and, for `complex`/`runtime`,
+a device `.cuh`) includes one to name the same vendor type the modules export;
+they reach `selected_backend.h` directly, so they compile in a host TU without the
+device-pass `#error`. `rand.h` goes further: it also carries the rand layer's
+`__device__` generators, in a section gated behind the device-pass macros, so a
+device `.cu` includes `rand.h` directly and there is no `rand.cuh`.
 
 See also `src/README.md` ("The switch points"), which explains *why* the graph
 has this shape; this file only states *what* it is.
@@ -20,13 +22,10 @@ reach it through `device_guard.h`, which adds the "must be a device pass"
 `wmma.cuh` reach `device_guard.h` through `runtime.cuh`, whose `WWR_WARP_SIZE`
 they also want — a portable tile size for one, a wave index for the other, both
 because the API is a whole-warp collective. **No host-safe header includes
-another, every `.cuh`-to-`.cuh` edge stays inside a single target, and the one
-`.cuh`-to-`.h` edge (`rand.cuh` → `rand.h`) is into a header-only shared-type
-header that carries no target of its own** — the `.cuh` edges are both into
-`runtime.cuh`, and all three files are `wwr.device`, so neither leaks an include
-path across targets; `rand.h` rides whatever includes it, so it leaks nothing
-either. That is the concern that keeps every other `.cuh` rooted directly at
-`device_guard.h`.
+another, and every `.cuh`-to-`.cuh` edge stays inside a single target** — the two
+such edges are both into `runtime.cuh`, and all three files are `wwr.device`, so
+neither leaks an include path across targets. That is the concern that keeps every
+`.cuh` rooted directly at `device_guard.h`.
 
 `complex.h`, `runtime.h` and `rand.h` reach `selected_backend.h` *directly*, not
 through `device_guard.h`: each compiles in a host TU and so must not carry the
@@ -38,9 +37,10 @@ across the boundary in a GMF or plain `.cu` (the two `*_bridge.h`,
 `example/warp_reduce`) — `runtime_api.cppm` exports the same type via `import`
 rather than including it, because the vendor runtime macros would collide with
 its `WWR_RT_VALUE` expansions. `rand.h` is included by `rand.cppm` (host module,
-which re-exports the state types), `rand.cuh` (device), and the two `*_bridge.h`;
-unlike `runtime_api.cppm`, `rand.cppm` *does* include its shared-type header —
-the vendor kernel headers define no colliding macros.
+which re-exports the state types and binds the host API), the two `*_bridge.h`,
+and the two extension device `.cu` (which reach its gated `__device__`
+generators); unlike `runtime_api.cppm`, `rand.cppm` *does* include its shared-type
+header — the vendor kernel headers define no colliding macros.
 
 Unlike `complex.h` and `runtime.h`, whose vendor header is host-cheap, `rand.h`
 pulls the heavy `curand_kernel.h` / `hiprand_kernel.h`. That weight lands only in
@@ -57,11 +57,11 @@ selected_backend.h        no #includes — the leaf the switch/shared-type layer
 │   │   └── wmma.cuh       + <mma.h>                     | <rocwmma/rocwmma.hpp>
 │   ├── complex.cuh        (vendor headers via complex.h)
 │   ├── fp16.cuh           + <cuda_fp16.h>               | <hip/hip_fp16.h>
-│   ├── bf16.cuh           + <cuda_bf16.h>               | <hip/hip_bf16.h>
-│   └── rand.cuh           (state types + vendor kernel headers via rand.h; adds __device__ generators)
+│   └── bf16.cuh           + <cuda_bf16.h>               | <hip/hip_bf16.h>
 ├── complex.h            + <cuComplex.h>               | <array> <hip/hip_complex.h>
 ├── runtime.h           + <cuda_runtime_api.h>        | <hip/hip_runtime_api.h>
-└── rand.h               + <curand_kernel.h>           | <cstdio> <hiprand/hiprand_kernel.h>
+└── rand.h               + <curand.h> <curand_kernel.h> | <cstdio> <hiprand/hiprand.h> <hiprand/hiprand_kernel.h>
+                          (+ __device__ generators, gated behind the device-pass macros)
 
 backend.h                 no #includes — independent; consumed only by the .cppm modules
 ```
@@ -70,10 +70,10 @@ The two columns after each `+` are the CUDA branch (`WWR_SELECTED_CUDA`) and
 the HIP branch (`WWR_SELECTED_HIP` / the `#else`); a translation unit sees
 exactly one. `fp16.cuh`, `bf16.cuh`, `runtime.cuh`, `cooperative_groups.cuh`,
 `wmma.cuh`, `complex.h`, `runtime.h` and `rand.h` pull vendor headers;
-`complex.cuh` pulls its via `complex.h`, `runtime.cuh` shares `runtime.h`'s type
-while adding the full runtime on top, and `rand.cuh` pulls the state types and
-its vendor kernel headers via `rand.h` while adding the `__device__` generators.
-`device_guard.h` pulls none — it carries only the guard. That guard is a check on
+`complex.cuh` pulls its via `complex.h`, and `runtime.cuh` shares `runtime.h`'s
+type while adding the full runtime on top. `rand.h` carries its `__device__`
+generators itself, in the device-pass-gated section, alongside the state types and
+vendor headers. `device_guard.h` pulls none — it carries only the guard. That guard is a check on
 `__CUDACC__` / `__HIP__` / `__HIPCC__`, separate from the backend selection: it
 answers "is this a device pass?", not "which backend?", which is why it lives in
 `device_guard.h` and not in `selected_backend.h` (a host-safe header includes the
@@ -90,23 +90,23 @@ transitively — through `device_guard.h` internally, and directly through
 | Header | Included by | CMake target that carries it |
 |---|---|---|
 | `selected_backend.h` | (internal — `device_guard.h`; and `complex.h`, `runtime.h`, `rand.h`) | — (header-only, no target of its own) |
-| `device_guard.h` | (internal only — `runtime.cuh`, `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `rand.cuh`) | — (header-only, rides each `.cuh`'s target) |
+| `device_guard.h` | (internal only — `runtime.cuh`, `complex.cuh`, `fp16.cuh`, `bf16.cuh`) | — (header-only, rides each `.cuh`'s target) |
 | `backend.h` | `blas.cppm`, `bf16.cppm`, `complex.cppm`, `fp16.cppm`, `rand.cppm`, `runtime_api.cppm`, `solver.cppm` | each module's own target |
 | `complex.h` | `complex.cuh`, `complex.cppm` | header-only (rides `wwr.device` / `wwr.complex`) |
 | `runtime.h` | `runtime.cuh`, `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h`, `example/warp_reduce/warp_reduce_bridge.h` | header-only (rides `wwr.device` and the src/ include root each consumer carries) |
-| `rand.h` | `rand.cppm`, `rand.cuh`, `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h` | header-only (rides the src/ include root each consumer carries; installed by the `src/*.h` glob) |
+| `rand.h` | `rand.cppm`, the two `*_bridge.h`, `extension/init_state/init_state.cu`, `extension/random_normal/random_normal.cu` (device, for the gated generators) | header-only (rides the src/ include root each consumer carries; the device `.cu` also link `wwr.rand.device` for the RNG library; installed by the `src/*.h` glob) |
 | `runtime.cuh` | `extension/parallel_for/parallel_for.cuh` (and, internally, `cooperative_groups.cuh`) | `wwr.device` |
 | `cooperative_groups.cuh` | (none yet — the warp-reduction example will be its first caller) | `wwr.device` |
 | `wmma.cuh` | (none yet — only `test/gpu/wmma.cu` compiles it) | `wwr.device` |
 | `complex.cuh` | `extension/random_normal/random_normal.cu` | `wwr.device` |
 | `fp16.cuh` | `extension/random_normal/random_normal.cu` | `wwr.device` |
 | `bf16.cuh` | `extension/random_normal/random_normal.cu` | `wwr.device` |
-| `rand.cuh` | `extension/init_state/init_state.cu`, `extension/random_normal/random_normal.cu` | `wwr.rand.device` |
 
 `runtime.cuh`, `cooperative_groups.cuh`, `wmma.cuh`, `complex.cuh`, `fp16.cuh` and
-`bf16.cuh` share the `wwr.device` target; `rand.cuh` sits in a separate `wwr.rand.device`
-target on purpose (an RNG device TU should not be forced to carry the
-runtime/warp-size machinery). That target split is why `device_guard.h` — not
+`bf16.cuh` share the `wwr.device` target; the rand device generators (in `rand.h`)
+sit behind a separate `wwr.rand.device` target on purpose (an RNG device TU should
+not be forced to carry the runtime/warp-size machinery). That target split is why
+`device_guard.h` — not
 `runtime.cuh` — is where the shared guard lives: it carries only the guard
 and `selected_backend.h`, no vendor headers and no target-specific content, so
 each `.cuh` can include it without one target's include path or vendor headers
@@ -114,6 +114,4 @@ leaking into another's consumers. Routing a `.cuh` in one target through a `.cuh
 in another would do exactly that leaking, which is why every cross-target pair is
 kept apart. The two `.cuh`-to-`.cuh` edges, `cooperative_groups.cuh` and `wmma.cuh` →
 `runtime.cuh`, are within `wwr.device`, so they carry no such leak: a
-consumer of any of the three already links that one target. The `rand.cuh` →
-`rand.h` edge is to a header-only shared-type header (no target of its own), so
-it leaks nothing across targets either.
+consumer of any of the three already links that one target.

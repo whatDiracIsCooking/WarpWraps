@@ -10,7 +10,9 @@
 #include "complex.cuh"
 #include "extension/parallel_for/parallel_for.cuh"
 #include "fp16.cuh"
-#include "rand.cuh"
+// rand.h, not a .cuh: it carries the rand device generators in a device-pass
+// gated section alongside the state types -- see src/rand.h.
+#include "rand.h"
 
 #include <cstddef>
 #include <type_traits>

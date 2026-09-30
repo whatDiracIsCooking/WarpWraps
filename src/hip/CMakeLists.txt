@@ -304,8 +304,8 @@ wwr_add_cxx_module_library(
 # wwr.hip.hiprand alone and pay none of it.
 #
 # TYPES only -- hiprand_init/hiprand_normal/... are __device__-qualified and
-# unreachable from a module unit; src/rand.cuh is how a device
-# translation unit reaches those. See src/hip/hiprand_kernel.cppm.
+# unreachable from a module unit; src/rand.h's device-pass-gated section is how
+# a device translation unit reaches those. See src/hip/hiprand_kernel.cppm.
 #
 # Same hip::hiprand imported target as above (one hipRAND package, two
 # headers); it carries /opt/rocm/include and __HIP_PLATFORM_AMD__, which is

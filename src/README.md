@@ -121,9 +121,10 @@ vectors — plus the device generator **state types** (`wwrrandState`,
 `wwrrandStatePhilox4_32_10`, …). The device **functions** (`curand_init`,
 `curand_normal`, …) are not here and cannot be: they are `__device__`-qualified,
 so only a real device-compile pass can call them, and a kernel translation unit
-imports no modules. `rand.cuh` is where those live — see "Device headers"
-below. The state types stay on the module side because they are plain data and
-the *host* is what allocates and sizes the per-thread state array.
+imports no modules. `rand.h`'s device-pass-gated section is where those live —
+see "Device headers" below. The state types stay on the module side because they
+are plain data and the *host* is what allocates and sizes the per-thread state
+array.
 
 `wwr.rand` imports no raw vendor module. It reaches the vendor headers through
 `rand.h` — `curand.h` + `curand_kernel.h` on CUDA, `hiprand.h` +
@@ -155,7 +156,7 @@ file header lists them. Three things to watch:
 `gpu.rand` breaks the first rule below: it was ported whole, before
 `src/wrappers` used any of it. Every name in it is therefore checked in full by
 `test/gpu/rand.cppm`. `src/extension/init_state` and `src/extension/random_normal`
-now use the state types and, through `rand.cuh`, the device functions; the rest
+now use the state types and, through `rand.h`, the device functions; the rest
 of the host API is still checked only by that test.
 
 `gpu.ccl` covers multi-GPU **collectives** — NCCL / RCCL. This is the one
@@ -270,7 +271,7 @@ see its section above and `docs/architecture.md` §12.
 A `.cppm` here is a module, and code that imports one is host code. A kernel
 translation unit — a `.cu` under CUDA, a `-x hip` compiled source under HIP —
 imports no modules at all, so none of the modules above can serve it. The
-nine `.cuh` headers are the counterpart for that case: same `wwr*` names,
+eight `.cuh` headers are the counterpart for that case: same `wwr*` names,
 reached by `#include`, with the backend resolved through `selected_backend.h`
 (which reads the compiler's own device-compile macro before `backend.h`'s
 CMake define) rather than by an `import`. Each also `#error`s if included
@@ -278,15 +279,21 @@ outside a device-compile pass — a *separate* check on `__CUDACC__` / `__HIP__`
 / `__HIPCC__`, because `selected_backend.h` would otherwise resolve a backend
 in a host compile too, and what these carry is device-only.
 
-All nine reach both — the backend selection and that guard — through one
+(`rand` is no longer among them: its device generators fold into `rand.h`'s own
+device-pass-gated section, so a device consumer `#include`s the one neutral
+`rand.h` — the `.h` + `.cppm` shape for a vendor header with both host and device
+symbols. `rand.h` still links `wwr.rand.device` for the include path and RNG
+library. See the `gpu.rand` section above and `src/rand.h`.)
+
+All eight reach both — the backend selection and that guard — through one
 header, `device_guard.h`, which is `selected_backend.h` plus the device-pass
-`#error` and nothing else. Six include it directly; `cooperative_groups.cuh`,
+`#error` and nothing else. Five include it directly; `cooperative_groups.cuh`,
 `wmma.cuh` and `atomic.cuh` reach it through `runtime.cuh`, which they include
 anyway — the first two for `WWR_WARP_SIZE`, `atomic.cuh` for the vendor runtime
 header its builtins need. The guard cannot move into `selected_backend.h`
 itself, which is "for anything" and must not `#error` in the host compiles the
 bridges do; `device_guard.h` is the device-only layer above it that can. It
-carries no vendor header and no target-specific content, so all nine `.cuh`
+carries no vendor header and no target-specific content, so all eight `.cuh`
 share it regardless of which target they are in.
 
 | Header | Provides | Link |
@@ -299,7 +306,11 @@ share it regardless of which target they are in.
 | `cooperative_groups.cuh` | nothing of its own — the vendor's `namespace cooperative_groups`, reached through the one `#include` that differs | `wwr.device` |
 | `wmma.cuh` | `wwrwmma`, aliasing the vendor's `nvcuda::wmma` / `rocwmma` — the namespace is the only name here, the spellings inside it agree | `wwr.device` |
 | `atomic.cuh` | `wwrMemoryOrder`, `wwrThreadScope`, and the `wwrAtomic*` forwarders — `Load`/`Store`/`Exchange`, `CompareExchange{Strong,Weak}`, `Fetch{Add,Sub,And,Or,Xor,Min,Max}` — each carrying an explicit order and scope | `wwr.device` |
-| `rand.cuh` | the generator state types, `wwrrand_init`, `wwrrand_normal`, `wwrrand_normal2`, `wwrrand_normal_double`, `wwrrand_normal2_double` | `wwr.rand.device` |
+
+`rand`'s device generators (`wwrrand_init`, `wwrrand_normal`, `wwrrand_normal2`,
+`wwrrand_normal_double`, `wwrrand_normal2_double`) are **not** in this table: they
+live in `rand.h`'s device-pass-gated section alongside the state types, reached by
+`#include "rand.h"` and linked through `wwr.rand.device`.
 
 `cooperative_groups.cuh`, `wmma.cuh` and `atomic.cuh` are the three with no
 `.cppm` counterpart: every entity they hand a kernel is `__device__`-only, so
@@ -363,10 +374,11 @@ plain `.cu` (the `*_bridge.h`, `example/warp_reduce`), reached bare through the
 `::hipStream_t` to importers -- but `runtime_api.cppm` does not itself include
 `runtime.h`, because the vendor runtime macros would collide with its
 `WWR_RT_VALUE` expansions. `wwrrandState` lives the same way, in the src/-root
-shared-type header `rand.h`, `#include`d (not imported) by `rand.cppm`,
-`rand.cuh` and the two `*_bridge.h` -- with one difference "`_bridge`,
-shared-type `.h`, and why the extension is not enough" below spells out: unlike
-`complex.h` / `runtime.h`, `rand.h`'s vendor header is not cheap.
+header `rand.h`, `#include`d (not imported) by `rand.cppm` and the two
+`*_bridge.h` (and reached in a device pass by `rand.h`'s own gated generators)
+-- with one difference "`_bridge`, shared-type `.h`, and why the extension is not
+enough" below spells out: unlike `complex.h` / `runtime.h`, `rand.h`'s vendor
+header is not cheap.
 
 The types are the *same types* the modules export under the same names, so a
 buffer allocated by host code that imports `wwr.rand` is exactly what a
@@ -379,7 +391,7 @@ deliberately decline to do. Each is stated once.
 | | Why |
 |---|---|
 | **`WWR_WARP_SIZE`** | Neither backend offers a usable compile-time warp size: `warpSize` is not a constant expression on either, and HIP's `__AMDGCN_WAVEFRONT_SIZE__` disagrees between its own two passes. Set at configure time instead, and validated against no real device. |
-| **Forwarding templates, not `WWR_FUNCTION`** | `curand_normal` and friends are an overload set on CUDA and a function template on hipRAND; a function reference can name neither, so `rand.cuh` writes a thin `__device__` template per name. Being `__device__`-only, they are why a `parallel_for` functor's `operator()` is `__device__` and why its callability is checked on the kernel, not the host-side concept. |
+| **Forwarding templates, not `WWR_FUNCTION`** | `curand_normal` and friends are an overload set on CUDA and a function template on hipRAND; a function reference can name neither, so `rand.h`'s device section writes a thin `__device__` template per name. Being `__device__`-only, they are why a `parallel_for` functor's `operator()` is `__device__` and why its callability is checked on the kernel, not the host-side concept. |
 | **Declining to normalise a return type** | `ballot()` is 32-bit on CUDA and 64-bit on HIP, so a caller storing a wave64 ballot in an `unsigned` is silently wrong; `thread_rank()`/`num_threads()` vary too. `cooperative_groups.cuh` wraps none of it — the divergence is documented rather than wrapped. |
 
 ## Rules
@@ -449,7 +461,15 @@ does not fully separate them:
 | host-only | ✅ | ❌ | `*.h` — `backend.h`, and `dispatch_macros.h` under `src/wrappers` |
 | shared-type | ✅ | ✅ | `*.h` — `complex.h`, `runtime.h`, `rand.h` |
 | **bridge** | ✅ | ✅ | `*_bridge.h` |
-| device-only | ❌ | ✅ | `*.cuh` — `runtime.cuh`, `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `fp8.cuh`, `cooperative_groups.cuh`, `rand.cuh`, `parallel_for.cuh` |
+| device-only | ❌ | ✅ | `*.cuh` — `runtime.cuh`, `complex.cuh`, `fp16.cuh`, `bf16.cuh`, `fp8.cuh`, `cooperative_groups.cuh`, `parallel_for.cuh` |
+
+`rand.h` is the shared-type row's one hybrid: it carries the state types (the
+crossing type) *and*, in a device-pass-gated section, the `__device__` generators
+that used to live in `rand.cuh`. It still compiles in both modes — the device
+section simply gates itself out in a host TU — so it stays a `.h`, and a device
+consumer `#include`s it instead of a separate `.cuh`. This is the `.h` + `.cppm`
+shape for a vendor header carrying both host and device symbols; a wrapper with
+no host half stays a `.cuh` (the device-only row).
 
 So `.h` on its own does *not* mean "safe from a `.cu`" (`backend.h` is `.h` and
 host-only), and three `.h`s — `complex.h`, `runtime.h`, `rand.h` — deliberately
@@ -497,8 +517,9 @@ trade. The type once rode a *forward-declaring* bridge that kept those headers o
 of every host compile; `rand.h` instead includes them, accepting the parse in the
 three TUs that `#include` it -- `rand.cppm`'s own compile (which builds the
 `wwr.rand` BMI) and the two wrapper module GMFs -- in exchange for one source of
-truth for the state-type list, shared by `rand.cppm`, `rand.cuh` and the two
-bridges. `rand.h` also includes the vendor *host* header (`curand.h` /
+truth for the state-type list, shared by `rand.cppm`, `rand.h`'s own device
+generators and the two bridges. `rand.h` also includes the vendor *host* header
+(`curand.h` /
 `hiprand.h`, cheap beside the kernel one) so the same one-source-of-truth covers
 the host API: `rand.cppm` binds its `wwr*` names straight to those declarations
 and imports no raw vendor module (safe because the host API is external-linkage

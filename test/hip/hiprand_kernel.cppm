@@ -72,7 +72,7 @@ static_assert(std::is_same_v<hiprandStateScrambledSobol64_t, hiprandStateScrambl
 // struct per generator, so its two xorwow-backed states are distinct types
 // that merely share a base. Pinned here deliberately: if a future ROCm
 // release collapses them into an alias, THIS assert fails and says so, which
-// is what lets src/rand.cppm and src/rand.cuh keep treating
+// is what lets src/rand.cppm and src/rand.h keep treating
 // wwrrandState as its own type rather than quietly assuming otherwise.
 // ────────────────────────────────────────────────────────────────────────
 

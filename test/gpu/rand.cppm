@@ -9,8 +9,8 @@
 // catch a wrong-but-existing backend name.
 //
 // The device FUNCTIONS are not checked here and cannot be -- they live in
-// src/rand.cuh, which only a device-compile pass can include. They are
-// exercised instead by test/wrappers/rand, which runs them on-device.
+// src/rand.h's device-pass-gated section, which only a device compile activates.
+// They are exercised instead by test/wrappers/rand, which runs them on-device.
 //
 // wwrrandGetScrambleConstants32/64 are forwarding functions on CUDA (cuRAND
 // hands the table out non-const); what matters is the signature, checked

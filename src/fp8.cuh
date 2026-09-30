@@ -27,7 +27,7 @@
  * vendor header and forwards to its __host__ __device__ static-inline
  * __nv_cvt_* / __hip_cvt_* conversions directly.
  *
- * The conversions are __device__-only, like rand.cuh's forwarders: they serve a
+ * The conversions are __device__-only, like rand.h's device generators: they serve a
  * parallel_for functor's __device__ operator(). Host code reaches the same
  * conversions through fp8.cppm, which wraps them for the host.
  */

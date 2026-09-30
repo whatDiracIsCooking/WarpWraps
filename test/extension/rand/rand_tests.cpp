@@ -6,7 +6,7 @@
 // the kernels on-device -- init_state seeds one generator state per element,
 // random_normal draws from them, and the results come back to the host to be
 // checked. That is the only way to test them -- the device functions they are
-// built on (src/rand.cuh) cannot be called from host code at all, so there is
+// built on (src/rand.h's device section) cannot be called from host code at all, so there is
 // no compile-time equivalent of test/gpu/rand.cppm for them.
 //
 // A plain .cpp, not a .cppm -- same reasoning as every other test/extension

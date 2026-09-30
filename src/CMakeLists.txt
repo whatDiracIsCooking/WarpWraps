@@ -78,11 +78,12 @@ endif()
 # In-tree :: alias (raw add_library gets none automatically).
 add_library(wwr::device ALIAS wwr.device)
 
-# rand.cuh's include path and RNG library, for a device TU calling the
-# cuRAND/hipRAND device API -- the #include counterpart to wwr.rand.
-# Separate from wwr.device because the two headers are independent and a
-# kernel needing no RNG should not link one. Carries no WWR_GPU_BACKEND
-# define and never hip::device, for the reasons on wwr.device above.
+# The include path and RNG library for a device TU calling the cuRAND/hipRAND
+# device API through rand.h's device-pass-gated generators -- the #include
+# counterpart to wwr.rand. Separate from wwr.device because the two are
+# independent and a kernel needing no RNG should not link one. Carries no
+# WWR_GPU_BACKEND define and never hip::device, for the reasons on wwr.device
+# above.
 add_library(wwr.rand.device INTERFACE)
 target_include_directories(
   wwr.rand.device
