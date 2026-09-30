@@ -101,6 +101,31 @@ def test_leading_prefix_matches_the_harvester():
     assert mc.leading_prefix("_underscore") is None
 
 
+def test_real_tree_link_complete():
+    report = mc.check_link_completeness()
+    assert report.gaps == [], "\n" + mc.format_link_report(report)
+    assert len(report.checked) > 20  # actually verifying, not skipping everything
+
+
+def test_link_exceptions_are_exactly_hiptensor_and_rccl():
+    report = mc.check_link_completeness()
+    assert set(report.excepted) == {"hip/hiptensor", "hip/rccl"}
+
+
+def test_unchecked_flags_a_wrapped_function_without_a_check():
+    # A function that is re-exported and declared but has no WWR_*_CHECK is a gap.
+    assert mc.unchecked_functions({"fooBar"}, {"fooBar"}, set()) == ["fooBar"]
+    # ... and is clean once a check names it.
+    assert mc.unchecked_functions({"fooBar"}, {"fooBar"}, {"fooBar"}) == []
+
+
+def test_unchecked_ignores_unwrapped_and_nonfunction_names():
+    # Declared but not re-exported (no using::) -> not wwr's surface, not required.
+    assert mc.unchecked_functions({"fooBar"}, set(), set()) == []
+    # Re-exported but not a manifest FunctionDecl (a type/enum) -> not link-checked.
+    assert mc.unchecked_functions(set(), {"fooType"}, set()) == []
+
+
 def test_blind_spot_is_bounded():
     # Variant-library uppercase constants (HIPBLASLT_* etc.) are captured by no
     # manifest -- the harvester's prefix rule, not this checker's. Exactly two are

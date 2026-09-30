@@ -644,6 +644,16 @@ which no manifest captures (prefix `hipblas`), so they sit outside its reach. Th
 is the harvester's prefix limitation, not the check's; it reports the count so the
 gap stays visible until the harvester's variant-library rule is widened.
 
+The same file carries a second assertion, **link-check completeness**: every
+function a module re-exports (a `using ::` the manifest records as a FunctionDecl)
+must carry a `WWR_LINK_CHECK` / `WWR_DECLARED_CHECK`, so a newly wrapped function
+cannot ship with only "it compiles" behind it — the check `src/hip/README.md`'s
+hipSPARSE-546 note made by hand. Every manifest-backed library is verified except
+`hiptensor` and `rccl`, named as exceptions with a reason: their `.so`s SIGBUS at
+load in the driverless `hip_compile_tests` on GPU-less CI, so they cannot be
+link-checked until `test/hip` grows the driver-stub / `gpu`-label mechanism
+`test/cuda` already has (#179).
+
 **The ratchet policy — floors only ever rise, and only for a reason.** Raise a
 floor when a wrapper starts to *depend* on something the older toolkit lacks (a
 symbol, a header, a fixed bug), not merely because a newer release exists. When

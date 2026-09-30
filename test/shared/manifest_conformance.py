@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
-"""Floor conformance: assert src/<backend> against the committed vendor manifests.
+"""Manifest conformance: assert src/<backend> against the committed vendor manifests.
 
 Each ``src/cuda/<lib>.cppm`` / ``src/hip/<lib>.cppm`` re-exports a vendor library
-with ``using ::name;`` lines. This checker asserts that hand-written source stays
-buildable at the *floor* SDK, using only the committed ``vendor/<pin>/*.json`` and
-``vendor/<floor>/*.json`` manifests -- pure text against JSON, no SDK, no compile,
-so the fast Python tier runs it on a bare CI runner. It catches exactly the
-regression the floor policy exists to prevent: a symbol used unguarded that exists
-at the pin but not the floor, which today only a build against the floor SDK finds
--- and CI builds the pin.
+with ``using ::name;`` lines. Two assertions (#117), both pure text against JSON --
+no SDK, no compile -- so the fast Python tier runs them on a bare CI runner:
+
+  1. FLOOR CONFORMANCE (check_all). Hand-written source stays buildable at the
+     *floor* SDK: a symbol used unguarded that exists at the pin but not the floor
+     fails, and every version guard is validated as a spec (see below). Catches
+     the regression the floor policy exists to prevent, which today only a build
+     against the floor SDK finds -- and CI builds the pin.
+  2. LINK-CHECK COMPLETENESS (check_link_completeness). Every re-exported function
+     carries a WWR_LINK_CHECK / WWR_DECLARED_CHECK, so a newly wrapped function
+     cannot ship with only "it compiles" behind it. See that function's section.
+
+The rest of this header describes assertion 1.
 
 WHAT COUNTS AS THIS LIBRARY'S SURFACE. A manifest captures a name iff
 ``leading_prefix(name) == <the manifest's prefix>`` -- the SAME rule
@@ -251,13 +257,110 @@ def format_report(report: Report) -> str:
     return "\n".join(lines)
 
 
+# ── Assertion 2: link-check completeness ────────────────────────────────────
+#
+# Every function wwr re-exports (a ``using ::`` whose name the manifest records as
+# a FunctionDecl) must carry a WWR_LINK_CHECK or WWR_DECLARED_CHECK in test/, so a
+# newly wrapped function cannot ship with only "it compiles" behind it -- the
+# check test/hip/README.md's hipSPARSE-546 note asserts by hand, with nothing
+# enforcing it. Assert, never generate: the link check and the using:: are two
+# independent statements the linker then judges; this only checks one exists.
+#
+# A library with a compiled test module IS in CUDA_TEST_LIBRARIES / HIP_TEST_
+# LIBRARIES, so the natural scope is "libraries the suite link-checks". But a few
+# manifest-backed libraries are deliberately NOT link-checked; they are named here
+# with the reason, so removing a library from the suite is caught (its functions
+# become unchecked) rather than silently dropping coverage.
+_CHECK = re.compile(r"WWR_(?:LINK|DECLARED)_CHECK\(\s*([A-Za-z_]\w*)\s*\)")
+
+LINK_CHECK_EXCEPTIONS: dict[tuple[str, str], str] = {
+    # hiptensor/rccl compile and link, but their .so's SIGBUS at load in the
+    # driverless hip_compile_tests on GPU-less CI -- the problem test/cuda solves
+    # with driver stubs + the `gpu` label and test/hip has no mechanism for yet.
+    # Tracked in #179; drop these once it lands.
+    ("hip", "hiptensor"): "runtime-load fault in driverless CI (#179)",
+    ("hip", "rccl"): "runtime-load fault in driverless CI (#179)",
+}
+
+
+def unchecked_functions(
+    funcs: set[str], using: set[str], checks: set[str],
+) -> list[str]:
+    """Wrapped functions with no link/declared check.
+
+    A function is wrapped iff the module re-exports it (``using``) AND the manifest
+    records it as a FunctionDecl (``funcs``); it is covered iff a WWR_*_CHECK names
+    it (``checks``). The gap is the wrapped set minus the covered set.
+    """
+    return sorted((funcs & using) - checks)
+
+
+@dataclass(frozen=True)
+class LinkGap:
+    library: str
+    unchecked: tuple[str, ...]  # wrapped functions with no WWR_*_CHECK
+
+
+@dataclass
+class LinkReport:
+    gaps: list[LinkGap]
+    checked: list[str]    # "backend/lib" libraries whose surface was verified
+    excepted: list[str]   # "backend/lib" libraries skipped with a stated reason
+
+
+def check_link_completeness() -> LinkReport:
+    gaps: list[LinkGap] = []
+    checked: list[str] = []
+    excepted: list[str] = []
+    for backend, pin_dir, _ in BACKENDS:
+        manifests = {p.stem for p in pin_dir.glob("*.json")}
+        all_checks: set[str] = set()
+        for test_cppm in (ROOT / "test" / backend).glob("*.cppm"):
+            all_checks |= set(_CHECK.findall(test_cppm.read_text()))
+        for cppm in sorted((ROOT / "src" / backend).glob("*.cppm")):
+            stem = cppm.stem
+            if stem not in manifests:
+                continue  # no manifest => no declared-function surface to check
+            if (backend, stem) in LINK_CHECK_EXCEPTIONS:
+                excepted.append(f"{backend}/{stem}")
+                continue
+            symbols = json.loads((pin_dir / f"{stem}.json").read_text())["symbols"]
+            funcs = {s["name"] for s in symbols if s.get("kind") == "FunctionDecl"}
+            using = set(_USING.findall(cppm.read_text()))
+            unchecked = unchecked_functions(funcs, using, all_checks)
+            checked.append(f"{backend}/{stem}")
+            if unchecked:
+                gaps.append(LinkGap(f"{backend}/{stem}", tuple(unchecked)))
+    return LinkReport(gaps, checked, excepted)
+
+
+def format_link_report(report: LinkReport) -> str:
+    if not report.gaps:
+        return (f"link-check completeness OK: {len(report.checked)} libraries "
+                f"verified, 0 gaps ({len(report.excepted)} excepted with reason).")
+    total = sum(len(g.unchecked) for g in report.gaps)
+    lines = [f"link-check completeness FAILED: {total} re-exported functions "
+             f"with no WWR_LINK_CHECK/WWR_DECLARED_CHECK, in {len(report.gaps)} "
+             f"libraries."]
+    for g in sorted(report.gaps, key=lambda g: g.library):
+        lines.append(f"  {g.library}: {len(g.unchecked)}")
+        for n in g.unchecked[:5]:
+            lines.append(f"      {n}")
+        if len(g.unchecked) > 5:
+            lines.append(f"      ... and {len(g.unchecked) - 5} more")
+    return "\n".join(lines)
+
+
 def main() -> int:
     argparse.ArgumentParser(
-        description="Assert src/<backend> using:: lines against the floor "
-                    "vendor manifests (#117).").parse_args()
-    report = check_all()
-    print(format_report(report))
-    return 1 if report.violations else 0
+        description="Assert src/<backend> using:: lines against the vendor "
+                    "manifests (#117): floor conformance + link-check "
+                    "completeness.").parse_args()
+    floor = check_all()
+    print(format_report(floor))
+    link = check_link_completeness()
+    print(format_link_report(link))
+    return 1 if (floor.violations or link.gaps) else 0
 
 
 if __name__ == "__main__":
