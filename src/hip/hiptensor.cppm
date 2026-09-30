@@ -3,7 +3,9 @@
  * @brief hipTensor API module wrapper for wwr project
  *
  * Wraps hiptensor.h -- AMD's tensor primitives library (contraction, reduction,
- * permutation, element-wise), built on composable-kernel. CUDA counterpart:
+ * permutation, element-wise), built on composable-kernel. At the ROCm floor
+ * (7.1, hipTensor 2.1.0) that header does not exist yet and the same
+ * declarations live in hiptensor.hpp; see the include below. CUDA counterpart:
  * wwr.cuda.cutensor. Unlike RCCL/NCCL (§ src/ccl.cppm), hipTensor is NOT a
  * source-compatible reimplementation of cuTENSOR -- it is an independent API
  * that mirrors cuTENSOR's naming closely but is its own library. The neutral
@@ -40,7 +42,22 @@ module;
 // ourselves first sidesteps it via the include guard. Load-bearing, and must
 // stay before the HIP header. docs/architecture.md, section 9.
 #include <array>
+// hipTensor gained a second public header between the floor and the pin: 2.2.0
+// (ROCm 7.2) added the C-linkage hiptensor.h, while 2.1.0 (ROCm 7.1, the floor)
+// ships only hiptensor.hpp. Both declare all 170 names re-exported below, so
+// nothing leaves the surface -- and the linkage difference does not matter,
+// because the TU compiles against the header belonging to the libhiptensor.so
+// it links. src/hip/CMakeLists.txt's find_path takes the same two NAMES for the
+// include dir.
+#if __has_include(<hiptensor/hiptensor.h>)
 #include <hiptensor/hiptensor.h>
+#else
+// The one asymmetry: hiptensor.h pulls internal/hiptensor-version.h itself,
+// while hiptensor.hpp does NOT pull its .hpp counterpart -- so without this
+// second include, hiptensorGetVersion is the single name left undeclared.
+#include <hiptensor/hiptensor-version.hpp>
+#include <hiptensor/hiptensor.hpp>
+#endif
 
 export module wwr.hip.hiptensor;
 

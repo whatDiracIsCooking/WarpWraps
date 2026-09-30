@@ -4,6 +4,15 @@ module;
 
 #include "test/shared/link_check.h"
 
+// The six names ROCm 7.2 added that the 7.1 floor does not declare are guarded
+// in src/hip/hip_runtime_api.cppm and so are absent from this module's surface
+// at the floor -- the assertions below have to be guarded identically or the
+// floor build fails on the TEST rather than the wrapper. This TU imports the
+// module and includes no HIP header, so it takes HIP_VERSION from the one
+// header that is only macros. Keep the spelling in step with the wrapper's.
+#include <hip/hip_version.h>
+#define WWR_HIP_SINCE_7_2 (HIP_VERSION >= 70200000)
+
 export module wwr.test.hip.hip_runtime_api;
 
 import std;
@@ -333,7 +342,9 @@ static_assert(static_cast<long long>(hipDeviceAttributeMemoryPoolsSupported) == 
 static_assert(static_cast<long long>(hipDeviceAttributeVirtualMemoryManagementSupported) == 89);
 static_assert(static_cast<long long>(hipDeviceAttributeHostRegisterSupported) == 90);
 static_assert(static_cast<long long>(hipDeviceAttributeMemoryPoolSupportedHandleTypes) == 91);
+#if WWR_HIP_SINCE_7_2
 static_assert(static_cast<long long>(hipDeviceAttributeHostNumaId) == 92);
+#endif
 static_assert(static_cast<long long>(hipDeviceAttributeCudaCompatibleEnd) == 9999);
 static_assert(static_cast<long long>(hipDeviceAttributeAmdSpecificBegin) == 10000);
 static_assert(static_cast<long long>(hipDeviceAttributeClockInstructionRate) == 10000);
@@ -1325,7 +1336,9 @@ WWR_LINK_CHECK(hipStreamGetCaptureInfo)
 WWR_LINK_CHECK(hipStreamGetCaptureInfo_v2)
 WWR_LINK_CHECK(hipStreamUpdateCaptureDependencies)
 WWR_LINK_CHECK(hipThreadExchangeStreamCaptureMode)
+#if WWR_HIP_SINCE_7_2
 WWR_LINK_CHECK(hipStreamCopyAttributes)
+#endif
 WWR_LINK_CHECK(hipStreamGetAttribute)
 WWR_LINK_CHECK(hipStreamSetAttribute)
 WWR_LINK_CHECK(hipStreamBatchMemOp)
@@ -1375,7 +1388,9 @@ WWR_LINK_CHECK(hipKernelNameRefByPtr)
 WWR_LINK_CHECK(hipOccupancyMaxActiveBlocksPerMultiprocessor)
 WWR_LINK_CHECK(hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags)
 WWR_LINK_CHECK(hipOccupancyMaxPotentialBlockSize)
+#if WWR_HIP_SINCE_7_2
 WWR_LINK_CHECK(hipOccupancyAvailableDynamicSMemPerBlock)
+#endif
 WWR_LINK_CHECK(hipModuleOccupancyMaxActiveBlocksPerMultiprocessor)
 WWR_LINK_CHECK(hipModuleOccupancyMaxActiveBlocksPerMultiprocessorWithFlags)
 WWR_LINK_CHECK(hipModuleOccupancyMaxPotentialBlockSize)
@@ -1406,9 +1421,11 @@ WWR_LINK_CHECK(hipLibraryLoadFromFile)
 WWR_LINK_CHECK(hipLibraryUnload)
 WWR_LINK_CHECK(hipLibraryGetKernel)
 WWR_LINK_CHECK(hipLibraryGetKernelCount)
+#if WWR_HIP_SINCE_7_2
 WWR_LINK_CHECK(hipLibraryEnumerateKernels)
 WWR_LINK_CHECK(hipKernelGetLibrary)
 WWR_LINK_CHECK(hipKernelGetName)
+#endif
 WWR_LINK_CHECK(hipLinkAddData)
 WWR_LINK_CHECK(hipLinkAddFile)
 WWR_LINK_CHECK(hipLinkComplete)

@@ -569,7 +569,7 @@ the largest raw module today.
 
 ## 21. Toolkit version floors, and the ratchet policy
 
-A decision (#111): wwr builds against **CUDA 13.0.0** or **ROCm 7.0.0** at the
+A decision (#111): wwr builds against **CUDA 13.0.0** or **ROCm 7.1.0** at the
 oldest, and `CMakeLists.txt` enforces each at configure so a too-old SDK fails
 naming the floor rather than deep in a module compile against a header that
 assumes the newer one.
@@ -581,6 +581,51 @@ release wwr is actually exercised against and depends on the shape of: the
 13.0, and the ROCm 7 headers are what §9–§20 were verified against. They are a
 **floor, not a pin**: a newer toolkit is expected to work and is what CI and the
 images will move to over time.
+
+**The ROCm floor is 7.1.0 because 7.0.0 was declared and never built** (#149).
+When the `cpp-floor (hip-floor)` CI leg (#114) was first able to run, ROCm 7.0.0
+failed three ways: `wwr.hip.hip_runtime_api` re-exports some twenty names HIP
+7.0 does not declare (`hipKernel_t`, `hipLibrary_t`, `hipMemcpyAttributes`,
+`hipMemcpy3DBatchOp`, `hipSynchronizationPolicy`, `hipLaunchMemSyncDomain`,
+`hipDriverEntryPoint*`, `hipOffset3D` …); hipTensor 2.0.0 ships no public header
+under either spelling this tree can use; and ROCm 7.0.0's own
+`amd_hip_bf16.h` names `warpSize` in a host-visible default argument where it is
+undeclared. 7.1 declares all of those names and carries the bf16 fix. What it
+costs is small and enumerable — the entire price of the floor being 7.1 rather
+than the pin:
+
+- **36 guarded names, in three modules.** Six in
+  `src/hip/hip_runtime_api.cppm` (`hipDeviceAttributeHostNumaId`,
+  `hipStreamCopyAttributes`, `hipOccupancyAvailableDynamicSMemPerBlock`,
+  `hipLibraryEnumerateKernels`, `hipKernelGetLibrary`, `hipKernelGetName`)
+  behind `WWR_HIP_SINCE_7_2`; two in `src/hip/hipblaslt.cppm`
+  (`HIPBLASLT_EPILOGUE_SIGMOID_EXT` and its `_BIAS_` sibling) behind
+  `WWR_HIPBLASLT_SINCE_1_2`; and 28 in `src/hip/amd_smi.cppm` behind
+  `WWR_AMDSMI_SINCE_26_2` — the node handle, the DDR5/LPDDR VRAM types, the
+  power-cap type, NPM, the Peak Tops Limiter, and partition metrics.
+  **Each library is guarded on its OWN version**, not on `HIP_VERSION`:
+  hipBLASLt is 1.1 → 1.2 and amd-smi 26.1.0 → 26.2.2 across the same ROCm step,
+  and neither tracks HIP's numbering. amd-smi is the fast mover here by an order
+  of magnitude, which is worth knowing before raising the floor again.
+  Every guard is mirrored in the matching `test/hip/*.cppm`, which must agree or
+  the floor build fails on the test rather than the wrapper.
+- **One enumerator whose VALUE moves.** `AMDSMI_VRAM_TYPE__MAX` aliases the last
+  enumerator of its enum, so it is 23 (`GDDR7`) at the floor and 31 (`LPDDR5`)
+  at the pin. `test/hip/amd_smi.cppm` asserts both rather than dropping the
+  assertion — a sentinel that quietly changed value is exactly what that file
+  exists to catch.
+- **Two header spellings for hipTensor.** `hiptensor.h` arrives in 2.2.0 (ROCm
+  7.2); 2.1.0 ships only `hiptensor.hpp`, which unlike the `.h` does not pull
+  its own version header. `src/hip/hiptensor.cppm` picks with `__has_include`
+  and includes `hiptensor-version.hpp` alongside; all 170 re-exported names are
+  declared at both ends, so nothing leaves the surface.
+- **One apt package named by hand.** ROCm 7.1 is the one release in the 7.x line
+  whose `rocm-hip-sdk` does not depend on `rocm-hip-runtime-dev` — no `hipcc`,
+  no `lib/cmake/hip`. `docker/install-rocm.sh` names it explicitly; see its
+  comment.
+
+That leaves the floor a full minor below the 7.2.4 pin, so a symbol added in 7.2
+is caught by the `cpp-floor (hip-floor)` leg — which a 7.2 floor would not do.
 
 **The ratchet policy — floors only ever rise, and only for a reason.** Raise a
 floor when a wrapper starts to *depend* on something the older toolkit lacks (a
@@ -597,9 +642,9 @@ version-mismatch message then names the floor. ROCm cannot use the same trick:
 `find_package(hip CONFIG)`'s `hip_VERSION` is the **HIP package** version, not
 the ROCm release number — it reads `7.2.53211` on ROCm 7.2.4, where the patch
 `53211` is the HIP SDK build and bears no relation to ROCm's `.4`. So a
-`find_package(hip 7.0.0)` floor would compare the wrong patch field. The honest
+`find_package(hip 7.1.0)` floor would compare the wrong patch field. The honest
 source is `/opt/rocm/.info/version` (plain `7.2.4`), which `CMakeLists.txt`
 locates by climbing from `hip_DIR` (`<rocm>/lib/cmake/hip`) rather than
-hardcoding `/opt/rocm`, and compares to `7.0.0`. Where that file is absent (a
+hardcoding `/opt/rocm`, and compares to `7.1.0`. Where that file is absent (a
 non-standard layout) it falls back to `hip_VERSION`'s major.minor — which *does*
 track the ROCm release — and warns that the check was coarse.

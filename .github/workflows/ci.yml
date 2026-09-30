@@ -19,12 +19,11 @@
 #   cpp (hip)     the same shape for HIP: the whole tree through clang's
 #                 -x hip front end, then the same `-LE gpu`
 #   cpp-floor     the same two builds against the OLDEST toolkit wwr promises to
-#                 build on -- CUDA 13.0.0 and ROCm 7.0.0 (the floors
+#                 build on -- CUDA 13.0.0 and ROCm 7.1.0 (the floors
 #                 CMakeLists.txt enforces, #111) -- so a symbol present at the
 #                 pin but not the floor is caught here rather than in the field.
-#                 cuda-floor is a hard gate (the CUDA floor is nearly free);
-#                 hip-floor is `continue-on-error` while ROCm 7.0.0 feasibility
-#                 is being determined -- see the job for the breakage candidates.
+#                 BOTH legs are hard gates as of #149, which established the
+#                 ROCm floor by measurement: 7.0.0 never built, 7.1.0 does.
 #   install-check install to a throwaway prefix, then build example/consumer
 #                 against it -- once for the core package, once with the
 #                 extension layer added. The only tier that sees an export
@@ -320,7 +319,7 @@ jobs:
 
   # THE FLOOR LEGS. Same compile-and-link-plus-thin-runtime-slice as `cpp`, but
   # against the OLDEST toolkit wwr promises to build on rather than the newest it
-  # is pinned to -- CUDA 13.0.0 and ROCm 7.0.0, the floors CMakeLists.txt enforces
+  # is pinned to -- CUDA 13.0.0 and ROCm 7.1.0, the floors CMakeLists.txt enforces
   # (docs/architecture.md Sec 21, #111). `cpp` above proves the tree builds at the
   # PIN; nothing proved it still builds at the floor, so a symbol that exists at
   # the pin but not the floor -- a header moved, an enum renamed, an API a newer
@@ -331,24 +330,26 @@ jobs:
   # (docker/build.sh, "variant tags and the registry"): the default CUDA build is
   # ALREADY at the floor (the pin `13-0` IS 13.0.0), so `:cuda-13-0-ci` is the
   # same image `:cuda-ci` resolves to today -- named explicitly here so this leg
-  # keeps meaning "the floor" the day the CUDA pin rises above it. `:hip-7.0.0-ci`
+  # keeps meaning "the floor" the day the CUDA pin rises above it. `:hip-7.1.0-ci`
   # is a DISTINCT image from the pinned `:hip-ci` (7.2.4); images.yml builds it
-  # from Dockerfile.hip with ROCM_VERSION=7.0.0.
+  # from Dockerfile.hip with ROCM_VERSION=7.1.0.
   #
   # THE TWO FLOORS ARE NOT SYMMETRIC. CUDA 13.0->13.3 is nearly free: NVIDIA adds
-  # symbols within a major and minor-version runtime compat covers the rest, so
-  # the CUDA floor leg is a hard gate that is expected to stay green. Effectively
-  # all the floor risk is ROCm-side -- which is why the hip-floor leg is
-  # `continue-on-error` (see its matrix entry) while cuda-floor is not.
+  # symbols within a major and minor-version runtime compat covers the rest.
+  # Effectively all the floor risk is ROCm-side, and #149 spent it: the declared
+  # ROCm 7.0.0 floor turned out never to have built (some twenty names in
+  # wwr.hip.hip_runtime_api postdate it, hipTensor 2.0.0 had no usable header,
+  # and 7.0.0's own amd_hip_bf16.h does not compile for host), so the floor moved
+  # to the oldest release that DOES build. Both legs gate now.
   cpp-floor:
     name: cpp-floor (${{ matrix.backend }})
     needs: [lint, changes]
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    # Per-leg: the hip-floor entry sets this true so a known-red ROCm 7.0.0 build
-    # does not fail the job (and so does not fail ci-ok). cuda-floor sets it false
-    # -- a red CUDA floor is a real regression and must gate.
+    # Per-leg, and false on BOTH legs today -- the knob stays because it is what
+    # lets a newly-lowered floor be landed red-but-visible before it is made to
+    # gate, which is how the ROCm floor was settled (#149).
     continue-on-error: ${{ matrix.experimental }}
     permissions:
       contents: read
@@ -361,19 +362,19 @@ jobs:
             image: cuda-13-0-ci
             preset: ci-cuda
             experimental: false
-          # ROCm 7.0.0 feasibility is DETERMINED HERE, and it may well be red on
-          # first contact: documented breakage candidates (all currently verified
-          # at 7.2.4 only) that this leg exists to catch -- the `Array` pre-include
-          # workaround in hip_complex.cppm/hipsparse.cppm, src/rand.cppm:235's enum
-          # note, rocWMMA (docs/architecture.md:320 pins 2.2.0 for 7.2.4),
-          # hipBLASLt + hipSPARSE generic API, and the gfx1200 default GPU_TARGETS.
-          # Marked experimental so a red build is visible without blocking merges;
-          # every fix it turns up is a FOLLOW-UP issue, not this PR's job. Flip
-          # experimental to false once the floor builds clean.
+          # ROCm feasibility WAS determined here (#149), and the floor moved to
+          # 7.1.0 as a result -- see the paragraph above for what 7.0.0 failed on.
+          # What remains from the original breakage-candidate list still holds at
+          # 7.1 and is what this leg keeps watching: the `Array` pre-include
+          # workaround in hip_complex.cppm/hipsparse.cppm, src/rand.cppm:235's
+          # enum note, rocWMMA (docs/architecture.md pins 2.2.0 for 7.2.4),
+          # hipBLASLt + hipSPARSE generic API, and the gfx1200 default
+          # GPU_TARGETS. The floor is a full minor below the 7.2.4 pin, so a
+          # symbol added in 7.2 is caught here -- which is the whole point.
           - backend: hip-floor
-            image: hip-7.0.0-ci
+            image: hip-7.1.0-ci
             preset: ci-hip
-            experimental: true
+            experimental: false
     container:
       image: ghcr.io/whatdiraciscooking/wwr:${{ matrix.image }}
       # See cpp: the runner-created workspace is owned by someone the image's
@@ -566,10 +567,10 @@ jobs:
           # result -- failure, cancelled -- still fails, on any change.
           # cpp-floor is here too: it gates on `changes` exactly like cpp, so its
           # skip is acceptable on a docs-only change and its failure is not on a
-          # code change. The ROCm floor leg is `continue-on-error` within the job,
-          # so a red 7.0.0 build leaves this job's RESULT `success` -- a known-red
-          # floor stays visible in the leg without failing the gate; a red
-          # cuda-floor leg (not experimental) does fail the job and so this gate.
+          # code change. Both of its legs are non-experimental as of #149, so a
+          # red floor -- either backend -- fails the job and so this gate. While
+          # a leg IS experimental, `continue-on-error` leaves the job's RESULT
+          # `success` and the red stays visible in the leg without blocking.
           GATED: >-
             cpp:${{ needs.cpp.result }}
             cpp-floor:${{ needs.cpp-floor.result }}

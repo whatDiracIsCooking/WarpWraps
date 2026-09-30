@@ -378,8 +378,16 @@ wwr_add_cxx_module_library(
 # working (section 9). The header resolves via hip::host's /opt/rocm/include,
 # but the wrapper carries the include dir explicitly too, so it is
 # self-sufficient.
+#
+# TWO SPELLINGS, because hipTensor gained a second public header between the
+# floor and the pin: 2.1.0 (ROCm 7.1) ships only hiptensor.hpp, and 2.2.0 (ROCm
+# 7.2) added the C-linkage hiptensor.h beside it. NAMES tries both so the
+# include dir resolves at either end; hiptensor.cppm picks the same way with
+# __has_include. The re-exported surface is identical -- all 170 names this
+# module exports are declared at 7.1 too -- so only the filename moves.
 find_path(
-  HIP_hiptensor_INCLUDE_DIR hiptensor/hiptensor.h
+  HIP_hiptensor_INCLUDE_DIR
+  NAMES hiptensor/hiptensor.h hiptensor/hiptensor.hpp
   HINTS ${ROCM_PATH} $ENV{ROCM_PATH} /opt/rocm
   PATH_SUFFIXES include REQUIRED
 )
