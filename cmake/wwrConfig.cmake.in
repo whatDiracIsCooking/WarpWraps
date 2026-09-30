@@ -14,9 +14,13 @@ include(CMakeFindDependencyMacro)
 
 set(WWR_GPU_BACKEND "@WWR_PACKAGE_BACKEND@")
 set(WWR_WARP_SIZE "@WWR_PACKAGE_WARP_SIZE@")
+# Whether this installation shipped the wrappers layer (src/wrappers). ON
+# unless the build passed -DWWR_INSTALL_WRAPPERS=OFF. A bare boolean, not
+# quoted -- it is tested directly below. See section 1b.
+set(WWR_HAS_WRAPPERS @WWR_PACKAGE_HAS_WRAPPERS@)
 # Whether this installation shipped the extension layer (src/extension), built
 # with -DWWR_INSTALL_EXTENSION=ON. A bare boolean, not quoted -- it is tested
-# directly below. See section 1b.
+# directly below. See section 1c.
 set(WWR_HAS_EXTENSION @WWR_PACKAGE_HAS_EXTENSION@)
 set(WWR_BUILT_WITH_CXX_COMPILER_ID "@WWR_PACKAGE_CXX_COMPILER_ID@")
 set(WWR_BUILT_WITH_CXX_COMPILER_VERSION
@@ -52,7 +56,27 @@ if(DEFINED wwr_FIND_COMPONENTS)
 endif()
 
 # ---------------------------------------------------------------------------
-# 1b. Extension component
+# 1b. Wrappers component
+# ---------------------------------------------------------------------------
+# The wrappers layer ships unless the build passed -DWWR_INSTALL_WRAPPERS=OFF.
+# Exposed as the `wrappers` component so `find_package(wwr COMPONENTS wrappers)`
+# is refused here, naming the cause, rather than later when
+# `import wwr.wrappers.blas;` fails to resolve against a core-only install.
+# wwr_wrappers_FOUND is set either way, so the check_required_components() at the
+# end of this file agrees with this verdict.
+set(wwr_wrappers_FOUND ${WWR_HAS_WRAPPERS})
+if(wwr_FIND_REQUIRED_wrappers AND NOT WWR_HAS_WRAPPERS)
+  set(wwr_FOUND FALSE)
+  # One string argument, not several: set() with multiple quoted arguments builds
+  # a list and find_package prints the ';' separators between them.
+  set(wwr_NOT_FOUND_MESSAGE
+      "This wwr installation was built without the wrappers layer, but the 'wrappers' component was requested. Reinstall the package with -DWWR_INSTALL_WRAPPERS=ON (the default)."
+  )
+  return()
+endif()
+
+# ---------------------------------------------------------------------------
+# 1c. Extension component
 # ---------------------------------------------------------------------------
 # The extension layer ships only from a build configured with
 # -DWWR_INSTALL_EXTENSION=ON. Exposed as the `extension` component so

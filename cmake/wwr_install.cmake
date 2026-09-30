@@ -187,9 +187,17 @@ function(wwr_install_package)
   # from src/ NON-recursively; recursing would re-collect src/cuda, src/hip and
   # src/wrappers, which are swept separately above and below.
   _wwr_collect_library_targets("${PROJECT_SOURCE_DIR}/src" _gpu_targets)
-  _wwr_collect_library_targets(
-    "${PROJECT_SOURCE_DIR}/src/wrappers" _wrapper_targets RECURSE
-  )
+  # The wrappers layer (src/wrappers) ships by default but can be dropped -- see
+  # WWR_INSTALL_WRAPPERS in the top-level CMakeLists.txt. Gated like the
+  # extension sweep below so a core-only install omits its targets from the
+  # export set. Nothing else in src/ links a wwr.wrappers.* target, so dropping
+  # them leaves the rest of the export set intact.
+  set(_wrapper_targets "")
+  if(WWR_INSTALL_WRAPPERS)
+    _wwr_collect_library_targets(
+      "${PROJECT_SOURCE_DIR}/src/wrappers" _wrapper_targets RECURSE
+    )
+  endif()
 
   # The extension layer (src/extension) ships only on request -- see
   # WWR_INSTALL_EXTENSION in the top-level CMakeLists.txt. Swept RECURSE so both
@@ -258,13 +266,18 @@ function(wwr_install_package)
 
   # The shared dispatch header under src/wrappers, included through src/ (e.g.
   # "wrappers/common/dispatch_sdcz.h"), mirrored to include/wwr/wrappers.
-  install(
-    DIRECTORY "${PROJECT_SOURCE_DIR}/src/wrappers/"
-    DESTINATION "${WWR_INSTALL_INCLUDEDIR}/wrappers"
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.cuh"
-  )
+  # Shipped only when WWR_INSTALL_WRAPPERS added the wrapper targets to the
+  # sweep above -- kept in step with that sweep, both keyed off the same option,
+  # so a core-only install carries neither the modules nor their headers.
+  if(WWR_INSTALL_WRAPPERS)
+    install(
+      DIRECTORY "${PROJECT_SOURCE_DIR}/src/wrappers/"
+      DESTINATION "${WWR_INSTALL_INCLUDEDIR}/wrappers"
+      FILES_MATCHING
+      PATTERN "*.h"
+      PATTERN "*.cuh"
+    )
+  endif()
 
   # The extension layer's headers, shipped only when WWR_INSTALL_EXTENSION added
   # its targets to the sweep above. parallel_for.cuh and the two *_bridge.h are
@@ -313,9 +326,11 @@ function(wwr_install_package)
   # the mismatch as a link error or, worse, a wrong warp size at runtime.
   set(WWR_PACKAGE_BACKEND "${WWR_GPU_BACKEND}")
   set(WWR_PACKAGE_WARP_SIZE "${WWR_WARP_SIZE}")
-  # A boolean (ON/OFF), not a string: wwrConfig.cmake.in tests it directly and
-  # exposes it as the `extension` package component. Kept in step with the sweep
-  # and header rule above, all three keyed off the same option.
+  # Booleans (ON/OFF), not strings: wwrConfig.cmake.in tests them directly and
+  # exposes each as a package component (`wrappers`, `extension`). Each is kept
+  # in step with its own sweep and header rule above, all keyed off the same
+  # option.
+  set(WWR_PACKAGE_HAS_WRAPPERS "${WWR_INSTALL_WRAPPERS}")
   set(WWR_PACKAGE_HAS_EXTENSION "${WWR_INSTALL_EXTENSION}")
   set(WWR_PACKAGE_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}")
   set(WWR_PACKAGE_CXX_COMPILER_VERSION "${CMAKE_CXX_COMPILER_VERSION}")

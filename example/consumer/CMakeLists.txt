@@ -46,23 +46,38 @@ message(STATUS "wwr warp size: ${WWR_WARP_SIZE}")
 add_executable(consumer main.cpp)
 
 # The :: spellings are the exported names. Linking them brings in wwr's
-# module sources, which this build compiles -- `import wwr.wrappers.blas;`
-# in main.cpp resolves because of these lines and nothing else.
+# module sources, which this build compiles -- `import wwr.blas;` in main.cpp
+# resolves because of these lines and nothing else.
 #
-# The consumer imports two wwr* modules directly (wwr.runtime_api for device
-# memory, wwr.blas for the handle), so it names them here. The wrapper
-# targets each LINK_PUBLIC the wwr* module they wrap, so those names would
-# arrive transitively too, but the example uses runtime_api/blas in its own
-# right and so depends on them in its own right.
+# The core the consumer always links: two wwr* modules it imports directly --
+# wwr.runtime_api for device memory, wwr.blas for the handle and the raw
+# wwrblasSgemm its core gemm runs. These ship in every install, wrappers or no.
 target_link_libraries(
   consumer
   PRIVATE wwr::wwr.runtime_api
           wwr::wwr.blas
-          wwr::wwr.wrappers.blas
-          wwr::wwr.wrappers.solver
-          wwr::wwr.wrappers.fft
-          wwr::wwr.wrappers.sparse
 )
+
+# The wrappers layer is optional in the package (installed by default, dropped
+# with -DWWR_INSTALL_WRAPPERS=OFF). WWR_HAS_WRAPPERS comes from wwrConfig.cmake
+# and says whether this install shipped it. When it did, link the wrapper
+# modules and let main.cpp exercise them under WWR_CONSUMER_HAS_WRAPPERS, which
+# is what proves the wrapper install rules (per-target module sources and the
+# adjacent dispatch headers) re-attach in a find_package consumer. When it did
+# not, the consumer still builds and runs its core gemm on the raw wwr* layer.
+if(WWR_HAS_WRAPPERS)
+  message(STATUS "wwr wrappers:  available")
+  target_link_libraries(
+    consumer
+    PRIVATE wwr::wwr.wrappers.blas
+            wwr::wwr.wrappers.solver
+            wwr::wwr.wrappers.fft
+            wwr::wwr.wrappers.sparse
+  )
+  target_compile_definitions(consumer PRIVATE WWR_CONSUMER_HAS_WRAPPERS)
+else()
+  message(STATUS "wwr wrappers:  not in this install")
+endif()
 
 # The extension layer is optional in the package (installed with
 # -DWWR_INSTALL_EXTENSION=ON). WWR_HAS_EXTENSION comes from wwrConfig.cmake and
@@ -71,8 +86,7 @@ target_link_libraries(
 # only thing that proves the extension install rules (module sources, the src/
 # header tree, and the WHOLE_ARCHIVE device archives) actually re-attach in a
 # find_package consumer, exactly as the wwr*/wrapper half above does. tx lives
-# here too now -- it ships with the extension layer, not the always-installed
-# wrappers.
+# here too -- it ships with the extension layer, not the wrappers layer.
 if(WWR_HAS_EXTENSION)
   message(STATUS "wwr extension: available")
   target_link_libraries(

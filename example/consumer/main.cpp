@@ -1,17 +1,20 @@
 // main.cpp -- what using an installed wwr actually looks like.
 //
 // This always consumes the core wwr package: the backend-neutral wwr* layer
-// (wwr.runtime_api, wwr.blas) and the dispatch wrappers (wwr.wrappers.*).
+// (wwr.runtime_api, wwr.blas). Both layers on top of it are OPTIONAL in the
+// package, and this one source consumes each behind a guard so it builds
+// against a core-only install and a full one:
 //
-// The extension layer (wwr.extension.*, the RAII handle / buffer / error
-// abstractions plus the untyped tools-extension guard wwr.extension.tx) is
-// OPTIONAL in the package -- it ships only from a build
-// configured with -DWWR_INSTALL_EXTENSION=ON. This file consumes it too, guarded
-// by WWR_CONSUMER_HAS_EXTENSION, which the consumer's CMakeLists.txt defines from
-// the package's WWR_HAS_EXTENSION variable. So the one source builds against a
-// core-only install (managing its own device memory and handles, as
-// multiply_square does) and against a full one, and install-check.sh --extension
-// is what compiles this half.
+//   * The dispatch wrappers (wwr.wrappers.*) ship by default and are dropped
+//     with -DWWR_INSTALL_WRAPPERS=OFF. Consumed under WWR_CONSUMER_HAS_WRAPPERS,
+//     which the consumer's CMakeLists.txt defines from the package's
+//     WWR_HAS_WRAPPERS variable. install-check.sh ships them by default and
+//     --no-wrappers drops them.
+//   * The extension layer (wwr.extension.*, the RAII handle / buffer / error
+//     abstractions plus the untyped tools-extension guard wwr.extension.tx)
+//     ships only from a build configured with -DWWR_INSTALL_EXTENSION=ON.
+//     Consumed under WWR_CONSUMER_HAS_EXTENSION, from the package's
+//     WWR_HAS_EXTENSION variable; install-check.sh --extension compiles it.
 //
 // Two things are proved, and they fail differently:
 //
@@ -22,13 +25,14 @@
 //     from their global module fragment, so those headers had to travel next to
 //     the sources; wwr.wrappers.sparse also needs the WWR_GPU_BACKEND_*
 //     define at install-compile time. Taking the address of one instantiation
-//     per wrapper (solver/fft/sparse below) forces each to resolve and link
+//     per wrapper (blas/solver/fft/sparse below) forces each to resolve and link
 //     without running a kernel -- so this half needs no GPU.
 //   * RUN proves it works. multiply_square does a real gemm on the device:
-//     allocate, copy up, dispatch gemm<float,int> (cublasSgemm on CUDA,
+//     allocate, copy up, dispatch wwrblasSgemm (cublasSgemm on CUDA,
 //     hipblasSgemm on HIP -- named nowhere here, which is the point), copy down,
-//     check. This half needs a device; with none it reports 77 (ctest's skip)
-//     and the compile-and-link result still stands.
+//     check. It runs on the raw wwr* layer, so it proves the CORE install with
+//     no wrappers and no extension present. This half needs a device; with none
+//     it reports 77 (ctest's skip) and the compile-and-link result still stands.
 
 // stderr is a FILE*, which `import std;` does not give you -- the std module
 // exports the std:: names, not the C library's macros and objects. An ordinary
@@ -40,11 +44,14 @@
 import std;
 
 import wwr.runtime_api; // wwrMalloc, wwrMemcpy, wwrGetDevice, wwrSuccess
-import wwr.blas;        // wwrblasHandle_t, wwrblasCreate, WWRBLAS_OP_N
+import wwr.blas;        // wwrblasHandle_t, wwrblasCreate, WWRBLAS_OP_N, wwrblasSgemm
+
+#if defined(WWR_CONSUMER_HAS_WRAPPERS)
 import wwr.wrappers.blas;
 import wwr.wrappers.solver;
 import wwr.wrappers.fft;
 import wwr.wrappers.sparse;
+#endif
 
 #if defined(WWR_CONSUMER_HAS_EXTENSION)
 import wwr.extension.common;        // success_code/error_name/error_string, error_policy concepts
@@ -113,10 +120,14 @@ bool multiply_square(const int n) {
     return false;
   }
 
+  // The raw wwr* dispatch -- wwrblasSgemm is cublasSgemm on CUDA and
+  // hipblasSgemm on HIP, named nowhere here. Deliberately the core layer, not
+  // the type-safe gemm<float, int> wrapper (proved in wrappers_link below), so
+  // this run stands up a core-only install with no wrappers present.
   const float alpha = 1.0f;
   const float beta = 0.0f;
-  const auto status = gemm<float, int>(handle, WWRBLAS_OP_N, WWRBLAS_OP_N, n, n, n, &alpha, a, n, b,
-                                       n, &beta, c, n);
+  const auto status = wwrblasSgemm(handle, WWRBLAS_OP_N, WWRBLAS_OP_N, n, n, n, &alpha, a, n, b, n,
+                                   &beta, c, n);
   wwrblasDestroy(handle);
   if (status != WWRBLAS_STATUS_SUCCESS) {
     std::println(stderr, "gemm failed with status {}", static_cast<int>(status));
@@ -144,23 +155,28 @@ bool multiply_square(const int n) {
   return true;
 }
 
-// solver / fft / sparse are proved at compile and link time only: taking the
-// address of one instantiation each forces its wrapper to resolve and its
-// archive to link, without needing a device. The volatile sink keeps the
-// compiler from folding the reads away.
+#if defined(WWR_CONSUMER_HAS_WRAPPERS)
+// The dispatch wrappers, proved at compile and link time only: taking the
+// address of one instantiation each forces its wrapper to resolve and link,
+// without needing a device. The volatile sink keeps the compiler from folding
+// the reads away. gemm<float, int> is the type-safe counterpart of the
+// wwrblasSgemm multiply_square runs above -- proved here so the run path stays
+// on the core layer.
 bool wrappers_link() {
   static const void *volatile sink[] = {
-      reinterpret_cast<const void *>(&potri<float>),    // wwr.wrappers.solver
-      reinterpret_cast<const void *>(&exec_c2c<float>), // wwr.wrappers.fft
-      reinterpret_cast<const void *>(&bsrmv<float>),    // wwr.wrappers.sparse
+      reinterpret_cast<const void *>(&gemm<float, int>), // wwr.wrappers.blas
+      reinterpret_cast<const void *>(&potri<float>),     // wwr.wrappers.solver
+      reinterpret_cast<const void *>(&exec_c2c<float>),  // wwr.wrappers.fft
+      reinterpret_cast<const void *>(&bsrmv<float>),     // wwr.wrappers.sparse
   };
   for (const void *volatile p : sink) {
     if (p == nullptr)
       return false;
   }
-  std::println("link   : solver/fft/sparse wrappers resolved and linked");
+  std::println("link   : blas/solver/fft/sparse wrappers resolved and linked");
   return true;
 }
+#endif
 
 #if defined(WWR_CONSUMER_HAS_EXTENSION)
 // The extension layer, proved at compile and link time only -- no device
@@ -216,8 +232,10 @@ int main() {
 
   // Compile-and-link proof first: no device needed, and it is what proves the
   // install regardless of whether a GPU is present to run the gemm.
+#if defined(WWR_CONSUMER_HAS_WRAPPERS)
   if (!wrappers_link())
     return 1;
+#endif
 
 #if defined(WWR_CONSUMER_HAS_EXTENSION)
   if (!extension_link())

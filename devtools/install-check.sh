@@ -51,6 +51,12 @@
 #                   consume it (WWR_HAS_EXTENSION drives that automatically).
 #                   Without this the extension layer is not installed and the
 #                   consumer builds against the core package alone.
+#   --no-wrappers   configure wwr with -DWWR_INSTALL_WRAPPERS=OFF so the package
+#                   ships the wwr* core alone, without src/wrappers. The
+#                   consumer then builds against the core (WWR_HAS_WRAPPERS
+#                   drives that automatically) -- its gemm runs on the raw wwr*
+#                   layer. The default ships the wrappers and the consumer links
+#                   them, which is what proves the wrapper install rules.
 #
 # Exit status is the first failing step's.
 #: -- help stops here --
@@ -64,6 +70,7 @@ prefix=""
 keep=0
 run=1
 extension=0
+wrappers=1
 
 while [ $# -gt 0 ]; do
   case $1 in
@@ -72,6 +79,7 @@ while [ $# -gt 0 ]; do
     --keep) keep=1; shift ;;
     --no-run) run=0; shift ;;
     --extension) extension=1; shift ;;
+    --no-wrappers) wrappers=0; shift ;;
     -h | --help)
       sed -n '2,/^#: -- help stops here --$/p' "${BASH_SOURCE[0]}" |
         sed 's/^# \{0,1\}//; $d'
@@ -116,15 +124,20 @@ step "1/4  configure wwr (preset: $preset)"
 # ---------------------------------------------------------------------------
 # -B overrides the preset's own binaryDir so this tier keeps its cache separate
 # from cpp-tier.sh's, per the comment above.
-# Pass WWR_INSTALL_EXTENSION explicitly BOTH ways, never just when on: this tier
-# reuses $build_dir across runs, and a cached ON from an earlier --extension run
-# would otherwise persist into a plain run and quietly install the extension the
-# caller did not ask for.
+# Pass WWR_INSTALL_EXTENSION and WWR_INSTALL_WRAPPERS explicitly BOTH ways, never
+# just when flipped: this tier reuses $build_dir across runs, and a cached value
+# from an earlier --extension / --no-wrappers run would otherwise persist into a
+# plain run and quietly install a different layer set than the caller asked for.
 install_args=(-DWWR_INSTALL=ON)
 if [ "$extension" -eq 1 ]; then
   install_args+=(-DWWR_INSTALL_EXTENSION=ON)
 else
   install_args+=(-DWWR_INSTALL_EXTENSION=OFF)
+fi
+if [ "$wrappers" -eq 1 ]; then
+  install_args+=(-DWWR_INSTALL_WRAPPERS=ON)
+else
+  install_args+=(-DWWR_INSTALL_WRAPPERS=OFF)
 fi
 cmake --preset "$preset" -B "$build_dir" "${install_args[@]}"
 
@@ -173,6 +186,32 @@ if [ "$extension" -eq 1 ]; then
     { echo "install-check.sh: FAIL -- extension device archive not installed" >&2; ext_missing=1; }
   [ "$ext_missing" -eq 0 ] || exit 1
   echo "  extension layer installed (headers, module sources, device archives)"
+fi
+
+# The wrappers layer ships by default and is dropped with --no-wrappers. Prove
+# both directions from the prefix before the consumer is built: the two most
+# telling artifacts are a per-target module source and the dispatch header that
+# has to travel next to it (rules 2 and 3). Present when shipped, absent when
+# dropped -- catching an install rule that ignored WWR_INSTALL_WRAPPERS in
+# either direction.
+wrap_module="include/wwr/modules/wrappers/blas/interface.cppm"
+wrap_header="include/wwr/wrappers/common/dispatch_sdcz.h"
+if [ "$wrappers" -eq 1 ]; then
+  wrap_missing=0
+  [ -f "$prefix/$wrap_module" ] ||
+    { echo "install-check.sh: FAIL -- wrapper module source not installed: $wrap_module" >&2; wrap_missing=1; }
+  [ -f "$prefix/$wrap_header" ] ||
+    { echo "install-check.sh: FAIL -- wrapper dispatch header not installed: $wrap_header" >&2; wrap_missing=1; }
+  [ "$wrap_missing" -eq 0 ] || exit 1
+  echo "  wrappers layer installed (module sources, dispatch headers)"
+else
+  wrap_leaked=0
+  [ -e "$prefix/$wrap_module" ] &&
+    { echo "install-check.sh: FAIL -- wrapper module source installed despite --no-wrappers: $wrap_module" >&2; wrap_leaked=1; }
+  [ -e "$prefix/$wrap_header" ] &&
+    { echo "install-check.sh: FAIL -- wrapper dispatch header installed despite --no-wrappers: $wrap_header" >&2; wrap_leaked=1; }
+  [ "$wrap_leaked" -eq 0 ] || exit 1
+  echo "  wrappers layer omitted (core-only install)"
 fi
 
 # ---------------------------------------------------------------------------
