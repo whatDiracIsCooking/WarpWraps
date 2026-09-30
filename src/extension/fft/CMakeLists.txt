@@ -10,8 +10,8 @@ wwr_add_cxx_module_library(
   fft_error.cppm
   fft_plan.cppm
   LINK_PUBLIC
-  wwr.fft
-  wwr.extension.common
-  wwr.extension.handle
+  wwr::fft
+  wwr::extension::common
+  wwr::extension::handle
   IMPORT_STD
 )

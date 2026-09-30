@@ -24,7 +24,7 @@ wwr_add_gpu_device_library(
   SOURCES
   warp_reduce.cu
   LINK_PRIVATE
-  wwr.device
+  wwr::device
 )
 
 # The host half. No ctest entry: it needs a real device, and the runtime tier
@@ -40,10 +40,10 @@ add_executable(wwr.example.warp_reduce main.cpp)
 # that resolves "runtime.h" in this host compile is added explicitly below.
 target_link_libraries(
   wwr.example.warp_reduce
-  PRIVATE wwr.runtime_api
-          wwr.extension.runtime
-          wwr.extension.memory_buffer
-          wwr_backend
+  PRIVATE wwr::runtime_api
+          wwr::extension::runtime
+          wwr::extension::memory_buffer
+          wwr::backend
           wwr.example.warp_reduce.device
 )
 target_include_directories(

@@ -11,8 +11,8 @@ wwr_add_cxx_module_library(
   sparse_error.cppm
   sparse_handle.cppm
   LINK_PUBLIC
-  wwr.sparse
-  wwr.extension.common
-  wwr.extension.handle
+  wwr::sparse
+  wwr::extension::common
+  wwr::extension::handle
   IMPORT_STD
 )

@@ -17,7 +17,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   abort_policy.cppm
   LINK_PUBLIC
-  wwr.extension.common
+  wwr::extension::common
 )
 
 # RecordingPolicy is the non-throwing record-and-continue counterpart to
@@ -32,7 +32,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   recording_policy.cppm
   LINK_PUBLIC
-  wwr.extension.common
+  wwr::extension::common
 )
 
 # DeviceHandle is the device_handle the extension suites allocate against, kept
@@ -45,9 +45,9 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   device_handle.cppm
   LINK_PUBLIC
-  wwr.runtime_api
-  wwr.extension.common
-  wwr.extension.handle
-  wwr.extension.runtime
-  wwr.test.shared.abort_policy
+  wwr::runtime_api
+  wwr::extension::common
+  wwr::extension::handle
+  wwr::extension::runtime
+  wwr::test::shared::abort_policy
 )

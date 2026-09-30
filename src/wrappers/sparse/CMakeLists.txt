@@ -15,8 +15,8 @@ wwr_add_cxx_module_library(
   IMPLEMENTATION
   instantiations.cpp
   LINK_PUBLIC
-  wwr.sparse
-  wwr.complex
-  wwr.wrappers.common
+  wwr::sparse
+  wwr::complex
+  wwr::wrappers::common
   IMPORT_STD
 )

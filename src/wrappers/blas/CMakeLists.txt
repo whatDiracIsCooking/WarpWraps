@@ -17,11 +17,11 @@ wwr_add_cxx_module_library(
   IMPLEMENTATION
   instantiations.cpp
   LINK_PUBLIC
-  wwr.blas
-  wwr.complex
-  wwr.fp16
-  wwr.bf16
-  wwr.wrappers.common
+  wwr::blas
+  wwr::complex
+  wwr::fp16
+  wwr::bf16
+  wwr::wrappers::common
   IMPORT_STD
 )
 

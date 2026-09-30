@@ -21,12 +21,12 @@ wwr_add_gtest_executable(
   host_memory_tests.cpp
   allocation_failure_tests.cpp
   LINK
-  wwr.runtime_api
-  wwr.extension.common
-  wwr.extension.handle
-  wwr.extension.runtime
-  wwr.extension.memory_buffer
-  wwr.test.shared.device_handle
+  wwr::runtime_api
+  wwr::extension::common
+  wwr::extension::handle
+  wwr::extension::runtime
+  wwr::extension::memory_buffer
+  wwr::test::shared::device_handle
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test file,

@@ -48,6 +48,7 @@ file is the map; reach for the skill when you act.
 | Skill | Reach for it to… |
 |---|---|
 | [test](skills/test/SKILL.md) | run the suites the right way and read the result honestly — the C++ tier (`cpp-tier.sh`), the Python tier (`pytest`), the package tier (`install-check.sh`), the cross-backend compile check, and coverage. Presets, `gpu`-label exclusions and what a green run does *not* prove all live here. |
+| [cmake](skills/cmake/SKILL.md) | work in the build system — the `wwr_*` target macros in `cmake/`, the dotted-name / `::` alias convention (which spelling a link dependency uses vs a target definition), the read-the-buildsystem-back install sweep and the C++23-module package contract, and the three test macros. |
 | [devbox](skills/devbox/SKILL.md) | drive the containers and the container-backed **sibling** worktrees — `devcontainer.sh` (up/rebuild/shell/test/down) and `worktree.sh` (add/rm/sync/gc). Rebuild-not-up, CPU bounds, and the docker/compose batch path. |
 | [worktree](skills/worktree/SKILL.md) | create and clean up the lightweight `.claude/worktrees/<name>` checkouts — no container, cheap and disposable. Not the sibling worktrees (that is `devbox`). |
 | [pr](skills/pr/SKILL.md) | ship the current work end to end: commit → push → PR → merge, with the repo's gotchas (never on `main`, fill the template, never `--admin`/`--delete-branch`). |
@@ -126,7 +127,12 @@ cost instead.
   `wwr_add_test_executable` test macros, and `wwr_add_gpu_device_library`
   for a module's device-kernel `.cu` library. `wwr_add_interface_library` is
   wired and documented with **no call sites** — do not assume it is dead.
-- Target names use dots and are aliased to `::`.
+- Target names use dots (mirroring the module name) and are aliased to `::`
+  (`wwr.extension.fft` → `wwr::extension::fft`). A **link dependency** is spelled
+  with the `::` alias — a `::` name that resolves to nothing is a configure-time
+  error, a bare one silently degrades to `-lname`; **definitions**, the `.device`
+  archives (no alias by design), and dispatch-check `TARGET`s keep the real
+  dotted name. The [cmake](skills/cmake/SKILL.md) skill has the full rule.
 - **`#include` style tracks header ownership.** A header this project owns uses
   quotes, spelled by the path its include root makes resolve — bare for a
   same-directory header, root-relative otherwise (`#include

@@ -20,10 +20,10 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   memory_buffer.cppm
   LINK_PUBLIC
-  wwr.extension.common
-  wwr.extension.handle
-  wwr.extension.memory_buffer
-  wwr.test.shared.device_handle
+  wwr::extension::common
+  wwr::extension::handle
+  wwr::extension::memory_buffer
+  wwr::test::shared::device_handle
 )
 
 add_dependencies(compile_time_tests wwr.test.extension.memory_buffer)
@@ -36,14 +36,14 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   handle_view.cppm
   LINK_PUBLIC
-  wwr.extension.common
-  wwr.extension.handle
-  wwr.extension.runtime
-  wwr.extension.blas
-  wwr.extension.solver
-  wwr.extension.sparse
-  wwr.test.shared.abort_policy
-  wwr.test.shared.device_handle
+  wwr::extension::common
+  wwr::extension::handle
+  wwr::extension::runtime
+  wwr::extension::blas
+  wwr::extension::solver
+  wwr::extension::sparse
+  wwr::test::shared::abort_policy
+  wwr::test::shared::device_handle
 )
 
 add_dependencies(compile_time_tests wwr.test.extension.handle_view)
@@ -56,12 +56,12 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   pointer_mode_scope.cppm
   LINK_PUBLIC
-  wwr.blas
-  wwr.extension.common
-  wwr.extension.runtime
-  wwr.extension.blas
-  wwr.test.shared.abort_policy
-  wwr.test.shared.device_handle
+  wwr::blas
+  wwr::extension::common
+  wwr::extension::runtime
+  wwr::extension::blas
+  wwr::test::shared::abort_policy
+  wwr::test::shared::device_handle
 )
 
 add_dependencies(compile_time_tests wwr.test.extension.pointer_mode_scope)
@@ -74,8 +74,8 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   tx.cppm
   LINK_PUBLIC
-  wwr.tx
-  wwr.extension.tx
+  wwr::tx
+  wwr::extension::tx
 )
 
 add_dependencies(compile_time_tests wwr.test.extension.tx)

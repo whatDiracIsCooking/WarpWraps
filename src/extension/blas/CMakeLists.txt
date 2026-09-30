@@ -11,8 +11,8 @@ wwr_add_cxx_module_library(
   blas_handle.cppm
   pointer_mode_scope.cppm
   LINK_PUBLIC
-  wwr.blas
-  wwr.extension.common
-  wwr.extension.handle
+  wwr::blas
+  wwr::extension::common
+  wwr::extension::handle
   IMPORT_STD
 )

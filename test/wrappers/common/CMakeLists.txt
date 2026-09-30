@@ -18,10 +18,10 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   type_traits.cppm
   LINK_PUBLIC
-  wwr.complex
-  wwr.fp16
-  wwr.bf16
-  wwr.wrappers.common
+  wwr::complex
+  wwr::fp16
+  wwr::bf16
+  wwr::wrappers::common
 )
 
 add_dependencies(

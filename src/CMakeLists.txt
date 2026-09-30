@@ -31,6 +31,10 @@ target_include_directories(
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
             $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )
+# In-tree :: alias -- a raw add_library gets none automatically, and the
+# dot-less name has no dot to convert, so it is spelled by hand. Dependants link
+# the guarded wwr::backend spelling.
+add_library(wwr::backend ALIAS wwr_backend)
 
 # The include path, runtime libs and WWR_WARP_SIZE for the device-side
 # headers (runtime.cuh, complex.cuh, fp16.cuh, cooperative_groups.cuh, wmma.cuh)
@@ -71,6 +75,8 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
 else()
   target_link_libraries(wwr.device INTERFACE hip::host)
 endif()
+# In-tree :: alias (raw add_library gets none automatically).
+add_library(wwr::device ALIAS wwr.device)
 
 # rand.cuh's include path and RNG library, for a device TU calling the
 # cuRAND/hipRAND device API -- the #include counterpart to wwr.rand.
@@ -88,43 +94,45 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
 else()
   target_link_libraries(wwr.rand.device INTERFACE hip::hiprand)
 endif()
+# In-tree :: alias (raw add_library gets none automatically).
+add_library(wwr::rand::device ALIAS wwr.rand.device)
 
 # Raw module each wwr* module wraps, per backend.
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
-  set(_raw_runtime_api wwr.cuda.cuda_runtime_api)
-  set(_raw_complex wwr.cuda.cuComplex)
-  set(_raw_fp16 wwr.cuda.cuda_fp16)
-  set(_raw_bf16 wwr.cuda.cuda_bf16)
-  set(_raw_fp8 wwr.cuda.cuda_fp8)
-  set(_raw_blas wwr.cuda.cublas_v2)
-  set(_raw_blaslt wwr.cuda.cublasLt)
-  set(_raw_solver wwr.cuda.cusolverDn)
-  set(_raw_sparse wwr.cuda.cusparse)
-  set(_raw_fft wwr.cuda.cufft)
-  set(_raw_rand wwr.cuda.curand)
-  set(_raw_tx wwr.cuda.nvToolsExt)
-  set(_raw_ccl wwr.cuda.nccl)
-  set(_raw_tensor wwr.cuda.cutensor)
-  set(_raw_comp wwr.cuda.nvcomp)
+  set(_raw_runtime_api wwr::cuda::cuda_runtime_api)
+  set(_raw_complex wwr::cuda::cuComplex)
+  set(_raw_fp16 wwr::cuda::cuda_fp16)
+  set(_raw_bf16 wwr::cuda::cuda_bf16)
+  set(_raw_fp8 wwr::cuda::cuda_fp8)
+  set(_raw_blas wwr::cuda::cublas_v2)
+  set(_raw_blaslt wwr::cuda::cublasLt)
+  set(_raw_solver wwr::cuda::cusolverDn)
+  set(_raw_sparse wwr::cuda::cusparse)
+  set(_raw_fft wwr::cuda::cufft)
+  set(_raw_rand wwr::cuda::curand)
+  set(_raw_tx wwr::cuda::nvToolsExt)
+  set(_raw_ccl wwr::cuda::nccl)
+  set(_raw_tensor wwr::cuda::cutensor)
+  set(_raw_comp wwr::cuda::nvcomp)
 else()
-  set(_raw_runtime_api wwr.hip.hip_runtime_api)
-  set(_raw_complex wwr.hip.hip_complex)
-  set(_raw_fp16 wwr.hip.hip_fp16)
-  set(_raw_bf16 wwr.hip.hip_bf16)
-  set(_raw_fp8 wwr.hip.hip_fp8)
-  set(_raw_blas wwr.hip.hipblas)
-  set(_raw_blaslt wwr.hip.hipblaslt)
-  set(_raw_solver wwr.hip.hipsolver)
-  set(_raw_sparse wwr.hip.hipsparse)
-  set(_raw_fft wwr.hip.hipfft)
+  set(_raw_runtime_api wwr::hip::hip_runtime_api)
+  set(_raw_complex wwr::hip::hip_complex)
+  set(_raw_fp16 wwr::hip::hip_fp16)
+  set(_raw_bf16 wwr::hip::hip_bf16)
+  set(_raw_fp8 wwr::hip::hip_fp8)
+  set(_raw_blas wwr::hip::hipblas)
+  set(_raw_blaslt wwr::hip::hipblaslt)
+  set(_raw_solver wwr::hip::hipsolver)
+  set(_raw_sparse wwr::hip::hipsparse)
+  set(_raw_fft wwr::hip::hipfft)
   # Two modules where CUDA has one: cuRAND wraps curand.h and curand_kernel.h
   # together, hipRAND keeps hiprand_kernel.h separate. rand.cppm needs both
   # (host API + device generator state types) -- see src/hip/CMakeLists.txt.
-  set(_raw_rand wwr.hip.hiprand wwr.hip.hiprand_kernel)
-  set(_raw_tx wwr.hip.roctx)
-  set(_raw_ccl wwr.hip.rccl)
-  set(_raw_tensor wwr.hip.hiptensor)
-  set(_raw_comp wwr.hip.hipcomp)
+  set(_raw_rand wwr::hip::hiprand wwr::hip::hiprand_kernel)
+  set(_raw_tx wwr::hip::roctx)
+  set(_raw_ccl wwr::hip::rccl)
+  set(_raw_tensor wwr::hip::hiptensor)
+  set(_raw_comp wwr::hip::hipcomp)
 endif()
 
 wwr_add_cxx_module_library(
@@ -135,7 +143,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_runtime_api}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -147,7 +155,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_complex}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -159,7 +167,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_fp16}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -171,7 +179,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_bf16}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -183,7 +191,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_fp8}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -209,9 +217,9 @@ wwr_add_cxx_module_library(
   blas.cppm
   LINK_PUBLIC
   ${_raw_blas}
-  wwr.complex
+  wwr::complex
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -223,7 +231,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_blaslt}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -234,10 +242,10 @@ wwr_add_cxx_module_library(
   solver.cppm
   LINK_PUBLIC
   ${_raw_solver}
-  wwr.complex
-  wwr.blas
+  wwr::complex
+  wwr::blas
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -248,9 +256,9 @@ wwr_add_cxx_module_library(
   sparse.cppm
   LINK_PUBLIC
   ${_raw_sparse}
-  wwr.complex
+  wwr::complex
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -262,7 +270,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_fft}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -274,7 +282,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_rand}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -286,7 +294,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_tx}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -298,7 +306,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_ccl}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -310,7 +318,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_tensor}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 
@@ -322,7 +330,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_raw_comp}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   IMPORT_STD
 )
 

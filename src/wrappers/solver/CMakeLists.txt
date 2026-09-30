@@ -15,9 +15,9 @@ wwr_add_cxx_module_library(
   IMPLEMENTATION
   instantiations.cpp
   LINK_PUBLIC
-  wwr.solver
-  wwr.blas
-  wwr.complex
-  wwr.wrappers.common
+  wwr::solver
+  wwr::blas
+  wwr::complex
+  wwr::wrappers::common
   IMPORT_STD
 )

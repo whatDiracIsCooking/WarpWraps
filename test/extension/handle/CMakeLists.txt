@@ -15,10 +15,10 @@ wwr_add_gtest_executable(
   SOURCES
   basic.cpp
   LINK
-  wwr.runtime_api
-  wwr.extension.common
-  wwr.extension.handle
-  wwr.test.shared.abort_policy
+  wwr::runtime_api
+  wwr::extension::common
+  wwr::extension::handle
+  wwr::test::shared::abort_policy
 )
 
 # One ctest entry per suite. Add a suite here when you add one, or the
@@ -43,10 +43,10 @@ wwr_add_gtest_executable(
   SOURCES
   valid.cpp
   LINK
-  wwr.runtime_api
-  wwr.extension.common
-  wwr.extension.handle
-  wwr.test.shared.recording_policy
+  wwr::runtime_api
+  wwr::extension::common
+  wwr::extension::handle
+  wwr::test::shared::recording_policy
 )
 
 wwr_add_gtest_suite_tests(
