@@ -120,8 +120,23 @@ message(
 # Either way the wwr* layer maps the wwr* names onto the chosen backend, and
 # src/wrappers + test/wrappers are built on top of it, unchanged. A HIP build
 # needs no CUDA toolkit, and a CUDA build needs no ROCm.
+# No default on purpose: the backend is read before project() to decide whether
+# the CUDA language is enabled at all, so a silent default would quietly require
+# a CUDA toolkit on a HIP-only host (or ROCm on a CUDA-only one). Every
+# CMakePresets.json preset carries it -- CUDA via the hidden `base` preset, HIP
+# via `hip`/`ci-hip` -- so only a raw preset-less `cmake` must pass it. On
+# reconfigure the cached value satisfies this, so it need not be repassed.
+if(NOT DEFINED WWR_GPU_BACKEND)
+  message(
+    FATAL_ERROR
+      "WWR_GPU_BACKEND must be set explicitly to CUDA or HIP (e.g. "
+      "-DWWR_GPU_BACKEND=CUDA, or a CMakePresets.json preset). It is not "
+      "defaulted: it is read before project() to decide whether the CUDA "
+      "language is enabled at all."
+  )
+endif()
 set(WWR_GPU_BACKEND
-    "CUDA"
+    "${WWR_GPU_BACKEND}"
     CACHE STRING "GPU backend to build against: CUDA or HIP"
 )
 set_property(CACHE WWR_GPU_BACKEND PROPERTY STRINGS CUDA HIP)
