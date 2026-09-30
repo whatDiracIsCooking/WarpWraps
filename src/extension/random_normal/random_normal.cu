@@ -11,7 +11,6 @@
 #include "extension/parallel_for/parallel_for.cuh"
 #include "fp16.cuh"
 #include "rand.cuh"
-#include "wrappers/complex/device_complex.cuh"
 
 #include <cstddef>
 #include <type_traits>
@@ -30,8 +29,8 @@ namespace {
 /// magnitude has variance 2 unless the caller scales it down.
 ///
 /// The drawn value is multiplied by `scale_` before it is stored -- a real by
-/// `scale_` directly, a complex by complex multiplication (through
-/// `wwr::complex<T>`'s `operator*`), and a half in single precision, before the
+/// `scale_` directly, a complex by complex multiplication (through the
+/// vendor-neutral `wwrCmul*`), and a half in single precision, before the
 /// narrowing conversion.
 ///
 /// `states_` and `output_` are const, which is what makes the functor
@@ -55,14 +54,13 @@ struct random_normal_functor {
       output_[i] = wwrrand_normal_double(&states_[i]) * scale_;
     } else if constexpr (std::is_same_v<T, wwrFloatComplex>) {
       // Each component an independent standard normal, so |z|^2 has variance 2;
-      // pass scale = 1/sqrt(2) for a unit-magnitude complex value. The draw and
-      // the scaling go through wwr::complex<float>, which converts back to the
-      // vendor type on store.
+      // pass scale = 1/sqrt(2) for a unit-magnitude complex value. The draw is
+      // scaled by a complex multiply through the vendor-neutral wwrC* layer.
       const float2 value = wwrrand_normal2(&states_[i]);
-      output_[i] = complex<float>{value.x, value.y} * to_complex(scale_);
+      output_[i] = wwrCmulf(make_wwrFloatComplex(value.x, value.y), scale_);
     } else if constexpr (std::is_same_v<T, wwrDoubleComplex>) {
       const double2 value = wwrrand_normal2_double(&states_[i]);
-      output_[i] = complex<double>{value.x, value.y} * to_complex(scale_);
+      output_[i] = wwrCmul(make_wwrDoubleComplex(value.x, value.y), scale_);
     } else if constexpr (std::is_same_v<T, wwrHalf>) {
       // Drawn and scaled in single precision, then converted: neither vendor
       // has a native half-precision normal generator.
