@@ -627,6 +627,20 @@ than the pin:
 That leaves the floor a full minor below the 7.2.4 pin, so a symbol added in 7.2
 is caught by the `cpp-floor (hip-floor)` leg — which a 7.2 floor would not do.
 
+**A second, SDK-free check runs in the fast Python tier.**
+`test/shared/manifest_conformance.py` (#117) asserts these same guards against the
+committed floor/pin manifests without a build: an unguarded `using ::` naming a
+pin-only symbol fails, and — the bidirectional half — a `WWR_*_SINCE_*` guard
+around a name the floor already ships, or around one absent from the pin, fails
+too, so the guards are validated as a spec rather than trusted. It complements the
+`cpp-floor` leg (which needs the SDK) and the `test/hip/*.cppm` mirrors (which need
+a compile). It reasons only about names whose leading token is the manifest's
+prefix — the rule `vendor_harvest.py` harvests by — so it validates 34 of the 36
+guards above; the two `HIPBLASLT_*` uppercase constants lead with `hipblaslt`,
+which no manifest captures (prefix `hipblas`), so they sit outside its reach. That
+is the harvester's prefix limitation, not the check's; it reports the count so the
+gap stays visible until the harvester's variant-library rule is widened.
+
 **The ratchet policy — floors only ever rise, and only for a reason.** Raise a
 floor when a wrapper starts to *depend* on something the older toolkit lacks (a
 symbol, a header, a fixed bug), not merely because a newer release exists. When
