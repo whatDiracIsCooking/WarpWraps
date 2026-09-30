@@ -19,16 +19,16 @@ wwr_add_gtest_executable(
   SOURCES
   rand_tests.cpp
   LINK
-  wwr.runtime_api
-  wwr.rand
-  wwr.complex
-  wwr.fp16
-  wwr.bf16
-  wwr.extension.runtime
-  wwr.extension.memory_buffer
-  wwr.extension.init_state
-  wwr.extension.random_normal
-  wwr.test.shared.device_handle
+  wwr::runtime_api
+  wwr::rand
+  wwr::complex
+  wwr::fp16
+  wwr::bf16
+  wwr::extension::runtime
+  wwr::extension::memory_buffer
+  wwr::extension::init_state
+  wwr::extension::random_normal
+  wwr::test::shared::device_handle
 )
 
 # One ctest entry per suite. Add a suite here when you add one to the test

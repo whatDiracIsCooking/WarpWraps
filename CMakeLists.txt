@@ -365,6 +365,11 @@ include(cmake/wwr_install.cmake)
 # collide with std module-map resolution when a CUDA header (e.g. cublas_v2.h)
 # pulls a standard header into its global module fragment.
 add_library(wwr_module_flags INTERFACE)
+# In-tree :: alias, so dependants link the guarded wwr::module_flags spelling
+# like every other wwr target (a link name with :: is a hard configure error if
+# it resolves to nothing; a bare name silently degrades to -lname). The dot-less
+# target name has no dot to turn into ::, so the alias is spelled by hand.
+add_library(wwr::module_flags ALIAS wwr_module_flags)
 
 # ========================================================================
 # AddressSanitizer (host code only)

@@ -10,13 +10,13 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   type_traits.cppm
   LINK_PUBLIC
-  wwr.complex
-  wwr.fp16
-  wwr.bf16
-  wwr.runtime_api
-  wwr.extension.common
-  wwr.extension.handle
-  wwr.test.shared.abort_policy
+  wwr::complex
+  wwr::fp16
+  wwr::bf16
+  wwr::runtime_api
+  wwr::extension::common
+  wwr::extension::handle
+  wwr::test::shared::abort_policy
 )
 
 add_dependencies(

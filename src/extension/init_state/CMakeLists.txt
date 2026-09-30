@@ -18,8 +18,8 @@ wwr_add_gpu_device_library(
   SOURCES
   init_state.cu
   LINK_PRIVATE
-  wwr.extension.parallel_for
-  wwr.rand.device
+  wwr::extension::parallel_for
+  wwr::rand::device
 )
 
 # The module itself: ordinary host C++23, no device code, no backend flags.
@@ -45,10 +45,10 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   interface.cppm
   LINK_PUBLIC
-  wwr.runtime_api
-  wwr.rand
+  wwr::runtime_api
+  wwr::rand
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   INCLUDE_DIRS_PRIVATE
   ${CMAKE_SOURCE_DIR}/src
   IMPORT_STD

@@ -22,7 +22,7 @@ wwr_add_cxx_module_library(
   noncopyable.cppm
   policy_slot.cppm
   LINK_PUBLIC
-  wwr.runtime_api
-  wwr.extension.error_handling
+  wwr::runtime_api
+  wwr::extension::error_handling
   IMPORT_STD
 )

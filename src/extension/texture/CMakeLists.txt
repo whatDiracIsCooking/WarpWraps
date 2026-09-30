@@ -9,8 +9,8 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   interface.cppm
   LINK_PUBLIC
-  wwr.runtime_api
-  wwr.extension.common
-  wwr.extension.handle
+  wwr::runtime_api
+  wwr::extension::common
+  wwr::extension::handle
   IMPORT_STD
 )

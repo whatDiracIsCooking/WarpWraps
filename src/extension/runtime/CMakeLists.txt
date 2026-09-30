@@ -10,8 +10,8 @@ wwr_add_cxx_module_library(
   graph_exec.cppm
   graph.cppm
   LINK_PUBLIC
-  wwr.runtime_api
-  wwr.extension.common
-  wwr.extension.handle
+  wwr::runtime_api
+  wwr::extension::common
+  wwr::extension::handle
   IMPORT_STD
 )

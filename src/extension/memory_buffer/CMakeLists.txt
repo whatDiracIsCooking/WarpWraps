@@ -17,9 +17,9 @@ wwr_add_cxx_module_library(
   copy.cppm
   memset.cppm
   LINK_PUBLIC
-  wwr.runtime_api
-  wwr.extension.common
-  wwr.extension.handle
-  wwr.extension.runtime
+  wwr::runtime_api
+  wwr::extension::common
+  wwr::extension::handle
+  wwr::extension::runtime
   IMPORT_STD
 )

@@ -14,39 +14,39 @@
 # compile_time). Expected exit code: 0
 
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
-  set(_gpu_test_raw_runtime_api wwr.cuda.cuda_runtime_api)
-  set(_gpu_test_raw_complex wwr.cuda.cuComplex)
-  set(_gpu_test_raw_fp16 wwr.cuda.cuda_fp16)
-  set(_gpu_test_raw_bf16 wwr.cuda.cuda_bf16)
-  set(_gpu_test_raw_fp8 wwr.cuda.cuda_fp8)
-  set(_gpu_test_raw_blas wwr.cuda.cublas_v2)
-  set(_gpu_test_raw_blaslt wwr.cuda.cublasLt)
-  set(_gpu_test_raw_solver wwr.cuda.cusolverDn)
-  set(_gpu_test_raw_sparse wwr.cuda.cusparse)
-  set(_gpu_test_raw_fft wwr.cuda.cufft)
-  set(_gpu_test_raw_rand wwr.cuda.curand)
-  set(_gpu_test_raw_tx wwr.cuda.nvToolsExt)
-  set(_gpu_test_raw_ccl wwr.cuda.nccl)
-  set(_gpu_test_raw_tensor wwr.cuda.cutensor)
-  set(_gpu_test_raw_comp wwr.cuda.nvcomp)
+  set(_gpu_test_raw_runtime_api wwr::cuda::cuda_runtime_api)
+  set(_gpu_test_raw_complex wwr::cuda::cuComplex)
+  set(_gpu_test_raw_fp16 wwr::cuda::cuda_fp16)
+  set(_gpu_test_raw_bf16 wwr::cuda::cuda_bf16)
+  set(_gpu_test_raw_fp8 wwr::cuda::cuda_fp8)
+  set(_gpu_test_raw_blas wwr::cuda::cublas_v2)
+  set(_gpu_test_raw_blaslt wwr::cuda::cublasLt)
+  set(_gpu_test_raw_solver wwr::cuda::cusolverDn)
+  set(_gpu_test_raw_sparse wwr::cuda::cusparse)
+  set(_gpu_test_raw_fft wwr::cuda::cufft)
+  set(_gpu_test_raw_rand wwr::cuda::curand)
+  set(_gpu_test_raw_tx wwr::cuda::nvToolsExt)
+  set(_gpu_test_raw_ccl wwr::cuda::nccl)
+  set(_gpu_test_raw_tensor wwr::cuda::cutensor)
+  set(_gpu_test_raw_comp wwr::cuda::nvcomp)
 else()
-  set(_gpu_test_raw_runtime_api wwr.hip.hip_runtime_api)
-  set(_gpu_test_raw_complex wwr.hip.hip_complex)
-  set(_gpu_test_raw_fp16 wwr.hip.hip_fp16)
-  set(_gpu_test_raw_bf16 wwr.hip.hip_bf16)
-  set(_gpu_test_raw_fp8 wwr.hip.hip_fp8)
-  set(_gpu_test_raw_blas wwr.hip.hipblas)
-  set(_gpu_test_raw_blaslt wwr.hip.hipblaslt)
-  set(_gpu_test_raw_solver wwr.hip.hipsolver)
-  set(_gpu_test_raw_sparse wwr.hip.hipsparse)
-  set(_gpu_test_raw_fft wwr.hip.hipfft)
+  set(_gpu_test_raw_runtime_api wwr::hip::hip_runtime_api)
+  set(_gpu_test_raw_complex wwr::hip::hip_complex)
+  set(_gpu_test_raw_fp16 wwr::hip::hip_fp16)
+  set(_gpu_test_raw_bf16 wwr::hip::hip_bf16)
+  set(_gpu_test_raw_fp8 wwr::hip::hip_fp8)
+  set(_gpu_test_raw_blas wwr::hip::hipblas)
+  set(_gpu_test_raw_blaslt wwr::hip::hipblaslt)
+  set(_gpu_test_raw_solver wwr::hip::hipsolver)
+  set(_gpu_test_raw_sparse wwr::hip::hipsparse)
+  set(_gpu_test_raw_fft wwr::hip::hipfft)
   # Two, matching src/CMakeLists.txt: hipRAND's device state types live in
   # their own module, where cuRAND keeps them in curand.cppm.
-  set(_gpu_test_raw_rand wwr.hip.hiprand wwr.hip.hiprand_kernel)
-  set(_gpu_test_raw_tx wwr.hip.roctx)
-  set(_gpu_test_raw_ccl wwr.hip.rccl)
-  set(_gpu_test_raw_tensor wwr.hip.hiptensor)
-  set(_gpu_test_raw_comp wwr.hip.hipcomp)
+  set(_gpu_test_raw_rand wwr::hip::hiprand wwr::hip::hiprand_kernel)
+  set(_gpu_test_raw_tx wwr::hip::roctx)
+  set(_gpu_test_raw_ccl wwr::hip::rccl)
+  set(_gpu_test_raw_tensor wwr::hip::hiptensor)
+  set(_gpu_test_raw_comp wwr::hip::hipcomp)
 endif()
 
 set(GPU_TEST_LIBRARIES
@@ -80,10 +80,10 @@ foreach(_lib IN LISTS GPU_TEST_LIBRARIES)
     PRIMARY_INTERFACE
     ${_lib}.cppm
     LINK_PUBLIC
-    wwr.${_lib}
+    wwr::${_lib}
     ${_gpu_test_raw_${_lib}}
     LINK_PRIVATE
-    wwr_backend
+    wwr::backend
     # PROJECT_SOURCE_DIR (not CMAKE_SOURCE_DIR) is gpumod's own root, so the
     # root-relative #include "test/shared/link_check.h" resolves even when a
     # consumer adds gpumod as a subdirectory -- there CMAKE_SOURCE_DIR is the
@@ -129,10 +129,10 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   tensor.cppm
   LINK_PUBLIC
-  wwr.tensor
+  wwr::tensor
   ${_gpu_test_raw_tensor}
   LINK_PRIVATE
-  wwr_backend
+  wwr::backend
   INCLUDE_DIRS_PRIVATE
   ${PROJECT_SOURCE_DIR}
 )
@@ -144,7 +144,7 @@ wwr_add_test_executable(
   MAIN
   tensor_link_check.cpp
   LINK_PRIVATE
-  wwr.test.gpu.tensor
+  wwr::test::gpu::tensor
   WHOLE_ARCHIVE
   wwr.test.gpu.tensor
   NO_RUN
@@ -168,7 +168,7 @@ wwr_add_gpu_device_library(
   SOURCES
   cooperative_groups.cu
   LINK_PRIVATE
-  wwr.device
+  wwr::device
 )
 add_dependencies(
   compile_time_tests wwr.test.gpu.cooperative_groups.device
@@ -188,7 +188,7 @@ wwr_add_gpu_device_library(
   SOURCES
   complex.cu
   LINK_PRIVATE
-  wwr.device
+  wwr::device
 )
 add_dependencies(compile_time_tests wwr.test.gpu.complex.device)
 
@@ -198,7 +198,7 @@ wwr_add_gpu_device_library(
   SOURCES
   fp16.cu
   LINK_PRIVATE
-  wwr.device
+  wwr::device
 )
 add_dependencies(compile_time_tests wwr.test.gpu.fp16.device)
 
@@ -208,7 +208,7 @@ wwr_add_gpu_device_library(
   SOURCES
   bf16.cu
   LINK_PRIVATE
-  wwr.device
+  wwr::device
 )
 add_dependencies(compile_time_tests wwr.test.gpu.bf16.device)
 
@@ -225,7 +225,7 @@ wwr_add_gpu_device_library(
   SOURCES
   fp8.cu
   LINK_PRIVATE
-  wwr.device
+  wwr::device
 )
 add_dependencies(compile_time_tests wwr.test.gpu.fp8.device)
 
@@ -247,7 +247,7 @@ wwr_add_gpu_device_library(
   SOURCES
   wmma.cu
   LINK_PRIVATE
-  wwr.device
+  wwr::device
 )
 add_dependencies(compile_time_tests wwr.test.gpu.wmma.device)
 
@@ -265,7 +265,7 @@ wwr_add_gpu_device_library(
   SOURCES
   atomics.cu
   LINK_PRIVATE
-  wwr.device
+  wwr::device
 )
 add_dependencies(
   compile_time_tests wwr.test.gpu.atomics.device
@@ -285,7 +285,7 @@ wwr_add_gpu_device_library(
   SOURCES
   atomic.cu
   LINK_PRIVATE
-  wwr.device
+  wwr::device
 )
 add_dependencies(
   compile_time_tests wwr.test.gpu.atomic.device
@@ -304,7 +304,7 @@ wwr_add_gpu_device_library(
   SOURCES
   math.cu
   LINK_PRIVATE
-  wwr.device
+  wwr::device
 )
 add_dependencies(compile_time_tests wwr.test.gpu.math.device)
 
@@ -358,8 +358,8 @@ if(NOT WWR_COMPILE_TIME_ONLY)
     SOURCES
     conversions.cpp
     LINK
-    wwr.fp16
-    wwr.bf16
+    wwr::fp16
+    wwr::bf16
   )
   wwr_add_gtest_suite_tests(
     TARGET

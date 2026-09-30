@@ -40,4 +40,9 @@ target_include_directories(
 # dedicated library holding only its own device-kernel source -- see
 # cmake/wwr_add_gpu_device_library.cmake, which is that pattern, and its
 # call sites in src/extension/init_state and src/extension/random_normal.
-target_link_libraries(wwr.extension.parallel_for INTERFACE wwr.device)
+target_link_libraries(wwr.extension.parallel_for INTERFACE wwr::device)
+
+# In-tree :: alias, matching the wwr_add_* macros' convention (see
+# cmake/wwr_internal_helpers.cmake). This target is a raw add_library, so it
+# gets no alias automatically.
+add_library(wwr::extension::parallel_for ALIAS wwr.extension.parallel_for)

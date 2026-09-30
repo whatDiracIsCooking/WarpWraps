@@ -12,7 +12,7 @@ wwr_add_cxx_module_library(
   IMPLEMENTATION
   instantiations.cpp
   LINK_PUBLIC
-  wwr.fft
-  wwr.wrappers.common
+  wwr::fft
+  wwr::wrappers::common
   IMPORT_STD
 )

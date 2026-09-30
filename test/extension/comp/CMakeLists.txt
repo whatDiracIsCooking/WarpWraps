@@ -10,8 +10,8 @@ wwr_add_gtest_executable(
   SOURCES
   roundtrip.cpp
   LINK
-  wwr.runtime_api
-  wwr.comp
+  wwr::runtime_api
+  wwr::comp
 )
 
 wwr_add_gtest_suite_tests(

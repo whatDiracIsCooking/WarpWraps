@@ -42,7 +42,7 @@ foreach(_lib IN LISTS HIP_TEST_LIBRARIES)
     PRIMARY_INTERFACE
     ${_lib}.cppm
     LINK_PUBLIC
-    wwr.hip.${_lib}
+    wwr::hip::${_lib}
     # PROJECT_SOURCE_DIR (not CMAKE_SOURCE_DIR) is gpumod's own root, so the
     # root-relative #include "test/shared/link_check.h" resolves even when a
     # consumer adds gpumod as a subdirectory -- there CMAKE_SOURCE_DIR is the

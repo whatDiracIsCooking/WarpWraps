@@ -19,9 +19,9 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   type_traits.cppm
   LINK_PUBLIC
-  wwr.solver
-  wwr.complex
-  wwr.wrappers.solver
+  wwr::solver
+  wwr::complex
+  wwr::wrappers::solver
 )
 
 add_dependencies(

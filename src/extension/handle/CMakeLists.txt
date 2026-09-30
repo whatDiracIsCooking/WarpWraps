@@ -22,7 +22,7 @@ wwr_add_cxx_module_library(
   stream_bound_handle_view.cppm
   device_handle.cppm
   LINK_PUBLIC
-  wwr.extension.common
-  wwr.runtime_api
+  wwr::extension::common
+  wwr::runtime_api
   IMPORT_STD
 )

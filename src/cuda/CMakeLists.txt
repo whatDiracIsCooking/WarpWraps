@@ -111,7 +111,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   cublas_v2.cppm
   LINK_PUBLIC
-  wwr_module_flags
+  wwr::module_flags
   CUDA::cublas
   IMPORT_STD
   INCLUDE_CUDA_TOOLKIT
@@ -125,7 +125,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   cublasLt.cppm
   LINK_PUBLIC
-  wwr_module_flags
+  wwr::module_flags
   CUDA::cublasLt
   IMPORT_STD
   INCLUDE_CUDA_TOOLKIT
@@ -139,7 +139,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   cublasXt.cppm
   LINK_PUBLIC
-  wwr_module_flags
+  wwr::module_flags
   CUDA::cublas
   IMPORT_STD
   INCLUDE_CUDA_TOOLKIT

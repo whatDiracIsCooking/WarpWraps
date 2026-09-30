@@ -22,8 +22,8 @@ wwr_add_cxx_module_library(
   fp_types.cppm
   int_types.cppm
   LINK_PUBLIC
-  wwr.complex
-  wwr.fp16
-  wwr.bf16
+  wwr::complex
+  wwr::fp16
+  wwr::bf16
   IMPORT_STD
 )

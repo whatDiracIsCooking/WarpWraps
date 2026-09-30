@@ -12,8 +12,8 @@ wwr_add_cxx_module_library(
   solver_handle.cppm
   solver_params.cppm
   LINK_PUBLIC
-  wwr.solver
-  wwr.extension.common
-  wwr.extension.handle
+  wwr::solver
+  wwr::extension::common
+  wwr::extension::handle
   IMPORT_STD
 )

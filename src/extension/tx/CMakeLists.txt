@@ -8,6 +8,6 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   interface.cppm
   LINK_PUBLIC
-  wwr.tx
+  wwr::tx
   IMPORT_STD
 )
