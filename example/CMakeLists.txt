@@ -10,3 +10,4 @@
 # An example that only ever builds on one backend is not an example of portable
 # code.
 add_subdirectory(warp_reduce)
+add_subdirectory(buffer_suite)
