@@ -11,18 +11,24 @@ RAII-based memory buffer management for all GPU-relevant memory kinds. Provides 
 The module ships the `*Wrapper` classes (in the `wwr::extension` namespace); each takes its `P_alloc`/`P_free` error policies as explicit template arguments — neither has a default, so every use names both. It ships **no** error policy either: `AbortPolicy` below is the consumer's own abort-on-failure policy (see `example/warp_reduce`). Binding a wrapper to a policy is a one-line `using` a consumer writes once, for the names it uses:
 
 ```cpp
-// DeviceBufferWrapper is device-bound: its last arg is the device-access policy.
-template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, MyDeviceHandle, AbortPolicy<wwrError_t>>;
+// DeviceBufferWrapper is device-bound: parameter order is
+// T, P_alloc, P_free, P_device_access, H — the device-access policy precedes the handle.
+template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, MyDeviceHandle>;
 template<typename T> using PinnedBuffer  = PinnedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 template<typename T> using UnifiedBuffer = UnifiedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 template<typename T> using HostBuffer    = HostBufferWrapper<T, AbortPolicy<stdHostMemoryError_t>, AbortPolicy<stdHostMemoryError_t>>;
 ```
 
-`DeviceBufferWrapper` takes two arguments the others don't: the handle type
-backing it (fourth), and — because it is device-bound — the device-access error
-policy (fifth). This layer ships **no** concrete handle — `MyDeviceHandle` above
-is the consumer's own, any type satisfying the `device_handle` ladder (see
+`DeviceBufferWrapper` takes two arguments the others don't: because it is
+device-bound, the device-access error policy (fourth), and the handle type
+backing it (fifth). This layer ships **no** concrete handle — `MyDeviceHandle`
+above is the consumer's own, any type satisfying the `device_handle` ladder (see
 `handle/device_handle.cppm` and the one `example/warp_reduce/main.cpp` defines).
+
+Writing this prelude by hand is what the **suite** below removes: it binds these
+aliases (and their views) from one place, so the wrapper → error-family mapping
+and the buffer/view policy pairing live in the library. The raw wrappers stay
+exactly as documented here; the suite is an addition, not a replacement.
 
 The examples below use those names (see also `example/warp_reduce`). Each wrapper class:
 
@@ -207,6 +213,59 @@ of `sizeof(T2)`, or when its base pointer is not aligned for `T2` — the latter
 a sub-view, whose offset into an allocation aligned for one type need not be aligned for a
 wider one. A device buffer can be reinterpreted too: the alignment check inspects the pointer
 value only and never dereferences it.
+
+## The suite: binding a whole prelude at once
+
+The `:suite` partition emits the buffer *and* view aliases from one place, so a
+consumer names a policy and (for device buffers) a handle instead of writing one
+alias per kind plus a matching view alias for each. Two entry points over one
+mechanism.
+
+**Single policy for every kind — the convenience.** `buffers<P>` /
+`device_buffers<P, H>` take one policy template and use it across all kinds:
+
+```cpp
+using Buf = device_buffers<AbortPolicy, MyDeviceHandle>;   // AbortPolicy is template<class E>
+
+Buf::device<float>    d(1024, dev);
+Buf::host<float>      h(1024);       // stdHostMemoryError_t, chosen by the suite
+Buf::host_view<float> v(h, 4, 8);    // policies follow Buf::host, cannot drift
+```
+
+**Different policies per error family — the map.** When the host and GPU families
+want different policies, bring a map with `alloc` / `free` keys:
+
+```cpp
+struct MyPolicies {
+  template<typename E> using alloc = AbortPolicy<E>;
+  template<typename E> using free  = LogPolicy<E>;
+};
+using Buf = device_buffer_suite<MyPolicies, MyDeviceHandle>;
+```
+
+`buffer_suite<M>` / `buffers<P>` stop at host/pinned/unified (plus views); the
+`device_*` forms add `device` / `device_view` and take the handle. A host-only
+consumer therefore needs no handle, and `buffer_suite<M>::device` simply does not
+exist. The suite ships **no** policy — the consumer still brings one — and the raw
+wrappers stay usable underneath; the suite is an addition, not a replacement.
+
+Four things trip people up:
+
+- **The policy is a *template* on the error type** — `template<class E> class P`,
+  not a concrete `AbortPolicy<wwrError_t>`. The suite instantiates it per kind
+  with that kind's error type.
+- **The map's keys are `alloc` and `free`** — buffer vocabulary. The map never
+  names a handle; `H` arrives already built. The device buffer's third policy
+  (`P_device_access`) is bound by the suite from the `free` policy, so the two-key
+  map suffices.
+- **In a dependent context, spell it `typename Suite::template device<float>`.**
+  When `Suite` is a template parameter both `typename` and `template` are
+  required; in non-dependent code (a concrete `using Buf = …`) neither is.
+- **`copy` / `memset` cross suite boundaries; views do not.** `copy` and `memset`
+  constrain on `same_value_type`, which checks only `value_type`, so a buffer from
+  one suite copies into a buffer from another. A *view* carries its buffer's kind
+  and policies, so `Buf::host_view<T>` only views a `Buf::host<T>`; a view over a
+  differently-policied buffer is a different type.
 
 ## Extending: the `BaseBuffer` contract
 

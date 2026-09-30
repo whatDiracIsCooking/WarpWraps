@@ -49,6 +49,7 @@ import wwr.wrappers.sparse;
 #if defined(WWR_CONSUMER_HAS_EXTENSION)
 import wwr.extension.common;        // success_code/error_name/error_string, error_policy concepts
 import wwr.extension.runtime;       // StreamWrapper and the rest of the RAII runtime
+import wwr.extension.memory_buffer; // the buffer wrappers and the buffer/view suite
 import wwr.extension.random_normal; // random_normal<T>, backed by a device archive
 import wwr.extension.tx;            // wwr::extension::ScopedRange
 #endif
@@ -185,9 +186,45 @@ struct AbortPolicy {
   }
 };
 
+// The buffer/view suite (#177), exercised in its MAP form -- this is the heavy
+// consumer (every kind plus views) where a per-kind policy map earns its keep,
+// and the install fixture must prove concept-only authoring, so the map brings
+// this consumer's own AbortPolicy rather than a library default. The map has two
+// keys, alloc/free -- buffer vocabulary; it never names a handle, which arrives
+// already built. This one uses the same policy for both, but a divergent consumer
+// would map them to different policies here.
+struct AbortMap {
+  template<typename E>
+  using alloc = AbortPolicy<E>;
+  template<typename E>
+  using free = AbortPolicy<E>;
+};
+
+// A bare device handle (dev_idx only -> synchronous wwrMalloc/wwrFree) -- enough
+// to name device<T>. This section is compile-and-link only, so nothing allocates.
+struct ConsumerDeviceHandle {
+  int dev_idx() const noexcept { return 0; }
+};
+
 bool extension_link() {
   static_assert(sizeof(extension::StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
                                                    AbortPolicy<wwrError_t>>) > 0);
+
+  // Name every alias the suite emits -- host/pinned/unified/device and each view
+  // -- so an export regression in wwr.extension.memory_buffer (a suite the
+  // installed package cannot reach, a view whose policies drifted from its
+  // buffer) fails to compile here, in the one tier that consumes the installed
+  // prefix. Naming the types is the proof; nothing is constructed.
+  using Buf = extension::device_buffer_suite<AbortMap, ConsumerDeviceHandle>;
+  static_assert(sizeof(Buf::host<float>) > 0);
+  static_assert(sizeof(Buf::pinned<float>) > 0);
+  static_assert(sizeof(Buf::unified<float>) > 0);
+  static_assert(sizeof(Buf::device<float>) > 0);
+  static_assert(sizeof(Buf::host_view<float>) > 0);
+  static_assert(sizeof(Buf::pinned_view<float>) > 0);
+  static_assert(sizeof(Buf::unified_view<float>) > 0);
+  static_assert(sizeof(Buf::device_view<float>) > 0);
+
   static const void *volatile sink[] = {
       reinterpret_cast<const void *>(&extension::random_normal<float>),
   };
@@ -195,7 +232,7 @@ bool extension_link() {
     if (p == nullptr)
       return false;
   }
-  std::println("ext    : extension runtime + random_normal resolved and linked");
+  std::println("ext    : extension runtime + memory_buffer suite + random_normal resolved");
   return true;
 }
 #endif
