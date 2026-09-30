@@ -733,12 +733,14 @@ interface for LZ4, Snappy, Cascaded, GDeflate, Bitcomp and ANS, the generic
 metadata-driven decompress entry points, and the shared status/type enums. CUDA
 counterpart: `wwr.cuda.nvcomp`. hipCOMP is a hipify of NVIDIA/nvcomp
 `branch-2.2`, so its surface matches nvCOMP 2.2 — several major versions behind
-the 5.3 the CUDA image ships. That version skew is why there is deliberately
-**no** backend-neutral `wwr.comp` layer above the pair: the batched signatures
-diverge, so a `wwr*` alias could not present one portable signature. See issue
-#110. hipCOMP self-describes as an early-access preview and marks every algorithm
-experimental; this module re-exports the header surface (a compile/link
-contract), not a runtime guarantee. The C++ HLIF managers are not wrapped.
+the 5.3 the CUDA image ships. That version skew is why the backend-neutral
+`wwr.comp` layer above the pair is built from hand-written forwarding shims
+rather than aliases, and carries only the 2.2 intersection (LZ4/Snappy/Cascaded):
+the batched signatures diverge, so no `wwr*` alias could present one portable
+signature. See issue #110 (option a). hipCOMP self-describes as an early-access
+preview and marks every algorithm experimental; this module re-exports the header
+surface (a compile/link contract), not a runtime guarantee — the same caveat
+carries up to `wwr.comp`'s HIP path. The C++ HLIF managers are not wrapped.
 
 The vendor headers declare their default-option structs as file-scope `static
 const` (internal linkage), which a module cannot name in an `export`ed

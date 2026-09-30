@@ -9,12 +9,14 @@
  *
  * hipCOMP is a hipify of NVIDIA/nvcomp branch-2.2 -- the last open-source
  * nvCOMP -- so its surface matches nvCOMP 2.2, several major versions behind the
- * 5.3 the CUDA image ships. That version skew is why there is deliberately NO
- * backend-neutral wwr.comp layer above this pair: the batched signatures diverge
- * (a single opts struct here vs split compress/decompress opts there, no
- * device-status parameter, one temp-size query rather than Sync/Async), so a
- * wwr* alias could not present one portable signature. Each backend is reachable
- * only through its own vendor module. See issue #110.
+ * 5.3 the CUDA image ships. That version skew is why the backend-neutral
+ * wwr.comp layer above this pair (src/comp.cppm) is built from hand-written
+ * forwarding shims rather than aliases, and carries only the 2.2 intersection
+ * (LZ4/Snappy/Cascaded): the batched signatures diverge (a single opts struct
+ * here vs split compress/decompress opts there, no device-status parameter, one
+ * temp-size query rather than Sync/Async), so no wwr* alias could present one
+ * portable signature. This raw module remains the way to reach the hipCOMP
+ * surface wwr.comp omits. See issue #110 (option a).
  *
  * hipCOMP self-describes as an early-access preview and marks every algorithm
  * experimental and not performance-optimized; Bitcomp, ANS and GDeflate are the

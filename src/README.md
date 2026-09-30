@@ -29,6 +29,7 @@ written once against `wwr*` names and builds unchanged for either backend.
 | `wwr.rand` | `wwr.cuda.curand` | `wwr.hip.hiprand` + `wwr.hip.hiprand_kernel` |
 | `wwr.ccl` | `wwr.cuda.nccl` | `wwr.hip.rccl` |
 | `wwr.tensor` | `wwr.cuda.cutensor` | `wwr.hip.hiptensor` |
+| `wwr.comp` | `wwr.cuda.nvcomp` | `wwr.hip.hipcomp` |
 
 `gpu.fp8` is the narrow-float scalar layer above `fp16` / `bf16`, scoped to the
 intersection of the vendor type pair: the OCP `E4M3`/`E5M2` fp8 formats, plus
