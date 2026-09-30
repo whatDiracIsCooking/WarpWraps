@@ -56,6 +56,12 @@ public:
   /** @brief Storage type: std::byte for void buffers, T otherwise */
   using storage_type = std::conditional_t<std::same_as<T, void>, std::byte, T>;
 
+  /** @brief The allocation error policy type (the alloc_policy() accessor's type) */
+  using alloc_policy_type = P_alloc;
+
+  /** @brief The deallocation error policy type (the free_policy() accessor's type) */
+  using free_policy_type = P_free;
+
   // Every buffer here holds raw storage that it fills and copies bytewise
   // (memset/memcpy, or wwrMemcpy for device kinds) and never constructs a T.
   // A non-trivially-copyable element type would leave zeroed bytes masquerading

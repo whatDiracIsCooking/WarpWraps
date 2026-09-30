@@ -48,6 +48,12 @@ export namespace wwr::extension {
 template<typename T, typename Derived, typed_error_policy P_create,
          nothrow_error_policy<typename P_create::error_type> P_destroy>
 class BaseHandle : private NonCopyable {
+public:
+  /// @brief The create error policy type (the create_policy() accessor's type)
+  using create_policy_type = P_create;
+  /// @brief The destroy error policy type (the destroy_policy() accessor's type)
+  using destroy_policy_type = P_destroy;
+
 protected:
   T handle_{};
 
