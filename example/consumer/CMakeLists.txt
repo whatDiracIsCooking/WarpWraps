@@ -90,8 +90,8 @@ endif()
 if(WWR_HAS_EXTENSION)
   message(STATUS "wwr extension: available")
   target_link_libraries(
-    consumer PRIVATE wwr::wwr.extension.runtime wwr::wwr.extension.random_normal
-                     wwr::wwr.extension.tx
+    consumer PRIVATE wwr::wwr.extension.runtime wwr::wwr.extension.memory_buffer
+                     wwr::wwr.extension.random_normal wwr::wwr.extension.tx
   )
   target_compile_definitions(consumer PRIVATE WWR_CONSUMER_HAS_EXTENSION)
 else()

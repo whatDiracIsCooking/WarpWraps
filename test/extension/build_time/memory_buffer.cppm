@@ -168,4 +168,50 @@ static_assert(std::is_constructible_v<FakeBuffer<IndexOnlyFake>, std::size_t,
 static_assert(std::is_constructible_v<FakeBuffer<FakeHandle>, std::size_t,
                                       std::shared_ptr<FakeHandle>>);
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// The buffer/view suite (#177)
+//
+// The suite binds the alias prelude from one place; the contract is that it emits
+// *exactly* the wrappers a consumer would spell by hand -- the right error family
+// per kind, and each view paired to its buffer's policies (the drift footgun the
+// suite exists to close). The convenience is the map form under a single-policy
+// map, so the two must agree; and buffer_suite stops before the device kind while
+// device_buffer_suite adds it.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+using ConvBuf = device_buffers<AbortPolicy, DeviceHandle>;
+
+// The right wrapper and error family per kind: host speaks stdHostMemoryError_t,
+// the GPU-managed kinds speak wwrError_t, and device carries its access policy.
+static_assert(std::same_as<ConvBuf::host<float>, HostBufferWrapper<float, HostAbort, HostAbort>>);
+static_assert(std::same_as<ConvBuf::pinned<float>, PinnedBufferWrapper<float, Abort, Abort>>);
+static_assert(std::same_as<ConvBuf::unified<float>, UnifiedBufferWrapper<float, Abort, Abort>>);
+static_assert(std::same_as<ConvBuf::device<float>,
+                           DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>>);
+
+// Each view pairs with its buffer's kind and policies -- derived via view_of from
+// the buffer alias, so it cannot drift from it.
+static_assert(std::same_as<ConvBuf::host_view<float>,
+                           BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>>);
+static_assert(std::same_as<ConvBuf::device_view<float>,
+                           BufferViewWrapper<float, MemoryKind::Device, Abort, Abort>>);
+static_assert(std::same_as<ConvBuf::host_view<float>, view_of<ConvBuf::host<float>>>);
+
+// The convenience is the map form under a single-policy map -- the two agree.
+struct SingleAbortMap {
+  template<typename E>
+  using alloc = AbortPolicy<E>;
+  template<typename E>
+  using free = AbortPolicy<E>;
+};
+static_assert(std::same_as<device_buffers<AbortPolicy, DeviceHandle>,
+                           device_buffer_suite<single_policy_map<AbortPolicy>, DeviceHandle>>);
+static_assert(std::same_as<ConvBuf::host<float>, buffer_suite<SingleAbortMap>::host<float>>);
+
+// buffer_suite and device_buffer_suite share the host/pinned/unified aliases; the
+// device kind lives only on the device suite (buffer_suite<M>::device does not
+// exist, which is what lets a host-only consumer skip the handle).
+static_assert(std::same_as<buffer_suite<SingleAbortMap>::host<float>,
+                           device_buffer_suite<SingleAbortMap, DeviceHandle>::host<float>>);
+
 } // namespace wwr::extension::test

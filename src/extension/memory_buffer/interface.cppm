@@ -9,6 +9,8 @@
  * - :pinned_buffer - Pinned host memory buffers (wwrHostAlloc/wwrFreeHost)
  * - :unified_buffer - Unified memory buffers (wwrMallocManaged)
  * - :host_buffer - Standard host memory buffers (std::malloc/std::free)
+ * - :suite - buffer/view alias binders (buffer_suite / device_buffer_suite and
+ *   the buffers / device_buffers single-policy convenience) over the above
  *
  * Usage:
  *   import wwr.extension.memory_buffer;
@@ -46,6 +48,7 @@ export import :device_buffer;
 export import :pinned_buffer;
 export import :unified_buffer;
 export import :host_buffer;
+export import :suite;
 export import :copy;
 export import :memset;
 

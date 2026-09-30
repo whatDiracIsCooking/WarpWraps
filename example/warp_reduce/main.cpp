@@ -43,14 +43,9 @@ struct AbortPolicy {
   }
 };
 
-// Each wrapper names its error policies explicitly -- none has a default -- so
-// binding them is a one-line `using` a consumer writes once, for exactly the
-// names it uses. The device-bound wrappers (StreamWrapper, DeviceBufferWrapper)
-// also name a wwrError_t device-access policy for their device set/get calls.
-template<typename T>
-using HostBuffer =
-    ext::HostBufferWrapper<T, AbortPolicy<ext::stdHostMemoryError_t>,
-                           AbortPolicy<ext::stdHostMemoryError_t>>;
+// StreamWrapper names its error policies explicitly -- it is not a buffer, so the
+// buffer suite below does not bind it. The device-bound wrappers name a wwrError_t
+// device-access policy for their device set/get calls.
 using Stream =
     ext::StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 
@@ -67,10 +62,13 @@ struct DeviceHandle {
   int dev_;
   Stream stream_;
 };
-template<typename T>
-using DeviceBuffer =
-    ext::DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
-                             AbortPolicy<wwrError_t>, DeviceHandle>;
+
+// The whole buffer prelude in one line. device_buffers is the single-policy
+// convenience over the suite: it binds host/device (and pinned/unified/views,
+// unused here) to this example's AbortPolicy and DeviceHandle, choosing the error
+// family each kind speaks -- stdHostMemoryError_t for host, wwrError_t for device,
+// including the device-access policy -- so no per-kind alias is written by hand.
+using Buf = ext::device_buffers<AbortPolicy, DeviceHandle>;
 
 namespace {
 
@@ -95,12 +93,12 @@ int main() {
   auto device_handle = std::make_shared<DeviceHandle>();
   Stream &stream = device_handle->stream();
 
-  HostBuffer<float> host(kCount);
+  Buf::host<float> host(kCount);
   std::fill_n(host.data(), kCount, 1.0F);
 
-  DeviceBuffer<float> input(kCount, device_handle);
-  DeviceBuffer<float> output(1, device_handle);
-  HostBuffer<float> result(1);
+  Buf::device<float> input(kCount, device_handle);
+  Buf::device<float> output(1, device_handle);
+  Buf::host<float> result(1);
 
   if (ext::copy(input, host, stream.get()) != wwrSuccess) {
     std::println(stderr, "host -> device copy failed");

@@ -14,6 +14,7 @@ wwr_add_cxx_module_library(
   pinned_buffer.cppm
   unified_buffer.cppm
   host_buffer.cppm
+  suite.cppm
   copy.cppm
   memset.cppm
   LINK_PUBLIC
