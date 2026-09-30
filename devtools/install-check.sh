@@ -181,11 +181,23 @@ step "3/4  configure and build example/consumer against the install"
 # CMAKE_PREFIX_PATH is the ONLY thing connecting the consumer to wwr. No
 # source path, no build directory, nothing from this tree -- if find_package
 # cannot work from the install prefix alone, this step is where it shows.
+#
+# But it must ALSO keep finding the libraries the CUDA and HIP images place off
+# any default search path (cuTENSOR, nvCOMP, cuGraph, ROCm-DS), which they point
+# at through CMAKE_PREFIX_PATH in the image ENV. A -D cache entry SHADOWS the
+# environment variable of the same name rather than extending it, so passing
+# only "$prefix" would blind the consumer to every image-provided prefix the
+# moment a wrapper links one. Extend instead of replace: the temp prefix first,
+# then the image's. The two forms differ -- a -D value is a CMake list
+# (';'-separated) while the POSIX ENV is ':'-separated -- so translate ':' to
+# ';' on the inherited value before appending it.
+prefix_path=$prefix
+[ -n "${CMAKE_PREFIX_PATH:-}" ] && prefix_path="$prefix;${CMAKE_PREFIX_PATH//:/;}"
 rm -rf "$consumer_build"
 cmake -S "$REPO_ROOT/example/consumer" -B "$consumer_build" \
   -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_PREFIX_PATH="$prefix"
+  -DCMAKE_PREFIX_PATH="$prefix_path"
 cmake --build "$consumer_build" "${build_args[@]}"
 
 # example/consumer builds one `consumer` target unconditionally, so a

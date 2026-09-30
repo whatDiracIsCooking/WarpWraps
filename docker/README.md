@@ -168,9 +168,9 @@ offered — see the note above about why they are not here.
 
 Consumers find all of this through `CMAKE_PREFIX_PATH`, set in the image. Note
 that a configure passing its own `-DCMAKE_PREFIX_PATH` **shadows** the
-environment variable rather than extending it — `devtools/install-check.sh`
-does exactly that, so it will need to append these prefixes once the build
-depends on them.
+environment variable rather than extending it — so `devtools/install-check.sh`
+appends the image's prefixes to its temp prefix (translating the ENV's `:`
+separators to the `;` a CMake list uses) rather than replacing them.
 
 Anything after the target is passed through to every `docker build` in the
 chain, and any build arg set in the environment is forwarded to the file that
