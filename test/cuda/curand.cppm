@@ -45,8 +45,13 @@ WWR_LINK_CHECK(curandGenerateLogNormal)
 WWR_LINK_CHECK(curandGenerateLogNormalDouble)
 WWR_LINK_CHECK(curandGeneratePoisson)
 WWR_LINK_CHECK(curandGeneratePoissonMethod)
-WWR_LINK_CHECK(curandGenerateBinomial)
-WWR_LINK_CHECK(curandGenerateBinomialMethod)
+// curandGenerateBinomial{,Method} are declared in curand.h (the Method variant
+// is even marked "just for internal usage") but defined in nothing libcurand
+// ships -- not libcurand.so.10, not libcurand_static.a (CUDA 13.0) -- so
+// calling either fails to link. Only the declaration is checked. Recorded in
+// curand.json's declared_not_linkable.
+WWR_DECLARED_CHECK(curandGenerateBinomial)
+WWR_DECLARED_CHECK(curandGenerateBinomialMethod)
 WWR_LINK_CHECK(curandCreatePoissonDistribution)
 WWR_LINK_CHECK(curandDestroyDistribution)
 WWR_LINK_CHECK(curandGetDirectionVectors32)
