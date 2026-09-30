@@ -1,0 +1,104 @@
+{
+  "$schema-doc": "devtools/coverage_decisions.json -- the CURATED half of the shared-surface spec. See devtools/header_intersection.py's header for how it is applied, and devtools/README-coverage-decisions.md for the schema. This file is HAND-WRITTEN decisions only, NOT harvested: it sits on top of the machine-generated vendor/*.json manifests and records the handful of human judgements the manifests cannot derive -- each module's contract class, and the shared names a whole-surface module deliberately does not wrap. Everything derivable stays derived in the manifests; only exceptions live here.",
+  "contract_classes": {
+    "whole-surface": "Promises to wrap everything the two backends share (WWR_FUNCTION spells both names). A shared name absent from the module source is a DEFECT and fails --coverage -- UNLESS it is listed under this module's `omissions`, which turns a named, justified gap into a pass.",
+    "curated-subset": "Wraps only the names the layer above uses; never promised the full intersection. --coverage REPORTS its `missing` list as a discovery menu and does not fail. Completeness is enforced elsewhere (the compiler, test/shared/alias_coverage.py, the dispatch tables)."
+  },
+  "modules": {
+    "rand": {
+      "contract": "whole-surface",
+      "cuda": ["cuda-13.0.x/curand.json", "cuda-13.0.x/curand_kernel.json"],
+      "hip": ["rocm-7.2.4/hiprand.json", "rocm-7.2.4/hiprand_kernel.json"],
+      "src": ["src/rand.cppm", "src/rand.cuh"],
+      "omissions": []
+    },
+    "fft": {
+      "contract": "whole-surface",
+      "cuda": ["cuda-13.0.x/cufft.json"],
+      "hip": ["rocm-7.2.4/hipfft.json"],
+      "src": ["src/cuda/cufft.cppm"],
+      "omissions": []
+    },
+    "tx": {
+      "contract": "whole-surface",
+      "cuda": ["cuda-13.0.x/nvToolsExt.json"],
+      "hip": ["rocm-7.2.4/roctx.json"],
+      "src": ["src/cuda/nvToolsExt.cppm"],
+      "omissions": []
+    },
+    "blas": {
+      "contract": "curated-subset",
+      "cuda": ["cuda-13.0.x/cublas_v2.json"],
+      "hip": ["rocm-7.2.4/hipblas.json"],
+      "src": ["src/blas.cppm"],
+      "omissions": [
+        {
+          "key": "bfloat16",
+          "cuda": "cublasBfloat16",
+          "hip": "hipsparseBfloat16",
+          "why": "A bf16 scalar convenience struct with implicit float conversions, referenced by no function signature -- it exists only for caller convenience, so neither cublas_v2.cppm nor hipsparse.cppm exports it. Not stubbed, simply not exported.",
+          "source": "src/hip/README.md (wwr.hip.hipsparse)"
+        }
+      ]
+    },
+    "solver": {
+      "contract": "curated-subset",
+      "cuda": ["cuda-13.0.x/cusolverDn.json"],
+      "hip": ["rocm-7.2.4/hipsolver.json"],
+      "src": ["src/cuda/cusolverDn.cppm"],
+      "omissions": [
+        {
+          "key": "cusolverMg",
+          "cuda": "cusolverMg*",
+          "hip": null,
+          "why": "cuSOLVER's multi-GPU dense-solve API. Wholly deprecated in CUDA 13 (every cusolverMg* function carries CUSOLVERMG_DEPRECATED), and there is no ROCm counterpart -- no multi-GPU dense-solve API exists anywhere in rocSOLVER or hipSOLVER (issue #177, resolved). Re-exported by cusolverMg.cppm on the CUDA side with the deprecation attribute intact; no HIP twin to wrap.",
+          "source": "src/hip/README.md (No ROCm analogue), test/cuda/cusolverMg.cppm"
+        }
+      ]
+    },
+    "sparse": {
+      "contract": "curated-subset",
+      "cuda": ["cuda-13.0.x/cusparse.json"],
+      "hip": ["rocm-7.2.4/hipsparse.json"],
+      "src": ["src/cuda/cusparse.cppm"],
+      "omissions": [
+        {
+          "key": "spmmop_preview",
+          "cuda": "cusparseSpMMOp_createPlan|cusparseSpMMOp|cusparseSpMMOp_destroyPlan|cusparseSpMMOpAlg_t",
+          "hip": null,
+          "why": "cuSPARSE's Preview SpMM-with-custom-operators API has no hipSPARSE counterpart -- verified by grepping the installed hipSPARSE headers, nothing exists. Not stubbed, simply not exported.",
+          "source": "src/hip/README.md (wwr.hip.hipsparse)"
+        },
+        {
+          "key": "gebsr2gebsc_buffersizeext",
+          "cuda": "cusparseSgebsr2gebsc_bufferSizeExt|cusparseDgebsr2gebsc_bufferSizeExt|cusparseCgebsr2gebsc_bufferSizeExt|cusparseZgebsr2gebsc_bufferSizeExt",
+          "hip": null,
+          "why": "Declared in cusparse.h but not exported by libcusparse.so (12.6.2, CUDA 13.0), which defines only the plain *_bufferSize of gebsr2gebsc. Calling one fails to link, so cusparse.cppm carries only the declaration (WWR_DECLARED_CHECK). Recorded in cusparse.json's declared_not_linkable.",
+          "source": "test/cuda/cusparse.cppm (WWR_DECLARED_CHECK), vendor/cuda-13.0.x/cusparse.json"
+        },
+        {
+          "key": "csr2gebsr_buffersizeext",
+          "cuda": "cusparseScsr2gebsr_bufferSizeExt|cusparseDcsr2gebsr_bufferSizeExt|cusparseCcsr2gebsr_bufferSizeExt|cusparseZcsr2gebsr_bufferSizeExt",
+          "hip": null,
+          "why": "Declared in cusparse.h but not exported by libcusparse.so (12.6.2, CUDA 13.0), which defines only the plain *_bufferSize of csr2gebsr. Calling one fails to link, so cusparse.cppm carries only the declaration (WWR_DECLARED_CHECK). Recorded in cusparse.json's declared_not_linkable.",
+          "source": "test/cuda/cusparse.cppm (WWR_DECLARED_CHECK), vendor/cuda-13.0.x/cusparse.json"
+        }
+      ]
+    },
+    "runtime_api": {
+      "contract": "curated-subset",
+      "cuda": ["cuda-13.0.x/cuda_runtime_api.json"],
+      "hip": ["rocm-7.2.4/hip_runtime_api.json"],
+      "src": ["src/cuda/cuda_runtime_api.cppm"],
+      "omissions": [
+        {
+          "key": "externalmemorygetmappedmipmappedarray",
+          "cuda": "cudaExternalMemoryGetMappedMipmappedArray",
+          "hip": "hipExternalMemoryGetMappedMipmappedArray",
+          "why": "Declared in the HIP runtime header but not exported by libamdhip64.so.7.2.70204. Calling it fails to link, so hip_runtime_api.cppm carries only the declaration (WWR_DECLARED_CHECK). Recorded in hip_runtime_api.json's declared_not_linkable.",
+          "source": "test/hip/hip_runtime_api.cppm (WWR_DECLARED_CHECK), vendor/rocm-7.2.4/hip_runtime_api.json"
+        }
+      ]
+    }
+  }
+}

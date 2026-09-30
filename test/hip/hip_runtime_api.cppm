@@ -1305,8 +1305,11 @@ WWR_LINK_CHECK(hipMemPoolTrimTo)
 // Memory Management — External / IPC
 WWR_LINK_CHECK(hipImportExternalMemory)
 WWR_LINK_CHECK(hipExternalMemoryGetMappedBuffer)
-WWR_DECLARED_CHECK(
-    hipExternalMemoryGetMappedMipmappedArray) // not exported by libamdhip64.so.7.2.70204
+// Declared but not exported by libamdhip64.so.7.2.70204; calling it fails to
+// link. Recorded as the `runtime_api` omission in
+// devtools/coverage_decisions.json (and hip_runtime_api.json's
+// declared_not_linkable).
+WWR_DECLARED_CHECK(hipExternalMemoryGetMappedMipmappedArray)
 WWR_LINK_CHECK(hipDestroyExternalMemory)
 WWR_LINK_CHECK(hipIpcCloseMemHandle)
 WWR_LINK_CHECK(hipIpcGetEventHandle)

@@ -61,20 +61,28 @@ compares, and see ``rand.cppm`` on why the values differ). Read a green
 correct" -- that is what dispatch.py and the compiler are for.
 
 ``--coverage`` matches by LITERAL name against the module SOURCE, so read its
-"missing" list against the module's CONTRACT, which comes in two kinds.
+"missing" list against the module's CONTRACT. The contract class -- and the
+shared names a module deliberately skips -- are the curated half of the spec and
+live in ``devtools/coverage_decisions.json`` (pass ``--module <name>`` to apply
+it). This is the decisions-only companion to the machine-generated ``vendor/*``
+manifests: everything derivable stays derived there; only the human judgements
+that a diff cannot compute live in the decisions file. There are two classes.
 
 A WHOLE-SURFACE module (rand, fft, tx) promises to wrap everything the two
 backends share and spells both names out (``WWR_FUNCTION(gpu, cu, hip)``).
-For these ``--coverage`` is the real completeness gate: a nonempty "missing" is a
-genuine hole (or a documented omission the module names in its header).
+For these ``--coverage`` is the real completeness gate: an undocumented gap is a
+genuine hole and FAILS, but a gap listed under that module's ``omissions`` in the
+decisions file is a deliberate, justified skip and PASSES.
 
 A CURATED-SUBSET module (blas, solver, sparse, runtime_api) lists only the names
 the layer above it uses ("Only the names src/wrappers/blas uses are listed") --
 it never promised the full intersection, so its "missing" list is
-reachable-but-unused vendor symbols, a discovery menu, not a defect report. For
-all four, completeness is enforced elsewhere: the compiler (an unresolved wwr*
-name cannot be consumed), ``test/shared/alias_coverage.py`` (every alias defined
-has a test), and the dispatch tables that ``test/shared/dispatch.py`` checks.
+reachable-but-unused vendor symbols, a discovery menu that is REPORTED, not
+failed. For all four, completeness is enforced elsewhere: the compiler (an
+unresolved wwr* name cannot be consumed), ``test/shared/alias_coverage.py``
+(every alias defined has a test), and the dispatch tables that
+``test/shared/dispatch.py`` checks. Without ``--module`` (an ad-hoc run) any gap
+fails, as before -- the decisions file only ever softens a gap, never invents one.
 
 Pass a module's ``.cuh`` alongside its ``.cppm`` when device-side names live there.
 
@@ -196,8 +204,83 @@ def tokens(text: str) -> set[str]:
     return set(_IDENT_RE.findall(text))
 
 
-def build_report(cuda: Side, hip: Side, coverage: list[Path] | None) -> dict:
-    """The full comparison as plain data, ready for text or JSON rendering."""
+# --- The curated half of the spec ---------------------------------------------
+# devtools/coverage_decisions.json records the two human judgements the vendor
+# manifests cannot derive: each module's CONTRACT CLASS (whole-surface vs
+# curated-subset), and the shared names a whole-surface module deliberately does
+# not wrap (its `omissions`). See that file's `$schema-doc` and
+# devtools/README-coverage-decisions.md.
+
+DECISIONS_PATH = Path(__file__).resolve().parent / "coverage_decisions.json"
+
+WHOLE_SURFACE = "whole-surface"
+CURATED_SUBSET = "curated-subset"
+
+
+def _omission_names(omission: dict) -> set[str]:
+    """The literal vendor names an omission entry declares, both backends.
+
+    Each side is a ``|``-separated list of vendor identifiers (or ``null``);
+    a trailing ``*`` is a prefix wildcard (``cusolverMg*``). Returns the exact
+    names and the wildcard STEMS separately is not needed here -- callers use
+    :func:`_omission_matches`.
+    """
+    names: set[str] = set()
+    for side in ("cuda", "hip"):
+        spec = omission.get(side)
+        if not spec:
+            continue
+        names |= {tok for tok in spec.split("|") if tok}
+    return names
+
+
+def _omission_matches(item: dict, omission: dict) -> bool:
+    """True when a missing intersection ``item`` is the documented ``omission``.
+
+    Matches an omission's declared vendor names (``|``-separated, with an
+    optional trailing ``*`` prefix wildcard) against the item's actual cuda/hip
+    names, so the decisions file records real symbols rather than the tool's
+    normalised keys.
+    """
+    item_names = set(item["cuda"]["names"]) | set(item["hip"]["names"])
+    for spec in _omission_names(omission):
+        if spec.endswith("*"):
+            stem = spec[:-1]
+            if any(n.startswith(stem) for n in item_names):
+                return True
+        elif spec in item_names:
+            return True
+    return False
+
+
+def load_decisions(path: Path | None = None) -> dict:
+    """The curated coverage spec as plain data (``{}`` when the file is absent)."""
+    path = path or DECISIONS_PATH
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text())
+
+
+def module_decision(decisions: dict, module: str | None) -> dict | None:
+    """The per-module block for ``module`` (contract + omissions), or ``None``."""
+    if not module:
+        return None
+    return decisions.get("modules", {}).get(module)
+
+
+def build_report(
+    cuda: Side,
+    hip: Side,
+    coverage: list[Path] | None,
+    decision: dict | None = None,
+) -> dict:
+    """The full comparison as plain data, ready for text or JSON rendering.
+
+    ``decision`` is one module's block from ``coverage_decisions.json`` (see
+    :func:`module_decision`). When present it sets the coverage verdict:
+    a whole-surface module FAILS on any missing shared name that is not a
+    documented omission; a curated-subset module only REPORTS its missing list.
+    """
     ckeys, hkeys = set(cuda.by_key), set(hip.by_key)
 
     def entry(side: Side, key: str) -> dict:
@@ -237,10 +320,30 @@ def build_report(cuda: Side, hip: Side, coverage: list[Path] | None) -> dict:
             if not (present & set(item["cuda"]["names"]))
             and not (present & set(item["hip"]["names"]))
         ]
+        # Apply the curated decisions. A whole-surface module's gaps are DEFECTS
+        # unless documented as an omission; a curated-subset module's gaps are a
+        # discovery menu, reported not failed. With no decision (an ad-hoc run)
+        # the historical behaviour holds: every gap fails.
+        contract = (decision or {}).get("contract")
+        omissions = (decision or {}).get("omissions", [])
+        documented, undocumented = [], []
+        for item in missing:
+            om = next((o for o in omissions if _omission_matches(item, o)), None)
+            (documented if om else undocumented).append(item)
+        if contract == CURATED_SUBSET:
+            fails = False  # a subset never promised the full intersection
+        elif contract == WHOLE_SURFACE:
+            fails = bool(undocumented)  # only a gap nobody documented is a defect
+        else:
+            fails = bool(missing)  # no decision: any gap fails, as before
         report["coverage"] = {
             "module": ", ".join(str(p) for p in coverage),
+            "contract": contract,
             "intersection": len(intersection),
             "missing": missing,
+            "documented_omissions": documented,
+            "undocumented_gaps": undocumented,
+            "fails": fails,
         }
     return report
 
@@ -284,12 +387,25 @@ def render_text(report: dict, show: str) -> str:
     if "coverage" in report:
         cov = report["coverage"]
         missing = cov["missing"]
+        documented = cov.get("documented_omissions", [])
+        undocumented = cov.get("undocumented_gaps", missing)
         covered = cov["intersection"] - len(missing)
-        out.append(f"== Coverage in {cov['module']} ==")
+        contract = cov.get("contract")
+        label = f" [{contract}]" if contract else ""
+        out.append(f"== Coverage in {cov['module']}{label} ==")
         out.append(f"  {cov['intersection']} shared symbols, "
-                   f"{covered} referenced, {len(missing)} MISSING")
-        for item in missing:
-            out.append(f"    MISSING [{item['cuda']['kind']:5}] "
+                   f"{covered} referenced, {len(missing)} not referenced "
+                   f"({len(documented)} documented omission(s), "
+                   f"{len(undocumented)} undocumented)")
+        # On a whole-surface module an undocumented gap is a DEFECT; a documented
+        # omission is a deliberate, justified pass. On a curated-subset module the
+        # whole list is a discovery menu (REPORTED, not failed).
+        gap_tag = "MISSING" if cov.get("fails", bool(undocumented)) else "unused"
+        for item in undocumented:
+            out.append(f"    {gap_tag} [{item['cuda']['kind']:5}] "
+                       f"{_fmt(item['cuda'])}  {_fmt(item['hip'])}")
+        for item in documented:
+            out.append(f"    omission [{item['cuda']['kind']:5}] "
                        f"{_fmt(item['cuda'])}  {_fmt(item['hip'])}")
         out.append("")
 
@@ -313,6 +429,12 @@ def main(argv: list[str] | None = None) -> int:
                              "shared symbol counts as covered when either backend's "
                              "name appears verbatim (so token-pasted dispatch call "
                              "sites, which name no vendor symbol, won't match)")
+    parser.add_argument("--module", metavar="NAME",
+                        help="apply devtools/coverage_decisions.json for this "
+                             "module (e.g. rand, blas) -- sets the contract class "
+                             "and its documented omissions, so a whole-surface "
+                             "gap fails only when undocumented and a "
+                             "curated-subset run reports rather than fails")
     parser.add_argument("--show", choices=["all", "intersection",
                                            "cuda-only", "hip-only"],
                         default="intersection", help="which sections to print")
@@ -322,15 +444,24 @@ def main(argv: list[str] | None = None) -> int:
     cuda = Side("cuda", args.cuda)
     hip = Side("hip", args.hip)
 
-    report = build_report(cuda, hip, args.coverage)
+    decision = module_decision(load_decisions(), args.module)
+    if args.module and decision is None:
+        raise SystemExit(
+            f"header_intersection: --module {args.module!r} is not in "
+            f"{DECISIONS_PATH.name}; add it there or drop --module"
+        )
+
+    report = build_report(cuda, hip, args.coverage, decision)
 
     if args.format == "json":
         print(json.dumps(report, indent=2))
     else:
         print(render_text(report, args.show), end="")
 
-    # Exit 1 when a coverage gap was found, so this can gate in a script.
-    if "coverage" in report and report["coverage"]["missing"]:
+    # Exit 1 when the coverage verdict is a failure, so this can gate in a
+    # script. With --module the contract class decides (a documented omission or
+    # a curated-subset run does not fail); without it, any gap fails, as before.
+    if "coverage" in report and report["coverage"]["fails"]:
         return 1
     return 0
 
