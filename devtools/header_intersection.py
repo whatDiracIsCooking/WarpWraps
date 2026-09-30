@@ -1,48 +1,67 @@
 #!/usr/bin/env python3
-"""Intersect a CUDA vendor header with its HIP counterpart to find the shared API.
+"""Intersect a CUDA vendor manifest with its HIP counterpart to find the shared API.
 
 A ``src/<m>.cppm`` wwr* module is only as complete as the intersection of the two
-vendor APIs it bridges: every symbol that BOTH cuRAND and hipRAND expose is a
+vendor APIs it bridges: every symbol that BOTH cuRAND and hipRAND DECLARE is a
 symbol ``wwr.rand`` could carry a ``wwr*`` name for, and any it skips is a
-coverage hole. This script computes that intersection straight from the vendor
-``.h`` files, so "did we cover everything the two backends agree on?" becomes a
-diff instead of a manual read of two headers.
+coverage hole. This script computes that intersection from the committed vendor
+**manifests** under ``vendor/`` (``vendor_harvest.py``'s output), so "did we cover
+everything the two backends agree on?" becomes a diff over data instead of a
+manual read of two headers.
 
-It is the OUTWARD-facing complement to ``test/shared/alias_coverage.py``: that
-one asks "is every alias we defined independently verified?", this one asks "is
-every symbol the two backends share actually aliased?". Neither implies the
-other.
+READS MANIFESTS, NOT HEADERS -- and needs NO SDK. It used to regex the vendor
+``.h`` files at run time, which meant it only ran where the SDK was installed and
+only saw whatever a single header's text exposed. It now reads the committed
+``vendor/<pin>/<lib>.json`` manifests, whose ``symbols`` block is the DECLARED
+surface clang harvested (see ``vendor_harvest.py``). Two consequences:
 
-WHAT COUNTS AS A SYMBOL. The public surface of these libraries is exactly its
-vendor-prefixed identifiers -- ``curand*`` / ``CURAND_*`` on one side,
-``hiprand*`` / ``HIPRAND_*`` on the other -- covering functions, typedefs, enum
-tags, enum constants and macros alike. So rather than parse C (the vendor
-headers pull in device intrinsics that no host parser digests cleanly), we take
-every identifier whose leading prefix matches the library's, strip that prefix,
-and compare the remainder case-insensitively:
+  * it runs anywhere the repo is checked out -- no CUDA, no ROCm, no compiler --
+    which is what lets ``test/shared/test_header_intersection.py`` gate it in CI
+    on a bare runner; and
+  * ``--coverage`` is intentionally MORE correct than the old header scan, and
+    the numbers DIVERGE from it -- see below.
+
+WHY THE NUMBERS DIVERGE FROM THE OLD HEADER SCAN (and why that is better). The
+old scan read ONE header's text per side. Many vendor headers are thin umbrellas:
+``cublas_v2.h`` is a wrapper over ``cublas_api.h`` that mostly ``#define``s ~270
+``_v2`` macro aliases, so a single-file text scan of ``cublas_v2.h`` was blind to
+the bulk of the API that ``cublas_api.h`` actually declares. The manifest, built
+from the full transitive AST, sees all of it. So the intersection and the
+"missing" list are both larger and truer than the old run reported (blas moved
+from ~320 shared / 19 missing under the header scan to a materially larger shared
+count under the manifest). This divergence is EXPECTED and ACCEPTED: the manifest
+answer is the correct one, and reproducing the old shallow numbers is a non-goal.
+
+WHAT COUNTS AS A SYMBOL. The manifest's ``symbols`` are every prefix-carrying
+DECLARATION clang found -- functions, typedefs, enum tags, enum constants,
+records. Each side's manifest records its own ``prefix`` (``curand`` / ``hiprand``),
+so there is no auto-detection here: the harvest already pinned it. To compare
+across the two backends we strip that prefix and lowercase the remainder, then
+intersect by that normalised key:
 
     curandCreateGenerator -> "creategenerator" <- hiprandCreateGenerator   (match)
     CURAND_STATUS_SUCCESS  -> "status_success"  <- HIPRAND_STATUS_SUCCESS   (match)
 
-The prefix is auto-detected as the most common leading token on each side
-(``curand`` beats the stray ``cudaStream_t`` cross-reference), and can be pinned
-with ``--cuda-prefix`` / ``--hip-prefix`` for the odd library. Comments and the
-include guard are dropped so prose and ``#ifndef CURAND_H_`` do not masquerade as
-API.
+No tag-folding is applied. The old regex tool folded a C struct/enum tag
+(``curandGenerator_st``) into its ``_t`` typedef so the raw tag would not read as
+an uncovered shared symbol; that is unnecessary here because ``--coverage`` scores
+a shared key covered when EITHER backend's literal name appears in the module
+source, and a module that wraps ``curandState_t`` names the tag it aliases too --
+so both keys score covered without a folding pass that could mask a real gap.
 
 WHAT THE OUTPUT PROVES, AND WHAT IT DOESN'T. The INTERSECTION is the reliable
-list: a symbol only lands there when both headers spell it, so internal noise
-(``CURAND_KNUTH`` and friends, method-enum guts with no HIP twin) self-filters.
-The CUDA-only / HIP-only lists explain the "absent for want of a counterpart"
-notes a module header carries -- but they are noisier, since a backend's private
-identifiers show up there too. And matching is by name: it confirms a shared
-NAME exists, not that the two share a signature or an enum VALUE (see rand.cppm
-on why the values differ). Read a green ``--coverage`` run as "every shared name
-is aliased", not "the aliases are correct" -- that is what dispatch.py and the
-compiler are for.
+list: a key only lands there when both manifests declare a name for it, so
+internal noise (a method-enum with no HIP twin) self-filters. The CUDA-only /
+HIP-only lists explain the "absent for want of a counterpart" notes a module
+header carries -- but they are noisier, since a backend's private declarations
+show up there too. And matching is by NAME: it confirms a shared NAME exists, not
+that the two share a signature or an enum VALUE (that is what ``vendor_harvest.py``
+compares, and see ``rand.cppm`` on why the values differ). Read a green
+``--coverage`` run as "every shared name is aliased", not "the aliases are
+correct" -- that is what dispatch.py and the compiler are for.
 
-``--coverage`` matches by LITERAL name, so read its "missing" list against the
-module's CONTRACT, which comes in two kinds.
+``--coverage`` matches by LITERAL name against the module SOURCE, so read its
+"missing" list against the module's CONTRACT, which comes in two kinds.
 
 A WHOLE-SURFACE module (rand, fft, tx) promises to wrap everything the two
 backends share and spells both names out (``WWR_FUNCTION(gpu, cu, hip)``).
@@ -52,27 +71,25 @@ genuine hole (or a documented omission the module names in its header).
 A CURATED-SUBSET module (blas, solver, sparse, runtime_api) lists only the names
 the layer above it uses ("Only the names src/wrappers/blas uses are listed") --
 it never promised the full intersection, so its "missing" list is
-reachable-but-unused vendor symbols, a discovery menu, not a defect report.
-blas.cppm still spells its names out in full, so ``--coverage`` covers most of
-the intersection (~300/320) and the tail is the unused remainder; solver and
-sparse read as near-empty for a different reason -- cusolverDn* vs hipsolver* and
-cusparse's opaque generic API barely intersect by NAME at all, so the scan is
-blind there. For all four, completeness is enforced elsewhere: the compiler (an
-unresolved wwr* name cannot be consumed), ``test/shared/alias_coverage.py``
-(every alias defined has a test), and the dispatch tables that
-``test/shared/dispatch.py`` checks (every wrapper calls the right alias).
+reachable-but-unused vendor symbols, a discovery menu, not a defect report. For
+all four, completeness is enforced elsewhere: the compiler (an unresolved wwr*
+name cannot be consumed), ``test/shared/alias_coverage.py`` (every alias defined
+has a test), and the dispatch tables that ``test/shared/dispatch.py`` checks.
 
 Pass a module's ``.cuh`` alongside its ``.cppm`` when device-side names live there.
 
 Usage:
+    # Intersect the DECLARED surfaces of the two rand backends:
     devtools/header_intersection.py \\
-        --cuda /usr/local/cuda/include/curand.h \\
-               /usr/local/cuda/include/curand_kernel.h \\
-        --hip  /opt/rocm/include/hiprand/hiprand.h \\
-               /opt/rocm/include/hiprand/hiprand_kernel.h
+        --cuda vendor/cuda-13.0.x/curand.json \\
+               vendor/cuda-13.0.x/curand_kernel.json \\
+        --hip  vendor/rocm-7.2.4/hiprand.json \\
+               vendor/rocm-7.2.4/hiprand_kernel.json
 
     # Confirm the wwr* rand layer wraps the whole shared surface:
-    devtools/header_intersection.py --cuda curand.h --hip hiprand.h \\
+    devtools/header_intersection.py \\
+        --cuda vendor/cuda-13.0.x/curand.json vendor/cuda-13.0.x/curand_kernel.json \\
+        --hip  vendor/rocm-7.2.4/hiprand.json vendor/rocm-7.2.4/hiprand_kernel.json \\
         --coverage src/rand.cppm src/rand.cuh
 """
 
@@ -81,38 +98,14 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
-from collections import Counter
 from pathlib import Path
 
 _IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
-_CALL_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\s*\(")
-# An include guard: an all-caps identifier ending in _H or _H_ (CURAND_H_,
-# HIPRAND_H_). Left in, its "_H_" remainders would falsely intersect.
-_GUARD_RE = re.compile(r"_H_?$")
 
-
-def strip_comments(text: str) -> str:
-    """Drop // and /* */ comments so identifiers named only in prose don't count.
-
-    A small state machine rather than a regex: it must not treat // inside a
-    /* */ block, or a /* opened inside a // line, as a real delimiter.
-    """
-    out: list[str] = []
-    i, n = 0, len(text)
-    while i < n:
-        two = text[i : i + 2]
-        if two == "//":
-            j = text.find("\n", i)
-            i = n if j < 0 else j
-        elif two == "/*":
-            j = text.find("*/", i + 2)
-            i = n if j < 0 else j + 2
-            out.append(" ")
-        else:
-            out.append(text[i])
-            i += 1
-    return "".join(out)
+# The AST declaration kinds vendor_harvest emits that are FUNCTIONS (the rest are
+# types / constants). Used only to label a symbol's kind for the report.
+_FUNC_KINDS = {"FunctionDecl", "FunctionTemplateDecl"}
+_CONST_KINDS = {"EnumConstantDecl", "VarDecl"}
 
 
 def leading_prefix(ident: str) -> str | None:
@@ -120,8 +113,9 @@ def leading_prefix(ident: str) -> str | None:
 
     ``curandFoo`` and ``cudaMalloc`` lead with a lowercase run (``curand`` /
     ``cuda``); ``CURAND_FOO`` leads with an all-caps run up to the first
-    separator (``CURAND`` -> ``curand``). Both forms of one library normalise to
-    the same token, which is what lets the two spellings vote together.
+    separator (``CURAND`` -> ``curand``). Both spellings of one library normalise
+    to the same token, which is what lets a function and a macro constant compare
+    on equal footing. Mirrors ``vendor_harvest.py``'s function of the same name.
     """
     if m := re.match(r"[a-z]+", ident):
         return m.group(0)
@@ -130,92 +124,72 @@ def leading_prefix(ident: str) -> str | None:
     return None
 
 
-def detect_prefix(idents: set[str], family: str) -> str | None:
-    """The dominant library prefix on one side (mode of the leading tokens).
-
-    ``family`` seeds which side we're on -- ``cu`` for CUDA, ``hip`` for HIP --
-    so a curand header's stray ``cudaStream_t`` still counts toward a ``cu*``
-    prefix but ``size_t`` does not, and the mode picks ``curand`` over the lone
-    ``cuda``.
-    """
-    counts: Counter[str] = Counter()
-    for ident in idents:
-        p = leading_prefix(ident)
-        if p and p.startswith(family):
-            counts[p] += 1
-    return counts.most_common(1)[0][0] if counts else None
-
-
-def collect_identifiers(paths: list[Path]) -> tuple[set[str], set[str]]:
-    """Union of identifiers across the given headers, and which are called.
-
-    Returns ``(all_identifiers, called_identifiers)`` -- the second is every name
-    that appears as ``name(`` somewhere, used only to label a symbol ``func``.
-    """
-    idents: set[str] = set()
-    called: set[str] = set()
-    for path in paths:
-        text = strip_comments(path.read_text(errors="replace"))
-        idents.update(_IDENT_RE.findall(text))
-        called.update(_CALL_RE.findall(text))
-    return idents, called
-
-
-def classify(ident: str, called: set[str]) -> str:
-    """Best-effort kind tag: func, const, or type."""
-    if ident in called:
+def _manifest_kind(decl_kind: str) -> str:
+    """Collapse an AST decl kind into the report's coarse func/const/type tag."""
+    if decl_kind in _FUNC_KINDS:
         return "func"
-    if ident.isupper() or re.fullmatch(r"[A-Z0-9_]+", ident):
+    if decl_kind in _CONST_KINDS:
         return "const"
     return "type"
 
 
 class Side:
-    """One backend's API surface: prefix, and normalised-key -> names it maps to."""
+    """One backend's declared surface, read from one or more committed manifests.
 
-    def __init__(self, name: str, paths: list[Path], family: str, prefix: str | None):
+    Each manifest names its own ``prefix`` under ``harvest`` -- the harvest pinned
+    it, so nothing is auto-detected here. The declared ``symbols`` are keyed by
+    the prefix-stripped, lowercased remainder; a key maps to the actual name(s)
+    that produced it and to a coarse kind tag for the report.
+    """
+
+    def __init__(self, name: str, paths: list[Path]):
         self.name = name
         self.paths = paths
-        idents, self.called = collect_identifiers(paths)
-        self.prefix = prefix or detect_prefix(idents, family)
         # normalised key -> the actual identifier(s) that produced it
         self.by_key: dict[str, set[str]] = {}
-        if not self.prefix:
-            return
-        plen = len(self.prefix)
-        for ident in idents:
-            if leading_prefix(ident) != self.prefix:
-                continue
-            if _GUARD_RE.search(ident) and ident.isupper():
+        # normalised key -> coarse kind (func/const/type), first-seen wins by
+        # sorted name so it is deterministic across manifests.
+        self._kind_src: dict[str, tuple[str, str]] = {}
+        self.prefixes: list[str] = []
+        for path in paths:
+            self._load(path)
+
+    def _load(self, path: Path) -> None:
+        data = json.loads(path.read_text())
+        prefix = data.get("harvest", {}).get("prefix")
+        if not prefix:
+            raise SystemExit(
+                f"header_intersection: {path} has no harvest.prefix; is it a "
+                f"vendor_harvest.py manifest?"
+            )
+        if prefix not in self.prefixes:
+            self.prefixes.append(prefix)
+        plen = len(prefix)
+        for sym in data.get("symbols", ()):
+            ident = sym["name"]
+            if leading_prefix(ident) != prefix:
                 continue
             key = ident[plen:].lstrip("_").lower()
-            if key:
-                self.by_key.setdefault(key, set()).add(ident)
-        self._fold_tags()
-
-    def _fold_tags(self) -> None:
-        """Fold a C struct/enum tag into the public typedef that stands for it.
-
-        ``curandGenerator_st`` (struct tag) and ``curandOrdering`` (enum tag) are
-        the implementation spellings of ``curandGenerator_t`` / ``curandOrdering_t``
-        -- the ``_t`` is the name the wwr* layer aliases, and wrapping the raw tag
-        would be pointless. Folding the tag's names into its ``_t`` sibling keeps
-        it from being reported as an uncovered "shared symbol". Applied identically
-        to both backends, so it never drops a name the two genuinely share.
-        """
-        for key in list(self.by_key):
-            if key.endswith("_t"):
+            if not key:
                 continue
-            base = key[:-3] if key.endswith("_st") else key
-            canon = base + "_t"
-            if canon in self.by_key:
-                self.by_key[canon] |= self.by_key.pop(key)
+            self.by_key.setdefault(key, set()).add(ident)
+            kind = _manifest_kind(sym.get("kind", ""))
+            # Keep the tag from the alphabetically-first name so a key that spans
+            # two manifests (a tag here, its typedef there) resolves the same way
+            # every run.
+            cur = self._kind_src.get(key)
+            if cur is None or ident < cur[0]:
+                self._kind_src[key] = (ident, kind)
+
+    @property
+    def prefix(self) -> str:
+        return "+".join(self.prefixes)
 
     def names(self, key: str) -> list[str]:
         return sorted(self.by_key.get(key, ()))
 
     def kind(self, key: str) -> str:
-        return classify(sorted(self.by_key[key])[0], self.called)
+        return self._kind_src[key][1]
 
 
 def tokens(text: str) -> set[str]:
@@ -328,11 +302,11 @@ def main(argv: list[str] | None = None) -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--cuda", nargs="+", type=Path, required=True,
-                        metavar="HEADER", help="CUDA vendor header(s)")
+                        metavar="MANIFEST",
+                        help="CUDA vendor manifest(s) under vendor/")
     parser.add_argument("--hip", nargs="+", type=Path, required=True,
-                        metavar="HEADER", help="HIP vendor header(s)")
-    parser.add_argument("--cuda-prefix", help="pin the CUDA prefix (else auto)")
-    parser.add_argument("--hip-prefix", help="pin the HIP prefix (else auto)")
+                        metavar="MANIFEST",
+                        help="HIP vendor manifest(s) under vendor/")
     parser.add_argument("--coverage", nargs="+", type=Path, metavar="SRC",
                         help="src file(s) -- e.g. a wwr* module and its .cuh -- to "
                              "check the intersection against by literal name; a "
@@ -345,14 +319,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--format", choices=["text", "json"], default="text")
     args = parser.parse_args(argv)
 
-    cuda = Side("cuda", args.cuda, "cu", args.cuda_prefix)
-    hip = Side("hip", args.hip, "hip", args.hip_prefix)
-    for side in (cuda, hip):
-        if not side.prefix:
-            print(f"header_intersection: no {side.name} vendor prefix detected in "
-                  f"{', '.join(map(str, side.paths))}; pass --{side.name}-prefix",
-                  file=sys.stderr)
-            return 2
+    cuda = Side("cuda", args.cuda)
+    hip = Side("hip", args.hip)
 
     report = build_report(cuda, hip, args.coverage)
 
