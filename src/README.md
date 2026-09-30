@@ -10,9 +10,12 @@ cmake --preset hip                                   # WWR_GPU_BACKEND=HIP
 Each module here — the `wwr*` layer, living directly under `src/` alongside the
 `src/cuda`, `src/hip` and `src/wrappers` subdirectories — re-exports one raw
 library module (`src/cuda` or `src/hip`) under backend-neutral `wwr*` names in
-namespace `wwr`. These modules are the **only** place in the project that
-names both backends; everything above them (`src/wrappers`, `test/wrappers`) is
-written once against `wwr*` names and builds unchanged for either backend.
+namespace `wwr`. (`wwr.rand` is the one exception: its vendor host API is a real
+library, so it binds directly to the vendor headers reached through `rand.h` and
+imports no raw module — see below.) These modules are the **only** place in the
+project that names both backends; everything above them (`src/wrappers`,
+`test/wrappers`) is written once against `wwr*` names and builds unchanged for
+either backend.
 
 | Module | CUDA backend wraps | HIP backend wraps |
 |---|---|---|
@@ -26,7 +29,7 @@ written once against `wwr*` names and builds unchanged for either backend.
 | `wwr.solver` | `wwr.cuda.cusolverDn` | `wwr.hip.hipsolver` |
 | `wwr.sparse` | `wwr.cuda.cusparse` | `wwr.hip.hipsparse` |
 | `wwr.fft` | `wwr.cuda.cufft` | `wwr.hip.hipfft` |
-| `wwr.rand` | `wwr.cuda.curand` | `wwr.hip.hiprand` + `wwr.hip.hiprand_kernel` |
+| `wwr.rand` | `curand.h` / `curand_kernel.h` via `rand.h` (no import) | `hiprand.h` / `hiprand_kernel.h` via `rand.h` (no import) |
 | `wwr.ccl` | `wwr.cuda.nccl` | `wwr.hip.rccl` |
 | `wwr.tensor` | `wwr.cuda.cutensor` | `wwr.hip.hiptensor` |
 | `wwr.comp` | `wwr.cuda.nvcomp` | `wwr.hip.hipcomp` |
@@ -122,10 +125,19 @@ imports no modules. `rand.cuh` is where those live — see "Device headers"
 below. The state types stay on the module side because they are plain data and
 the *host* is what allocates and sizes the per-thread state array.
 
-On HIP the state types come from a second module, `wwr.hip.hiprand_kernel`;
-cuRAND wraps `curand.h` and `curand_kernel.h` together, hipRAND keeps them
-apart. Names that only one backend has are left out; the file header lists
-them. Three things to watch:
+`wwr.rand` imports no raw vendor module. It reaches the vendor headers through
+`rand.h` — `curand.h` + `curand_kernel.h` on CUDA, `hiprand.h` +
+`hiprand_kernel.h` on HIP (cuRAND packages host and device together, hipRAND
+keeps them apart) — and binds its `wwr*` names straight to the `::curand*` /
+`::hiprand*` declarations with `backend.h`'s `_RAW` macros. This is safe here and
+nowhere else in the layer: the cuRAND / hipRAND host API is a real
+external-linkage library, so a reference or type alias needs only the
+declaration. A module wrapping static-inline vendor math (`complex`, `fp16`,
+`bf16`) cannot do this and keeps its `import` (see "How a name is mapped" below
+and `docs/architecture.md` §12). The single-vendor raw modules
+(`wwr.cuda.curand`, `wwr.hip.hiprand`, `wwr.hip.hiprand_kernel`) remain
+installable, off this path. Names that only one backend has are left out; the
+file header lists them. Three things to watch:
 
 - The RNG-type enumerator **values** differ: `WWRRAND_RNG_PSEUDO_DEFAULT` is
   100 on cuRAND and 400 on hipRAND. Use the names, never the numbers.
@@ -244,6 +256,14 @@ is never restated, so it cannot drift from the header: a call through
 `wwrStreamCreate` compiles to a direct call of `cudaStreamCreate` /
 `hipStreamCreate`, and a call that does not match that backend's signature
 fails to compile on that backend.
+
+The `_RAW` variants (`WWR_TYPE_RAW` / `WWR_VALUE_RAW` / `WWR_FUNCTION_RAW`) are
+the same three, but resolving to the vendor's own global names (`::curand*` /
+`::hiprand*`) instead of the `::wwr::cuda` / `::wwr::hip` module re-exports. They
+are for a module that reaches its vendor header by `#include` — through a
+src/-root sibling `.h` — rather than by importing the raw module, which is sound
+only when the vendor host API has external linkage. `wwr.rand` is the sole user;
+see its section above and `docs/architecture.md` §12.
 
 ## Device headers (`.cuh`) — the other half of the switch
 
@@ -471,17 +491,22 @@ serve both, and is why `wwr.device` still carries no define.
 header is cheap. (`runtime_api.cppm` exports the same type by import, not by
 including `runtime.h` -- vendor runtime macros would collide with its
 `WWR_RT_VALUE` expansions.) `wwrrandState` followed into the shared-type header
-`rand.h` -- but `rand.h` is the heavy exception: its vendor headers
+`rand.h` -- but `rand.h` is the heavy exception: its vendor kernel headers
 (`curand_kernel.h` / `hiprand_kernel.h`) are *not* cheap, so this is a deliberate
 trade. The type once rode a *forward-declaring* bridge that kept those headers out
 of every host compile; `rand.h` instead includes them, accepting the parse in the
 three TUs that `#include` it -- `rand.cppm`'s own compile (which builds the
 `wwr.rand` BMI) and the two wrapper module GMFs -- in exchange for one source of
 truth for the state-type list, shared by `rand.cppm`, `rand.cuh` and the two
-bridges. The BMI firewalls the header from every `import wwr.rand` consumer, and
-two of those three TUs would `#include` such a header in any design (a wrapper
-declaring the device boundary names the state type), so the added cost is bounded
-and small. See `rand.h`'s own header and docs/architecture.md §1.
+bridges. `rand.h` also includes the vendor *host* header (`curand.h` /
+`hiprand.h`, cheap beside the kernel one) so the same one-source-of-truth covers
+the host API: `rand.cppm` binds its `wwr*` names straight to those declarations
+and imports no raw vendor module (safe because the host API is external-linkage
+-- see the `gpu.rand` section and docs/architecture.md §12). The BMI firewalls
+the header from every `import wwr.rand` consumer, and two of those three TUs would
+`#include` such a header in any design (a wrapper declaring the device boundary
+names the state type), so the added cost is bounded and small. See `rand.h`'s own
+header and docs/architecture.md §1.
 
 `extension/init_state/init_state_bridge.h` and
 `extension/random_normal/random_normal_bridge.h` are the consumers both were

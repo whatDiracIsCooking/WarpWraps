@@ -40,8 +40,11 @@ else()
   set(_gpu_test_raw_solver wwr::hip::hipsolver)
   set(_gpu_test_raw_sparse wwr::hip::hipsparse)
   set(_gpu_test_raw_fft wwr::hip::hipfft)
-  # Two, matching src/CMakeLists.txt: hipRAND's device state types live in
-  # their own module, where cuRAND keeps them in curand.cppm.
+  # Two: this test imports both raw modules to check wwr.rand's names against
+  # the vendor's own -- hipRAND's device state types live in their own module
+  # (wwr::hip::hiprand_kernel), where cuRAND keeps host + device together.
+  # (wwr.rand itself no longer wraps either module; it reaches the vendor
+  # headers directly via rand.h -- see src/rand.h.)
   set(_gpu_test_raw_rand wwr::hip::hiprand wwr::hip::hiprand_kernel)
   set(_gpu_test_raw_tx wwr::hip::roctx)
   set(_gpu_test_raw_ccl wwr::hip::rccl)

@@ -1,30 +1,44 @@
 /**
  * @file rand.h
- * @brief The cuRAND / hipRAND device generator STATE TYPES, in one place
+ * @brief The single cuRAND / hipRAND vendor-include point for the rand layer
  *
- * A src/-root shared-type header (companion to complex.h and runtime.h): it
- * names the vendor generator state types that cross the host/device boundary by
- * pointer, and is the single home the whole rand layer draws them from --
- * rand.cppm re-exports these under its own names, rand.cuh defines its
- * __device__ generators against them, and the extension bridges
+ * A src/-root shared-type header (companion to complex.h and runtime.h). Its
+ * EXPORTED surface is the device generator state types -- the vendor types that
+ * cross the host/device boundary by pointer -- aliased under wwr* names once,
+ * for the whole rand layer to draw from: rand.cppm re-exports them, rand.cuh
+ * defines its __device__ generators against them, and the extension bridges
  * (init_state_bridge.h, random_normal_bridge.h) name wwrrandState* in a global
  * module fragment where an `import` cannot reach. Like complex.h and runtime.h
  * it reaches selected_backend.h directly, not device_guard.h, so it carries no
  * device-pass #error and compiles in a host TU too.
  *
+ * It also #includes the vendor HOST header (curand.h / hiprand.h) beside the
+ * kernel one, so that it is the one place the vendor headers enter the rand
+ * layer. rand.cppm draws its whole host API from here -- binding wwr* references
+ * and aliases straight to the ::curand* / ::hiprand* declarations with the _RAW
+ * macros -- and so imports no raw vendor module. That works because the host API
+ * is a real external-linkage library: a reference or type alias needs only the
+ * declaration this header supplies. A module wrapping static-inline vendor math
+ * (complex, fp16, bf16) could NOT do this and must keep importing its raw module
+ * for that module's external-linkage wrappers. See backend.h and
+ * docs/architecture.md, section 12. The raw modules (wwr.cuda.curand,
+ * wwr.hip.hiprand, wwr.hip.hiprand_kernel) remain as single-vendor host-API
+ * surfaces, off the neutral layer's path.
+ *
  * It differs from complex.h / runtime.h in one way that is the whole design
- * trade: their vendor header is host-cheap (cuComplex.h, cuda_runtime_api.h),
- * so they name a complete type at no cost; the state types live only in
- * curand_kernel.h / hiprand_kernel.h, which are heavy (hiprand_kernel.h drags in
- * the whole rocRAND device-generator implementation). Including them here means
- * the parse lands in every TU that #includes rand.h -- but that is exactly three
- * host TUs: rand.cppm's own compile (which builds the wwr.rand BMI) and the two
- * extension wrapper module units, whose global module fragments must #include a
- * bridge because a GMF cannot import. Every consumer that `import`s wwr.rand or
- * the extension modules pays nothing: the BMI exports names, never the header.
- * That bounded cost buys one source of truth for the state-type list, in place
- * of the three copies rand.cppm, rand.cuh and the old forward-declaring bridge
- * each carried. See docs/architecture.md, section 1, and src/README.md.
+ * trade: their vendor header is host-cheap (cuComplex.h, cuda_runtime_api.h);
+ * the state types live only in curand_kernel.h / hiprand_kernel.h, which are
+ * heavy (hiprand_kernel.h drags in the whole rocRAND device-generator
+ * implementation). The host header added beside it is cheap by comparison.
+ * Including them here means the parse lands in every TU that #includes rand.h --
+ * but that is exactly three host TUs: rand.cppm's own compile (which builds the
+ * wwr.rand BMI) and the two extension wrapper module units, whose global module
+ * fragments must #include a bridge because a GMF cannot import. Every consumer
+ * that `import`s wwr.rand or the extension modules pays nothing: the BMI exports
+ * names, never the header. That bounded cost buys one source of truth -- for the
+ * state-type list (in place of the copies rand.cppm, rand.cuh and the old
+ * forward-declaring bridge each carried) and for the host API (in place of the
+ * import). See docs/architecture.md, section 1, and src/README.md.
  *
  * wwrrandState and wwrrandStateXORWOW are one type on CUDA and two on HIP; the
  * _t forms and the other states are all named against the real vendor typedefs
@@ -41,6 +55,12 @@
 
 #if defined(WWR_SELECTED_CUDA)
 
+// Host API (curand.h) and device generator state types (curand_kernel.h). Both,
+// because this header is the single vendor-include point for the whole rand
+// layer: rand.cppm draws the host API from here, rand.cuh the device functions,
+// and both the state types. The host header is cheap; the kernel header is the
+// heavy one this arrangement is careful about (see below).
+#include <curand.h>
 #include <curand_kernel.h>
 
 #else
@@ -54,6 +74,10 @@
 // src/hip/hiprand_kernel.cppm does it. See docs/architecture.md, section 7.
 #include <cstdio>
 
+// Host API (hiprand.h) and device state types (hiprand_kernel.h) -- the split
+// cuRAND does not have; here they are two headers, and this file includes both
+// so it is the one vendor-include point for the rand layer. See above.
+#include <hiprand/hiprand.h>
 #include <hiprand/hiprand_kernel.h>
 
 #endif
