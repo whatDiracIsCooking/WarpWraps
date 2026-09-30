@@ -17,7 +17,8 @@
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CUDA_ARCHITECTURES": "native",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "WWR_GPU_BACKEND": "CUDA"
       }
     },
     {
