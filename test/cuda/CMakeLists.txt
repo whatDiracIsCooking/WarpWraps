@@ -48,6 +48,7 @@ set(CUDA_TEST_LIBRARIES
     cusolverDn
     curand
     cutensor
+    nccl
 )
 
 foreach(_lib IN LISTS CUDA_TEST_LIBRARIES)
