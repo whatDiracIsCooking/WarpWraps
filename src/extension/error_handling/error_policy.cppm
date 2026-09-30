@@ -75,4 +75,30 @@ concept typed_error_policy = requires { typename P::error_type; } &&
                              error_type<typename P::error_type> &&
                              error_policy<P, typename P::error_type>;
 
+/**
+ * @brief A type that maps an error type to a buffer's alloc/free policy pair
+ *
+ * @tparam M The policy-map type to check
+ * @tparam E The error type the map is asked to serve
+ *
+ * @note A policy map exposes two member alias templates over the error type --
+ *       `template<typename E> using alloc = ...;` and the matching `free` -- so
+ *       one map serves every memory kind: a buffer suite instantiates it per kind
+ *       with that kind's error type (wwrError_t for device/pinned/unified,
+ *       stdHostMemoryError_t for host). The two slots inherit the asymmetry of a
+ *       buffer's two policy parameters: `alloc` need only be an error_policy,
+ *       while `free` runs from a destructor and so must be a nothrow_error_policy.
+ * @note Parameterized on E, and structural in it exactly as error_policy is: a
+ *       member alias template cannot be validated without a type to instantiate
+ *       it with, and the concrete error types live per-library, out of this
+ *       layer's reach -- so the caller (the suite) supplies each error type it
+ *       uses, and typing is enforced there, on the buffer, not here on the map.
+ */
+template<typename M, typename E>
+concept policy_map = requires {
+  typename M::template alloc<E>;
+  typename M::template free<E>;
+} && error_policy<typename M::template alloc<E>, E> &&
+                       nothrow_error_policy<typename M::template free<E>, E>;
+
 } // namespace wwr::extension

@@ -67,6 +67,55 @@ static_assert(!error_policy<int, int>); // a bare int is not a policy
 static_assert(typed_error_policy<AbortPolicy<TestError>>);
 static_assert(!typed_error_policy<AbortPolicy<int>>); // int carries no error facilities
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// policy_map
+//
+// A buffer suite (#177) takes one map and instantiates it per memory kind with
+// that kind's error type, so the concept checks the map's two member alias
+// templates -- alloc / free -- yield valid policies for a given error type. It is
+// structural in E exactly as error_policy is (an unregistered int is a fine
+// probe): the map's *shape* is checked here, and the suite enforces typing on the
+// buffer. The free slot inherits the destructor-path nothrow requirement.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// A policy whose handle_error may throw: a valid alloc policy, never a free one.
+template<typename E>
+struct ThrowingPolicy {
+  using error_type = E;
+  void handle_error(E, std::source_location) {}
+};
+static_assert(error_policy<ThrowingPolicy<int>, int>);
+static_assert(!nothrow_error_policy<ThrowingPolicy<int>, int>);
+
+// One policy for both slots -- the single-policy shape the suite's convenience
+// front door builds. Valid for any error type the policy accepts.
+struct AbortMap {
+  template<typename E>
+  using alloc = AbortPolicy<E>;
+  template<typename E>
+  using free = AbortPolicy<E>;
+};
+static_assert(policy_map<AbortMap, int>);
+static_assert(policy_map<AbortMap, TestError>);
+
+// A map missing a key is not a policy map, and neither is a plain type.
+struct AllocOnlyMap {
+  template<typename E>
+  using alloc = AbortPolicy<E>;
+};
+static_assert(!policy_map<AllocOnlyMap, int>);
+static_assert(!policy_map<int, int>);
+
+// The free slot must not throw: a map whose free policy can throw is rejected,
+// even though the same policy is fine in the alloc slot.
+struct ThrowingFreeMap {
+  template<typename E>
+  using alloc = AbortPolicy<E>;
+  template<typename E>
+  using free = ThrowingPolicy<E>;
+};
+static_assert(!policy_map<ThrowingFreeMap, int>);
+
 } // namespace wwr::extension::test
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
