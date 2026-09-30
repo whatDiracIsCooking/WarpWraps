@@ -59,8 +59,8 @@ find_package(wwr 0.1 REQUIRED)
 
 add_executable(app main.cpp)
 target_link_libraries(app PRIVATE
-  wwr::wwr.wrappers.blas
-  wwr::wwr.extension.memory_buffer
+  wwr::wrappers::blas
+  wwr::extension::memory_buffer
 )
 ```
 
@@ -71,9 +71,10 @@ import wwr.extension.memory_buffer;
 
 Configure with `-DCMAKE_PREFIX_PATH=/where/you/want/it` so `find_package` can see
 it. Every target in the [Modules](#modules) tables is exported under the
-`wwr::` namespace, keeping its dotted name — `wwr.wrappers.blas` is
-`wwr::wwr.wrappers.blas`. Linking one is what makes the corresponding
-`import` resolve; there is nothing else to configure.
+`wwr::` namespace with its dots turned into `::` — `wwr.wrappers.blas` is
+`wwr::wrappers::blas`, the same name wwr's own CMakeLists link in-tree. Linking
+one is what makes the corresponding `import` resolve; there is nothing else to
+configure.
 
 [`example/consumer/`](example/consumer/) is a complete, buildable version of the
 above, and `devtools/install-check.sh` runs it against a real install.

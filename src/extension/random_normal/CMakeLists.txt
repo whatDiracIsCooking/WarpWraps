@@ -66,7 +66,7 @@ set(_wa_build
   "$<LINK_LIBRARY:WHOLE_ARCHIVE,wwr.extension.random_normal.device>"
 )
 set(_wa_install
-  "$<LINK_LIBRARY:WHOLE_ARCHIVE,wwr::wwr.extension.random_normal.device>"
+  "$<LINK_LIBRARY:WHOLE_ARCHIVE,wwr::extension::random_normal::device>"
 )
 target_link_libraries(
   wwr.extension.random_normal

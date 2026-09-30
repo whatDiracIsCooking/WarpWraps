@@ -62,7 +62,7 @@ set(_wa_build
     "$<LINK_LIBRARY:WHOLE_ARCHIVE,wwr.extension.init_state.device>"
 )
 set(_wa_install
-    "$<LINK_LIBRARY:WHOLE_ARCHIVE,wwr::wwr.extension.init_state.device>"
+    "$<LINK_LIBRARY:WHOLE_ARCHIVE,wwr::extension::init_state::device>"
 )
 target_link_libraries(
   wwr.extension.init_state

@@ -45,17 +45,18 @@ message(STATUS "wwr warp size: ${WWR_WARP_SIZE}")
 
 add_executable(consumer main.cpp)
 
-# The :: spellings are the exported names. Linking them brings in wwr's
-# module sources, which this build compiles -- `import wwr.blas;` in main.cpp
-# resolves because of these lines and nothing else.
+# The nested :: spellings are the exported names -- the SAME names wwr's own
+# in-tree CMakeLists link (wwr::blas, not a doubled wwr::wwr.blas). Linking
+# them brings in wwr's module sources, which this build compiles -- `import
+# wwr.blas;` in main.cpp resolves because of these lines and nothing else.
 #
 # The core the consumer always links: two wwr* modules it imports directly --
 # wwr.runtime_api for device memory, wwr.blas for the handle and the raw
 # wwrblasSgemm its core gemm runs. These ship in every install, wrappers or no.
 target_link_libraries(
   consumer
-  PRIVATE wwr::wwr.runtime_api
-          wwr::wwr.blas
+  PRIVATE wwr::runtime_api
+          wwr::blas
 )
 
 # The wrappers layer is optional in the package (installed by default, dropped
@@ -69,10 +70,10 @@ if(WWR_HAS_WRAPPERS)
   message(STATUS "wwr wrappers:  available")
   target_link_libraries(
     consumer
-    PRIVATE wwr::wwr.wrappers.blas
-            wwr::wwr.wrappers.solver
-            wwr::wwr.wrappers.fft
-            wwr::wwr.wrappers.sparse
+    PRIVATE wwr::wrappers::blas
+            wwr::wrappers::solver
+            wwr::wrappers::fft
+            wwr::wrappers::sparse
   )
   target_compile_definitions(consumer PRIVATE WWR_CONSUMER_HAS_WRAPPERS)
 else()
@@ -90,8 +91,8 @@ endif()
 if(WWR_HAS_EXTENSION)
   message(STATUS "wwr extension: available")
   target_link_libraries(
-    consumer PRIVATE wwr::wwr.extension.runtime wwr::wwr.extension.random_normal
-                     wwr::wwr.extension.tx
+    consumer PRIVATE wwr::extension::runtime wwr::extension::random_normal
+                     wwr::extension::tx
   )
   target_compile_definitions(consumer PRIVATE WWR_CONSUMER_HAS_EXTENSION)
 else()
