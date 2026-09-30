@@ -70,6 +70,7 @@ WWR_SAME_FUNCTION(wwrblasDestroy, cublasDestroy_v2)
 WWR_SAME_FUNCTION(wwrblasSetStream, cublasSetStream_v2)
 WWR_SAME_FUNCTION(wwrblasGetStream, cublasGetStream_v2)
 WWR_SAME_FUNCTION(wwrblasSetPointerMode, cublasSetPointerMode_v2)
+WWR_SAME_FUNCTION(wwrblasGetPointerMode, cublasGetPointerMode_v2)
 WWR_SAME_FUNCTION(wwrblasGetStatusName, cublasGetStatusName)
 WWR_SAME_FUNCTION(wwrblasGetStatusString, cublasGetStatusString)
 

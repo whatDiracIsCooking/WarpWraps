@@ -85,6 +85,7 @@ WWR_FUNCTION(wwrblasDestroy, cublasDestroy_v2, hipblasDestroy)
 WWR_FUNCTION(wwrblasSetStream, cublasSetStream_v2, hipblasSetStream)
 WWR_FUNCTION(wwrblasGetStream, cublasGetStream_v2, hipblasGetStream)
 WWR_FUNCTION(wwrblasSetPointerMode, cublasSetPointerMode_v2, hipblasSetPointerMode)
+WWR_FUNCTION(wwrblasGetPointerMode, cublasGetPointerMode_v2, hipblasGetPointerMode)
 
 // hipBLAS has a single status-to-string function; both names map to it.
 WWR_FUNCTION(wwrblasGetStatusName, cublasGetStatusName, hipblasStatusToString)

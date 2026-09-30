@@ -17,6 +17,29 @@ import std;
 export namespace wwr::extension {
 
 /**
+ * @brief A type that yields a raw wwrblasHandle_t -- the co-ownable BLAS handle
+ *
+ * Structural, like device_handle: any type exposing a noexcept get() returning
+ * wwrblasHandle_t qualifies, which BlasHandleWrapper does through BaseHandle. A
+ * consumer that only needs "something a wwrblasHandle_t comes from" -- e.g.
+ * PointerModeScope, which shared-owns one for its lifetime -- constrains on this
+ * instead of templating on BlasHandleWrapper's full <P_create, P_destroy, S,
+ * P_device_access> list, none of which it uses.
+ *
+ * The return must be *exactly* wwrblasHandle_t (same_as), not merely convertible:
+ * on HIP wwrblasHandle_t is void*, so a convertible_to check would admit any
+ * object pointer -- e.g. a StreamWrapper's wwrStream_t (ihipStream_t*) -- and
+ * silently accept the wrong handle. same_as still cannot separate blas from
+ * solver/sparse on HIP (all three vendor handles ARE void* there) -- the same
+ * irreducible void* aliasing the typed_error_policy note describes -- but it does
+ * keep the distinct stream/event/pool handle types out.
+ */
+template<typename H>
+concept blas_handle = requires(const H h) {
+  { h.get() } noexcept -> std::same_as<wwrblasHandle_t>;
+};
+
+/**
  * @brief RAII wrapper for a GPU BLAS handle bound to a work stream
  *
  * A cuBLAS/rocBLAS handle binds a work stream and enqueues asynchronous work on
