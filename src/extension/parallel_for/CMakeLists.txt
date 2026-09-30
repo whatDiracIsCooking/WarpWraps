@@ -41,11 +41,3 @@ target_include_directories(
 # cmake/wwr_add_gpu_device_library.cmake, which is that pattern, and its
 # call sites in src/extension/init_state and src/extension/random_normal.
 target_link_libraries(wwr.extension.parallel_for INTERFACE wwr.device)
-
-# wwr.extension.bridge carries the same src/ include root, named explicitly
-# because parallel_for.cuh includes "extension/bridge/stream_bridge.h": the
-# dependency on the bridge headers is real and should be declared, not left to
-# ride wwr.device's include path.
-target_link_libraries(
-  wwr.extension.parallel_for INTERFACE wwr.extension.bridge
-)

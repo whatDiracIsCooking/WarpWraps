@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "extension/bridge/stream_bridge.h"
+#include "runtime.h"
 
 #include <cstddef>
 

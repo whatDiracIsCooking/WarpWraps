@@ -29,12 +29,12 @@ wwr_add_gpu_device_library(
 # declare a function that a plain TU defines (see random_normal_bridge.h's own
 # header).
 #
-# LINK_PRIVATE wwr_backend is for the two bridges random_normal_bridge.h
-# pulls in there (extension/bridge/stream_bridge.h,
+# LINK_PRIVATE wwr_backend is for the two include-only headers that
+# random_normal_bridge.h pulls in there (runtime.h,
 # extension/bridge/rand_state_bridge.h): a GMF cannot `import`, so wwrStream_t
 # and wwrrandState have to arrive by #include, and selected_backend.h behind
-# them reads WWR_GPU_BACKEND_{CUDA,HIP} when there is no device-compile pass
-# to read __CUDACC__/__HIP__ from. PRIVATE, so the define reaches these module
+# them reads WWR_GPU_BACKEND_{CUDA,HIP} when there is no device-compile pass to
+# read __CUDACC__/__HIP__ from. PRIVATE, so the define reaches these module
 # units and nothing that imports them.
 wwr_add_cxx_module_library(
   NAME
@@ -78,8 +78,9 @@ unset(_wa_install)
 
 # interface.cppm and instantiations.cpp's two compile requirements (the src/
 # include root for random_normal_bridge.h, and wwr_backend for the
-# WWR_GPU_BACKEND_* define behind the bridges), granted to installed
-# consumers under $<INSTALL_INTERFACE:> because they are the ones compiling them
+# WWR_GPU_BACKEND_* define behind runtime.h and rand_state_bridge.h), granted
+# to installed consumers under $<INSTALL_INTERFACE:> because they are the ones
+# compiling them
 # -- see the comment at the end of src/CMakeLists.txt. PRIVATE for the in-tree
 # build.
 target_include_directories(

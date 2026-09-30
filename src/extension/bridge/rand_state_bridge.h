@@ -2,10 +2,12 @@
  * @file rand_state_bridge.h
  * @brief wwr::wwrrandState for translation units that cannot `import`
  *
- * stream_bridge.h's counterpart for the one other type that crosses a
- * host/device boundary by pointer. Same reach -- a .cpp, a .cppm's global
- * module fragment, a .cu or a .cuh -- and the same backend selection, from
- * selected_backend.h.
+ * The counterpart to runtime.h's wwrStream_t, for the one other type that
+ * crosses a host/device boundary by pointer. Same reach -- a .cpp, a .cppm's
+ * global module fragment, a .cu or a .cuh -- and the same backend selection,
+ * from selected_backend.h. It stays a forward-declaring bridge here (rather than
+ * moving to a src/-root shared-type header like runtime.h) for the reason the
+ * next paragraph gives.
  *
  * It forward-declares the vendor struct and stops. A caller that only passes
  * wwrrandState* through needs the type declared, not complete, which keeps

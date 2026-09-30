@@ -24,12 +24,10 @@
 #include <cstdint>
 #include <type_traits>
 
-// WWR_GRID_CONSTANT and WWR_WARP_SIZE, then wwrStream_t for
-// the signature below. Both are the wwr* layer's, reached bare through
-// wwr.device's include path. runtime.cuh is also the device-pass
-// gate: it #errors outside a CUDA or HIP device compile, so this header carries
-// no guard of its own.
-#include "extension/bridge/stream_bridge.h"
+// WWR_GRID_CONSTANT, WWR_WARP_SIZE and wwrStream_t for the signature below, all
+// the wwr* layer's, reached bare through wwr.device's include path. runtime.cuh
+// is also the device-pass gate: it #errors outside a CUDA or HIP device compile,
+// so this header carries no guard of its own.
 #include "runtime.cuh"
 
 namespace wwr::extension {

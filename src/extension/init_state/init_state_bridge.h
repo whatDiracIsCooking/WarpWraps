@@ -15,8 +15,9 @@
  * extension alone cannot say it: a `.cuh` is device-pass-only, but a plain
  * `.h` may be host-only. See src/README.md.
  *
- * The two pointer types come from the wwr* layer's include-only bridge headers
- * rather than an `import`, since a GMF cannot import. They are the SAME types
+ * The two pointer types come from the wwr* layer's include-only headers
+ * (runtime.h for wwrStream_t, rand_state_bridge.h for wwrrandState) rather than
+ * an `import`, since a GMF cannot import. They are the SAME types
  * wwr.runtime_api / wwr.rand export, so the wrapper passes its arguments
  * straight through and the device side needs no cast. Reading the backend
  * define they depend on is why this module links wwr_backend PRIVATE -- see
@@ -25,8 +26,8 @@
 
 #pragma once
 
-#include "extension/bridge/stream_bridge.h"
 #include "extension/bridge/rand_state_bridge.h"
+#include "runtime.h"
 
 #include <cstddef>
 
