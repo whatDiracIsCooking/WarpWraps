@@ -210,7 +210,7 @@ placed in the `wwr` namespace.
 | `wwr.cuda.cuda_bf16` | `import wwr.cuda.cuda_bf16;` | `cuda_bf16.h` — `__nv_bfloat16` and operators |
 
 `src/hip` mirrors these against hipBLAS, hipSOLVER, hipRAND, hipFFT, hipSPARSE,
-rocm_smi/amd_smi and hiprtc.
+amd_smi and hiprtc.
 
 ### Extensions (`src/wrappers/`)
 

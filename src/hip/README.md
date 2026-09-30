@@ -107,50 +107,54 @@ converted from macros to typed `constexpr` values the same way
 `cuda_runtime_api.cppm` does, with a compile-time `static_assert` validating
 each value before the `#undef`.
 
-### Why nvml became two modules
+### nvml's HIP counterpart
 
-CUDA's `nvml` (`wwr.cuda.nvml`) maps to *two* separate HIP libraries,
-not one: `rocm_smi` (`rocm_smi/rocm_smi.h`, the legacy/stable AMD GPU
-management and monitoring library) and `amd_smi` (`amd_smi/amdsmi.h`, the
-newer one, meant to eventually supersede rocm_smi). They are real,
-independently usable libraries -- separate CMake packages
-(`find_package(rocm_smi CONFIG REQUIRED)` / `find_package(amd_smi CONFIG
-REQUIRED)`), separate shared libraries (`rocm_smi64` / `amd_smi`), separate
-headers -- with overlapping but not identical surfaces. `amd_smi` does not
-wrap or supersede `rocm_smi` at the API level (both are still shipped and
-usable independently in this ROCm release), so unifying them into one module
-would mean picking a lossy subset or an artificial merged surface neither
-vendor header actually presents. Each is exported faithfully as its own
-module instead, at the same 1:1-with-a-vendor-header granularity every other
-`src/cuda`/`src/hip` module uses.
+CUDA's `nvml` (`wwr.cuda.nvml`) has two candidate HIP counterparts, and this
+project wraps exactly one. ROCm ships `rocm_smi` (`rocm_smi/rocm_smi.h`, the
+legacy library, `librocm_smi64`) and `amd_smi` (`amd_smi/amdsmi.h`, the newer
+one meant to supersede it, `libamd_smi`) as separate CMake packages with
+separate headers and overlapping but not identical surfaces. Only `amd_smi` is
+wrapped, as `wwr.hip.amd_smi` below.
 
-### `wwr.hip.rocm_smi`
+**The two libraries cannot coexist in one process.** `libamd_smi` statically
+embeds its own build of the entire `amd::smi::` implementation and re-exports it
+with default visibility under the same mangled names `librocm_smi64` exports, so
+ELF interposition gives one set of C++ globals two owners -- both libraries'
+initializers construct and both libraries' finalizers destroy the same objects,
+which double-frees at static teardown (`malloc_consolidate(): invalid chunk
+size`). AMD declines to fix it: ROCm/ROCm#5473 closed with "because the two
+libraries share external symbols, we don't support linking both libraries". A
+module pair no consumer could link together is not worth shipping, so the legacy
+half is not wrapped.
 
-**Import:** `import wwr.hip.rocm_smi;`
+`amd_smi` is the half to keep because upstream has already chosen it.
+`rocm-smi-lib` is in maintenance mode ("please switch to AMD-SMI") and is out of
+TheRock builds as of ROCm 10.1, and RCCL itself moved: its CMakeLists checks for
+`amd_smi` on ROCm >= 7.11.0, forces `USE_AMDSMI` on, and has its `rocm_smi`
+fallback commented out.
 
-Wraps `rocm_smi/rocm_smi.h`. Like `rocm_smi.h` itself, this is a pure C API
-(its whole body, including the transitively-included `<cstdint>`, is wrapped
-in `extern "C"`), so there is no `hip_runtime_api.h`-style convenience-template
-collision to work around here -- every type, enumerator, and function the
-header declares is exported by a plain `using` declaration.
-
-Exports the status/init-flag/performance-level/event/clock/temperature/
-voltage/power-profile/GPU-block/RAS/memory/firmware-block enumerations, the
-frequency/version/range/OD-voltage-curve/GPU-metrics/error-count/process-info
-structs, and the full device management and monitoring function surface:
-identification, PCIe, power, memory, physical state (fan/temperature/voltage),
-clock/performance-level control, versioning, error/RAS queries, performance
-counters, system info, XGMI, hardware topology, compute/memory partitioning,
-supported-function queries, and event notification.
+**Which SMI library a collectives process can hold depends on the ROCm version,
+and it is `librccl` that decides.** Below ROCm 7.11, `librccl.so` carries a hard
+`DT_NEEDED` on `librocm_smi64.so.1`, so collectives put the legacy library in the
+process whether wwr names it or not; `libamd_smi` -- a *direct* `DT_NEEDED`
+either way, so always earlier in the lookup scope -- wins the interposition, and
+the result is a SIGSEGV during library init, before `main`. So on ROCm 7.0-7.10
+`wwr.hip.amd_smi` cannot be used with `wwr.hip.rccl` or `wwr.ccl`. From 7.11
+RCCL resolves `amd_smi` itself, lazily via `dlopen`, and the constraint reverses:
+`amd_smi` is then the SMI library collectives already use, and `librocm_smi64` is
+the one that would collide. That upper regime is **untested here** -- the
+container is ROCm 7.2.4, and `dlopen` scoping (`RTLD_GLOBAL` vs `RTLD_LOCAL`)
+decides whether the collision happens at all, so it wants measuring on a newer
+image rather than predicting.
 
 ### `wwr.hip.amd_smi`
 
 **Import:** `import wwr.hip.amd_smi;`
 
-Wraps `amd_smi/amdsmi.h` -- see "Why nvml became two modules" above for how
-this relates to `wwr.hip.rocm_smi`. Also a pure C `extern "C"` API,
-exported the same way: every declared type, enumerator, and function via
-`using`.
+Wraps `amd_smi/amdsmi.h` -- see "nvml's HIP counterpart" above for why the
+legacy `librocm_smi64` is not wrapped alongside it, and what that costs. A pure
+C `extern "C"` API, exported the same way as the modules above: every declared
+type, enumerator, and function via `using`.
 
 `amdsmi.h` guards a CPU/ESMI (E-SMS, AMD EPYC System Management Interface)
 extension surface -- RAPL MSR energy counters, HSMP system statistics,
@@ -203,7 +207,7 @@ callback-ID enum from `cupti_nvtx_cbid.h` without needing to wrap `nvtx.h`):
 No CMake package exists for `roctracer` (no `/opt/rocm/lib/cmake/roctracer/`),
 so `src/hip/CMakeLists.txt` uses `find_library(ROCTRACER_LIBRARY roctracer64
 ...)`, the same pattern `src/cuda/CMakeLists.txt` uses for `cusolverMg`.
-Unlike `hip_runtime_api`/`rocm_smi`/`amd_smi`, this target links neither
+Unlike `hip_runtime_api`/`amd_smi`, this target links neither
 `hip::host` nor any other HIP package target -- `roctracer64` needs the HIP
 runtime for neither symbols nor its own header's transitive include
 (`roctracer.h` resolves `ext/prof_protocol.h` relative to its own directory,
@@ -712,6 +716,13 @@ struct-initializer macros, for the reasons `wwr.cuda.nccl` gives.
 **rccl stays in the pruned CI image.** `docker/install-rocm.sh`'s `ROCM_PRUNE`
 list used to drop rccl ("nothing here wraps them"); now that this module links
 `roc::rccl` it is a link-time dependency and is retained.
+
+**`librccl` brings an SMI library with it, so this module constrains which SMI
+module can share its process.** Below ROCm 7.11 that is `librocm_smi64.so.1`, a
+hard `DT_NEEDED` of `librccl.so`, which rules out `wwr.hip.amd_smi` in the same
+binary; from 7.11 RCCL resolves `amd_smi` itself and the pairing reverses. See
+"nvml's HIP counterpart" above -- that section is the authority, this is the
+pointer to it, because the constraint is invisible from this end otherwise.
 
 ### `wwr.hip.hipcomp`
 

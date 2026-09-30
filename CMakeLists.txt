@@ -276,10 +276,9 @@ else()
     )
   endif()
 
-  # rocm_smi and amd_smi are their own separate CMake packages (not part of the
-  # `hip` package) -- see src/hip/rocm_smi.cppm and src/hip/amd_smi.cppm for why
-  # nvml's HIP counterpart is two modules, not one.
-  find_package(rocm_smi CONFIG REQUIRED)
+  # amd_smi is its own separate CMake package (not part of the `hip` package).
+  # ROCm's other SMI library, rocm_smi64, is deliberately not used -- see
+  # src/hip/README.md, "nvml's HIP counterpart".
   find_package(amd_smi CONFIG REQUIRED)
   # hiprtc (HIP Runtime Compilation) ships as its own ROCm CMake package,
   # separate from `hip` above -- wwr.hip.hiprtc needs the hiprtc::hiprtc
