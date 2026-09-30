@@ -1,13 +1,42 @@
 # vendor/ — committed vendor-surface manifests (machine output)
 
-Every `*.json` here is the **declared surface of one wrapped vendor library**,
-harvested by `devtools/vendor_harvest.py` from the pinned SDK headers. They are
-**machine output — never hand-edit them.** Each file's `"harvest"` block records
-the exact clang command, the config tuple (backend, SDK version, arch, defines,
-includes), the clang version and the source header that produced it, so a
-manifest is reproducible and a diff between two is meaningful only when their
-tuples agree. See `devtools/vendor_harvest.py`'s header for what a manifest is
-and is not.
+Every `*.json` here is the **declared + linkable surface of one wrapped vendor
+library**, harvested by `devtools/vendor_harvest.py` from the pinned SDK headers
+and the matching `.so`. They are **machine output — never hand-edit them.** Each
+file's `"harvest"` block records the exact clang command, the config tuple
+(backend, SDK version, arch, defines, includes), the clang version and the source
+header that produced it, so a manifest is reproducible and a diff between two is
+meaningful only when their tuples agree. See `devtools/vendor_harvest.py`'s
+header for what a manifest is and is not.
+
+## Schema
+
+Two halves, because a header DECLARES a surface but the shared library DEFINES
+one and the two genuinely differ:
+
+- `"symbols"` — the **declared** surface: every prefixed declaration the AST
+  found, each with its `name`, `kind`, normalised `decl` (+ `decl_hash`), enum
+  `value`, and `deprecated` / `exported` markers where they apply.
+- `"linkable"` — the **linkable** surface, from `nm -D --defined-only` over the
+  library:
+  - `lib` / `soname` — the library's SONAME (`libcusparse.so.12`), recorded
+    instead of a path so it is stable across the two container mount points and
+    the pin.
+  - `available` — `false` for a header-only surface (nvtx3) or an aggregate with
+    no discrete `.so`; then `reason` states why and `linkable` is omitted.
+  - `linkable` / `linkable_count` — the names the `.so` defines that carry this
+    manifest's prefix.
+  - `declared_not_linkable` — **the point of the schema**: FUNCTION-kind names the
+    header declares that the library does NOT export, so a program that calls one
+    compiles but fails to link. This is the machine-checked counterpart to the
+    test suite's `WWR_DECLARED_CHECK(sym)` sites (vs the usual `WWR_LINK_CHECK`),
+    each of which appears here — e.g. `cusparse.json` lists all eight
+    `*gebsr2gebsc_bufferSizeExt` / `*csr2gebsr_bufferSizeExt` variants, and
+    `hip_runtime_api.json` lists `hipExternalMemoryGetMappedMipmappedArray`. A
+    documented-superset manifest (`cublasLt`, whose `cublas` prefix also captures
+    the base cublas_v2 API that lives in `libcublas.so`, not `libcublasLt.so`)
+    reports those base names here too — expected, since it is named against the
+    variant `.so`.
 
 ## Layout
 

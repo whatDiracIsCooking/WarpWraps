@@ -1,7 +1,7 @@
 {
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
-    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
     "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/local/cuda/include/nvrtc.h",
     "config": {
       "backend": "CUDA",
@@ -17,6 +17,39 @@
     "header": "/usr/local/cuda/include/nvrtc.h",
     "prefix": "nvrtc",
     "symbol_count": 44
+  },
+  "linkable": {
+    "lib": "libnvrtc.so.13",
+    "soname": "libnvrtc.so.13",
+    "available": true,
+    "linkable_count": 24,
+    "linkable": [
+      "nvrtcAddNameExpression",
+      "nvrtcCompileProgram",
+      "nvrtcCreateProgram",
+      "nvrtcDestroyProgram",
+      "nvrtcGetCUBIN",
+      "nvrtcGetCUBINSize",
+      "nvrtcGetErrorString",
+      "nvrtcGetLTOIR",
+      "nvrtcGetLTOIRSize",
+      "nvrtcGetLoweredName",
+      "nvrtcGetNumSupportedArchs",
+      "nvrtcGetOptiXIR",
+      "nvrtcGetOptiXIRSize",
+      "nvrtcGetPCHCreateStatus",
+      "nvrtcGetPCHHeapSize",
+      "nvrtcGetPCHHeapSizeRequired",
+      "nvrtcGetPTX",
+      "nvrtcGetPTXSize",
+      "nvrtcGetProgramLog",
+      "nvrtcGetProgramLogSize",
+      "nvrtcGetSupportedArchs",
+      "nvrtcSetFlowCallback",
+      "nvrtcSetPCHHeapSize",
+      "nvrtcVersion"
+    ],
+    "declared_not_linkable": []
   },
   "symbols": [
     {

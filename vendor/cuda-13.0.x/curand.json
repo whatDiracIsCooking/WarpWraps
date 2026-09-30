@@ -1,7 +1,7 @@
 {
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
-    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
     "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/local/cuda/include/curand.h",
     "config": {
       "backend": "CUDA",
@@ -17,6 +17,45 @@
     "header": "/usr/local/cuda/include/curand.h",
     "prefix": "curand",
     "symbol_count": 106
+  },
+  "linkable": {
+    "lib": "libcurand.so.10",
+    "soname": "libcurand.so.10",
+    "available": true,
+    "linkable_count": 27,
+    "linkable": [
+      "curandCreateGenerator",
+      "curandCreateGeneratorHost",
+      "curandCreatePoissonDistribution",
+      "curandDestroyDistribution",
+      "curandDestroyGenerator",
+      "curandGenerate",
+      "curandGenerateLogNormal",
+      "curandGenerateLogNormalDouble",
+      "curandGenerateLongLong",
+      "curandGenerateNormal",
+      "curandGenerateNormalDouble",
+      "curandGeneratePoisson",
+      "curandGeneratePoissonMethod",
+      "curandGenerateSeeds",
+      "curandGenerateUniform",
+      "curandGenerateUniformDouble",
+      "curandGetDirectionVectors32",
+      "curandGetDirectionVectors64",
+      "curandGetProperty",
+      "curandGetScrambleConstants32",
+      "curandGetScrambleConstants64",
+      "curandGetVersion",
+      "curandSetGeneratorOffset",
+      "curandSetGeneratorOrdering",
+      "curandSetPseudoRandomGeneratorSeed",
+      "curandSetQuasiRandomGeneratorDimensions",
+      "curandSetStream"
+    ],
+    "declared_not_linkable": [
+      "curandGenerateBinomial",
+      "curandGenerateBinomialMethod"
+    ]
   },
   "symbols": [
     {

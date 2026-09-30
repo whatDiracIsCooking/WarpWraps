@@ -1,7 +1,7 @@
 {
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
-    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
     "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hiptensor/hiptensor.h",
     "config": {
       "backend": "HIP",
@@ -19,6 +19,53 @@
     "header": "/opt/rocm/include/hiptensor/hiptensor.h",
     "prefix": "hiptensor",
     "symbol_count": 176
+  },
+  "linkable": {
+    "lib": "libhiptensor.so.0",
+    "soname": "libhiptensor.so.0",
+    "available": true,
+    "linkable_count": 38,
+    "linkable": [
+      "hiptensorContract",
+      "hiptensorCreate",
+      "hiptensorCreateContraction",
+      "hiptensorCreateElementwiseBinary",
+      "hiptensorCreateElementwiseTrinary",
+      "hiptensorCreatePermutation",
+      "hiptensorCreatePlan",
+      "hiptensorCreatePlanPreference",
+      "hiptensorCreateReduction",
+      "hiptensorCreateTensorDescriptor",
+      "hiptensorDestroy",
+      "hiptensorDestroyOperationDescriptor",
+      "hiptensorDestroyPlan",
+      "hiptensorDestroyPlanPreference",
+      "hiptensorDestroyTensorDescriptor",
+      "hiptensorElementwiseBinaryExecute",
+      "hiptensorElementwiseTrinaryExecute",
+      "hiptensorEstimateWorkspaceSize",
+      "hiptensorGetErrorString",
+      "hiptensorGetHiprtVersion",
+      "hiptensorGetVersion",
+      "hiptensorHandleReadPlanCacheFromFile",
+      "hiptensorHandleResizePlanCache",
+      "hiptensorHandleWritePlanCacheToFile",
+      "hiptensorLoggerForceDisable",
+      "hiptensorLoggerOpenFile",
+      "hiptensorLoggerSetCallback",
+      "hiptensorLoggerSetFile",
+      "hiptensorLoggerSetLevel",
+      "hiptensorLoggerSetMask",
+      "hiptensorOperationDescriptorGetAttribute",
+      "hiptensorOperationDescriptorSetAttribute",
+      "hiptensorPermute",
+      "hiptensorPlanGetAttribute",
+      "hiptensorPlanPreferenceSetAttribute",
+      "hiptensorReadKernelCacheFromFile",
+      "hiptensorReduce",
+      "hiptensorWriteKernelCacheToFile"
+    ],
+    "declared_not_linkable": []
   },
   "symbols": [
     {
