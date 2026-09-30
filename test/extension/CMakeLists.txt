@@ -20,6 +20,10 @@ add_subdirectory(memory_buffer)
 # so running the kernels IS the test. One integration suite covers both.
 add_subdirectory(rand)
 
+# Backend-neutral batched compression (wwr.comp). Not a src/extension wrapper --
+# it lives here because a compress/decompress round-trip needs a live device.
+add_subdirectory(comp)
+
 # The library-handle layers (blas / solver / sparse / fft). Their wrappers are
 # RAII over a vendor handle whose create/destroy needs a live GPU context, so
 # these are runtime only -- the destroy-exactly-once contract is the whole test.

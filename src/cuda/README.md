@@ -187,11 +187,15 @@ NCCL is **not** part of the `cuda-toolkit` meta-package, and there is no
 Wraps nvCOMP — NVIDIA's GPU lossless-compression library: the batched low-level
 interface (LLIF) for LZ4, Snappy, Cascaded, Deflate, GZIP, Zstd, GDeflate,
 Bitcomp and ANS, the CRC32 checksum API, and the shared status/type enums. HIP
-counterpart: `wwr.hip.hipcomp`. There is deliberately **no** backend-neutral
-`wwr.comp` layer: nvCOMP is 5.3 while hipCOMP is a hipify of nvCOMP 2.2, so the
-batched signatures diverge (split compress/decompress opts, an extra
-device-status parameter, Sync/Async temp-size queries) and a `wwr*` alias could
-not present one portable signature — see issue #110. The C++ HLIF managers and
+counterpart: `wwr.hip.hipcomp`. The backend-neutral `wwr.comp` layer above this
+pair carries only the 2.2 intersection (LZ4/Snappy/Cascaded), through
+hand-written forwarding shims rather than aliases: nvCOMP is 5.3 while hipCOMP is
+a hipify of nvCOMP 2.2, so the batched signatures diverge (split
+compress/decompress opts, an extra device-status parameter, Sync/Async temp-size
+queries) and no `wwr*` alias could present one portable signature — see issue
+#110 (option a). This raw module stays the only way to reach the rest of the 5.3
+surface (Deflate/GZIP/Zstd/GDeflate/Bitcomp/ANS, CRC32, hardware decompression,
+per-chunk statuses, the exact Sync temp-size query). The C++ HLIF managers and
 the version macros are not wrapped.
 
 The vendor headers declare their default-option structs, per-algorithm

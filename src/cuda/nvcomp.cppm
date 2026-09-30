@@ -7,13 +7,16 @@
  * GDeflate, Bitcomp and ANS, plus the CRC32 checksum API and the shared
  * status/type enums. HIP counterpart: wwr.hip.hipcomp.
  *
- * There is deliberately NO backend-neutral wwr.comp layer above this pair. The
- * two libraries are version-skewed -- nvCOMP is 5.3, hipCOMP is a hipify of
- * nvCOMP 2.2 -- so the batched signatures diverge (split compress/decompress
- * opts, an extra device-status / decompress-opts parameter, and Sync/Async
- * temp-size queries with no 2.2 counterpart). A wwr* alias could not present one
- * portable signature, so each backend is reachable only through its own vendor
- * module. See issue #110 for the measured intersection.
+ * The backend-neutral wwr.comp layer above this pair (src/comp.cppm) carries
+ * only the measured 2.2 intersection -- LZ4/Snappy/Cascaded, via hand-written
+ * forwarding shims rather than aliases, because the two libraries are
+ * version-skewed (nvCOMP 5.3 vs a hipify of nvCOMP 2.2) and the batched
+ * signatures diverge: split compress/decompress opts, an extra device-status /
+ * decompress-opts parameter, Sync/Async temp-size queries with no 2.2
+ * counterpart. This raw module stays the only way to reach the full nvCOMP 5.3
+ * surface wwr.comp cannot express -- Deflate/GZIP/Zstd/GDeflate/Bitcomp/ANS,
+ * CRC32, the hardware-decompression backend, per-chunk compress statuses and the
+ * exact Sync temp-size query. See issue #110 (option a) for the intersection.
  *
  * Not wrapped: the C++ high-level interface (HLIF) managers
  * (nvcompManager.hpp / nvcompManagerFactory.hpp) and the CPU managers -- those

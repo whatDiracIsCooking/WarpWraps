@@ -28,6 +28,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_test_raw_tx wwr.cuda.nvToolsExt)
   set(_gpu_test_raw_ccl wwr.cuda.nccl)
   set(_gpu_test_raw_tensor wwr.cuda.cutensor)
+  set(_gpu_test_raw_comp wwr.cuda.nvcomp)
 else()
   set(_gpu_test_raw_runtime_api wwr.hip.hip_runtime_api)
   set(_gpu_test_raw_complex wwr.hip.hip_complex)
@@ -45,6 +46,7 @@ else()
   set(_gpu_test_raw_tx wwr.hip.roctx)
   set(_gpu_test_raw_ccl wwr.hip.rccl)
   set(_gpu_test_raw_tensor wwr.hip.hiptensor)
+  set(_gpu_test_raw_comp wwr.hip.hipcomp)
 endif()
 
 set(GPU_TEST_LIBRARIES
@@ -65,6 +67,7 @@ set(GPU_TEST_LIBRARIES
     rand
     tx
     ccl
+    comp
 )
 
 set(_gpu_test_targets "")
