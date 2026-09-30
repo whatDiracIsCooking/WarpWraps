@@ -7,9 +7,10 @@
  * accessors, and the wwrComplexFloatToDouble / wwrComplexDoubleToFloat precision
  * conversions. Link wwr.device. Companion to fp16.cuh and bf16.cuh.
  *
- * The types are the SAME ones complex.cppm exports under these names, so a
- * host-allocated buffer and a kernel parameter named here agree, and an extern
- * template declared in a .cppm links against a definition compiled in a .cu.
+ * The types are the SAME ones complex.cppm exports under these names -- both
+ * paths get them from complex.h -- so a host-allocated buffer and a kernel
+ * parameter named here agree, and an extern template declared in a .cppm links
+ * against a definition compiled in a .cu.
  *
  * Construction and arithmetic go through wwr* functions rather than operators
  * because cuComplex is an operator-less float2 aggregate where hipComplex is a
@@ -26,46 +27,16 @@
 
 #pragma once
 
-// WWR_SELECTED_CUDA / WWR_SELECTED_HIP, and #errors outside a device pass;
-// these vendor headers are device-only.
+// WWR_SELECTED_CUDA / WWR_SELECTED_HIP, and #errors outside a device pass; the
+// vendor headers complex.h reaches are device-only.
 #include "device_guard.h"
 
-#if defined(WWR_SELECTED_CUDA)
-
-#include <cuComplex.h>
-
-#else
-
-// Load-bearing, and must stay before the HIP header: host_defines.h (pulled in
-// transitively by the HIP vendor headers) poisons __noinline__ for libc++'s
-// __config, so a HIP header reached before <array> makes __config fail to
-// compile. Same pre-include the src/hip global module fragments carry.
-// docs/architecture.md, section 9.
-#include <array>
-
-#include <hip/hip_complex.h>
-
-#endif
+// The types (wwrFloatComplex / wwrDoubleComplex / wwrComplex) and the vendor
+// headers that back them -- the one definition this header and complex.cppm
+// share, so a kernel parameter and a host buffer name the same type.
+#include "complex.h"
 
 namespace wwr {
-
-// ========================================================================
-// Types -- the same ones complex.cppm exports
-// ========================================================================
-
-#if defined(WWR_SELECTED_CUDA)
-
-using wwrFloatComplex = ::cuFloatComplex;
-using wwrDoubleComplex = ::cuDoubleComplex;
-using wwrComplex = ::cuComplex;
-
-#else
-
-using wwrFloatComplex = ::hipFloatComplex;
-using wwrDoubleComplex = ::hipDoubleComplex;
-using wwrComplex = ::hipComplex;
-
-#endif
 
 // ========================================================================
 // Construction

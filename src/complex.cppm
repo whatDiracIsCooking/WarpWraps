@@ -29,19 +29,23 @@
  * and bfloat16 diverge the other way and live in fp16.cppm / bf16.cppm. See
  * docs/architecture.md, section 3.
  *
- * Unlike fp16.cppm, this module includes no vendor header in its GMF: the raw
- * cuComplex / hip_complex modules already export host wrappers for these
- * functions (their static-inline vendor originals are wrapped there, section
- * 12), so the wwr* forwarders below reach them through the import via
- * WWR_SELECT, exactly as the types do.
+ * The GMF #includes complex.h for the types (the one definition it shares with
+ * complex.cuh) and re-exports the three names below. The functions are not
+ * shared: the vendor's own make_* and cuC* functions are static inline and an
+ * exported inline cannot expose them, so the forwarders route through the raw
+ * cuComplex / hip_complex module's external-linkage host wrappers (their
+ * static-inline originals wrapped there, section 12) via WWR_SELECT -- reached
+ * through the import, not the GMF header.
  */
 
 module;
 
 #include "backend.h"
 
-// Complex types: wwrX -> cuX / hipX
-#define WWR_COMPLEX_TYPE(x) WWR_TYPE(wwr##x, cu##x, hip##x)
+// The types (wwrFloatComplex / wwrDoubleComplex / wwrComplex), shared with
+// complex.cuh. They land in the global module here and are re-exported below;
+// the forwarders' host wrappers still come from the import.
+#include "complex.h"
 
 export module wwr.complex;
 
@@ -54,12 +58,13 @@ import wwr.hip.hip_complex;
 export namespace wwr {
 
 // ========================================================================
-// Types -- the same ones complex.cuh exposes
+// Types -- re-exported from complex.h (the global-module aliases the GMF
+// #include brought in), so importers of wwr.complex see them
 // ========================================================================
 
-WWR_COMPLEX_TYPE(FloatComplex)
-WWR_COMPLEX_TYPE(DoubleComplex)
-WWR_COMPLEX_TYPE(Complex)
+using wwr::wwrFloatComplex;
+using wwr::wwrDoubleComplex;
+using wwr::wwrComplex;
 
 // ========================================================================
 // Construction
