@@ -37,7 +37,8 @@ target_include_directories(
 add_library(wwr::backend ALIAS wwr_backend)
 
 # The include path, runtime libs and WWR_WARP_SIZE for the device-side
-# headers (runtime.cuh, complex.cuh, fp16.cuh, cooperative_groups.cuh, wmma.cuh)
+# headers (runtime.cuh, complex.h's device section, fp16.cuh,
+# cooperative_groups.cuh, wmma.cuh)
 # -- the counterpart to wwr_backend for code reached by #include, not import
 # (a kernel TU imports no modules). Carries NO WWR_GPU_BACKEND define: these
 # headers pick their backend from __CUDACC__/__HIP__, so this is safe to link

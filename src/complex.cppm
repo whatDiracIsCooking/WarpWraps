@@ -3,8 +3,8 @@
  * @brief Backend-neutral complex types and arithmetic: wwr* names for
  *        cuComplex / hipComplex
  *
- * The host-module counterpart to complex.cuh: wwrFloatComplex /
- * wwrDoubleComplex / wwrComplex, make_wwr*Complex, the wwrC* arithmetic and
+ * The host-module counterpart to complex.h's device-pass-gated section:
+ * wwrFloatComplex / wwrDoubleComplex / wwrComplex, make_wwr*Complex, the wwrC* arithmetic and
  * accessors, and the wwrComplexFloatToDouble / wwrComplexDoubleToFloat precision
  * conversions, whichever backend this build is configured for. See
  * backend.h. Companion to fp16.cppm and bf16.cppm.
@@ -14,13 +14,13 @@
  *
  *   wwrDoubleComplex z = make_wwrDoubleComplex(1.0, 2.0);
  *
- * The wrappers below duplicate complex.cuh's surface on purpose, the same way
- * fp16.cppm duplicates fp16.cuh: a host TU reaches this construction and
+ * The wrappers below duplicate complex.h's device section on purpose, the same
+ * way fp16.cppm duplicates fp16.cuh: a host TU reaches this construction and
  * arithmetic by importing the module, a device TU reaches the same names by
- * including the header, and neither can use the other's -- complex.cuh is
- * device-only (device_guard.h) and a module cannot be #included into a kernel.
- * The two copies name the SAME vendor types, so a host-allocated buffer and a
- * kernel parameter agree.
+ * including complex.h, and neither can use the other's -- the device wrappers are
+ * gated to a device pass and a module cannot be #included into a kernel. The two
+ * copies name the SAME vendor types, so a host-allocated buffer and a kernel
+ * parameter agree.
  *
  * Construction and arithmetic go through wwr* functions rather than operators
  * because cuComplex is an operator-less float2 aggregate where hipComplex is a
@@ -29,9 +29,10 @@
  * and bfloat16 diverge the other way and live in fp16.cppm / bf16.cppm. See
  * docs/architecture.md, section 3.
  *
- * The GMF #includes complex.h for the types (the one definition it shares with
- * complex.cuh) and re-exports the three names below. The functions are not
- * shared: the vendor's own make_* and cuC* functions are static inline and an
+ * The GMF #includes complex.h for the types (the one definition it shares with a
+ * device .cu that includes complex.h) and re-exports the three names below. The
+ * functions are not shared: the vendor's own make_* and cuC* functions are
+ * static inline and an
  * exported inline cannot expose them, so the forwarders route through the raw
  * cuComplex / hip_complex module's external-linkage host wrappers (their
  * static-inline originals wrapped there, section 12) via WWR_SELECT -- reached
@@ -42,9 +43,9 @@ module;
 
 #include "backend.h"
 
-// The types (wwrFloatComplex / wwrDoubleComplex / wwrComplex), shared with
-// complex.cuh. They land in the global module here and are re-exported below;
-// the forwarders' host wrappers still come from the import.
+// The types (wwrFloatComplex / wwrDoubleComplex / wwrComplex), from complex.h.
+// They land in the global module here and are re-exported below; the forwarders'
+// host wrappers still come from the import.
 #include "complex.h"
 
 export module wwr.complex;
@@ -70,7 +71,7 @@ using wwr::wwrComplex;
 // Construction
 //
 // Forwarding functions, not WWR_FUNCTION reference bindings: the host wrappers
-// duplicate complex.cuh's surface (see the file header) and route through the
+// duplicate complex.h's device section (see the file header) and route through the
 // raw module's own host wrappers, which WWR_SELECT names.
 // ========================================================================
 

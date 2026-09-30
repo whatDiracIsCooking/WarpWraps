@@ -7,11 +7,11 @@
 #include "extension/random_normal/random_normal_bridge.h"
 
 #include "bf16.cuh"
-#include "complex.cuh"
 #include "extension/parallel_for/parallel_for.cuh"
 #include "fp16.cuh"
-// rand.h, not a .cuh: it carries the rand device generators in a device-pass
-// gated section alongside the state types -- see src/rand.h.
+// complex.h and rand.h, not .cuh: each carries its device wrappers in a
+// device-pass-gated section alongside its types -- see src/complex.h, src/rand.h.
+#include "complex.h"
 #include "rand.h"
 
 #include <cstddef>
