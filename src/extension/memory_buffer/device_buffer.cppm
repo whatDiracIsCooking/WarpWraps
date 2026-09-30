@@ -37,7 +37,7 @@ export namespace wwr::extension {
  * @tparam T The element type stored in the buffer
  * @tparam P_alloc Error policy type for allocation
  * @tparam P_free Error policy type for deallocation
- * @tparam P_device_access Error policy for the DeviceScope guard's device
+ * @tparam P_device_access Error policy for the ScopedDeviceIndex guard's device
  *         switch (wwrGetDevice/wwrSetDevice) on the alloc and free paths. Unlike
  *         P_alloc/P_free, this is type-level only: a fresh instance is
  *         default-constructed for each guard, not stored on the buffer. An
@@ -48,7 +48,7 @@ export namespace wwr::extension {
  * @tparam H Device handle backing the buffer; its tier picks the strategy.
  *
  * @note P_free MUST NOT THROW - it is called from the destructor. P_device_access
- *       carries the same nothrow constraint: the free-path DeviceScope's switch
+ *       carries the same nothrow constraint: the free-path ScopedDeviceIndex's switch
  *       also runs during destruction.
  * @warning The synchronous (device_handle-only) tier frees with wwrFree, which
  *          implicitly synchronises the whole device -- so its destructor blocks
@@ -72,7 +72,7 @@ public:
      *
      * A DeviceBufferWrapper is always drawn from a shared handle -- this and the
      * policy-taking overload below are the only constructors. Makes the handle's
-     * device current via a DeviceScope guard -- restoring the caller's previous
+     * device current via a ScopedDeviceIndex guard -- restoring the caller's previous
      * device afterward -- then allocates by whichever strategy the handle's tier
      * selects (see the class comment and allocate_block()). The handle is
      * retained (shared_ptr) so whatever backs the allocation -- stream, pool --
@@ -121,7 +121,7 @@ public:
      * @param ptr Pointer to memory to deallocate
      * @param num_elements Number of elements (unused, kept for interface consistency)
      *
-     * @note A DeviceScope guard makes the handle's device current for the free
+     * @note A ScopedDeviceIndex guard makes the handle's device current for the free
      *       and restores the caller's previous device afterward. A stream-bearing
      *       handle releases with wwrFreeAsync on the handle's stream -- the same
      *       stream the block was drawn on; wwrFree there would perform no implicit
@@ -133,7 +133,7 @@ public:
   void deallocate(T *ptr, std::size_t num_elements) {
     if (ptr == nullptr)
       return;
-    DeviceScope<P_device_access> scope{handle_->dev_idx()};
+    ScopedDeviceIndex<P_device_access> scope{handle_->dev_idx()};
     if constexpr (device_handle_stream<H>)
       gpu_check(wwrFreeAsync(ptr, handle_->stream()), this->free_policy_ref());
     else
@@ -144,7 +144,7 @@ private:
   /// @brief Allocate `num_elements` on the retained handle by its tier's strategy
   ///
   /// The body shared by both constructors; runs after handle_ (and, for the
-  /// policy overload, the error policy) is in place. A DeviceScope guard makes
+  /// policy overload, the error policy) is in place. A ScopedDeviceIndex guard makes
   /// the handle's device current (restoring the caller's previous device on
   /// return), then allocates by the compile-time-selected strategy and zero-inits
   /// the block. The pool tier draws from pool() on stream(); the stream tier from
@@ -156,7 +156,7 @@ private:
   void allocate_block(std::size_t num_elements, std::source_location location) {
     if (!should_allocate(num_elements, location))
       return;
-    DeviceScope<P_device_access> scope{handle_->dev_idx(), {}, location};
+    ScopedDeviceIndex<P_device_access> scope{handle_->dev_idx(), {}, location};
     const std::size_t size_bytes = num_elements * Base::element_size;
     auto ptr = reinterpret_cast<void **>(&this->data_);
     bool ok;

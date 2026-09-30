@@ -4,16 +4,16 @@
 # compile-time half to configure under WWR_COMPILE_TIME_ONLY. Same shape as
 # test/extension/runtime -- one plain .cpp into the executable, one ctest entry
 # per suite, GTest::gtest_main supplies main(). handle_tests.cpp pins
-# BlasHandleWrapper's RAII contract; pointer_mode_scope_tests.cpp pins the
-# PointerModeScope guard's runtime set/restore behaviour (its types are covered
-# build-time, under test/extension/build_time/pointer_mode_scope.cppm).
+# BlasHandleWrapper's RAII contract; scoped_pointer_mode_tests.cpp pins the
+# ScopedPointerMode guard's runtime set/restore behaviour (its types are covered
+# build-time, under test/extension/build_time/scoped_pointer_mode.cppm).
 
 wwr_add_gtest_executable(
   NAME
   extension_blas_tests
   SOURCES
   handle_tests.cpp
-  pointer_mode_scope_tests.cpp
+  scoped_pointer_mode_tests.cpp
   LINK
   wwr::runtime_api
   wwr::extension::blas
@@ -30,7 +30,7 @@ wwr_add_gtest_suite_tests(
   extension_blas_tests
   SUITES
   BlasHandleTests
-  PointerModeScopeTests
+  ScopedPointerModeTests
   TIMEOUT
   30
   REQUIRES_GPU

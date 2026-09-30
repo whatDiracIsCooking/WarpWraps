@@ -227,7 +227,7 @@ handful that only one does, and how to reach them.
 | Module | Purpose |
 |--------|---------|
 | `wwr.wrappers.common` | FP concepts and integer utilities the generic wrappers build on |
-| `wwr.extension.common` | Error handling (`gpu_check`, pluggable policy), `DeviceScope` |
+| `wwr.extension.common` | Error handling (`gpu_check`, pluggable policy), `ScopedDeviceIndex` |
 | `wwr.extension.handle` | The RAII handle base (`BaseHandle`, `DeviceBoundHandle`) and the non-owning `HandleView` |
 | `wwr.extension.runtime` | RAII stream, event, graph and memory pool |
 | `wwr.wrappers.blas` | Generic templated BLAS (`gemm<float>(…)` rather than `cublasSgemm_v2` / `hipblasSgemm`), either backend |
