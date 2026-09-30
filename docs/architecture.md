@@ -565,3 +565,40 @@ device code, which imports no modules, so a module would serve only host-side
 `cuda::atomic` over managed memory, has no signature-identity assertion the way
 every other raw `.cppm` does, and precompiles to a 21MB BMI against 6.8MB for
 the largest raw module today.
+
+## 21. Toolkit version floors, and the ratchet policy
+
+A decision (#111): wwr builds against **CUDA 13.0.0** or **ROCm 7.0.0** at the
+oldest, and `CMakeLists.txt` enforces each at configure so a too-old SDK fails
+naming the floor rather than deep in a module compile against a header that
+assumes the newer one.
+
+**What pins them.** The floors are the toolkits the images ship and every claim
+in this file was measured on — CUDA 13.0 and ROCm 7.2.4 — rounded down to the
+release wwr is actually exercised against and depends on the shape of: the
+`<cuda/atomic>` relocation to `include/cccl` that §20 relies on landed in CUDA
+13.0, and the ROCm 7 headers are what §9–§20 were verified against. They are a
+**floor, not a pin**: a newer toolkit is expected to work and is what CI and the
+images will move to over time.
+
+**The ratchet policy — floors only ever rise, and only for a reason.** Raise a
+floor when a wrapper starts to *depend* on something the older toolkit lacks (a
+symbol, a header, a fixed bug), not merely because a newer release exists. When
+you raise one: bump the number in `CMakeLists.txt`, restate what now requires it
+here, and re-measure the sections that named the old toolchain (the header of
+this file, and any dated section). A floor is a promise that everything below it
+was checked — do not raise it past a release nobody built against.
+
+**How each is checked, and why they differ.** CUDA is a one-liner —
+`find_package(CUDAToolkit 13.0.0 REQUIRED)` — because `FindCUDAToolkit` reports
+`CUDAToolkit_VERSION` as the true toolkit release and CMake's own
+version-mismatch message then names the floor. ROCm cannot use the same trick:
+`find_package(hip CONFIG)`'s `hip_VERSION` is the **HIP package** version, not
+the ROCm release number — it reads `7.2.53211` on ROCm 7.2.4, where the patch
+`53211` is the HIP SDK build and bears no relation to ROCm's `.4`. So a
+`find_package(hip 7.0.0)` floor would compare the wrong patch field. The honest
+source is `/opt/rocm/.info/version` (plain `7.2.4`), which `CMakeLists.txt`
+locates by climbing from `hip_DIR` (`<rocm>/lib/cmake/hip`) rather than
+hardcoding `/opt/rocm`, and compares to `7.0.0`. Where that file is absent (a
+non-standard layout) it falls back to `hip_VERSION`'s major.minor — which *does*
+track the ROCm release — and warns that the check was coarse.
