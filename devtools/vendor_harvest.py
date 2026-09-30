@@ -210,6 +210,11 @@ def enum_value(node: dict) -> str | None:
     the literal's (``unsigned int`` enum, ``int`` literal), so search descendants,
     not just direct children. An implicit value (no initialiser) has no
     ConstantExpr; return None so the caller can fall back to positional numbering.
+
+    clang prints the folded ``value`` as a decimal string in almost every case,
+    but for an enum whose underlying type is ``bool`` it prints ``"true"`` /
+    ``"false"`` -- normalised to ``"1"`` / ``"0"`` here so the caller's ``int()``
+    always parses (e.g. hipBLASLt's bool-backed enumerators).
     """
     if node.get("kind") != "EnumConstantDecl":
         return None
@@ -217,7 +222,7 @@ def enum_value(node: dict) -> str | None:
     while stack:
         c = stack.pop(0)
         if c.get("kind") == "ConstantExpr" and "value" in c:
-            return c["value"]
+            return {"true": "1", "false": "0"}.get(c["value"], c["value"])
         # Don't descend into the doc comment subtree; only the initialiser.
         if c.get("kind") not in ("FullComment",):
             stack.extend(c.get("inner", ()))

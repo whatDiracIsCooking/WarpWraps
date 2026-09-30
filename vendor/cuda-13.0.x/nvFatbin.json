@@ -1,0 +1,114 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/local/cuda/include/nvFatbin.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/usr/local/cuda/include/nvFatbin.h",
+    "prefix": "nv",
+    "symbol_count": 13
+  },
+  "symbols": [
+    {
+      "name": "nvFatbinAddCubin",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "nvFatbinResult nvFatbinAddCubin(nvFatbinHandle handle, const void * code, size_t size, const char * arch, const char * identifier)",
+      "decl_hash": "807cc14127afd376"
+    },
+    {
+      "name": "nvFatbinAddIndex",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "nvFatbinResult nvFatbinAddIndex(nvFatbinHandle handle, const void * code, size_t size, const char * identifier)",
+      "decl_hash": "4d8e647accb4060c"
+    },
+    {
+      "name": "nvFatbinAddLTOIR",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "nvFatbinResult nvFatbinAddLTOIR(nvFatbinHandle handle, const void * code, size_t size, const char * arch, const char * identifier, const char * optionsCmdLine)",
+      "decl_hash": "a5a6b1bb2d7088e3"
+    },
+    {
+      "name": "nvFatbinAddPTX",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "nvFatbinResult nvFatbinAddPTX(nvFatbinHandle handle, const char * code, size_t size, const char * arch, const char * identifier, const char * optionsCmdLine)",
+      "decl_hash": "ea571b036cd3e13b"
+    },
+    {
+      "name": "nvFatbinAddReloc",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "nvFatbinResult nvFatbinAddReloc(nvFatbinHandle handle, const void * code, size_t size)",
+      "decl_hash": "b83d8332384ef91c"
+    },
+    {
+      "name": "nvFatbinCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "nvFatbinResult nvFatbinCreate(nvFatbinHandle * handle_indirect, const char ** options, size_t optionsCount)",
+      "decl_hash": "bbdc415130908f11"
+    },
+    {
+      "name": "nvFatbinDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "nvFatbinResult nvFatbinDestroy(nvFatbinHandle * handle_indirect)",
+      "decl_hash": "0d3d4c65b55182cb"
+    },
+    {
+      "name": "nvFatbinGet",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "nvFatbinResult nvFatbinGet(nvFatbinHandle handle, void * buffer)",
+      "decl_hash": "f7fe17ca7ad18c4b"
+    },
+    {
+      "name": "nvFatbinGetErrorString",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "const char * nvFatbinGetErrorString(nvFatbinResult result)",
+      "decl_hash": "4e74a9fd94e59d9f"
+    },
+    {
+      "name": "nvFatbinSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "nvFatbinResult nvFatbinSize(nvFatbinHandle handle, size_t * size)",
+      "decl_hash": "7030e822d3b2a456"
+    },
+    {
+      "name": "nvFatbinVersion",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "nvFatbinResult nvFatbinVersion(unsigned int * major, unsigned int * minor)",
+      "decl_hash": "ed81825c7e486e10"
+    },
+    {
+      "name": "nvFatbinHandle",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "typedef struct _nvFatbinHandle * nvFatbinHandle",
+      "decl_hash": "d1a884e6e20f41cb"
+    },
+    {
+      "name": "nvFatbinResult",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "typedef enum nvFatbinResult nvFatbinResult",
+      "decl_hash": "884257d65946053c"
+    }
+  ]
+}

@@ -1,0 +1,1406 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/local/cuda/include/nvjpeg.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/usr/local/cuda/include/nvjpeg.h",
+    "prefix": "nvjpeg",
+    "symbol_count": 179
+  },
+  "symbols": [
+    {
+      "name": "nvjpegBufferDevice",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "struct nvjpegBufferDevice",
+      "decl_hash": "c52c4479ea795119"
+    },
+    {
+      "name": "nvjpegBufferPinned",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "struct nvjpegBufferPinned",
+      "decl_hash": "e8fb48b95d263fe6"
+    },
+    {
+      "name": "nvjpegDecodeParams",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "struct nvjpegDecodeParams",
+      "decl_hash": "79e84f1d9965060a"
+    },
+    {
+      "name": "nvjpegEncoderParams",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "struct nvjpegEncoderParams",
+      "decl_hash": "0b69e1f658f1b3f6"
+    },
+    {
+      "name": "nvjpegEncoderState",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "struct nvjpegEncoderState",
+      "decl_hash": "99ff49ff150e1a99"
+    },
+    {
+      "name": "nvjpegHandle",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "struct nvjpegHandle",
+      "decl_hash": "92a88a70a45c88b4"
+    },
+    {
+      "name": "nvjpegJpegDecoder",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "struct nvjpegJpegDecoder",
+      "decl_hash": "4b0a85c8c7759893"
+    },
+    {
+      "name": "nvjpegJpegState",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "struct nvjpegJpegState",
+      "decl_hash": "b25e5796aa48601c"
+    },
+    {
+      "name": "nvjpegJpegStream",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "struct nvjpegJpegStream",
+      "decl_hash": "1455e4c27858ffa5"
+    },
+    {
+      "name": "NVJPEG_BACKEND_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_BACKEND_DEFAULT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "1a3f5c0ba60283df"
+    },
+    {
+      "name": "NVJPEG_BACKEND_GPU_HYBRID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_BACKEND_GPU_HYBRID = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "703eb5a68ed07a61"
+    },
+    {
+      "name": "NVJPEG_BACKEND_GPU_HYBRID_DEVICE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_BACKEND_GPU_HYBRID_DEVICE = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "aedc46129973f8e5"
+    },
+    {
+      "name": "NVJPEG_BACKEND_HARDWARE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_BACKEND_HARDWARE = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "7ac9781b04edd313"
+    },
+    {
+      "name": "NVJPEG_BACKEND_HARDWARE_DEVICE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_BACKEND_HARDWARE_DEVICE = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "66cb0e4c5c02ee16"
+    },
+    {
+      "name": "NVJPEG_BACKEND_HYBRID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_BACKEND_HYBRID = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "0ac500d90a85be3c"
+    },
+    {
+      "name": "NVJPEG_BACKEND_LOSSLESS_JPEG",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_BACKEND_LOSSLESS_JPEG = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "58b67ea16a38baf8"
+    },
+    {
+      "name": "NVJPEG_CSS_410",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_CSS_410 = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "bf2893111c462735"
+    },
+    {
+      "name": "NVJPEG_CSS_410V",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_CSS_410V = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "2ab37cb8ba6f1cde"
+    },
+    {
+      "name": "NVJPEG_CSS_411",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_CSS_411 = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "472b916b8adc94d7"
+    },
+    {
+      "name": "NVJPEG_CSS_420",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_CSS_420 = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "955eed46c38728f8"
+    },
+    {
+      "name": "NVJPEG_CSS_422",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_CSS_422 = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "fa9ce496e975c899"
+    },
+    {
+      "name": "NVJPEG_CSS_440",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_CSS_440 = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "a325e750086c65fc"
+    },
+    {
+      "name": "NVJPEG_CSS_444",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_CSS_444 = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "20aba5d1667d83c9"
+    },
+    {
+      "name": "NVJPEG_CSS_GRAY",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_CSS_GRAY = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "7158a5e0243b3242"
+    },
+    {
+      "name": "NVJPEG_CSS_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_CSS_UNKNOWN = -1",
+      "value": -1,
+      "value_explicit": true,
+      "decl_hash": "f516cc41cc5248de"
+    },
+    {
+      "name": "NVJPEG_ENCODING_BASELINE_DCT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ENCODING_BASELINE_DCT = 192",
+      "value": 192,
+      "value_explicit": true,
+      "decl_hash": "d972346fb8a2cb93"
+    },
+    {
+      "name": "NVJPEG_ENCODING_EXTENDED_SEQUENTIAL_DCT_HUFFMAN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ENCODING_EXTENDED_SEQUENTIAL_DCT_HUFFMAN = 193",
+      "value": 193,
+      "value_explicit": true,
+      "decl_hash": "68b8011664a22a10"
+    },
+    {
+      "name": "NVJPEG_ENCODING_LOSSLESS_HUFFMAN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ENCODING_LOSSLESS_HUFFMAN = 195",
+      "value": 195,
+      "value_explicit": true,
+      "decl_hash": "8abf4dcdd08c7ee7"
+    },
+    {
+      "name": "NVJPEG_ENCODING_PROGRESSIVE_DCT_HUFFMAN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ENCODING_PROGRESSIVE_DCT_HUFFMAN = 194",
+      "value": 194,
+      "value_explicit": true,
+      "decl_hash": "116293d0871b47ca"
+    },
+    {
+      "name": "NVJPEG_ENCODING_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ENCODING_UNKNOWN = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "3325f710823fd37d"
+    },
+    {
+      "name": "NVJPEG_ENC_BACKEND_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ENC_BACKEND_DEFAULT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "6489450ef86b05f4"
+    },
+    {
+      "name": "NVJPEG_ENC_BACKEND_GPU",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ENC_BACKEND_GPU = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "cfd43ce1c6d1f454"
+    },
+    {
+      "name": "NVJPEG_ENC_BACKEND_HARDWARE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ENC_BACKEND_HARDWARE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "1e1a5dd6c0683ff1"
+    },
+    {
+      "name": "NVJPEG_INPUT_BGR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_INPUT_BGR = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "63b0c5930ac95f92"
+    },
+    {
+      "name": "NVJPEG_INPUT_BGRI",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_INPUT_BGRI = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "f74e32180db6d90c"
+    },
+    {
+      "name": "NVJPEG_INPUT_NV12",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_INPUT_NV12 = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "8139fa1a66099219"
+    },
+    {
+      "name": "NVJPEG_INPUT_RGB",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_INPUT_RGB = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "8e1785b15d3d33d4"
+    },
+    {
+      "name": "NVJPEG_INPUT_RGBI",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_INPUT_RGBI = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "211e0031cb55ae1b"
+    },
+    {
+      "name": "NVJPEG_INPUT_YUV",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_INPUT_YUV = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "03c9c7356c2cca7f"
+    },
+    {
+      "name": "NVJPEG_ORIENTATION_FLIP_HORIZONTAL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ORIENTATION_FLIP_HORIZONTAL = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "95aae02bb05282c2"
+    },
+    {
+      "name": "NVJPEG_ORIENTATION_FLIP_VERTICAL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ORIENTATION_FLIP_VERTICAL = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "c3397ffb4b9b7b1b"
+    },
+    {
+      "name": "NVJPEG_ORIENTATION_NORMAL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ORIENTATION_NORMAL = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "ca98de3ab70a1149"
+    },
+    {
+      "name": "NVJPEG_ORIENTATION_ROTATE_180",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ORIENTATION_ROTATE_180 = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "e651744a4bbf4904"
+    },
+    {
+      "name": "NVJPEG_ORIENTATION_ROTATE_270",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ORIENTATION_ROTATE_270 = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "d2af8765c570362c"
+    },
+    {
+      "name": "NVJPEG_ORIENTATION_ROTATE_90",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ORIENTATION_ROTATE_90 = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "2aac15ca8efee418"
+    },
+    {
+      "name": "NVJPEG_ORIENTATION_TRANSPOSE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ORIENTATION_TRANSPOSE = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "5b7190b4f745e4f1"
+    },
+    {
+      "name": "NVJPEG_ORIENTATION_TRANSVERSE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ORIENTATION_TRANSVERSE = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "f5b35d2e451da11e"
+    },
+    {
+      "name": "NVJPEG_ORIENTATION_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_ORIENTATION_UNKNOWN = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "71c388be94ef4bd9"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_BGR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_BGR = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "8142f7300ad80df1"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_BGRI",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_BGRI = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "4d98aa005d513f67"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_FORMAT_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_FORMAT_MAX = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "75e46a8ff385de79"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_NV12",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_NV12 = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "d5220df426320470"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_RGB",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_RGB = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "dcb04ea6613ad622"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_RGBI",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_RGBI = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "3a4c7dc20ef8ab32"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_UNCHANGED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_UNCHANGED = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "13ef5c5cb2db0a37"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_UNCHANGEDI_U16",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_UNCHANGEDI_U16 = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "619492184cb0e3ff"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_Y",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_Y = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "cb7db32523279be5"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_YUV",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_YUV = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "da963ffa39a99cf2"
+    },
+    {
+      "name": "NVJPEG_OUTPUT_YUY2",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_OUTPUT_YUY2 = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "6024aa47ee4e9421"
+    },
+    {
+      "name": "NVJPEG_SCALE_1_BY_2",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_SCALE_1_BY_2 = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "6b55e04e05c197e0"
+    },
+    {
+      "name": "NVJPEG_SCALE_1_BY_4",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_SCALE_1_BY_4 = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "ef377739046f5839"
+    },
+    {
+      "name": "NVJPEG_SCALE_1_BY_8",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_SCALE_1_BY_8 = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "4ba8ed65b721a02a"
+    },
+    {
+      "name": "NVJPEG_SCALE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_SCALE_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "67b29b70cf419c7e"
+    },
+    {
+      "name": "NVJPEG_STATUS_ALLOCATOR_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_ALLOCATOR_FAILURE = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "eeea97cd4abbf084"
+    },
+    {
+      "name": "NVJPEG_STATUS_ARCH_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_ARCH_MISMATCH = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "e6ff188fc1b7a506"
+    },
+    {
+      "name": "NVJPEG_STATUS_BAD_JPEG",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_BAD_JPEG = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "bbf039bfc9b25eaf"
+    },
+    {
+      "name": "NVJPEG_STATUS_EXECUTION_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_EXECUTION_FAILED = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "1cec2cbbb84e6f63"
+    },
+    {
+      "name": "NVJPEG_STATUS_IMPLEMENTATION_NOT_SUPPORTED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_IMPLEMENTATION_NOT_SUPPORTED = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "a1beba87f1fc96a6"
+    },
+    {
+      "name": "NVJPEG_STATUS_INCOMPLETE_BITSTREAM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_INCOMPLETE_BITSTREAM = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "1b31afadf64d917a"
+    },
+    {
+      "name": "NVJPEG_STATUS_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_INTERNAL_ERROR = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "cf958d8b8d200bfa"
+    },
+    {
+      "name": "NVJPEG_STATUS_INVALID_PARAMETER",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_INVALID_PARAMETER = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "da057a65d496fee6"
+    },
+    {
+      "name": "NVJPEG_STATUS_JPEG_NOT_SUPPORTED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_JPEG_NOT_SUPPORTED = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "f132cd88914bf3d9"
+    },
+    {
+      "name": "NVJPEG_STATUS_NOT_INITIALIZED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_NOT_INITIALIZED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "aa5c0ff6c5607185"
+    },
+    {
+      "name": "NVJPEG_STATUS_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "NVJPEG_STATUS_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "946283f78a018310"
+    },
+    {
+      "name": "nvjpegExifOrientation",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "enum nvjpegExifOrientation",
+      "decl_hash": "ffb44daf6a9b2dc7"
+    },
+    {
+      "name": "nvjpegBufferDeviceCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegBufferDeviceCreate(nvjpegHandle_t handle, nvjpegDevAllocator_t * device_allocator, nvjpegBufferDevice_t * buffer)",
+      "decl_hash": "47d1f61e74614ce4"
+    },
+    {
+      "name": "nvjpegBufferDeviceCreateV2",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegBufferDeviceCreateV2(nvjpegHandle_t handle, nvjpegDevAllocatorV2_t * device_allocator, nvjpegBufferDevice_t * buffer)",
+      "decl_hash": "d1d534dbb28435eb"
+    },
+    {
+      "name": "nvjpegBufferDeviceDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegBufferDeviceDestroy(nvjpegBufferDevice_t buffer)",
+      "decl_hash": "72212725d8c96da1"
+    },
+    {
+      "name": "nvjpegBufferDeviceResize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegBufferDeviceResize(nvjpegBufferDevice_t buffer, size_t size, cudaStream_t stream)",
+      "decl_hash": "c6dc657abd4ef7bd"
+    },
+    {
+      "name": "nvjpegBufferDeviceRetrieve",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegBufferDeviceRetrieve(nvjpegBufferDevice_t buffer, size_t * size, void ** ptr)",
+      "decl_hash": "e21efd9c89b37c55"
+    },
+    {
+      "name": "nvjpegBufferPinnedCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegBufferPinnedCreate(nvjpegHandle_t handle, nvjpegPinnedAllocator_t * pinned_allocator, nvjpegBufferPinned_t * buffer)",
+      "decl_hash": "04d7ec70a9bf8db9"
+    },
+    {
+      "name": "nvjpegBufferPinnedCreateV2",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegBufferPinnedCreateV2(nvjpegHandle_t handle, nvjpegPinnedAllocatorV2_t * pinned_allocator, nvjpegBufferPinned_t * buffer)",
+      "decl_hash": "1d87dc61e2b42b6c"
+    },
+    {
+      "name": "nvjpegBufferPinnedDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegBufferPinnedDestroy(nvjpegBufferPinned_t buffer)",
+      "decl_hash": "476c5d4116fdd522"
+    },
+    {
+      "name": "nvjpegBufferPinnedResize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegBufferPinnedResize(nvjpegBufferPinned_t buffer, size_t size, cudaStream_t stream)",
+      "decl_hash": "47bdd52c7be9fd60"
+    },
+    {
+      "name": "nvjpegBufferPinnedRetrieve",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegBufferPinnedRetrieve(nvjpegBufferPinned_t buffer, size_t * size, void ** ptr)",
+      "decl_hash": "b934b4e3e5e9b2c2"
+    },
+    {
+      "name": "nvjpegCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegCreate(nvjpegBackend_t backend, nvjpegDevAllocator_t * dev_allocator, nvjpegHandle_t * handle)",
+      "decl_hash": "014c7200fe298b02"
+    },
+    {
+      "name": "nvjpegCreateEx",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegCreateEx(nvjpegBackend_t backend, nvjpegDevAllocator_t * dev_allocator, nvjpegPinnedAllocator_t * pinned_allocator, unsigned int flags, nvjpegHandle_t * handle)",
+      "decl_hash": "ef07f15972e5d854"
+    },
+    {
+      "name": "nvjpegCreateExV2",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegCreateExV2(nvjpegBackend_t backend, nvjpegDevAllocatorV2_t * dev_allocator, nvjpegPinnedAllocatorV2_t * pinned_allocator, unsigned int flags, nvjpegHandle_t * handle)",
+      "decl_hash": "80fecf38fe31bee8"
+    },
+    {
+      "name": "nvjpegCreateSimple",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegCreateSimple(nvjpegHandle_t * handle)",
+      "decl_hash": "d646fddda97a2b48"
+    },
+    {
+      "name": "nvjpegDecode",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecode(nvjpegHandle_t handle, nvjpegJpegState_t jpeg_handle, const unsigned char * data, size_t length, nvjpegOutputFormat_t output_format, nvjpegImage_t * destination, cudaStream_t stream)",
+      "decl_hash": "09af554077307f00"
+    },
+    {
+      "name": "nvjpegDecodeBatched",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeBatched(nvjpegHandle_t handle, nvjpegJpegState_t jpeg_handle, const unsigned char *const * data, const size_t * lengths, nvjpegImage_t * destinations, cudaStream_t stream)",
+      "decl_hash": "c5f08c482334a964"
+    },
+    {
+      "name": "nvjpegDecodeBatchedEx",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeBatchedEx(nvjpegHandle_t handle, nvjpegJpegState_t jpeg_handle, const unsigned char *const * data, const size_t * lengths, nvjpegImage_t * destinations, nvjpegDecodeParams_t * decode_params, cudaStream_t stream)",
+      "decl_hash": "7e4f1d6fbe9e769a"
+    },
+    {
+      "name": "nvjpegDecodeBatchedInitialize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeBatchedInitialize(nvjpegHandle_t handle, nvjpegJpegState_t jpeg_handle, int batch_size, int max_cpu_threads, nvjpegOutputFormat_t output_format)",
+      "decl_hash": "7fc80fecf7ac095f"
+    },
+    {
+      "name": "nvjpegDecodeBatchedParseJpegTables",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeBatchedParseJpegTables(nvjpegHandle_t handle, nvjpegJpegState_t jpeg_handle, const unsigned char * data, const size_t length)",
+      "decl_hash": "3b55a4102f8c6345"
+    },
+    {
+      "name": "nvjpegDecodeBatchedPreAllocate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeBatchedPreAllocate(nvjpegHandle_t handle, nvjpegJpegState_t jpeg_handle, int batch_size, int width, int height, nvjpegChromaSubsampling_t chroma_subsampling, nvjpegOutputFormat_t output_format)",
+      "decl_hash": "e2bf8458d600aeba"
+    },
+    {
+      "name": "nvjpegDecodeBatchedSupported",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeBatchedSupported(nvjpegHandle_t handle, nvjpegJpegStream_t jpeg_stream, int * is_supported)",
+      "decl_hash": "8fe6d23c64007838"
+    },
+    {
+      "name": "nvjpegDecodeBatchedSupportedEx",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeBatchedSupportedEx(nvjpegHandle_t handle, nvjpegJpegStream_t jpeg_stream, nvjpegDecodeParams_t decode_params, int * is_supported)",
+      "decl_hash": "ee794f781692b717"
+    },
+    {
+      "name": "nvjpegDecodeJpeg",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeJpeg(nvjpegHandle_t handle, nvjpegJpegDecoder_t decoder, nvjpegJpegState_t decoder_state, nvjpegJpegStream_t jpeg_bitstream, nvjpegImage_t * destination, nvjpegDecodeParams_t decode_params, cudaStream_t stream)",
+      "decl_hash": "6a46830bb9201230"
+    },
+    {
+      "name": "nvjpegDecodeJpegDevice",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeJpegDevice(nvjpegHandle_t handle, nvjpegJpegDecoder_t decoder, nvjpegJpegState_t decoder_state, nvjpegImage_t * destination, cudaStream_t stream)",
+      "decl_hash": "f9594ac690604904"
+    },
+    {
+      "name": "nvjpegDecodeJpegHost",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeJpegHost(nvjpegHandle_t handle, nvjpegJpegDecoder_t decoder, nvjpegJpegState_t decoder_state, nvjpegDecodeParams_t decode_params, nvjpegJpegStream_t jpeg_stream)",
+      "decl_hash": "a95300bede09de87"
+    },
+    {
+      "name": "nvjpegDecodeJpegTransferToDevice",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeJpegTransferToDevice(nvjpegHandle_t handle, nvjpegJpegDecoder_t decoder, nvjpegJpegState_t decoder_state, nvjpegJpegStream_t jpeg_stream, cudaStream_t stream)",
+      "decl_hash": "a29d0553a7f234dc"
+    },
+    {
+      "name": "nvjpegDecodeParamsCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeParamsCreate(nvjpegHandle_t handle, nvjpegDecodeParams_t * decode_params)",
+      "decl_hash": "03c6e7fba7675733"
+    },
+    {
+      "name": "nvjpegDecodeParamsDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeParamsDestroy(nvjpegDecodeParams_t decode_params)",
+      "decl_hash": "40bda9982d060d91"
+    },
+    {
+      "name": "nvjpegDecodeParamsSetAllowCMYK",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeParamsSetAllowCMYK(nvjpegDecodeParams_t decode_params, int allow_cmyk)",
+      "decl_hash": "dc5e9df43a0e0726"
+    },
+    {
+      "name": "nvjpegDecodeParamsSetExifOrientation",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeParamsSetExifOrientation(nvjpegDecodeParams_t decode_params, nvjpegExifOrientation_t orientation)",
+      "decl_hash": "07bbecb2cac75709"
+    },
+    {
+      "name": "nvjpegDecodeParamsSetOutputFormat",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeParamsSetOutputFormat(nvjpegDecodeParams_t decode_params, nvjpegOutputFormat_t output_format)",
+      "decl_hash": "71781525424d7ebf"
+    },
+    {
+      "name": "nvjpegDecodeParamsSetROI",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeParamsSetROI(nvjpegDecodeParams_t decode_params, int offset_x, int offset_y, int roi_width, int roi_height)",
+      "decl_hash": "b6929844f6d96dd1"
+    },
+    {
+      "name": "nvjpegDecodeParamsSetScaleFactor",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecodeParamsSetScaleFactor(nvjpegDecodeParams_t decode_params, nvjpegScaleFactor_t scale_factor)",
+      "decl_hash": "8a7cf7515787756b"
+    },
+    {
+      "name": "nvjpegDecoderCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecoderCreate(nvjpegHandle_t nvjpeg_handle, nvjpegBackend_t implementation, nvjpegJpegDecoder_t * decoder_handle)",
+      "decl_hash": "ba48bd5034afdeb8"
+    },
+    {
+      "name": "nvjpegDecoderDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecoderDestroy(nvjpegJpegDecoder_t decoder_handle)",
+      "decl_hash": "2b5f9acb14ae2ab5"
+    },
+    {
+      "name": "nvjpegDecoderJpegSupported",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecoderJpegSupported(nvjpegJpegDecoder_t decoder_handle, nvjpegJpegStream_t jpeg_stream, nvjpegDecodeParams_t decode_params, int * is_supported)",
+      "decl_hash": "4fd0531acb477a26"
+    },
+    {
+      "name": "nvjpegDecoderStateCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDecoderStateCreate(nvjpegHandle_t nvjpeg_handle, nvjpegJpegDecoder_t decoder_handle, nvjpegJpegState_t * decoder_state)",
+      "decl_hash": "b373f4d66072312f"
+    },
+    {
+      "name": "nvjpegDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegDestroy(nvjpegHandle_t handle)",
+      "decl_hash": "b2d5f34720cd13bb"
+    },
+    {
+      "name": "nvjpegEncode",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncode(nvjpegHandle_t handle, nvjpegEncoderState_t encoder_state, const nvjpegEncoderParams_t encoder_params, const nvjpegImage_t * source, nvjpegChromaSubsampling_t input_subsampling, nvjpegInputFormat_t input_format, int image_width, int image_height, cudaStream_t stream)",
+      "decl_hash": "c3c0f8db28ef298b"
+    },
+    {
+      "name": "nvjpegEncodeGetBufferSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncodeGetBufferSize(nvjpegHandle_t handle, const nvjpegEncoderParams_t encoder_params, int image_width, int image_height, size_t * max_stream_length)",
+      "decl_hash": "bb02ee2c383bef95"
+    },
+    {
+      "name": "nvjpegEncodeImage",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncodeImage(nvjpegHandle_t handle, nvjpegEncoderState_t encoder_state, const nvjpegEncoderParams_t encoder_params, const nvjpegImage_t * source, nvjpegInputFormat_t input_format, int image_width, int image_height, cudaStream_t stream)",
+      "decl_hash": "7d7db4991aef2595"
+    },
+    {
+      "name": "nvjpegEncodeRetrieveBitstream",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncodeRetrieveBitstream(nvjpegHandle_t handle, nvjpegEncoderState_t encoder_state, unsigned char * data, size_t * length, cudaStream_t stream)",
+      "decl_hash": "fb4e2f47fe94e4c1"
+    },
+    {
+      "name": "nvjpegEncodeRetrieveBitstreamDevice",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncodeRetrieveBitstreamDevice(nvjpegHandle_t handle, nvjpegEncoderState_t encoder_state, unsigned char * data, size_t * length, cudaStream_t stream)",
+      "decl_hash": "1d7b10909bb2b4af"
+    },
+    {
+      "name": "nvjpegEncodeYUV",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncodeYUV(nvjpegHandle_t handle, nvjpegEncoderState_t encoder_state, const nvjpegEncoderParams_t encoder_params, const nvjpegImage_t * source, nvjpegChromaSubsampling_t chroma_subsampling, int image_width, int image_height, cudaStream_t stream)",
+      "decl_hash": "faef001cfd6d3377"
+    },
+    {
+      "name": "nvjpegEncoderParamsCopyMetadata",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderParamsCopyMetadata(nvjpegEncoderState_t encoder_state, nvjpegEncoderParams_t encode_params, nvjpegJpegStream_t jpeg_stream, cudaStream_t stream)",
+      "decl_hash": "ba4b89ae1b9dff87"
+    },
+    {
+      "name": "nvjpegEncoderParamsCopyQuantizationTables",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderParamsCopyQuantizationTables(nvjpegEncoderParams_t encode_params, nvjpegJpegStream_t jpeg_stream, cudaStream_t stream)",
+      "decl_hash": "cd31970bf9f852c3"
+    },
+    {
+      "name": "nvjpegEncoderParamsCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderParamsCreate(nvjpegHandle_t handle, nvjpegEncoderParams_t * encoder_params, cudaStream_t stream)",
+      "decl_hash": "91cca9977f6459ca"
+    },
+    {
+      "name": "nvjpegEncoderParamsDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderParamsDestroy(nvjpegEncoderParams_t encoder_params)",
+      "decl_hash": "57ce477b7f22d7e0"
+    },
+    {
+      "name": "nvjpegEncoderParamsSetEncoding",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderParamsSetEncoding(nvjpegEncoderParams_t encoder_params, nvjpegJpegEncoding_t etype, cudaStream_t stream)",
+      "decl_hash": "406a783059101e05"
+    },
+    {
+      "name": "nvjpegEncoderParamsSetOptimizedHuffman",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderParamsSetOptimizedHuffman(nvjpegEncoderParams_t encoder_params, const int optimized, cudaStream_t stream)",
+      "decl_hash": "ab516caa0c240e1b"
+    },
+    {
+      "name": "nvjpegEncoderParamsSetQuality",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderParamsSetQuality(nvjpegEncoderParams_t encoder_params, const int quality, cudaStream_t stream)",
+      "decl_hash": "91a8b65203366f67"
+    },
+    {
+      "name": "nvjpegEncoderParamsSetRestartInterval",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderParamsSetRestartInterval(nvjpegEncoderParams_t encoder_params, unsigned int restart_interval, cudaStream_t stream)",
+      "decl_hash": "032be406a50fcbae"
+    },
+    {
+      "name": "nvjpegEncoderParamsSetSamplingFactors",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderParamsSetSamplingFactors(nvjpegEncoderParams_t encoder_params, const nvjpegChromaSubsampling_t chroma_subsampling, cudaStream_t stream)",
+      "decl_hash": "5ccf1d5bd7dd75d7"
+    },
+    {
+      "name": "nvjpegEncoderStateCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderStateCreate(nvjpegHandle_t handle, nvjpegEncoderState_t * encoder_state, cudaStream_t stream)",
+      "decl_hash": "8065b1770d270b70"
+    },
+    {
+      "name": "nvjpegEncoderStateCreateWithBackend",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderStateCreateWithBackend(nvjpegHandle_t handle, nvjpegEncoderState_t * encoder_state, nvjpegEncBackend_t backend, cudaStream_t stream)",
+      "decl_hash": "ae90728692dba347"
+    },
+    {
+      "name": "nvjpegEncoderStateDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegEncoderStateDestroy(nvjpegEncoderState_t encoder_state)",
+      "decl_hash": "368d5befe0c25721"
+    },
+    {
+      "name": "nvjpegGetCudartProperty",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegGetCudartProperty(libraryPropertyType type, int * value)",
+      "decl_hash": "731264abda4afd8c"
+    },
+    {
+      "name": "nvjpegGetDeviceMemoryPadding",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegGetDeviceMemoryPadding(size_t * padding, nvjpegHandle_t handle)",
+      "decl_hash": "58939b1d1eb52798"
+    },
+    {
+      "name": "nvjpegGetHardwareDecoderInfo",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegGetHardwareDecoderInfo(nvjpegHandle_t handle, unsigned int * num_engines, unsigned int * num_cores_per_engine)",
+      "decl_hash": "b42621f67e53047c"
+    },
+    {
+      "name": "nvjpegGetHardwareEncoderInfo",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegGetHardwareEncoderInfo(nvjpegHandle_t handle, unsigned int * num_engines)",
+      "decl_hash": "8b45478e1ece5768"
+    },
+    {
+      "name": "nvjpegGetImageInfo",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegGetImageInfo(nvjpegHandle_t handle, const unsigned char * data, size_t length, int * nComponents, nvjpegChromaSubsampling_t * subsampling, int * widths, int * heights)",
+      "decl_hash": "f7c92d37f4fd8005"
+    },
+    {
+      "name": "nvjpegGetPinnedMemoryPadding",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegGetPinnedMemoryPadding(size_t * padding, nvjpegHandle_t handle)",
+      "decl_hash": "b067531d1b27e480"
+    },
+    {
+      "name": "nvjpegGetProperty",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegGetProperty(libraryPropertyType type, int * value)",
+      "decl_hash": "06edefa2d87ef809"
+    },
+    {
+      "name": "nvjpegJpegStateCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStateCreate(nvjpegHandle_t handle, nvjpegJpegState_t * jpeg_handle)",
+      "decl_hash": "3645ba6bddce17b5"
+    },
+    {
+      "name": "nvjpegJpegStateDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStateDestroy(nvjpegJpegState_t jpeg_handle)",
+      "decl_hash": "658f7f24c334b24b"
+    },
+    {
+      "name": "nvjpegJpegStreamCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamCreate(nvjpegHandle_t handle, nvjpegJpegStream_t * jpeg_stream)",
+      "decl_hash": "d1478bc3011392b3"
+    },
+    {
+      "name": "nvjpegJpegStreamDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamDestroy(nvjpegJpegStream_t jpeg_stream)",
+      "decl_hash": "39a0cb31bbd54310"
+    },
+    {
+      "name": "nvjpegJpegStreamGetChromaSubsampling",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamGetChromaSubsampling(nvjpegJpegStream_t jpeg_stream, nvjpegChromaSubsampling_t * chroma_subsampling)",
+      "decl_hash": "9c23abcb521fbca6"
+    },
+    {
+      "name": "nvjpegJpegStreamGetComponentDimensions",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamGetComponentDimensions(nvjpegJpegStream_t jpeg_stream, unsigned int component, unsigned int * width, unsigned int * height)",
+      "decl_hash": "1c80e76241c553a5"
+    },
+    {
+      "name": "nvjpegJpegStreamGetComponentsNum",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamGetComponentsNum(nvjpegJpegStream_t jpeg_stream, unsigned int * components_num)",
+      "decl_hash": "e2cd3a59e6ef9aca"
+    },
+    {
+      "name": "nvjpegJpegStreamGetExifOrientation",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamGetExifOrientation(nvjpegJpegStream_t jpeg_stream, nvjpegExifOrientation_t * orientation_flag)",
+      "decl_hash": "e71ccbc8c445cec8"
+    },
+    {
+      "name": "nvjpegJpegStreamGetFrameDimensions",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamGetFrameDimensions(nvjpegJpegStream_t jpeg_stream, unsigned int * width, unsigned int * height)",
+      "decl_hash": "5bc1a6defc151a4d"
+    },
+    {
+      "name": "nvjpegJpegStreamGetJpegEncoding",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamGetJpegEncoding(nvjpegJpegStream_t jpeg_stream, nvjpegJpegEncoding_t * jpeg_encoding)",
+      "decl_hash": "41d0e43a5b566a4d"
+    },
+    {
+      "name": "nvjpegJpegStreamGetSamplePrecision",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamGetSamplePrecision(nvjpegJpegStream_t jpeg_stream, unsigned int * precision)",
+      "decl_hash": "1e53b3a28c505e67"
+    },
+    {
+      "name": "nvjpegJpegStreamParse",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamParse(nvjpegHandle_t handle, const unsigned char * data, size_t length, int save_metadata, int save_stream, nvjpegJpegStream_t jpeg_stream)",
+      "decl_hash": "9ebf4f20b7bbb923"
+    },
+    {
+      "name": "nvjpegJpegStreamParseHeader",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamParseHeader(nvjpegHandle_t handle, const unsigned char * data, size_t length, nvjpegJpegStream_t jpeg_stream)",
+      "decl_hash": "13398055708e103a"
+    },
+    {
+      "name": "nvjpegJpegStreamParseTables",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegJpegStreamParseTables(nvjpegHandle_t handle, const unsigned char * data, size_t length, nvjpegJpegStream_t jpeg_stream)",
+      "decl_hash": "5a58c142c12664ca"
+    },
+    {
+      "name": "nvjpegSetDeviceMemoryPadding",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegSetDeviceMemoryPadding(size_t padding, nvjpegHandle_t handle)",
+      "decl_hash": "5956baac599b7edb"
+    },
+    {
+      "name": "nvjpegSetPinnedMemoryPadding",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegSetPinnedMemoryPadding(size_t padding, nvjpegHandle_t handle)",
+      "decl_hash": "161e40d2e33d9331"
+    },
+    {
+      "name": "nvjpegStateAttachDeviceBuffer",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegStateAttachDeviceBuffer(nvjpegJpegState_t decoder_state, nvjpegBufferDevice_t device_buffer)",
+      "decl_hash": "d64eeedfb6f32162"
+    },
+    {
+      "name": "nvjpegStateAttachPinnedBuffer",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "nvjpegStatus_t nvjpegStateAttachPinnedBuffer(nvjpegJpegState_t decoder_state, nvjpegBufferPinned_t pinned_buffer)",
+      "decl_hash": "8e8a8fa6edf68358"
+    },
+    {
+      "name": "nvjpegBackend_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef enum nvjpegBackend_t nvjpegBackend_t",
+      "decl_hash": "9c17d6deb2c89370"
+    },
+    {
+      "name": "nvjpegBufferDevice_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegBufferDevice * nvjpegBufferDevice_t",
+      "decl_hash": "b7abf621f78c1f69"
+    },
+    {
+      "name": "nvjpegBufferPinned_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegBufferPinned * nvjpegBufferPinned_t",
+      "decl_hash": "d7ce5c11e70a290e"
+    },
+    {
+      "name": "nvjpegChromaSubsampling_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef enum nvjpegChromaSubsampling_t nvjpegChromaSubsampling_t",
+      "decl_hash": "dd72e6c8088a6d40"
+    },
+    {
+      "name": "nvjpegDecodeParams_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegDecodeParams * nvjpegDecodeParams_t",
+      "decl_hash": "3263326cbee09b58"
+    },
+    {
+      "name": "nvjpegDevAllocatorV2_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegDevAllocatorV2_t nvjpegDevAllocatorV2_t",
+      "decl_hash": "b8e9862d9716966c"
+    },
+    {
+      "name": "nvjpegDevAllocator_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegDevAllocator_t nvjpegDevAllocator_t",
+      "decl_hash": "77ebc0962a40451e"
+    },
+    {
+      "name": "nvjpegEncBackend_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef enum nvjpegEncBackend_t nvjpegEncBackend_t",
+      "decl_hash": "75a1270f2d9b4ccb"
+    },
+    {
+      "name": "nvjpegEncoderParams_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegEncoderParams * nvjpegEncoderParams_t",
+      "decl_hash": "d2ddda5f1c3c57cd"
+    },
+    {
+      "name": "nvjpegEncoderState_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegEncoderState * nvjpegEncoderState_t",
+      "decl_hash": "91e350c3712b6a93"
+    },
+    {
+      "name": "nvjpegExifOrientation_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef enum nvjpegExifOrientation nvjpegExifOrientation_t",
+      "decl_hash": "31b0d05892d8fde7"
+    },
+    {
+      "name": "nvjpegHandle_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegHandle * nvjpegHandle_t",
+      "decl_hash": "d2abf97221f551bc"
+    },
+    {
+      "name": "nvjpegImage_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegImage_t nvjpegImage_t",
+      "decl_hash": "750ef9c53aafcdda"
+    },
+    {
+      "name": "nvjpegInputFormat_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef enum nvjpegInputFormat_t nvjpegInputFormat_t",
+      "decl_hash": "c5250607ba19ca39"
+    },
+    {
+      "name": "nvjpegJpegDecoder_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegJpegDecoder * nvjpegJpegDecoder_t",
+      "decl_hash": "0bb203206af05804"
+    },
+    {
+      "name": "nvjpegJpegEncoding_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef enum nvjpegJpegEncoding_t nvjpegJpegEncoding_t",
+      "decl_hash": "a3f020cc86df5415"
+    },
+    {
+      "name": "nvjpegJpegState_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegJpegState * nvjpegJpegState_t",
+      "decl_hash": "00e293a1975447b6"
+    },
+    {
+      "name": "nvjpegJpegStream_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegJpegStream * nvjpegJpegStream_t",
+      "decl_hash": "875090a4106dacb4"
+    },
+    {
+      "name": "nvjpegOutputFormat_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef enum nvjpegOutputFormat_t nvjpegOutputFormat_t",
+      "decl_hash": "979103aadcba1137"
+    },
+    {
+      "name": "nvjpegPinnedAllocatorV2_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegPinnedAllocatorV2_t nvjpegPinnedAllocatorV2_t",
+      "decl_hash": "f422b66ae22f1d84"
+    },
+    {
+      "name": "nvjpegPinnedAllocator_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef struct nvjpegPinnedAllocator_t nvjpegPinnedAllocator_t",
+      "decl_hash": "9f892497448ea73c"
+    },
+    {
+      "name": "nvjpegScaleFactor_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef enum nvjpegScaleFactor_t nvjpegScaleFactor_t",
+      "decl_hash": "8c7e47aa42d24ce0"
+    },
+    {
+      "name": "nvjpegStatus_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/nvjpeg.h",
+      "decl": "typedef enum nvjpegStatus_t nvjpegStatus_t",
+      "decl_hash": "f5b80f1c21a3bad3"
+    }
+  ]
+}

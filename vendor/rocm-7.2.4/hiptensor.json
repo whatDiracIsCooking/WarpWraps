@@ -1,0 +1,1483 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hiptensor/hiptensor.h",
+    "config": {
+      "backend": "HIP",
+      "sdk_version": "ROCm 7.2.4",
+      "arch": "gfx942",
+      "defines": [
+        "__HIP_PLATFORM_AMD__"
+      ],
+      "includes": [
+        "/opt/rocm/include",
+        "/opt/rocm-ds/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+    "prefix": "hiptensor",
+    "symbol_count": 176
+  },
+  "symbols": [
+    {
+      "name": "hiptensorHandle",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "struct hiptensorHandle",
+      "decl_hash": "0a0097ebe15bfd91"
+    },
+    {
+      "name": "hiptensorOperationDescriptor",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "struct hiptensorOperationDescriptor",
+      "decl_hash": "c5c31650c3d7d787"
+    },
+    {
+      "name": "hiptensorPlan",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "struct hiptensorPlan",
+      "decl_hash": "1de7fc377caef75e"
+    },
+    {
+      "name": "hiptensorPlanPreference",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "struct hiptensorPlanPreference",
+      "decl_hash": "9ff4ed39c7e5877f"
+    },
+    {
+      "name": "hiptensorTensorDescriptor",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "struct hiptensorTensorDescriptor",
+      "decl_hash": "f09e4e0343b39b6c"
+    },
+    {
+      "name": "HIPTENSOR_ALGO_ACTOR_CRITIC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_ALGO_ACTOR_CRITIC = -8",
+      "value": -8,
+      "value_explicit": true,
+      "decl_hash": "27409b7c1349a8c2"
+    },
+    {
+      "name": "HIPTENSOR_ALGO_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_ALGO_DEFAULT = -1",
+      "value": -1,
+      "value_explicit": true,
+      "decl_hash": "964f5e6d4fe207c5"
+    },
+    {
+      "name": "HIPTENSOR_ALGO_DEFAULT_PATIENT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_ALGO_DEFAULT_PATIENT = -6",
+      "value": -6,
+      "value_explicit": true,
+      "decl_hash": "4dcd0d18ae5bc845"
+    },
+    {
+      "name": "HIPTENSOR_AUTOTUNE_MODE_INCREMENTAL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_AUTOTUNE_MODE_INCREMENTAL = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "3fe8a5c6729776bf"
+    },
+    {
+      "name": "HIPTENSOR_AUTOTUNE_MODE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_AUTOTUNE_MODE_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "7ea8b467fcce01f4"
+    },
+    {
+      "name": "HIPTENSOR_CACHE_MODE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_CACHE_MODE_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "71b11087630bb8bd"
+    },
+    {
+      "name": "HIPTENSOR_CACHE_MODE_PEDANTIC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_CACHE_MODE_PEDANTIC = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "f71820405919edd0"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_16BF",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_16BF = 1024",
+      "value": 1024,
+      "value_explicit": true,
+      "decl_hash": "82c6b45a0d556f7c"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_16F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_16F = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "4ff34d5749f802cb"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_32F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_32F = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "06d7fa646fa60f7e"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_32I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_32I = 512",
+      "value": 512,
+      "value_explicit": true,
+      "decl_hash": "b1c7e051c1fe6766"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_32U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_32U = 128",
+      "value": 128,
+      "value_explicit": true,
+      "decl_hash": "1c8948a0e90ed60b"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_64F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_64F = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "51f44542bb416076"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_8I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_8I = 256",
+      "value": 256,
+      "value_explicit": true,
+      "decl_hash": "2d9c3ff6dbc25878"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_8U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_8U = 64",
+      "value": 64,
+      "value_explicit": true,
+      "decl_hash": "ae5edeecead52888"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_C32F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_C32F = 2048",
+      "value": 2048,
+      "value_explicit": true,
+      "decl_hash": "d425f542c94a63b7"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_C64F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_C64F = 4096",
+      "value": 4096,
+      "value_explicit": true,
+      "decl_hash": "da0ea86a9e5e2e6d"
+    },
+    {
+      "name": "HIPTENSOR_COMPUTE_DESC_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_COMPUTE_DESC_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "028abeb944c4af0e"
+    },
+    {
+      "name": "HIPTENSOR_C_16BF",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_16BF = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "3677af22959d9c44"
+    },
+    {
+      "name": "HIPTENSOR_C_16F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_16F = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "0d9a598581036102"
+    },
+    {
+      "name": "HIPTENSOR_C_16I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_16I = 21",
+      "value": 21,
+      "value_explicit": true,
+      "decl_hash": "8ea412718365e751"
+    },
+    {
+      "name": "HIPTENSOR_C_16U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_16U = 23",
+      "value": 23,
+      "value_explicit": true,
+      "decl_hash": "bbd414729f1afb8d"
+    },
+    {
+      "name": "HIPTENSOR_C_32F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_32F = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "906ba0de092de666"
+    },
+    {
+      "name": "HIPTENSOR_C_32I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_32I = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "1e859803d53a2b98"
+    },
+    {
+      "name": "HIPTENSOR_C_32U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_32U = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "de148c2b9b0a766f"
+    },
+    {
+      "name": "HIPTENSOR_C_4I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_4I = 17",
+      "value": 17,
+      "value_explicit": true,
+      "decl_hash": "0504e20ebea55423"
+    },
+    {
+      "name": "HIPTENSOR_C_4U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_4U = 19",
+      "value": 19,
+      "value_explicit": true,
+      "decl_hash": "2f772f236ece33c4"
+    },
+    {
+      "name": "HIPTENSOR_C_64F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_64F = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "2c26b831cf2309a3"
+    },
+    {
+      "name": "HIPTENSOR_C_64I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_64I = 25",
+      "value": 25,
+      "value_explicit": true,
+      "decl_hash": "4f28b35ef72dbce7"
+    },
+    {
+      "name": "HIPTENSOR_C_64U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_64U = 27",
+      "value": 27,
+      "value_explicit": true,
+      "decl_hash": "651a9ce1aa514b5a"
+    },
+    {
+      "name": "HIPTENSOR_C_8I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_8I = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "24c9dcc93c25094c"
+    },
+    {
+      "name": "HIPTENSOR_C_8U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_C_8U = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "c255a170903674ae"
+    },
+    {
+      "name": "HIPTENSOR_JIT_MODE_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_JIT_MODE_DEFAULT = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "1de78be01b27e491"
+    },
+    {
+      "name": "HIPTENSOR_JIT_MODE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_JIT_MODE_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "8b7ed531f6dd0218"
+    },
+    {
+      "name": "HIPTENSOR_LOG_LEVEL_API_TRACE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_LOG_LEVEL_API_TRACE = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "126c6a3d0a611e8b"
+    },
+    {
+      "name": "HIPTENSOR_LOG_LEVEL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_LOG_LEVEL_ERROR = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "0d4582f2c212dcfc"
+    },
+    {
+      "name": "HIPTENSOR_LOG_LEVEL_HEURISTICS_TRACE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_LOG_LEVEL_HEURISTICS_TRACE = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "128abc12ac5ed5fd"
+    },
+    {
+      "name": "HIPTENSOR_LOG_LEVEL_OFF",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_LOG_LEVEL_OFF = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "955bfe9332560a7f"
+    },
+    {
+      "name": "HIPTENSOR_LOG_LEVEL_PERF_HINT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_LOG_LEVEL_PERF_HINT = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "c87bc6a88fad8782"
+    },
+    {
+      "name": "HIPTENSOR_LOG_LEVEL_PERF_TRACE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_LOG_LEVEL_PERF_TRACE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "cb747f5183fde46a"
+    },
+    {
+      "name": "HIPTENSOR_OPERATION_DESCRIPTOR_FLOPS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OPERATION_DESCRIPTOR_FLOPS = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "cbf151baf34706bf"
+    },
+    {
+      "name": "HIPTENSOR_OPERATION_DESCRIPTOR_MOVED_BYTES",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OPERATION_DESCRIPTOR_MOVED_BYTES = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "710a48235063f81a"
+    },
+    {
+      "name": "HIPTENSOR_OPERATION_DESCRIPTOR_PADDING_LEFT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OPERATION_DESCRIPTOR_PADDING_LEFT = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "c8ce8f658c5d7116"
+    },
+    {
+      "name": "HIPTENSOR_OPERATION_DESCRIPTOR_PADDING_RIGHT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OPERATION_DESCRIPTOR_PADDING_RIGHT = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "4b8e4bf61d6fb99f"
+    },
+    {
+      "name": "HIPTENSOR_OPERATION_DESCRIPTOR_PADDING_VALUE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OPERATION_DESCRIPTOR_PADDING_VALUE = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "4ff75a12c1586348"
+    },
+    {
+      "name": "HIPTENSOR_OPERATION_DESCRIPTOR_SCALAR_TYPE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OPERATION_DESCRIPTOR_SCALAR_TYPE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "4151ced3859f11c2"
+    },
+    {
+      "name": "HIPTENSOR_OPERATION_DESCRIPTOR_TAG",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OPERATION_DESCRIPTOR_TAG = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "0b248f52f9b2fb42"
+    },
+    {
+      "name": "HIPTENSOR_OP_ABS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_ABS = 24",
+      "value": 24,
+      "value_explicit": true,
+      "decl_hash": "f33dc35051715b5f"
+    },
+    {
+      "name": "HIPTENSOR_OP_ACOS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_ACOS = 32",
+      "value": 32,
+      "value_explicit": true,
+      "decl_hash": "58cb8e119db472fd"
+    },
+    {
+      "name": "HIPTENSOR_OP_ACOSH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_ACOSH = 35",
+      "value": 35,
+      "value_explicit": true,
+      "decl_hash": "807ea05b65396414"
+    },
+    {
+      "name": "HIPTENSOR_OP_ADD",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_ADD = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "061a5f1a60463804"
+    },
+    {
+      "name": "HIPTENSOR_OP_ASIN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_ASIN = 31",
+      "value": 31,
+      "value_explicit": true,
+      "decl_hash": "061d4473cc3da163"
+    },
+    {
+      "name": "HIPTENSOR_OP_ASINH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_ASINH = 34",
+      "value": 34,
+      "value_explicit": true,
+      "decl_hash": "01aeb7baa420a25e"
+    },
+    {
+      "name": "HIPTENSOR_OP_ATAN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_ATAN = 33",
+      "value": 33,
+      "value_explicit": true,
+      "decl_hash": "029b3d10111fac97"
+    },
+    {
+      "name": "HIPTENSOR_OP_ATANH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_ATANH = 36",
+      "value": 36,
+      "value_explicit": true,
+      "decl_hash": "73bf684d4d13da7f"
+    },
+    {
+      "name": "HIPTENSOR_OP_CEIL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_CEIL = 37",
+      "value": 37,
+      "value_explicit": true,
+      "decl_hash": "0a1091d4673a6146"
+    },
+    {
+      "name": "HIPTENSOR_OP_CONJ",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_CONJ = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "99eb8c78373a7e62"
+    },
+    {
+      "name": "HIPTENSOR_OP_COS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_COS = 27",
+      "value": 27,
+      "value_explicit": true,
+      "decl_hash": "106a89f121972416"
+    },
+    {
+      "name": "HIPTENSOR_OP_COSH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_COSH = 30",
+      "value": 30,
+      "value_explicit": true,
+      "decl_hash": "91c9d3ff66a4cc31"
+    },
+    {
+      "name": "HIPTENSOR_OP_EXP",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_EXP = 22",
+      "value": 22,
+      "value_explicit": true,
+      "decl_hash": "fcf61ee290c43244"
+    },
+    {
+      "name": "HIPTENSOR_OP_FLOOR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_FLOOR = 38",
+      "value": 38,
+      "value_explicit": true,
+      "decl_hash": "be2f410998b9c378"
+    },
+    {
+      "name": "HIPTENSOR_OP_IDENTITY",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_IDENTITY = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "14049a15a28e7e7a"
+    },
+    {
+      "name": "HIPTENSOR_OP_LOG",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_LOG = 23",
+      "value": 23,
+      "value_explicit": true,
+      "decl_hash": "45c60e2bdbed850b"
+    },
+    {
+      "name": "HIPTENSOR_OP_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_MAX = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "44a7892b9b36b336"
+    },
+    {
+      "name": "HIPTENSOR_OP_MIN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_MIN = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "91f2fbcc25e987c2"
+    },
+    {
+      "name": "HIPTENSOR_OP_MUL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_MUL = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "61890b895b12fb30"
+    },
+    {
+      "name": "HIPTENSOR_OP_NEG",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_NEG = 25",
+      "value": 25,
+      "value_explicit": true,
+      "decl_hash": "893ba5d010697f7d"
+    },
+    {
+      "name": "HIPTENSOR_OP_RCP",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_RCP = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "d19f6a7d04995e02"
+    },
+    {
+      "name": "HIPTENSOR_OP_RELU",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_RELU = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "069927f1cf7b8198"
+    },
+    {
+      "name": "HIPTENSOR_OP_SIGMOID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_SIGMOID = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "524360309b909b39"
+    },
+    {
+      "name": "HIPTENSOR_OP_SIN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_SIN = 26",
+      "value": 26,
+      "value_explicit": true,
+      "decl_hash": "5822651c3ca68799"
+    },
+    {
+      "name": "HIPTENSOR_OP_SINH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_SINH = 29",
+      "value": 29,
+      "value_explicit": true,
+      "decl_hash": "86867a93dbd41ea0"
+    },
+    {
+      "name": "HIPTENSOR_OP_SQRT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_SQRT = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "4d52869fab8ec855"
+    },
+    {
+      "name": "HIPTENSOR_OP_TAN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_TAN = 28",
+      "value": 28,
+      "value_explicit": true,
+      "decl_hash": "04953f4662dc4d52"
+    },
+    {
+      "name": "HIPTENSOR_OP_TANH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_TANH = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "31387a66242db8f6"
+    },
+    {
+      "name": "HIPTENSOR_OP_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_OP_UNKNOWN = 126",
+      "value": 126,
+      "value_explicit": true,
+      "decl_hash": "bcae1a64a2fe525c"
+    },
+    {
+      "name": "HIPTENSOR_PLAN_PREFERENCE_ALGO",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_PLAN_PREFERENCE_ALGO = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "ad7bdf20af9e7ff8"
+    },
+    {
+      "name": "HIPTENSOR_PLAN_PREFERENCE_AUTOTUNE_MODE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_PLAN_PREFERENCE_AUTOTUNE_MODE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "831b2a5972534814"
+    },
+    {
+      "name": "HIPTENSOR_PLAN_PREFERENCE_CACHE_MODE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_PLAN_PREFERENCE_CACHE_MODE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "7358ca1596a323a4"
+    },
+    {
+      "name": "HIPTENSOR_PLAN_PREFERENCE_INCREMENTAL_COUNT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_PLAN_PREFERENCE_INCREMENTAL_COUNT = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "55151ad09829d6fb"
+    },
+    {
+      "name": "HIPTENSOR_PLAN_PREFERENCE_JIT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_PLAN_PREFERENCE_JIT = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "7db358f7efc1fac2"
+    },
+    {
+      "name": "HIPTENSOR_PLAN_PREFERENCE_KERNEL_RANK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_PLAN_PREFERENCE_KERNEL_RANK = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "56d944070e11a56f"
+    },
+    {
+      "name": "HIPTENSOR_PLAN_REQUIRED_WORKSPACE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_PLAN_REQUIRED_WORKSPACE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "0b474df84c9d8868"
+    },
+    {
+      "name": "HIPTENSOR_R_16BF",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_16BF = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "c98bc56da6365f8d"
+    },
+    {
+      "name": "HIPTENSOR_R_16F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_16F = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "41ad8d7c41102a89"
+    },
+    {
+      "name": "HIPTENSOR_R_16I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_16I = 20",
+      "value": 20,
+      "value_explicit": true,
+      "decl_hash": "67f5f6ed597b58e1"
+    },
+    {
+      "name": "HIPTENSOR_R_16U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_16U = 22",
+      "value": 22,
+      "value_explicit": true,
+      "decl_hash": "d6cedf7ab3d7d649"
+    },
+    {
+      "name": "HIPTENSOR_R_32F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_32F = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "f3b8845915a5efe3"
+    },
+    {
+      "name": "HIPTENSOR_R_32I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_32I = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "c6b6db38b5231c39"
+    },
+    {
+      "name": "HIPTENSOR_R_32U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_32U = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "f3cdf4aa53fa1b7d"
+    },
+    {
+      "name": "HIPTENSOR_R_4I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_4I = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "1bb9833b57805f25"
+    },
+    {
+      "name": "HIPTENSOR_R_4U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_4U = 18",
+      "value": 18,
+      "value_explicit": true,
+      "decl_hash": "3fcc11c91a4e1ffa"
+    },
+    {
+      "name": "HIPTENSOR_R_64F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_64F = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "64bfa5834d4fdf75"
+    },
+    {
+      "name": "HIPTENSOR_R_64I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_64I = 24",
+      "value": 24,
+      "value_explicit": true,
+      "decl_hash": "ccd96e70049499a1"
+    },
+    {
+      "name": "HIPTENSOR_R_64U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_64U = 26",
+      "value": 26,
+      "value_explicit": true,
+      "decl_hash": "97456d0e34caec77"
+    },
+    {
+      "name": "HIPTENSOR_R_8I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_8I = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "2936f3f5756586e4"
+    },
+    {
+      "name": "HIPTENSOR_R_8U",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_R_8U = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "1cb9b9a580c04dce"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_ALLOC_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_ALLOC_FAILED = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "0b6d2b77b31f613b"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_ARCH_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_ARCH_MISMATCH = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "ea19eb99c609ee14"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_CK_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_CK_ERROR = 17",
+      "value": 17,
+      "value_explicit": true,
+      "decl_hash": "a919f046c7611cc0"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_EXECUTION_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_EXECUTION_FAILED = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "906ed501d6c83f5a"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_HIP_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_HIP_ERROR = 18",
+      "value": 18,
+      "value_explicit": true,
+      "decl_hash": "48107a0fbc6cd7a1"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_INSUFFICIENT_DRIVER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_INSUFFICIENT_DRIVER = 20",
+      "value": 20,
+      "value_explicit": true,
+      "decl_hash": "295c1283e759887b"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_INSUFFICIENT_WORKSPACE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_INSUFFICIENT_WORKSPACE = 19",
+      "value": 19,
+      "value_explicit": true,
+      "decl_hash": "ab6ec03e742113bd"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_INTERNAL_ERROR = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "377bedc498ba7c19"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_INVALID_VALUE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_INVALID_VALUE = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "6a9c1f258324844f"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_IO_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_IO_ERROR = 21",
+      "value": 21,
+      "value_explicit": true,
+      "decl_hash": "00a0e74822158386"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_NOT_INITIALIZED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_NOT_INITIALIZED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "a3c8a05ced256acf"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_NOT_SUPPORTED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_NOT_SUPPORTED = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "fbdc2b3c4cc094ab"
+    },
+    {
+      "name": "HIPTENSOR_STATUS_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_STATUS_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "8192758e20509bc5"
+    },
+    {
+      "name": "HIPTENSOR_WORKSPACE_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_WORKSPACE_DEFAULT = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "29e733d7dafadc78"
+    },
+    {
+      "name": "HIPTENSOR_WORKSPACE_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_WORKSPACE_MAX = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "28f78b8bf5a52c0a"
+    },
+    {
+      "name": "HIPTENSOR_WORKSPACE_MIN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "HIPTENSOR_WORKSPACE_MIN = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "6146449e52ee6748"
+    },
+    {
+      "name": "hiptensorDataType_t",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "enum hiptensorDataType_t",
+      "decl_hash": "7ee5bc80194c44c8"
+    },
+    {
+      "name": "hiptensorContract",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorContract(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, const void * B, const void * beta, const void * C, void * D, void * workspace, uint64_t workspaceSize, hipStream_t stream)",
+      "decl_hash": "50289e422c951107"
+    },
+    {
+      "name": "hiptensorCreate",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorCreate(hiptensorHandle_t * handle)",
+      "decl_hash": "6e8d2dd1a2b57787"
+    },
+    {
+      "name": "hiptensorCreateContraction",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorCreateContraction(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descB, const int32_t * modeB, hiptensorOperator_t opB, const hiptensorTensorDescriptor_t descC, const int32_t * modeC, hiptensorOperator_t opC, const hiptensorTensorDescriptor_t descD, const int32_t * modeD, const hiptensorComputeDescriptor_t descCompute)",
+      "decl_hash": "289e17c987b0b5b6"
+    },
+    {
+      "name": "hiptensorCreateElementwiseBinary",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorCreateElementwiseBinary(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descC, const int32_t * modeC, hiptensorOperator_t opC, const hiptensorTensorDescriptor_t descD, const int32_t * modeD, hiptensorOperator_t opAC, const hiptensorComputeDescriptor_t descCompute)",
+      "decl_hash": "a18f59003787da71"
+    },
+    {
+      "name": "hiptensorCreateElementwiseTrinary",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorCreateElementwiseTrinary(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descB, const int32_t * modeB, hiptensorOperator_t opB, const hiptensorTensorDescriptor_t descC, const int32_t * modeC, hiptensorOperator_t opC, const hiptensorTensorDescriptor_t descD, const int32_t * modeD, hiptensorOperator_t opAB, hiptensorOperator_t opABC, const hiptensorComputeDescriptor_t descCompute)",
+      "decl_hash": "41b9f3318479101a"
+    },
+    {
+      "name": "hiptensorCreatePermutation",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorCreatePermutation(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descB, const int32_t * modeB, const hiptensorComputeDescriptor_t descCompute)",
+      "decl_hash": "64c18217f8636575"
+    },
+    {
+      "name": "hiptensorCreatePlan",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorCreatePlan(const hiptensorHandle_t handle, hiptensorPlan_t * plan, const hiptensorOperationDescriptor_t desc, const hiptensorPlanPreference_t pref, uint64_t workspaceSizeLimit)",
+      "decl_hash": "153b5c95cba4072c"
+    },
+    {
+      "name": "hiptensorCreatePlanPreference",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorCreatePlanPreference(const hiptensorHandle_t handle, hiptensorPlanPreference_t * pref, hiptensorAlgo_t algo, hiptensorJitMode_t jitMode)",
+      "decl_hash": "7fb07626221485ae"
+    },
+    {
+      "name": "hiptensorCreateReduction",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorCreateReduction(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descC, const int32_t * modeC, hiptensorOperator_t opC, const hiptensorTensorDescriptor_t descD, const int32_t * modeD, hiptensorOperator_t opReduce, const hiptensorComputeDescriptor_t descCompute)",
+      "decl_hash": "60557c66fe1ed497"
+    },
+    {
+      "name": "hiptensorCreateTensorDescriptor",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorCreateTensorDescriptor(const hiptensorHandle_t handle, hiptensorTensorDescriptor_t * desc, const uint32_t numModes, const int64_t * lens, const int64_t * strides, hiptensorDataType_t dataType, uint32_t alignmentRequirement)",
+      "decl_hash": "d17d7c41c3c1f726"
+    },
+    {
+      "name": "hiptensorDestroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorDestroy(hiptensorHandle_t handle)",
+      "decl_hash": "14a6a054a7df678b"
+    },
+    {
+      "name": "hiptensorDestroyOperationDescriptor",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorDestroyOperationDescriptor(hiptensorOperationDescriptor_t desc)",
+      "decl_hash": "a319bf82e7dc8306"
+    },
+    {
+      "name": "hiptensorDestroyPlan",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorDestroyPlan(hiptensorPlan_t plan)",
+      "decl_hash": "9640f496e1eca03d"
+    },
+    {
+      "name": "hiptensorDestroyPlanPreference",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorDestroyPlanPreference(hiptensorPlanPreference_t pref)",
+      "decl_hash": "1f6ae0561369f6f9"
+    },
+    {
+      "name": "hiptensorDestroyTensorDescriptor",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorDestroyTensorDescriptor(hiptensorTensorDescriptor_t desc)",
+      "decl_hash": "456cb2ed8d4afc03"
+    },
+    {
+      "name": "hiptensorElementwiseBinaryExecute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorElementwiseBinaryExecute(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, const void * gamma, const void * C, void * D, hipStream_t stream)",
+      "decl_hash": "b8fbe23cdc254fdd"
+    },
+    {
+      "name": "hiptensorElementwiseTrinaryExecute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorElementwiseTrinaryExecute(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, const void * beta, const void * B, const void * gamma, const void * C, void * D, hipStream_t stream)",
+      "decl_hash": "fe3b6c8efe8ecca8"
+    },
+    {
+      "name": "hiptensorEstimateWorkspaceSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorEstimateWorkspaceSize(const hiptensorHandle_t handle, const hiptensorOperationDescriptor_t desc, const hiptensorPlanPreference_t planPref, const hiptensorWorksizePreference_t workspacePref, uint64_t * workspaceSizeEstimate)",
+      "decl_hash": "256b6f64a07a65ba"
+    },
+    {
+      "name": "hiptensorGetErrorString",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "const char * hiptensorGetErrorString(const hiptensorStatus_t error)",
+      "decl_hash": "e6fd49b1305e3509"
+    },
+    {
+      "name": "hiptensorGetHiprtVersion",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "int hiptensorGetHiprtVersion()",
+      "decl_hash": "e931b40430d3c2d3"
+    },
+    {
+      "name": "hiptensorGetVersion",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "size_t hiptensorGetVersion()",
+      "decl_hash": "6f048cac1b5fcca2"
+    },
+    {
+      "name": "hiptensorHandleReadPlanCacheFromFile",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorHandleReadPlanCacheFromFile(hiptensorHandle_t handle, const char * fileName, uint32_t * numCachelinesRead)",
+      "decl_hash": "0ca359b84e18e4e5"
+    },
+    {
+      "name": "hiptensorHandleResizePlanCache",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorHandleResizePlanCache(hiptensorHandle_t handle, const uint32_t numEntries)",
+      "decl_hash": "76b0db87c46a63f6"
+    },
+    {
+      "name": "hiptensorHandleWritePlanCacheToFile",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorHandleWritePlanCacheToFile(const hiptensorHandle_t handle, const char * fileName)",
+      "decl_hash": "84f3d3b025bc5b4e"
+    },
+    {
+      "name": "hiptensorLoggerForceDisable",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorLoggerForceDisable()",
+      "decl_hash": "bb32377e409bc0c4"
+    },
+    {
+      "name": "hiptensorLoggerOpenFile",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorLoggerOpenFile(const char * logFile)",
+      "decl_hash": "56bf7833aa32223c"
+    },
+    {
+      "name": "hiptensorLoggerSetCallback",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorLoggerSetCallback(hiptensorLoggerCallback_t callback)",
+      "decl_hash": "a6afdde939771d86"
+    },
+    {
+      "name": "hiptensorLoggerSetFile",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorLoggerSetFile(FILE * file)",
+      "decl_hash": "bacd147a358070e6"
+    },
+    {
+      "name": "hiptensorLoggerSetLevel",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorLoggerSetLevel(hiptensorLogLevel_t level)",
+      "decl_hash": "eb9237f2b71f2b8a"
+    },
+    {
+      "name": "hiptensorLoggerSetMask",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorLoggerSetMask(int32_t mask)",
+      "decl_hash": "c342689e39f383ae"
+    },
+    {
+      "name": "hiptensorOperationDescriptorGetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorOperationDescriptorGetAttribute(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t desc, hiptensorOperationDescriptorAttribute_t attr, void * buf, size_t sizeInBytes)",
+      "decl_hash": "5a9c5c318907a5d4"
+    },
+    {
+      "name": "hiptensorOperationDescriptorSetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorOperationDescriptorSetAttribute(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t desc, hiptensorOperationDescriptorAttribute_t attr, const void * buf, size_t sizeInBytes)",
+      "decl_hash": "20fbb3168fd20536"
+    },
+    {
+      "name": "hiptensorPermute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorPermute(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, void * B, const hipStream_t stream)",
+      "decl_hash": "cdfa4ac6ed012312"
+    },
+    {
+      "name": "hiptensorPlanGetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorPlanGetAttribute(const hiptensorHandle_t handle, const hiptensorPlan_t plan, hiptensorPlanAttribute_t attr, void * buf, size_t sizeInBytes)",
+      "decl_hash": "281db4751be85bd1"
+    },
+    {
+      "name": "hiptensorPlanPreferenceSetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorPlanPreferenceSetAttribute(const hiptensorHandle_t handle, hiptensorPlanPreference_t pref, hiptensorPlanPreferenceAttribute_t attr, const void * buf, size_t sizeInBytes)",
+      "decl_hash": "b015b6ea4f92743c"
+    },
+    {
+      "name": "hiptensorReadKernelCacheFromFile",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorReadKernelCacheFromFile(hiptensorHandle_t handle, const char * fileName)",
+      "decl_hash": "a630c1cd330ed798"
+    },
+    {
+      "name": "hiptensorReduce",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorReduce(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, const void * beta, const void * C, void * D, void * workspace, uint64_t workspaceSize, hipStream_t stream)",
+      "decl_hash": "bad10f9fccbd9e02"
+    },
+    {
+      "name": "hiptensorWriteKernelCacheToFile",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorWriteKernelCacheToFile(const hiptensorHandle_t handle, const char * fileName)",
+      "decl_hash": "9af54c6bf92e1b6b"
+    },
+    {
+      "name": "hiptensorAlgo_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorAlgo_t hiptensorAlgo_t",
+      "decl_hash": "a21cf687041631df"
+    },
+    {
+      "name": "hiptensorAutotuneMode_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorAutotuneMode_t hiptensorAutotuneMode_t",
+      "decl_hash": "12b5133cc3812e9c"
+    },
+    {
+      "name": "hiptensorCacheMode_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorCacheMode_t hiptensorCacheMode_t",
+      "decl_hash": "8ce5a5919e11f9f9"
+    },
+    {
+      "name": "hiptensorComputeDescriptor_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorComputeDescriptor_t hiptensorComputeDescriptor_t",
+      "decl_hash": "a41484bcf9e7e061"
+    },
+    {
+      "name": "hiptensorDataType_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorDataType_t hiptensorDataType_t",
+      "decl_hash": "162ba04c73398b93"
+    },
+    {
+      "name": "hiptensorHandle_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef struct hiptensorHandle * hiptensorHandle_t",
+      "decl_hash": "89390ba1d4576241"
+    },
+    {
+      "name": "hiptensorJitMode_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorJitMode_t hiptensorJitMode_t",
+      "decl_hash": "7873bfcb9ffcb724"
+    },
+    {
+      "name": "hiptensorLogLevel_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorLogLevel_t hiptensorLogLevel_t",
+      "decl_hash": "a917399d9b72790d"
+    },
+    {
+      "name": "hiptensorLoggerCallback_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef void (*)(int, const char *, const char *) hiptensorLoggerCallback_t",
+      "decl_hash": "99ed45a149e68ae0"
+    },
+    {
+      "name": "hiptensorOperationDescriptorAttribute_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorOperationDescriptorAttribute_t hiptensorOperationDescriptorAttribute_t",
+      "decl_hash": "e031eab3c4e3b4ac"
+    },
+    {
+      "name": "hiptensorOperationDescriptor_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef struct hiptensorOperationDescriptor * hiptensorOperationDescriptor_t",
+      "decl_hash": "774d3ad84d8597b7"
+    },
+    {
+      "name": "hiptensorOperator_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorOperator_t hiptensorOperator_t",
+      "decl_hash": "e876eec1bba9c2d7"
+    },
+    {
+      "name": "hiptensorPlanAttribute_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorPlanAttribute_t hiptensorPlanAttribute_t",
+      "decl_hash": "ef554f75cd94ad5d"
+    },
+    {
+      "name": "hiptensorPlanPreferenceAttribute_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorPlanPreferenceAttribute_t hiptensorPlanPreferenceAttribute_t",
+      "decl_hash": "3319ba99967b1545"
+    },
+    {
+      "name": "hiptensorPlanPreference_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef struct hiptensorPlanPreference * hiptensorPlanPreference_t",
+      "decl_hash": "8de3d36e5cfeb0e6"
+    },
+    {
+      "name": "hiptensorPlan_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef struct hiptensorPlan * hiptensorPlan_t",
+      "decl_hash": "6c68796d826c80ee"
+    },
+    {
+      "name": "hiptensorStatus_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorStatus_t hiptensorStatus_t",
+      "decl_hash": "c300a5ef0c1b0b22"
+    },
+    {
+      "name": "hiptensorTensorDescriptor_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef struct hiptensorTensorDescriptor * hiptensorTensorDescriptor_t",
+      "decl_hash": "d0b533640614740b"
+    },
+    {
+      "name": "hiptensorWorksizePreference_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
+      "decl": "typedef enum hiptensorWorksizePreference_t hiptensorWorksizePreference_t",
+      "decl_hash": "f5ad519c7090e882"
+    }
+  ]
+}

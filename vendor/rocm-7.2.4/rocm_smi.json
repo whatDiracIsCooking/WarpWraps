@@ -1,0 +1,3419 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/rocm_smi/rocm_smi.h",
+    "config": {
+      "backend": "HIP",
+      "sdk_version": "ROCm 7.2.4",
+      "arch": "gfx942",
+      "defines": [
+        "__HIP_PLATFORM_AMD__"
+      ],
+      "includes": [
+        "/opt/rocm/include",
+        "/opt/rocm-ds/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+    "prefix": "rsmi",
+    "symbol_count": 418
+  },
+  "symbols": [
+    {
+      "name": "rsmi_func_id_iter_handle",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "struct rsmi_func_id_iter_handle",
+      "decl_hash": "b080ef0e5b8d8784"
+    },
+    {
+      "name": "RSMI_ACTIVITY_GFX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_ACTIVITY_GFX = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "beadc6a89577fd1e"
+    },
+    {
+      "name": "RSMI_ACTIVITY_MM",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_ACTIVITY_MM = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "488b20adb2678fc3"
+    },
+    {
+      "name": "RSMI_ACTIVITY_UMC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_ACTIVITY_UMC = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "71ac494525682af5"
+    },
+    {
+      "name": "RSMI_AVERAGE_POWER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_AVERAGE_POWER = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "e5f9525a6cd68344"
+    },
+    {
+      "name": "RSMI_CLK_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CLK_INVALID = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "6d99a7850321b8e1"
+    },
+    {
+      "name": "RSMI_CLK_TYPE_DCEF",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CLK_TYPE_DCEF = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "1fbc7e7fba98fc48"
+    },
+    {
+      "name": "RSMI_CLK_TYPE_DF",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CLK_TYPE_DF = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "af94793b983ee41e"
+    },
+    {
+      "name": "RSMI_CLK_TYPE_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CLK_TYPE_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "20c0457f86d73b01"
+    },
+    {
+      "name": "RSMI_CLK_TYPE_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CLK_TYPE_LAST = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "bf1e0a806fdacd23"
+    },
+    {
+      "name": "RSMI_CLK_TYPE_MEM",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CLK_TYPE_MEM = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "764318e8308f790d"
+    },
+    {
+      "name": "RSMI_CLK_TYPE_PCIE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CLK_TYPE_PCIE = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "45dd3de2b20fecae"
+    },
+    {
+      "name": "RSMI_CLK_TYPE_SOC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CLK_TYPE_SOC = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "2ca9f3b072c14609"
+    },
+    {
+      "name": "RSMI_CLK_TYPE_SYS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CLK_TYPE_SYS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "d1e4d89d979d12c3"
+    },
+    {
+      "name": "RSMI_CNTR_CMD_START",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CNTR_CMD_START = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "efa3619b5ab3c7b3"
+    },
+    {
+      "name": "RSMI_CNTR_CMD_STOP",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CNTR_CMD_STOP = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "b2e89d15df6a8115"
+    },
+    {
+      "name": "RSMI_COARSE_GRAIN_GFX_ACTIVITY",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_COARSE_GRAIN_GFX_ACTIVITY = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "91baa13910cbb47d"
+    },
+    {
+      "name": "RSMI_COARSE_GRAIN_MEM_ACTIVITY",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_COARSE_GRAIN_MEM_ACTIVITY = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "9f99443cdb503625"
+    },
+    {
+      "name": "RSMI_COMPUTE_PARTITION_CPX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_COMPUTE_PARTITION_CPX = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "59a1a7a3d8a8ac28"
+    },
+    {
+      "name": "RSMI_COMPUTE_PARTITION_DPX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_COMPUTE_PARTITION_DPX = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "40ab89895b514b55"
+    },
+    {
+      "name": "RSMI_COMPUTE_PARTITION_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_COMPUTE_PARTITION_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "e1adb432c8d372c5"
+    },
+    {
+      "name": "RSMI_COMPUTE_PARTITION_QPX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_COMPUTE_PARTITION_QPX = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "e3742dcfdd879d43"
+    },
+    {
+      "name": "RSMI_COMPUTE_PARTITION_SPX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_COMPUTE_PARTITION_SPX = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "fcf04f1680156071"
+    },
+    {
+      "name": "RSMI_COMPUTE_PARTITION_TPX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_COMPUTE_PARTITION_TPX = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "26cfc968f9316776"
+    },
+    {
+      "name": "RSMI_CURRENT_POWER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_CURRENT_POWER = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "adebb7c063f807b8"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_AUTO",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_AUTO = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "005f002ab1c71e11"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_DETERMINISM",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_DETERMINISM = None",
+      "value": 8,
+      "value_explicit": false,
+      "decl_hash": "373cb65c1548a9fb"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "71d8208dab656a88"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_HIGH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_HIGH = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "8dca0fdfb44cb083"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_LAST = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "51eba83e1f3b4623"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_LOW",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_LOW = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "839da8679bbabeb4"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_MANUAL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_MANUAL = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "3186f0d7cb786992"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_STABLE_MIN_MCLK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_STABLE_MIN_MCLK = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "820540740ad0900e"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_STABLE_MIN_SCLK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_STABLE_MIN_SCLK = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "d6b242872d4a952a"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_STABLE_PEAK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_STABLE_PEAK = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "dc78346bebe8c8bc"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_STABLE_STD",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_STABLE_STD = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "d8a7dbe87bd59e8f"
+    },
+    {
+      "name": "RSMI_DEV_PERF_LEVEL_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_DEV_PERF_LEVEL_UNKNOWN = 256",
+      "value": 256,
+      "value_explicit": true,
+      "decl_hash": "050be1fe5cbfadd6"
+    },
+    {
+      "name": "RSMI_EVNT_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "c1c9682516c6f616"
+    },
+    {
+      "name": "RSMI_EVNT_GRP_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_GRP_INVALID = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "f1b9fe2db82111c8"
+    },
+    {
+      "name": "RSMI_EVNT_GRP_XGMI",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_GRP_XGMI = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "49d7912046393b4d"
+    },
+    {
+      "name": "RSMI_EVNT_GRP_XGMI_DATA_OUT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_GRP_XGMI_DATA_OUT = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "78e9e571061eea4e"
+    },
+    {
+      "name": "RSMI_EVNT_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_LAST = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "34a9bc729718a5d0"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_0_BEATS_TX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_0_BEATS_TX = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "781b97250f9d92e0"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_0_NOP_TX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_0_NOP_TX = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "a10fb5b1382aabd5"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_0_REQUEST_TX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_0_REQUEST_TX = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "4d9f0224d14a396b"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_0_RESPONSE_TX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_0_RESPONSE_TX = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "288fc3c853f7eeb4"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_1_BEATS_TX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_1_BEATS_TX = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "50c42a9d9f1f02f9"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_1_NOP_TX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_1_NOP_TX = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "37221c6fddc3df88"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_1_REQUEST_TX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_1_REQUEST_TX = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "87bac2e0f21509da"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_1_RESPONSE_TX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_1_RESPONSE_TX = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "ea1f26c48dfe0445"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_DATA_OUT_0",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_DATA_OUT_0 = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "9a4b5d2079d53af8"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_DATA_OUT_1",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_DATA_OUT_1 = None",
+      "value": 11,
+      "value_explicit": false,
+      "decl_hash": "75387d5866d31e51"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_DATA_OUT_2",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_DATA_OUT_2 = None",
+      "value": 12,
+      "value_explicit": false,
+      "decl_hash": "2d64e0803695833c"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_DATA_OUT_3",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_DATA_OUT_3 = None",
+      "value": 13,
+      "value_explicit": false,
+      "decl_hash": "83db4475fe86e1af"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_DATA_OUT_4",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_DATA_OUT_4 = None",
+      "value": 14,
+      "value_explicit": false,
+      "decl_hash": "507064cfff099360"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_DATA_OUT_5",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_DATA_OUT_5 = None",
+      "value": 15,
+      "value_explicit": false,
+      "decl_hash": "89dde2c4fad37a5e"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_DATA_OUT_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_DATA_OUT_FIRST = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "cbe29772166267a8"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_DATA_OUT_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_DATA_OUT_LAST = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "23c2cde70309a91d"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "83c864b4bc7187ef"
+    },
+    {
+      "name": "RSMI_EVNT_XGMI_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVNT_XGMI_LAST = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "0466974419ba115d"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_EVENT_ALL_PROCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_EVENT_ALL_PROCESS = 64",
+      "value": 64,
+      "value_explicit": true,
+      "decl_hash": "af674b712f5a8334"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_EVENT_MIGRATE_END",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_EVENT_MIGRATE_END = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "191dbb67430ed814"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_EVENT_MIGRATE_START",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_EVENT_MIGRATE_START = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "431c6d3a026cb658"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_EVENT_PAGE_FAULT_END",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_EVENT_PAGE_FAULT_END = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "a7f2ca152bb343cc"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_EVENT_PAGE_FAULT_START",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_EVENT_PAGE_FAULT_START = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "e5856648e44e7d81"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_EVENT_QUEUE_EVICTION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_EVENT_QUEUE_EVICTION = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "bea646649b34f185"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_EVENT_QUEUE_RESTORE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_EVENT_QUEUE_RESTORE = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "ad3fc306f92b5dad"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_EVENT_UNMAP_FROM_GPU",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_EVENT_UNMAP_FROM_GPU = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "339fe6db88fdce89"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_FIRST = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "4035e096aa352128"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_GPU_POST_RESET",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_GPU_POST_RESET = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "bc39ce0cbaf3a50a"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_GPU_PRE_RESET",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_GPU_PRE_RESET = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "52e8cea3b05b9133"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_LAST = 64",
+      "value": 64,
+      "value_explicit": true,
+      "decl_hash": "9364f5791a35aeb7"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "68d12643e166ad68"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_THERMAL_THROTTLE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_THERMAL_THROTTLE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "a0c72226f19ac45e"
+    },
+    {
+      "name": "RSMI_EVT_NOTIF_VMFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_EVT_NOTIF_VMFAULT = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "ff3ffbeb2f834b55"
+    },
+    {
+      "name": "RSMI_FREQ_IND_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FREQ_IND_INVALID = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "5f13b8cc730d7d45"
+    },
+    {
+      "name": "RSMI_FREQ_IND_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FREQ_IND_MAX = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "06ba582f9e4f985f"
+    },
+    {
+      "name": "RSMI_FREQ_IND_MIN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FREQ_IND_MIN = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "39978485b80a16de"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_ASD",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_ASD = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "527ce1a36fe97db8"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_CE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_CE = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "44aee793ec7c8ae3"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_DMCU",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_DMCU = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "6aa6b16768d21ce9"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "66681a6d1449b9d8"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_LAST = 22",
+      "value": 22,
+      "value_explicit": true,
+      "decl_hash": "f44924b46244e653"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_MC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_MC = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "c5f622acc614823b"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_ME",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_ME = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "36ce3a819f079f84"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_MEC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_MEC = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "9a5549f40b2679f6"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_MEC2",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_MEC2 = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "c48658f92fa662b1"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_MES",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_MES = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "318e4f765334a380"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_MES_KIQ",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_MES_KIQ = None",
+      "value": 8,
+      "value_explicit": false,
+      "decl_hash": "29d3a6fc1e36cc8f"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_PFP",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_PFP = None",
+      "value": 9,
+      "value_explicit": false,
+      "decl_hash": "fa787144bf3b4a0d"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_RLC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_RLC = None",
+      "value": 10,
+      "value_explicit": false,
+      "decl_hash": "8c0cf686f87cc004"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_RLC_SRLC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_RLC_SRLC = None",
+      "value": 11,
+      "value_explicit": false,
+      "decl_hash": "123700f20cb12f33"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_RLC_SRLG",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_RLC_SRLG = None",
+      "value": 12,
+      "value_explicit": false,
+      "decl_hash": "4005ad8cbf3367e1"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_RLC_SRLS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_RLC_SRLS = None",
+      "value": 13,
+      "value_explicit": false,
+      "decl_hash": "99f687cb9c36a90a"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_SDMA",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_SDMA = None",
+      "value": 14,
+      "value_explicit": false,
+      "decl_hash": "8d934f0e73beb313"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_SDMA2",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_SDMA2 = None",
+      "value": 15,
+      "value_explicit": false,
+      "decl_hash": "4657523640e582e5"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_SMC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_SMC = None",
+      "value": 16,
+      "value_explicit": false,
+      "decl_hash": "2779ab4bbb19ef1e"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_SOS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_SOS = None",
+      "value": 17,
+      "value_explicit": false,
+      "decl_hash": "096b2764acea37c6"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_TA_RAS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_TA_RAS = None",
+      "value": 18,
+      "value_explicit": false,
+      "decl_hash": "2cef0ffa40cc0043"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_TA_XGMI",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_TA_XGMI = None",
+      "value": 19,
+      "value_explicit": false,
+      "decl_hash": "18f7ccfa005d7081"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_UVD",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_UVD = None",
+      "value": 20,
+      "value_explicit": false,
+      "decl_hash": "cd38ebf1d9059197"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_VCE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_VCE = None",
+      "value": 21,
+      "value_explicit": false,
+      "decl_hash": "e34e3391fd555ac1"
+    },
+    {
+      "name": "RSMI_FW_BLOCK_VCN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_FW_BLOCK_VCN = None",
+      "value": 22,
+      "value_explicit": false,
+      "decl_hash": "94533c335f9b8b68"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_ATHUB",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_ATHUB = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "68f3fde35601aa1b"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_DF",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_DF = 256",
+      "value": 256,
+      "value_explicit": true,
+      "decl_hash": "15f9dbfd0a76b3f6"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_FIRST = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "cef9e1e973e9e03b"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_FUSE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_FUSE = 8192",
+      "value": 8192,
+      "value_explicit": true,
+      "decl_hash": "179836fa9f8f2e0c"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_GFX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_GFX = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "4f108aa59d64c83d"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_HDP",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_HDP = 64",
+      "value": 64,
+      "value_explicit": true,
+      "decl_hash": "40883fb70c1e233b"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "758dbb8d4789d02e"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_LAST = 8192",
+      "value": 8192,
+      "value_explicit": true,
+      "decl_hash": "abce2218ebe4e451"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_MMHUB",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_MMHUB = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "c9f48493f0f56424"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_MP0",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_MP0 = 2048",
+      "value": 2048,
+      "value_explicit": true,
+      "decl_hash": "45e189d45997dd3f"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_MP1",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_MP1 = 4096",
+      "value": 4096,
+      "value_explicit": true,
+      "decl_hash": "83beaf00a3f6a167"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_PCIE_BIF",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_PCIE_BIF = 32",
+      "value": 32,
+      "value_explicit": true,
+      "decl_hash": "b7f7ae25e24be9dd"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_RESERVED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_RESERVED = 9223372036854775808",
+      "value": 9223372036854775808,
+      "value_explicit": true,
+      "decl_hash": "286b836f2ca6104f"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_SDMA",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_SDMA = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "46941b1360a5e4b2"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_SEM",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_SEM = 1024",
+      "value": 1024,
+      "value_explicit": true,
+      "decl_hash": "a9ab04e9b0f97e13"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_SMN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_SMN = 512",
+      "value": 512,
+      "value_explicit": true,
+      "decl_hash": "e789a6eb823e9633"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_UMC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_UMC = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "6ed37b6890c56ca2"
+    },
+    {
+      "name": "RSMI_GPU_BLOCK_XGMI_WAFL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_GPU_BLOCK_XGMI_WAFL = 128",
+      "value": 128,
+      "value_explicit": true,
+      "decl_hash": "b0b4f522ef2e94eb"
+    },
+    {
+      "name": "RSMI_INITIALIZATION_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_INITIALIZATION_ERROR = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "7bd2bceb16894388"
+    },
+    {
+      "name": "RSMI_INIT_FLAG_ALL_GPUS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_INIT_FLAG_ALL_GPUS = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "4be5fb030aa93e9f"
+    },
+    {
+      "name": "RSMI_INIT_FLAG_RESRV_TEST1",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_INIT_FLAG_RESRV_TEST1 = 576460752303423488",
+      "value": 576460752303423488,
+      "value_explicit": true,
+      "decl_hash": "b2bc08314908ab47"
+    },
+    {
+      "name": "RSMI_INIT_FLAG_THRAD_ONLY_MUTEX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_INIT_FLAG_THRAD_ONLY_MUTEX = 288230376151711744",
+      "value": 288230376151711744,
+      "value_explicit": true,
+      "decl_hash": "98bf9b9bee966f2f"
+    },
+    {
+      "name": "RSMI_INVALID_POWER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_INVALID_POWER = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "02b9919009903b7e"
+    },
+    {
+      "name": "RSMI_IOLINK_TYPE_NUMIOLINKTYPES",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_IOLINK_TYPE_NUMIOLINKTYPES = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "71cd4d944f9a522b"
+    },
+    {
+      "name": "RSMI_IOLINK_TYPE_PCIEXPRESS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_IOLINK_TYPE_PCIEXPRESS = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "451bcc0e6f0517ad"
+    },
+    {
+      "name": "RSMI_IOLINK_TYPE_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_IOLINK_TYPE_SIZE = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "6b54c8a14ec831f0"
+    },
+    {
+      "name": "RSMI_IOLINK_TYPE_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_IOLINK_TYPE_UNDEFINED = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "d6d62e219a6acb8b"
+    },
+    {
+      "name": "RSMI_IOLINK_TYPE_XGMI",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_IOLINK_TYPE_XGMI = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "ab548a0438067611"
+    },
+    {
+      "name": "RSMI_MEMORY_PARTITION_NPS1",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEMORY_PARTITION_NPS1 = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "4f74a378bb61d1e9"
+    },
+    {
+      "name": "RSMI_MEMORY_PARTITION_NPS2",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEMORY_PARTITION_NPS2 = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "c271b5862146d83f"
+    },
+    {
+      "name": "RSMI_MEMORY_PARTITION_NPS4",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEMORY_PARTITION_NPS4 = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "b94d07e1f4e2b063"
+    },
+    {
+      "name": "RSMI_MEMORY_PARTITION_NPS8",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEMORY_PARTITION_NPS8 = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "22fcec71e600ebac"
+    },
+    {
+      "name": "RSMI_MEMORY_PARTITION_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEMORY_PARTITION_UNKNOWN = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "914b6867e615775c"
+    },
+    {
+      "name": "RSMI_MEM_PAGE_STATUS_PENDING",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEM_PAGE_STATUS_PENDING = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "573ec38c03dcf615"
+    },
+    {
+      "name": "RSMI_MEM_PAGE_STATUS_RESERVED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEM_PAGE_STATUS_RESERVED = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "4fb73eee0ca2c824"
+    },
+    {
+      "name": "RSMI_MEM_PAGE_STATUS_UNRESERVABLE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEM_PAGE_STATUS_UNRESERVABLE = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "92193bce36dc6093"
+    },
+    {
+      "name": "RSMI_MEM_TYPE_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEM_TYPE_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "e8e453b97c8ec59c"
+    },
+    {
+      "name": "RSMI_MEM_TYPE_GTT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEM_TYPE_GTT = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "c5a809cc7da00f11"
+    },
+    {
+      "name": "RSMI_MEM_TYPE_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEM_TYPE_LAST = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "b9ac4bf2cad159d9"
+    },
+    {
+      "name": "RSMI_MEM_TYPE_VIS_VRAM",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEM_TYPE_VIS_VRAM = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "39d26a52e603ead7"
+    },
+    {
+      "name": "RSMI_MEM_TYPE_VRAM",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_MEM_TYPE_VRAM = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "73fe3fab78b4de5b"
+    },
+    {
+      "name": "RSMI_PWR_PROF_PRST_3D_FULL_SCR_MASK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_PWR_PROF_PRST_3D_FULL_SCR_MASK = 32",
+      "value": 32,
+      "value_explicit": true,
+      "decl_hash": "eee3f9ba56b48ea5"
+    },
+    {
+      "name": "RSMI_PWR_PROF_PRST_BOOTUP_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_PWR_PROF_PRST_BOOTUP_DEFAULT = 64",
+      "value": 64,
+      "value_explicit": true,
+      "decl_hash": "438ea4618d9ac44b"
+    },
+    {
+      "name": "RSMI_PWR_PROF_PRST_COMPUTE_MASK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_PWR_PROF_PRST_COMPUTE_MASK = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "fc085a159fc6e294"
+    },
+    {
+      "name": "RSMI_PWR_PROF_PRST_CUSTOM_MASK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_PWR_PROF_PRST_CUSTOM_MASK = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "bdaf2eecd2e11748"
+    },
+    {
+      "name": "RSMI_PWR_PROF_PRST_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_PWR_PROF_PRST_INVALID = 18446744073709551615",
+      "value": 18446744073709551615,
+      "value_explicit": true,
+      "decl_hash": "ceab0b206be87eef"
+    },
+    {
+      "name": "RSMI_PWR_PROF_PRST_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_PWR_PROF_PRST_LAST = 64",
+      "value": 64,
+      "value_explicit": true,
+      "decl_hash": "3efde539bb375ae2"
+    },
+    {
+      "name": "RSMI_PWR_PROF_PRST_POWER_SAVING_MASK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_PWR_PROF_PRST_POWER_SAVING_MASK = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "566d47a389538449"
+    },
+    {
+      "name": "RSMI_PWR_PROF_PRST_VIDEO_MASK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_PWR_PROF_PRST_VIDEO_MASK = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "8f4788a4d4e98d41"
+    },
+    {
+      "name": "RSMI_PWR_PROF_PRST_VR_MASK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_PWR_PROF_PRST_VR_MASK = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "9d15732135b2b2c9"
+    },
+    {
+      "name": "RSMI_RAS_ERR_STATE_DISABLED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_RAS_ERR_STATE_DISABLED = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "6c6e6a324f778a38"
+    },
+    {
+      "name": "RSMI_RAS_ERR_STATE_ENABLED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_RAS_ERR_STATE_ENABLED = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "dc7f737f6abba5eb"
+    },
+    {
+      "name": "RSMI_RAS_ERR_STATE_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_RAS_ERR_STATE_INVALID = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "1ca6f7edbbb4ca49"
+    },
+    {
+      "name": "RSMI_RAS_ERR_STATE_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_RAS_ERR_STATE_LAST = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "4b943993e67bf22f"
+    },
+    {
+      "name": "RSMI_RAS_ERR_STATE_MULT_UC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_RAS_ERR_STATE_MULT_UC = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "53c46e049d465ca1"
+    },
+    {
+      "name": "RSMI_RAS_ERR_STATE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_RAS_ERR_STATE_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "ac7f69e8681b4abf"
+    },
+    {
+      "name": "RSMI_RAS_ERR_STATE_PARITY",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_RAS_ERR_STATE_PARITY = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "a0b91dfaa87624a3"
+    },
+    {
+      "name": "RSMI_RAS_ERR_STATE_POISON",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_RAS_ERR_STATE_POISON = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "77a835ddc7bb7684"
+    },
+    {
+      "name": "RSMI_RAS_ERR_STATE_SING_C",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_RAS_ERR_STATE_SING_C = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "b1fbed96cce5b588"
+    },
+    {
+      "name": "RSMI_STATUS_AMDGPU_RESTART_ERR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_AMDGPU_RESTART_ERR = None",
+      "value": 19,
+      "value_explicit": false,
+      "decl_hash": "7031a58726f7970e"
+    },
+    {
+      "name": "RSMI_STATUS_BUSY",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_BUSY = None",
+      "value": 16,
+      "value_explicit": false,
+      "decl_hash": "ef234559e06e1cea"
+    },
+    {
+      "name": "RSMI_STATUS_DRM_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_DRM_ERROR = None",
+      "value": 20,
+      "value_explicit": false,
+      "decl_hash": "5977d69c7b0192ee"
+    },
+    {
+      "name": "RSMI_STATUS_FAIL_LOAD_MODULE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_FAIL_LOAD_MODULE = None",
+      "value": 21,
+      "value_explicit": false,
+      "decl_hash": "ec7b39df6a8d01af"
+    },
+    {
+      "name": "RSMI_STATUS_FAIL_LOAD_SYMBOL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_FAIL_LOAD_SYMBOL = None",
+      "value": 22,
+      "value_explicit": false,
+      "decl_hash": "4c5e859f529ac409"
+    },
+    {
+      "name": "RSMI_STATUS_FILE_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_FILE_ERROR = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "bd7636e856ccaeb3"
+    },
+    {
+      "name": "RSMI_STATUS_INIT_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_INIT_ERROR = None",
+      "value": 8,
+      "value_explicit": false,
+      "decl_hash": "b992dc6c50b9d435"
+    },
+    {
+      "name": "RSMI_STATUS_INPUT_OUT_OF_BOUNDS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_INPUT_OUT_OF_BOUNDS = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "fc4fb3bcc1444433"
+    },
+    {
+      "name": "RSMI_STATUS_INSUFFICIENT_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_INSUFFICIENT_SIZE = None",
+      "value": 11,
+      "value_explicit": false,
+      "decl_hash": "2f32ec5ddc86031a"
+    },
+    {
+      "name": "RSMI_STATUS_INTERNAL_EXCEPTION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_INTERNAL_EXCEPTION = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "236ea2afd14a4441"
+    },
+    {
+      "name": "RSMI_STATUS_INTERRUPT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_INTERRUPT = None",
+      "value": 12,
+      "value_explicit": false,
+      "decl_hash": "c669e787ee8d6f6c"
+    },
+    {
+      "name": "RSMI_STATUS_INVALID_ARGS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_INVALID_ARGS = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "1b4d5b8f178da905"
+    },
+    {
+      "name": "RSMI_STATUS_NOT_FOUND",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_NOT_FOUND = None",
+      "value": 10,
+      "value_explicit": false,
+      "decl_hash": "6e0b78fb5b5223fb"
+    },
+    {
+      "name": "RSMI_STATUS_NOT_SUPPORTED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_NOT_SUPPORTED = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "9440dc947e6fd935"
+    },
+    {
+      "name": "RSMI_STATUS_NOT_YET_IMPLEMENTED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_NOT_YET_IMPLEMENTED = None",
+      "value": 9,
+      "value_explicit": false,
+      "decl_hash": "5fe75a34f00ac186"
+    },
+    {
+      "name": "RSMI_STATUS_NO_DATA",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_NO_DATA = None",
+      "value": 14,
+      "value_explicit": false,
+      "decl_hash": "4434b0e7562d20b1"
+    },
+    {
+      "name": "RSMI_STATUS_OUT_OF_RESOURCES",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_OUT_OF_RESOURCES = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "b4c2d41f565212f3"
+    },
+    {
+      "name": "RSMI_STATUS_PERMISSION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_PERMISSION = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "b0bad4ce48825e50"
+    },
+    {
+      "name": "RSMI_STATUS_REFCOUNT_OVERFLOW",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_REFCOUNT_OVERFLOW = None",
+      "value": 17,
+      "value_explicit": false,
+      "decl_hash": "ae68ca724ca107a1"
+    },
+    {
+      "name": "RSMI_STATUS_SETTING_UNAVAILABLE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_SETTING_UNAVAILABLE = None",
+      "value": 18,
+      "value_explicit": false,
+      "decl_hash": "bc30c6575cf6c8ac"
+    },
+    {
+      "name": "RSMI_STATUS_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "7cc76c5ed8c5fbd4"
+    },
+    {
+      "name": "RSMI_STATUS_UNEXPECTED_DATA",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_UNEXPECTED_DATA = None",
+      "value": 15,
+      "value_explicit": false,
+      "decl_hash": "ff4f6ef9ec11a53c"
+    },
+    {
+      "name": "RSMI_STATUS_UNEXPECTED_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_UNEXPECTED_SIZE = None",
+      "value": 13,
+      "value_explicit": false,
+      "decl_hash": "d9d9921d6bdd0368"
+    },
+    {
+      "name": "RSMI_STATUS_UNKNOWN_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_STATUS_UNKNOWN_ERROR = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "c199e4baea90260f"
+    },
+    {
+      "name": "RSMI_SW_COMP_DRIVER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_SW_COMP_DRIVER = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "7ca710fdfaf6ba4a"
+    },
+    {
+      "name": "RSMI_SW_COMP_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_SW_COMP_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "fb933849bab69f6b"
+    },
+    {
+      "name": "RSMI_SW_COMP_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_SW_COMP_LAST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "faf0b39a8c7fd415"
+    },
+    {
+      "name": "RSMI_TEMP_CRITICAL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_CRITICAL = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "a500db233e6b9b74"
+    },
+    {
+      "name": "RSMI_TEMP_CRITICAL_HYST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_CRITICAL_HYST = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "c9b73bf2285251f8"
+    },
+    {
+      "name": "RSMI_TEMP_CRIT_MIN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_CRIT_MIN = None",
+      "value": 9,
+      "value_explicit": false,
+      "decl_hash": "9968fa1fcb1264db"
+    },
+    {
+      "name": "RSMI_TEMP_CRIT_MIN_HYST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_CRIT_MIN_HYST = None",
+      "value": 10,
+      "value_explicit": false,
+      "decl_hash": "60a30524c0b52ef6"
+    },
+    {
+      "name": "RSMI_TEMP_CURRENT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_CURRENT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "ee44945bfba4b16e"
+    },
+    {
+      "name": "RSMI_TEMP_EMERGENCY",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_EMERGENCY = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "f82189fe75cf9273"
+    },
+    {
+      "name": "RSMI_TEMP_EMERGENCY_HYST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_EMERGENCY_HYST = None",
+      "value": 8,
+      "value_explicit": false,
+      "decl_hash": "411bee2a7a1a35e4"
+    },
+    {
+      "name": "RSMI_TEMP_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "93646da26ddcc657"
+    },
+    {
+      "name": "RSMI_TEMP_HIGHEST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_HIGHEST = None",
+      "value": 13,
+      "value_explicit": false,
+      "decl_hash": "a3f7e58484327488"
+    },
+    {
+      "name": "RSMI_TEMP_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_LAST = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "e0c48ae986585145"
+    },
+    {
+      "name": "RSMI_TEMP_LOWEST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_LOWEST = None",
+      "value": 12,
+      "value_explicit": false,
+      "decl_hash": "ffcd9e698d1c4b24"
+    },
+    {
+      "name": "RSMI_TEMP_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_MAX = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "b043bc947d83cf16"
+    },
+    {
+      "name": "RSMI_TEMP_MAX_HYST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_MAX_HYST = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "c8196f169c5a7337"
+    },
+    {
+      "name": "RSMI_TEMP_MIN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_MIN = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "93327136c9df2ee8"
+    },
+    {
+      "name": "RSMI_TEMP_MIN_HYST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_MIN_HYST = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "69f7059a9fa6e39f"
+    },
+    {
+      "name": "RSMI_TEMP_OFFSET",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_OFFSET = None",
+      "value": 11,
+      "value_explicit": false,
+      "decl_hash": "ecd73c8c7aa43214"
+    },
+    {
+      "name": "RSMI_TEMP_TYPE_EDGE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_TYPE_EDGE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "380ea53e0fe8eb91"
+    },
+    {
+      "name": "RSMI_TEMP_TYPE_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_TYPE_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "08365e5eeab30742"
+    },
+    {
+      "name": "RSMI_TEMP_TYPE_HBM_0",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_TYPE_HBM_0 = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "97a6392d8c440e4f"
+    },
+    {
+      "name": "RSMI_TEMP_TYPE_HBM_1",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_TYPE_HBM_1 = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "e0378aaa36866fe4"
+    },
+    {
+      "name": "RSMI_TEMP_TYPE_HBM_2",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_TYPE_HBM_2 = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "385c0567eaf7fe3c"
+    },
+    {
+      "name": "RSMI_TEMP_TYPE_HBM_3",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_TYPE_HBM_3 = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "7ba9318f1929546a"
+    },
+    {
+      "name": "RSMI_TEMP_TYPE_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_TYPE_INVALID = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "b52fa2fd37811626"
+    },
+    {
+      "name": "RSMI_TEMP_TYPE_JUNCTION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_TYPE_JUNCTION = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "a84444a02bf9cc68"
+    },
+    {
+      "name": "RSMI_TEMP_TYPE_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_TYPE_LAST = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "9694f589755c4c79"
+    },
+    {
+      "name": "RSMI_TEMP_TYPE_MEMORY",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_TEMP_TYPE_MEMORY = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "0b412adbfc807437"
+    },
+    {
+      "name": "RSMI_UTILIZATION_COUNTER_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_UTILIZATION_COUNTER_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "ef1d10c901b26e06"
+    },
+    {
+      "name": "RSMI_UTILIZATION_COUNTER_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_UTILIZATION_COUNTER_LAST = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "fcf6140285ed658a"
+    },
+    {
+      "name": "RSMI_VOLT_AVERAGE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_AVERAGE = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "e867489c588795c2"
+    },
+    {
+      "name": "RSMI_VOLT_CURRENT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_CURRENT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "704baf3222636ab1"
+    },
+    {
+      "name": "RSMI_VOLT_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "19c3e9d5df8303e8"
+    },
+    {
+      "name": "RSMI_VOLT_HIGHEST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_HIGHEST = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "fcb24fdec4955547"
+    },
+    {
+      "name": "RSMI_VOLT_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_LAST = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "852b44c622db0932"
+    },
+    {
+      "name": "RSMI_VOLT_LOWEST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_LOWEST = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "12a3ed38cebeea0f"
+    },
+    {
+      "name": "RSMI_VOLT_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_MAX = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "5e7e3813b1f8293c"
+    },
+    {
+      "name": "RSMI_VOLT_MAX_CRIT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_MAX_CRIT = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "ab3968ded715d749"
+    },
+    {
+      "name": "RSMI_VOLT_MIN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_MIN = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "b595a0e614eca4c3"
+    },
+    {
+      "name": "RSMI_VOLT_MIN_CRIT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_MIN_CRIT = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "c7b81be34a2d9d19"
+    },
+    {
+      "name": "RSMI_VOLT_TYPE_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_TYPE_FIRST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "b8f94310ea504e42"
+    },
+    {
+      "name": "RSMI_VOLT_TYPE_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_TYPE_INVALID = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "cb2e89ab48c21a4e"
+    },
+    {
+      "name": "RSMI_VOLT_TYPE_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_TYPE_LAST = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "4696176ec7b26117"
+    },
+    {
+      "name": "RSMI_VOLT_TYPE_VDDBOARD",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_TYPE_VDDBOARD = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "1e6488f99e4f9598"
+    },
+    {
+      "name": "RSMI_VOLT_TYPE_VDDGFX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_VOLT_TYPE_VDDGFX = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "97951949def339fb"
+    },
+    {
+      "name": "RSMI_XGMI_STATUS_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_XGMI_STATUS_ERROR = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "2ac0d0e9c5ae0fb1"
+    },
+    {
+      "name": "RSMI_XGMI_STATUS_MULTIPLE_ERRORS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_XGMI_STATUS_MULTIPLE_ERRORS = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "06251913fc4b270b"
+    },
+    {
+      "name": "RSMI_XGMI_STATUS_NO_ERRORS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "RSMI_XGMI_STATUS_NO_ERRORS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "31be27915fb62abe"
+    },
+    {
+      "name": "rsmi_compute_process_gpus_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_compute_process_gpus_get(uint32_t pid, uint32_t * dv_indices, uint32_t * num_devices)",
+      "decl_hash": "0c9a7047e4a13edb"
+    },
+    {
+      "name": "rsmi_compute_process_info_by_device_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_compute_process_info_by_device_get(uint32_t pid, uint32_t dv_ind, rsmi_process_info_t * proc)",
+      "decl_hash": "6030ff3c4221d6dd"
+    },
+    {
+      "name": "rsmi_compute_process_info_by_pid_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_compute_process_info_by_pid_get(uint32_t pid, rsmi_process_info_t * proc)",
+      "decl_hash": "0b7c256448f683e1"
+    },
+    {
+      "name": "rsmi_compute_process_info_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_compute_process_info_get(rsmi_process_info_t * procs, uint32_t * num_items)",
+      "decl_hash": "fdd095024e606220"
+    },
+    {
+      "name": "rsmi_counter_available_counters_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_counter_available_counters_get(uint32_t dv_ind, rsmi_event_group_t grp, uint32_t * available)",
+      "decl_hash": "5d5a5c8b535203a8"
+    },
+    {
+      "name": "rsmi_counter_control",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_counter_control(rsmi_event_handle_t evt_handle, rsmi_counter_command_t cmd, void * cmd_args)",
+      "decl_hash": "1e1180d299de4453"
+    },
+    {
+      "name": "rsmi_counter_read",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_counter_read(rsmi_event_handle_t evt_handle, rsmi_counter_value_t * value)",
+      "decl_hash": "b51b607015cb41ad"
+    },
+    {
+      "name": "rsmi_dev_activity_avg_mm_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_activity_avg_mm_get(uint32_t dv_ind, uint16_t * avg_activity)",
+      "decl_hash": "b2b87a56eb1cc669"
+    },
+    {
+      "name": "rsmi_dev_activity_metric_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_activity_metric_get(uint32_t dv_ind, rsmi_activity_metric_t activity_metric_type, rsmi_activity_metric_counter_t * activity_metric_counter)",
+      "decl_hash": "4b83fafe6a3872dd"
+    },
+    {
+      "name": "rsmi_dev_brand_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_brand_get(uint32_t dv_ind, char * brand, uint32_t len)",
+      "decl_hash": "3ccfd12cdcffdc6f"
+    },
+    {
+      "name": "rsmi_dev_busy_percent_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_busy_percent_get(uint32_t dv_ind, uint32_t * busy_percent)",
+      "decl_hash": "53bf601ab594ce6a"
+    },
+    {
+      "name": "rsmi_dev_clk_extremum_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_clk_extremum_set(uint32_t dv_ind, rsmi_freq_ind_t level, uint64_t clkvalue, rsmi_clk_type_t clkType)",
+      "decl_hash": "bcbe1b895e51271f"
+    },
+    {
+      "name": "rsmi_dev_clk_range_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_clk_range_set(uint32_t dv_ind, uint64_t minclkvalue, uint64_t maxclkvalue, rsmi_clk_type_t clkType)",
+      "decl_hash": "4b2736e098a9ed9a"
+    },
+    {
+      "name": "rsmi_dev_compute_partition_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_compute_partition_get(uint32_t dv_ind, char * compute_partition, uint32_t len)",
+      "decl_hash": "681ecf61090b28bc"
+    },
+    {
+      "name": "rsmi_dev_compute_partition_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_compute_partition_set(uint32_t dv_ind, rsmi_compute_partition_type_t compute_partition)",
+      "decl_hash": "0930c9ba4e5735e8"
+    },
+    {
+      "name": "rsmi_dev_counter_create",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_counter_create(uint32_t dv_ind, rsmi_event_type_t type, rsmi_event_handle_t * evnt_handle)",
+      "decl_hash": "3ba31ab38206dde7"
+    },
+    {
+      "name": "rsmi_dev_counter_destroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_counter_destroy(rsmi_event_handle_t evnt_handle)",
+      "decl_hash": "cf80208f342f1e90"
+    },
+    {
+      "name": "rsmi_dev_counter_group_supported",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_counter_group_supported(uint32_t dv_ind, rsmi_event_group_t group)",
+      "decl_hash": "b02e0b5f67371c5a"
+    },
+    {
+      "name": "rsmi_dev_current_socket_power_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_current_socket_power_get(uint32_t dv_ind, uint64_t * socket_power)",
+      "decl_hash": "65de840071493c99"
+    },
+    {
+      "name": "rsmi_dev_device_identifiers_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_device_identifiers_get(uint32_t dv_ind, rsmi_device_identifiers_t * identifiers)",
+      "decl_hash": "73ad53857c5dfbe1"
+    },
+    {
+      "name": "rsmi_dev_drm_render_minor_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_drm_render_minor_get(uint32_t dv_ind, uint32_t * minor)",
+      "decl_hash": "11ca436c382a457e"
+    },
+    {
+      "name": "rsmi_dev_ecc_count_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_ecc_count_get(uint32_t dv_ind, rsmi_gpu_block_t block, rsmi_error_count_t * ec)",
+      "decl_hash": "95c70aded78c9848"
+    },
+    {
+      "name": "rsmi_dev_ecc_enabled_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_ecc_enabled_get(uint32_t dv_ind, uint64_t * enabled_blocks)",
+      "decl_hash": "df990f1ac03b868d"
+    },
+    {
+      "name": "rsmi_dev_ecc_status_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_ecc_status_get(uint32_t dv_ind, rsmi_gpu_block_t block, rsmi_ras_err_state_t * state)",
+      "decl_hash": "72445490ce09476c"
+    },
+    {
+      "name": "rsmi_dev_energy_count_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_energy_count_get(uint32_t dv_ind, uint64_t * power, float * counter_resolution, uint64_t * timestamp)",
+      "decl_hash": "f34519b1a7a06098"
+    },
+    {
+      "name": "rsmi_dev_fan_reset",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_fan_reset(uint32_t dv_ind, uint32_t sensor_ind)",
+      "decl_hash": "53e792c1e0553c1d"
+    },
+    {
+      "name": "rsmi_dev_fan_rpms_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_fan_rpms_get(uint32_t dv_ind, uint32_t sensor_ind, int64_t * speed)",
+      "decl_hash": "838d740a4121f5e7"
+    },
+    {
+      "name": "rsmi_dev_fan_speed_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_fan_speed_get(uint32_t dv_ind, uint32_t sensor_ind, int64_t * speed)",
+      "decl_hash": "58014f2d426adc66"
+    },
+    {
+      "name": "rsmi_dev_fan_speed_max_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_fan_speed_max_get(uint32_t dv_ind, uint32_t sensor_ind, uint64_t * max_speed)",
+      "decl_hash": "d68641276b577d4b"
+    },
+    {
+      "name": "rsmi_dev_fan_speed_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_fan_speed_set(uint32_t dv_ind, uint32_t sensor_ind, uint64_t speed)",
+      "decl_hash": "0199f2db4aa19595"
+    },
+    {
+      "name": "rsmi_dev_firmware_version_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_firmware_version_get(uint32_t dv_ind, rsmi_fw_block_t block, uint64_t * fw_version)",
+      "decl_hash": "20672f3e65e35dc9"
+    },
+    {
+      "name": "rsmi_dev_gpu_clk_freq_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_gpu_clk_freq_get(uint32_t dv_ind, rsmi_clk_type_t clk_type, rsmi_frequencies_t * f)",
+      "decl_hash": "7012e96ff0d3b520"
+    },
+    {
+      "name": "rsmi_dev_gpu_clk_freq_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_gpu_clk_freq_set(uint32_t dv_ind, rsmi_clk_type_t clk_type, uint64_t freq_bitmask)",
+      "decl_hash": "5bdc3d8fc1558186"
+    },
+    {
+      "name": "rsmi_dev_gpu_metrics_info_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_gpu_metrics_info_get(uint32_t dv_ind, rsmi_gpu_metrics_t * pgpu_metrics)",
+      "decl_hash": "540fd448fbac4783"
+    },
+    {
+      "name": "rsmi_dev_gpu_reset",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_gpu_reset(uint32_t dv_ind)",
+      "decl_hash": "513754756dbba3be"
+    },
+    {
+      "name": "rsmi_dev_guid_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_guid_get(uint32_t dv_ind, uint64_t * guid)",
+      "decl_hash": "cb01b7745da47179"
+    },
+    {
+      "name": "rsmi_dev_id_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_id_get(uint32_t dv_ind, uint16_t * id)",
+      "decl_hash": "756670284be4dbc7"
+    },
+    {
+      "name": "rsmi_dev_market_name_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_market_name_get(uint32_t dv_ind, char * market_name, uint32_t len)",
+      "decl_hash": "7dd5f74cedd9ddfe"
+    },
+    {
+      "name": "rsmi_dev_mem_overdrive_level_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_mem_overdrive_level_get(uint32_t dv_ind, uint32_t * od)",
+      "decl_hash": "441087962bc0a09c"
+    },
+    {
+      "name": "rsmi_dev_memory_busy_percent_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_memory_busy_percent_get(uint32_t dv_ind, uint32_t * busy_percent)",
+      "decl_hash": "e49ed4012ffc2eea"
+    },
+    {
+      "name": "rsmi_dev_memory_partition_capabilities_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_memory_partition_capabilities_get(uint32_t dv_ind, char * memory_partition_caps, uint32_t len)",
+      "decl_hash": "f77d52163251bc42"
+    },
+    {
+      "name": "rsmi_dev_memory_partition_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_memory_partition_get(uint32_t dv_ind, char * memory_partition, uint32_t len)",
+      "decl_hash": "f1742de0714b7f25"
+    },
+    {
+      "name": "rsmi_dev_memory_partition_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_memory_partition_set(uint32_t dv_ind, rsmi_memory_partition_type_t memory_partition)",
+      "decl_hash": "90cf840aef8129d4"
+    },
+    {
+      "name": "rsmi_dev_memory_reserved_pages_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_memory_reserved_pages_get(uint32_t dv_ind, uint32_t * num_pages, rsmi_retired_page_record_t * records)",
+      "decl_hash": "20927ecd13b63751"
+    },
+    {
+      "name": "rsmi_dev_memory_total_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_memory_total_get(uint32_t dv_ind, rsmi_memory_type_t mem_type, uint64_t * total)",
+      "decl_hash": "04e394b2cc6fbb99"
+    },
+    {
+      "name": "rsmi_dev_memory_usage_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_memory_usage_get(uint32_t dv_ind, rsmi_memory_type_t mem_type, uint64_t * used)",
+      "decl_hash": "0369e4f2c18ca16a"
+    },
+    {
+      "name": "rsmi_dev_metrics_header_info_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_metrics_header_info_get(uint32_t dv_ind, metrics_table_header_t * header_value)",
+      "decl_hash": "971757409106f811"
+    },
+    {
+      "name": "rsmi_dev_metrics_log_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_metrics_log_get(uint32_t dv_ind)",
+      "decl_hash": "f1a157b04571c6eb"
+    },
+    {
+      "name": "rsmi_dev_metrics_xcd_counter_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_metrics_xcd_counter_get(uint32_t dv_ind, uint16_t * xcd_counter_value)",
+      "decl_hash": "b21f939823f27ec4"
+    },
+    {
+      "name": "rsmi_dev_name_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_name_get(uint32_t dv_ind, char * name, size_t len)",
+      "decl_hash": "1b1557b8cb3ee89b"
+    },
+    {
+      "name": "rsmi_dev_node_id_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_node_id_get(uint32_t dv_ind, uint32_t * node_id)",
+      "decl_hash": "300bf504e508b8c1"
+    },
+    {
+      "name": "rsmi_dev_od_clk_info_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_od_clk_info_set(uint32_t dv_ind, rsmi_freq_ind_t level, uint64_t clkvalue, rsmi_clk_type_t clkType)",
+      "decl_hash": "0a04f8e0627c1a32"
+    },
+    {
+      "name": "rsmi_dev_od_volt_curve_regions_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_od_volt_curve_regions_get(uint32_t dv_ind, uint32_t * num_regions, rsmi_freq_volt_region_t * buffer)",
+      "decl_hash": "4d9dff4377ebf9d2"
+    },
+    {
+      "name": "rsmi_dev_od_volt_info_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_od_volt_info_get(uint32_t dv_ind, rsmi_od_volt_freq_data_t * odv)",
+      "decl_hash": "5ed699d5c375d37c"
+    },
+    {
+      "name": "rsmi_dev_od_volt_info_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_od_volt_info_set(uint32_t dv_ind, uint32_t vpoint, uint64_t clkvalue, uint64_t voltvalue)",
+      "decl_hash": "239afb3cbed528b3"
+    },
+    {
+      "name": "rsmi_dev_overdrive_level_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_overdrive_level_get(uint32_t dv_ind, uint32_t * od)",
+      "decl_hash": "9205930dee1879b7"
+    },
+    {
+      "name": "rsmi_dev_overdrive_level_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_overdrive_level_set(uint32_t dv_ind, uint32_t od)",
+      "decl_hash": "77b74687c9872e01"
+    },
+    {
+      "name": "rsmi_dev_overdrive_level_set_v1",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_overdrive_level_set_v1(uint32_t dv_ind, uint32_t od)",
+      "decl_hash": "e53c26b01b3aea55"
+    },
+    {
+      "name": "rsmi_dev_partition_id_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_partition_id_get(uint32_t dv_ind, uint32_t * partition_id)",
+      "decl_hash": "299d3266c7e41103"
+    },
+    {
+      "name": "rsmi_dev_pci_bandwidth_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_pci_bandwidth_get(uint32_t dv_ind, rsmi_pcie_bandwidth_t * bandwidth)",
+      "decl_hash": "1bcb9a19fda5b06c"
+    },
+    {
+      "name": "rsmi_dev_pci_bandwidth_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_pci_bandwidth_set(uint32_t dv_ind, uint64_t bw_bitmask)",
+      "decl_hash": "7594a106b2a3ab38"
+    },
+    {
+      "name": "rsmi_dev_pci_id_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_pci_id_get(uint32_t dv_ind, uint64_t * bdfid)",
+      "decl_hash": "bdd7a2326b6af96f"
+    },
+    {
+      "name": "rsmi_dev_pci_replay_counter_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_pci_replay_counter_get(uint32_t dv_ind, uint64_t * counter)",
+      "decl_hash": "6ba93a9c3da25e18"
+    },
+    {
+      "name": "rsmi_dev_pci_throughput_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_pci_throughput_get(uint32_t dv_ind, uint64_t * sent, uint64_t * received, uint64_t * max_pkt_sz)",
+      "decl_hash": "fd9d1fdf0b7bb636"
+    },
+    {
+      "name": "rsmi_dev_perf_level_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_perf_level_get(uint32_t dv_ind, rsmi_dev_perf_level_t * perf)",
+      "decl_hash": "e3d1b848c6ffce5c"
+    },
+    {
+      "name": "rsmi_dev_perf_level_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_perf_level_set(uint32_t dv_ind, rsmi_dev_perf_level_t perf_lvl)",
+      "decl_hash": "a54233251ca6ee80"
+    },
+    {
+      "name": "rsmi_dev_perf_level_set_v1",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_perf_level_set_v1(uint32_t dv_ind, rsmi_dev_perf_level_t perf_lvl)",
+      "decl_hash": "d4598a853d6ae857"
+    },
+    {
+      "name": "rsmi_dev_power_ave_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_power_ave_get(uint32_t dv_ind, uint32_t sensor_ind, uint64_t * power)",
+      "decl_hash": "8c76feabe855763a"
+    },
+    {
+      "name": "rsmi_dev_power_cap_default_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_power_cap_default_get(uint32_t dv_ind, uint64_t * default_cap)",
+      "decl_hash": "a25a7c112024194c"
+    },
+    {
+      "name": "rsmi_dev_power_cap_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_power_cap_get(uint32_t dv_ind, uint32_t sensor_ind, uint64_t * cap)",
+      "decl_hash": "b8173e97c0995ec6"
+    },
+    {
+      "name": "rsmi_dev_power_cap_range_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_power_cap_range_get(uint32_t dv_ind, uint32_t sensor_ind, uint64_t * max, uint64_t * min)",
+      "decl_hash": "f1113db12b2fe9bd"
+    },
+    {
+      "name": "rsmi_dev_power_cap_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_power_cap_set(uint32_t dv_ind, uint32_t sensor_ind, uint64_t cap)",
+      "decl_hash": "64b18f351d2c5451"
+    },
+    {
+      "name": "rsmi_dev_power_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_power_get(uint32_t dv_ind, uint64_t * power, RSMI_POWER_TYPE * type)",
+      "decl_hash": "b10f9f924d6be24c"
+    },
+    {
+      "name": "rsmi_dev_power_profile_presets_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_power_profile_presets_get(uint32_t dv_ind, uint32_t sensor_ind, rsmi_power_profile_status_t * status)",
+      "decl_hash": "2afe56acff959470"
+    },
+    {
+      "name": "rsmi_dev_power_profile_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_power_profile_set(uint32_t dv_ind, uint32_t reserved, rsmi_power_profile_preset_masks_t profile)",
+      "decl_hash": "7635131438dce09f"
+    },
+    {
+      "name": "rsmi_dev_revision_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_revision_get(uint32_t dv_ind, uint16_t * revision)",
+      "decl_hash": "35374fe636211f02"
+    },
+    {
+      "name": "rsmi_dev_serial_number_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_serial_number_get(uint32_t dv_ind, char * serial_num, uint32_t len)",
+      "decl_hash": "14cb10e09d9ffe78"
+    },
+    {
+      "name": "rsmi_dev_sku_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_sku_get(uint32_t dv_ind, uint16_t * sku)",
+      "decl_hash": "693e5a9bca465fc7"
+    },
+    {
+      "name": "rsmi_dev_subsystem_id_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_subsystem_id_get(uint32_t dv_ind, uint16_t * id)",
+      "decl_hash": "1b8ea733fc08f351"
+    },
+    {
+      "name": "rsmi_dev_subsystem_name_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_subsystem_name_get(uint32_t dv_ind, char * name, size_t len)",
+      "decl_hash": "ffa1e050feb34ba0"
+    },
+    {
+      "name": "rsmi_dev_subsystem_vendor_id_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_subsystem_vendor_id_get(uint32_t dv_ind, uint16_t * id)",
+      "decl_hash": "695e35aaf992153b"
+    },
+    {
+      "name": "rsmi_dev_supported_func_iterator_close",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_supported_func_iterator_close(rsmi_func_id_iter_handle_t * handle)",
+      "decl_hash": "d2baff6d8fe3d6fb"
+    },
+    {
+      "name": "rsmi_dev_supported_func_iterator_open",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_supported_func_iterator_open(uint32_t dv_ind, rsmi_func_id_iter_handle_t * handle)",
+      "decl_hash": "edf5429e0033e248"
+    },
+    {
+      "name": "rsmi_dev_supported_variant_iterator_open",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_supported_variant_iterator_open(rsmi_func_id_iter_handle_t obj_h, rsmi_func_id_iter_handle_t * var_iter)",
+      "decl_hash": "a185ef70887e1350"
+    },
+    {
+      "name": "rsmi_dev_target_graphics_version_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_target_graphics_version_get(uint32_t dv_ind, uint64_t * gfx_version)",
+      "decl_hash": "ab2618f485c9f0c2"
+    },
+    {
+      "name": "rsmi_dev_temp_metric_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_temp_metric_get(uint32_t dv_ind, uint32_t sensor_type, rsmi_temperature_metric_t metric, int64_t * temperature)",
+      "decl_hash": "cf3e4695c5c29201"
+    },
+    {
+      "name": "rsmi_dev_unique_id_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_unique_id_get(uint32_t dv_ind, uint64_t * id)",
+      "decl_hash": "ae4c54e638929585"
+    },
+    {
+      "name": "rsmi_dev_vbios_version_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_vbios_version_get(uint32_t dv_ind, char * vbios, uint32_t len)",
+      "decl_hash": "74d8e070589398a6"
+    },
+    {
+      "name": "rsmi_dev_vendor_id_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_vendor_id_get(uint32_t dv_ind, uint16_t * id)",
+      "decl_hash": "333389099471b075"
+    },
+    {
+      "name": "rsmi_dev_vendor_name_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_vendor_name_get(uint32_t dv_ind, char * name, size_t len)",
+      "decl_hash": "8d506d1205b2cbc9"
+    },
+    {
+      "name": "rsmi_dev_volt_metric_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_volt_metric_get(uint32_t dv_ind, rsmi_voltage_type_t sensor_type, rsmi_voltage_metric_t metric, int64_t * voltage)",
+      "decl_hash": "237657b5cd45ddab"
+    },
+    {
+      "name": "rsmi_dev_vram_vendor_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_vram_vendor_get(uint32_t dv_ind, char * brand, uint32_t len)",
+      "decl_hash": "8f0ebcbdf4b3e8eb"
+    },
+    {
+      "name": "rsmi_dev_xgmi_error_reset",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_xgmi_error_reset(uint32_t dv_ind)",
+      "decl_hash": "c5fc77c1af800bb8"
+    },
+    {
+      "name": "rsmi_dev_xgmi_error_status",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_xgmi_error_status(uint32_t dv_ind, rsmi_xgmi_status_t * status)",
+      "decl_hash": "4d9f17367079aa25"
+    },
+    {
+      "name": "rsmi_dev_xgmi_hive_id_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_xgmi_hive_id_get(uint32_t dv_ind, uint64_t * hive_id)",
+      "decl_hash": "b3b435d19655f451"
+    },
+    {
+      "name": "rsmi_dev_xgmi_physical_id_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_dev_xgmi_physical_id_get(uint32_t dv_ind, uint16_t * id)",
+      "decl_hash": "e66afe2fb02c1ce1"
+    },
+    {
+      "name": "rsmi_event_notification_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_event_notification_get(int timeout_ms, uint32_t * num_elem, rsmi_evt_notification_data_t * data)",
+      "decl_hash": "1ebaee26c2c93cfa"
+    },
+    {
+      "name": "rsmi_event_notification_init",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_event_notification_init(uint32_t dv_ind)",
+      "decl_hash": "a5e41708ac63cd13"
+    },
+    {
+      "name": "rsmi_event_notification_mask_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_event_notification_mask_set(uint32_t dv_ind, uint64_t mask)",
+      "decl_hash": "f3e04566114c1903"
+    },
+    {
+      "name": "rsmi_event_notification_stop",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_event_notification_stop(uint32_t dv_ind)",
+      "decl_hash": "b52a00544dd8f372"
+    },
+    {
+      "name": "rsmi_func_iter_next",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_func_iter_next(rsmi_func_id_iter_handle_t handle)",
+      "decl_hash": "2aee4798d8a9a0ca"
+    },
+    {
+      "name": "rsmi_func_iter_value_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_func_iter_value_get(rsmi_func_id_iter_handle_t handle, rsmi_func_id_value_t * value)",
+      "decl_hash": "136ffec8a7e3d876"
+    },
+    {
+      "name": "rsmi_init",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_init(uint64_t init_flags)",
+      "decl_hash": "421388821dd936ac"
+    },
+    {
+      "name": "rsmi_is_P2P_accessible",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_is_P2P_accessible(uint32_t dv_ind_src, uint32_t dv_ind_dst, bool * accessible)",
+      "decl_hash": "bec2420a0fc2fd81"
+    },
+    {
+      "name": "rsmi_minmax_bandwidth_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_minmax_bandwidth_get(uint32_t dv_ind_src, uint32_t dv_ind_dst, uint64_t * min_bandwidth, uint64_t * max_bandwidth)",
+      "decl_hash": "4a867fb72953bbec"
+    },
+    {
+      "name": "rsmi_num_monitor_devices",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_num_monitor_devices(uint32_t * num_devices)",
+      "decl_hash": "e934974a0995efe8"
+    },
+    {
+      "name": "rsmi_perf_determinism_mode_set",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_perf_determinism_mode_set(uint32_t dv_ind, uint64_t clkvalue)",
+      "decl_hash": "69a05f2aa3122ea3"
+    },
+    {
+      "name": "rsmi_shut_down",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_shut_down()",
+      "decl_hash": "3f627780afe63bba"
+    },
+    {
+      "name": "rsmi_status_string",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_status_string(rsmi_status_t status, const char ** status_string)",
+      "decl_hash": "c0c922c01825fe09"
+    },
+    {
+      "name": "rsmi_topo_get_link_type",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_topo_get_link_type(uint32_t dv_ind_src, uint32_t dv_ind_dst, uint64_t * hops, RSMI_IO_LINK_TYPE * type)",
+      "decl_hash": "e6665bb3812ca2ab"
+    },
+    {
+      "name": "rsmi_topo_get_link_weight",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_topo_get_link_weight(uint32_t dv_ind_src, uint32_t dv_ind_dst, uint64_t * weight)",
+      "decl_hash": "973c0abe631623ff"
+    },
+    {
+      "name": "rsmi_topo_get_numa_node_number",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_topo_get_numa_node_number(uint32_t dv_ind, uint32_t * numa_node)",
+      "decl_hash": "59bb600387d1c2a3"
+    },
+    {
+      "name": "rsmi_topo_numa_affinity_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_topo_numa_affinity_get(uint32_t dv_ind, int32_t * numa_node)",
+      "decl_hash": "e17650766970d06b"
+    },
+    {
+      "name": "rsmi_utilization_count_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_utilization_count_get(uint32_t dv_ind, rsmi_utilization_counter_t * utilization_counters, uint32_t count, uint64_t * timestamp)",
+      "decl_hash": "b18e699f0d9d528f"
+    },
+    {
+      "name": "rsmi_version_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_version_get(rsmi_version_t * version)",
+      "decl_hash": "c076e13e6c306a8e"
+    },
+    {
+      "name": "rsmi_version_str_get",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "rsmi_status_t rsmi_version_str_get(rsmi_sw_component_t component, char * ver_str, uint32_t len)",
+      "decl_hash": "fe41ced0ba56f744"
+    },
+    {
+      "name": "RSMI_IO_LINK_TYPE",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum _RSMI_IO_LINK_TYPE RSMI_IO_LINK_TYPE",
+      "decl_hash": "6753cefe8c15a894"
+    },
+    {
+      "name": "RSMI_POWER_TYPE",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum RSMI_POWER_TYPE RSMI_POWER_TYPE",
+      "decl_hash": "4819cba1e970fdd4"
+    },
+    {
+      "name": "RSMI_UTILIZATION_COUNTER_TYPE",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum RSMI_UTILIZATION_COUNTER_TYPE RSMI_UTILIZATION_COUNTER_TYPE",
+      "decl_hash": "4339bf85d1437a13"
+    },
+    {
+      "name": "rsmi_activity_metric_counter_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_activity_metric_counter_t rsmi_activity_metric_counter_t",
+      "decl_hash": "fb49b366317802e5"
+    },
+    {
+      "name": "rsmi_activity_metric_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_activity_metric_t rsmi_activity_metric_t",
+      "decl_hash": "56016cdc816e0e56"
+    },
+    {
+      "name": "rsmi_bit_field",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_bit_field_t rsmi_bit_field",
+      "decl_hash": "fd4ece3786715274"
+    },
+    {
+      "name": "rsmi_bit_field_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef uint64_t rsmi_bit_field_t",
+      "decl_hash": "025aa9e6b232a4c6"
+    },
+    {
+      "name": "rsmi_clk_type",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_clk_type_t rsmi_clk_type",
+      "decl_hash": "65697459eafff9b8"
+    },
+    {
+      "name": "rsmi_clk_type_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_clk_type_t rsmi_clk_type_t",
+      "decl_hash": "4f14f928eb1a15e2"
+    },
+    {
+      "name": "rsmi_compute_partition_type",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_compute_partition_type_t rsmi_compute_partition_type",
+      "decl_hash": "149c9c34b7646992"
+    },
+    {
+      "name": "rsmi_compute_partition_type_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_compute_partition_type_t rsmi_compute_partition_type_t",
+      "decl_hash": "79695e7032f97e15"
+    },
+    {
+      "name": "rsmi_counter_command_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_counter_command_t rsmi_counter_command_t",
+      "decl_hash": "f22accfaf8064e9c"
+    },
+    {
+      "name": "rsmi_counter_value_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_counter_value_t rsmi_counter_value_t",
+      "decl_hash": "33926522ae8b02ab"
+    },
+    {
+      "name": "rsmi_dev_perf_level",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_dev_perf_level_t rsmi_dev_perf_level",
+      "decl_hash": "bf5c1b47d836df2c"
+    },
+    {
+      "name": "rsmi_dev_perf_level_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_dev_perf_level_t rsmi_dev_perf_level_t",
+      "decl_hash": "2c7726b59a7b1af1"
+    },
+    {
+      "name": "rsmi_device_identifiers_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_device_identifiers_t rsmi_device_identifiers_t",
+      "decl_hash": "33f4fc66e934d81c"
+    },
+    {
+      "name": "rsmi_error_count_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_error_count_t rsmi_error_count_t",
+      "decl_hash": "832087d437498f79"
+    },
+    {
+      "name": "rsmi_event_group_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_event_group_t rsmi_event_group_t",
+      "decl_hash": "fe26442346002b7a"
+    },
+    {
+      "name": "rsmi_event_handle_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef uintptr_t rsmi_event_handle_t",
+      "decl_hash": "ff1ad2b3addde522"
+    },
+    {
+      "name": "rsmi_event_type_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_event_type_t rsmi_event_type_t",
+      "decl_hash": "e6719b1b7a021cd0"
+    },
+    {
+      "name": "rsmi_evt_notification_data_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_evt_notification_data_t rsmi_evt_notification_data_t",
+      "decl_hash": "557d103e050516ee"
+    },
+    {
+      "name": "rsmi_evt_notification_type_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_evt_notification_type_t rsmi_evt_notification_type_t",
+      "decl_hash": "f6988d3838948fe0"
+    },
+    {
+      "name": "rsmi_freq_ind",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_freq_ind_t rsmi_freq_ind",
+      "decl_hash": "5b3d0eac343cd6ca"
+    },
+    {
+      "name": "rsmi_freq_ind_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_freq_ind_t rsmi_freq_ind_t",
+      "decl_hash": "941fe7a75ea86687"
+    },
+    {
+      "name": "rsmi_freq_volt_region",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_freq_volt_region_t rsmi_freq_volt_region",
+      "decl_hash": "8908dbfa6f6bf067"
+    },
+    {
+      "name": "rsmi_freq_volt_region_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_freq_volt_region_t rsmi_freq_volt_region_t",
+      "decl_hash": "51c95b2d027044b9"
+    },
+    {
+      "name": "rsmi_frequencies",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_frequencies_t rsmi_frequencies",
+      "decl_hash": "e175c959ad703c82"
+    },
+    {
+      "name": "rsmi_frequencies_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_frequencies_t rsmi_frequencies_t",
+      "decl_hash": "f0fb3b4b15cde032"
+    },
+    {
+      "name": "rsmi_func_id_iter_handle_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_func_id_iter_handle * rsmi_func_id_iter_handle_t",
+      "decl_hash": "f685b97168fb41cc"
+    },
+    {
+      "name": "rsmi_func_id_value_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef union id rsmi_func_id_value_t",
+      "decl_hash": "7a6fba78093d62be"
+    },
+    {
+      "name": "rsmi_fw_block_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_fw_block_t rsmi_fw_block_t",
+      "decl_hash": "9c41931a773efba5"
+    },
+    {
+      "name": "rsmi_gpu_block",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_gpu_block_t rsmi_gpu_block",
+      "decl_hash": "cb8082d788f800d5"
+    },
+    {
+      "name": "rsmi_gpu_block_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_gpu_block_t rsmi_gpu_block_t",
+      "decl_hash": "85fdc44b7abde59b"
+    },
+    {
+      "name": "rsmi_gpu_metrics_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_gpu_metrics_t rsmi_gpu_metrics_t",
+      "decl_hash": "8aec00432946e900"
+    },
+    {
+      "name": "rsmi_init_flags_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_init_flags_t rsmi_init_flags_t",
+      "decl_hash": "2514cfadc088fcba"
+    },
+    {
+      "name": "rsmi_memory_page_status_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_memory_page_status_t rsmi_memory_page_status_t",
+      "decl_hash": "68c20959d7a5453b"
+    },
+    {
+      "name": "rsmi_memory_partition_type",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_memory_partition_type_t rsmi_memory_partition_type",
+      "decl_hash": "7944d729ec1e2ad3"
+    },
+    {
+      "name": "rsmi_memory_partition_type_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_memory_partition_type_t rsmi_memory_partition_type_t",
+      "decl_hash": "098a2d040bff24aa"
+    },
+    {
+      "name": "rsmi_memory_type_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_memory_type_t rsmi_memory_type_t",
+      "decl_hash": "62358b083d93bbc3"
+    },
+    {
+      "name": "rsmi_od_vddc_point",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_od_vddc_point_t rsmi_od_vddc_point",
+      "decl_hash": "778afb34e58810c6"
+    },
+    {
+      "name": "rsmi_od_vddc_point_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_od_vddc_point_t rsmi_od_vddc_point_t",
+      "decl_hash": "24d52000d5c6c9e9"
+    },
+    {
+      "name": "rsmi_od_volt_curve",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_od_volt_curve_t rsmi_od_volt_curve",
+      "decl_hash": "ef2c6dd26549ec2e"
+    },
+    {
+      "name": "rsmi_od_volt_curve_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_od_volt_curve_t rsmi_od_volt_curve_t",
+      "decl_hash": "b3eb7d5bd364a4f3"
+    },
+    {
+      "name": "rsmi_od_volt_freq_data",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_od_volt_freq_data_t rsmi_od_volt_freq_data",
+      "decl_hash": "b5ede06113b7e30b"
+    },
+    {
+      "name": "rsmi_od_volt_freq_data_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_od_volt_freq_data_t rsmi_od_volt_freq_data_t",
+      "decl_hash": "ad3c899d5d200e1a"
+    },
+    {
+      "name": "rsmi_pcie_bandwidth",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_pcie_bandwidth_t rsmi_pcie_bandwidth",
+      "decl_hash": "b8dcb30c39ec8b4a"
+    },
+    {
+      "name": "rsmi_pcie_bandwidth_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_pcie_bandwidth_t rsmi_pcie_bandwidth_t",
+      "decl_hash": "4afa38d6692f1c68"
+    },
+    {
+      "name": "rsmi_power_profile_preset_masks",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_power_profile_preset_masks_t rsmi_power_profile_preset_masks",
+      "decl_hash": "e7fcb22ab37adbf8"
+    },
+    {
+      "name": "rsmi_power_profile_preset_masks_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_power_profile_preset_masks_t rsmi_power_profile_preset_masks_t",
+      "decl_hash": "8073c3a3a5ad6cd2"
+    },
+    {
+      "name": "rsmi_power_profile_status",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_power_profile_status_t rsmi_power_profile_status",
+      "decl_hash": "c5bd512a2b1cda5e"
+    },
+    {
+      "name": "rsmi_power_profile_status_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_power_profile_status_t rsmi_power_profile_status_t",
+      "decl_hash": "488adbde68645ebe"
+    },
+    {
+      "name": "rsmi_process_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_process_info_t rsmi_process_info_t",
+      "decl_hash": "77a8e3c9bebdd931"
+    },
+    {
+      "name": "rsmi_range",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_range_t rsmi_range",
+      "decl_hash": "fcef362acc89c60a"
+    },
+    {
+      "name": "rsmi_range_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_range_t rsmi_range_t",
+      "decl_hash": "293f756443f7e06b"
+    },
+    {
+      "name": "rsmi_ras_err_state_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_ras_err_state_t rsmi_ras_err_state_t",
+      "decl_hash": "023903637d90399c"
+    },
+    {
+      "name": "rsmi_retired_page_record_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_retired_page_record_t rsmi_retired_page_record_t",
+      "decl_hash": "2192c0d05010f268"
+    },
+    {
+      "name": "rsmi_status_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_status_t rsmi_status_t",
+      "decl_hash": "e0ca2abfc8dd13fc"
+    },
+    {
+      "name": "rsmi_sw_component_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_sw_component_t rsmi_sw_component_t",
+      "decl_hash": "003c23ef4a4924eb"
+    },
+    {
+      "name": "rsmi_temperature_metric",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_temperature_metric_t rsmi_temperature_metric",
+      "decl_hash": "3068c3506752d161"
+    },
+    {
+      "name": "rsmi_temperature_metric_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_temperature_metric_t rsmi_temperature_metric_t",
+      "decl_hash": "e6a40364ed8fc559"
+    },
+    {
+      "name": "rsmi_temperature_type_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_temperature_type_t rsmi_temperature_type_t",
+      "decl_hash": "570d3a34d41932ed"
+    },
+    {
+      "name": "rsmi_utilization_counter_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_utilization_counter_t rsmi_utilization_counter_t",
+      "decl_hash": "b6b9591790ce08dd"
+    },
+    {
+      "name": "rsmi_version",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef rsmi_version_t rsmi_version",
+      "decl_hash": "7f0f6a285e93d916"
+    },
+    {
+      "name": "rsmi_version_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef struct rsmi_version_t rsmi_version_t",
+      "decl_hash": "cc704ab0cc1cfc3f"
+    },
+    {
+      "name": "rsmi_voltage_metric_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_voltage_metric_t rsmi_voltage_metric_t",
+      "decl_hash": "d44a43c3b8707221"
+    },
+    {
+      "name": "rsmi_voltage_type_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_voltage_type_t rsmi_voltage_type_t",
+      "decl_hash": "a6a2a7b2ea8c32cd"
+    },
+    {
+      "name": "rsmi_xgmi_status_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocm_smi/rocm_smi.h",
+      "decl": "typedef enum rsmi_xgmi_status_t rsmi_xgmi_status_t",
+      "decl_hash": "c6a3bfd1a9ec6fbe"
+    }
+  ]
+}

@@ -453,6 +453,65 @@ jobs:
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
           devtools/install-check.sh --preset ci-cuda --no-run --extension
 
+  # THE HONESTY MECHANISM for the committed vendor manifests. vendor/*/*.json is
+  # machine output -- devtools/vendor_manifests.sh harvesting the pinned SDK
+  # headers with devtools/vendor_harvest.py -- and a generated artifact that is
+  # trusted but stale is worse than none. This job regenerates the manifests
+  # INSIDE the same pinned `-ci` image the manifests were harvested in and fails
+  # on a non-empty diff, printing it. A green run proves the committed files
+  # still equal what the pinned headers produce; a red one is either a manifest
+  # nobody regenerated after an intended change, or -- the case this is really
+  # for -- a new CUDA/ROCm point release changing the surface under a fixed pin,
+  # announcing itself to us here instead of to a user.
+  #
+  # Two legs, matching `cpp`: the CUDA manifests can only be regenerated where
+  # the CUDA headers live (`cuda-ci`) and the HIP manifests where ROCm's do
+  # (`hip-ci`); no single `-ci` image carries both. Each leg diffs only its own
+  # vendor/<dir>. Gated on `changes` like `cpp`/`install-check` -- a docs-only
+  # PR changes no header and no harvest input, so its skip is expected and
+  # ci-ok tolerates it.
+  vendor-manifests:
+    name: vendor-manifests (${{ matrix.backend }})
+    needs: [lint, changes]
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - backend: cuda
+            image: cuda-ci
+          - backend: hip
+            image: hip-ci
+    container:
+      image: ghcr.io/whatdiraciscooking/wwr:${{ matrix.image }}
+      options: --user root
+    steps:
+      - uses: actions/checkout@v7
+      - name: trust the workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      # Regenerate into a throwaway tree (VENDOR_ROOT), never over the committed
+      # one, then diff. The diff is the whole test: a byte for the harvest tool
+      # to change, a symbol for the headers to change, and it is not empty.
+      - name: regenerate and diff
+        run: |
+          set -euo pipefail
+          out="$(mktemp -d)"
+          VENDOR_ROOT="$out" devtools/vendor_manifests.sh ${{ matrix.backend }}
+          # Compare only THIS leg's version dir; the other leg owns the other.
+          if [ "${{ matrix.backend }}" = cuda ]; then sub=cuda-13.0.x; else sub=rocm-7.2.4; fi
+          if ! diff -ruN "vendor/$sub" "$out/$sub"; then
+            echo "::error::vendor/$sub is stale. It is machine output -- do NOT" \
+                 "hand-edit. Regenerate in the pinned image:" \
+                 "devtools/vendor_manifests.sh ${{ matrix.backend }}" >&2
+            exit 1
+          fi
+          echo "vendor/$sub matches a fresh harvest of the pinned headers."
+
   # THE AGGREGATE GATE. One job whose only purpose is to be the single required
   # status check in a branch ruleset.
   #
@@ -481,7 +540,7 @@ jobs:
     # the merge with no red gate explaining why. With it, the job runs and fails
     # loudly instead.
     if: always()
-    needs: [changes, lint, test, cpp, cpp-floor, install-check]
+    needs: [changes, lint, test, cpp, cpp-floor, install-check, vendor-manifests]
     runs-on: ubuntu-latest
     steps:
       - name: every required job passed
@@ -512,6 +571,7 @@ jobs:
             cpp:${{ needs.cpp.result }}
             cpp-floor:${{ needs.cpp-floor.result }}
             install-check:${{ needs.install-check.result }}
+            vendor-manifests:${{ needs.vendor-manifests.result }}
         run: |
           echo "$DETAIL"
           fail=0

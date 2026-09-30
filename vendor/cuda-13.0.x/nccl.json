@@ -1,0 +1,1193 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/include/nccl.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/usr/include/nccl.h",
+    "prefix": "nccl",
+    "symbol_count": 152
+  },
+  "symbols": [
+    {
+      "name": "ncclCollConfig_v23200",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "struct ncclCollConfig_v23200",
+      "decl_hash": "7895341b957a8bcf"
+    },
+    {
+      "name": "ncclComm",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "struct ncclComm",
+      "decl_hash": "4eb1b67fb2e52297"
+    },
+    {
+      "name": "ncclConfigExt",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "struct ncclConfigExt",
+      "decl_hash": "c6e88592ee436ddd"
+    },
+    {
+      "name": "ncclConfig_v23100",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "struct ncclConfig_v23100",
+      "decl_hash": "0d26e8e8675da9c7"
+    },
+    {
+      "name": "ncclEncryptionConfig_v23200",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "struct ncclEncryptionConfig_v23200",
+      "decl_hash": "24db1d9ab54f4c6f"
+    },
+    {
+      "name": "ncclParamHandle",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "struct ncclParamHandle",
+      "decl_hash": "8c51ba5e39545abd"
+    },
+    {
+      "name": "ncclSimInfo_v22200",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "struct ncclSimInfo_v22200",
+      "decl_hash": "bcd029772cb5897a"
+    },
+    {
+      "name": "ncclWindow_vidmem",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "struct ncclWindow_vidmem",
+      "decl_hash": "2d53200dbb3e61e1"
+    },
+    {
+      "name": "NCCL_ENCRYPTION_MODE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "NCCL_ENCRYPTION_MODE_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "bbc0ba3ba9697a5b"
+    },
+    {
+      "name": "NCCL_ENCRYPTION_MODE_PSK",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "NCCL_ENCRYPTION_MODE_PSK = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "b0964eb823cb7a87"
+    },
+    {
+      "name": "ncclAvg",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclAvg = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "2b12d15467c64163"
+    },
+    {
+      "name": "ncclBfloat16",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclBfloat16 = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "8677c19d129efca9"
+    },
+    {
+      "name": "ncclChar",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclChar = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "e46bf2037ad32aee"
+    },
+    {
+      "name": "ncclDouble",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclDouble = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "229952042bb16ce2"
+    },
+    {
+      "name": "ncclFloat",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclFloat = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "55d31b38d99be5a0"
+    },
+    {
+      "name": "ncclFloat16",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclFloat16 = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "19df881f2cbb04f5"
+    },
+    {
+      "name": "ncclFloat32",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclFloat32 = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "ca6c6816a42e876f"
+    },
+    {
+      "name": "ncclFloat64",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclFloat64 = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "4dedaaca3dd207da"
+    },
+    {
+      "name": "ncclFloat8e4m3",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclFloat8e4m3 = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "aa4c25d69bc11cce"
+    },
+    {
+      "name": "ncclFloat8e5m2",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclFloat8e5m2 = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "83cafbbd95b80a8d"
+    },
+    {
+      "name": "ncclHalf",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclHalf = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "46f263a983447e6e"
+    },
+    {
+      "name": "ncclHostCftDefault",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclHostCftDefault = -2147483648",
+      "value": -2147483648,
+      "value_explicit": true,
+      "decl_hash": "6dcfb49744aa87e7"
+    },
+    {
+      "name": "ncclHostCftDisable",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclHostCftDisable = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "7344cabdd42349d4"
+    },
+    {
+      "name": "ncclHostCftEnable",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclHostCftEnable = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "763a52f542bc80c1"
+    },
+    {
+      "name": "ncclHostCftFallback",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclHostCftFallback = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "ef7e213e117db167"
+    },
+    {
+      "name": "ncclInProgress",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclInProgress = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "247bf7648c69d447"
+    },
+    {
+      "name": "ncclInt",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclInt = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "bdf3230fb4a9f317"
+    },
+    {
+      "name": "ncclInt32",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclInt32 = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "14d4f94a4de4cabc"
+    },
+    {
+      "name": "ncclInt64",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclInt64 = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "f93138f7b1ddc1b1"
+    },
+    {
+      "name": "ncclInt8",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclInt8 = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "61df264810c28604"
+    },
+    {
+      "name": "ncclInternalError",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclInternalError = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "a5379f4b74b69646"
+    },
+    {
+      "name": "ncclInvalidArgument",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclInvalidArgument = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "9d765c0766412553"
+    },
+    {
+      "name": "ncclInvalidUsage",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclInvalidUsage = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "8ad48a18822b8671"
+    },
+    {
+      "name": "ncclMax",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclMax = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "2db624bf36dfd355"
+    },
+    {
+      "name": "ncclMaxRedOp",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclMaxRedOp = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "ee7b0d35132ee4b4"
+    },
+    {
+      "name": "ncclMin",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclMin = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "00dc786a4b1b96b2"
+    },
+    {
+      "name": "ncclNumOps",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclNumOps = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "3442ee8685a2e977"
+    },
+    {
+      "name": "ncclNumOps_dummy",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclNumOps_dummy = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "bb773e1fd1968dec"
+    },
+    {
+      "name": "ncclNumResults",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclNumResults = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "45a80d93d68f2425"
+    },
+    {
+      "name": "ncclNumTypes",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclNumTypes = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "5be6633de2fca8b0"
+    },
+    {
+      "name": "ncclNvlsHostModeDefault",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclNvlsHostModeDefault = -2147483648",
+      "value": -2147483648,
+      "value_explicit": true,
+      "decl_hash": "cf2e494a1546ce0b"
+    },
+    {
+      "name": "ncclNvlsHostModeDisable",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclNvlsHostModeDisable = 2147483647",
+      "value": 2147483647,
+      "value_explicit": true,
+      "decl_hash": "7a55ee2b87e81e1d"
+    },
+    {
+      "name": "ncclNvlsHostModeDisableSymmetricMultimem",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclNvlsHostModeDisableSymmetricMultimem = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "23eb204b3c00c402"
+    },
+    {
+      "name": "ncclNvlsHostModeDisableTransport",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclNvlsHostModeDisableTransport = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "7a37aa2f1416e711"
+    },
+    {
+      "name": "ncclNvlsHostModeEnable",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclNvlsHostModeEnable = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "20d0fac7857962a6"
+    },
+    {
+      "name": "ncclProd",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclProd = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "31b15c498acb6554"
+    },
+    {
+      "name": "ncclRemoteError",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclRemoteError = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "baae05d932d3a499"
+    },
+    {
+      "name": "ncclScalarDevice",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclScalarDevice = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "55bf941f7175bb89"
+    },
+    {
+      "name": "ncclScalarHostImmediate",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclScalarHostImmediate = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "e676080b30ed3693"
+    },
+    {
+      "name": "ncclStatGpuMemPersist",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclStatGpuMemPersist = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "d9c0cbb595786a17"
+    },
+    {
+      "name": "ncclStatGpuMemSuspend",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclStatGpuMemSuspend = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "82c8a9d406899819"
+    },
+    {
+      "name": "ncclStatGpuMemSuspended",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclStatGpuMemSuspended = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "f2d6098b6c782aa1"
+    },
+    {
+      "name": "ncclStatGpuMemTotal",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclStatGpuMemTotal = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "1b1586f6fed955e0"
+    },
+    {
+      "name": "ncclSuccess",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclSuccess = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "020b824e9437a175"
+    },
+    {
+      "name": "ncclSum",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclSum = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "5b464a284ec21708"
+    },
+    {
+      "name": "ncclSystemError",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclSystemError = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "921c0709a880c126"
+    },
+    {
+      "name": "ncclTimeout",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclTimeout = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "4c7e7fc7f3d2113a"
+    },
+    {
+      "name": "ncclUint32",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclUint32 = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "25b16ca0a2e27d18"
+    },
+    {
+      "name": "ncclUint64",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclUint64 = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "899096c65fbad6ec"
+    },
+    {
+      "name": "ncclUint8",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclUint8 = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "4232b1da5e0134e6"
+    },
+    {
+      "name": "ncclUnhandledCudaError",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclUnhandledCudaError = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "32872a3eeb247216"
+    },
+    {
+      "name": "ncclAllGather",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclAllGather(const void * sendbuff, void * recvbuff, size_t sendcount, ncclDataType_t datatype, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "5006b6ff5d2ea94c"
+    },
+    {
+      "name": "ncclAllGatherConfig",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclAllGatherConfig(const void * sendbuff, void * recvbuff, size_t sendcount, ncclDataType_t datatype, ncclComm_t comm, cudaStream_t stream, const ncclCollConfig_t * config)",
+      "decl_hash": "76b798ceeedc1f1a"
+    },
+    {
+      "name": "ncclAllReduce",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclAllReduce(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, ncclRedOp_t op, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "88ff3533c10470cc"
+    },
+    {
+      "name": "ncclAllReduceConfig",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclAllReduceConfig(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, ncclRedOp_t op, ncclComm_t comm, cudaStream_t stream, const ncclCollConfig_t * config)",
+      "decl_hash": "60044c9b95030508"
+    },
+    {
+      "name": "ncclAlltoAll",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclAlltoAll(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "a41e7286cb9d8143"
+    },
+    {
+      "name": "ncclAlltoAllConfig",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclAlltoAllConfig(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, ncclComm_t comm, cudaStream_t stream, const ncclCollConfig_t * config)",
+      "decl_hash": "9327e307e5cace38"
+    },
+    {
+      "name": "ncclBcast",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclBcast(void * buff, size_t count, ncclDataType_t datatype, int root, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "2fb112445b7ad82a"
+    },
+    {
+      "name": "ncclBroadcast",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclBroadcast(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, int root, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "e5622d7f054d5014"
+    },
+    {
+      "name": "ncclBroadcastConfig",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclBroadcastConfig(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, int root, ncclComm_t comm, cudaStream_t stream, const ncclCollConfig_t * config)",
+      "decl_hash": "12a1377e422f8dc3"
+    },
+    {
+      "name": "ncclCommAbort",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommAbort(ncclComm_t comm)",
+      "decl_hash": "60615d565781ff17"
+    },
+    {
+      "name": "ncclCommCount",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommCount(const ncclComm_t comm, int * count)",
+      "decl_hash": "68346957b39f8b98"
+    },
+    {
+      "name": "ncclCommCuDevice",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommCuDevice(const ncclComm_t comm, int * device)",
+      "decl_hash": "a5d814b0bd010f75"
+    },
+    {
+      "name": "ncclCommDeregister",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommDeregister(const ncclComm_t comm, void * handle)",
+      "decl_hash": "a7e3b2ef2a30732f"
+    },
+    {
+      "name": "ncclCommDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommDestroy(ncclComm_t comm)",
+      "decl_hash": "554753a7506a3e85"
+    },
+    {
+      "name": "ncclCommFinalize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommFinalize(ncclComm_t comm)",
+      "decl_hash": "91790878b7691e98"
+    },
+    {
+      "name": "ncclCommGetAsyncError",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommGetAsyncError(ncclComm_t comm, ncclResult_t * asyncError)",
+      "decl_hash": "0238d13aabf9fc47"
+    },
+    {
+      "name": "ncclCommGetUniqueId",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommGetUniqueId(ncclComm_t comm, ncclUniqueId * uniqueId)",
+      "decl_hash": "004bf5de53ab858d"
+    },
+    {
+      "name": "ncclCommGrow",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommGrow(ncclComm_t comm, int nRanks, const ncclUniqueId * uniqueId, int rank, ncclComm_t * newcomm, ncclConfig_t * config)",
+      "decl_hash": "7ea115b751369855"
+    },
+    {
+      "name": "ncclCommInitAll",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommInitAll(ncclComm_t * comm, int ndev, const int * devlist)",
+      "decl_hash": "66740c9e640a5fd5"
+    },
+    {
+      "name": "ncclCommInitRank",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommInitRank(ncclComm_t * comm, int nranks, ncclUniqueId commId, int rank)",
+      "decl_hash": "24afecc5f881b72a"
+    },
+    {
+      "name": "ncclCommInitRankConfig",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommInitRankConfig(ncclComm_t * comm, int nranks, ncclUniqueId commId, int rank, ncclConfig_t * config)",
+      "decl_hash": "9247bd5c39ec501a"
+    },
+    {
+      "name": "ncclCommInitRankScalable",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommInitRankScalable(ncclComm_t * newcomm, int nranks, int myrank, int nId, ncclUniqueId * commIds, ncclConfig_t * config)",
+      "decl_hash": "1a82bcd7f1b588f4"
+    },
+    {
+      "name": "ncclCommMemStats",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommMemStats(ncclComm_t comm, ncclCommMemStat_t stat, uint64_t * value)",
+      "decl_hash": "aa2a3d98f0861c0d"
+    },
+    {
+      "name": "ncclCommRegister",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommRegister(const ncclComm_t comm, void * buff, size_t size, void ** handle)",
+      "decl_hash": "5bb6973400c5d577"
+    },
+    {
+      "name": "ncclCommResume",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommResume(ncclComm_t comm)",
+      "decl_hash": "110fec876559de6b"
+    },
+    {
+      "name": "ncclCommRevoke",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommRevoke(ncclComm_t comm, int revokeFlags)",
+      "decl_hash": "9fa5c48d29d94d34"
+    },
+    {
+      "name": "ncclCommShrink",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommShrink(ncclComm_t comm, int * excludeRanksList, int excludeRanksCount, ncclComm_t * newcomm, ncclConfig_t * config, int shrinkFlags)",
+      "decl_hash": "d786f5c78f43627c"
+    },
+    {
+      "name": "ncclCommSplit",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommSplit(ncclComm_t comm, int color, int key, ncclComm_t * newcomm, ncclConfig_t * config)",
+      "decl_hash": "e98edf754fc97d6b"
+    },
+    {
+      "name": "ncclCommSuspend",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommSuspend(ncclComm_t comm, int flags)",
+      "decl_hash": "44ee5b6a1c98a0ca"
+    },
+    {
+      "name": "ncclCommUserRank",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommUserRank(const ncclComm_t comm, int * rank)",
+      "decl_hash": "a7a452d8556b3a3a"
+    },
+    {
+      "name": "ncclCommWindowDeregister",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommWindowDeregister(ncclComm_t comm, ncclWindow_t win)",
+      "decl_hash": "21dfa03490e5014b"
+    },
+    {
+      "name": "ncclCommWindowRegister",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclCommWindowRegister(ncclComm_t comm, void * buff, size_t size, ncclWindow_t * win, int winFlags)",
+      "decl_hash": "1bf0bdf8ccf483a1"
+    },
+    {
+      "name": "ncclGather",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclGather(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, int root, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "d4e4f82418da9852"
+    },
+    {
+      "name": "ncclGatherConfig",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclGatherConfig(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, int root, ncclComm_t comm, cudaStream_t stream, const ncclCollConfig_t * config)",
+      "decl_hash": "e1006276e4994993"
+    },
+    {
+      "name": "ncclGetErrorString",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "const char * ncclGetErrorString(ncclResult_t result)",
+      "decl_hash": "0b4a00ebd26e0784"
+    },
+    {
+      "name": "ncclGetLastError",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "const char * ncclGetLastError(ncclComm_t comm)",
+      "decl_hash": "e7c11612001dc1ff"
+    },
+    {
+      "name": "ncclGetUniqueId",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclGetUniqueId(ncclUniqueId * uniqueId)",
+      "decl_hash": "eb610a09e54612a7"
+    },
+    {
+      "name": "ncclGetVersion",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclGetVersion(int * version)",
+      "decl_hash": "fd202cb2d764edd8"
+    },
+    {
+      "name": "ncclGroupEnd",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclGroupEnd()",
+      "decl_hash": "e84c2474e3c6c5c1"
+    },
+    {
+      "name": "ncclGroupSimulateEnd",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclGroupSimulateEnd(ncclSimInfo_t * simInfo)",
+      "decl_hash": "f4f3ff03af73c13b"
+    },
+    {
+      "name": "ncclGroupStart",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclGroupStart()",
+      "decl_hash": "dcb19caef17a3c0f"
+    },
+    {
+      "name": "ncclMemAlloc",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclMemAlloc(void ** ptr, size_t size)",
+      "decl_hash": "97bc49df200796e8"
+    },
+    {
+      "name": "ncclMemFree",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclMemFree(void * ptr)",
+      "decl_hash": "6cf654257281969d"
+    },
+    {
+      "name": "ncclParamBind",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamBind(ncclParamHandle_t * out, const char * key)",
+      "decl_hash": "c891e178480ab1ba"
+    },
+    {
+      "name": "ncclParamDumpAll",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "void ncclParamDumpAll()",
+      "decl_hash": "2a99f036e2669200"
+    },
+    {
+      "name": "ncclParamGet",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGet(ncclParamHandle_t h, void * out, int maxLen, int * len)",
+      "decl_hash": "6d862de825ef7dbe"
+    },
+    {
+      "name": "ncclParamGetAllParameterKeys",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetAllParameterKeys(const char *** table, int * tableLen)",
+      "decl_hash": "657c2cc31ab21e79"
+    },
+    {
+      "name": "ncclParamGetI16",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetI16(ncclParamHandle_t h, int16_t * out)",
+      "decl_hash": "f83f0d4002ca0d9d"
+    },
+    {
+      "name": "ncclParamGetI32",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetI32(ncclParamHandle_t h, int32_t * out)",
+      "decl_hash": "3c693ecf6d8e8ed2"
+    },
+    {
+      "name": "ncclParamGetI64",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetI64(ncclParamHandle_t h, int64_t * out)",
+      "decl_hash": "6ed40ba0909f4c29"
+    },
+    {
+      "name": "ncclParamGetI8",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetI8(ncclParamHandle_t h, int8_t * out)",
+      "decl_hash": "c5d6519a92a65914"
+    },
+    {
+      "name": "ncclParamGetParameter",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetParameter(const char * key, const char ** value, int * valueLen)",
+      "decl_hash": "eb1d544b3d51d1ec"
+    },
+    {
+      "name": "ncclParamGetStr",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetStr(ncclParamHandle_t h, const char ** out)",
+      "decl_hash": "989ea5db434c30e8"
+    },
+    {
+      "name": "ncclParamGetU16",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetU16(ncclParamHandle_t h, uint16_t * out)",
+      "decl_hash": "eaff7e2c06ca8101"
+    },
+    {
+      "name": "ncclParamGetU32",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetU32(ncclParamHandle_t h, uint32_t * out)",
+      "decl_hash": "2990ec49bbed3ea4"
+    },
+    {
+      "name": "ncclParamGetU64",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetU64(ncclParamHandle_t h, uint64_t * out)",
+      "decl_hash": "4e45bf58354bb63a"
+    },
+    {
+      "name": "ncclParamGetU8",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclParamGetU8(ncclParamHandle_t h, uint8_t * out)",
+      "decl_hash": "a8d438f8ff0e0c14"
+    },
+    {
+      "name": "ncclPutSignal",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclPutSignal(const void * localbuff, size_t count, ncclDataType_t datatype, int peer, ncclWindow_t peerWin, size_t peerWinOffset, int sigIdx, int ctx, unsigned int flags, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "8b2e84059cff0c2e"
+    },
+    {
+      "name": "ncclRecv",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclRecv(void * recvbuff, size_t count, ncclDataType_t datatype, int peer, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "12c293d2407a4697"
+    },
+    {
+      "name": "ncclRedOpCreatePreMulSum",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclRedOpCreatePreMulSum(ncclRedOp_t * op, void * scalar, ncclDataType_t datatype, ncclScalarResidence_t residence, ncclComm_t comm)",
+      "decl_hash": "dac14f23039e6c32"
+    },
+    {
+      "name": "ncclRedOpDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclRedOpDestroy(ncclRedOp_t op, ncclComm_t comm)",
+      "decl_hash": "28dfa8b28174fde9"
+    },
+    {
+      "name": "ncclReduce",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclReduce(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, ncclRedOp_t op, int root, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "a37c5cab9eea3a56"
+    },
+    {
+      "name": "ncclReduceConfig",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclReduceConfig(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, ncclRedOp_t op, int root, ncclComm_t comm, cudaStream_t stream, const ncclCollConfig_t * config)",
+      "decl_hash": "b10e62a6cf9eedb7"
+    },
+    {
+      "name": "ncclReduceScatter",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclReduceScatter(const void * sendbuff, void * recvbuff, size_t recvcount, ncclDataType_t datatype, ncclRedOp_t op, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "72bdd159681cb62a"
+    },
+    {
+      "name": "ncclReduceScatterConfig",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclReduceScatterConfig(const void * sendbuff, void * recvbuff, size_t recvcount, ncclDataType_t datatype, ncclRedOp_t op, ncclComm_t comm, cudaStream_t stream, const ncclCollConfig_t * config)",
+      "decl_hash": "2c75f2c7a11ff5b5"
+    },
+    {
+      "name": "ncclScatter",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclScatter(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, int root, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "f0d6db89143f3029"
+    },
+    {
+      "name": "ncclScatterConfig",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclScatterConfig(const void * sendbuff, void * recvbuff, size_t count, ncclDataType_t datatype, int root, ncclComm_t comm, cudaStream_t stream, const ncclCollConfig_t * config)",
+      "decl_hash": "d8c555719779d11f"
+    },
+    {
+      "name": "ncclSend",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclSend(const void * sendbuff, size_t count, ncclDataType_t datatype, int peer, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "cc52a2dcd9971876"
+    },
+    {
+      "name": "ncclSetEncryption",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclSetEncryption(const ncclEncryptionConfig_t * config)",
+      "decl_hash": "03a90e079fa3ab6c"
+    },
+    {
+      "name": "ncclSignal",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclSignal(int peer, int sigIdx, int ctx, unsigned int flags, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "d9614ce267a5ca05"
+    },
+    {
+      "name": "ncclWaitSignal",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclWaitSignal(int nDesc, ncclWaitSignalDesc_t * signalDescs, ncclComm_t comm, cudaStream_t stream)",
+      "decl_hash": "966c8970e23b6f48"
+    },
+    {
+      "name": "ncclWinGetUserPtr",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "ncclResult_t ncclWinGetUserPtr(ncclComm_t comm, ncclWindow_t win, void ** outUserPtr)",
+      "decl_hash": "67e049cff5c87704"
+    },
+    {
+      "name": "ncclCollConfig_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef struct ncclCollConfig_v23200 ncclCollConfig_t",
+      "decl_hash": "b77480f47e7ad8f2"
+    },
+    {
+      "name": "ncclCommMemStat_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef enum ncclCommMemStat_t ncclCommMemStat_t",
+      "decl_hash": "9d5d46e3c64bd99e"
+    },
+    {
+      "name": "ncclComm_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef struct ncclComm * ncclComm_t",
+      "decl_hash": "041baa198aea2856"
+    },
+    {
+      "name": "ncclConfigExt_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef struct ncclConfigExt ncclConfigExt_t",
+      "decl_hash": "125664bfe29dfde6"
+    },
+    {
+      "name": "ncclConfig_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef struct ncclConfig_v23100 ncclConfig_t",
+      "decl_hash": "4910015bb76bcc5a"
+    },
+    {
+      "name": "ncclDataType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef enum ncclDataType_t ncclDataType_t",
+      "decl_hash": "1969348dd469faaf"
+    },
+    {
+      "name": "ncclEncryptionConfig_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef struct ncclEncryptionConfig_v23200 ncclEncryptionConfig_t",
+      "decl_hash": "ccf59a3f5a8c394a"
+    },
+    {
+      "name": "ncclEncryptionMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef enum ncclEncryptionMode_t ncclEncryptionMode_t",
+      "decl_hash": "5fce89d30f12ba54"
+    },
+    {
+      "name": "ncclHostCftMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef enum ncclHostCftMode_t ncclHostCftMode_t",
+      "decl_hash": "560096e8701c7cf0"
+    },
+    {
+      "name": "ncclNvlsHostMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef enum ncclNvlsHostMode_t ncclNvlsHostMode_t",
+      "decl_hash": "8b029e6e18d1fc8d"
+    },
+    {
+      "name": "ncclParamHandle_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef struct ncclParamHandle * ncclParamHandle_t",
+      "decl_hash": "184f805b30313dbc"
+    },
+    {
+      "name": "ncclRedOp_dummy_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef enum ncclRedOp_dummy_t ncclRedOp_dummy_t",
+      "decl_hash": "3bd836caf68799ca"
+    },
+    {
+      "name": "ncclRedOp_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef enum ncclRedOp_t ncclRedOp_t",
+      "decl_hash": "8515c82b50afee24"
+    },
+    {
+      "name": "ncclResult_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef enum ncclResult_t ncclResult_t",
+      "decl_hash": "79acf358b154f201"
+    },
+    {
+      "name": "ncclScalarResidence_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef enum ncclScalarResidence_t ncclScalarResidence_t",
+      "decl_hash": "39e2fa3bda2ffe35"
+    },
+    {
+      "name": "ncclSimInfo_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef struct ncclSimInfo_v22200 ncclSimInfo_t",
+      "decl_hash": "d61c63e075ed17a8"
+    },
+    {
+      "name": "ncclUniqueId",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef struct ncclUniqueId ncclUniqueId",
+      "decl_hash": "d94683da62af0115"
+    },
+    {
+      "name": "ncclWaitSignalDesc_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef struct ncclWaitSignalDesc_t ncclWaitSignalDesc_t",
+      "decl_hash": "572f2c497a70845f"
+    },
+    {
+      "name": "ncclWindow_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nccl.h",
+      "decl": "typedef struct ncclWindow_vidmem * ncclWindow_t",
+      "decl_hash": "4360f35e27c47e56"
+    }
+  ]
+}

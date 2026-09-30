@@ -1,0 +1,1481 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/include/cutensor.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/usr/include/cutensor.h",
+    "prefix": "cutensor",
+    "symbol_count": 186
+  },
+  "symbols": [
+    {
+      "name": "cutensorBlockSparseTensorDescriptor",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "struct cutensorBlockSparseTensorDescriptor",
+      "decl_hash": "a8fff61fcdbff41d"
+    },
+    {
+      "name": "cutensorComputeDescriptor",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "struct cutensorComputeDescriptor",
+      "decl_hash": "4c1f7180a78e0b90"
+    },
+    {
+      "name": "cutensorHandle",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "struct cutensorHandle",
+      "decl_hash": "04d6cfd0eeead025"
+    },
+    {
+      "name": "cutensorOperationDescriptor",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "struct cutensorOperationDescriptor",
+      "decl_hash": "add24c412f22fd98"
+    },
+    {
+      "name": "cutensorPlan",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "struct cutensorPlan",
+      "decl_hash": "4b9e03e92d4eaeb2"
+    },
+    {
+      "name": "cutensorPlanPreference",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "struct cutensorPlanPreference",
+      "decl_hash": "7fba2a5340d5d6a0"
+    },
+    {
+      "name": "cutensorTensorDescriptor",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "struct cutensorTensorDescriptor",
+      "decl_hash": "2f0a04bebbb6cee0"
+    },
+    {
+      "name": "CUTENSOR_ALGO_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_ALGO_DEFAULT = -1",
+      "value": -1,
+      "value_explicit": true,
+      "decl_hash": "eaf8509d4bea90d5"
+    },
+    {
+      "name": "CUTENSOR_ALGO_DEFAULT_PATIENT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_ALGO_DEFAULT_PATIENT = -6",
+      "value": -6,
+      "value_explicit": true,
+      "decl_hash": "e94a49109cb2b14d"
+    },
+    {
+      "name": "CUTENSOR_ALGO_GETT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_ALGO_GETT = -4",
+      "value": -4,
+      "value_explicit": true,
+      "decl_hash": "cf87e8687b0a990a"
+    },
+    {
+      "name": "CUTENSOR_ALGO_TGETT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_ALGO_TGETT = -3",
+      "value": -3,
+      "value_explicit": true,
+      "decl_hash": "a577ce52823b4f77"
+    },
+    {
+      "name": "CUTENSOR_ALGO_TTGT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_ALGO_TTGT = -2",
+      "value": -2,
+      "value_explicit": true,
+      "decl_hash": "eafb21d34febc013"
+    },
+    {
+      "name": "CUTENSOR_AUTOTUNE_MODE_INCREMENTAL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_AUTOTUNE_MODE_INCREMENTAL = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "35e2ea8ac8b22eda"
+    },
+    {
+      "name": "CUTENSOR_AUTOTUNE_MODE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_AUTOTUNE_MODE_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "ea647ea7e5b0099f"
+    },
+    {
+      "name": "CUTENSOR_CACHE_MODE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_CACHE_MODE_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "bdc12584e14b4332"
+    },
+    {
+      "name": "CUTENSOR_CACHE_MODE_PEDANTIC",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_CACHE_MODE_PEDANTIC = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "aca2180c2d87c03a"
+    },
+    {
+      "name": "CUTENSOR_JIT_MODE_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_JIT_MODE_DEFAULT = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "20d78ac79edf1463"
+    },
+    {
+      "name": "CUTENSOR_JIT_MODE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_JIT_MODE_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "6c5f9831cb9f1929"
+    },
+    {
+      "name": "CUTENSOR_OPERATION_DESCRIPTOR_BLOCKSPARSE_REPRODUCIBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OPERATION_DESCRIPTOR_BLOCKSPARSE_REPRODUCIBLE = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "cce06336d262affe"
+    },
+    {
+      "name": "CUTENSOR_OPERATION_DESCRIPTOR_FLOPS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OPERATION_DESCRIPTOR_FLOPS = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "c0f48e889b8547f9"
+    },
+    {
+      "name": "CUTENSOR_OPERATION_DESCRIPTOR_MOVED_BYTES",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OPERATION_DESCRIPTOR_MOVED_BYTES = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "e69e477cb556151c"
+    },
+    {
+      "name": "CUTENSOR_OPERATION_DESCRIPTOR_PADDING_LEFT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OPERATION_DESCRIPTOR_PADDING_LEFT = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "a7d32e6d79ea678c"
+    },
+    {
+      "name": "CUTENSOR_OPERATION_DESCRIPTOR_PADDING_RIGHT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OPERATION_DESCRIPTOR_PADDING_RIGHT = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "6a804405a427c97e"
+    },
+    {
+      "name": "CUTENSOR_OPERATION_DESCRIPTOR_PADDING_VALUE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OPERATION_DESCRIPTOR_PADDING_VALUE = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "c13a677a063ec3e4"
+    },
+    {
+      "name": "CUTENSOR_OPERATION_DESCRIPTOR_SCALAR_TYPE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OPERATION_DESCRIPTOR_SCALAR_TYPE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "e0cce49fa50a65bd"
+    },
+    {
+      "name": "CUTENSOR_OPERATION_DESCRIPTOR_TAG",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OPERATION_DESCRIPTOR_TAG = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "4e37fa6d0d5e21ae"
+    },
+    {
+      "name": "CUTENSOR_OP_ABS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_ABS = 24",
+      "value": 24,
+      "value_explicit": true,
+      "decl_hash": "cfa8360c431ba420"
+    },
+    {
+      "name": "CUTENSOR_OP_ACOS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_ACOS = 32",
+      "value": 32,
+      "value_explicit": true,
+      "decl_hash": "2ff94e3d9815e1b4"
+    },
+    {
+      "name": "CUTENSOR_OP_ACOSH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_ACOSH = 35",
+      "value": 35,
+      "value_explicit": true,
+      "decl_hash": "55fd0ac0d9ca78e5"
+    },
+    {
+      "name": "CUTENSOR_OP_ADD",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_ADD = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "f35fd9a6c1895b45"
+    },
+    {
+      "name": "CUTENSOR_OP_ASIN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_ASIN = 31",
+      "value": 31,
+      "value_explicit": true,
+      "decl_hash": "1682081fc0c1c170"
+    },
+    {
+      "name": "CUTENSOR_OP_ASINH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_ASINH = 34",
+      "value": 34,
+      "value_explicit": true,
+      "decl_hash": "40624eca2c601b21"
+    },
+    {
+      "name": "CUTENSOR_OP_ATAN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_ATAN = 33",
+      "value": 33,
+      "value_explicit": true,
+      "decl_hash": "306c9465536029b9"
+    },
+    {
+      "name": "CUTENSOR_OP_ATANH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_ATANH = 36",
+      "value": 36,
+      "value_explicit": true,
+      "decl_hash": "fbdbf4bb52fcc272"
+    },
+    {
+      "name": "CUTENSOR_OP_CEIL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_CEIL = 37",
+      "value": 37,
+      "value_explicit": true,
+      "decl_hash": "d6dd388622da10c4"
+    },
+    {
+      "name": "CUTENSOR_OP_CONJ",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_CONJ = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "f2a0fbc9e96b5565"
+    },
+    {
+      "name": "CUTENSOR_OP_COS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_COS = 27",
+      "value": 27,
+      "value_explicit": true,
+      "decl_hash": "ad2db09494fcefca"
+    },
+    {
+      "name": "CUTENSOR_OP_COSH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_COSH = 30",
+      "value": 30,
+      "value_explicit": true,
+      "decl_hash": "201119a0e1ad3a31"
+    },
+    {
+      "name": "CUTENSOR_OP_EXP",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_EXP = 22",
+      "value": 22,
+      "value_explicit": true,
+      "decl_hash": "8a85362ba9fa9321"
+    },
+    {
+      "name": "CUTENSOR_OP_FLOOR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_FLOOR = 38",
+      "value": 38,
+      "value_explicit": true,
+      "decl_hash": "8983327fb41af269"
+    },
+    {
+      "name": "CUTENSOR_OP_IDENTITY",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_IDENTITY = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "c347d090b44adeb3"
+    },
+    {
+      "name": "CUTENSOR_OP_LOG",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_LOG = 23",
+      "value": 23,
+      "value_explicit": true,
+      "decl_hash": "e69a71230a4edbda"
+    },
+    {
+      "name": "CUTENSOR_OP_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_MAX = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "da4a60af474952fb"
+    },
+    {
+      "name": "CUTENSOR_OP_MIN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_MIN = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "43701727983a7dd2"
+    },
+    {
+      "name": "CUTENSOR_OP_MISH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_MISH = 39",
+      "value": 39,
+      "value_explicit": true,
+      "decl_hash": "26781d5819f56cdc"
+    },
+    {
+      "name": "CUTENSOR_OP_MUL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_MUL = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "6da5820878820c06"
+    },
+    {
+      "name": "CUTENSOR_OP_NEG",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_NEG = 25",
+      "value": 25,
+      "value_explicit": true,
+      "decl_hash": "20fcd2a81beb5fba"
+    },
+    {
+      "name": "CUTENSOR_OP_RCP",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_RCP = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "8183b3e066639e93"
+    },
+    {
+      "name": "CUTENSOR_OP_RELU",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_RELU = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "9129a0c88a84cb80"
+    },
+    {
+      "name": "CUTENSOR_OP_SIGMOID",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_SIGMOID = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "9cb46183f112d92a"
+    },
+    {
+      "name": "CUTENSOR_OP_SIN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_SIN = 26",
+      "value": 26,
+      "value_explicit": true,
+      "decl_hash": "45564765c02803f4"
+    },
+    {
+      "name": "CUTENSOR_OP_SINH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_SINH = 29",
+      "value": 29,
+      "value_explicit": true,
+      "decl_hash": "77a4a0a9d311819b"
+    },
+    {
+      "name": "CUTENSOR_OP_SOFT_PLUS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_SOFT_PLUS = 41",
+      "value": 41,
+      "value_explicit": true,
+      "decl_hash": "7a951ad50ada0757"
+    },
+    {
+      "name": "CUTENSOR_OP_SOFT_SIGN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_SOFT_SIGN = 42",
+      "value": 42,
+      "value_explicit": true,
+      "decl_hash": "190e97078071a424"
+    },
+    {
+      "name": "CUTENSOR_OP_SQRT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_SQRT = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "7173234d6eb8ffc1"
+    },
+    {
+      "name": "CUTENSOR_OP_SWISH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_SWISH = 40",
+      "value": 40,
+      "value_explicit": true,
+      "decl_hash": "b2a187f88b2cd198"
+    },
+    {
+      "name": "CUTENSOR_OP_TAN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_TAN = 28",
+      "value": 28,
+      "value_explicit": true,
+      "decl_hash": "2f0eb2ef5243ce16"
+    },
+    {
+      "name": "CUTENSOR_OP_TANH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_TANH = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "5b11f21ce583f4d9"
+    },
+    {
+      "name": "CUTENSOR_OP_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_OP_UNKNOWN = 126",
+      "value": 126,
+      "value_explicit": true,
+      "decl_hash": "07df76922fefb907"
+    },
+    {
+      "name": "CUTENSOR_PLAN_PREFERENCE_ALGO",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_PLAN_PREFERENCE_ALGO = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "414681534c65a08a"
+    },
+    {
+      "name": "CUTENSOR_PLAN_PREFERENCE_AUTOTUNE_MODE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_PLAN_PREFERENCE_AUTOTUNE_MODE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "300af11aa5f8d12a"
+    },
+    {
+      "name": "CUTENSOR_PLAN_PREFERENCE_CACHE_MODE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_PLAN_PREFERENCE_CACHE_MODE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "5c47b7683e93637d"
+    },
+    {
+      "name": "CUTENSOR_PLAN_PREFERENCE_GPU_ARCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_PLAN_PREFERENCE_GPU_ARCH = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "799afb947895264c"
+    },
+    {
+      "name": "CUTENSOR_PLAN_PREFERENCE_INCREMENTAL_COUNT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_PLAN_PREFERENCE_INCREMENTAL_COUNT = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "663bb42a8b6a366f"
+    },
+    {
+      "name": "CUTENSOR_PLAN_PREFERENCE_JIT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_PLAN_PREFERENCE_JIT = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "23dc6fd25665bb0b"
+    },
+    {
+      "name": "CUTENSOR_PLAN_PREFERENCE_KERNEL_RANK",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_PLAN_PREFERENCE_KERNEL_RANK = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "cfbabcbf99dc156f"
+    },
+    {
+      "name": "CUTENSOR_PLAN_REQUIRED_WORKSPACE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_PLAN_REQUIRED_WORKSPACE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "9ba4cfc740675f20"
+    },
+    {
+      "name": "CUTENSOR_STATUS_ALLOC_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_ALLOC_FAILED = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "20b9fc6acb2ea28a"
+    },
+    {
+      "name": "CUTENSOR_STATUS_ARCH_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_ARCH_MISMATCH = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "f66e01ddba2179a5"
+    },
+    {
+      "name": "CUTENSOR_STATUS_CUBLAS_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_CUBLAS_ERROR = 17",
+      "value": 17,
+      "value_explicit": true,
+      "decl_hash": "95ccff24184199b1"
+    },
+    {
+      "name": "CUTENSOR_STATUS_CUDA_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_CUDA_ERROR = 18",
+      "value": 18,
+      "value_explicit": true,
+      "decl_hash": "af4b1aa44c818ebb"
+    },
+    {
+      "name": "CUTENSOR_STATUS_EXECUTION_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_EXECUTION_FAILED = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "e9ad535710567444"
+    },
+    {
+      "name": "CUTENSOR_STATUS_INSUFFICIENT_DRIVER",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_INSUFFICIENT_DRIVER = 20",
+      "value": 20,
+      "value_explicit": true,
+      "decl_hash": "c5168b236a2de60e"
+    },
+    {
+      "name": "CUTENSOR_STATUS_INSUFFICIENT_WORKSPACE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_INSUFFICIENT_WORKSPACE = 19",
+      "value": 19,
+      "value_explicit": true,
+      "decl_hash": "1f0738cf5f9c4330"
+    },
+    {
+      "name": "CUTENSOR_STATUS_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_INTERNAL_ERROR = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "e69c4622c0441009"
+    },
+    {
+      "name": "CUTENSOR_STATUS_INVALID_VALUE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_INVALID_VALUE = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "b0c3717b278416de"
+    },
+    {
+      "name": "CUTENSOR_STATUS_IO_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_IO_ERROR = 21",
+      "value": 21,
+      "value_explicit": true,
+      "decl_hash": "2ce6060988885efc"
+    },
+    {
+      "name": "CUTENSOR_STATUS_LICENSE_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_LICENSE_ERROR = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "c88a1b48ff87d009"
+    },
+    {
+      "name": "CUTENSOR_STATUS_MAPPING_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_MAPPING_ERROR = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "e17db0032590249b"
+    },
+    {
+      "name": "CUTENSOR_STATUS_NOT_INITIALIZED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_NOT_INITIALIZED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "9f4db2bdb1c97cfa"
+    },
+    {
+      "name": "CUTENSOR_STATUS_NOT_SUPPORTED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_NOT_SUPPORTED = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "a5204b9ac03b441a"
+    },
+    {
+      "name": "CUTENSOR_STATUS_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_STATUS_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "143c3653fd2d5ec3"
+    },
+    {
+      "name": "CUTENSOR_WORKSPACE_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_WORKSPACE_DEFAULT = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "0f7bde33ff48c13f"
+    },
+    {
+      "name": "CUTENSOR_WORKSPACE_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_WORKSPACE_MAX = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "7928d44bd2f5c62b"
+    },
+    {
+      "name": "CUTENSOR_WORKSPACE_MIN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "CUTENSOR_WORKSPACE_MIN = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "7a463bf1d94c76b9"
+    },
+    {
+      "name": "cutensorBlockSparseContract",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorBlockSparseContract(const cutensorHandle_t handle, const cutensorPlan_t plan, const void * alpha, const void *const * A, const void *const * B, const void * beta, const void *const * C, void *const * D, void * workspace, uint64_t workspaceSize, cudaStream_t stream)",
+      "decl_hash": "d27543d028c94790"
+    },
+    {
+      "name": "cutensorContract",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorContract(const cutensorHandle_t handle, const cutensorPlan_t plan, const void * alpha, const void * A, const void * B, const void * beta, const void * C, void * D, void * workspace, uint64_t workspaceSize, cudaStream_t stream)",
+      "decl_hash": "b8cce61105d05634"
+    },
+    {
+      "name": "cutensorContractTrinary",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorContractTrinary(const cutensorHandle_t handle, const cutensorPlan_t plan, const void * alpha, const void * A, const void * B, const void * C, const void * beta, const void * D, void * E, void * workspace, uint64_t workspaceSize, cudaStream_t stream)",
+      "decl_hash": "e881bbf55ea4365e"
+    },
+    {
+      "name": "cutensorCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreate(cutensorHandle_t * handle)",
+      "decl_hash": "d8130b6ba8edf510"
+    },
+    {
+      "name": "cutensorCreateBlockSparseContraction",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreateBlockSparseContraction(const cutensorHandle_t handle, cutensorOperationDescriptor_t * desc, const cutensorBlockSparseTensorDescriptor_t descA, const int32_t * modeA, cutensorOperator_t opA, const cutensorBlockSparseTensorDescriptor_t descB, const int32_t * modeB, cutensorOperator_t opB, const cutensorBlockSparseTensorDescriptor_t descC, const int32_t * modeC, cutensorOperator_t opC, const cutensorBlockSparseTensorDescriptor_t descD, const int32_t * modeD, const cutensorComputeDescriptor_t descCompute)",
+      "decl_hash": "07b831231db398c4"
+    },
+    {
+      "name": "cutensorCreateBlockSparseTensorDescriptor",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreateBlockSparseTensorDescriptor(cutensorHandle_t handle, cutensorBlockSparseTensorDescriptor_t * desc, const uint32_t numModes, const uint64_t numNonZeroBlocks, const uint32_t * numSectionsPerMode, const int64_t * extent, const int32_t * nonZeroCoordinates, const int64_t * stride, cudaDataType_t dataType)",
+      "decl_hash": "ce9d147967a3bc43"
+    },
+    {
+      "name": "cutensorCreateContraction",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreateContraction(const cutensorHandle_t handle, cutensorOperationDescriptor_t * desc, const cutensorTensorDescriptor_t descA, const int32_t * modeA, cutensorOperator_t opA, const cutensorTensorDescriptor_t descB, const int32_t * modeB, cutensorOperator_t opB, const cutensorTensorDescriptor_t descC, const int32_t * modeC, cutensorOperator_t opC, const cutensorTensorDescriptor_t descD, const int32_t * modeD, const cutensorComputeDescriptor_t descCompute)",
+      "decl_hash": "bb171e771d139dfb"
+    },
+    {
+      "name": "cutensorCreateContractionTrinary",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreateContractionTrinary(const cutensorHandle_t handle, cutensorOperationDescriptor_t * desc, const cutensorTensorDescriptor_t descA, const int32_t * modeA, cutensorOperator_t opA, const cutensorTensorDescriptor_t descB, const int32_t * modeB, cutensorOperator_t opB, const cutensorTensorDescriptor_t descC, const int32_t * modeC, cutensorOperator_t opC, const cutensorTensorDescriptor_t descD, const int32_t * modeD, cutensorOperator_t opD, const cutensorTensorDescriptor_t descE, const int32_t * modeE, const cutensorComputeDescriptor_t descCompute)",
+      "decl_hash": "1056b01bc6062102"
+    },
+    {
+      "name": "cutensorCreateElementwiseBinary",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreateElementwiseBinary(const cutensorHandle_t handle, cutensorOperationDescriptor_t * desc, const cutensorTensorDescriptor_t descA, const int32_t * modeA, cutensorOperator_t opA, const cutensorTensorDescriptor_t descC, const int32_t * modeC, cutensorOperator_t opC, const cutensorTensorDescriptor_t descD, const int32_t * modeD, cutensorOperator_t opAC, const cutensorComputeDescriptor_t descCompute)",
+      "decl_hash": "99d4c6c7117108cc"
+    },
+    {
+      "name": "cutensorCreateElementwiseTrinary",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreateElementwiseTrinary(const cutensorHandle_t handle, cutensorOperationDescriptor_t * desc, const cutensorTensorDescriptor_t descA, const int32_t * modeA, cutensorOperator_t opA, const cutensorTensorDescriptor_t descB, const int32_t * modeB, cutensorOperator_t opB, const cutensorTensorDescriptor_t descC, const int32_t * modeC, cutensorOperator_t opC, const cutensorTensorDescriptor_t descD, const int32_t * modeD, cutensorOperator_t opAB, cutensorOperator_t opABC, const cutensorComputeDescriptor_t descCompute)",
+      "decl_hash": "90a81b8832853a09"
+    },
+    {
+      "name": "cutensorCreatePermutation",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreatePermutation(const cutensorHandle_t handle, cutensorOperationDescriptor_t * desc, const cutensorTensorDescriptor_t descA, const int32_t * modeA, cutensorOperator_t opA, const cutensorTensorDescriptor_t descB, const int32_t * modeB, const cutensorComputeDescriptor_t descCompute)",
+      "decl_hash": "a3389f0861a8ca91"
+    },
+    {
+      "name": "cutensorCreatePlan",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreatePlan(const cutensorHandle_t handle, cutensorPlan_t * plan, const cutensorOperationDescriptor_t desc, const cutensorPlanPreference_t pref, uint64_t workspaceSizeLimit)",
+      "decl_hash": "2317f8b339be89d4"
+    },
+    {
+      "name": "cutensorCreatePlanPreference",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreatePlanPreference(const cutensorHandle_t handle, cutensorPlanPreference_t * pref, cutensorAlgo_t algo, cutensorJitMode_t jitMode)",
+      "decl_hash": "3518af5712315b6c"
+    },
+    {
+      "name": "cutensorCreateReduction",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreateReduction(const cutensorHandle_t handle, cutensorOperationDescriptor_t * desc, const cutensorTensorDescriptor_t descA, const int32_t * modeA, cutensorOperator_t opA, const cutensorTensorDescriptor_t descC, const int32_t * modeC, cutensorOperator_t opC, const cutensorTensorDescriptor_t descD, const int32_t * modeD, cutensorOperator_t opReduce, const cutensorComputeDescriptor_t descCompute)",
+      "decl_hash": "c58943f47106c264"
+    },
+    {
+      "name": "cutensorCreateTensorDescriptor",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorCreateTensorDescriptor(const cutensorHandle_t handle, cutensorTensorDescriptor_t * desc, const uint32_t numModes, const int64_t * extent, const int64_t * stride, cudaDataType_t dataType, uint32_t alignmentRequirement)",
+      "decl_hash": "782024b7a0ef608b"
+    },
+    {
+      "name": "cutensorDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorDestroy(cutensorHandle_t handle)",
+      "decl_hash": "95f65fafcba8eff9"
+    },
+    {
+      "name": "cutensorDestroyBlockSparseTensorDescriptor",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorDestroyBlockSparseTensorDescriptor(cutensorBlockSparseTensorDescriptor_t desc)",
+      "decl_hash": "72d98a5d636e0403"
+    },
+    {
+      "name": "cutensorDestroyOperationDescriptor",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorDestroyOperationDescriptor(cutensorOperationDescriptor_t desc)",
+      "decl_hash": "edb1de4c5ca54a87"
+    },
+    {
+      "name": "cutensorDestroyPlan",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorDestroyPlan(cutensorPlan_t plan)",
+      "decl_hash": "7c66cbc3b397179a"
+    },
+    {
+      "name": "cutensorDestroyPlanPreference",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorDestroyPlanPreference(cutensorPlanPreference_t pref)",
+      "decl_hash": "8fd45dac26c74f8c"
+    },
+    {
+      "name": "cutensorDestroyTensorDescriptor",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorDestroyTensorDescriptor(cutensorTensorDescriptor_t desc)",
+      "decl_hash": "09e27bfa5a30a9fd"
+    },
+    {
+      "name": "cutensorElementwiseBinaryExecute",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorElementwiseBinaryExecute(const cutensorHandle_t handle, const cutensorPlan_t plan, const void * alpha, const void * A, const void * gamma, const void * C, void * D, cudaStream_t stream)",
+      "decl_hash": "1a752fec1067a188"
+    },
+    {
+      "name": "cutensorElementwiseTrinaryExecute",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorElementwiseTrinaryExecute(const cutensorHandle_t handle, const cutensorPlan_t plan, const void * alpha, const void * A, const void * beta, const void * B, const void * gamma, const void * C, void * D, cudaStream_t stream)",
+      "decl_hash": "8dbe8f7f3dfb8da0"
+    },
+    {
+      "name": "cutensorEstimateWorkspaceSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorEstimateWorkspaceSize(const cutensorHandle_t handle, const cutensorOperationDescriptor_t desc, const cutensorPlanPreference_t planPref, const cutensorWorksizePreference_t workspacePref, uint64_t * workspaceSizeEstimate)",
+      "decl_hash": "b9781c5848a4e358"
+    },
+    {
+      "name": "cutensorGetCudartVersion",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "size_t cutensorGetCudartVersion()",
+      "decl_hash": "91597294aa7f5d89"
+    },
+    {
+      "name": "cutensorGetErrorString",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "const char * cutensorGetErrorString(const cutensorStatus_t error)",
+      "decl_hash": "e8ac783299da4225"
+    },
+    {
+      "name": "cutensorGetVersion",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "size_t cutensorGetVersion()",
+      "decl_hash": "d3cccca1017796b4"
+    },
+    {
+      "name": "cutensorHandleReadPlanCacheFromFile",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorHandleReadPlanCacheFromFile(cutensorHandle_t handle, const char * filename, uint32_t * numCachelinesRead)",
+      "decl_hash": "6444fde55a4f4807"
+    },
+    {
+      "name": "cutensorHandleResizePlanCache",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorHandleResizePlanCache(cutensorHandle_t handle, const uint32_t numEntries)",
+      "decl_hash": "99fe83a672f889e6"
+    },
+    {
+      "name": "cutensorHandleWritePlanCacheToFile",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorHandleWritePlanCacheToFile(const cutensorHandle_t handle, const char * filename)",
+      "decl_hash": "2bf00e13c6042368"
+    },
+    {
+      "name": "cutensorLoggerForceDisable",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorLoggerForceDisable()",
+      "decl_hash": "dfb0bffab839890b"
+    },
+    {
+      "name": "cutensorLoggerOpenFile",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorLoggerOpenFile(const char * logFile)",
+      "decl_hash": "7337c07a70c33e8c"
+    },
+    {
+      "name": "cutensorLoggerSetCallback",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorLoggerSetCallback(cutensorLoggerCallback_t callback)",
+      "decl_hash": "1382d695fb1992e7"
+    },
+    {
+      "name": "cutensorLoggerSetFile",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorLoggerSetFile(FILE * file)",
+      "decl_hash": "c0035affddc46eb1"
+    },
+    {
+      "name": "cutensorLoggerSetLevel",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorLoggerSetLevel(int32_t level)",
+      "decl_hash": "a79bdd59a760138a"
+    },
+    {
+      "name": "cutensorLoggerSetMask",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorLoggerSetMask(int32_t mask)",
+      "decl_hash": "29235ecb83038490"
+    },
+    {
+      "name": "cutensorOperationDescriptorGetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorOperationDescriptorGetAttribute(const cutensorHandle_t handle, cutensorOperationDescriptor_t desc, cutensorOperationDescriptorAttribute_t attr, void * buf, size_t sizeInBytes)",
+      "decl_hash": "4b48b77ad2e928d3"
+    },
+    {
+      "name": "cutensorOperationDescriptorSetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorOperationDescriptorSetAttribute(const cutensorHandle_t handle, cutensorOperationDescriptor_t desc, cutensorOperationDescriptorAttribute_t attr, const void * buf, size_t sizeInBytes)",
+      "decl_hash": "0bcf0e4353a96cbf"
+    },
+    {
+      "name": "cutensorPermute",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorPermute(const cutensorHandle_t handle, const cutensorPlan_t plan, const void * alpha, const void * A, void * B, const cudaStream_t stream)",
+      "decl_hash": "393c371254fce433"
+    },
+    {
+      "name": "cutensorPlanGetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorPlanGetAttribute(const cutensorHandle_t handle, const cutensorPlan_t plan, cutensorPlanAttribute_t attr, void * buf, size_t sizeInBytes)",
+      "decl_hash": "5dd1e01be85f20a8"
+    },
+    {
+      "name": "cutensorPlanPreferenceGetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorPlanPreferenceGetAttribute(const cutensorHandle_t handle, cutensorPlanPreference_t pref, cutensorPlanPreferenceAttribute_t attr, void * buf, size_t sizeInBytes)",
+      "decl_hash": "1b2d1f35e3f4269a"
+    },
+    {
+      "name": "cutensorPlanPreferenceSetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorPlanPreferenceSetAttribute(const cutensorHandle_t handle, cutensorPlanPreference_t pref, cutensorPlanPreferenceAttribute_t attr, const void * buf, size_t sizeInBytes)",
+      "decl_hash": "e223d9aa1b0e263f"
+    },
+    {
+      "name": "cutensorReadKernelCacheFromFile",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorReadKernelCacheFromFile(cutensorHandle_t handle, const char * filename)",
+      "decl_hash": "8ede0be994203553"
+    },
+    {
+      "name": "cutensorReduce",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorReduce(const cutensorHandle_t handle, const cutensorPlan_t plan, const void * alpha, const void * A, const void * beta, const void * C, void * D, void * workspace, uint64_t workspaceSize, cudaStream_t stream)",
+      "decl_hash": "8f7e16045fd4c3e5"
+    },
+    {
+      "name": "cutensorWriteKernelCacheToFile",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/cutensor.h",
+      "decl": "cutensorStatus_t cutensorWriteKernelCacheToFile(const cutensorHandle_t handle, const char * filename)",
+      "decl_hash": "798f5cdc9f308da3"
+    },
+    {
+      "name": "cutensorAlgo_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef enum cutensorAlgo_t cutensorAlgo_t",
+      "decl_hash": "a899ee39a18858c9"
+    },
+    {
+      "name": "cutensorAutotuneMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef enum cutensorAutotuneMode_t cutensorAutotuneMode_t",
+      "decl_hash": "a0a45b26de7d6682"
+    },
+    {
+      "name": "cutensorBlockSparseTensorDescriptor_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef struct cutensorBlockSparseTensorDescriptor * cutensorBlockSparseTensorDescriptor_t",
+      "decl_hash": "9d0b28a7687b7478"
+    },
+    {
+      "name": "cutensorCacheMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef enum cutensorCacheMode_t cutensorCacheMode_t",
+      "decl_hash": "0519580941aa4a49"
+    },
+    {
+      "name": "cutensorComputeDescriptor_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef struct cutensorComputeDescriptor * cutensorComputeDescriptor_t",
+      "decl_hash": "071e00448a1dbcea"
+    },
+    {
+      "name": "cutensorDataType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef cudaDataType_t cutensorDataType_t",
+      "decl_hash": "f128e7e77af56c59"
+    },
+    {
+      "name": "cutensorHandle_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef struct cutensorHandle * cutensorHandle_t",
+      "decl_hash": "90d57ae724fa9671"
+    },
+    {
+      "name": "cutensorJitMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef enum cutensorJitMode_t cutensorJitMode_t",
+      "decl_hash": "adae22ab364fec8f"
+    },
+    {
+      "name": "cutensorLoggerCallback_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef void (*)(int32_t, const char *, const char *) cutensorLoggerCallback_t",
+      "decl_hash": "dfe3743b4742690e"
+    },
+    {
+      "name": "cutensorOperationDescriptorAttribute_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef enum cutensorOperationDescriptorAttribute_t cutensorOperationDescriptorAttribute_t",
+      "decl_hash": "6b902f978ef6999e"
+    },
+    {
+      "name": "cutensorOperationDescriptor_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef struct cutensorOperationDescriptor * cutensorOperationDescriptor_t",
+      "decl_hash": "f4a9b75cf979e28f"
+    },
+    {
+      "name": "cutensorOperator_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef enum cutensorOperator_t cutensorOperator_t",
+      "decl_hash": "01302a172da9c010"
+    },
+    {
+      "name": "cutensorPlanAttribute_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef enum cutensorPlanAttribute_t cutensorPlanAttribute_t",
+      "decl_hash": "95772b407265cb53"
+    },
+    {
+      "name": "cutensorPlanPreferenceAttribute_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef enum cutensorPlanPreferenceAttribute_t cutensorPlanPreferenceAttribute_t",
+      "decl_hash": "ff757d4a854dcec9"
+    },
+    {
+      "name": "cutensorPlanPreference_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef struct cutensorPlanPreference * cutensorPlanPreference_t",
+      "decl_hash": "94ea0876d03c1270"
+    },
+    {
+      "name": "cutensorPlan_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef struct cutensorPlan * cutensorPlan_t",
+      "decl_hash": "2aa00b797440790f"
+    },
+    {
+      "name": "cutensorStatus_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef enum cutensorStatus_t cutensorStatus_t",
+      "decl_hash": "5b47e85d2c6cc2c2"
+    },
+    {
+      "name": "cutensorTensorDescriptor_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef struct cutensorTensorDescriptor * cutensorTensorDescriptor_t",
+      "decl_hash": "f70f13e7169fae84"
+    },
+    {
+      "name": "cutensorWorksizePreference_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "typedef enum cutensorWorksizePreference_t cutensorWorksizePreference_t",
+      "decl_hash": "e04dbfa5a5887341"
+    },
+    {
+      "name": "CUTENSOR_COMPUTE_DESC_16BF",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorComputeDescriptor_t CUTENSOR_COMPUTE_DESC_16BF",
+      "decl_hash": "8202392cc69bc09b"
+    },
+    {
+      "name": "CUTENSOR_COMPUTE_DESC_16F",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorComputeDescriptor_t CUTENSOR_COMPUTE_DESC_16F",
+      "decl_hash": "182dfb830650647a"
+    },
+    {
+      "name": "CUTENSOR_COMPUTE_DESC_32F",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorComputeDescriptor_t CUTENSOR_COMPUTE_DESC_32F",
+      "decl_hash": "36a54c598dfa22bc"
+    },
+    {
+      "name": "CUTENSOR_COMPUTE_DESC_3XTF32",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorComputeDescriptor_t CUTENSOR_COMPUTE_DESC_3XTF32",
+      "decl_hash": "98af3af43edb508a"
+    },
+    {
+      "name": "CUTENSOR_COMPUTE_DESC_4X16F",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorComputeDescriptor_t CUTENSOR_COMPUTE_DESC_4X16F",
+      "decl_hash": "ebe4e00cc4d2441a"
+    },
+    {
+      "name": "CUTENSOR_COMPUTE_DESC_64F",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorComputeDescriptor_t CUTENSOR_COMPUTE_DESC_64F",
+      "decl_hash": "18d5bfe72c46f523"
+    },
+    {
+      "name": "CUTENSOR_COMPUTE_DESC_8XINT8",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorComputeDescriptor_t CUTENSOR_COMPUTE_DESC_8XINT8",
+      "decl_hash": "29ead3c21bb5fdb5"
+    },
+    {
+      "name": "CUTENSOR_COMPUTE_DESC_9X16BF",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorComputeDescriptor_t CUTENSOR_COMPUTE_DESC_9X16BF",
+      "decl_hash": "afa7b9fdd0938ec5"
+    },
+    {
+      "name": "CUTENSOR_COMPUTE_DESC_TF32",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorComputeDescriptor_t CUTENSOR_COMPUTE_DESC_TF32",
+      "decl_hash": "fc55bad6df3addf7"
+    },
+    {
+      "name": "CUTENSOR_C_16BF",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_16BF",
+      "decl_hash": "d9611ca920985361"
+    },
+    {
+      "name": "CUTENSOR_C_16F",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_16F",
+      "decl_hash": "bfbcf8d7a5f42541"
+    },
+    {
+      "name": "CUTENSOR_C_16I",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_16I",
+      "decl_hash": "ed90f4be6e3a9538"
+    },
+    {
+      "name": "CUTENSOR_C_16U",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_16U",
+      "decl_hash": "062b65a6cfa84fe6"
+    },
+    {
+      "name": "CUTENSOR_C_32F",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_32F",
+      "decl_hash": "d50d0003e58a6cf2"
+    },
+    {
+      "name": "CUTENSOR_C_32I",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_32I",
+      "decl_hash": "303f2d2acc15a7c2"
+    },
+    {
+      "name": "CUTENSOR_C_32U",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_32U",
+      "decl_hash": "37b1852533ed4e53"
+    },
+    {
+      "name": "CUTENSOR_C_4I",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_4I",
+      "decl_hash": "c1d0a48684b194d3"
+    },
+    {
+      "name": "CUTENSOR_C_4U",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_4U",
+      "decl_hash": "7d4ab1bcdd231d7b"
+    },
+    {
+      "name": "CUTENSOR_C_64F",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_64F",
+      "decl_hash": "c566a99217842a91"
+    },
+    {
+      "name": "CUTENSOR_C_64I",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_64I",
+      "decl_hash": "da1886c5b8ca28fe"
+    },
+    {
+      "name": "CUTENSOR_C_64U",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_64U",
+      "decl_hash": "71ff7f50b4952f99"
+    },
+    {
+      "name": "CUTENSOR_C_8I",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_8I",
+      "decl_hash": "2cc95de8de1a45dc"
+    },
+    {
+      "name": "CUTENSOR_C_8U",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_C_8U",
+      "decl_hash": "c716028c026437b6"
+    },
+    {
+      "name": "CUTENSOR_R_16BF",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_16BF",
+      "decl_hash": "2e54d62b0d180813"
+    },
+    {
+      "name": "CUTENSOR_R_16F",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_16F",
+      "decl_hash": "1d4d92d57e366174"
+    },
+    {
+      "name": "CUTENSOR_R_16I",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_16I",
+      "decl_hash": "69ca3f751a490eb2"
+    },
+    {
+      "name": "CUTENSOR_R_16U",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_16U",
+      "decl_hash": "c99730554f5b3641"
+    },
+    {
+      "name": "CUTENSOR_R_32F",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_32F",
+      "decl_hash": "f8e93a85687f1119"
+    },
+    {
+      "name": "CUTENSOR_R_32I",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_32I",
+      "decl_hash": "1cca352464ec1398"
+    },
+    {
+      "name": "CUTENSOR_R_32U",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_32U",
+      "decl_hash": "9435efd02ee21500"
+    },
+    {
+      "name": "CUTENSOR_R_4I",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_4I",
+      "decl_hash": "3c5fbaef7d41ab0f"
+    },
+    {
+      "name": "CUTENSOR_R_4U",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_4U",
+      "decl_hash": "3dca2394770a710a"
+    },
+    {
+      "name": "CUTENSOR_R_64F",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_64F",
+      "decl_hash": "b9412a4cd8bb1f91"
+    },
+    {
+      "name": "CUTENSOR_R_64I",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_64I",
+      "decl_hash": "8f03242c1be80576"
+    },
+    {
+      "name": "CUTENSOR_R_64U",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_64U",
+      "decl_hash": "60a09f4d4d1d2f08"
+    },
+    {
+      "name": "CUTENSOR_R_8I",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_8I",
+      "decl_hash": "7bc1aa8ba7a5bc67"
+    },
+    {
+      "name": "CUTENSOR_R_8U",
+      "kind": "VarDecl",
+      "header": "/usr/include/cutensor/types.h",
+      "decl": "const cutensorDataType_t CUTENSOR_R_8U",
+      "decl_hash": "76ff662eea68c8b2"
+    }
+  ]
+}

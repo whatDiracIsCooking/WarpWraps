@@ -1,0 +1,1217 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /usr/local/cuda/include/cufftXt.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/usr/local/cuda/include/cufftXt.h",
+    "prefix": "cufft",
+    "symbol_count": 148
+  },
+  "symbols": [
+    {
+      "name": "cufftXt1dFactors_t",
+      "kind": "CXXRecordDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "struct cufftXt1dFactors_t",
+      "decl_hash": "f0c6a98598e4cb76"
+    },
+    {
+      "name": "CUFFT_ALLOC_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_ALLOC_FAILED = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "637a64e99fa469c8"
+    },
+    {
+      "name": "CUFFT_C2C",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_C2C = 41",
+      "value": 41,
+      "value_explicit": true,
+      "decl_hash": "3cf75b6c0966b82a"
+    },
+    {
+      "name": "CUFFT_C2R",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_C2R = 44",
+      "value": 44,
+      "value_explicit": true,
+      "decl_hash": "33f8d2f2c0b83bb0"
+    },
+    {
+      "name": "CUFFT_CB_LD_COMPLEX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_CB_LD_COMPLEX = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "4bb5be22976409eb"
+    },
+    {
+      "name": "CUFFT_CB_LD_COMPLEX_DOUBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_CB_LD_COMPLEX_DOUBLE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "36ddbc2dcf730899"
+    },
+    {
+      "name": "CUFFT_CB_LD_REAL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_CB_LD_REAL = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "06d1d9a50f235ef8"
+    },
+    {
+      "name": "CUFFT_CB_LD_REAL_DOUBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_CB_LD_REAL_DOUBLE = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "e9d470e4073c5a44"
+    },
+    {
+      "name": "CUFFT_CB_ST_COMPLEX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_CB_ST_COMPLEX = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "5b048ff9541190eb"
+    },
+    {
+      "name": "CUFFT_CB_ST_COMPLEX_DOUBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_CB_ST_COMPLEX_DOUBLE = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "bc2dca6a7f5fb251"
+    },
+    {
+      "name": "CUFFT_CB_ST_REAL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_CB_ST_REAL = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "9c08a0a7da23d509"
+    },
+    {
+      "name": "CUFFT_CB_ST_REAL_DOUBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_CB_ST_REAL_DOUBLE = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "c7810385f5af8b95"
+    },
+    {
+      "name": "CUFFT_CB_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_CB_UNDEFINED = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "1f2aab018ccd699c"
+    },
+    {
+      "name": "CUFFT_COMPATIBILITY_FFTW_PADDING",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_COMPATIBILITY_FFTW_PADDING = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "4a7076a845309002"
+    },
+    {
+      "name": "CUFFT_COPY_DEVICE_TO_DEVICE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_COPY_DEVICE_TO_DEVICE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "627e64ff14b13279"
+    },
+    {
+      "name": "CUFFT_COPY_DEVICE_TO_HOST",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_COPY_DEVICE_TO_HOST = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "bf3fae1bc7a999bd"
+    },
+    {
+      "name": "CUFFT_COPY_HOST_TO_DEVICE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_COPY_HOST_TO_DEVICE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "2acbba4997a6922a"
+    },
+    {
+      "name": "CUFFT_COPY_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_COPY_UNDEFINED = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "74fca03b16a7cad0"
+    },
+    {
+      "name": "CUFFT_D2Z",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_D2Z = 106",
+      "value": 106,
+      "value_explicit": true,
+      "decl_hash": "4596f2fad0d63272"
+    },
+    {
+      "name": "CUFFT_EXEC_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_EXEC_FAILED = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "55f3abc3a07b2684"
+    },
+    {
+      "name": "CUFFT_FORMAT_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_FORMAT_UNDEFINED = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "fd756661e64b5f24"
+    },
+    {
+      "name": "CUFFT_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_INTERNAL_ERROR = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "c0b045b76fdada3c"
+    },
+    {
+      "name": "CUFFT_INVALID_DEVICE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_INVALID_DEVICE = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "0470e7f0beeca9cb"
+    },
+    {
+      "name": "CUFFT_INVALID_PLAN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_INVALID_PLAN = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "3eda04433dac3173"
+    },
+    {
+      "name": "CUFFT_INVALID_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_INVALID_SIZE = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "66b16ac4fbebba98"
+    },
+    {
+      "name": "CUFFT_INVALID_TYPE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_INVALID_TYPE = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "2f213fedb6a5946b"
+    },
+    {
+      "name": "CUFFT_INVALID_VALUE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_INVALID_VALUE = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "02091b975d9e9c6d"
+    },
+    {
+      "name": "CUFFT_MISSING_DEPENDENCY",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_MISSING_DEPENDENCY = 17",
+      "value": 17,
+      "value_explicit": true,
+      "decl_hash": "b77917683774005b"
+    },
+    {
+      "name": "CUFFT_NOT_IMPLEMENTED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_NOT_IMPLEMENTED = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "48ea0a8b90416190"
+    },
+    {
+      "name": "CUFFT_NOT_SUPPORTED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_NOT_SUPPORTED = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "5d921b5cb5f67e93"
+    },
+    {
+      "name": "CUFFT_NO_WORKSPACE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_NO_WORKSPACE = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "7060a852e2241fe7"
+    },
+    {
+      "name": "CUFFT_NVJITLINK_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_NVJITLINK_FAILURE = 19",
+      "value": 19,
+      "value_explicit": true,
+      "decl_hash": "0e1dfed6cf8caff1"
+    },
+    {
+      "name": "CUFFT_NVRTC_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_NVRTC_FAILURE = 18",
+      "value": 18,
+      "value_explicit": true,
+      "decl_hash": "7552adfbe2a7149b"
+    },
+    {
+      "name": "CUFFT_NVSHMEM_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_NVSHMEM_FAILURE = 20",
+      "value": 20,
+      "value_explicit": true,
+      "decl_hash": "15209a26a4349c8a"
+    },
+    {
+      "name": "CUFFT_QUERY_1D_FACTORS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_QUERY_1D_FACTORS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "6dacdd8ef51c8278"
+    },
+    {
+      "name": "CUFFT_QUERY_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_QUERY_UNDEFINED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "cb0e9ce763f8adbb"
+    },
+    {
+      "name": "CUFFT_R2C",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_R2C = 42",
+      "value": 42,
+      "value_explicit": true,
+      "decl_hash": "c6f7cae7494a5ff4"
+    },
+    {
+      "name": "CUFFT_SETUP_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_SETUP_FAILED = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "5fbf47b473d879c8"
+    },
+    {
+      "name": "CUFFT_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "d36668d1e6c3e521"
+    },
+    {
+      "name": "CUFFT_UNALIGNED_DATA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_UNALIGNED_DATA = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "206b40e1384a86f1"
+    },
+    {
+      "name": "CUFFT_WORKAREA_MINIMAL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_WORKAREA_MINIMAL = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "c219caffcce57da4"
+    },
+    {
+      "name": "CUFFT_WORKAREA_PERFORMANCE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_WORKAREA_PERFORMANCE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "3a3c2fb7fea6bf4e"
+    },
+    {
+      "name": "CUFFT_WORKAREA_USER",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_WORKAREA_USER = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "05e7c1f7a5e62c9a"
+    },
+    {
+      "name": "CUFFT_XT_FORMAT_1D_INPUT_SHUFFLED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_XT_FORMAT_1D_INPUT_SHUFFLED = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "0e9cfca97d7e95a0"
+    },
+    {
+      "name": "CUFFT_XT_FORMAT_DISTRIBUTED_INPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_XT_FORMAT_DISTRIBUTED_INPUT = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "7653f8a3788617e5"
+    },
+    {
+      "name": "CUFFT_XT_FORMAT_DISTRIBUTED_OUTPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_XT_FORMAT_DISTRIBUTED_OUTPUT = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "2bc37d80378b283f"
+    },
+    {
+      "name": "CUFFT_XT_FORMAT_INPLACE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_XT_FORMAT_INPLACE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "ca43724286147664"
+    },
+    {
+      "name": "CUFFT_XT_FORMAT_INPLACE_SHUFFLED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_XT_FORMAT_INPLACE_SHUFFLED = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "ec32381faa1b9716"
+    },
+    {
+      "name": "CUFFT_XT_FORMAT_INPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_XT_FORMAT_INPUT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "9679abb2d21425b5"
+    },
+    {
+      "name": "CUFFT_XT_FORMAT_OUTPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "CUFFT_XT_FORMAT_OUTPUT = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "b065a8e2d70027ad"
+    },
+    {
+      "name": "CUFFT_Z2D",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_Z2D = 108",
+      "value": 108,
+      "value_explicit": true,
+      "decl_hash": "d123beba32f5c645"
+    },
+    {
+      "name": "CUFFT_Z2Z",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "CUFFT_Z2Z = 105",
+      "value": 105,
+      "value_explicit": true,
+      "decl_hash": "d6102bd4ee8294b9"
+    },
+    {
+      "name": "cufftCompatibility_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "enum cufftCompatibility_t",
+      "decl_hash": "6a3d9e92a5192469"
+    },
+    {
+      "name": "cufftProperty_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "enum cufftProperty_t",
+      "decl_hash": "36d091b3d23235ec"
+    },
+    {
+      "name": "cufftResult_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "enum cufftResult_t",
+      "decl_hash": "23d8314bcf9e967b"
+    },
+    {
+      "name": "cufftType_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "enum cufftType_t",
+      "decl_hash": "ca109e9edcec103c"
+    },
+    {
+      "name": "cufftXtCallbackType_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "enum cufftXtCallbackType_t",
+      "decl_hash": "e441f2552d971b53"
+    },
+    {
+      "name": "cufftXtCopyType_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "enum cufftXtCopyType_t",
+      "decl_hash": "bc1f7cb4bde761ee"
+    },
+    {
+      "name": "cufftXtQueryType_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "enum cufftXtQueryType_t",
+      "decl_hash": "6d3b07718d733b95"
+    },
+    {
+      "name": "cufftXtSubFormat_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "enum cufftXtSubFormat_t",
+      "decl_hash": "e0f1da3c6c55ab26"
+    },
+    {
+      "name": "cufftXtWorkAreaPolicy_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "enum cufftXtWorkAreaPolicy_t",
+      "decl_hash": "9206239a26ea4a90"
+    },
+    {
+      "name": "cufftCreate",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftCreate(cufftHandle * handle)",
+      "decl_hash": "05bad289259cc641",
+      "exported": true
+    },
+    {
+      "name": "cufftDestroy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftDestroy(cufftHandle plan)",
+      "decl_hash": "3facce8bdb408664",
+      "exported": true
+    },
+    {
+      "name": "cufftEstimate1d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftEstimate1d(int nx, cufftType type, int batch, size_t * workSize)",
+      "decl_hash": "2fea8ea7529a8d03",
+      "exported": true
+    },
+    {
+      "name": "cufftEstimate2d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftEstimate2d(int nx, int ny, cufftType type, size_t * workSize)",
+      "decl_hash": "58a4e4a5c5d92f70",
+      "exported": true
+    },
+    {
+      "name": "cufftEstimate3d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftEstimate3d(int nx, int ny, int nz, cufftType type, size_t * workSize)",
+      "decl_hash": "8d8938d0c8edfb4b",
+      "exported": true
+    },
+    {
+      "name": "cufftEstimateMany",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftEstimateMany(int rank, int * n, int * inembed, int istride, int idist, int * onembed, int ostride, int odist, cufftType type, int batch, size_t * workSize)",
+      "decl_hash": "0d6a79a5b30b689c",
+      "exported": true
+    },
+    {
+      "name": "cufftExecC2C",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftExecC2C(cufftHandle plan, cufftComplex * idata, cufftComplex * odata, int direction)",
+      "decl_hash": "4bc455e2ed87b65b",
+      "exported": true
+    },
+    {
+      "name": "cufftExecC2R",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftExecC2R(cufftHandle plan, cufftComplex * idata, cufftReal * odata)",
+      "decl_hash": "15b7fc4870d7e3be",
+      "exported": true
+    },
+    {
+      "name": "cufftExecD2Z",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftExecD2Z(cufftHandle plan, cufftDoubleReal * idata, cufftDoubleComplex * odata)",
+      "decl_hash": "0998293dbb3afe05",
+      "exported": true
+    },
+    {
+      "name": "cufftExecR2C",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftExecR2C(cufftHandle plan, cufftReal * idata, cufftComplex * odata)",
+      "decl_hash": "e6d39c3994197930",
+      "exported": true
+    },
+    {
+      "name": "cufftExecZ2D",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftExecZ2D(cufftHandle plan, cufftDoubleComplex * idata, cufftDoubleReal * odata)",
+      "decl_hash": "3b893f0ff6d94da1",
+      "exported": true
+    },
+    {
+      "name": "cufftExecZ2Z",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftExecZ2Z(cufftHandle plan, cufftDoubleComplex * idata, cufftDoubleComplex * odata, int direction)",
+      "decl_hash": "9ff5e149862a1853",
+      "exported": true
+    },
+    {
+      "name": "cufftGetPlanPropertyInt64",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftGetPlanPropertyInt64(cufftHandle plan, cufftProperty property, long long * returnPtrValue)",
+      "decl_hash": "5a5ed093caeee13d",
+      "exported": true
+    },
+    {
+      "name": "cufftGetProperty",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftGetProperty(libraryPropertyType type, int * value)",
+      "decl_hash": "d84f334cce0ae969",
+      "exported": true
+    },
+    {
+      "name": "cufftGetSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftGetSize(cufftHandle handle, size_t * workSize)",
+      "decl_hash": "e81014dde48105a3",
+      "exported": true
+    },
+    {
+      "name": "cufftGetSize1d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftGetSize1d(cufftHandle handle, int nx, cufftType type, int batch, size_t * workSize)",
+      "decl_hash": "95b4892a5ecf2242",
+      "exported": true
+    },
+    {
+      "name": "cufftGetSize2d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftGetSize2d(cufftHandle handle, int nx, int ny, cufftType type, size_t * workSize)",
+      "decl_hash": "d095b449807d55c6",
+      "exported": true
+    },
+    {
+      "name": "cufftGetSize3d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftGetSize3d(cufftHandle handle, int nx, int ny, int nz, cufftType type, size_t * workSize)",
+      "decl_hash": "682bc8ea92d3e2d5",
+      "exported": true
+    },
+    {
+      "name": "cufftGetSizeMany",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftGetSizeMany(cufftHandle handle, int rank, int * n, int * inembed, int istride, int idist, int * onembed, int ostride, int odist, cufftType type, int batch, size_t * workArea)",
+      "decl_hash": "228de746f5596d19",
+      "exported": true
+    },
+    {
+      "name": "cufftGetSizeMany64",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftGetSizeMany64(cufftHandle plan, int rank, long long * n, long long * inembed, long long istride, long long idist, long long * onembed, long long ostride, long long odist, cufftType type, long long batch, size_t * workSize)",
+      "decl_hash": "b533ae8973a824c7",
+      "exported": true
+    },
+    {
+      "name": "cufftGetVersion",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftGetVersion(int * version)",
+      "decl_hash": "42cb3a1bb6ceec17",
+      "exported": true
+    },
+    {
+      "name": "cufftMakePlan1d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftMakePlan1d(cufftHandle plan, int nx, cufftType type, int batch, size_t * workSize)",
+      "decl_hash": "27457347c1b7e7f4",
+      "exported": true
+    },
+    {
+      "name": "cufftMakePlan2d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftMakePlan2d(cufftHandle plan, int nx, int ny, cufftType type, size_t * workSize)",
+      "decl_hash": "dea81d2835c3bef7",
+      "exported": true
+    },
+    {
+      "name": "cufftMakePlan3d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftMakePlan3d(cufftHandle plan, int nx, int ny, int nz, cufftType type, size_t * workSize)",
+      "decl_hash": "086f41960e30938b",
+      "exported": true
+    },
+    {
+      "name": "cufftMakePlanMany",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftMakePlanMany(cufftHandle plan, int rank, int * n, int * inembed, int istride, int idist, int * onembed, int ostride, int odist, cufftType type, int batch, size_t * workSize)",
+      "decl_hash": "4752bf36b343bc03",
+      "exported": true
+    },
+    {
+      "name": "cufftMakePlanMany64",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftMakePlanMany64(cufftHandle plan, int rank, long long * n, long long * inembed, long long istride, long long idist, long long * onembed, long long ostride, long long odist, cufftType type, long long batch, size_t * workSize)",
+      "decl_hash": "e1853305783f4dde",
+      "exported": true
+    },
+    {
+      "name": "cufftPlan1d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftPlan1d(cufftHandle * plan, int nx, cufftType type, int batch)",
+      "decl_hash": "fddebb21401cbd59",
+      "exported": true
+    },
+    {
+      "name": "cufftPlan2d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftPlan2d(cufftHandle * plan, int nx, int ny, cufftType type)",
+      "decl_hash": "b288ddf9bb286376",
+      "exported": true
+    },
+    {
+      "name": "cufftPlan3d",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftPlan3d(cufftHandle * plan, int nx, int ny, int nz, cufftType type)",
+      "decl_hash": "33830886937ab0ee",
+      "exported": true
+    },
+    {
+      "name": "cufftPlanMany",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftPlanMany(cufftHandle * plan, int rank, int * n, int * inembed, int istride, int idist, int * onembed, int ostride, int odist, cufftType type, int batch)",
+      "decl_hash": "eddd199178c3e920",
+      "exported": true
+    },
+    {
+      "name": "cufftResetPlanProperty",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftResetPlanProperty(cufftHandle plan, cufftProperty property)",
+      "decl_hash": "5ada178415d99dd8",
+      "exported": true
+    },
+    {
+      "name": "cufftSetAutoAllocation",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftSetAutoAllocation(cufftHandle plan, int autoAllocate)",
+      "decl_hash": "f5b2348128960197",
+      "exported": true
+    },
+    {
+      "name": "cufftSetPlanPropertyInt64",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftSetPlanPropertyInt64(cufftHandle plan, cufftProperty property, const long long inputValueInt)",
+      "decl_hash": "4c38a25735e934f0",
+      "exported": true
+    },
+    {
+      "name": "cufftSetStream",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftSetStream(cufftHandle plan, cudaStream_t stream)",
+      "decl_hash": "10e576c6441a568e",
+      "exported": true
+    },
+    {
+      "name": "cufftSetWorkArea",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "cufftResult cufftSetWorkArea(cufftHandle plan, void * workArea)",
+      "decl_hash": "d5b5f6baad71d66b",
+      "exported": true
+    },
+    {
+      "name": "cufftXtClearCallback",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtClearCallback(cufftHandle plan, cufftXtCallbackType cbType)",
+      "decl_hash": "41ed55f96c02ce66",
+      "exported": true
+    },
+    {
+      "name": "cufftXtExec",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtExec(cufftHandle plan, void * input, void * output, int direction)",
+      "decl_hash": "fc91c83405e2193a",
+      "exported": true
+    },
+    {
+      "name": "cufftXtExecDescriptor",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtExecDescriptor(cufftHandle plan, cudaLibXtDesc * input, cudaLibXtDesc * output, int direction)",
+      "decl_hash": "fd9d6acfa6298c29",
+      "exported": true
+    },
+    {
+      "name": "cufftXtExecDescriptorC2C",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtExecDescriptorC2C(cufftHandle plan, cudaLibXtDesc * input, cudaLibXtDesc * output, int direction)",
+      "decl_hash": "3c3f7e8c21d6db45",
+      "exported": true
+    },
+    {
+      "name": "cufftXtExecDescriptorC2R",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtExecDescriptorC2R(cufftHandle plan, cudaLibXtDesc * input, cudaLibXtDesc * output)",
+      "decl_hash": "0695d318f67375b4",
+      "exported": true
+    },
+    {
+      "name": "cufftXtExecDescriptorD2Z",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtExecDescriptorD2Z(cufftHandle plan, cudaLibXtDesc * input, cudaLibXtDesc * output)",
+      "decl_hash": "8123be87e96879cb",
+      "exported": true
+    },
+    {
+      "name": "cufftXtExecDescriptorR2C",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtExecDescriptorR2C(cufftHandle plan, cudaLibXtDesc * input, cudaLibXtDesc * output)",
+      "decl_hash": "f87e5fd280c51869",
+      "exported": true
+    },
+    {
+      "name": "cufftXtExecDescriptorZ2D",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtExecDescriptorZ2D(cufftHandle plan, cudaLibXtDesc * input, cudaLibXtDesc * output)",
+      "decl_hash": "3e0ed8e48a4bee1a",
+      "exported": true
+    },
+    {
+      "name": "cufftXtExecDescriptorZ2Z",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtExecDescriptorZ2Z(cufftHandle plan, cudaLibXtDesc * input, cudaLibXtDesc * output, int direction)",
+      "decl_hash": "9ae4261a88bf61a0",
+      "exported": true
+    },
+    {
+      "name": "cufftXtFree",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtFree(cudaLibXtDesc * descriptor)",
+      "decl_hash": "04b47b3ef4f4980e",
+      "exported": true
+    },
+    {
+      "name": "cufftXtGetSizeMany",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtGetSizeMany(cufftHandle plan, int rank, long long * n, long long * inembed, long long istride, long long idist, cudaDataType inputtype, long long * onembed, long long ostride, long long odist, cudaDataType outputtype, long long batch, size_t * workSize, cudaDataType executiontype)",
+      "decl_hash": "d588840291ba9d93",
+      "exported": true
+    },
+    {
+      "name": "cufftXtMakePlanMany",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtMakePlanMany(cufftHandle plan, int rank, long long * n, long long * inembed, long long istride, long long idist, cudaDataType inputtype, long long * onembed, long long ostride, long long odist, cudaDataType outputtype, long long batch, size_t * workSize, cudaDataType executiontype)",
+      "decl_hash": "dc460d5964b1ca0a",
+      "exported": true
+    },
+    {
+      "name": "cufftXtMalloc",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtMalloc(cufftHandle plan, cudaLibXtDesc ** descriptor, cufftXtSubFormat format)",
+      "decl_hash": "7f279f439c3ee83f",
+      "exported": true
+    },
+    {
+      "name": "cufftXtMemcpy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtMemcpy(cufftHandle plan, void * dstPointer, void * srcPointer, cufftXtCopyType type)",
+      "decl_hash": "34b93fd802deab9f",
+      "exported": true
+    },
+    {
+      "name": "cufftXtQueryPlan",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtQueryPlan(cufftHandle plan, void * queryStruct, cufftXtQueryType queryType)",
+      "decl_hash": "80690a45ffb9dbe8",
+      "exported": true
+    },
+    {
+      "name": "cufftXtSetCallback",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtSetCallback(cufftHandle plan, void ** callback_routine, cufftXtCallbackType cbType, void ** caller_info)",
+      "decl_hash": "babc91a4126b0d5e",
+      "exported": true
+    },
+    {
+      "name": "cufftXtSetCallbackSharedSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtSetCallbackSharedSize(cufftHandle plan, cufftXtCallbackType cbType, size_t sharedSize)",
+      "decl_hash": "f13bd815a4eda490",
+      "exported": true
+    },
+    {
+      "name": "cufftXtSetGPUs",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtSetGPUs(cufftHandle handle, int nGPUs, int * whichGPUs)",
+      "decl_hash": "1201a1d1683de386",
+      "exported": true
+    },
+    {
+      "name": "cufftXtSetJITCallback",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtSetJITCallback(cufftHandle plan, const char * lto_callback_symbol_name, const void * lto_callback_fatbin, size_t lto_callback_fatbin_size, cufftXtCallbackType type, void ** caller_info)",
+      "decl_hash": "750f4a68fe0bce29",
+      "exported": true
+    },
+    {
+      "name": "cufftXtSetWorkArea",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtSetWorkArea(cufftHandle plan, void ** workArea)",
+      "decl_hash": "8e7ae72f49d7b753",
+      "exported": true
+    },
+    {
+      "name": "cufftXtSetWorkAreaPolicy",
+      "kind": "FunctionDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "cufftResult cufftXtSetWorkAreaPolicy(cufftHandle plan, cufftXtWorkAreaPolicy policy, size_t * workSize)",
+      "decl_hash": "87f62ae4480b1bf9",
+      "exported": true
+    },
+    {
+      "name": "cufftCallbackLoadC",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef cufftComplex (*)(void *, size_t, void *, void *) cufftCallbackLoadC",
+      "decl_hash": "9c2e7dbf21d61e3e"
+    },
+    {
+      "name": "cufftCallbackLoadD",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef cufftDoubleReal (*)(void *, size_t, void *, void *) cufftCallbackLoadD",
+      "decl_hash": "b2a93dc3ec6b4844"
+    },
+    {
+      "name": "cufftCallbackLoadR",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef cufftReal (*)(void *, size_t, void *, void *) cufftCallbackLoadR",
+      "decl_hash": "89272cc780507974"
+    },
+    {
+      "name": "cufftCallbackLoadZ",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef cufftDoubleComplex (*)(void *, size_t, void *, void *) cufftCallbackLoadZ",
+      "decl_hash": "64da52801f1683e0"
+    },
+    {
+      "name": "cufftCallbackStoreC",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef void (*)(void *, size_t, cufftComplex, void *, void *) cufftCallbackStoreC",
+      "decl_hash": "be6e9dd3cfa33812"
+    },
+    {
+      "name": "cufftCallbackStoreD",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef void (*)(void *, size_t, cufftDoubleReal, void *, void *) cufftCallbackStoreD",
+      "decl_hash": "4b297ba1892a73eb"
+    },
+    {
+      "name": "cufftCallbackStoreR",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef void (*)(void *, size_t, cufftReal, void *, void *) cufftCallbackStoreR",
+      "decl_hash": "090a68ffd0640b9b"
+    },
+    {
+      "name": "cufftCallbackStoreZ",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef void (*)(void *, size_t, cufftDoubleComplex, void *, void *) cufftCallbackStoreZ",
+      "decl_hash": "d43dfbd0f59d4b27"
+    },
+    {
+      "name": "cufftCompatibility",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "typedef enum cufftCompatibility_t cufftCompatibility",
+      "decl_hash": "b34c4bc297258de8"
+    },
+    {
+      "name": "cufftComplex",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "typedef cuComplex cufftComplex",
+      "decl_hash": "2fe2b0adb82b7ffd"
+    },
+    {
+      "name": "cufftDoubleComplex",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "typedef cuDoubleComplex cufftDoubleComplex",
+      "decl_hash": "4098f719821f21ab"
+    },
+    {
+      "name": "cufftDoubleReal",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "typedef double cufftDoubleReal",
+      "decl_hash": "63b364a6d1795e72"
+    },
+    {
+      "name": "cufftHandle",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "typedef int cufftHandle",
+      "decl_hash": "3002c1d93f8864d9"
+    },
+    {
+      "name": "cufftJITCallbackLoadC",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef cufftComplex (*)(void *, unsigned long long, void *, void *) cufftJITCallbackLoadC",
+      "decl_hash": "9b01b6bde1ac22f5"
+    },
+    {
+      "name": "cufftJITCallbackLoadD",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef cufftDoubleReal (*)(void *, unsigned long long, void *, void *) cufftJITCallbackLoadD",
+      "decl_hash": "9c53a4946454fcb0"
+    },
+    {
+      "name": "cufftJITCallbackLoadR",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef cufftReal (*)(void *, unsigned long long, void *, void *) cufftJITCallbackLoadR",
+      "decl_hash": "1a839546e09eb35f"
+    },
+    {
+      "name": "cufftJITCallbackLoadZ",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef cufftDoubleComplex (*)(void *, unsigned long long, void *, void *) cufftJITCallbackLoadZ",
+      "decl_hash": "95d286a30f94c15e"
+    },
+    {
+      "name": "cufftJITCallbackStoreC",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef void (*)(void *, unsigned long long, cufftComplex, void *, void *) cufftJITCallbackStoreC",
+      "decl_hash": "37de214fc038d3f6"
+    },
+    {
+      "name": "cufftJITCallbackStoreD",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef void (*)(void *, unsigned long long, cufftDoubleReal, void *, void *) cufftJITCallbackStoreD",
+      "decl_hash": "836c72b7d58be423"
+    },
+    {
+      "name": "cufftJITCallbackStoreR",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef void (*)(void *, unsigned long long, cufftReal, void *, void *) cufftJITCallbackStoreR",
+      "decl_hash": "9bc82002993da205"
+    },
+    {
+      "name": "cufftJITCallbackStoreZ",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef void (*)(void *, unsigned long long, cufftDoubleComplex, void *, void *) cufftJITCallbackStoreZ",
+      "decl_hash": "6a9231ef232f593c"
+    },
+    {
+      "name": "cufftProperty",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "typedef enum cufftProperty_t cufftProperty",
+      "decl_hash": "ecf78c037cb5287c"
+    },
+    {
+      "name": "cufftReal",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "typedef float cufftReal",
+      "decl_hash": "be01d6a31134716d"
+    },
+    {
+      "name": "cufftResult",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "typedef enum cufftResult_t cufftResult",
+      "decl_hash": "8211c0efb6a61a93"
+    },
+    {
+      "name": "cufftType",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufft.h",
+      "decl": "typedef enum cufftType_t cufftType",
+      "decl_hash": "5b5bc7e8192207ed"
+    },
+    {
+      "name": "cufftXt1dFactors",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef struct cufftXt1dFactors_t cufftXt1dFactors",
+      "decl_hash": "decb6cd7bcca5bde"
+    },
+    {
+      "name": "cufftXtCallbackType",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef enum cufftXtCallbackType_t cufftXtCallbackType",
+      "decl_hash": "320ccf413a24d79c"
+    },
+    {
+      "name": "cufftXtCopyType",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef enum cufftXtCopyType_t cufftXtCopyType",
+      "decl_hash": "117decf780eecdd1"
+    },
+    {
+      "name": "cufftXtQueryType",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef enum cufftXtQueryType_t cufftXtQueryType",
+      "decl_hash": "8d31e6063a13b9f7"
+    },
+    {
+      "name": "cufftXtSubFormat",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef enum cufftXtSubFormat_t cufftXtSubFormat",
+      "decl_hash": "4d232a4aa384921e"
+    },
+    {
+      "name": "cufftXtWorkAreaPolicy",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cufftXt.h",
+      "decl": "typedef enum cufftXtWorkAreaPolicy_t cufftXtWorkAreaPolicy",
+      "decl_hash": "c422e7e31fc9e8e0"
+    }
+  ]
+}

@@ -1,0 +1,1921 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -I/usr/local/cuda/include -I/usr/include /home/lostica/projects/WarpWraps/main/.claude/worktrees/vendor-manifests-pin/devtools/harvest_aggregates/nvcomp.h",
+    "config": {
+      "backend": "CUDA",
+      "sdk_version": "CUDA 13.0.x",
+      "arch": null,
+      "defines": [],
+      "includes": [
+        "/usr/local/cuda/include",
+        "/usr/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/home/lostica/projects/WarpWraps/main/.claude/worktrees/vendor-manifests-pin/devtools/harvest_aggregates/nvcomp.h",
+    "prefix": "nvcomp",
+    "symbol_count": 245
+  },
+  "symbols": [
+    {
+      "name": "NVCOMP_BITSHUFFLE_LSB_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_BITSHUFFLE_LSB_FIRST = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "fe8a9ce7971a6cb8"
+    },
+    {
+      "name": "NVCOMP_BITSHUFFLE_MSB_FIRST",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_BITSHUFFLE_MSB_FIRST = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "475cf7c915a2dbf3"
+    },
+    {
+      "name": "NVCOMP_BITSHUFFLE_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_BITSHUFFLE_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "cef363657610268f"
+    },
+    {
+      "name": "NVCOMP_DECOMPRESS_BACKEND_CUDA",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_DECOMPRESS_BACKEND_CUDA = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "f5da0aaf06211fd6"
+    },
+    {
+      "name": "NVCOMP_DECOMPRESS_BACKEND_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_DECOMPRESS_BACKEND_DEFAULT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "bf0a39999724a47c"
+    },
+    {
+      "name": "NVCOMP_DECOMPRESS_BACKEND_HARDWARE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_DECOMPRESS_BACKEND_HARDWARE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "d093d5f0dc6afe91"
+    },
+    {
+      "name": "NVCOMP_GZIP_DECOMPRESS_ALGORITHM_LOOKAHEAD",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "NVCOMP_GZIP_DECOMPRESS_ALGORITHM_LOOKAHEAD = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "6fed4b8b3074e873"
+    },
+    {
+      "name": "NVCOMP_GZIP_DECOMPRESS_ALGORITHM_NAIVE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "NVCOMP_GZIP_DECOMPRESS_ALGORITHM_NAIVE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "eed8dca6404df965"
+    },
+    {
+      "name": "NVCOMP_TYPE_BITS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_BITS = 255",
+      "value": 255,
+      "value_explicit": true,
+      "decl_hash": "fecaf80be0d1a1a8"
+    },
+    {
+      "name": "NVCOMP_TYPE_CHAR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_CHAR = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "09b32f7d370e6fad"
+    },
+    {
+      "name": "NVCOMP_TYPE_FLOAT16",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_FLOAT16 = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "50707fbff39a3c85"
+    },
+    {
+      "name": "NVCOMP_TYPE_FLOAT8_E4M3",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_FLOAT8_E4M3 = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "94f772d29f355db3"
+    },
+    {
+      "name": "NVCOMP_TYPE_INT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_INT = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "0c8ceedd316ac332"
+    },
+    {
+      "name": "NVCOMP_TYPE_LONGLONG",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_LONGLONG = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "a23698c3bc5486c8"
+    },
+    {
+      "name": "NVCOMP_TYPE_SHORT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_SHORT = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "5017e3b8ddd4ab2e"
+    },
+    {
+      "name": "NVCOMP_TYPE_UCHAR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_UCHAR = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "3ff6ed03106b4114"
+    },
+    {
+      "name": "NVCOMP_TYPE_UINT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_UINT = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "11a6daa4cf469790"
+    },
+    {
+      "name": "NVCOMP_TYPE_ULONGLONG",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_ULONGLONG = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "ff746a634ce3721b"
+    },
+    {
+      "name": "NVCOMP_TYPE_USHORT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "NVCOMP_TYPE_USHORT = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "60a57c170db25e83"
+    },
+    {
+      "name": "nvcompCRC32BlockKernel",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "nvcompCRC32BlockKernel = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "bbce574b74b36478"
+    },
+    {
+      "name": "nvcompCRC32FirstSegment",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "nvcompCRC32FirstSegment = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "1fa0a7cf5ab99216"
+    },
+    {
+      "name": "nvcompCRC32LastSegment",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "nvcompCRC32LastSegment = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "8602bc95a232b3e1"
+    },
+    {
+      "name": "nvcompCRC32MidSegment",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "nvcompCRC32MidSegment = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "272701f4ce54bf52"
+    },
+    {
+      "name": "nvcompCRC32OnlySegment",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "nvcompCRC32OnlySegment = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "f4efa4cbfda3bee8"
+    },
+    {
+      "name": "nvcompCRC32WarpKernel",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "nvcompCRC32WarpKernel = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "2d516716fa6dedc9"
+    },
+    {
+      "name": "nvcompErrorAlignment",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorAlignment = 17",
+      "value": 17,
+      "value_explicit": true,
+      "decl_hash": "f0f799e5f22a635f"
+    },
+    {
+      "name": "nvcompErrorBadChecksum",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorBadChecksum = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "648d46c8afcd10ad"
+    },
+    {
+      "name": "nvcompErrorBatchSizeTooLarge",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorBatchSizeTooLarge = 21",
+      "value": 21,
+      "value_explicit": true,
+      "decl_hash": "e1e73152e771bd55"
+    },
+    {
+      "name": "nvcompErrorCannotCompress",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorCannotCompress = 19",
+      "value": 19,
+      "value_explicit": true,
+      "decl_hash": "3cb727de64385a8a"
+    },
+    {
+      "name": "nvcompErrorCannotDecompress",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorCannotDecompress = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "9ca40d192edadef5"
+    },
+    {
+      "name": "nvcompErrorCannotVerifyChecksums",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorCannotVerifyChecksums = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "2640ff5ac9d1145b"
+    },
+    {
+      "name": "nvcompErrorChunkSizeTooLarge",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorChunkSizeTooLarge = 18",
+      "value": 18,
+      "value_explicit": true,
+      "decl_hash": "50a04e8aea0d7236"
+    },
+    {
+      "name": "nvcompErrorCudaError",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorCudaError = 1000",
+      "value": 1000,
+      "value_explicit": true,
+      "decl_hash": "c601f3e4af1551cd"
+    },
+    {
+      "name": "nvcompErrorInternal",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorInternal = 10000",
+      "value": 10000,
+      "value_explicit": true,
+      "decl_hash": "db21ab4fb29123ef"
+    },
+    {
+      "name": "nvcompErrorInvalidValue",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorInvalidValue = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "2c8070fe4a8b887c"
+    },
+    {
+      "name": "nvcompErrorNotSupported",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorNotSupported = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "4b683a2b2dc4eaad"
+    },
+    {
+      "name": "nvcompErrorOutputBufferAlignmentTooSmall",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorOutputBufferAlignmentTooSmall = 24",
+      "value": 24,
+      "value_explicit": true,
+      "decl_hash": "64a3bc7698edcf90"
+    },
+    {
+      "name": "nvcompErrorOutputBufferTooSmall",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorOutputBufferTooSmall = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "751bd1acf7ff17d1"
+    },
+    {
+      "name": "nvcompErrorSubChunkCountTooLarge",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorSubChunkCountTooLarge = 22",
+      "value": 22,
+      "value_explicit": true,
+      "decl_hash": "c7545341efde95ed"
+    },
+    {
+      "name": "nvcompErrorSubChunkCountTooSmall",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorSubChunkCountTooSmall = 23",
+      "value": 23,
+      "value_explicit": true,
+      "decl_hash": "cd5f6b494ed8c4de"
+    },
+    {
+      "name": "nvcompErrorWrongHeaderLength",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorWrongHeaderLength = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "17b9f6b7f0502656"
+    },
+    {
+      "name": "nvcompErrorWrongInputLength",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompErrorWrongInputLength = 20",
+      "value": 20,
+      "value_explicit": true,
+      "decl_hash": "8abac0d13c97a288"
+    },
+    {
+      "name": "nvcompSuccess",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "nvcompSuccess = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "d6c1a77ff8a0c647"
+    },
+    {
+      "name": "nvcomp_rANS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcomp_rANS = None",
+      "value": 0,
+      "value_explicit": false,
+      "decl_hash": "901fa1f94bd468ac"
+    },
+    {
+      "name": "nvcompANSType_t",
+      "kind": "EnumDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "enum nvcompANSType_t",
+      "decl_hash": "0b68fdc72625f0b4"
+    },
+    {
+      "name": "nvcompBitshuffleMode_t",
+      "kind": "EnumDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "enum nvcompBitshuffleMode_t",
+      "decl_hash": "7c60b2004ec06aae"
+    },
+    {
+      "name": "nvcompCRC32KernelKind_t",
+      "kind": "EnumDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "enum nvcompCRC32KernelKind_t",
+      "decl_hash": "ec88576c8230ae79"
+    },
+    {
+      "name": "nvcompCRC32SegmentKind_t",
+      "kind": "EnumDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "enum nvcompCRC32SegmentKind_t",
+      "decl_hash": "6d1151b290df6bb3"
+    },
+    {
+      "name": "nvcompDecompressBackend_t",
+      "kind": "EnumDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "enum nvcompDecompressBackend_t",
+      "decl_hash": "3d7662de6855f882"
+    },
+    {
+      "name": "nvcompStatus_t",
+      "kind": "EnumDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "enum nvcompStatus_t",
+      "decl_hash": "dd96670afbd4fa1f"
+    },
+    {
+      "name": "nvcompType_t",
+      "kind": "EnumDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "enum nvcompType_t",
+      "decl_hash": "d9c69aa604f10e3d"
+    },
+    {
+      "name": "nvcompBatchedANSCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcompStatus_t nvcompBatchedANSCompressAsync(const void *const * device_uncompressed_chunk_ptrs, const size_t * device_uncompressed_chunk_bytes, size_t max_uncompressed_chunk_bytes, size_t num_chunks, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_chunk_ptrs, size_t * device_compressed_chunk_bytes, nvcompBatchedANSCompressOpts_t compress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "a5b092051a3cc1e4",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedANSCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcompStatus_t nvcompBatchedANSCompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, nvcompBatchedANSCompressOpts_t compress_opts, size_t * max_compressed_chunk_bytes)",
+      "decl_hash": "765ee7dff7786337",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedANSCompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcompStatus_t nvcompBatchedANSCompressGetRequiredAlignments(nvcompBatchedANSCompressOpts_t compress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "6065ac6ae9a84a3e",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedANSCompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcompStatus_t nvcompBatchedANSCompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedANSCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "d88a925c5b745bb4",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedANSCompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcompStatus_t nvcompBatchedANSCompressGetTempSizeSync(const void *const *const device_uncompressed_chunk_ptrs, const size_t *const device_uncompressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedANSCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes, cudaStream_t stream)",
+      "decl_hash": "3fd3337bfca5a2d9",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedANSDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcompStatus_t nvcompBatchedANSDecompressAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, const size_t * device_uncompressed_buffer_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_chunk_ptrs, nvcompBatchedANSDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "c527ed257ed91405",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedANSDecompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcompStatus_t nvcompBatchedANSDecompressGetRequiredAlignments(nvcompBatchedANSDecompressOpts_t decompress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "847ebdd0f438fede",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedANSDecompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcompStatus_t nvcompBatchedANSDecompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedANSDecompressOpts_t decompress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "44da54877ee9de6b",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedANSDecompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcompStatus_t nvcompBatchedANSDecompressGetTempSizeSync(const void *const *const device_compressed_chunk_ptrs, const size_t *const device_compressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes, size_t max_total_uncompressed_bytes, nvcompBatchedANSDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "76135d6b4b59751c",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedANSGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "nvcompStatus_t nvcompBatchedANSGetDecompressSizeAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, cudaStream_t stream)",
+      "decl_hash": "eecfa1570468001d",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedBitcompCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "nvcompStatus_t nvcompBatchedBitcompCompressAsync(const void *const * device_uncompressed_chunk_ptrs, const size_t * device_uncompressed_chunk_bytes, size_t max_uncompressed_chunk_bytes, size_t num_chunks, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_chunk_ptrs, size_t * device_compressed_chunk_bytes, nvcompBatchedBitcompCompressOpts_t compress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "391fdd0a2ae4f908",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedBitcompCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "nvcompStatus_t nvcompBatchedBitcompCompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, nvcompBatchedBitcompCompressOpts_t compress_opts, size_t * max_compressed_chunk_bytes)",
+      "decl_hash": "6994261610a75aa6",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedBitcompCompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "nvcompStatus_t nvcompBatchedBitcompCompressGetRequiredAlignments(nvcompBatchedBitcompCompressOpts_t compress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "6c9b50cac1e89e5b",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedBitcompCompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "nvcompStatus_t nvcompBatchedBitcompCompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedBitcompCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "61abe5aa9dc900de",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedBitcompCompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "nvcompStatus_t nvcompBatchedBitcompCompressGetTempSizeSync(const void *const *const device_uncompressed_chunk_ptrs, const size_t *const device_uncompressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedBitcompCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes, cudaStream_t stream)",
+      "decl_hash": "0db12abe60ca8cde",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedBitcompDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "nvcompStatus_t nvcompBatchedBitcompDecompressAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, const size_t * device_uncompressed_buffer_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_chunk_ptrs, nvcompBatchedBitcompDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "e926d2e5db4c7689",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedBitcompDecompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "nvcompStatus_t nvcompBatchedBitcompDecompressGetRequiredAlignments(nvcompBatchedBitcompDecompressOpts_t decompress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "d3620e762522f283",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedBitcompDecompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "nvcompStatus_t nvcompBatchedBitcompDecompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedBitcompDecompressOpts_t decompress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "807bd0007ac408ac",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedBitcompDecompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "nvcompStatus_t nvcompBatchedBitcompDecompressGetTempSizeSync(const void *const *const device_compressed_chunk_ptrs, const size_t *const device_compressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes, size_t max_total_uncompressed_bytes, nvcompBatchedBitcompDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "698288e94ec25c26",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedBitcompGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "nvcompStatus_t nvcompBatchedBitcompGetDecompressSizeAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, cudaStream_t stream)",
+      "decl_hash": "f16ca3efddeab016",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCRC32Async",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "nvcompStatus_t nvcompBatchedCRC32Async(const void *const * device_input_chunk_ptrs, const size_t * device_input_chunk_bytes, size_t num_chunks, uint32_t * device_crc32_ptr, nvcompBatchedCRC32Opts_t opts, nvcompCRC32SegmentKind_t segment_kind, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "4f4f4282d1759eec",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCRC32GetHeuristicConf",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "nvcompStatus_t nvcompBatchedCRC32GetHeuristicConf(const size_t * device_input_chunk_bytes, size_t num_chunks, nvcompCRC32KernelConf_t * kernel_conf, size_t max_input_chunk_bytes, cudaStream_t stream)",
+      "decl_hash": "1f64482690a457bd",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCRC32SearchConf",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "nvcompStatus_t nvcompBatchedCRC32SearchConf(const void *const * device_input_chunk_ptrs, const size_t * device_input_chunk_bytes, size_t num_chunks, uint32_t * device_crc32_ptr, nvcompCRC32Spec_t spec, nvcompCRC32KernelConf_t * kernel_conf, cudaStream_t stream)",
+      "decl_hash": "b95f82ea7a975f8b",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCascadedCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "nvcompStatus_t nvcompBatchedCascadedCompressAsync(const void *const * device_uncompressed_chunk_ptrs, const size_t * device_uncompressed_chunk_bytes, size_t max_uncompressed_chunk_bytes, size_t num_chunks, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_chunk_ptrs, size_t * device_compressed_chunk_bytes, nvcompBatchedCascadedCompressOpts_t compress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "51a9b84c0d6b88cb",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCascadedCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "nvcompStatus_t nvcompBatchedCascadedCompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, nvcompBatchedCascadedCompressOpts_t compress_opts, size_t * max_compressed_chunk_bytes)",
+      "decl_hash": "00b3b0fe687c4b71",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCascadedCompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "nvcompStatus_t nvcompBatchedCascadedCompressGetRequiredAlignments(nvcompBatchedCascadedCompressOpts_t compress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "74df6908ded823b6",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCascadedCompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "nvcompStatus_t nvcompBatchedCascadedCompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedCascadedCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "6d1954ced536b0e1",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCascadedCompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "nvcompStatus_t nvcompBatchedCascadedCompressGetTempSizeSync(const void *const *const device_uncompressed_chunk_ptrs, const size_t *const device_uncompressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedCascadedCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes, cudaStream_t stream)",
+      "decl_hash": "611f72089b0d8509",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCascadedDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "nvcompStatus_t nvcompBatchedCascadedDecompressAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, const size_t * device_uncompressed_buffer_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_chunk_ptrs, nvcompBatchedCascadedDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "04428b1a2510fcf5",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCascadedDecompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "nvcompStatus_t nvcompBatchedCascadedDecompressGetRequiredAlignments(nvcompBatchedCascadedDecompressOpts_t decompress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "f83288a6dd7e3442",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCascadedDecompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "nvcompStatus_t nvcompBatchedCascadedDecompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedCascadedDecompressOpts_t decompress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "c8810dbbfc63874f",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCascadedDecompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "nvcompStatus_t nvcompBatchedCascadedDecompressGetTempSizeSync(const void *const *const device_compressed_chunk_ptrs, const size_t *const device_compressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes, size_t max_total_uncompressed_bytes, nvcompBatchedCascadedDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "83783522d9e6a4a5",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedCascadedGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "nvcompStatus_t nvcompBatchedCascadedGetDecompressSizeAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, cudaStream_t stream)",
+      "decl_hash": "5975678a8dac0794",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedDeflateCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedDeflateCompressAsync(const void *const * device_uncompressed_chunk_ptrs, const size_t * device_uncompressed_chunk_bytes, size_t max_uncompressed_chunk_bytes, size_t num_chunks, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_chunk_ptrs, size_t * device_compressed_chunk_bytes, nvcompBatchedDeflateCompressOpts_t compress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "26416d8e1d567c6c",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedDeflateCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedDeflateCompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, nvcompBatchedDeflateCompressOpts_t compress_opts, size_t * max_compressed_chunk_bytes)",
+      "decl_hash": "4d9d130d51431b47",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedDeflateCompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedDeflateCompressGetRequiredAlignments(nvcompBatchedDeflateCompressOpts_t compress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "6c057559a0ce7306",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedDeflateCompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedDeflateCompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedDeflateCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "667788c24ba7d7a3",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedDeflateCompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedDeflateCompressGetTempSizeSync(const void *const *const device_uncompressed_chunk_ptrs, const size_t *const device_uncompressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedDeflateCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes, cudaStream_t stream)",
+      "decl_hash": "fb4058aaefdbcfbe",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedDeflateDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedDeflateDecompressAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, const size_t * device_uncompressed_buffer_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_chunk_ptrs, nvcompBatchedDeflateDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "114fa8b38e93dd3a",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedDeflateDecompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedDeflateDecompressGetRequiredAlignments(nvcompBatchedDeflateDecompressOpts_t decompress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "5e965beded11ad2a",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedDeflateDecompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedDeflateDecompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedDeflateDecompressOpts_t decompress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "b8b8363c9fe21e40",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedDeflateDecompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedDeflateDecompressGetTempSizeSync(const void *const *const device_compressed_chunk_ptrs, const size_t *const device_compressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes, size_t max_total_uncompressed_bytes, nvcompBatchedDeflateDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "60c7c99b9c3b117e",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedDeflateGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedDeflateGetDecompressSizeAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, cudaStream_t stream)",
+      "decl_hash": "87a31d63e5ca7415",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGdeflateCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedGdeflateCompressAsync(const void *const * device_uncompressed_chunk_ptrs, const size_t * device_uncompressed_chunk_bytes, size_t max_uncompressed_chunk_bytes, size_t num_chunks, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_chunk_ptrs, size_t * device_compressed_chunk_bytes, nvcompBatchedGdeflateCompressOpts_t compress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "018bc5fa3896a905",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGdeflateCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedGdeflateCompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, nvcompBatchedGdeflateCompressOpts_t compress_opts, size_t * max_compressed_chunk_bytes)",
+      "decl_hash": "7913319bd719a015",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGdeflateCompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedGdeflateCompressGetRequiredAlignments(nvcompBatchedGdeflateCompressOpts_t compress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "b7097b7b7027025e",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGdeflateCompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedGdeflateCompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedGdeflateCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "c3816598358ef431",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGdeflateCompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedGdeflateCompressGetTempSizeSync(const void *const *const device_uncompressed_chunk_ptrs, const size_t *const device_uncompressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedGdeflateCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes, cudaStream_t stream)",
+      "decl_hash": "d5a10eb30e2d3d8a",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGdeflateDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedGdeflateDecompressAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, const size_t * device_uncompressed_buffer_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_chunk_ptrs, nvcompBatchedGdeflateDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "caba8b38de6b1d80",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGdeflateDecompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedGdeflateDecompressGetRequiredAlignments(nvcompBatchedGdeflateDecompressOpts_t decompress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "58fa65a2080c7142",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGdeflateDecompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedGdeflateDecompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedGdeflateDecompressOpts_t decompress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "9e929a4fa369ad04",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGdeflateDecompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedGdeflateDecompressGetTempSizeSync(const void *const *const device_compressed_chunk_ptrs, const size_t *const device_compressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes, size_t max_total_uncompressed_bytes, nvcompBatchedGdeflateDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "7bb7079ff9b3735c",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGdeflateGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "nvcompStatus_t nvcompBatchedGdeflateGetDecompressSizeAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, cudaStream_t stream)",
+      "decl_hash": "1deab5a0184ff57c",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGzipCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "nvcompStatus_t nvcompBatchedGzipCompressAsync(const void *const * device_uncompressed_chunk_ptrs, const size_t * device_uncompressed_chunk_bytes, size_t max_uncompressed_chunk_bytes, size_t num_chunks, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_chunk_ptrs, size_t * device_compressed_chunk_bytes, nvcompBatchedGzipCompressOpts_t compress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "94cf16cf0d7565d2",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGzipCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "nvcompStatus_t nvcompBatchedGzipCompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, nvcompBatchedGzipCompressOpts_t compress_opts, size_t * max_compressed_chunk_bytes)",
+      "decl_hash": "2bb2b26c4b4ce838",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGzipCompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "nvcompStatus_t nvcompBatchedGzipCompressGetRequiredAlignments(nvcompBatchedGzipCompressOpts_t compress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "41d78d418c638e6b",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGzipCompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "nvcompStatus_t nvcompBatchedGzipCompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedGzipCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "ed12602629192d88",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGzipCompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "nvcompStatus_t nvcompBatchedGzipCompressGetTempSizeSync(const void *const *const device_uncompressed_chunk_ptrs, const size_t *const device_uncompressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedGzipCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes, cudaStream_t stream)",
+      "decl_hash": "2830bac063dfea77",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGzipDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "nvcompStatus_t nvcompBatchedGzipDecompressAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, const size_t * device_uncompressed_buffer_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_chunk_ptrs, nvcompBatchedGzipDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "ec33b4ac4e7113ff",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGzipDecompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "nvcompStatus_t nvcompBatchedGzipDecompressGetRequiredAlignments(nvcompBatchedGzipDecompressOpts_t decompress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "4259c65e6612ba39",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGzipDecompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "nvcompStatus_t nvcompBatchedGzipDecompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedGzipDecompressOpts_t decompress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "c2cd33eba9767773",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGzipDecompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "nvcompStatus_t nvcompBatchedGzipDecompressGetTempSizeSync(const void *const *const device_compressed_chunk_ptrs, const size_t *const device_compressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes, size_t max_total_uncompressed_bytes, nvcompBatchedGzipDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "bb39a0098923abfb",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedGzipGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "nvcompStatus_t nvcompBatchedGzipGetDecompressSizeAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, cudaStream_t stream)",
+      "decl_hash": "af6eaa0b1f719ef4",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedLZ4CompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "nvcompStatus_t nvcompBatchedLZ4CompressAsync(const void *const * device_uncompressed_chunk_ptrs, const size_t * device_uncompressed_chunk_bytes, size_t max_uncompressed_chunk_bytes, size_t num_chunks, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_chunk_ptrs, size_t * device_compressed_chunk_bytes, nvcompBatchedLZ4CompressOpts_t compress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "164a3eff4598e53c",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedLZ4CompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "nvcompStatus_t nvcompBatchedLZ4CompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, nvcompBatchedLZ4CompressOpts_t compress_opts, size_t * max_compressed_chunk_bytes)",
+      "decl_hash": "7e898a503a5d391c",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedLZ4CompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "nvcompStatus_t nvcompBatchedLZ4CompressGetRequiredAlignments(nvcompBatchedLZ4CompressOpts_t compress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "17a114f74c68467c",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedLZ4CompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "nvcompStatus_t nvcompBatchedLZ4CompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedLZ4CompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "a3731d5eedd34a5f",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedLZ4CompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "nvcompStatus_t nvcompBatchedLZ4CompressGetTempSizeSync(const void *const *const device_uncompressed_chunk_ptrs, const size_t *const device_uncompressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedLZ4CompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes, cudaStream_t stream)",
+      "decl_hash": "9a276aa8fd3b4faf",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedLZ4DecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "nvcompStatus_t nvcompBatchedLZ4DecompressAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, const size_t * device_uncompressed_buffer_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_chunk_ptrs, nvcompBatchedLZ4DecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "ea160333b1d701cc",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedLZ4DecompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "nvcompStatus_t nvcompBatchedLZ4DecompressGetRequiredAlignments(nvcompBatchedLZ4DecompressOpts_t decompress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "66a3abcc695d6515",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedLZ4DecompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "nvcompStatus_t nvcompBatchedLZ4DecompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedLZ4DecompressOpts_t decompress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "f20bf44acf60148c",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedLZ4DecompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "nvcompStatus_t nvcompBatchedLZ4DecompressGetTempSizeSync(const void *const *const device_compressed_chunk_ptrs, const size_t *const device_compressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes, size_t max_total_uncompressed_bytes, nvcompBatchedLZ4DecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "2933a428d7223294",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedLZ4GetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "nvcompStatus_t nvcompBatchedLZ4GetDecompressSizeAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, cudaStream_t stream)",
+      "decl_hash": "7c797d424c920cfb",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedSnappyCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "nvcompStatus_t nvcompBatchedSnappyCompressAsync(const void *const * device_uncompressed_chunk_ptrs, const size_t * device_uncompressed_chunk_bytes, size_t max_uncompressed_chunk_bytes, size_t num_chunks, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_chunk_ptrs, size_t * device_compressed_chunk_bytes, nvcompBatchedSnappyCompressOpts_t compress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "c9877ade40979da5",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedSnappyCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "nvcompStatus_t nvcompBatchedSnappyCompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, nvcompBatchedSnappyCompressOpts_t compress_opts, size_t * max_compressed_chunk_bytes)",
+      "decl_hash": "5374aa913e053085",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedSnappyCompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "nvcompStatus_t nvcompBatchedSnappyCompressGetRequiredAlignments(nvcompBatchedSnappyCompressOpts_t compress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "2e487acca83789b1",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedSnappyCompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "nvcompStatus_t nvcompBatchedSnappyCompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedSnappyCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "dd64fee488ab2780",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedSnappyCompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "nvcompStatus_t nvcompBatchedSnappyCompressGetTempSizeSync(const void *const *const device_uncompressed_chunk_ptrs, const size_t *const device_uncompressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedSnappyCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes, cudaStream_t stream)",
+      "decl_hash": "20f9481d4953cea2",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedSnappyDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "nvcompStatus_t nvcompBatchedSnappyDecompressAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, const size_t * device_uncompressed_buffer_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_chunk_ptrs, nvcompBatchedSnappyDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "a6770d1d6e1b8dc1",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedSnappyDecompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "nvcompStatus_t nvcompBatchedSnappyDecompressGetRequiredAlignments(nvcompBatchedSnappyDecompressOpts_t decompress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "23bfa883e402b75c",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedSnappyDecompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "nvcompStatus_t nvcompBatchedSnappyDecompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedSnappyDecompressOpts_t decompress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "3971ce83568d6309",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedSnappyDecompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "nvcompStatus_t nvcompBatchedSnappyDecompressGetTempSizeSync(const void *const *const device_compressed_chunk_ptrs, const size_t *const device_compressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes, size_t max_total_uncompressed_bytes, nvcompBatchedSnappyDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "a410015e0bfded1d",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedSnappyGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "nvcompStatus_t nvcompBatchedSnappyGetDecompressSizeAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, cudaStream_t stream)",
+      "decl_hash": "b3b60acdf313896d",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedZstdCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "nvcompStatus_t nvcompBatchedZstdCompressAsync(const void *const * device_uncompressed_chunk_ptrs, const size_t * device_uncompressed_chunk_bytes, size_t max_uncompressed_chunk_bytes, size_t num_chunks, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_chunk_ptrs, size_t * device_compressed_chunk_bytes, nvcompBatchedZstdCompressOpts_t compress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "58e1b9f5906ec76b",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedZstdCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "nvcompStatus_t nvcompBatchedZstdCompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, nvcompBatchedZstdCompressOpts_t compress_opts, size_t * max_compressed_chunk_bytes)",
+      "decl_hash": "5c813319e4894cd0",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedZstdCompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "nvcompStatus_t nvcompBatchedZstdCompressGetRequiredAlignments(nvcompBatchedZstdCompressOpts_t compress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "4575de62e6d92837",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedZstdCompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "nvcompStatus_t nvcompBatchedZstdCompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedZstdCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "734f6ec9742e0244",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedZstdCompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "nvcompStatus_t nvcompBatchedZstdCompressGetTempSizeSync(const void *const *const device_uncompressed_chunk_ptrs, const size_t *const device_uncompressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedZstdCompressOpts_t compress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes, cudaStream_t stream)",
+      "decl_hash": "12041a9db9e5c483",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedZstdDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "nvcompStatus_t nvcompBatchedZstdDecompressAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, const size_t * device_uncompressed_buffer_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_chunk_ptrs, nvcompBatchedZstdDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "83c842cc49f2f17c",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedZstdDecompressGetRequiredAlignments",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "nvcompStatus_t nvcompBatchedZstdDecompressGetRequiredAlignments(nvcompBatchedZstdDecompressOpts_t decompress_opts, nvcompAlignmentRequirements_t * alignment_requirements)",
+      "decl_hash": "1299282d5abaf68d",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedZstdDecompressGetTempSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "nvcompStatus_t nvcompBatchedZstdDecompressGetTempSizeAsync(size_t num_chunks, size_t max_uncompressed_chunk_bytes, nvcompBatchedZstdDecompressOpts_t decompress_opts, size_t * temp_bytes, size_t max_total_uncompressed_bytes)",
+      "decl_hash": "e7bb0756291a5bfb",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedZstdDecompressGetTempSizeSync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "nvcompStatus_t nvcompBatchedZstdDecompressGetTempSizeSync(const void *const *const device_compressed_chunk_ptrs, const size_t *const device_compressed_chunk_bytes, size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes, size_t max_total_uncompressed_bytes, nvcompBatchedZstdDecompressOpts_t decompress_opts, nvcompStatus_t * device_statuses, cudaStream_t stream)",
+      "decl_hash": "5fb2eb16fc78d52b",
+      "exported": true
+    },
+    {
+      "name": "nvcompBatchedZstdGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "nvcompStatus_t nvcompBatchedZstdGetDecompressSizeAsync(const void *const * device_compressed_chunk_ptrs, const size_t * device_compressed_chunk_bytes, size_t * device_uncompressed_chunk_bytes, size_t num_chunks, cudaStream_t stream)",
+      "decl_hash": "bdfd0bbadf75e218",
+      "exported": true
+    },
+    {
+      "name": "nvcompGetProperties",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp.h",
+      "decl": "nvcompStatus_t nvcompGetProperties(nvcompProperties_t * properties)",
+      "decl_hash": "51b61926bcc5b76d",
+      "exported": true
+    },
+    {
+      "name": "nvcompGetStatusString",
+      "kind": "FunctionDecl",
+      "header": "/usr/include/nvcomp.h",
+      "decl": "const char * nvcompGetStatusString(nvcompStatus_t status)",
+      "decl_hash": "ddf8fe5ae41d3076",
+      "exported": true
+    },
+    {
+      "name": "nvcompANSType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "typedef enum nvcompANSType_t nvcompANSType_t",
+      "decl_hash": "da2bc25296fc07f0"
+    },
+    {
+      "name": "nvcompAlignmentRequirements_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "typedef struct nvcompAlignmentRequirements_t nvcompAlignmentRequirements_t",
+      "decl_hash": "1fe35ea5392867cb"
+    },
+    {
+      "name": "nvcompBatchedANSCompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "typedef struct nvcompBatchedANSCompressOpts_t nvcompBatchedANSCompressOpts_t",
+      "decl_hash": "b6f5c8986560cb07"
+    },
+    {
+      "name": "nvcompBatchedANSDecompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "typedef struct nvcompBatchedANSDecompressOpts_t nvcompBatchedANSDecompressOpts_t",
+      "decl_hash": "824d9eb3a321dd75"
+    },
+    {
+      "name": "nvcompBatchedBitcompCompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "typedef struct nvcompBatchedBitcompCompressOpts_t nvcompBatchedBitcompCompressOpts_t",
+      "decl_hash": "19062f97b358cc3a"
+    },
+    {
+      "name": "nvcompBatchedBitcompDecompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "typedef struct nvcompBatchedBitcompDecompressOpts_t nvcompBatchedBitcompDecompressOpts_t",
+      "decl_hash": "e3d1d63270383dba"
+    },
+    {
+      "name": "nvcompBatchedCRC32Opts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "typedef struct nvcompBatchedCRC32Opts_t nvcompBatchedCRC32Opts_t",
+      "decl_hash": "a8b757cc04ee14bd"
+    },
+    {
+      "name": "nvcompBatchedCascadedCompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "typedef struct nvcompBatchedCascadedCompressOpts_t nvcompBatchedCascadedCompressOpts_t",
+      "decl_hash": "81e1a4245016405c"
+    },
+    {
+      "name": "nvcompBatchedCascadedDecompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "typedef struct nvcompBatchedCascadedDecompressOpts_t nvcompBatchedCascadedDecompressOpts_t",
+      "decl_hash": "e2d1e45f421c62a5"
+    },
+    {
+      "name": "nvcompBatchedDeflateCompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "typedef struct nvcompBatchedDeflateCompressOpts_t nvcompBatchedDeflateCompressOpts_t",
+      "decl_hash": "2a5736ff281064cd"
+    },
+    {
+      "name": "nvcompBatchedDeflateDecompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "typedef struct nvcompBatchedDeflateDecompressOpts_t nvcompBatchedDeflateDecompressOpts_t",
+      "decl_hash": "0563dfe47bb46283"
+    },
+    {
+      "name": "nvcompBatchedGdeflateCompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "typedef struct nvcompBatchedGdeflateCompressOpts_t nvcompBatchedGdeflateCompressOpts_t",
+      "decl_hash": "3c7c5e5faa5da040"
+    },
+    {
+      "name": "nvcompBatchedGdeflateDecompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "typedef struct nvcompBatchedGdeflateDecompressOpts_t nvcompBatchedGdeflateDecompressOpts_t",
+      "decl_hash": "b262bad31a950e15"
+    },
+    {
+      "name": "nvcompBatchedGzipCompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "typedef struct nvcompBatchedGzipCompressOpts_t nvcompBatchedGzipCompressOpts_t",
+      "decl_hash": "39f65d56c2658442"
+    },
+    {
+      "name": "nvcompBatchedGzipDecompressAlgorithm_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "typedef enum nvcompBatchedGzipDecompressAlgorithm_t nvcompBatchedGzipDecompressAlgorithm_t",
+      "decl_hash": "c7c54ab9dbe9e0e4"
+    },
+    {
+      "name": "nvcompBatchedGzipDecompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "typedef struct nvcompBatchedGzipDecompressOpts_t nvcompBatchedGzipDecompressOpts_t",
+      "decl_hash": "12b200c0bcf4e9f5"
+    },
+    {
+      "name": "nvcompBatchedLZ4CompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "typedef struct nvcompBatchedLZ4CompressOpts_t nvcompBatchedLZ4CompressOpts_t",
+      "decl_hash": "3e81a61061f2ec0a"
+    },
+    {
+      "name": "nvcompBatchedLZ4DecompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "typedef struct nvcompBatchedLZ4DecompressOpts_t nvcompBatchedLZ4DecompressOpts_t",
+      "decl_hash": "7ce11c20abc6b080"
+    },
+    {
+      "name": "nvcompBatchedSnappyCompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "typedef struct nvcompBatchedSnappyCompressOpts_t nvcompBatchedSnappyCompressOpts_t",
+      "decl_hash": "9afee916006943d3"
+    },
+    {
+      "name": "nvcompBatchedSnappyDecompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "typedef struct nvcompBatchedSnappyDecompressOpts_t nvcompBatchedSnappyDecompressOpts_t",
+      "decl_hash": "e0d7c9e46e85e675"
+    },
+    {
+      "name": "nvcompBatchedZstdCompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "typedef struct nvcompBatchedZstdCompressOpts_t nvcompBatchedZstdCompressOpts_t",
+      "decl_hash": "96141d5e417d92ce"
+    },
+    {
+      "name": "nvcompBatchedZstdDecompressOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "typedef struct nvcompBatchedZstdDecompressOpts_t nvcompBatchedZstdDecompressOpts_t",
+      "decl_hash": "46eeece6930f4fba"
+    },
+    {
+      "name": "nvcompBitshuffleMode_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "typedef enum nvcompBitshuffleMode_t nvcompBitshuffleMode_t",
+      "decl_hash": "7f058401412a5dbb"
+    },
+    {
+      "name": "nvcompCRC32KernelConf_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "typedef struct nvcompCRC32KernelConf_t nvcompCRC32KernelConf_t",
+      "decl_hash": "ce026b8823b25465"
+    },
+    {
+      "name": "nvcompCRC32KernelKind_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "typedef enum nvcompCRC32KernelKind_t nvcompCRC32KernelKind_t",
+      "decl_hash": "f62d3381e605e114"
+    },
+    {
+      "name": "nvcompCRC32SegmentKind_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "typedef enum nvcompCRC32SegmentKind_t nvcompCRC32SegmentKind_t",
+      "decl_hash": "e415d13b674823e8"
+    },
+    {
+      "name": "nvcompCRC32Spec_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "typedef struct nvcompCRC32Spec_t nvcompCRC32Spec_t",
+      "decl_hash": "58c7b772630a4305"
+    },
+    {
+      "name": "nvcompDecompressBackend_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "typedef enum nvcompDecompressBackend_t nvcompDecompressBackend_t",
+      "decl_hash": "5508fb23b43b3e75"
+    },
+    {
+      "name": "nvcompProperties_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "typedef struct nvcompProperties_t nvcompProperties_t",
+      "decl_hash": "801b9bd49ee9024c"
+    },
+    {
+      "name": "nvcompStatus_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "typedef enum nvcompStatus_t nvcompStatus_t",
+      "decl_hash": "354e88a79824c449"
+    },
+    {
+      "name": "nvcompType_t",
+      "kind": "TypedefDecl",
+      "header": "/usr/include/nvcomp/shared_types.h",
+      "decl": "typedef enum nvcompType_t nvcompType_t",
+      "decl_hash": "affe1492f052ae15"
+    },
+    {
+      "name": "nvcompANSCompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "const size_t nvcompANSCompressionMaxAllowedChunkSize",
+      "decl_hash": "bb3f0131957dd580"
+    },
+    {
+      "name": "nvcompANSDecompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "const size_t nvcompANSDecompressionMaxAllowedChunkSize",
+      "decl_hash": "a479473d188e4906"
+    },
+    {
+      "name": "nvcompANSRequiredCompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "const size_t nvcompANSRequiredCompressionAlignment",
+      "decl_hash": "2368c11089331097"
+    },
+    {
+      "name": "nvcompANSRequiredDecompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "const size_t nvcompANSRequiredDecompressionAlignment",
+      "decl_hash": "44b3cef43ef31fa1"
+    },
+    {
+      "name": "nvcompBatchedANSCompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "const nvcompBatchedANSCompressOpts_t nvcompBatchedANSCompressDefaultOpts",
+      "decl_hash": "cbb587751c8ba0e8"
+    },
+    {
+      "name": "nvcompBatchedANSDecompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/ans.h",
+      "decl": "const nvcompBatchedANSDecompressOpts_t nvcompBatchedANSDecompressDefaultOpts",
+      "decl_hash": "294403b8425fdd14"
+    },
+    {
+      "name": "nvcompBatchedBitcompCompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "const nvcompBatchedBitcompCompressOpts_t nvcompBatchedBitcompCompressDefaultOpts",
+      "decl_hash": "1a611952e6511cc1"
+    },
+    {
+      "name": "nvcompBatchedBitcompDecompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "const nvcompBatchedBitcompDecompressOpts_t nvcompBatchedBitcompDecompressDefaultOpts",
+      "decl_hash": "37668c71cdc211fb"
+    },
+    {
+      "name": "nvcompBatchedCascadedCompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "const nvcompBatchedCascadedCompressOpts_t nvcompBatchedCascadedCompressDefaultOpts",
+      "decl_hash": "dcbe710f09dcf19b"
+    },
+    {
+      "name": "nvcompBatchedCascadedDecompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "const nvcompBatchedCascadedDecompressOpts_t nvcompBatchedCascadedDecompressDefaultOpts",
+      "decl_hash": "a5ac93feb024befe"
+    },
+    {
+      "name": "nvcompBatchedDeflateCompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "const nvcompBatchedDeflateCompressOpts_t nvcompBatchedDeflateCompressDefaultOpts",
+      "decl_hash": "deb2b5ff12d717d4"
+    },
+    {
+      "name": "nvcompBatchedDeflateDecompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "const nvcompBatchedDeflateDecompressOpts_t nvcompBatchedDeflateDecompressDefaultOpts",
+      "decl_hash": "097669671fb913d7"
+    },
+    {
+      "name": "nvcompBatchedGdeflateCompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "const nvcompBatchedGdeflateCompressOpts_t nvcompBatchedGdeflateCompressDefaultOpts",
+      "decl_hash": "d6825b7250ed8db3"
+    },
+    {
+      "name": "nvcompBatchedGdeflateDecompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "const nvcompBatchedGdeflateDecompressOpts_t nvcompBatchedGdeflateDecompressDefaultOpts",
+      "decl_hash": "1c816042070b219c"
+    },
+    {
+      "name": "nvcompBatchedGzipCompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "const nvcompBatchedGzipCompressOpts_t nvcompBatchedGzipCompressDefaultOpts",
+      "decl_hash": "d5931f75a0a4896f"
+    },
+    {
+      "name": "nvcompBatchedGzipDecompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "const nvcompBatchedGzipDecompressOpts_t nvcompBatchedGzipDecompressDefaultOpts",
+      "decl_hash": "84fd523a734fbef4"
+    },
+    {
+      "name": "nvcompBatchedLZ4CompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "const nvcompBatchedLZ4CompressOpts_t nvcompBatchedLZ4CompressDefaultOpts",
+      "decl_hash": "9cbc015b86b65e58"
+    },
+    {
+      "name": "nvcompBatchedLZ4DecompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "const nvcompBatchedLZ4DecompressOpts_t nvcompBatchedLZ4DecompressDefaultOpts",
+      "decl_hash": "68cad4673974e6fa"
+    },
+    {
+      "name": "nvcompBatchedSnappyCompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "const nvcompBatchedSnappyCompressOpts_t nvcompBatchedSnappyCompressDefaultOpts",
+      "decl_hash": "a551a5983d600cbb"
+    },
+    {
+      "name": "nvcompBatchedSnappyDecompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "const nvcompBatchedSnappyDecompressOpts_t nvcompBatchedSnappyDecompressDefaultOpts",
+      "decl_hash": "b687b8657748b410"
+    },
+    {
+      "name": "nvcompBatchedZstdCompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "const nvcompBatchedZstdCompressOpts_t nvcompBatchedZstdCompressDefaultOpts",
+      "decl_hash": "a00e8a4edfde89b7"
+    },
+    {
+      "name": "nvcompBatchedZstdDecompressDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "const nvcompBatchedZstdDecompressOpts_t nvcompBatchedZstdDecompressDefaultOpts",
+      "decl_hash": "267bbb5b38759e94"
+    },
+    {
+      "name": "nvcompBitcompCompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "const size_t nvcompBitcompCompressionMaxAllowedChunkSize",
+      "decl_hash": "a51377c33183a123"
+    },
+    {
+      "name": "nvcompBitcompDecompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "const size_t nvcompBitcompDecompressionMaxAllowedChunkSize",
+      "decl_hash": "1148b614375ead95"
+    },
+    {
+      "name": "nvcompBitcompRequiredCompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "const size_t nvcompBitcompRequiredCompressionAlignment",
+      "decl_hash": "a047dc2f58740a08"
+    },
+    {
+      "name": "nvcompBitcompRequiredDecompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/bitcomp.h",
+      "decl": "const size_t nvcompBitcompRequiredDecompressionAlignment",
+      "decl_hash": "4b318e3f81c14652"
+    },
+    {
+      "name": "nvcompCRC32",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32",
+      "decl_hash": "bf445cde9396d6c5"
+    },
+    {
+      "name": "nvcompCRC32DeducedMaxInputChunkBytes",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const size_t nvcompCRC32DeducedMaxInputChunkBytes",
+      "decl_hash": "fd6c4af2c3b56265"
+    },
+    {
+      "name": "nvcompCRC32IgnoredInputChunkBytes",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const size_t *const nvcompCRC32IgnoredInputChunkBytes",
+      "decl_hash": "41a8082709983fd6"
+    },
+    {
+      "name": "nvcompCRC32_AUTOSAR",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_AUTOSAR",
+      "decl_hash": "2714a1d58af24ec0"
+    },
+    {
+      "name": "nvcompCRC32_BZIP2",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_BZIP2",
+      "decl_hash": "33a4bb5c4ad27635"
+    },
+    {
+      "name": "nvcompCRC32_C",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_C",
+      "decl_hash": "a6f4b16fa13da088"
+    },
+    {
+      "name": "nvcompCRC32_CD_ROM_EDC",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_CD_ROM_EDC",
+      "decl_hash": "5612aa9b9da11868"
+    },
+    {
+      "name": "nvcompCRC32_D",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_D",
+      "decl_hash": "8e48393aeee1c164"
+    },
+    {
+      "name": "nvcompCRC32_JAMCRC",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_JAMCRC",
+      "decl_hash": "db78e45a5af959f2"
+    },
+    {
+      "name": "nvcompCRC32_MEF",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_MEF",
+      "decl_hash": "d69e56466981fe03"
+    },
+    {
+      "name": "nvcompCRC32_MPEG_2",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_MPEG_2",
+      "decl_hash": "865fec70ef307613"
+    },
+    {
+      "name": "nvcompCRC32_POSIX",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_POSIX",
+      "decl_hash": "0a087b52a07383ac"
+    },
+    {
+      "name": "nvcompCRC32_Q",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_Q",
+      "decl_hash": "20938ff1c485bb00"
+    },
+    {
+      "name": "nvcompCRC32_XFER",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/crc32.h",
+      "decl": "const nvcompCRC32Spec_t nvcompCRC32_XFER",
+      "decl_hash": "9c8a5be1df5b824b"
+    },
+    {
+      "name": "nvcompCascadedCompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "const size_t nvcompCascadedCompressionMaxAllowedChunkSize",
+      "decl_hash": "c2326e70c76fedb3"
+    },
+    {
+      "name": "nvcompCascadedDecompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "const size_t nvcompCascadedDecompressionMaxAllowedChunkSize",
+      "decl_hash": "e8fa1575704b159c"
+    },
+    {
+      "name": "nvcompCascadedRequiredCompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "const size_t nvcompCascadedRequiredCompressionAlignment",
+      "decl_hash": "c0ce69861b7f600e"
+    },
+    {
+      "name": "nvcompCascadedRequiredDecompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/cascaded.h",
+      "decl": "const size_t nvcompCascadedRequiredDecompressionAlignment",
+      "decl_hash": "d816039eb35cd5aa"
+    },
+    {
+      "name": "nvcompDeflateCompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "const size_t nvcompDeflateCompressionMaxAllowedChunkSize",
+      "decl_hash": "cf3c25798497dcd5"
+    },
+    {
+      "name": "nvcompDeflateDecompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "const size_t nvcompDeflateDecompressionMaxAllowedChunkSize",
+      "decl_hash": "fac95b024f57a456"
+    },
+    {
+      "name": "nvcompDeflateRequiredCompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "const size_t nvcompDeflateRequiredCompressionAlignment",
+      "decl_hash": "4a52c7a5bb4dcd3c"
+    },
+    {
+      "name": "nvcompDeflateRequiredDecompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/deflate.h",
+      "decl": "const size_t nvcompDeflateRequiredDecompressionAlignment",
+      "decl_hash": "58421a7c6ee5a72e"
+    },
+    {
+      "name": "nvcompGdeflateCompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "const size_t nvcompGdeflateCompressionMaxAllowedChunkSize",
+      "decl_hash": "b29c4d2ece923b38"
+    },
+    {
+      "name": "nvcompGdeflateDecompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "const size_t nvcompGdeflateDecompressionMaxAllowedChunkSize",
+      "decl_hash": "f829417ef43d9938"
+    },
+    {
+      "name": "nvcompGdeflateRequiredCompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "const size_t nvcompGdeflateRequiredCompressionAlignment",
+      "decl_hash": "29d07360530d5a46"
+    },
+    {
+      "name": "nvcompGdeflateRequiredDecompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gdeflate.h",
+      "decl": "const size_t nvcompGdeflateRequiredDecompressionAlignment",
+      "decl_hash": "b81e4791c31b948c"
+    },
+    {
+      "name": "nvcompGzipCompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "const size_t nvcompGzipCompressionMaxAllowedChunkSize",
+      "decl_hash": "ace2e171db38effc"
+    },
+    {
+      "name": "nvcompGzipLookaheadDecompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "const size_t nvcompGzipLookaheadDecompressionMaxAllowedChunkSize",
+      "decl_hash": "5cbef99d59d71824"
+    },
+    {
+      "name": "nvcompGzipNaiveDecompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "const size_t nvcompGzipNaiveDecompressionMaxAllowedChunkSize",
+      "decl_hash": "73ef61db2ea00c97"
+    },
+    {
+      "name": "nvcompGzipRequiredDecompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/gzip.h",
+      "decl": "const size_t nvcompGzipRequiredDecompressionAlignment",
+      "decl_hash": "34168786e5e6081a"
+    },
+    {
+      "name": "nvcompLZ4CompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "const size_t nvcompLZ4CompressionMaxAllowedChunkSize",
+      "decl_hash": "dd37def3065ddb46"
+    },
+    {
+      "name": "nvcompLZ4DecompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "const size_t nvcompLZ4DecompressionMaxAllowedChunkSize",
+      "decl_hash": "d071fbfa644f3278"
+    },
+    {
+      "name": "nvcompLZ4RequiredCompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "const size_t nvcompLZ4RequiredCompressionAlignment",
+      "decl_hash": "c58d9da2890c62ac"
+    },
+    {
+      "name": "nvcompLZ4RequiredDecompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/lz4.h",
+      "decl": "const size_t nvcompLZ4RequiredDecompressionAlignment",
+      "decl_hash": "15d2c08866fe92b4"
+    },
+    {
+      "name": "nvcompSnappyCompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "const size_t nvcompSnappyCompressionMaxAllowedChunkSize",
+      "decl_hash": "bd634aab50cf3b72"
+    },
+    {
+      "name": "nvcompSnappyDecompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "const size_t nvcompSnappyDecompressionMaxAllowedChunkSize",
+      "decl_hash": "6ee59f540da9b792"
+    },
+    {
+      "name": "nvcompSnappyRequiredCompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "const size_t nvcompSnappyRequiredCompressionAlignment",
+      "decl_hash": "e94531d6dcc64625"
+    },
+    {
+      "name": "nvcompSnappyRequiredDecompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/snappy.h",
+      "decl": "const size_t nvcompSnappyRequiredDecompressionAlignment",
+      "decl_hash": "c2d1e3eba75a302f"
+    },
+    {
+      "name": "nvcompZstdCompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "const size_t nvcompZstdCompressionMaxAllowedChunkSize",
+      "decl_hash": "807fa512cc35b00a"
+    },
+    {
+      "name": "nvcompZstdDecompressionMaxAllowedChunkSize",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "const size_t nvcompZstdDecompressionMaxAllowedChunkSize",
+      "decl_hash": "094ea47c82097808"
+    },
+    {
+      "name": "nvcompZstdRequiredCompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "const size_t nvcompZstdRequiredCompressionAlignment",
+      "decl_hash": "2ba8d855a2fc6207"
+    },
+    {
+      "name": "nvcompZstdRequiredDecompressionAlignment",
+      "kind": "VarDecl",
+      "header": "/usr/include/nvcomp/zstd.h",
+      "decl": "const size_t nvcompZstdRequiredDecompressionAlignment",
+      "decl_hash": "299b7d5be8259658"
+    }
+  ]
+}
