@@ -1,7 +1,7 @@
 {
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
-    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
     "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hipblaslt/hipblaslt.h",
     "config": {
       "backend": "HIP",
@@ -19,6 +19,39 @@
     "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
     "prefix": "hipblas",
     "symbol_count": 81
+  },
+  "linkable": {
+    "lib": "libhipblaslt.so.1",
+    "soname": "libhipblaslt.so.1",
+    "available": true,
+    "linkable_count": 24,
+    "linkable": [
+      "hipblasLtCreate",
+      "hipblasLtDestroy",
+      "hipblasLtGetArchName",
+      "hipblasLtGetGitRevision",
+      "hipblasLtGetVersion",
+      "hipblasLtMatmul",
+      "hipblasLtMatmulAlgoGetHeuristic",
+      "hipblasLtMatmulDescCreate",
+      "hipblasLtMatmulDescDestroy",
+      "hipblasLtMatmulDescGetAttribute",
+      "hipblasLtMatmulDescSetAttribute",
+      "hipblasLtMatmulPreferenceCreate",
+      "hipblasLtMatmulPreferenceDestroy",
+      "hipblasLtMatmulPreferenceGetAttribute",
+      "hipblasLtMatmulPreferenceSetAttribute",
+      "hipblasLtMatrixLayoutCreate",
+      "hipblasLtMatrixLayoutDestroy",
+      "hipblasLtMatrixLayoutGetAttribute",
+      "hipblasLtMatrixLayoutSetAttribute",
+      "hipblasLtMatrixTransform",
+      "hipblasLtMatrixTransformDescCreate",
+      "hipblasLtMatrixTransformDescDestroy",
+      "hipblasLtMatrixTransformDescGetAttribute",
+      "hipblasLtMatrixTransformDescSetAttribute"
+    ],
+    "declared_not_linkable": []
   },
   "symbols": [
     {

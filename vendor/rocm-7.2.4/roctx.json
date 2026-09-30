@@ -1,7 +1,7 @@
 {
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
-    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
     "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/roctracer/roctx.h",
     "config": {
       "backend": "HIP",
@@ -19,6 +19,23 @@
     "header": "/opt/rocm/include/roctracer/roctx.h",
     "prefix": "roctx",
     "symbol_count": 8
+  },
+  "linkable": {
+    "lib": "libroctx64.so.4",
+    "soname": "libroctx64.so.4",
+    "available": true,
+    "linkable_count": 8,
+    "linkable": [
+      "roctxMarkA",
+      "roctxRangePop",
+      "roctxRangePushA",
+      "roctxRangeStartA",
+      "roctxRangeStop",
+      "roctxRegisterTracerCallback",
+      "roctx_version_major",
+      "roctx_version_minor"
+    ],
+    "declared_not_linkable": []
   },
   "symbols": [
     {

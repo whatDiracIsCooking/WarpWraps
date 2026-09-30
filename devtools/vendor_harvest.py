@@ -19,6 +19,19 @@ NORMALISED declaration string (and its hash, for cheap diffing), the computed
 enum value where there is one, a deprecation marker, whether the declaration
 carries an exported-visibility attribute, and the originating header.
 
+DECLARED vs LINKABLE. The header DECLARES a surface; the ``.so`` DEFINES one, and
+the two genuinely differ -- a vendor can ship a prototype for a function whose
+object never made it into the shared library, so a program that calls it fails
+to LINK though it compiles. The test suite records each such case by hand as a
+``WWR_DECLARED_CHECK`` (vs the usual ``WWR_LINK_CHECK``), found the hard way by a
+link failure and rechecked by nothing. Given ``--lib`` this tool reads the other
+half of the truth -- ``nm -D --defined-only`` over the library -- and reconciles
+it against the declared names, so each manifest carries the linkable set and,
+explicitly, the ``declared_not_linkable`` diff (a function-kind name the header
+declares that the ``.so`` does not define). A library with no discrete ``.so``
+(header-only nvtx3, an aggregate umbrella) is recorded with a stated reason and
+an empty linkable set rather than crashing.
+
 CONFIG TUPLE. An AST resolves the preprocessor for EXACTLY ONE configuration, so
 a manifest is a fact about (backend, sdk_version, arch, defines) -- not about the
 library in the abstract. ``hipsparse`` parsed with ``-DCUDART_VERSION=...`` and
@@ -55,10 +68,11 @@ Usage:
         -I /opt/rocm/include \\
         /opt/rocm/include/hiprand/hiprand.h
 
-    # CUDA side:
+    # CUDA side, with the .so so declared-vs-linkable is reconciled:
     devtools/vendor_harvest.py --backend CUDA \\
         --sdk-version "CUDA 13.0" \\
         -I /usr/local/cuda/include \\
+        --lib /usr/local/cuda/lib64/libcurand.so \\
         /usr/local/cuda/include/curand.h
 
     # A compat branch, captured by defining the guard the header keys on:
@@ -103,6 +117,68 @@ _DEPRECATED_ATTRS = {"DeprecatedAttr", "UnavailableAttr"}
 _EXPORT_ATTRS = {"VisibilityAttr", "DLLExportAttr"}
 
 _WS_RE = re.compile(r"\s+")
+
+
+def linkable_symbols(nm: str, lib: Path) -> set[str]:
+    """The names the shared object actually DEFINES, from ``nm -D --defined-only``.
+
+    This is the "does it link?" complement to the declared surface the AST gives:
+    a header can DECLARE a function the library never DEFINES (the vendor shipped
+    the prototype but not the object -- see ``WWR_DECLARED_CHECK`` in the tests),
+    and only ``nm`` over the ``.so`` can tell the two apart. ``-D`` reads the
+    DYNAMIC symbol table (what a linker resolves against), ``--defined-only``
+    drops the undefined imports.
+
+    A versioned symbol prints as ``name@@VER`` (the default version) or
+    ``name@VER`` (a non-default one) plus a bare ``VER`` node of type ``A``; the
+    ``@`` suffix is stripped so the bare name matches a declaration. Every defined
+    type is kept (functions land in ``T``/``W``, data in ``D``/``B``/``R``) except
+    the ``A`` version nodes, which are not symbols one can link against. GNU nm
+    types that node ``A`` (dropped here); llvm-nm prints its bare soname
+    (``libcusparse.so.12``) as an ordinary line -- harmless, because a soname is
+    never a vendor-prefixed name, so it survives neither the prefix filter (the
+    linkable set) nor the intersection with declared names. The output is thus
+    identical whichever nm ran, which keeps the CI regen-and-diff honest.
+    """
+    proc = subprocess.run([nm, "-D", "--defined-only", str(lib)],
+                          capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise SystemExit(
+            f"vendor_harvest: nm failed on {lib}\n"
+            f"  command: {nm} -D --defined-only {lib}\n{proc.stderr}"
+        )
+    names: set[str] = set()
+    for line in proc.stdout.splitlines():
+        cols = line.split()
+        # "ADDR TYPE NAME" for a defined symbol; a line with < 3 cols carries no
+        # name (e.g. a "         w NAME" undefined-weak never reaches here anyway).
+        if len(cols) < 3:
+            continue
+        sym_type, name = cols[1], cols[2]
+        if sym_type == "A":  # a @@VER version node, not a linkable symbol
+            continue
+        names.add(name.split("@", 1)[0])
+    return names
+
+
+def soname(lib: Path) -> str | None:
+    """The library's SONAME (``libcusparse.so.12``), stable across the pin.
+
+    Recorded as provenance instead of the resolved path: the two front ends mount
+    the tree at different roots and the driver stubs sit under a version-named
+    directory, so a path would not be reproducible, but the SONAME baked into the
+    object is. ``None`` if ``objdump`` is missing or the object carries no SONAME.
+    """
+    try:
+        out = subprocess.run(["objdump", "-p", str(lib)],
+                             capture_output=True, text=True)
+    except OSError:
+        return None
+    for line in out.stdout.splitlines():
+        parts = line.split()
+        if len(parts) == 2 and parts[0] == "SONAME":
+            return parts[1]
+    return None
 
 
 def leading_prefix(ident: str) -> str | None:
@@ -334,6 +410,46 @@ def detect_prefix(ast: dict, header: Path, family: str | None) -> str | None:
     return counts.most_common(1)[0][0] if counts else None
 
 
+def linkable_report(
+    symbols: list[dict],
+    prefix: str,
+    linkable: set[str] | None,
+    lib: str | None,
+    lib_soname: str | None,
+    reason: str | None,
+) -> dict:
+    """The linkable block: what the ``.so`` defines vs what the header declares.
+
+    ``declared_not_linkable`` is the payload the ``WWR_DECLARED_CHECK`` sites
+    encode by hand -- restricted to FUNCTION-kind declarations, because those are
+    the ones a program links against and the only ones ``nm`` over the ``.so`` can
+    confirm or deny (a typedef or enum constant is compile-time only and never
+    appears in the dynamic symbol table, so its absence is not a link defect). The
+    linkable set is filtered to this library's ``prefix`` so a shared object that
+    also carries a sibling's symbols does not inflate the count.
+    """
+    if linkable is None:
+        return {
+            "lib": lib,
+            "available": False,
+            "reason": reason or "no discrete shared library for this surface",
+            "linkable_count": 0,
+            "declared_not_linkable": [],
+        }
+    own = sorted(n for n in linkable if leading_prefix(n) == prefix)
+    declared_funcs = {s["name"] for s in symbols
+                      if s["kind"] in ("FunctionDecl", "FunctionTemplateDecl")}
+    missing = sorted(declared_funcs - linkable)
+    return {
+        "lib": lib,
+        "soname": lib_soname,
+        "available": True,
+        "linkable_count": len(own),
+        "linkable": own,
+        "declared_not_linkable": missing,
+    }
+
+
 def build_manifest(
     header: Path,
     ast: dict,
@@ -345,13 +461,18 @@ def build_manifest(
     includes: list[str],
     clang_version: str,
     command: list[str],
+    linkable: set[str] | None,
+    lib: str | None,
+    lib_soname: str | None,
+    lib_reason: str | None,
 ) -> dict:
     symbols = harvest(ast, prefix)
     return {
         "harvest": {
             "tool": "devtools/vendor_harvest.py",
-            "note": "declared surface for ONE (backend, sdk, arch, defines) "
-                    "configuration; not a code generator -- see the file header",
+            "note": "declared + linkable surface for ONE (backend, sdk, arch, "
+                    "defines) configuration; not a code generator -- see the "
+                    "file header",
             "command": " ".join(command),
             "config": {
                 "backend": backend,
@@ -365,6 +486,8 @@ def build_manifest(
             "prefix": prefix,
             "symbol_count": len(symbols),
         },
+        "linkable": linkable_report(
+            symbols, prefix, linkable, lib, lib_soname, lib_reason),
         "symbols": symbols,
     }
 
@@ -399,8 +522,20 @@ def main(argv: list[str] | None = None) -> int:
                         "of prefixed identifiers, seeded by --backend)")
     parser.add_argument("--std", default="c++17",
                         help="C++ standard passed to clang (default c++17)")
+    parser.add_argument("--lib", type=Path, default=None,
+                        help="the shared object this surface links against; its "
+                        "'nm -D --defined-only' set is reconciled against the "
+                        "declared names to record what is linkable and what the "
+                        "header declares but the .so does not define")
+    parser.add_argument("--lib-none", metavar="REASON",
+                        help="assert this surface has NO discrete .so (header-only "
+                        "or an aggregate umbrella); records an empty linkable set "
+                        "with REASON instead of running nm. Mutually exclusive "
+                        "with --lib")
     parser.add_argument("--clang", default=None,
                         help="clang binary (default: clang-20, then clang)")
+    parser.add_argument("--nm", default=None,
+                        help="nm binary (default: llvm-nm, then nm)")
     parser.add_argument("-o", "--output", type=Path,
                         help="output path (default <prefix>.harvest.json in cwd)")
     parser.add_argument("--strict", action="store_true",
@@ -420,6 +555,30 @@ def main(argv: list[str] | None = None) -> int:
     if not args.header.exists():
         print(f"vendor_harvest: header not found: {args.header}", file=sys.stderr)
         return 2
+    if args.lib and args.lib_none:
+        print("vendor_harvest: --lib and --lib-none are mutually exclusive",
+              file=sys.stderr)
+        return 2
+
+    linkable: set[str] | None = None
+    lib_name: str | None = None
+    lib_soname: str | None = None
+    lib_reason: str | None = None
+    if args.lib:
+        if not args.lib.exists():
+            print(f"vendor_harvest: --lib not found: {args.lib}", file=sys.stderr)
+            return 2
+        nm = args.nm or (shutil.which("llvm-nm") or shutil.which("nm"))
+        if not nm:
+            print("vendor_harvest: no nm found (need llvm-nm or nm on PATH); "
+                  "pass --nm", file=sys.stderr)
+            return 2
+        linkable = linkable_symbols(nm, args.lib)
+        lib_soname = soname(args.lib)
+        # Record the SONAME (stable per pin), not the resolved path/version.
+        lib_name = lib_soname or args.lib.name
+    elif args.lib_none:
+        lib_reason = args.lib_none
 
     flags = [f"-D{d}" for d in args.defines] + [f"-I{i}" for i in args.includes]
     ast, stderr = run_clang(clang, args.header, flags, args.std)
@@ -444,7 +603,8 @@ def main(argv: list[str] | None = None) -> int:
         header=args.header, ast=ast, prefix=prefix, backend=args.backend,
         sdk_version=args.sdk_version, arch=args.arch, defines=args.defines,
         includes=args.includes, clang_version=clang_version_string(clang),
-        command=command,
+        command=command, linkable=linkable, lib=lib_name,
+        lib_soname=lib_soname, lib_reason=lib_reason,
     )
 
     out_path = args.output or Path(f"{prefix}.harvest.json")
@@ -453,9 +613,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.stats:
         by_kind = Counter(s["kind"] for s in manifest["symbols"])
         dep = sum(1 for s in manifest["symbols"] if s.get("deprecated"))
+        link = manifest["linkable"]
+        link_str = (f"linkable={link['linkable_count']} "
+                    f"declared_not_linkable={len(link['declared_not_linkable'])}"
+                    if link["available"] else f"linkable=n/a ({link['reason']})")
         print(f"vendor_harvest: {manifest['harvest']['symbol_count']} symbols "
               f"(prefix {prefix!r}) -> {out_path}  {dict(by_kind)}  "
-              f"deprecated={dep}", file=sys.stderr)
+              f"deprecated={dep}  {link_str}", file=sys.stderr)
     return 0
 
 

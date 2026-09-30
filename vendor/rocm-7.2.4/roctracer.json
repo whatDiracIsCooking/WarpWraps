@@ -1,7 +1,7 @@
 {
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
-    "note": "declared surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
     "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/roctracer/roctracer.h",
     "config": {
       "backend": "HIP",
@@ -19,6 +19,54 @@
     "header": "/opt/rocm/include/roctracer/roctracer.h",
     "prefix": "roctracer",
     "symbol_count": 53
+  },
+  "linkable": {
+    "lib": "libroctracer64.so.4",
+    "soname": "libroctracer64.so.4",
+    "available": true,
+    "linkable_count": 39,
+    "linkable": [
+      "roctracer_activity_pop_external_correlation_id",
+      "roctracer_activity_push_external_correlation_id",
+      "roctracer_close_pool",
+      "roctracer_close_pool_expl",
+      "roctracer_default_pool",
+      "roctracer_default_pool_expl",
+      "roctracer_disable_activity",
+      "roctracer_disable_callback",
+      "roctracer_disable_domain_activity",
+      "roctracer_disable_domain_callback",
+      "roctracer_disable_op_activity",
+      "roctracer_disable_op_callback",
+      "roctracer_enable_activity",
+      "roctracer_enable_activity_expl",
+      "roctracer_enable_callback",
+      "roctracer_enable_domain_activity",
+      "roctracer_enable_domain_activity_expl",
+      "roctracer_enable_domain_callback",
+      "roctracer_enable_op_activity",
+      "roctracer_enable_op_activity_expl",
+      "roctracer_enable_op_callback",
+      "roctracer_error_string",
+      "roctracer_flush_activity",
+      "roctracer_flush_activity_expl",
+      "roctracer_flush_buf",
+      "roctracer_get_timestamp",
+      "roctracer_load",
+      "roctracer_mark",
+      "roctracer_next_record",
+      "roctracer_op_code",
+      "roctracer_op_string",
+      "roctracer_open_pool",
+      "roctracer_open_pool_expl",
+      "roctracer_set_properties",
+      "roctracer_start",
+      "roctracer_stop",
+      "roctracer_unload",
+      "roctracer_version_major",
+      "roctracer_version_minor"
+    ],
+    "declared_not_linkable": []
   },
   "symbols": [
     {
