@@ -39,8 +39,13 @@
 #
 # Usage:
 #   devtools/vendor_manifests.sh cuda   # write vendor/cuda-13.0.x/*.json
-#   devtools/vendor_manifests.sh hip    # write vendor/rocm-7.2.4/*.json
+#   devtools/vendor_manifests.sh hip    # write vendor/rocm-<ver>/*.json
 #   devtools/vendor_manifests.sh both   # both (needs the combined image)
+#
+# The HIP version dir is READ from the image (/opt/rocm/.info/version): the 7.2.4
+# pin image writes vendor/rocm-7.2.4/, the 7.1.0 floor image writes
+# vendor/rocm-7.1.0/ (#116). CUDA is a within-major band -- one cuda-13.0.x/ dir
+# serves both the 13.0.0 floor and every 13.0.x pin, so there is no cuda floor.
 #
 # It writes into the tree under vendor/. To check for drift without touching the
 # tree, CI runs it into a temp dir and diffs -- see the workflow.
@@ -58,10 +63,19 @@ AGG="devtools/harvest_aggregates"
 cd "$HERE"
 
 # --- pins (the config tuple's SDK coordinate) --------------------------------
+# CUDA is a within-major BAND, not a point: NVIDIA adds within a major rather
+# than removing, and the 13.0.0 floor and every 13.0.x patch (13.0.3 in the
+# current image) present the same wrapped surface, so one dir serves the pin and
+# the floor -- there is no separate cuda-floor manifest, matching CI (no
+# cuda-floor leg; the `13-0` pin IS the 13.0.0 floor).
 CUDA_SDK="CUDA 13.0.x"          # recorded in every CUDA manifest's config tuple
 CUDA_DIR="cuda-13.0.x"          # vendor/<this>/
-ROCM_SDK="ROCm 7.2.4"
-ROCM_DIR="rocm-7.2.4"
+#
+# ROCm is the opposite: it churns across minors exactly in the surfaces this
+# repo wraps, so pin (7.2.4) and floor (7.1.0) are DISTINCT manifests and each
+# is keyed to an exact version. That version is READ from the image, not
+# hardcoded (see harvest_hip), so the same `vendor_manifests.sh hip` harvests
+# whichever ROCm the image ships into its own version dir.
 ROCM_ARCH="gfx942"              # the arch GPU_TARGETS pins (docker/install-rocm-ds.sh)
 
 CUDA_INC="${CUDA_INCLUDE_DIR:-/usr/local/cuda/include}"
@@ -161,6 +175,19 @@ harvest_cuda() {
 }
 
 harvest_hip() {
+  # The ROCm version coordinate, read from the image (not hardcoded): the same
+  # invocation harvests the 7.2.4 pin or the 7.1.0 floor (#116) into its own
+  # version dir, and the dir name cannot disagree with the headers it came from.
+  # /opt/rocm/.info/version is the honest source -- CMakeLists.txt reads the same
+  # file for the floor check, since the hip package's patch field is the SDK
+  # build, unrelated to ROCm's. Override ROCM_SDK_VERSION to harvest a tree whose
+  # .info file is absent.
+  local ver
+  ver="${ROCM_SDK_VERSION:-$(cut -d- -f1 /opt/rocm/.info/version 2>/dev/null || true)}"
+  [ -n "$ver" ] || {
+    echo "vendor_manifests.sh: no ROCm version: /opt/rocm/.info/version is" \
+         "absent; set ROCM_SDK_VERSION" >&2; exit 2; }
+  local ROCM_SDK="ROCm $ver" ROCM_DIR="rocm-$ver"
   OUTDIR="${VENDOR_ROOT:-$HERE/vendor}/$ROCM_DIR"
   mkdir -p "$OUTDIR"
   echo "== HIP ($ROCM_SDK) -> $OUTDIR =="
@@ -178,7 +205,15 @@ harvest_hip() {
   # .so; those device-only names correctly surface as declared_not_linkable.
   run_hip hiprand_kernel  hiprand    "$AGG/hiprand_kernel.h"             --lib "$ROCM_LIB/libhiprand.so"
   run_hip hiprtc          hiprtc     "$ROCM_INC/hip/hiprtc.h"            --lib "$ROCM_LIB/libhiprtc.so"
-  run_hip hiptensor       hiptensor  "$ROCM_INC/hiptensor/hiptensor.h"   --lib "$ROCM_LIB/libhiptensor.so"
+  # hipTensor harvests through a repo-local aggregate, not the vendor header
+  # directly, because its include set is version-dependent and must mirror the
+  # module's GMF: 2.2.0 (ROCm 7.2, the pin) added the C-linkage hiptensor.h,
+  # while 2.1.0 (ROCm 7.1, the floor) ships only hiptensor.hpp, which -- unlike
+  # the .h -- does not pull hiptensor-version.hpp, leaving hiptensorGetVersion
+  # undeclared without it. The aggregate's __has_include picks the same way
+  # src/hip/hiptensor.cppm does, so the manifest is the surface that module wraps
+  # at either end. See devtools/harvest_aggregates/hiptensor.h.
+  run_hip hiptensor       hiptensor  "$AGG/hiptensor.h"                  --lib "$ROCM_LIB/libhiptensor.so"
   run_hip rccl            nccl       "$ROCM_INC/rccl/rccl.h"             --lib "$ROCM_LIB/librccl.so"
   run_hip hipcomp         hipcomp    "$AGG/hipcomp.h"                    --lib "$ROCM_DS_LIB/libhipcomp.so"
   run_hip rocm_smi        rsmi       "$ROCM_INC/rocm_smi/rocm_smi.h"     --lib "$ROCM_LIB/librocm_smi64.so"

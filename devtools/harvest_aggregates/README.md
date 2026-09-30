@@ -14,6 +14,13 @@ surface through a single umbrella:
 - **`hiprand_kernel.h`** calls bare `printf` without `#include <cstdio>` of its
   own; a plain (non-`-x hip`) compile needs `<cstdio>` pre-included, exactly as
   `src/hip/hiprand_kernel.cppm` does.
+- **`hiptensor.h`** has a version-dependent include set: 2.2.0 (ROCm 7.2, the
+  pin) added the C-linkage `hiptensor.h`, while 2.1.0 (ROCm 7.1, the floor) ships
+  only `hiptensor.hpp`, which — unlike the `.h` — does not pull
+  `hiptensor-version.hpp`. The aggregate's `__has_include` picks the header the
+  same way `src/hip/hiptensor.cppm` does and adds the version header on the floor
+  path, so `hiptensorGetVersion` is declared at both ends; the load-bearing
+  `<array>` pre-include is carried too.
 
 Each file below mirrors the vendor `#include` set of the matching `.cppm`'s
 global module fragment one-for-one, so the manifest is the surface that module
