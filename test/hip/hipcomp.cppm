@@ -64,13 +64,17 @@ static_assert(static_cast<int>(HIPCOMP_TYPE_BITS) == 0xff);
 // Link-time symbol resolution: batched LLIF + generic decompress
 // ────────────────────────────────────────────────────────────────────────
 
-// hipcomp.h
-WWR_LINK_CHECK(hipcompDecompressGetMetadata)
-WWR_LINK_CHECK(hipcompDecompressDestroyMetadata)
-WWR_LINK_CHECK(hipcompDecompressGetTempSize)
-WWR_LINK_CHECK(hipcompDecompressGetOutputSize)
-WWR_LINK_CHECK(hipcompDecompressGetType)
-WWR_LINK_CHECK(hipcompDecompressAsync)
+// hipcomp.h -- the generic (non-batched) decompress API is declared but not
+// built into libhipcomp.so (hipCOMP at ROCm 7.2.4; AMD ships no static
+// archive), so calling one fails to link. The batched LLIF entry points below
+// ARE exported. Only the declaration is checked; recorded in hipcomp.json's
+// declared_not_linkable.
+WWR_DECLARED_CHECK(hipcompDecompressGetMetadata)
+WWR_DECLARED_CHECK(hipcompDecompressDestroyMetadata)
+WWR_DECLARED_CHECK(hipcompDecompressGetTempSize)
+WWR_DECLARED_CHECK(hipcompDecompressGetOutputSize)
+WWR_DECLARED_CHECK(hipcompDecompressGetType)
+WWR_DECLARED_CHECK(hipcompDecompressAsync)
 
 // lz4.h
 WWR_LINK_CHECK(hipcompBatchedLZ4CompressGetTempSize)
@@ -104,13 +108,15 @@ WWR_LINK_CHECK(hipcompBatchedGdeflateDecompressGetTempSize)
 WWR_LINK_CHECK(hipcompBatchedGdeflateDecompressAsync)
 WWR_LINK_CHECK(hipcompBatchedGdeflateGetDecompressSizeAsync)
 
-// bitcomp.h
-WWR_LINK_CHECK(hipcompBitcompCompressConfigure)
-WWR_LINK_CHECK(hipcompBitcompCompressAsync)
-WWR_LINK_CHECK(hipcompBitcompDecompressConfigure)
-WWR_LINK_CHECK(hipcompBitcompDestroyMetadata)
-WWR_LINK_CHECK(hipcompBitcompDecompressAsync)
-WWR_LINK_CHECK(hipcompIsBitcompData)
+// bitcomp.h -- the whole bitcomp family is declared but not built into
+// libhipcomp.so (hipCOMP at ROCm 7.2.4), so calling one fails to link. Only the
+// declaration is checked; recorded in hipcomp.json's declared_not_linkable.
+WWR_DECLARED_CHECK(hipcompBitcompCompressConfigure)
+WWR_DECLARED_CHECK(hipcompBitcompCompressAsync)
+WWR_DECLARED_CHECK(hipcompBitcompDecompressConfigure)
+WWR_DECLARED_CHECK(hipcompBitcompDestroyMetadata)
+WWR_DECLARED_CHECK(hipcompBitcompDecompressAsync)
+WWR_DECLARED_CHECK(hipcompIsBitcompData)
 WWR_LINK_CHECK(hipcompBatchedBitcompCompressGetMaxOutputChunkSize)
 WWR_LINK_CHECK(hipcompBatchedBitcompCompressAsync)
 WWR_LINK_CHECK(hipcompBatchedBitcompDecompressAsync)

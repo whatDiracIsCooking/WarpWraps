@@ -13,6 +13,7 @@ reads only committed manifests and source text, which is the whole point.
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -30,6 +31,15 @@ _, FLOOR = mc.load_manifest(_FLOOR)
 # hipKernelGetName was added in ROCm 7.2 (pin-only); hipMalloc is at both.
 PIN_ONLY = "hipKernelGetName"
 AT_BOTH = "hipMalloc"
+
+# The real linkable data of the same library, for assertion 3. hipMalloc the .so
+# exports; hipExternalMemoryGetMappedMipmappedArray it declares but does not
+# export (the module's one live WWR_DECLARED_CHECK site).
+_LINK = json.loads(_PIN.read_text())["linkable"]
+LINKABLE = set(_LINK["linkable"])
+DECLARED_ONLY = set(_LINK["declared_not_linkable"])
+EXPORTED = "hipMalloc"
+DECLARED_NOT_LINKABLE = "hipExternalMemoryGetMappedMipmappedArray"
 
 
 def check(src: str):
@@ -134,3 +144,68 @@ def test_blind_spot_is_bounded():
     # docstring's KNOWN BLIND SPOT.
     report = mc.check_all()
     assert report.blind_spots == 2
+
+
+# ── Assertion 3: macro correctness ──────────────────────────────────────────
+
+
+def test_real_tree_macro_correct():
+    report = mc.check_macro_correctness()
+    assert report.mislabels == [], "\n" + mc.format_macro_report(report)
+    assert len(report.checked) > 20  # actually judging, not skipping everything
+
+
+def test_exported_symbol_must_use_link_check():
+    # The converse of the payoff: WWR_DECLARED_CHECK on a symbol the .so exports
+    # is wrong, and the check demands WWR_LINK_CHECK.
+    assert mc.macro_violation(
+        "DECLARED", EXPORTED, LINKABLE, DECLARED_ONLY) == "WWR_LINK_CHECK"
+    # ... and WWR_LINK_CHECK on it is correct.
+    assert mc.macro_violation("LINK", EXPORTED, LINKABLE, DECLARED_ONLY) is None
+
+
+def test_declared_only_symbol_must_use_declared_check():
+    # A symbol the .so declares but does not export: WWR_LINK_CHECK would fail the
+    # link, so the check demands WWR_DECLARED_CHECK.
+    assert mc.macro_violation(
+        "LINK", DECLARED_NOT_LINKABLE, LINKABLE, DECLARED_ONLY
+    ) == "WWR_DECLARED_CHECK"
+    # ... and WWR_DECLARED_CHECK on it is correct.
+    assert mc.macro_violation(
+        "DECLARED", DECLARED_NOT_LINKABLE, LINKABLE, DECLARED_ONLY) is None
+
+
+def test_macro_out_of_scope_name_is_not_a_violation():
+    # A checked name in neither linkable set (a cross-library symbol, or one the
+    # harvest never saw) cannot be judged and is never a violation.
+    assert mc.macro_violation("LINK", "cudaStreamFoo", LINKABLE, DECLARED_ONLY) is None
+    assert mc.macro_violation(
+        "DECLARED", "cudaStreamFoo", LINKABLE, DECLARED_ONLY) is None
+
+
+def test_macro_linkable_wins_a_tie():
+    # If a name were in both sets, exported wins -- WWR_LINK_CHECK is demanded.
+    assert mc.macro_violation("DECLARED", "dup", {"dup"}, {"dup"}) == "WWR_LINK_CHECK"
+    assert mc.macro_violation("LINK", "dup", {"dup"}, {"dup"}) is None
+
+
+def test_every_declared_check_site_validates():
+    # Acceptance (#121): every live WWR_DECLARED_CHECK in the tree names a symbol
+    # the pin manifest records as declared-but-not-linkable -- none is a stale
+    # "someday" the vendor has since started exporting. The check reads test
+    # source, so count the real sites too: this must be judging them, not zero.
+    sites = 0
+    for cppm in sorted((ROOT / "test").rglob("*.cppm")):
+        kinds = mc._MACRO_CHECK.findall(cppm.read_text())
+        sites += sum(k == "DECLARED" for k, _ in kinds)
+    assert sites >= 10  # the #121 floor; the tree has more after the LINK fixes
+    report = mc.check_macro_correctness()
+    declared_mislabels = [m for m in report.mislabels if m.used == "WWR_DECLARED_CHECK"]
+    assert declared_mislabels == [], "\n" + mc.format_macro_report(report)
+
+
+def test_macro_unjudged_when_so_absent_at_harvest():
+    # nvToolsExt's libnvToolsExt.so was dropped at CUDA 12, so its manifest has
+    # linkable.available false: no truth to judge by, reported UNJUDGED not guessed.
+    report = mc.check_macro_correctness()
+    assert "cuda/nvToolsExt" in report.unjudged

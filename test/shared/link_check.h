@@ -32,8 +32,13 @@
 // For a symbol the vendor header declares but the CUDA library does not export,
 // so WWR_LINK_CHECK cannot pass. Only checks that the name resolves through the
 // wrapper module; it takes the address without forcing a reference, so nothing
-// reaches the linker. Use it in place of WWR_LINK_CHECK, with a comment naming the
-// library version the symbol was found missing from -- and switch back to
-// WWR_LINK_CHECK when a newer library exports it.
+// reaches the linker. Use it in place of WWR_LINK_CHECK, with a comment naming
+// the library version the symbol was found missing from.
+//
+// You do NOT have to remember to switch back to WWR_LINK_CHECK when a newer
+// library starts exporting the symbol: manifest_conformance.py's macro-
+// correctness assertion (#121) reads the harvested linkable surface and fails
+// the moment a WWR_DECLARED_CHECK names a symbol the pinned .so now exports --
+// and, conversely, the moment a WWR_LINK_CHECK names one it does not.
 #define WWR_DECLARED_CHECK(sym)                                                                 \
   [[maybe_unused]] static constexpr auto *declared_check_##sym = &sym;

@@ -654,6 +654,22 @@ load in the driverless `hip_compile_tests` on GPU-less CI, so they cannot be
 link-checked until `test/hip` grows the driver-stub / `gpu`-label mechanism
 `test/cuda` already has (#179).
 
+A third assertion, **macro correctness** (#121), closes the loop the second one
+opens: given that a re-exported function carries *a* check, does it carry the
+*right* one? The manifest's harvested linkable surface decides — a symbol the
+`.so` exports must use `WWR_LINK_CHECK`, one it only declares must use
+`WWR_DECLARED_CHECK` — and both directions fail. The payoff is the
+`WWR_DECLARED_CHECK` → `WWR_LINK_CHECK` direction: `link_check.h` used to ask the
+reader to "switch back when a newer library exports it", a someday-maybe nobody
+actions because noticing means re-testing a symbol already written off; now the
+build reports it the day the pinned `.so` starts exporting the name. It judges
+each `test/<backend>/<lib>.cppm` against the `<lib>` pin manifest and reports a
+module as UNJUDGED (not guessed) when the `.so` was absent at harvest — only
+`nvToolsExt`, whose library CUDA dropped at 12. The first tree-wide run found 19
+`WWR_LINK_CHECK` sites (curand, cusolverDn, hipcomp) naming symbols shipped in no
+`.so`; each was mislabeled and would have failed the compile-tests link, and each
+is now `WWR_DECLARED_CHECK`.
+
 **The ratchet policy — floors only ever rise, and only for a reason.** Raise a
 floor when a wrapper starts to *depend* on something the older toolkit lacks (a
 symbol, a header, a fixed bug), not merely because a newer release exists. When

@@ -37,11 +37,16 @@ WWR_LINK_CHECK(cusolverDnSetAdvOptions)
 WWR_LINK_CHECK(cusolverDnSetDeterministicMode)
 WWR_LINK_CHECK(cusolverDnSetEmulationStrategy)
 WWR_LINK_CHECK(cusolverDnSetMathMode)
-WWR_LINK_CHECK(cusolverDnLoggerForceDisable)
-WWR_LINK_CHECK(cusolverDnLoggerOpenFile)
-WWR_LINK_CHECK(cusolverDnLoggerSetFile)
-WWR_LINK_CHECK(cusolverDnLoggerSetLevel)
-WWR_LINK_CHECK(cusolverDnLoggerSetMask)
+// The cusolverDnLogger* entry points are declared in cusolverDn.h but not
+// exported by libcusolver.so.12 (CUDA 13.0): they resolve only against
+// libcusolver_static.a, so calling one from a program linked against the shared
+// library fails to link. Only the declaration is checked. Recorded in
+// cusolverDn.json's declared_not_linkable.
+WWR_DECLARED_CHECK(cusolverDnLoggerForceDisable)
+WWR_DECLARED_CHECK(cusolverDnLoggerOpenFile)
+WWR_DECLARED_CHECK(cusolverDnLoggerSetFile)
+WWR_DECLARED_CHECK(cusolverDnLoggerSetLevel)
+WWR_DECLARED_CHECK(cusolverDnLoggerSetMask)
 WWR_LINK_CHECK(cusolverDnCreateGesvdjInfo)
 WWR_LINK_CHECK(cusolverDnCreateSyevjInfo)
 WWR_LINK_CHECK(cusolverDnDestroyGesvdjInfo)
