@@ -1,0 +1,1144 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include devtools/harvest_aggregates/hiprand_kernel.h",
+    "config": {
+      "backend": "HIP",
+      "sdk_version": "ROCm 7.1.0",
+      "arch": "gfx942",
+      "defines": [
+        "__HIP_PLATFORM_AMD__"
+      ],
+      "includes": [
+        "/opt/rocm/include",
+        "/opt/rocm-ds/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "devtools/harvest_aggregates/hiprand_kernel.h",
+    "prefix": "hiprand",
+    "symbol_count": 140
+  },
+  "linkable": {
+    "lib": "libhiprand.so.1",
+    "soname": "libhiprand.so.1",
+    "available": true,
+    "linkable_count": 30,
+    "linkable": [
+      "hiprandCreateGenerator",
+      "hiprandCreateGeneratorHost",
+      "hiprandCreatePoissonDistribution",
+      "hiprandDestroyDistribution",
+      "hiprandDestroyGenerator",
+      "hiprandGenerate",
+      "hiprandGenerateChar",
+      "hiprandGenerateLogNormal",
+      "hiprandGenerateLogNormalDouble",
+      "hiprandGenerateLogNormalHalf",
+      "hiprandGenerateLongLong",
+      "hiprandGenerateNormal",
+      "hiprandGenerateNormalDouble",
+      "hiprandGenerateNormalHalf",
+      "hiprandGeneratePoisson",
+      "hiprandGenerateSeeds",
+      "hiprandGenerateShort",
+      "hiprandGenerateUniform",
+      "hiprandGenerateUniformDouble",
+      "hiprandGenerateUniformHalf",
+      "hiprandGetDirectionVectors32",
+      "hiprandGetDirectionVectors64",
+      "hiprandGetScrambleConstants32",
+      "hiprandGetScrambleConstants64",
+      "hiprandGetVersion",
+      "hiprandSetGeneratorOffset",
+      "hiprandSetGeneratorOrdering",
+      "hiprandSetPseudoRandomGeneratorSeed",
+      "hiprandSetQuasiRandomGeneratorDimensions",
+      "hiprandSetStream"
+    ],
+    "declared_not_linkable": [
+      "hiprand",
+      "hiprand4",
+      "hiprand_discrete",
+      "hiprand_discrete4",
+      "hiprand_init",
+      "hiprand_log_normal",
+      "hiprand_log_normal2",
+      "hiprand_log_normal2_double",
+      "hiprand_log_normal4",
+      "hiprand_log_normal4_double",
+      "hiprand_log_normal_double",
+      "hiprand_long_long",
+      "hiprand_mtgp32_block_copy",
+      "hiprand_mtgp32_set_params",
+      "hiprand_normal",
+      "hiprand_normal2",
+      "hiprand_normal2_double",
+      "hiprand_normal4",
+      "hiprand_normal4_double",
+      "hiprand_normal_double",
+      "hiprand_poisson",
+      "hiprand_poisson4",
+      "hiprand_uniform",
+      "hiprand_uniform2_double",
+      "hiprand_uniform4",
+      "hiprand_uniform4_double",
+      "hiprand_uniform_double"
+    ]
+  },
+  "symbols": [
+    {
+      "name": "hiprandState",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "struct hiprandState",
+      "decl_hash": "982400e87317d625"
+    },
+    {
+      "name": "hiprandStateMRG32k3a",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "struct hiprandStateMRG32k3a",
+      "decl_hash": "9dac355c05920ff0"
+    },
+    {
+      "name": "hiprandStateMtgp32",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "struct hiprandStateMtgp32",
+      "decl_hash": "6c46497ff2af87e8"
+    },
+    {
+      "name": "hiprandStatePhilox4_32_10",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "struct hiprandStatePhilox4_32_10",
+      "decl_hash": "6ff017a61d517312"
+    },
+    {
+      "name": "hiprandStateScrambledSobol32",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_sobol32.h",
+      "decl": "struct hiprandStateScrambledSobol32",
+      "decl_hash": "acf1fdeb7ea1cf86"
+    },
+    {
+      "name": "hiprandStateScrambledSobol64",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_sobol64.h",
+      "decl": "struct hiprandStateScrambledSobol64",
+      "decl_hash": "90fd51c061c82d3d"
+    },
+    {
+      "name": "hiprandStateSobol32",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "struct hiprandStateSobol32",
+      "decl_hash": "885f32f2d38f9ce1"
+    },
+    {
+      "name": "hiprandStateSobol64",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol32.h",
+      "decl": "struct hiprandStateSobol64",
+      "decl_hash": "39d4a2810b6fb81e"
+    },
+    {
+      "name": "hiprandStateXORWOW",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "struct hiprandStateXORWOW",
+      "decl_hash": "7dc92ec269b6b694"
+    },
+    {
+      "name": "HIPRAND_DIRECTION_VECTORS_32_JOEKUO6",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_DIRECTION_VECTORS_32_JOEKUO6 = 101",
+      "value": 101,
+      "value_explicit": true,
+      "decl_hash": "e471b384e0e35240"
+    },
+    {
+      "name": "HIPRAND_DIRECTION_VECTORS_64_JOEKUO6",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_DIRECTION_VECTORS_64_JOEKUO6 = 103",
+      "value": 103,
+      "value_explicit": true,
+      "decl_hash": "74e723108beb828f"
+    },
+    {
+      "name": "HIPRAND_ORDERING_PSEUDO_BEST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_ORDERING_PSEUDO_BEST = 100",
+      "value": 100,
+      "value_explicit": true,
+      "decl_hash": "d46ef556d5bd59bb"
+    },
+    {
+      "name": "HIPRAND_ORDERING_PSEUDO_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_ORDERING_PSEUDO_DEFAULT = 101",
+      "value": 101,
+      "value_explicit": true,
+      "decl_hash": "175ee8a5f852e7dd"
+    },
+    {
+      "name": "HIPRAND_ORDERING_PSEUDO_DYNAMIC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_ORDERING_PSEUDO_DYNAMIC = 104",
+      "value": 104,
+      "value_explicit": true,
+      "decl_hash": "15024be20d4f4f99"
+    },
+    {
+      "name": "HIPRAND_ORDERING_PSEUDO_LEGACY",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_ORDERING_PSEUDO_LEGACY = 103",
+      "value": 103,
+      "value_explicit": true,
+      "decl_hash": "066850e2b3cdd765"
+    },
+    {
+      "name": "HIPRAND_ORDERING_PSEUDO_SEEDED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_ORDERING_PSEUDO_SEEDED = 102",
+      "value": 102,
+      "value_explicit": true,
+      "decl_hash": "60959f55b9dfb4c2"
+    },
+    {
+      "name": "HIPRAND_ORDERING_QUASI_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_ORDERING_QUASI_DEFAULT = 201",
+      "value": 201,
+      "value_explicit": true,
+      "decl_hash": "98c50de8db6b972c"
+    },
+    {
+      "name": "HIPRAND_RNG_PSEUDO_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_PSEUDO_DEFAULT = 400",
+      "value": 400,
+      "value_explicit": true,
+      "decl_hash": "9f7699b5cbde4a70"
+    },
+    {
+      "name": "HIPRAND_RNG_PSEUDO_MRG32K3A",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_PSEUDO_MRG32K3A = 402",
+      "value": 402,
+      "value_explicit": true,
+      "decl_hash": "30fbcc66bbbe11ab"
+    },
+    {
+      "name": "HIPRAND_RNG_PSEUDO_MT19937",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_PSEUDO_MT19937 = 404",
+      "value": 404,
+      "value_explicit": true,
+      "decl_hash": "d8cd58c9dd53d0ac"
+    },
+    {
+      "name": "HIPRAND_RNG_PSEUDO_MTGP32",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_PSEUDO_MTGP32 = 403",
+      "value": 403,
+      "value_explicit": true,
+      "decl_hash": "bfdd0edde962c31d"
+    },
+    {
+      "name": "HIPRAND_RNG_PSEUDO_PHILOX4_32_10",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_PSEUDO_PHILOX4_32_10 = 405",
+      "value": 405,
+      "value_explicit": true,
+      "decl_hash": "d41b6915140af445"
+    },
+    {
+      "name": "HIPRAND_RNG_PSEUDO_XORWOW",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_PSEUDO_XORWOW = 401",
+      "value": 401,
+      "value_explicit": true,
+      "decl_hash": "f21d02358bec97b2"
+    },
+    {
+      "name": "HIPRAND_RNG_QUASI_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_QUASI_DEFAULT = 500",
+      "value": 500,
+      "value_explicit": true,
+      "decl_hash": "297b0c3805927145"
+    },
+    {
+      "name": "HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32 = 502",
+      "value": 502,
+      "value_explicit": true,
+      "decl_hash": "58af816dae5e22df"
+    },
+    {
+      "name": "HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64 = 504",
+      "value": 504,
+      "value_explicit": true,
+      "decl_hash": "a77222b4789e2246"
+    },
+    {
+      "name": "HIPRAND_RNG_QUASI_SOBOL32",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_QUASI_SOBOL32 = 501",
+      "value": 501,
+      "value_explicit": true,
+      "decl_hash": "d9469882b3d05aef"
+    },
+    {
+      "name": "HIPRAND_RNG_QUASI_SOBOL64",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_QUASI_SOBOL64 = 503",
+      "value": 503,
+      "value_explicit": true,
+      "decl_hash": "5282e1f8fc5931c8"
+    },
+    {
+      "name": "HIPRAND_RNG_TEST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_RNG_TEST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "75791a8d8cbfaf86"
+    },
+    {
+      "name": "HIPRAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6 = 102",
+      "value": 102,
+      "value_explicit": true,
+      "decl_hash": "3619f618738473aa"
+    },
+    {
+      "name": "HIPRAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6 = 104",
+      "value": 104,
+      "value_explicit": true,
+      "decl_hash": "0e844f962fa2fa95"
+    },
+    {
+      "name": "HIPRAND_STATUS_ALLOCATION_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_ALLOCATION_FAILED = 102",
+      "value": 102,
+      "value_explicit": true,
+      "decl_hash": "c5162d984186b393"
+    },
+    {
+      "name": "HIPRAND_STATUS_ARCH_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_ARCH_MISMATCH = 204",
+      "value": 204,
+      "value_explicit": true,
+      "decl_hash": "cc42f5777d9d23ca"
+    },
+    {
+      "name": "HIPRAND_STATUS_DOUBLE_PRECISION_REQUIRED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_DOUBLE_PRECISION_REQUIRED = 106",
+      "value": 106,
+      "value_explicit": true,
+      "decl_hash": "89067ea090dd3a4f"
+    },
+    {
+      "name": "HIPRAND_STATUS_INITIALIZATION_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_INITIALIZATION_FAILED = 203",
+      "value": 203,
+      "value_explicit": true,
+      "decl_hash": "b88937f493a18869"
+    },
+    {
+      "name": "HIPRAND_STATUS_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_INTERNAL_ERROR = 999",
+      "value": 999,
+      "value_explicit": true,
+      "decl_hash": "d6045f3acf163f95"
+    },
+    {
+      "name": "HIPRAND_STATUS_LAUNCH_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_LAUNCH_FAILURE = 201",
+      "value": 201,
+      "value_explicit": true,
+      "decl_hash": "269549317d3fd3eb"
+    },
+    {
+      "name": "HIPRAND_STATUS_LENGTH_NOT_MULTIPLE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_LENGTH_NOT_MULTIPLE = 105",
+      "value": 105,
+      "value_explicit": true,
+      "decl_hash": "518d567cfb26a98d"
+    },
+    {
+      "name": "HIPRAND_STATUS_NOT_IMPLEMENTED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_NOT_IMPLEMENTED = 1000",
+      "value": 1000,
+      "value_explicit": true,
+      "decl_hash": "33200152d7073860"
+    },
+    {
+      "name": "HIPRAND_STATUS_NOT_INITIALIZED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_NOT_INITIALIZED = 101",
+      "value": 101,
+      "value_explicit": true,
+      "decl_hash": "59ce29e5113222ed"
+    },
+    {
+      "name": "HIPRAND_STATUS_OUT_OF_RANGE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_OUT_OF_RANGE = 104",
+      "value": 104,
+      "value_explicit": true,
+      "decl_hash": "ddd94c4cfd09c66d"
+    },
+    {
+      "name": "HIPRAND_STATUS_PREEXISTING_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_PREEXISTING_FAILURE = 202",
+      "value": 202,
+      "value_explicit": true,
+      "decl_hash": "c2ce05ee45bc72c0"
+    },
+    {
+      "name": "HIPRAND_STATUS_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "c4fff944eb4df14a"
+    },
+    {
+      "name": "HIPRAND_STATUS_TYPE_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_TYPE_ERROR = 103",
+      "value": 103,
+      "value_explicit": true,
+      "decl_hash": "77b621482de91f7a"
+    },
+    {
+      "name": "HIPRAND_STATUS_VERSION_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "HIPRAND_STATUS_VERSION_MISMATCH = 100",
+      "value": 100,
+      "value_explicit": true,
+      "decl_hash": "ae3dc4273ef4ac03"
+    },
+    {
+      "name": "hiprandDirectionVectorSet",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "enum hiprandDirectionVectorSet",
+      "decl_hash": "734d51bc2ba57910"
+    },
+    {
+      "name": "hiprandOrdering",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "enum hiprandOrdering",
+      "decl_hash": "7c6264a38658a987"
+    },
+    {
+      "name": "hiprandRngType",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "enum hiprandRngType",
+      "decl_hash": "fb259d3d3bb35c9f"
+    },
+    {
+      "name": "hiprandStatus",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "enum hiprandStatus",
+      "decl_hash": "204a0cdb995853a5"
+    },
+    {
+      "name": "hiprand",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "unsigned int hiprand(StateType * state)",
+      "decl_hash": "014ad2397ac96ceb"
+    },
+    {
+      "name": "hiprand4",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "uint4 hiprand4(hiprandStatePhilox4_32_10_t * state)",
+      "decl_hash": "48cc489254b1f61b"
+    },
+    {
+      "name": "hiprandCreateGenerator",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandCreateGenerator(hiprandGenerator_t * generator, hiprandRngType_t rng_type)",
+      "decl_hash": "b05b55c32cbc3aab"
+    },
+    {
+      "name": "hiprandCreateGeneratorHost",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandCreateGeneratorHost(hiprandGenerator_t * generator, hiprandRngType_t rng_type)",
+      "decl_hash": "8cbeae75ff08802a"
+    },
+    {
+      "name": "hiprandCreatePoissonDistribution",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandCreatePoissonDistribution(double lambda, hiprandDiscreteDistribution_t * discrete_distribution)",
+      "decl_hash": "97fcbe2743012b0b"
+    },
+    {
+      "name": "hiprandDestroyDistribution",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandDestroyDistribution(hiprandDiscreteDistribution_t discrete_distribution)",
+      "decl_hash": "693e4127e825f494"
+    },
+    {
+      "name": "hiprandDestroyGenerator",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandDestroyGenerator(hiprandGenerator_t generator)",
+      "decl_hash": "6cae994e879ad391"
+    },
+    {
+      "name": "hiprandGenerate",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerate(hiprandGenerator_t generator, unsigned int * output_data, size_t n)",
+      "decl_hash": "0f5390b970204cdd"
+    },
+    {
+      "name": "hiprandGenerateChar",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateChar(hiprandGenerator_t generator, unsigned char * output_data, size_t n)",
+      "decl_hash": "6b4620adc644a364"
+    },
+    {
+      "name": "hiprandGenerateLogNormal",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateLogNormal(hiprandGenerator_t generator, float * output_data, size_t n, float mean, float stddev)",
+      "decl_hash": "5de6913ebe21c4f8"
+    },
+    {
+      "name": "hiprandGenerateLogNormalDouble",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateLogNormalDouble(hiprandGenerator_t generator, double * output_data, size_t n, double mean, double stddev)",
+      "decl_hash": "a0c31755de3d645a"
+    },
+    {
+      "name": "hiprandGenerateLogNormalHalf",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateLogNormalHalf(hiprandGenerator_t generator, half * output_data, size_t n, half mean, half stddev)",
+      "decl_hash": "3e757ab6e1e3942f"
+    },
+    {
+      "name": "hiprandGenerateLongLong",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateLongLong(hiprandGenerator_t generator, unsigned long long * output_data, size_t n)",
+      "decl_hash": "545c1aa11fd8b677"
+    },
+    {
+      "name": "hiprandGenerateNormal",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateNormal(hiprandGenerator_t generator, float * output_data, size_t n, float mean, float stddev)",
+      "decl_hash": "fa2e5907419571b7"
+    },
+    {
+      "name": "hiprandGenerateNormalDouble",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateNormalDouble(hiprandGenerator_t generator, double * output_data, size_t n, double mean, double stddev)",
+      "decl_hash": "db7f31a9b5d95957"
+    },
+    {
+      "name": "hiprandGenerateNormalHalf",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateNormalHalf(hiprandGenerator_t generator, half * output_data, size_t n, half mean, half stddev)",
+      "decl_hash": "336a84d1b9ce2d68"
+    },
+    {
+      "name": "hiprandGeneratePoisson",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGeneratePoisson(hiprandGenerator_t generator, unsigned int * output_data, size_t n, double lambda)",
+      "decl_hash": "d2d9d5df5bdfc4c4"
+    },
+    {
+      "name": "hiprandGenerateSeeds",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateSeeds(hiprandGenerator_t generator)",
+      "decl_hash": "e77e18c530d55bc7"
+    },
+    {
+      "name": "hiprandGenerateShort",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateShort(hiprandGenerator_t generator, unsigned short * output_data, size_t n)",
+      "decl_hash": "4eb6d67102a4eba1"
+    },
+    {
+      "name": "hiprandGenerateUniform",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateUniform(hiprandGenerator_t generator, float * output_data, size_t n)",
+      "decl_hash": "68af4392bff7617b"
+    },
+    {
+      "name": "hiprandGenerateUniformDouble",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateUniformDouble(hiprandGenerator_t generator, double * output_data, size_t n)",
+      "decl_hash": "48366e620c43b132"
+    },
+    {
+      "name": "hiprandGenerateUniformHalf",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGenerateUniformHalf(hiprandGenerator_t generator, half * output_data, size_t n)",
+      "decl_hash": "1c45698359a93459"
+    },
+    {
+      "name": "hiprandGetDirectionVectors32",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGetDirectionVectors32(hiprandDirectionVectors32_t ** vectors, hiprandDirectionVectorSet_t set)",
+      "decl_hash": "b5be4e7e674dd981"
+    },
+    {
+      "name": "hiprandGetDirectionVectors64",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGetDirectionVectors64(hiprandDirectionVectors64_t ** vectors, hiprandDirectionVectorSet_t set)",
+      "decl_hash": "b81d612e509a6a8b"
+    },
+    {
+      "name": "hiprandGetScrambleConstants32",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGetScrambleConstants32(const unsigned int ** constants)",
+      "decl_hash": "49308ecfc19dea7e"
+    },
+    {
+      "name": "hiprandGetScrambleConstants64",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGetScrambleConstants64(const unsigned long long ** constants)",
+      "decl_hash": "78ce2439ed75f383"
+    },
+    {
+      "name": "hiprandGetVersion",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandGetVersion(int * version)",
+      "decl_hash": "f5842b53286d1806"
+    },
+    {
+      "name": "hiprandSetGeneratorOffset",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandSetGeneratorOffset(hiprandGenerator_t generator, unsigned long long offset)",
+      "decl_hash": "f289577d3a46f2cf"
+    },
+    {
+      "name": "hiprandSetGeneratorOrdering",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandSetGeneratorOrdering(hiprandGenerator_t generator, hiprandOrdering_t order)",
+      "decl_hash": "18f5353ff5603596"
+    },
+    {
+      "name": "hiprandSetPseudoRandomGeneratorSeed",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandSetPseudoRandomGeneratorSeed(hiprandGenerator_t generator, unsigned long long seed)",
+      "decl_hash": "1e0adcd267f503d6"
+    },
+    {
+      "name": "hiprandSetQuasiRandomGeneratorDimensions",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandSetQuasiRandomGeneratorDimensions(hiprandGenerator_t generator, unsigned int dimensions)",
+      "decl_hash": "a1c505e665002765"
+    },
+    {
+      "name": "hiprandSetStream",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "hiprandStatus_t hiprandSetStream(hiprandGenerator_t generator, hipStream_t stream)",
+      "decl_hash": "0d546f6b4586a70e"
+    },
+    {
+      "name": "hiprand_discrete",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "unsigned int hiprand_discrete(StateType * state, hiprandDiscreteDistribution_t discrete_distribution)",
+      "decl_hash": "37a0b98bb995c479"
+    },
+    {
+      "name": "hiprand_discrete4",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "uint4 hiprand_discrete4(hiprandStatePhilox4_32_10_t * state, hiprandDiscreteDistribution_t discrete_distribution)",
+      "decl_hash": "2b3792c77b07d62e"
+    },
+    {
+      "name": "hiprand_init",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "void hiprand_init(unsigned long long * direction_vectors, unsigned long long scramble_constant, unsigned int offset, hiprandStateScrambledSobol64_t * state)",
+      "decl_hash": "06d907cfcd0c7941"
+    },
+    {
+      "name": "hiprand_log_normal",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "float hiprand_log_normal(StateType * state, float mean, float stddev)",
+      "decl_hash": "077d936ca863360a"
+    },
+    {
+      "name": "hiprand_log_normal2",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "float2 hiprand_log_normal2(StateType * state, float mean, float stddev)",
+      "decl_hash": "b8d789710344ea33"
+    },
+    {
+      "name": "hiprand_log_normal2_double",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "double2 hiprand_log_normal2_double(StateType * state, double mean, double stddev)",
+      "decl_hash": "4d91c650e6449cbd"
+    },
+    {
+      "name": "hiprand_log_normal4",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "float4 hiprand_log_normal4(hiprandStatePhilox4_32_10_t * state, float mean, float stddev)",
+      "decl_hash": "f3c06b562c503109"
+    },
+    {
+      "name": "hiprand_log_normal4_double",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "double4 hiprand_log_normal4_double(hiprandStatePhilox4_32_10_t * state, double mean, double stddev)",
+      "decl_hash": "8f34a0b4f2263eef"
+    },
+    {
+      "name": "hiprand_log_normal_double",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "double hiprand_log_normal_double(StateType * state, double mean, double stddev)",
+      "decl_hash": "638e0ac60cbe4745"
+    },
+    {
+      "name": "hiprand_long_long",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "unsigned long long hiprand_long_long(StateType * state)",
+      "decl_hash": "6b768a35ed150d02"
+    },
+    {
+      "name": "hiprand_mtgp32_block_copy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "void hiprand_mtgp32_block_copy(hiprandStateMtgp32_t * src, hiprandStateMtgp32_t * dest)",
+      "decl_hash": "002cbf8104e68302"
+    },
+    {
+      "name": "hiprand_mtgp32_set_params",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "void hiprand_mtgp32_set_params(hiprandStateMtgp32_t * state, mtgp32_kernel_params_t * params)",
+      "decl_hash": "acdeae3462683bd7"
+    },
+    {
+      "name": "hiprand_normal",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "float hiprand_normal(StateType * state)",
+      "decl_hash": "ec4a9975ccd26f48"
+    },
+    {
+      "name": "hiprand_normal2",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "float2 hiprand_normal2(StateType * state)",
+      "decl_hash": "a84a39cef1f48bfe"
+    },
+    {
+      "name": "hiprand_normal2_double",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "double2 hiprand_normal2_double(StateType * state)",
+      "decl_hash": "72e7dcedf54d6f2c"
+    },
+    {
+      "name": "hiprand_normal4",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "float4 hiprand_normal4(hiprandStatePhilox4_32_10_t * state)",
+      "decl_hash": "2f3b64c2cd3425d2"
+    },
+    {
+      "name": "hiprand_normal4_double",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "double4 hiprand_normal4_double(hiprandStatePhilox4_32_10_t * state)",
+      "decl_hash": "db2230a020fba45b"
+    },
+    {
+      "name": "hiprand_normal_double",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "double hiprand_normal_double(StateType * state)",
+      "decl_hash": "5922e400f26d27c4"
+    },
+    {
+      "name": "hiprand_poisson",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "unsigned int hiprand_poisson(StateType * state, double lambda)",
+      "decl_hash": "8a59c48f705666f5"
+    },
+    {
+      "name": "hiprand_poisson4",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "uint4 hiprand_poisson4(hiprandStatePhilox4_32_10_t * state, double lambda)",
+      "decl_hash": "6703294dc59e7451"
+    },
+    {
+      "name": "hiprand_uniform",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "float hiprand_uniform(StateType * state)",
+      "decl_hash": "c3f1336e123db3ef"
+    },
+    {
+      "name": "hiprand_uniform2_double",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "double2 hiprand_uniform2_double(hiprandStatePhilox4_32_10_t * state)",
+      "decl_hash": "b93e837794be8a1d"
+    },
+    {
+      "name": "hiprand_uniform4",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "float4 hiprand_uniform4(hiprandStatePhilox4_32_10_t * state)",
+      "decl_hash": "199a62b51faad5f7"
+    },
+    {
+      "name": "hiprand_uniform4_double",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "double4 hiprand_uniform4_double(hiprandStatePhilox4_32_10_t * state)",
+      "decl_hash": "f4e83145d6dcd5bd"
+    },
+    {
+      "name": "hiprand_uniform_double",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "double hiprand_uniform_double(StateType * state)",
+      "decl_hash": "43d1378bd2e783ff"
+    },
+    {
+      "name": "hiprand",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand()",
+      "decl_hash": "516fcc42ac76e68a"
+    },
+    {
+      "name": "hiprand_discrete",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_discrete()",
+      "decl_hash": "43a296b6accd9efb"
+    },
+    {
+      "name": "hiprand_init",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_init()",
+      "decl_hash": "9648c95893e0de4d"
+    },
+    {
+      "name": "hiprand_log_normal",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_log_normal()",
+      "decl_hash": "befbedffae42bdaa"
+    },
+    {
+      "name": "hiprand_log_normal2",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_log_normal2()",
+      "decl_hash": "c384b4bbda0c9ee2"
+    },
+    {
+      "name": "hiprand_log_normal2_double",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_log_normal2_double()",
+      "decl_hash": "c37a641fec96ae3e"
+    },
+    {
+      "name": "hiprand_log_normal_double",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_log_normal_double()",
+      "decl_hash": "41821ef1ffb2ccf8"
+    },
+    {
+      "name": "hiprand_long_long",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_long_long()",
+      "decl_hash": "32cb8be17be4af18"
+    },
+    {
+      "name": "hiprand_normal",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_normal()",
+      "decl_hash": "c075c5a37ab3ef3c"
+    },
+    {
+      "name": "hiprand_normal2",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_normal2()",
+      "decl_hash": "f592c44c95d58d61"
+    },
+    {
+      "name": "hiprand_normal2_double",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_normal2_double()",
+      "decl_hash": "f79d671cb778b1e6"
+    },
+    {
+      "name": "hiprand_normal_double",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_normal_double()",
+      "decl_hash": "a6864cced896b400"
+    },
+    {
+      "name": "hiprand_poisson",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_poisson()",
+      "decl_hash": "35ea2c406a7ba0ca"
+    },
+    {
+      "name": "hiprand_uniform",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_uniform()",
+      "decl_hash": "f0437ff47893fdea"
+    },
+    {
+      "name": "hiprand_uniform_double",
+      "kind": "FunctionTemplateDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "hiprand_uniform_double()",
+      "decl_hash": "8186b2a0a2578cbd"
+    },
+    {
+      "name": "hiprandDirectionVectorSet_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "typedef enum hiprandDirectionVectorSet hiprandDirectionVectorSet_t",
+      "decl_hash": "40ee4bc213a2f55b"
+    },
+    {
+      "name": "hiprandDirectionVectors32_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand_rocm.h",
+      "decl": "typedef unsigned int[32] hiprandDirectionVectors32_t",
+      "decl_hash": "737fb958c7a61f6c"
+    },
+    {
+      "name": "hiprandDirectionVectors64_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand_rocm.h",
+      "decl": "typedef unsigned long long[64] hiprandDirectionVectors64_t",
+      "decl_hash": "4b397f9a3e5e9f55"
+    },
+    {
+      "name": "hiprandDiscreteDistribution_st",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand_rocm.h",
+      "decl": "typedef struct rocrand_discrete_distribution_st hiprandDiscreteDistribution_st",
+      "decl_hash": "7d38129743a411aa"
+    },
+    {
+      "name": "hiprandDiscreteDistribution_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "typedef rocrand_discrete_distribution hiprandDiscreteDistribution_t",
+      "decl_hash": "a2c9b58f5206739e"
+    },
+    {
+      "name": "hiprandGenerator_st",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand_rocm.h",
+      "decl": "typedef struct rocrand_generator_base_type hiprandGenerator_st",
+      "decl_hash": "9ff1cabf0b106000"
+    },
+    {
+      "name": "hiprandGenerator_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "typedef hiprandGenerator_st * hiprandGenerator_t",
+      "decl_hash": "ebbbd8945fdfdefa"
+    },
+    {
+      "name": "hiprandOrdering_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "typedef enum hiprandOrdering hiprandOrdering_t",
+      "decl_hash": "2a1798bb71d453fd"
+    },
+    {
+      "name": "hiprandRngType_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "typedef enum hiprandRngType hiprandRngType_t",
+      "decl_hash": "7b02d26c1fa25b3e"
+    },
+    {
+      "name": "hiprandStateMRG32k3a_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "typedef struct hiprandStateMRG32k3a hiprandStateMRG32k3a_t",
+      "decl_hash": "da91b8d825c994da"
+    },
+    {
+      "name": "hiprandStateMtgp32_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "typedef struct hiprandStateMtgp32 hiprandStateMtgp32_t",
+      "decl_hash": "f3346dd13cc4decf"
+    },
+    {
+      "name": "hiprandStatePhilox4_32_10_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "typedef struct hiprandStatePhilox4_32_10 hiprandStatePhilox4_32_10_t",
+      "decl_hash": "806e7be99bbc4f30"
+    },
+    {
+      "name": "hiprandStateScrambledSobol32_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol32.h",
+      "decl": "typedef struct hiprandStateScrambledSobol32 hiprandStateScrambledSobol32_t",
+      "decl_hash": "8fca132e5b6ae1eb"
+    },
+    {
+      "name": "hiprandStateScrambledSobol64_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_scrambled_sobol64.h",
+      "decl": "typedef struct hiprandStateScrambledSobol64 hiprandStateScrambledSobol64_t",
+      "decl_hash": "b8106365702c5e0a"
+    },
+    {
+      "name": "hiprandStateSobol32_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_sobol32.h",
+      "decl": "typedef struct hiprandStateSobol32 hiprandStateSobol32_t",
+      "decl_hash": "6791c46decb12285"
+    },
+    {
+      "name": "hiprandStateSobol64_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_sobol64.h",
+      "decl": "typedef struct hiprandStateSobol64 hiprandStateSobol64_t",
+      "decl_hash": "000f3761bbf1423f"
+    },
+    {
+      "name": "hiprandStateXORWOW_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "typedef struct hiprandStateXORWOW hiprandStateXORWOW_t",
+      "decl_hash": "d6ef2e3e3a7a792b"
+    },
+    {
+      "name": "hiprandState_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/rocrand/rocrand_discrete.h",
+      "decl": "typedef struct hiprandState hiprandState_t",
+      "decl_hash": "a7b2f66f02020293"
+    },
+    {
+      "name": "hiprandStatus_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hiprand/hiprand.h",
+      "decl": "typedef enum hiprandStatus hiprandStatus_t",
+      "decl_hash": "615d02a1574673a2"
+    }
+  ]
+}

@@ -1,0 +1,342 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hip/hiprtc.h",
+    "config": {
+      "backend": "HIP",
+      "sdk_version": "ROCm 7.1.0",
+      "arch": "gfx942",
+      "defines": [
+        "__HIP_PLATFORM_AMD__"
+      ],
+      "includes": [
+        "/opt/rocm/include",
+        "/opt/rocm-ds/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/opt/rocm/include/hip/hiprtc.h",
+    "prefix": "hiprtc",
+    "symbol_count": 35
+  },
+  "linkable": {
+    "lib": "libhiprtc.so.7",
+    "soname": "libhiprtc.so.7",
+    "available": true,
+    "linkable_count": 18,
+    "linkable": [
+      "hiprtcAddNameExpression",
+      "hiprtcCompileProgram",
+      "hiprtcCreateProgram",
+      "hiprtcDestroyProgram",
+      "hiprtcGetBitcode",
+      "hiprtcGetBitcodeSize",
+      "hiprtcGetCode",
+      "hiprtcGetCodeSize",
+      "hiprtcGetErrorString",
+      "hiprtcGetLoweredName",
+      "hiprtcGetProgramLog",
+      "hiprtcGetProgramLogSize",
+      "hiprtcLinkAddData",
+      "hiprtcLinkAddFile",
+      "hiprtcLinkComplete",
+      "hiprtcLinkCreate",
+      "hiprtcLinkDestroy",
+      "hiprtcVersion"
+    ],
+    "declared_not_linkable": []
+  },
+  "symbols": [
+    {
+      "name": "HIPRTC_ERROR_BUILTIN_OPERATION_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_BUILTIN_OPERATION_FAILURE = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "f30a95d53f2546f0"
+    },
+    {
+      "name": "HIPRTC_ERROR_COMPILATION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_COMPILATION = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "29c7a582e1bd5fbc"
+    },
+    {
+      "name": "HIPRTC_ERROR_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_INTERNAL_ERROR = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "6ac3a54512340c17"
+    },
+    {
+      "name": "HIPRTC_ERROR_INVALID_INPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_INVALID_INPUT = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "fbf67541d43b7c17"
+    },
+    {
+      "name": "HIPRTC_ERROR_INVALID_OPTION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_INVALID_OPTION = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "3d6eb47168acdd76"
+    },
+    {
+      "name": "HIPRTC_ERROR_INVALID_PROGRAM",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_INVALID_PROGRAM = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "897922087b3e8597"
+    },
+    {
+      "name": "HIPRTC_ERROR_LINKING",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_LINKING = 100",
+      "value": 100,
+      "value_explicit": true,
+      "decl_hash": "8f8a85273e2a305d"
+    },
+    {
+      "name": "HIPRTC_ERROR_NAME_EXPRESSION_NOT_VALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_NAME_EXPRESSION_NOT_VALID = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "c2934799ebc49b06"
+    },
+    {
+      "name": "HIPRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "973a7e987ced4d3e"
+    },
+    {
+      "name": "HIPRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "6a70c2b2afc156ab"
+    },
+    {
+      "name": "HIPRTC_ERROR_OUT_OF_MEMORY",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_OUT_OF_MEMORY = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "fa9c910e98efd838"
+    },
+    {
+      "name": "HIPRTC_ERROR_PROGRAM_CREATION_FAILURE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_ERROR_PROGRAM_CREATION_FAILURE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "e7da0fe1aef45189"
+    },
+    {
+      "name": "HIPRTC_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "HIPRTC_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "69b213a2bc0ec8e9"
+    },
+    {
+      "name": "hiprtcResult",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "enum hiprtcResult",
+      "decl_hash": "480e4c14cfc1b2a3",
+      "exported": true
+    },
+    {
+      "name": "hiprtcAddNameExpression",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcAddNameExpression(hiprtcProgram prog, const char * name_expression)",
+      "decl_hash": "5a2ee6efd85eba40",
+      "exported": true
+    },
+    {
+      "name": "hiprtcCompileProgram",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcCompileProgram(hiprtcProgram prog, int numOptions, const char *const * options)",
+      "decl_hash": "d1bc40f4d81abec4",
+      "exported": true
+    },
+    {
+      "name": "hiprtcCreateProgram",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcCreateProgram(hiprtcProgram * prog, const char * src, const char * name, int numHeaders, const char *const * headers, const char *const * includeNames)",
+      "decl_hash": "c57fee085572f0b2",
+      "exported": true
+    },
+    {
+      "name": "hiprtcDestroyProgram",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcDestroyProgram(hiprtcProgram * prog)",
+      "decl_hash": "c60ddd1672add250",
+      "exported": true
+    },
+    {
+      "name": "hiprtcGetBitcode",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcGetBitcode(hiprtcProgram prog, char * bitcode)",
+      "decl_hash": "627af796cccccf22",
+      "exported": true
+    },
+    {
+      "name": "hiprtcGetBitcodeSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcGetBitcodeSize(hiprtcProgram prog, size_t * bitcode_size)",
+      "decl_hash": "3a2d15009b7f0f02",
+      "exported": true
+    },
+    {
+      "name": "hiprtcGetCode",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcGetCode(hiprtcProgram prog, char * code)",
+      "decl_hash": "e0a1d4994bcbd37c",
+      "exported": true
+    },
+    {
+      "name": "hiprtcGetCodeSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcGetCodeSize(hiprtcProgram prog, size_t * codeSizeRet)",
+      "decl_hash": "8ca01a5bb5be0167",
+      "exported": true
+    },
+    {
+      "name": "hiprtcGetErrorString",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "const char * hiprtcGetErrorString(hiprtcResult result)",
+      "decl_hash": "a68b532a4972fcf2",
+      "exported": true
+    },
+    {
+      "name": "hiprtcGetLoweredName",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcGetLoweredName(hiprtcProgram prog, const char * name_expression, const char ** lowered_name)",
+      "decl_hash": "f595facb8dee178c",
+      "exported": true
+    },
+    {
+      "name": "hiprtcGetProgramLog",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcGetProgramLog(hiprtcProgram prog, char * log)",
+      "decl_hash": "f2dfcb13b1ecfea9",
+      "exported": true
+    },
+    {
+      "name": "hiprtcGetProgramLogSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcGetProgramLogSize(hiprtcProgram prog, size_t * logSizeRet)",
+      "decl_hash": "4c797269d07d0101",
+      "exported": true
+    },
+    {
+      "name": "hiprtcLinkAddData",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcLinkAddData(hiprtcLinkState hip_link_state, hipJitInputType input_type, void * image, size_t image_size, const char * name, unsigned int num_options, hipJitOption * options_ptr, void ** option_values)",
+      "decl_hash": "5a2de7722bc41a72",
+      "exported": true
+    },
+    {
+      "name": "hiprtcLinkAddFile",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcLinkAddFile(hiprtcLinkState hip_link_state, hipJitInputType input_type, const char * file_path, unsigned int num_options, hipJitOption * options_ptr, void ** option_values)",
+      "decl_hash": "b7d3b3fd84112225",
+      "exported": true
+    },
+    {
+      "name": "hiprtcLinkComplete",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcLinkComplete(hiprtcLinkState hip_link_state, void ** bin_out, size_t * size_out)",
+      "decl_hash": "96af66dd2d4e1639",
+      "exported": true
+    },
+    {
+      "name": "hiprtcLinkCreate",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcLinkCreate(unsigned int num_options, hipJitOption * option_ptr, void ** option_vals_pptr, hiprtcLinkState * hip_link_state_ptr)",
+      "decl_hash": "1dbbc533d6a24c35",
+      "exported": true
+    },
+    {
+      "name": "hiprtcLinkDestroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcLinkDestroy(hiprtcLinkState hip_link_state)",
+      "decl_hash": "5b4ab9b10fd17bb2",
+      "exported": true
+    },
+    {
+      "name": "hiprtcVersion",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "hiprtcResult hiprtcVersion(int * major, int * minor)",
+      "decl_hash": "8ff8703cd21e111b",
+      "exported": true
+    },
+    {
+      "name": "hiprtcLinkState",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "typedef struct ihiprtcLinkState * hiprtcLinkState",
+      "decl_hash": "edb429b0a9eafea7"
+    },
+    {
+      "name": "hiprtcProgram",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "typedef struct _hiprtcProgram * hiprtcProgram",
+      "decl_hash": "1c123ad3a03395f5"
+    },
+    {
+      "name": "hiprtcResult",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hiprtc.h",
+      "decl": "typedef enum hiprtcResult hiprtcResult",
+      "decl_hash": "9906bdff6d6cb350"
+    }
+  ]
+}

@@ -1,0 +1,709 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hipblaslt/hipblaslt.h",
+    "config": {
+      "backend": "HIP",
+      "sdk_version": "ROCm 7.1.0",
+      "arch": "gfx942",
+      "defines": [
+        "__HIP_PLATFORM_AMD__"
+      ],
+      "includes": [
+        "/opt/rocm/include",
+        "/opt/rocm-ds/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+    "prefix": "hipblas",
+    "symbol_count": 81
+  },
+  "linkable": {
+    "lib": "libhipblaslt.so.1",
+    "soname": "libhipblaslt.so.1",
+    "available": true,
+    "linkable_count": 24,
+    "linkable": [
+      "hipblasLtCreate",
+      "hipblasLtDestroy",
+      "hipblasLtGetArchName",
+      "hipblasLtGetGitRevision",
+      "hipblasLtGetVersion",
+      "hipblasLtMatmul",
+      "hipblasLtMatmulAlgoGetHeuristic",
+      "hipblasLtMatmulDescCreate",
+      "hipblasLtMatmulDescDestroy",
+      "hipblasLtMatmulDescGetAttribute",
+      "hipblasLtMatmulDescSetAttribute",
+      "hipblasLtMatmulPreferenceCreate",
+      "hipblasLtMatmulPreferenceDestroy",
+      "hipblasLtMatmulPreferenceGetAttribute",
+      "hipblasLtMatmulPreferenceSetAttribute",
+      "hipblasLtMatrixLayoutCreate",
+      "hipblasLtMatrixLayoutDestroy",
+      "hipblasLtMatrixLayoutGetAttribute",
+      "hipblasLtMatrixLayoutSetAttribute",
+      "hipblasLtMatrixTransform",
+      "hipblasLtMatrixTransformDescCreate",
+      "hipblasLtMatrixTransformDescDestroy",
+      "hipblasLtMatrixTransformDescGetAttribute",
+      "hipblasLtMatrixTransformDescSetAttribute"
+    ],
+    "declared_not_linkable": []
+  },
+  "symbols": [
+    {
+      "name": "HIPBLAS_COMPUTE_16F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_16F = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "bcdc831499928d8b"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_16F_PEDANTIC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_16F_PEDANTIC = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "c846dde284f69169"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32F = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "d7254000a11cfc5a"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32F_FAST_16BF",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32F_FAST_16BF = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "44ede7df9481ffea"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32F_FAST_16F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32F_FAST_16F = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "7b00bcc2c92272a3"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32F_FAST_8BF8F_FNUZ",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32F_FAST_8BF8F_FNUZ = 103",
+      "value": 103,
+      "value_explicit": true,
+      "decl_hash": "8acc5288c2b0f384"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32F_FAST_8BF_FNUZ",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32F_FAST_8BF_FNUZ = 101",
+      "value": 101,
+      "value_explicit": true,
+      "decl_hash": "90539c1bc3915046"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32F_FAST_8F8BF_FNUZ",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32F_FAST_8F8BF_FNUZ = 102",
+      "value": 102,
+      "value_explicit": true,
+      "decl_hash": "24d2982f06d84186"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32F_FAST_8F_FNUZ",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32F_FAST_8F_FNUZ = 100",
+      "value": 100,
+      "value_explicit": true,
+      "decl_hash": "b6615ec6ccb78b56"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32F_FAST_TF32",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32F_FAST_TF32 = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "896e79be0ff7fe12"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32F_PEDANTIC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32F_PEDANTIC = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "23c68c6cec8163ac"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32I",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32I = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "4237be467571ff98"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_32I_PEDANTIC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_32I_PEDANTIC = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "372dee3e55f54324"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_64F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_64F = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "c6fd8b6293036d3d"
+    },
+    {
+      "name": "HIPBLAS_COMPUTE_64F_PEDANTIC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_COMPUTE_64F_PEDANTIC = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "5f490512cf555e13"
+    },
+    {
+      "name": "HIPBLAS_OP_C",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_OP_C = 113",
+      "value": 113,
+      "value_explicit": true,
+      "decl_hash": "779aabd847bad516"
+    },
+    {
+      "name": "HIPBLAS_OP_N",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_OP_N = 111",
+      "value": 111,
+      "value_explicit": true,
+      "decl_hash": "b0750f463030f920"
+    },
+    {
+      "name": "HIPBLAS_OP_T",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_OP_T = 112",
+      "value": 112,
+      "value_explicit": true,
+      "decl_hash": "0642a9f909c9a662"
+    },
+    {
+      "name": "HIPBLAS_STATUS_ALLOC_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_ALLOC_FAILED = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "694812ddbde5a4f4"
+    },
+    {
+      "name": "HIPBLAS_STATUS_ARCH_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_ARCH_MISMATCH = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "ace924c4dd296ef3"
+    },
+    {
+      "name": "HIPBLAS_STATUS_EXECUTION_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_EXECUTION_FAILED = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "837c5c39aaf4b7f9"
+    },
+    {
+      "name": "HIPBLAS_STATUS_HANDLE_IS_NULLPTR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_HANDLE_IS_NULLPTR = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "ced6e507ff795860"
+    },
+    {
+      "name": "HIPBLAS_STATUS_INTERNAL_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_INTERNAL_ERROR = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "171d40d818f808bf"
+    },
+    {
+      "name": "HIPBLAS_STATUS_INVALID_ENUM",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_INVALID_ENUM = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "7b22fed096de1f6c"
+    },
+    {
+      "name": "HIPBLAS_STATUS_INVALID_VALUE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_INVALID_VALUE = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "ff4b3226e299039f"
+    },
+    {
+      "name": "HIPBLAS_STATUS_MAPPING_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_MAPPING_ERROR = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "0527badd89bedbc7"
+    },
+    {
+      "name": "HIPBLAS_STATUS_NOT_INITIALIZED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_NOT_INITIALIZED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "e2fafae8692304f1"
+    },
+    {
+      "name": "HIPBLAS_STATUS_NOT_SUPPORTED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_NOT_SUPPORTED = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "4d3b5673725ab692"
+    },
+    {
+      "name": "HIPBLAS_STATUS_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "503cfe9cd694d546"
+    },
+    {
+      "name": "HIPBLAS_STATUS_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "HIPBLAS_STATUS_UNKNOWN = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "b0818575ba90c771"
+    },
+    {
+      "name": "hipblasLtCreate",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtCreate(hipblasLtHandle_t * handle)",
+      "decl_hash": "aca5581e7cd82d43",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtDestroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtDestroy(const hipblasLtHandle_t handle)",
+      "decl_hash": "94d164e4d80227ee",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtGetArchName",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtGetArchName(char ** archName)",
+      "decl_hash": "f4bd30ae97c85ac9",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtGetGitRevision",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtGetGitRevision(hipblasLtHandle_t handle, char * rev)",
+      "decl_hash": "69f78e1a21ee2ded",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtGetVersion",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtGetVersion(hipblasLtHandle_t handle, int * version)",
+      "decl_hash": "ccf27b18c6621877",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatmul",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatmul(hipblasLtHandle_t handle, hipblasLtMatmulDesc_t matmulDesc, const void * alpha, const void * A, hipblasLtMatrixLayout_t Adesc, const void * B, hipblasLtMatrixLayout_t Bdesc, const void * beta, const void * C, hipblasLtMatrixLayout_t Cdesc, void * D, hipblasLtMatrixLayout_t Ddesc, const hipblasLtMatmulAlgo_t * algo, void * workspace, size_t workspaceSizeInBytes, hipStream_t stream)",
+      "decl_hash": "557673715a9c2242",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatmulAlgoGetHeuristic",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatmulAlgoGetHeuristic(hipblasLtHandle_t handle, hipblasLtMatmulDesc_t matmulDesc, hipblasLtMatrixLayout_t Adesc, hipblasLtMatrixLayout_t Bdesc, hipblasLtMatrixLayout_t Cdesc, hipblasLtMatrixLayout_t Ddesc, hipblasLtMatmulPreference_t pref, int requestedAlgoCount, hipblasLtMatmulHeuristicResult_t * heuristicResultsArray, int * returnAlgoCount)",
+      "decl_hash": "df77317844bd44a8",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatmulDescCreate",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatmulDescCreate(hipblasLtMatmulDesc_t * matmulDesc, hipblasComputeType_t computeType, hipDataType scaleType)",
+      "decl_hash": "d65cdbd35403712c",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatmulDescDestroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatmulDescDestroy(const hipblasLtMatmulDesc_t matmulDesc)",
+      "decl_hash": "71121df6cccc22ed",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatmulDescGetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatmulDescGetAttribute(hipblasLtMatmulDesc_t matmulDesc, hipblasLtMatmulDescAttributes_t attr, void * buf, size_t sizeInBytes, size_t * sizeWritten)",
+      "decl_hash": "54ea17accf06e805",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatmulDescSetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatmulDescSetAttribute(hipblasLtMatmulDesc_t matmulDesc, hipblasLtMatmulDescAttributes_t attr, const void * buf, size_t sizeInBytes)",
+      "decl_hash": "3118a511a0d441ec",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatmulPreferenceCreate",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatmulPreferenceCreate(hipblasLtMatmulPreference_t * pref)",
+      "decl_hash": "afc4b24c26497a9a",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatmulPreferenceDestroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatmulPreferenceDestroy(const hipblasLtMatmulPreference_t pref)",
+      "decl_hash": "d677e835ce1ab80f",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatmulPreferenceGetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatmulPreferenceGetAttribute(hipblasLtMatmulPreference_t pref, hipblasLtMatmulPreferenceAttributes_t attr, void * buf, size_t sizeInBytes, size_t * sizeWritten)",
+      "decl_hash": "7eba59bb7f3f6956",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatmulPreferenceSetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatmulPreferenceSetAttribute(hipblasLtMatmulPreference_t pref, hipblasLtMatmulPreferenceAttributes_t attr, const void * buf, size_t sizeInBytes)",
+      "decl_hash": "07bb5274f43b120a",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatrixLayoutCreate",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatrixLayoutCreate(hipblasLtMatrixLayout_t * matLayout, hipDataType type, uint64_t rows, uint64_t cols, int64_t ld)",
+      "decl_hash": "82c3c768eee0779e",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatrixLayoutDestroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatrixLayoutDestroy(const hipblasLtMatrixLayout_t matLayout)",
+      "decl_hash": "9c9601e27de2e753",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatrixLayoutGetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatrixLayoutGetAttribute(hipblasLtMatrixLayout_t matLayout, hipblasLtMatrixLayoutAttribute_t attr, void * buf, size_t sizeInBytes, size_t * sizeWritten)",
+      "decl_hash": "39ca961b0b152bc0",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatrixLayoutSetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatrixLayoutSetAttribute(hipblasLtMatrixLayout_t matLayout, hipblasLtMatrixLayoutAttribute_t attr, const void * buf, size_t sizeInBytes)",
+      "decl_hash": "67902bc76f292182",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatrixTransform",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatrixTransform(hipblasLtHandle_t lightHandle, hipblasLtMatrixTransformDesc_t transformDesc, const void * alpha, const void * A, hipblasLtMatrixLayout_t Adesc, const void * beta, const void * B, hipblasLtMatrixLayout_t Bdesc, void * C, hipblasLtMatrixLayout_t Cdesc, hipStream_t stream)",
+      "decl_hash": "8e9440c4d15e1ac8",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatrixTransformDescCreate",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatrixTransformDescCreate(hipblasLtMatrixTransformDesc_t * transformDesc, hipDataType scaleType)",
+      "decl_hash": "36e531ba8830590a",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatrixTransformDescDestroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatrixTransformDescDestroy(hipblasLtMatrixTransformDesc_t transformDesc)",
+      "decl_hash": "70dfc3fbc461647a",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatrixTransformDescGetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatrixTransformDescGetAttribute(hipblasLtMatrixTransformDesc_t transformDesc, hipblasLtMatrixTransformDescAttributes_t attr, void * buf, size_t sizeInBytes, size_t * sizeWritten)",
+      "decl_hash": "6eed5c9725f8330c",
+      "exported": true
+    },
+    {
+      "name": "hipblasLtMatrixTransformDescSetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "hipblasStatus_t hipblasLtMatrixTransformDescSetAttribute(hipblasLtMatrixTransformDesc_t transformDesc, hipblasLtMatrixTransformDescAttributes_t attr, const void * buf, size_t sizeInBytes)",
+      "decl_hash": "c4101c4f2b8d65ab",
+      "exported": true
+    },
+    {
+      "name": "hipblasComputeType_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "typedef enum hipblasComputeType_t hipblasComputeType_t",
+      "decl_hash": "8e740934bfa74f57"
+    },
+    {
+      "name": "hipblasLtBfloat16",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt-types.h",
+      "decl": "typedef hip_bfloat16 hipblasLtBfloat16",
+      "decl_hash": "cf41169e929f1884"
+    },
+    {
+      "name": "hipblasLtEpilogue_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef enum hipblasLtEpilogue_t hipblasLtEpilogue_t",
+      "decl_hash": "048aea46bf629c01"
+    },
+    {
+      "name": "hipblasLtFloat",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt-types.h",
+      "decl": "typedef float hipblasLtFloat",
+      "decl_hash": "2ae8dbc3c213675e"
+    },
+    {
+      "name": "hipblasLtHalf",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt-types.h",
+      "decl": "typedef struct _hipblasLtHalf hipblasLtHalf",
+      "decl_hash": "59de2046ec4a24c9"
+    },
+    {
+      "name": "hipblasLtHandle_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef void * hipblasLtHandle_t",
+      "decl_hash": "772a1c6baee6bb68"
+    },
+    {
+      "name": "hipblasLtInt32",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt-types.h",
+      "decl": "typedef int32_t hipblasLtInt32",
+      "decl_hash": "a6b7681bd3a41491"
+    },
+    {
+      "name": "hipblasLtInt8",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt-types.h",
+      "decl": "typedef int8_t hipblasLtInt8",
+      "decl_hash": "be89aeb9c6ee6851"
+    },
+    {
+      "name": "hipblasLtMatmulAlgo_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef struct _hipblasLtMatmulAlgo_t hipblasLtMatmulAlgo_t",
+      "decl_hash": "b043dfd8c2940b56"
+    },
+    {
+      "name": "hipblasLtMatmulDescAttributes_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef enum hipblasLtMatmulDescAttributes_t hipblasLtMatmulDescAttributes_t",
+      "decl_hash": "b0e8d996270330e8"
+    },
+    {
+      "name": "hipblasLtMatmulDescOpaque_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef struct hipblasLtMatmulDescOpaque_t hipblasLtMatmulDescOpaque_t",
+      "decl_hash": "ac87063bf3fe603c"
+    },
+    {
+      "name": "hipblasLtMatmulDesc_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef hipblasLtMatmulDescOpaque_t * hipblasLtMatmulDesc_t",
+      "decl_hash": "92c44c4ccc604041"
+    },
+    {
+      "name": "hipblasLtMatmulHeuristicResult_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef struct _hipblasLtMatmulHeuristicResult_t hipblasLtMatmulHeuristicResult_t",
+      "decl_hash": "606cac821833d1ef"
+    },
+    {
+      "name": "hipblasLtMatmulMatrixScale_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef enum hipblasLtMatmulMatrixScale_t hipblasLtMatmulMatrixScale_t",
+      "decl_hash": "d1395129eafe5765"
+    },
+    {
+      "name": "hipblasLtMatmulPreferenceAttributes_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef enum hipblasLtMatmulPreferenceAttributes_t hipblasLtMatmulPreferenceAttributes_t",
+      "decl_hash": "f36a022e4a65863a"
+    },
+    {
+      "name": "hipblasLtMatmulPreferenceOpaque_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef struct hipblasLtMatmulPreferenceOpaque_t hipblasLtMatmulPreferenceOpaque_t",
+      "decl_hash": "2a95503cd01d0017"
+    },
+    {
+      "name": "hipblasLtMatmulPreference_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef hipblasLtMatmulPreferenceOpaque_t * hipblasLtMatmulPreference_t",
+      "decl_hash": "4bd49f5346dbf3a2"
+    },
+    {
+      "name": "hipblasLtMatrixLayoutAttribute_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef enum hipblasLtMatrixLayoutAttribute_t hipblasLtMatrixLayoutAttribute_t",
+      "decl_hash": "6244ed0018bbf67a"
+    },
+    {
+      "name": "hipblasLtMatrixLayoutOpaque_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef struct hipblasLtMatrixLayoutOpaque_t hipblasLtMatrixLayoutOpaque_t",
+      "decl_hash": "a71bcaab3de96250"
+    },
+    {
+      "name": "hipblasLtMatrixLayout_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef hipblasLtMatrixLayoutOpaque_t * hipblasLtMatrixLayout_t",
+      "decl_hash": "2d55591bbf73eb4c"
+    },
+    {
+      "name": "hipblasLtMatrixTransformDescAttributes_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef enum hipblasLtMatrixTransformDescAttributes_t hipblasLtMatrixTransformDescAttributes_t",
+      "decl_hash": "d7f9f871b2643964"
+    },
+    {
+      "name": "hipblasLtMatrixTransformDescOpaque_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef struct hipblasLtMatrixTransformDescOpaque_t hipblasLtMatrixTransformDescOpaque_t",
+      "decl_hash": "730f483d12a71c38"
+    },
+    {
+      "name": "hipblasLtMatrixTransformDesc_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef hipblasLtMatrixTransformDescOpaque_t * hipblasLtMatrixTransformDesc_t",
+      "decl_hash": "d9047f54dca1e7a0"
+    },
+    {
+      "name": "hipblasLtOrder_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef enum hipblasLtOrder_t hipblasLtOrder_t",
+      "decl_hash": "d11bfaf06526baeb"
+    },
+    {
+      "name": "hipblasLtPointerMode_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "typedef enum hipblasLtPointerMode_t hipblasLtPointerMode_t",
+      "decl_hash": "12fed88da5637992"
+    },
+    {
+      "name": "hipblasOperation_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "typedef enum hipblasOperation_t hipblasOperation_t",
+      "decl_hash": "caf70fed7444f2d6"
+    },
+    {
+      "name": "hipblasStatus_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
+      "decl": "typedef enum hipblasStatus_t hipblasStatus_t",
+      "decl_hash": "9b0ffcaa56c9f3da"
+    }
+  ]
+}
