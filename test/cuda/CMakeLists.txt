@@ -46,6 +46,8 @@ set(CUDA_TEST_LIBRARIES
     nvrtc
     cublas_v2
     cusolverDn
+    curand
+    cutensor
 )
 
 foreach(_lib IN LISTS CUDA_TEST_LIBRARIES)
