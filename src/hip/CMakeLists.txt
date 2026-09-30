@@ -20,10 +20,11 @@ wwr_add_cxx_module_library(
 #
 # nvml's sole HIP counterpart: ROCm's legacy librocm_smi64 is deliberately NOT
 # wrapped, because libamd_smi re-exports its symbols and a process holding both
-# double-frees at teardown -- see src/hip/README.md, "nvml's HIP counterpart",
-# which also has the RCCL conflict this choice implies. The imported target is
-# the unnamespaced amd_smi (from amd_smiTargets.cmake); link that, not
-# hip::host, since this library is independent of the HIP runtime.
+# double-frees at teardown. src/hip/README.md, "nvml's HIP counterpart", has
+# that plus which SMI library a wwr.ccl process can hold on which ROCm version.
+# The imported target is the unnamespaced amd_smi (from amd_smiTargets.cmake);
+# link that, not hip::host, since this library is independent of the HIP
+# runtime.
 wwr_add_cxx_module_library(
   NAME
   wwr.hip.amd_smi

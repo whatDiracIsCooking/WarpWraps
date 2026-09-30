@@ -127,14 +127,25 @@ libraries share external symbols, we don't support linking both libraries". A
 module pair no consumer could link together is not worth shipping, so the legacy
 half is not wrapped.
 
-**`wwr.hip.amd_smi` therefore cannot be used in the same process as
-`wwr.hip.rccl`, nor with the backend-neutral `wwr.ccl` on a HIP build.**
-`librccl.so` carries a hard `DT_NEEDED` on `librocm_smi64.so.1`, so collectives
-put the legacy library in the process whether wwr names it or not, and
-`libamd_smi` -- a *direct* `DT_NEEDED` either way, so always earlier in the
-lookup scope -- wins the interposition. That failure is a SIGSEGV during library
-init, before `main`, not a teardown nuisance. wwr has no SMI module usable
-alongside collectives.
+`amd_smi` is the half to keep because upstream has already chosen it.
+`rocm-smi-lib` is in maintenance mode ("please switch to AMD-SMI") and is out of
+TheRock builds as of ROCm 10.1, and RCCL itself moved: its CMakeLists checks for
+`amd_smi` on ROCm >= 7.11.0, forces `USE_AMDSMI` on, and has its `rocm_smi`
+fallback commented out.
+
+**Which SMI library a collectives process can hold depends on the ROCm version,
+and it is `librccl` that decides.** Below ROCm 7.11, `librccl.so` carries a hard
+`DT_NEEDED` on `librocm_smi64.so.1`, so collectives put the legacy library in the
+process whether wwr names it or not; `libamd_smi` -- a *direct* `DT_NEEDED`
+either way, so always earlier in the lookup scope -- wins the interposition, and
+the result is a SIGSEGV during library init, before `main`. So on ROCm 7.0-7.10
+`wwr.hip.amd_smi` cannot be used with `wwr.hip.rccl` or `wwr.ccl`. From 7.11
+RCCL resolves `amd_smi` itself, lazily via `dlopen`, and the constraint reverses:
+`amd_smi` is then the SMI library collectives already use, and `librocm_smi64` is
+the one that would collide. That upper regime is **untested here** -- the
+container is ROCm 7.2.4, and `dlopen` scoping (`RTLD_GLOBAL` vs `RTLD_LOCAL`)
+decides whether the collision happens at all, so it wants measuring on a newer
+image rather than predicting.
 
 ### `wwr.hip.amd_smi`
 

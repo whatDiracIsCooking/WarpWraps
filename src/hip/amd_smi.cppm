@@ -6,7 +6,8 @@
  * sole HIP counterpart here. ROCm also ships the legacy librocm_smi64, which
  * this project deliberately does not wrap: libamd_smi re-exports its symbols,
  * so a process holding both double-frees at teardown. See src/hip/README.md,
- * "nvml's HIP counterpart", for that and the RCCL conflict it implies.
+ * "nvml's HIP counterpart", for that and for which SMI library a wwr.ccl
+ * process can hold, which depends on the ROCm version.
  *
  * It is a pure C API, and every type, enumerator and function it declares is
  * exported by name below.
