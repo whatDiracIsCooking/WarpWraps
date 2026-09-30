@@ -105,6 +105,12 @@ jobs:
     # goes out of its way not to produce.
     name: ${{ github.event_name == 'pull_request' && 'build' || 'publish' }} (${{ matrix.variant }})
     runs-on: ubuntu-latest
+    # Per-leg: the hip-floor leg sets this true so a ROCm 7.0.0 image that fails
+    # to build -- whether a real 7.0.0 feasibility problem (#149) or a transient
+    # apt mirror flake -- does not redden the whole `images` run and block the
+    # pinned images from publishing. Mirrors ci.yml's cpp-floor (hip-floor) leg.
+    # The pinned legs set it false: a broken cuda/hip image is a real failure.
+    continue-on-error: ${{ matrix.experimental }}
     # Generous rather than tuned, and now backed by a number. MEASURED on a
     # hosted runner, build-only: the ROCm install layer is 176.6s and the whole
     # hip job 6m35s, base included. This comment previously claimed "~25 minutes
@@ -143,10 +149,12 @@ jobs:
             # No prune: the CUDA toolkit is 10GB, which fits.
             build_env: ''
             push_only: ''
+            experimental: false
           - variant: hip
             image: hip
             build_env: 'ROCM_PRUNE=1'
             push_only: ''
+            experimental: false
           # THE ROCm FLOOR IMAGE. ci.yml's cpp-floor leg pulls `:hip-7.0.0-ci`;
           # this is what builds and publishes it. Same Dockerfile.hip, only
           # ROCM_VERSION overridden to the 7.0.0 floor (CMakeLists.txt enforces,
@@ -164,6 +172,7 @@ jobs:
             image: hip
             build_env: 'ROCM_PRUNE=1 ROCM_VERSION=7.0.0'
             push_only: 'hip-7.0.0-ci'
+            experimental: true
     steps:
       - name: skip unselected target
         id: gate
