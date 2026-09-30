@@ -106,7 +106,7 @@ struct buffer_suite {
  * @tparam H The device handle backing device buffers; its tier picks the alloc
  *           strategy (see the device_handle ladder in wwr.extension.handle).
  *
- * @note The device buffer's third policy (P_device_access, the DeviceScope
+ * @note The device buffer's third policy (P_device_access, the ScopedDeviceIndex
  *       switch) is bound from the map's free policy: it carries the same
  *       nothrow-on-the-destructor-path constraint, so the two-key map suffices
  *       and no separate slot is asked of the consumer.

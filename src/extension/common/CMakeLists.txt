@@ -18,7 +18,7 @@ wwr_add_cxx_module_library(
   interface.cppm
   PARTITIONS
   error.cppm
-  device_scope.cppm
+  scoped_device_index.cppm
   noncopyable.cppm
   policy_slot.cppm
   LINK_PUBLIC

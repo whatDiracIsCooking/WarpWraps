@@ -50,11 +50,11 @@ add_dependencies(compile_time_tests wwr.test.extension.handle_view)
 
 wwr_add_cxx_module_library(
   NAME
-  wwr.test.extension.pointer_mode_scope
+  wwr.test.extension.scoped_pointer_mode
   IMPORT_STD
   NO_CUDA_DEVICE_LINKING
   PRIMARY_INTERFACE
-  pointer_mode_scope.cppm
+  scoped_pointer_mode.cppm
   LINK_PUBLIC
   wwr::blas
   wwr::extension::common
@@ -64,7 +64,7 @@ wwr_add_cxx_module_library(
   wwr::test::shared::device_handle
 )
 
-add_dependencies(compile_time_tests wwr.test.extension.pointer_mode_scope)
+add_dependencies(compile_time_tests wwr.test.extension.scoped_pointer_mode)
 
 wwr_add_cxx_module_library(
   NAME

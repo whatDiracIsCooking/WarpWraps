@@ -22,7 +22,7 @@ export namespace wwr::extension {
  * Structural, like device_handle: a type qualifies either by *being* a
  * wwrblasHandle_t itself, or by exposing a noexcept get() returning one (which
  * BlasHandleWrapper does through BaseHandle). A consumer that only needs
- * "something a wwrblasHandle_t comes from" -- e.g. PointerModeScope, which
+ * "something a wwrblasHandle_t comes from" -- e.g. ScopedPointerMode, which
  * shared-owns one for its lifetime -- constrains on this instead of templating on
  * BlasHandleWrapper's full <P_create, P_destroy, S, P_device_access> list, none of
  * which it uses.

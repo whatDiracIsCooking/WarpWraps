@@ -456,10 +456,10 @@ TEST(GpuMemPoolTests, ViewBorrowsHandle) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// DeviceScope Tests
+// ScopedDeviceIndex Tests
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //
-// DeviceScope (wwr.extension.common) makes a device current for its lifetime
+// ScopedDeviceIndex (wwr.extension.common) makes a device current for its lifetime
 // and restores the previously-current device on destruction. These check the
 // three parts of that contract: the original device is recorded, the target
 // becomes current, and the original is restored. Device 0 always exists, so the
@@ -467,28 +467,28 @@ TEST(GpuMemPoolTests, ViewBorrowsHandle) {
 // still exercises record and restore but does not distinguish a cross-device
 // switch -- that distinction only shows on multi-GPU hardware.
 
-TEST(DeviceScopeTests, RecordsOriginalDevice) {
+TEST(ScopedDeviceIndexTests, RecordsOriginalDevice) {
   int before = -1;
   ASSERT_EQ(wwrGetDevice(&before), wwrSuccess);
 
-  DeviceScope<Abort> scope(before);
+  ScopedDeviceIndex<Abort> scope(before);
   EXPECT_EQ(scope.original_idx, before);
 }
 
-TEST(DeviceScopeTests, MakesTargetCurrent) {
-  DeviceScope<Abort> scope(0);
+TEST(ScopedDeviceIndexTests, MakesTargetCurrent) {
+  ScopedDeviceIndex<Abort> scope(0);
 
   int current = -1;
   ASSERT_EQ(wwrGetDevice(&current), wwrSuccess);
   EXPECT_EQ(current, 0);
 }
 
-TEST(DeviceScopeTests, RestoresPreviousDeviceOnDestruction) {
+TEST(ScopedDeviceIndexTests, RestoresPreviousDeviceOnDestruction) {
   int before = -1;
   ASSERT_EQ(wwrGetDevice(&before), wwrSuccess);
 
   {
-    DeviceScope<Abort> scope(before);
+    ScopedDeviceIndex<Abort> scope(before);
   }
 
   int after = -1;
@@ -496,14 +496,14 @@ TEST(DeviceScopeTests, RestoresPreviousDeviceOnDestruction) {
   EXPECT_EQ(after, before);
 }
 
-TEST(DeviceScopeTests, NestedScopesRestore) {
+TEST(ScopedDeviceIndexTests, NestedScopesRestore) {
   int before = -1;
   ASSERT_EQ(wwrGetDevice(&before), wwrSuccess);
 
   {
-    DeviceScope<Abort> outer(before);
+    ScopedDeviceIndex<Abort> outer(before);
     {
-      DeviceScope<Abort> inner(before);
+      ScopedDeviceIndex<Abort> inner(before);
       int inside = -1;
       ASSERT_EQ(wwrGetDevice(&inside), wwrSuccess);
       EXPECT_EQ(inside, before);

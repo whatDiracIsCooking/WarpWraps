@@ -1,4 +1,4 @@
-// pointer_mode_scope.cppm - Compile-time contract of PointerModeScope and the
+// scoped_pointer_mode.cppm - Compile-time contract of ScopedPointerMode and the
 // blas_handle concept it co-owns its handle through.
 //
 // The guard needs no live GPU to pin down: that its handle axis is the blas_handle
@@ -8,7 +8,7 @@
 // that it truly gets/sets/restores the mode on a real handle -- is a GPU test and
 // lives beside the other blas handle tests.
 
-export module wwr.test.extension.pointer_mode_scope;
+export module wwr.test.extension.scoped_pointer_mode;
 
 import std;
 import wwr.runtime_api;
@@ -41,11 +41,11 @@ static_assert(blas_handle<wwrblasHandle_t>);
 static_assert(!blas_handle<StreamWrapper<Abort, Abort, Abort>>);
 static_assert(!blas_handle<int>);
 
-using Scope = PointerModeScope<BlasHandle, BlasAbort>;
+using Scope = ScopedPointerMode<BlasHandle, BlasAbort>;
 
 // A move-only resource guard is in fact non-movable: NonCopyable deletes the copy,
 // and the user-declared destructor suppresses the implicit move -- so the retained
-// handle_ is never null after construction, which the restore in ~PointerModeScope
+// handle_ is never null after construction, which the restore in ~ScopedPointerMode
 // relies on.
 static_assert(!std::is_copy_constructible_v<Scope>);
 static_assert(!std::is_move_constructible_v<Scope>);
@@ -61,7 +61,7 @@ static_assert(!std::is_constructible_v<Scope, wwrblasHandle_t, wwrblasPointerMod
 
 // The pointee may itself be a bare wwrblasHandle_t: the private raw_handle()
 // unwraps that shape, so the guard toggles a shared_ptr<wwrblasHandle_t> directly.
-using RawScope = PointerModeScope<wwrblasHandle_t, BlasAbort>;
+using RawScope = ScopedPointerMode<wwrblasHandle_t, BlasAbort>;
 static_assert(
     std::is_constructible_v<RawScope, std::shared_ptr<wwrblasHandle_t>, wwrblasPointerMode_t>);
 static_assert(std::is_constructible_v<RawScope, std::shared_ptr<wwrblasHandle_t>,

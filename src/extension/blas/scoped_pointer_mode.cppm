@@ -1,12 +1,12 @@
 /**
- * @file pointer_mode_scope.cppm
+ * @file scoped_pointer_mode.cppm
  * @brief RAII guard that sets a BLAS handle's pointer mode and restores the previous one
  *
  * Usage:
  *   import wwr.extension.blas;
  *
  *   {
- *     PointerModeScope scope{handle_owner, WWRBLAS_POINTER_MODE_DEVICE, MyPolicy{}};
+ *     ScopedPointerMode scope{handle_owner, WWRBLAS_POINTER_MODE_DEVICE, MyPolicy{}};
  *     ...                       // handle reads alpha/beta from device pointers
  *   }                           // previous pointer mode restored on the handle
  *
@@ -14,7 +14,7 @@
  *   // MyPolicy is your own error_policy<wwrblasStatus_t>; the library ships none.
  */
 
-export module wwr.extension.blas:pointer_mode_scope;
+export module wwr.extension.blas:scoped_pointer_mode;
 
 import :blas_error;
 // The constructor and destructor route their gpu_check calls through policy_mode_,
@@ -22,7 +22,7 @@ import :blas_error;
 // :blas_error; without it reachable the compiler falls back to the
 // inline-but-undefined primary template (-Wundefined-inline, and an ill-formed
 // implicit instantiation). Acyclic: :blas_error imports none of
-// :pointer_mode_scope's chain. Mirrors :device_scope's dependence on :error.
+// :scoped_pointer_mode's chain. Mirrors :scoped_device_index's dependence on :error.
 import :blas_handle; // the blas_handle concept the co-owned handle must satisfy
 import wwr.blas;
 import wwr.extension.common; // gpu_check, error_policy, NonCopyable
@@ -35,7 +35,7 @@ export namespace wwr::extension {
  *
  * Records the pointer mode current on the handle at construction, switches it to
  * `target_mode`, and restores the recorded mode on destruction. This is the
- * per-handle analogue of DeviceScope: the pointer mode is a property of the BLAS
+ * per-handle analogue of ScopedDeviceIndex: the pointer mode is a property of the BLAS
  * handle (whether scalar arguments like alpha/beta live in host or device
  * memory), not implicit thread state.
  *
@@ -62,7 +62,7 @@ export namespace wwr::extension {
  * The restore runs from the destructor, which is noexcept: a policy that
  * *throws* on a failed restore therefore terminates rather than propagates, so a
  * pointer-mode policy that must survive destruction should be nothrow (one that
- * aborts, say). This mirrors DeviceScope's noexcept-destructor caveat exactly.
+ * aborts, say). This mirrors ScopedDeviceIndex's noexcept-destructor caveat exactly.
  *
  * @tparam H The co-owned handle type; a blas_handle (yields a wwrblasHandle_t),
  *         retained by shared_ptr so it outlives the guard.
@@ -71,7 +71,7 @@ export namespace wwr::extension {
  *         names the policy.
  */
 template<blas_handle H, error_policy<wwrblasStatus_t> P>
-struct PointerModeScope : private NonCopyable {
+struct ScopedPointerMode : private NonCopyable {
   wwrblasPointerMode_t original_mode{}; ///< Mode current at construction, restored on destruction
 
   /// @brief Switch `handle`'s pointer mode to `target_mode`, recording the
@@ -80,7 +80,7 @@ struct PointerModeScope : private NonCopyable {
   ///        symmetric restore call on destruction.
   /// @param handle Shared-owned BLAS handle; retained, so it outlives the guard
   ///        (must be non-null)
-  explicit PointerModeScope(std::shared_ptr<H> handle, const wwrblasPointerMode_t target_mode,
+  explicit ScopedPointerMode(std::shared_ptr<H> handle, const wwrblasPointerMode_t target_mode,
                             P policy_mode = {},
                             std::source_location location = std::source_location::current())
       : handle_(std::move(handle)), policy_mode_(std::move(policy_mode)) {
@@ -101,16 +101,16 @@ struct PointerModeScope : private NonCopyable {
   /// handle it names, so the guard here BORROWS -- the caller must keep the real
   /// handle alive until the guard is destroyed, or the restore runs against a
   /// freed handle. Reach for it only when that lifetime is already assured.
-  explicit PointerModeScope(H handle, const wwrblasPointerMode_t target_mode, P policy_mode = {},
+  explicit ScopedPointerMode(H handle, const wwrblasPointerMode_t target_mode, P policy_mode = {},
                             std::source_location location = std::source_location::current())
     requires std::same_as<H, wwrblasHandle_t>
-      : PointerModeScope(std::make_shared<H>(handle), target_mode, std::move(policy_mode),
+      : ScopedPointerMode(std::make_shared<H>(handle), target_mode, std::move(policy_mode),
                          location) {}
 
   // Restore symmetrically, through the same policy the entry calls used (see the
   // class note on the noexcept-destructor caveat for throwing policies). The
   // retained handle is still alive by construction, so the restore is well-defined.
-  ~PointerModeScope() {
+  ~ScopedPointerMode() {
     gpu_check(wwrblasSetPointerMode(raw_handle(*handle_), original_mode), policy_mode_);
   }
 

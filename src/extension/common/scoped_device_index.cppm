@@ -1,26 +1,26 @@
 /**
- * @file device_scope.cppm
+ * @file scoped_device_index.cppm
  * @brief RAII guard that makes a device current and restores the previous one
  *
  * Usage:
  *   import wwr.extension.common;
  *
  *   {
- *     DeviceScope<MyPolicy> scope{target_idx};  // target_idx is now current
+ *     ScopedDeviceIndex<MyPolicy> scope{target_idx};  // target_idx is now current
  *     ...                                       // work on target_idx
  *   }                                           // previous device restored
  *
  *   // MyPolicy is your own error_policy<wwrError_t>; the library ships none.
  */
 
-export module wwr.extension.common:device_scope;
+export module wwr.extension.common:scoped_device_index;
 
 import wwr.extension.error_handling;
 // The constructor and destructor route their gpu_check calls through
 // policy_device_, which odr-uses success_code<wwrError_t>(). That specialization
 // lives in :error; without it reachable the compiler falls back to the
 // inline-but-undefined primary template (-Wundefined-inline, and an ill-formed
-// implicit instantiation). Acyclic: :error imports none of :device_scope's
+// implicit instantiation). Acyclic: :error imports none of :scoped_device_index's
 // chain.
 import :error;
 import :noncopyable;
@@ -48,7 +48,7 @@ export namespace wwr::extension {
  * The restore runs from the destructor, which is noexcept: a policy that
  * *throws* on a failed restore therefore terminates rather than propagates, so
  * a device policy that must survive destruction should be nothrow (one that
- * aborts, say). The buffer wrappers that nest a DeviceScope on their free path
+ * aborts, say). The buffer wrappers that nest a ScopedDeviceIndex on their free path
  * already require exactly that (nothrow_error_policy).
  *
  * @tparam P The error policy for the wwrGetDevice/wwrSetDevice
@@ -56,14 +56,14 @@ export namespace wwr::extension {
  *         any handle's own status type. No default -- the caller names the policy.
  */
 template<error_policy<wwrError_t> P>
-struct DeviceScope : private NonCopyable {
+struct ScopedDeviceIndex : private NonCopyable {
   int original_idx = -1; ///< Device current at construction, restored on destruction
 
   /// @brief Switch to `target_idx`, recording the previous device to restore.
   ///        Routes both entering calls through `policy_device`, then retains it
   ///        (so a stateful policy's accumulated state survives, readable via
   ///        device_policy()).
-  explicit DeviceScope(const int target_idx, P policy_device = {},
+  explicit ScopedDeviceIndex(const int target_idx, P policy_device = {},
                        std::source_location location = std::source_location::current())
       : policy_device_(std::move(policy_device)) {
     gpu_check(wwrGetDevice(&original_idx), policy_device_, location);
@@ -72,7 +72,7 @@ struct DeviceScope : private NonCopyable {
 
   // Restore symmetrically, through the same policy the entry calls used (see the
   // class note on the noexcept-destructor caveat for throwing policies).
-  ~DeviceScope() { gpu_check(wwrSetDevice(original_idx), policy_device_); }
+  ~ScopedDeviceIndex() { gpu_check(wwrSetDevice(original_idx), policy_device_); }
 
   // Copy operations are implicitly deleted via the NonCopyable base. The
   // user-declared destructor suppresses the implicit moves, so the guard stays

@@ -9,7 +9,7 @@ wwr_add_cxx_module_library(
   PARTITIONS
   blas_error.cppm
   blas_handle.cppm
-  pointer_mode_scope.cppm
+  scoped_pointer_mode.cppm
   LINK_PUBLIC
   wwr::blas
   wwr::extension::common
