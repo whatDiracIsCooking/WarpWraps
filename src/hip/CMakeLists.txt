@@ -16,29 +16,14 @@ wwr_add_cxx_module_library(
   IMPORT_STD
 )
 
-# ROCm SMI (System Management Interface)
-#
-# nvml's HIP counterpart is two independent modules: rocm_smi (this one) and
-# amd_smi (below) -- see src/hip/README.md, "Why nvml became two modules". The
-# imported target is the unnamespaced rocm_smi64 (from rocm_smiTargets.cmake);
-# link that, not hip::host, since this library is independent of the HIP
-# runtime.
-wwr_add_cxx_module_library(
-  NAME
-  wwr.hip.rocm_smi
-  PRIMARY_INTERFACE
-  rocm_smi.cppm
-  LINK_PUBLIC
-  rocm_smi64
-  IMPORT_STD
-)
-
 # AMD SMI (System Management Interface)
 #
-# The newer of the two nvml counterparts -- see the rocm_smi comment above. The
-# imported target is the unnamespaced amd_smi (from amd_smiTargets.cmake); link
-# that, not hip::host, since this library is also independent of the HIP
-# runtime.
+# nvml's sole HIP counterpart: ROCm's legacy librocm_smi64 is deliberately NOT
+# wrapped, because libamd_smi re-exports its symbols and a process holding both
+# double-frees at teardown -- see src/hip/README.md, "nvml's HIP counterpart",
+# which also has the RCCL conflict this choice implies. The imported target is
+# the unnamespaced amd_smi (from amd_smiTargets.cmake); link that, not
+# hip::host, since this library is independent of the HIP runtime.
 wwr_add_cxx_module_library(
   NAME
   wwr.hip.amd_smi

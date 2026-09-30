@@ -10,7 +10,6 @@
 
 set(HIP_TEST_LIBRARIES
     hip_runtime_api
-    rocm_smi
     amd_smi
     roctracer
     roctx

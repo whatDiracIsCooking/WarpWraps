@@ -2,13 +2,14 @@
  * @file amd_smi.cppm
  * @brief AMD SMI (System Management Interface) module wrapper for wwr project
  *
- * Wraps amd_smi/amdsmi.h -- the newer AMD device management library, meant to
- * eventually supersede wwr.hip.rocm_smi. Both are real, independently
- * usable libraries with overlapping but not identical surfaces, so each gets
- * its own module; see src/hip/README.md "Why nvml became two modules".
+ * Wraps amd_smi/amdsmi.h -- AMD's newer device management library and nvml's
+ * sole HIP counterpart here. ROCm also ships the legacy librocm_smi64, which
+ * this project deliberately does not wrap: libamd_smi re-exports its symbols,
+ * so a process holding both double-frees at teardown. See src/hip/README.md,
+ * "nvml's HIP counterpart", for that and the RCCL conflict it implies.
  *
- * Like rocm_smi.h it is a pure C API, and every type, enumerator and function
- * it declares is exported by name below.
+ * It is a pure C API, and every type, enumerator and function it declares is
+ * exported by name below.
  *
  * The CPU/ESMI extension surface (RAPL MSR energy counters, HSMP statistics,
  * boost-limit control, DDR bandwidth, dimm statistics, xGMI/GMI3 link width,
