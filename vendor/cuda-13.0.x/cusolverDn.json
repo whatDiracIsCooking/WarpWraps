@@ -16,7 +16,10 @@
     "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
     "header": "/usr/local/cuda/include/cusolverDn.h",
     "prefix": "cusolver",
-    "symbol_count": 472
+    "extra_prefixes": [
+      "cusolverdn"
+    ],
+    "symbol_count": 475
   },
   "linkable": {
     "lib": "libcusolver.so.12",
@@ -866,6 +869,33 @@
       "header": "/usr/local/cuda/include/cusolverDn.h",
       "decl": "struct cusolverDnParams",
       "decl_hash": "a47896c557d41c58"
+    },
+    {
+      "name": "CUSOLVERDN_GETRF",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolverDn.h",
+      "decl": "CUSOLVERDN_GETRF = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "898cfb5106fcb207"
+    },
+    {
+      "name": "CUSOLVERDN_POTRF",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolverDn.h",
+      "decl": "CUSOLVERDN_POTRF = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "d07a8037b3d3da05"
+    },
+    {
+      "name": "CUSOLVERDN_SYEVBATCHED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolverDn.h",
+      "decl": "CUSOLVERDN_SYEVBATCHED = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "963ba64fd565f204"
     },
     {
       "name": "CUSOLVER_ALG_0",

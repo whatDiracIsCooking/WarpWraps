@@ -14,9 +14,12 @@ header for what a manifest is and is not.
 Two halves, because a header DECLARES a surface but the shared library DEFINES
 one and the two genuinely differ:
 
-- `"symbols"` — the **declared** surface: every prefixed declaration the AST
-  found, each with its `name`, `kind`, normalised `decl` (+ `decl_hash`), enum
-  `value`, and `deprecated` / `exported` markers where they apply.
+- `"symbols"` — the **declared** surface: every declaration the AST found whose
+  leading token is the manifest's `prefix` (or one of its `extra_prefixes` — a
+  variant library's own token, e.g. `hipblaslt` alongside `hipblas`, #167), each
+  with its `name`, `kind`, normalised `decl` (+ `decl_hash`), enum `value`, and
+  `deprecated` / `exported` markers where they apply. The `"harvest"` block
+  records `prefix` and, when a variant widened it, `extra_prefixes`.
 - `"linkable"` — the **linkable** surface, from `nm -D --defined-only` over the
   library:
   - `lib` / `soname` — the library's SONAME (`libcusparse.so.12`), recorded
@@ -53,9 +56,12 @@ One directory per SDK version, one file per wrapped library:
   `CMakeLists.txt` enforces it). ROCm churns across minors exactly in the
   surfaces this repo wraps, so pin and floor are distinct manifests. Diffing the
   two is the changelog AMD does not publish (#116): at 7.1.0 → 7.2.4 nothing
-  leaves the surface (0 floor-only symbols), 34 names are *added* in 7.2 (28
-  amd_smi, 6 hip_runtime_api) — all behind `WWR_*_SINCE_*` / `__has_include`
-  guards in `src/hip`, so the floor is clean.
+  leaves the surface (0 floor-only symbols), 36 names are *added* in 7.2 (28
+  amd_smi, 6 hip_runtime_api, 2 hipblaslt) — all behind `WWR_*_SINCE_*` /
+  `__has_include` guards in `src/hip`, so the floor is clean. (The 2 hipblaslt
+  SIGMOID constants became visible in this diff only once #167 widened the
+  harvest to capture a variant library's own uppercase constants; before that
+  they were in no manifest and the diff read 34.)
 
 ## Regenerating
 
@@ -101,4 +107,7 @@ type-wrapper modules (`cuda_fp16`/`bf16`/`fp8`/`fp4`/`fp6`, `cuComplex` and
 their HIP twins) and `cufile` have no single vendor prefix the name-mode
 harvester can key on, so no meaningful manifest exists for them. `cublasLt` /
 `cublasXt` / `cusolverMg` / `cusolverSp` are documented supersets (their prefix
-also captures the shared base surface).
+also captures the shared base surface). Variant libraries additionally carry
+their OWN uppercase constants via an `extra_prefix` (`cublaslt`, `cublasxt`,
+`cusolverdn`, `cudalibmg`, `nvfatbin`, `nvjitlink`, `lib`, `hipblaslt`, `hiplib`,
+`activity`), whose leading token is the variant, not the base (#167).

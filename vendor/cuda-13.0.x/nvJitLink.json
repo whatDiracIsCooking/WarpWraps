@@ -16,7 +16,10 @@
     "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
     "header": "/usr/local/cuda/include/nvJitLink.h",
     "prefix": "nv",
-    "symbol_count": 18
+    "extra_prefixes": [
+      "nvjitlink"
+    ],
+    "symbol_count": 46
   },
   "linkable": {
     "lib": "libnvJitLink.so.13",
@@ -48,6 +51,258 @@
       "header": "/usr/local/cuda/include/nvJitLink.h",
       "decl": "struct nvJitLink",
       "decl_hash": "d95d27491f9b35ea"
+    },
+    {
+      "name": "NVJITLINK_ERROR_ARCH_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_ARCH_MISMATCH = None",
+      "value": 13,
+      "value_explicit": false,
+      "decl_hash": "3549cec4f1eb3743"
+    },
+    {
+      "name": "NVJITLINK_ERROR_FINALIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_FINALIZE = None",
+      "value": 9,
+      "value_explicit": false,
+      "decl_hash": "5ab4437584734832"
+    },
+    {
+      "name": "NVJITLINK_ERROR_INCOMPATIBLE_OPTIONS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_INCOMPATIBLE_OPTIONS = None",
+      "value": 11,
+      "value_explicit": false,
+      "decl_hash": "6647750f3b2a24d9"
+    },
+    {
+      "name": "NVJITLINK_ERROR_INCORRECT_INPUT_TYPE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_INCORRECT_INPUT_TYPE = None",
+      "value": 12,
+      "value_explicit": false,
+      "decl_hash": "046d2951524763c0"
+    },
+    {
+      "name": "NVJITLINK_ERROR_INTERNAL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_INTERNAL = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "3a0d54bb2a98691c"
+    },
+    {
+      "name": "NVJITLINK_ERROR_INVALID_INPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_INVALID_INPUT = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "d1d8c3d5e6bcb113"
+    },
+    {
+      "name": "NVJITLINK_ERROR_LTO_NOT_ENABLED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_LTO_NOT_ENABLED = None",
+      "value": 18,
+      "value_explicit": false,
+      "decl_hash": "1fd7adf480af7641"
+    },
+    {
+      "name": "NVJITLINK_ERROR_MISSING_ARCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_MISSING_ARCH = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "547f3b898eed7172"
+    },
+    {
+      "name": "NVJITLINK_ERROR_MISSING_FATBIN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_MISSING_FATBIN = None",
+      "value": 15,
+      "value_explicit": false,
+      "decl_hash": "ec29862e10ec87aa"
+    },
+    {
+      "name": "NVJITLINK_ERROR_NULL_INPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_NULL_INPUT = None",
+      "value": 10,
+      "value_explicit": false,
+      "decl_hash": "cd8c6aee04070b69"
+    },
+    {
+      "name": "NVJITLINK_ERROR_NVVM_COMPILE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_NVVM_COMPILE = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "ef02f84b9a898208"
+    },
+    {
+      "name": "NVJITLINK_ERROR_OUTDATED_LIBRARY",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_OUTDATED_LIBRARY = None",
+      "value": 14,
+      "value_explicit": false,
+      "decl_hash": "adcfcd8c506f2cdb"
+    },
+    {
+      "name": "NVJITLINK_ERROR_PTX_COMPILE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_PTX_COMPILE = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "c6d0dc3ce2c8f987"
+    },
+    {
+      "name": "NVJITLINK_ERROR_THREADPOOL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_THREADPOOL = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "fc7e269a90483481"
+    },
+    {
+      "name": "NVJITLINK_ERROR_UNRECOGNIZED_ARCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_UNRECOGNIZED_ARCH = None",
+      "value": 16,
+      "value_explicit": false,
+      "decl_hash": "d0f35614060182a6"
+    },
+    {
+      "name": "NVJITLINK_ERROR_UNRECOGNIZED_INPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_UNRECOGNIZED_INPUT = None",
+      "value": 8,
+      "value_explicit": false,
+      "decl_hash": "879d2bd5aeb6db9d"
+    },
+    {
+      "name": "NVJITLINK_ERROR_UNRECOGNIZED_OPTION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_UNRECOGNIZED_OPTION = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "272933cabf898a2b"
+    },
+    {
+      "name": "NVJITLINK_ERROR_UNSUPPORTED_ARCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_ERROR_UNSUPPORTED_ARCH = None",
+      "value": 17,
+      "value_explicit": false,
+      "decl_hash": "9e3af7458de2d261"
+    },
+    {
+      "name": "NVJITLINK_INPUT_ANY",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_INPUT_ANY = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "2968a11f609334e6"
+    },
+    {
+      "name": "NVJITLINK_INPUT_CUBIN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_INPUT_CUBIN = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "e3e549d7e10dae96"
+    },
+    {
+      "name": "NVJITLINK_INPUT_FATBIN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_INPUT_FATBIN = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "28e5adf8f5fc7fcf"
+    },
+    {
+      "name": "NVJITLINK_INPUT_INDEX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_INPUT_INDEX = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "5bbbebdeab2cc67a"
+    },
+    {
+      "name": "NVJITLINK_INPUT_LIBRARY",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_INPUT_LIBRARY = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "ac5a088d8a35f63e"
+    },
+    {
+      "name": "NVJITLINK_INPUT_LTOIR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_INPUT_LTOIR = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "082eb4293e35c5e5"
+    },
+    {
+      "name": "NVJITLINK_INPUT_NONE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_INPUT_NONE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "5df0340600e0c492"
+    },
+    {
+      "name": "NVJITLINK_INPUT_OBJECT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_INPUT_OBJECT = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "fed46c46b97095a8"
+    },
+    {
+      "name": "NVJITLINK_INPUT_PTX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_INPUT_PTX = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "b31e808dc52550f4"
+    },
+    {
+      "name": "NVJITLINK_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvJitLink.h",
+      "decl": "NVJITLINK_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "f450f68580ac0b59"
     },
     {
       "name": "nvJitLinkAddData",

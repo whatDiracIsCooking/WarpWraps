@@ -37,6 +37,19 @@
 #     the shared cusolver enums/types alongside their own functions.
 # See the PR that introduced this script (#115).
 #
+# --extra-prefix: A VARIANT LIBRARY harvested under a base prefix still has its
+# OWN uppercase constants, whose leading token is the VARIANT, not the base --
+# HIPBLASLT_EPILOGUE_* -> `hipblaslt` past prefix `hipblas`, CUBLASLT_MATMUL_* ->
+# `cublaslt` past `cublas`, NVJITLINK_* -> `nvjitlink` past `nv`, roctracer's
+# ACTIVITY_DOMAIN_* -> `activity`, hipfftXt's HIPLIB_FORMAT_* -> `hiplib`,
+# cufftXt's LIB_XT_COPY_* -> `lib`, cusolverMg's CUDALIBMG_* -> `cudalibmg`. The
+# exact-token keep-rule dropped these (#167). Each row below names its variant
+# token explicitly with --extra-prefix; it is a curated WHITELIST, never a
+# `startswith` relaxation, because the exact-token rule is also the noise filter
+# that keeps the STL / C headers a vendor header transitively pulls in out of the
+# manifest. The lowercase-led variant FUNCTIONS (hipblasLtMatmul -> `hipblas`)
+# were always captured; only the uppercase constants needed this.
+#
 # Usage:
 #   devtools/vendor_manifests.sh cuda   # write vendor/cuda-13.0.x/*.json
 #   devtools/vendor_manifests.sh hip    # write vendor/rocm-<ver>/*.json
@@ -138,10 +151,10 @@ harvest_cuda() {
   # the variant's own .so; base-cublas names that are not in it (there are none
   # in practice, they forward) would surface as declared_not_linkable if so.
   run_cuda cublas_v2     cublas       "$CUDA_INC/cublas_v2.h"    --lib "$CUDA_LIB/libcublas.so"
-  run_cuda cublasLt      cublas       "$CUDA_INC/cublasLt.h"     --lib "$CUDA_LIB/libcublasLt.so"
-  run_cuda cublasXt      cublas       "$CUDA_INC/cublasXt.h"     --lib "$CUDA_LIB/libcublas.so"
+  run_cuda cublasLt      cublas       "$CUDA_INC/cublasLt.h"     --extra-prefix cublaslt --lib "$CUDA_LIB/libcublasLt.so"
+  run_cuda cublasXt      cublas       "$CUDA_INC/cublasXt.h"     --extra-prefix cublasxt --lib "$CUDA_LIB/libcublas.so"
   run_cuda cufft         cufft        "$CUDA_INC/cufft.h"        --lib "$CUDA_LIB/libcufft.so"
-  run_cuda cufftXt       cufft        "$CUDA_INC/cufftXt.h"      --lib "$CUDA_LIB/libcufft.so"
+  run_cuda cufftXt       cufft        "$CUDA_INC/cufftXt.h"      --extra-prefix lib --lib "$CUDA_LIB/libcufft.so"
   run_cuda curand        curand       "$CUDA_INC/curand.h"       --lib "$CUDA_LIB/libcurand.so"
   # curand_kernel.h re-declares the host generator API (in libcurand) plus the
   # __device__ curand()/curand_uniform()/distribution templates and the
@@ -151,14 +164,14 @@ harvest_cuda() {
   # <curand.h> and <curand_kernel.h>. Unlike hiprand_kernel.h it needs no
   # <cstdio> pre-include, so it harvests from the bare vendor header.
   run_cuda curand_kernel curand       "$CUDA_INC/curand_kernel.h" --lib "$CUDA_LIB/libcurand.so"
-  run_cuda cusolverDn    cusolver     "$CUDA_INC/cusolverDn.h"   --lib "$CUDA_LIB/libcusolver.so"
-  run_cuda cusolverMg    cusolver     "$CUDA_INC/cusolverMg.h"   --lib "$CUDA_LIB/libcusolverMg.so"
+  run_cuda cusolverDn    cusolver     "$CUDA_INC/cusolverDn.h"   --extra-prefix cusolverdn --lib "$CUDA_LIB/libcusolver.so"
+  run_cuda cusolverMg    cusolver     "$CUDA_INC/cusolverMg.h"   --extra-prefix cudalibmg --lib "$CUDA_LIB/libcusolverMg.so"
   run_cuda cusolverSp    cusolver     "$CUDA_INC/cusolverSp.h"   --lib "$CUDA_LIB/libcusolver.so"
   run_cuda cusparse      cusparse     "$CUDA_INC/cusparse.h"     --lib "$CUDA_LIB/libcusparse.so"
   run_cuda cutensor      cutensor     "$CUDA_EXTRA_INC/cutensor.h" --lib "$CUTENSOR_LIB/libcutensor.so"
   run_cuda nccl          nccl         "$CUDA_EXTRA_INC/nccl.h"   --lib "$NCCL_LIB/libnccl.so"
-  run_cuda nvFatbin      nv           "$CUDA_INC/nvFatbin.h"     --lib "$CUDA_LIB/libnvfatbin.so"
-  run_cuda nvJitLink     nv           "$CUDA_INC/nvJitLink.h"    --lib "$CUDA_LIB/libnvJitLink.so"
+  run_cuda nvFatbin      nv           "$CUDA_INC/nvFatbin.h"     --extra-prefix nvfatbin --lib "$CUDA_LIB/libnvfatbin.so"
+  run_cuda nvJitLink     nv           "$CUDA_INC/nvJitLink.h"    --extra-prefix nvjitlink --lib "$CUDA_LIB/libnvJitLink.so"
   # nvtx3 is header-only: its entry points are static-inline, no .so exports them.
   run_cuda nvToolsExt    nvtx         "$CUDA_INC/nvtx3/nvToolsExt.h" --lib-none "nvtx3 is header-only (static-inline entry points); no shared library exports these names"
   run_cuda nvjpeg        nvjpeg       "$CUDA_INC/nvjpeg.h"       --lib "$CUDA_LIB/libnvjpeg.so"
@@ -194,11 +207,11 @@ harvest_hip() {
   # out-basename         prefix      header                              linkable source
   run_hip hip_runtime_api hip        "$ROCM_INC/hip/hip_runtime_api.h"   --lib "$ROCM_LIB/libamdhip64.so"
   run_hip hipblas         hipblas    "$ROCM_INC/hipblas/hipblas.h"       --lib "$ROCM_LIB/libhipblas.so"
-  run_hip hipblaslt       hipblas    "$ROCM_INC/hipblaslt/hipblaslt.h"   --lib "$ROCM_LIB/libhipblaslt.so"
+  run_hip hipblaslt       hipblas    "$ROCM_INC/hipblaslt/hipblaslt.h"   --extra-prefix hipblaslt --lib "$ROCM_LIB/libhipblaslt.so"
   run_hip hipsolver       hipsolver  "$ROCM_INC/hipsolver/hipsolver.h"   --lib "$ROCM_LIB/libhipsolver.so"
   run_hip hipsparse       hipsparse  "$ROCM_INC/hipsparse/hipsparse.h"   --lib "$ROCM_LIB/libhipsparse.so"
   run_hip hipfft          hipfft     "$ROCM_INC/hipfft/hipfft.h"         --lib "$ROCM_LIB/libhipfft.so"
-  run_hip hipfftXt        hipfft     "$ROCM_INC/hipfft/hipfftXt.h"       --lib "$ROCM_LIB/libhipfft.so"
+  run_hip hipfftXt        hipfft     "$ROCM_INC/hipfft/hipfftXt.h"       --extra-prefix hiplib --lib "$ROCM_LIB/libhipfft.so"
   run_hip hiprand         hiprand    "$ROCM_INC/hiprand/hiprand.h"       --lib "$ROCM_LIB/libhiprand.so"
   # hiprand_kernel.h re-declares the host generator API (in libhiprand) plus the
   # __device__ hiprand()/hiprand4()/distribution templates, which live in no host
@@ -218,7 +231,7 @@ harvest_hip() {
   run_hip hipcomp         hipcomp    "$AGG/hipcomp.h"                    --lib "$ROCM_DS_LIB/libhipcomp.so"
   run_hip rocm_smi        rsmi       "$ROCM_INC/rocm_smi/rocm_smi.h"     --lib "$ROCM_LIB/librocm_smi64.so"
   run_hip amd_smi         amdsmi     "$ROCM_INC/amd_smi/amdsmi.h"        --lib "$ROCM_LIB/libamd_smi.so"
-  run_hip roctracer       roctracer  "$ROCM_INC/roctracer/roctracer.h"   --lib "$ROCM_LIB/libroctracer64.so"
+  run_hip roctracer       roctracer  "$ROCM_INC/roctracer/roctracer.h"   --extra-prefix activity --lib "$ROCM_LIB/libroctracer64.so"
   run_hip roctx           roctx      "$ROCM_INC/roctracer/roctx.h"       --lib "$ROCM_LIB/libroctx64.so"
 }
 

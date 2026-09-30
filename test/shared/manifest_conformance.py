@@ -21,15 +21,17 @@ JSON -- no SDK, no compile -- so the fast Python tier runs them on a bare runner
 The rest of this header describes assertion 1.
 
 WHAT COUNTS AS THIS LIBRARY'S SURFACE. A manifest captures a name iff
-``leading_prefix(name) == <the manifest's prefix>`` -- the SAME rule
-``devtools/vendor_harvest.py`` harvests by (mirrored here verbatim). So the check
-reasons only about ``using ::`` names whose leading token IS the manifest's
-prefix. Everything else -- a cross-library type re-export (``cudaStream_t`` in a
-curand module), a variant-library constant whose token differs
-(``HIPBLASLT_EPILOGUE_*`` -> ``hipblaslt`` != prefix ``hipblas``) -- is not part
-of what this manifest claims to cover, so it is out of scope rather than a false
-"absent from the manifest". A genuinely bogus ``using ::`` name fails to *compile*
-against any SDK, which is not this checker's job.
+``leading_prefix(name)`` is the manifest's ``prefix`` OR one of its recorded
+``extra_prefixes`` -- the SAME accepted-token set ``devtools/vendor_harvest.py``
+harvests by (``leading_prefix`` is mirrored here verbatim, and the token set is
+read back from the manifest so the two cannot drift). So the check reasons about
+every ``using ::`` name whose leading token the manifest covers, INCLUDING a
+variant library's own uppercase constants (``HIPBLASLT_EPILOGUE_*`` ->
+``hipblaslt``, admitted alongside base prefix ``hipblas`` -- see #167). Everything
+else -- a cross-library type re-export (``cudaStream_t`` in a curand module) -- is
+not part of what this manifest claims to cover, so it is out of scope rather than
+a false "absent from the manifest". A genuinely bogus ``using ::`` name fails to
+*compile* against any SDK, which is not this checker's job.
 
 THE ASSERTION, per in-scope ``using ::name`` (present in the pin or floor
 manifest), by whether it sits inside a version guard (``#if WWR_*_SINCE_*`` /
@@ -50,14 +52,16 @@ independent statements that must agree -- the hand-written ``using ::`` / guard 
 the machine-harvested manifest -- so a bad harvest cannot make a bad source pass.
 It never emits ``using ::`` lines from the manifest.
 
-KNOWN BLIND SPOT. ``leading_prefix`` keys a name on its leading token, so a
-variant library's own uppercase constants (``HIPBLASLT_*`` -> ``hipblaslt``,
-``CUBLASLT_*``, ``NVJITLINK_*``, ``ACTIVITY_DOMAIN_*`` ...) are captured by NO
-manifest -- the harvester's own limitation, not this checker's. Two such names are
-even ``WWR_HIPBLASLT_SINCE_1_2``-guarded floor-sensitive constants this check
-therefore cannot validate. It reports the count so the gap is visible rather than
-silent; closing it means widening the harvester's prefix rule for variant
-libraries (a vendor_harvest.py change, tracked separately).
+BLIND SPOTS (now a tripwire, not a standing gap). A variant library's own
+uppercase constants used to be captured by no manifest -- ``leading_prefix`` keys
+on the leading token, so ``HIPBLASLT_*`` -> ``hipblaslt`` fell outside prefix
+``hipblas``. #167 closed that by whitelisting each variant's own token as an
+``extra_prefix`` in the manifest (``vendor_manifests.sh``), so those names are now
+in scope and validated. What remains counted here is the RESIDUAL: a version-
+guarded ``using ::`` whose leading token is covered by NO manifest's accepted set
+-- a new companion-token constant nobody whitelisted yet. The count is pinned at 0
+by ``test_blind_spot_is_bounded``, so the day one appears it is noticed rather
+than silently unchecked; the fix is another ``--extra-prefix`` row.
 
 CUDA is a single point: its floor (13.0.0) and pin (13.0.x) share one manifest
 dir, so pin-only is empty there and the check reduces to "no version guard claims
@@ -148,10 +152,17 @@ def iter_using_sites(text: str):
             yield UsingSite(m.group(1), since, els)
 
 
-def load_manifest(path: Path) -> tuple[str, set[str]]:
-    """(prefix, declared-name set) from a committed manifest."""
+def load_manifest(path: Path) -> tuple[set[str], set[str]]:
+    """(accepted-token set, declared-name set) from a committed manifest.
+
+    The accepted-token set is the primary ``prefix`` plus any ``extra_prefixes``
+    the harvest recorded (a variant library's own token -- #167); membership is
+    keyed on it so the checker mirrors exactly what the harvest kept.
+    """
     j = json.loads(path.read_text())
-    return j["harvest"]["prefix"], {s["name"] for s in j["symbols"]}
+    h = j["harvest"]
+    accepted = {h["prefix"], *h.get("extra_prefixes", [])}
+    return accepted, {s["name"] for s in j["symbols"]}
 
 
 @dataclass(frozen=True)
@@ -163,18 +174,20 @@ class Violation:
 
 
 def check_source(
-    text: str, prefix: str, pin: set[str], floor: set[str],
+    text: str, accepted: set[str], pin: set[str], floor: set[str],
     library: str, floor_label: str,
 ) -> tuple[list[Violation], int]:
     """Check one module's source against its pin/floor name sets.
 
+    ``accepted`` is the manifest's accepted-token set (prefix + extra_prefixes).
     Returns (violations, blind_spot_count). ``blind_spot_count`` is the number of
-    version-guarded sites the manifest cannot see (leading token != prefix).
+    version-guarded sites the manifest cannot see (leading token outside
+    ``accepted``).
     """
     violations: list[Violation] = []
     blind = 0
     for site in iter_using_sites(text):
-        in_scope = leading_prefix(site.name) == prefix
+        in_scope = leading_prefix(site.name) in accepted
         if not in_scope:
             if site.since_guarded:
                 blind += 1
@@ -208,7 +221,7 @@ class Report:
     violations: list[Violation]
     checked: list[str]      # "backend/lib" modules checked
     skipped: list[str]      # src modules with no manifest (type wrappers, cufile)
-    blind_spots: int        # version-guarded sites outside any manifest's prefix
+    blind_spots: int        # guarded sites outside every manifest's accepted tokens
 
 
 def check_all() -> Report:
@@ -224,10 +237,12 @@ def check_all() -> Report:
             if stem not in manifests:
                 skipped.append(f"{backend}/{stem}")
                 continue
-            prefix, pin = load_manifest(pin_dir / f"{stem}.json")
+            # The pin is the authority for scope; the floor contributes only its
+            # name set (does the floor SDK ship this symbol?).
+            accepted, pin = load_manifest(pin_dir / f"{stem}.json")
             _, floor = load_manifest(floor_dir / f"{stem}.json")
             v, b = check_source(
-                cppm.read_text(), prefix, pin, floor, f"{backend}/{stem}",
+                cppm.read_text(), accepted, pin, floor, f"{backend}/{stem}",
                 floor_label)
             violations.extend(v)
             blind += b

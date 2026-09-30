@@ -16,7 +16,10 @@
     "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
     "header": "/usr/local/cuda/include/nvFatbin.h",
     "prefix": "nv",
-    "symbol_count": 13
+    "extra_prefixes": [
+      "nvfatbin"
+    ],
+    "symbol_count": 31
   },
   "linkable": {
     "lib": "libnvfatbin.so.13",
@@ -39,6 +42,168 @@
     "declared_not_linkable": []
   },
   "symbols": [
+    {
+      "name": "NVFATBIN_ERROR_COMPRESSED_SIZE_EXCEEDED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_COMPRESSED_SIZE_EXCEEDED = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "25fd3971f9525fab"
+    },
+    {
+      "name": "NVFATBIN_ERROR_COMPRESSION_FAILED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_COMPRESSION_FAILED = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "d15ebcf7b361799a"
+    },
+    {
+      "name": "NVFATBIN_ERROR_ELF_ARCH_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_ELF_ARCH_MISMATCH = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "11992f1f67d92bdb"
+    },
+    {
+      "name": "NVFATBIN_ERROR_ELF_SIZE_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_ELF_SIZE_MISMATCH = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "657975dae9b54b41"
+    },
+    {
+      "name": "NVFATBIN_ERROR_EMPTY_INPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_EMPTY_INPUT = None",
+      "value": 11,
+      "value_explicit": false,
+      "decl_hash": "45a7b8eb0238bd3a"
+    },
+    {
+      "name": "NVFATBIN_ERROR_IDENTIFIER_REUSE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_IDENTIFIER_REUSE = None",
+      "value": 16,
+      "value_explicit": false,
+      "decl_hash": "ecf8e83642a303ac"
+    },
+    {
+      "name": "NVFATBIN_ERROR_INTERNAL",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_INTERNAL = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "4440c38d97e707c4"
+    },
+    {
+      "name": "NVFATBIN_ERROR_INTERNAL_PTX_OPTION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_INTERNAL_PTX_OPTION = None",
+      "value": 17,
+      "value_explicit": false,
+      "decl_hash": "a2425dad66e456b9"
+    },
+    {
+      "name": "NVFATBIN_ERROR_INVALID_ARCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_INVALID_ARCH = None",
+      "value": 9,
+      "value_explicit": false,
+      "decl_hash": "74d02660d4dba88e"
+    },
+    {
+      "name": "NVFATBIN_ERROR_INVALID_INDEX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_INVALID_INDEX = None",
+      "value": 15,
+      "value_explicit": false,
+      "decl_hash": "935ee1d8bd5000d9"
+    },
+    {
+      "name": "NVFATBIN_ERROR_INVALID_NVVM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_INVALID_NVVM = None",
+      "value": 10,
+      "value_explicit": false,
+      "decl_hash": "2816ab0d1a021936"
+    },
+    {
+      "name": "NVFATBIN_ERROR_MISSING_FATBIN",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_MISSING_FATBIN = None",
+      "value": 14,
+      "value_explicit": false,
+      "decl_hash": "7c86c9c5c96f9eed"
+    },
+    {
+      "name": "NVFATBIN_ERROR_MISSING_PTX_ARCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_MISSING_PTX_ARCH = None",
+      "value": 12,
+      "value_explicit": false,
+      "decl_hash": "3eb3eb5842444c73"
+    },
+    {
+      "name": "NVFATBIN_ERROR_MISSING_PTX_VERSION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_MISSING_PTX_VERSION = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "dd705332d0ce65f5"
+    },
+    {
+      "name": "NVFATBIN_ERROR_NULL_POINTER",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_NULL_POINTER = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "8ed3cc076258e700"
+    },
+    {
+      "name": "NVFATBIN_ERROR_PTX_ARCH_MISMATCH",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_PTX_ARCH_MISMATCH = None",
+      "value": 13,
+      "value_explicit": false,
+      "decl_hash": "fb99f7667ee8ee6e"
+    },
+    {
+      "name": "NVFATBIN_ERROR_UNRECOGNIZED_OPTION",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_ERROR_UNRECOGNIZED_OPTION = None",
+      "value": 8,
+      "value_explicit": false,
+      "decl_hash": "8a1e5848338e7019"
+    },
+    {
+      "name": "NVFATBIN_SUCCESS",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/nvFatbin.h",
+      "decl": "NVFATBIN_SUCCESS = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "c6771188e9160082"
+    },
     {
       "name": "nvFatbinAddCubin",
       "kind": "FunctionDecl",

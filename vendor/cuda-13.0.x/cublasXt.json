@@ -16,7 +16,10 @@
     "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
     "header": "/usr/local/cuda/include/cublasXt.h",
     "prefix": "cublas",
-    "symbol_count": 705
+    "extra_prefixes": [
+      "cublasxt"
+    ],
+    "symbol_count": 724
   },
   "linkable": {
     "lib": "libcublas.so.13",
@@ -799,6 +802,177 @@
       "header": "/usr/local/cuda/include/cublasXt.h",
       "decl": "struct cublasXtContext",
       "decl_hash": "5da369f42ba94222"
+    },
+    {
+      "name": "CUBLASXT_COMPLEX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_COMPLEX = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "ad83b0f3d8434586"
+    },
+    {
+      "name": "CUBLASXT_DOUBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_DOUBLE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "adf8e85f87d7678c"
+    },
+    {
+      "name": "CUBLASXT_DOUBLECOMPLEX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_DOUBLECOMPLEX = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "2480f6df2113bbe8"
+    },
+    {
+      "name": "CUBLASXT_FLOAT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_FLOAT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "14fc06e425fab34e"
+    },
+    {
+      "name": "CUBLASXT_GEMM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_GEMM = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "e9688559575b789b"
+    },
+    {
+      "name": "CUBLASXT_HEMM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_HEMM = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "78419a536834b91f"
+    },
+    {
+      "name": "CUBLASXT_HER2K",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_HER2K = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "9ae718f198e7a0a4"
+    },
+    {
+      "name": "CUBLASXT_HERK",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_HERK = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "f4cfacce66fd6fcc"
+    },
+    {
+      "name": "CUBLASXT_HERKX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_HERKX = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "81dde30d82fefa63"
+    },
+    {
+      "name": "CUBLASXT_PINNING_DISABLED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_PINNING_DISABLED = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "5f962f1e5eb0d6df"
+    },
+    {
+      "name": "CUBLASXT_PINNING_ENABLED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_PINNING_ENABLED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "4cdac3ee4be9bffa"
+    },
+    {
+      "name": "CUBLASXT_ROUTINE_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_ROUTINE_MAX = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "f30e83b47335a07a"
+    },
+    {
+      "name": "CUBLASXT_SPMM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_SPMM = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "be5cb56e787ec25e"
+    },
+    {
+      "name": "CUBLASXT_SYMM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_SYMM = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "207b5474e3fe0aff"
+    },
+    {
+      "name": "CUBLASXT_SYR2K",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_SYR2K = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "38ab5a9562fb5b7b"
+    },
+    {
+      "name": "CUBLASXT_SYRK",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_SYRK = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "2cc95355bd29b2a4"
+    },
+    {
+      "name": "CUBLASXT_SYRKX",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_SYRKX = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "1e62c0258ed4f2bc"
+    },
+    {
+      "name": "CUBLASXT_TRMM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_TRMM = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "77c5d466678d0fed"
+    },
+    {
+      "name": "CUBLASXT_TRSM",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cublasXt.h",
+      "decl": "CUBLASXT_TRSM = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "a006dfa3cac2ee44"
     },
     {
       "name": "CUBLAS_ATOMICS_ALLOWED",

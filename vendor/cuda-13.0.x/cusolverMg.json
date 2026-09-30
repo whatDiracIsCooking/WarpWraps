@@ -16,7 +16,10 @@
     "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
     "header": "/usr/local/cuda/include/cusolverMg.h",
     "prefix": "cusolver",
-    "symbol_count": 494
+    "extra_prefixes": [
+      "cudalibmg"
+    ],
+    "symbol_count": 496
   },
   "linkable": {
     "lib": "libcusolverMg.so.12",
@@ -665,6 +668,24 @@
       "header": "/usr/local/cuda/include/cusolverMg.h",
       "decl": "struct cusolverMgContext",
       "decl_hash": "d22cd5b1d86ec128"
+    },
+    {
+      "name": "CUDALIBMG_GRID_MAPPING_COL_MAJOR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolverMg.h",
+      "decl": "CUDALIBMG_GRID_MAPPING_COL_MAJOR = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "1a0e7c8167fbb560"
+    },
+    {
+      "name": "CUDALIBMG_GRID_MAPPING_ROW_MAJOR",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cusolverMg.h",
+      "decl": "CUDALIBMG_GRID_MAPPING_ROW_MAJOR = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "c3cf00ec28bc09a7"
     },
     {
       "name": "CUSOLVER_ALG_0",
