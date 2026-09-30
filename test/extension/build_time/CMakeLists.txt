@@ -50,6 +50,24 @@ add_dependencies(compile_time_tests wwr.test.extension.handle_view)
 
 wwr_add_cxx_module_library(
   NAME
+  wwr.test.extension.pointer_mode_scope
+  IMPORT_STD
+  NO_CUDA_DEVICE_LINKING
+  PRIMARY_INTERFACE
+  pointer_mode_scope.cppm
+  LINK_PUBLIC
+  wwr.blas
+  wwr.extension.common
+  wwr.extension.runtime
+  wwr.extension.blas
+  wwr.test.shared.abort_policy
+  wwr.test.shared.device_handle
+)
+
+add_dependencies(compile_time_tests wwr.test.extension.pointer_mode_scope)
+
+wwr_add_cxx_module_library(
+  NAME
   wwr.test.extension.tx
   IMPORT_STD
   NO_CUDA_DEVICE_LINKING

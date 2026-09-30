@@ -39,7 +39,7 @@ export namespace wwr::extension {
  *
  * Every wwrGetDevice/wwrSetDevice call -- the two that *enter* the scope and the
  * one that restores on destruction -- routes through the same retained
- * P_device_access, so device-selection error handling is entirely the caller's,
+ * P, so device-selection error handling is entirely the caller's,
  * and the library keeps no error policy of its own. This mirrors
  * DeviceBoundHandle's P_device_access; it stays the plain error_policy so a
  * caller may hand in a throwing policy to propagate a bad-index failure out of
@@ -51,11 +51,11 @@ export namespace wwr::extension {
  * aborts, say). The buffer wrappers that nest a DeviceScope on their free path
  * already require exactly that (nothrow_error_policy).
  *
- * @tparam P_device_access The error policy for the wwrGetDevice/wwrSetDevice
+ * @tparam P The error policy for the wwrGetDevice/wwrSetDevice
  *         calls; typed to wwrError_t (what those calls return), independent of
  *         any handle's own status type. No default -- the caller names the policy.
  */
-template<error_policy<wwrError_t> P_device_access>
+template<error_policy<wwrError_t> P>
 struct DeviceScope : private NonCopyable {
   int original_idx = -1; ///< Device current at construction, restored on destruction
 
@@ -63,7 +63,7 @@ struct DeviceScope : private NonCopyable {
   ///        Routes both entering calls through `policy_device`, then retains it
   ///        (so a stateful policy's accumulated state survives, readable via
   ///        device_policy()).
-  explicit DeviceScope(const int target_idx, P_device_access policy_device = {},
+  explicit DeviceScope(const int target_idx, P policy_device = {},
                        std::source_location location = std::source_location::current())
       : policy_device_(std::move(policy_device)) {
     gpu_check(wwrGetDevice(&original_idx), policy_device_, location);
@@ -80,10 +80,10 @@ struct DeviceScope : private NonCopyable {
 
   /// @brief The policy handling this guard's device (get/set) calls, for reading
   ///        back any state a stateful device policy accumulated on entry.
-  const P_device_access &device_policy() const noexcept { return policy_device_; }
+  const P &device_policy() const noexcept { return policy_device_; }
 
 private:
-  [[no_unique_address]] P_device_access policy_device_{}; ///< Policy for the entering (get/set) calls
+  [[no_unique_address]] P policy_device_{}; ///< Policy for the entering (get/set) calls
 };
 
 } // namespace wwr::extension

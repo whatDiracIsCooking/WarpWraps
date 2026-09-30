@@ -7,6 +7,7 @@
  * live separately in wwr.wrappers.blas. It aggregates:
  * - :blas_error - Error code specializations for wwrblasStatus_t
  * - :blas_handle - RAII wrapper for wwrblasHandle_t
+ * - :pointer_mode_scope - RAII guard toggling a handle's pointer mode
  *
  * Usage:
  *   import wwr.extension.blas;
@@ -23,3 +24,4 @@ import std;
 export import wwr.blas;
 export import :blas_error;
 export import :blas_handle;
+export import :pointer_mode_scope;
