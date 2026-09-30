@@ -498,6 +498,9 @@ jobs:
       # one, then diff. The diff is the whole test: a byte for the harvest tool
       # to change, a symbol for the headers to change, and it is not empty.
       - name: regenerate and diff
+        # bash, not the container's default dash: `set -o pipefail` and the
+        # harvest script's bashisms need it.
+        shell: bash
         run: |
           set -euo pipefail
           out="$(mktemp -d)"
