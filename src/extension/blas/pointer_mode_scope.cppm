@@ -45,7 +45,11 @@ export namespace wwr::extension {
  * owner. Constraining the pointee on the blas_handle concept (rather than the
  * concrete BlasHandleWrapper) keeps this to one handle-axis parameter H instead
  * of threading the wrapper's <P_create, P_destroy, S, P_device_access> list, none
- * of which this guard uses; H is reached only through get() to name the handle.
+ * of which this guard uses; H is reached only through the private raw_handle() to
+ * name the raw handle, so a bare wwrblasHandle_t works as the pointee too. That
+ * bare form comes with a lifetime caveat -- a shared_ptr<wwrblasHandle_t> owns a
+ * copy of the pointer, not the GPU handle, so it borrows rather than co-owns; the
+ * bare-handle convenience constructor documents this in full.
  *
  * wwrblasGetPointerMode/wwrblasSetPointerMode are wwrblasStatus_t-returning, so
  * the return cannot simply be dropped -- each of the three calls (the two that
@@ -80,21 +84,53 @@ struct PointerModeScope : private NonCopyable {
                             P policy_mode = {},
                             std::source_location location = std::source_location::current())
       : handle_(std::move(handle)), policy_mode_(std::move(policy_mode)) {
-    const wwrblasHandle_t raw = handle_->get();
+    const wwrblasHandle_t raw = raw_handle(*handle_);
     gpu_check(wwrblasGetPointerMode(raw, &original_mode), policy_mode_, location);
     gpu_check(wwrblasSetPointerMode(raw, target_mode), policy_mode_, location);
   }
 
+  /// @brief Convenience overload for a bare wwrblasHandle_t: wrap it in a
+  ///        shared_ptr and delegate to the shared-owner constructor above.
+  ///
+  /// Only for H == wwrblasHandle_t (a wrapper like BlasHandleWrapper is
+  /// non-copyable, so make_shared could not copy it here anyway -- pass such a
+  /// handle through the shared_ptr constructor, which genuinely co-owns it).
+  ///
+  /// UNLIKE that constructor, this does NOT extend the handle's lifetime: a
+  /// shared_ptr<wwrblasHandle_t> owns a copy of the raw *pointer*, not the GPU
+  /// handle it names, so the guard here BORROWS -- the caller must keep the real
+  /// handle alive until the guard is destroyed, or the restore runs against a
+  /// freed handle. Reach for it only when that lifetime is already assured.
+  explicit PointerModeScope(H handle, const wwrblasPointerMode_t target_mode, P policy_mode = {},
+                            std::source_location location = std::source_location::current())
+    requires std::same_as<H, wwrblasHandle_t>
+      : PointerModeScope(std::make_shared<H>(handle), target_mode, std::move(policy_mode),
+                         location) {}
+
   // Restore symmetrically, through the same policy the entry calls used (see the
   // class note on the noexcept-destructor caveat for throwing policies). The
   // retained handle is still alive by construction, so the restore is well-defined.
-  ~PointerModeScope() { gpu_check(wwrblasSetPointerMode(handle_->get(), original_mode), policy_mode_); }
+  ~PointerModeScope() {
+    gpu_check(wwrblasSetPointerMode(raw_handle(*handle_), original_mode), policy_mode_);
+  }
 
   // Copy operations are implicitly deleted via the NonCopyable base. The
   // user-declared destructor suppresses the implicit moves, so the guard stays
   // non-movable as well -- handle_ is thus never null after construction.
 
 private:
+  // Name the raw wwrblasHandle_t regardless of which blas_handle shape H is: the
+  // concept admits both a bare wwrblasHandle_t and a wrapper exposing get(), so
+  // `handle_->get()` would not compile on the bare form. noexcept mirrors the
+  // get() arm's own noexcept requirement. Private because it is an implementation
+  // detail of this guard, not part of the module's surface.
+  static constexpr wwrblasHandle_t raw_handle(const H &h) noexcept {
+    if constexpr (std::same_as<H, wwrblasHandle_t>)
+      return h;
+    else
+      return h.get();
+  }
+
   std::shared_ptr<H> handle_; ///< Co-owned handle whose pointer mode this guard toggles and restores
   [[no_unique_address]] P policy_mode_{}; ///< Policy for the get/set calls
 };
