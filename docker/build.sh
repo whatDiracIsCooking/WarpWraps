@@ -38,10 +38,14 @@ set -euo pipefail
 
 REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
-# PROJECT_NAME, and nothing else read here. Sourcing it is what keeps the image
-# names in one place: devtools/config.sh already has to agree with the
-# .devcontainer/*.json files (doctor.sh checks that), and a third spelling in
-# here would be a third thing to drift.
+# PROJECT_NAME, and the SDK version pins (CUDA_VERSION, ROCM_VERSION) tags_of
+# reads below. Sourcing it is what keeps the image names in one place:
+# devtools/config.sh already has to agree with the .devcontainer/*.json files
+# (doctor.sh checks that), and a third spelling in here would be a third thing
+# to drift. The version pins live there for the same reason -- doctor also
+# reads them -- and sourcing them here means the version that TAGS an image is
+# the version forwarded to `docker build` as its build arg, so the two cannot
+# disagree.
 # shellcheck source=../devtools/config.sh
 . "$REPO_ROOT/devtools/config.sh"
 
@@ -69,23 +73,39 @@ parent_of() {
   esac
 }
 
-# The tags each image gets. `cuda` gets :latest as well, because that is what
-# docker/compose.yaml and README.md name (WWR_IMAGE defaults to it) -- the
-# CUDA image is the default backend.
+# The tags each image gets. The FIRST tag is what a child takes as its
+# PARENT_IMAGE (see local_tags_of), so it must be a stable alias, never the
+# version-carrying tag.
+#
+# cuda and hip each get a VERSION-CARRYING tag as well -- wwr:cuda-13-0,
+# wwr:hip-7.2.4, from the SDK pins in devtools/config.sh -- so that building a
+# second SDK version lands in its own image instead of overwriting the
+# default's alias. The aliases (:cuda, :hip, and :latest for cuda) always point
+# at whatever was built LAST, which for the pinned default is the default; a
+# non-default build moves the aliases but leaves the previous version tag
+# standing, so nothing is lost.
+#
+# `cuda` gets :latest as well, because that is what docker/compose.yaml and
+# README.md name (WWR_IMAGE defaults to it) -- the CUDA image is the default
+# backend. `combined` carries no version tag: it is built from both SDKs and
+# has no single version to name.
 tags_of() {
   case $1 in
     base)     echo "$PROJECT_NAME:base" ;;
-    cuda)     echo "$PROJECT_NAME:cuda $PROJECT_NAME:latest" ;;
-    hip)      echo "$PROJECT_NAME:hip" ;;
+    cuda)     echo "$PROJECT_NAME:cuda $PROJECT_NAME:latest $PROJECT_NAME:cuda-${CUDA_VERSION}" ;;
+    hip)      echo "$PROJECT_NAME:hip $PROJECT_NAME:hip-${ROCM_VERSION}" ;;
     combined) echo "$PROJECT_NAME:combined" ;;
   esac
 }
 
 # Which build args each Dockerfile declares. Only names set in the environment
-# are forwarded, so the DEFAULTS STAY IN THE DOCKERFILES and this script holds
-# no version numbers of its own. Forwarding an arg to a file that does not
-# declare it would earn a "build-args were not consumed" warning on every run,
-# which is why these are per-file rather than one list.
+# are forwarded. The version pins (CUDA_VERSION, ROCM_VERSION) are set by
+# config.sh, sourced above, so they are always forwarded AND always what
+# tags_of names -- one value drives both the tag and the build. Everything else
+# stays defaulted in the Dockerfile unless the environment overrides it.
+# Forwarding an arg to a file that does not declare it would earn a "build-args
+# were not consumed" warning on every run, which is why these are per-file
+# rather than one list.
 build_args_of() {
   case $1 in
     base)         echo "UBUNTU_TAG LLVM_VERSION CMAKE_VERSION CMAKE_MAJOR_MINOR NINJA_VERSION" ;;

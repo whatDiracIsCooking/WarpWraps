@@ -374,6 +374,61 @@ if [ -n "${DOCTOR_GPU_VENDORS// /}" ]; then
   fi
 fi
 
+# --- SDK versions (installed vs the pin in config.sh) ----------------------
+#
+# The images are built against a PINNED SDK version -- CUDA_VERSION and
+# ROCM_VERSION in devtools/config.sh, which docker/build.sh both builds with
+# and tags by. An installed toolkit that has drifted from that pin is a quiet
+# hazard: the wrong image was pulled, a host toolkit was upgraded underneath
+# the project, or the pin was bumped without rebuilding. None of it FAILS a
+# build outright, so this is a warn -- but it is the difference between "the
+# card is fine and the toolkit is a version off" and a mystery.
+#
+# Checked only when the backend's compiler is actually here (the optional-tools
+# section already warns when nvcc/hipconfig is absent), and matched at the
+# precision the installed source reports: nvcc gives MAJOR.MINOR, so a `13-0`
+# pin is compared as `13.0`; ROCm's /opt/rocm/.info/version gives the full
+# MAJOR.MINOR.PATCH, compared as-is.
+echo "sdk versions"
+
+# nvcc prints `... release 13.0, V13.0.88`; take the `13.0`. The pin is apt's
+# `13-0`, so translate the separator before comparing at that precision.
+if nvcc=$(find_tool nvcc); then
+  cuda_installed=$("$nvcc" --version 2>/dev/null |
+    sed -n 's/.*release \([0-9][0-9.]*\).*/\1/p' | head -1)
+  cuda_expected=${CUDA_VERSION//-/.}
+  if [ -z "$cuda_installed" ]; then
+    note "nvcc present but its version did not parse -- skipping the CUDA pin check"
+  elif [ "$cuda_installed" = "$cuda_expected" ]; then
+    ok "CUDA $cuda_installed matches the pin ($CUDA_VERSION)"
+  else
+    warn "CUDA $cuda_installed differs from the pin $cuda_expected (CUDA_VERSION=$CUDA_VERSION)"
+    note "the image or host toolkit has drifted from devtools/config.sh;"
+    note "rebuild with docker/build.sh cuda, or update the pin if the bump is intended"
+  fi
+else
+  note "no nvcc -- CUDA pin ($CUDA_VERSION) not checked"
+fi
+
+# ROCm's own version file is the exact triple; hipconfig only proves the SDK is
+# here. /opt/rocm is the version-agnostic symlink the install maintains.
+if find_tool hipconfig >/dev/null 2>&1; then
+  rocm_installed=""
+  [ -r /opt/rocm/.info/version ] &&
+    rocm_installed=$(head -1 /opt/rocm/.info/version 2>/dev/null | cut -d- -f1)
+  if [ -z "$rocm_installed" ]; then
+    note "hipconfig present but /opt/rocm/.info/version is unreadable -- skipping the ROCm pin check"
+  elif [ "$rocm_installed" = "$ROCM_VERSION" ]; then
+    ok "ROCm $rocm_installed matches the pin ($ROCM_VERSION)"
+  else
+    warn "ROCm $rocm_installed differs from the pin $ROCM_VERSION (ROCM_VERSION)"
+    note "the image or host SDK has drifted from devtools/config.sh;"
+    note "rebuild with docker/build.sh hip, or update the pin if the bump is intended"
+  fi
+else
+  note "no hipconfig -- ROCm pin ($ROCM_VERSION) not checked"
+fi
+
 # --- required paths (submodules, fixture trees) ---------------------------
 config_lines "$DOCTOR_REQUIRED_PATHS"
 if [ "${#CONFIG_LINES[@]}" -gt 0 ]; then
