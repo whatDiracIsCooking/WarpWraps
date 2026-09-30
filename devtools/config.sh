@@ -64,6 +64,38 @@ PROJECT_NAME=${PROJECT_NAME:-wwr}
 # that worktree's volumes, so run the suite in one at a time.
 DEVCONTAINER_CONFIG=${DEVCONTAINER_CONFIG:-.devcontainer/cuda/devcontainer.json}
 
+# --- SDK version pins (image tags + doctor's installed-vs-expected check) ---
+#
+# The GPU SDK version each backend's image is built with. These sit HERE, not
+# only in the Dockerfile ARG defaults, because two things past `docker build`
+# need to agree on them:
+#
+#   * docker/build.sh derives the VERSION-CARRYING image tag from them
+#     (wwr:cuda-13-0, wwr:hip-7.2.4), so building a second SDK version lands in
+#     a distinct image instead of clobbering the default's :cuda/:hip/:latest.
+#   * devtools/doctor.sh reports the INSTALLED SDK against the value here and
+#     warns when they differ -- an image built against an older pin, or a host
+#     toolkit that has drifted from what the project expects.
+#
+# build.sh sources this file, so setting these here also FORWARDS them as build
+# args (they are in build.sh's build_args_of), which is what keeps the tag and
+# the thing it names in step by construction: the version that tags the image
+# is the version the image was built with. A raw `docker build` by hand still
+# falls back to the ARG default in the Dockerfile, so those must not drift from
+# these -- Dockerfile.cuda's CUDA_VERSION and Dockerfile.hip/.combined's
+# ROCM_VERSION.
+#
+# SPELLING MATTERS AND DIFFERS BY VENDOR:
+#   CUDA_VERSION  apt's `MAJOR-MINOR` form -- `13-0`, NOT `13.0.0`. It names the
+#                 cuda-toolkit-${CUDA_VERSION} package; doctor maps `13-0` to
+#                 the `13.0` nvcc reports.
+#   ROCM_VERSION  the full `MAJOR.MINOR.PATCH` -- `7.2.4`. It is the last path
+#                 element of the repo.radeon.com/rocm/apt/${ROCM_VERSION} apt
+#                 source, so a typo is a 404 at image-build time; doctor matches
+#                 it against /opt/rocm/.info/version.
+CUDA_VERSION=${CUDA_VERSION:-13-0}
+ROCM_VERSION=${ROCM_VERSION:-7.2.4}
+
 # --- C++ build (CMake) ------------------------------------------------------
 
 # Which CMakePresets.json presets devtools/cpp-tier.sh drives. The presets

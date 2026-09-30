@@ -73,17 +73,41 @@ compose cannot drift onto two different toolchains.
 `./build.sh` is what walks the chain, and is the way to build any of them:
 
 ```bash
-docker/build.sh cuda        # base, then cuda -> wwr:cuda and wwr:latest
-docker/build.sh hip         # base, then hip  -> wwr:hip
+docker/build.sh cuda        # base, then cuda -> wwr:cuda, wwr:latest, wwr:cuda-13-0
+docker/build.sh hip         # base, then hip  -> wwr:hip, wwr:hip-7.2.4
 docker/build.sh combined    # base, cuda, then combined -> wwr:combined
 docker/build.sh base        # just the toolchain -> wwr:base
 ```
 
 It takes the tag prefix from `PROJECT_NAME` in `devtools/config.sh`, so
 `wwr:latest` — what `WWR_IMAGE` below defaults to — is always one of the
-two tags the CUDA image gets. Run it from anywhere; the context is always the
+tags the CUDA image gets. Run it from anywhere; the context is always the
 repo root, because the files read `pyproject.toml`, `uv.lock` and
 `docker/install-*.sh` relative to it.
+
+### Version-carrying tags, and why the aliases still hold
+
+`cuda` and `hip` each get a **version-carrying** tag alongside their alias —
+`wwr:cuda-13-0`, `wwr:hip-7.2.4` — derived from the SDK pins `CUDA_VERSION`
+and `ROCM_VERSION` in `devtools/config.sh`. `build.sh` sources that file, so
+the version it *tags* with is the version it forwards to `docker build` as the
+build arg: the tag and the toolkit it names cannot disagree. (`combined` gets
+no version tag — it is built from both SDKs and has no single version to name.)
+
+The point is that a **non-default SDK build no longer clobbers the default**.
+`:cuda`, `:hip` and `:latest` are aliases for whatever was built last, so the
+pinned default build leaves them pointing at the default. Build a second
+version — `CUDA_VERSION=12-6 docker/build.sh cuda` — and it moves the aliases
+but stands up a *distinct* `wwr:cuda-12-6` beside the surviving `wwr:cuda-13-0`;
+neither image is lost, and `docker/compose.yaml`, `.devcontainer/` and this
+README keep resolving the alias with no edits.
+
+`CUDA_VERSION` is apt's `MAJOR-MINOR` spelling (`13-0`, not `13.0.0`);
+`ROCM_VERSION` is the full `MAJOR.MINOR.PATCH` (`7.2.4`) that also forms the
+`repo.radeon.com/rocm/apt/${ROCM_VERSION}` source path. `devtools/doctor.sh`
+reports the installed SDK against these pins and warns when they have drifted.
+The Dockerfile `ARG` defaults still exist as a fallback for a raw
+`docker build` by hand, so they must not drift from `config.sh` — bump both.
 
 ### The vendor libraries, and where each one comes from
 
@@ -208,7 +232,7 @@ IMAGE_TAG_SUFFIX=-ci IMAGE_REGISTRY=ghcr.io/<owner> BUILD_PUSH=1 \
 
 | knob | effect |
 |---|---|
-| `IMAGE_TAG_SUFFIX` | appended to every tag in the chain (`wwr:hip-ci`) |
+| `IMAGE_TAG_SUFFIX` | appended to every tag in the chain, alias and version alike (`wwr:hip-ci`, `wwr:hip-7.2.4-ci`) |
 | `IMAGE_REGISTRY` | adds `<registry>/wwr:<tag>` as a second tag |
 | `BUILD_PUSH=1` | pushes the **final target's** registry tags, not its parents' |
 
