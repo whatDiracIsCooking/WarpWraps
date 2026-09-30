@@ -1,0 +1,98 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/roctracer/roctx.h",
+    "config": {
+      "backend": "HIP",
+      "sdk_version": "ROCm 7.1.0",
+      "arch": "gfx942",
+      "defines": [
+        "__HIP_PLATFORM_AMD__"
+      ],
+      "includes": [
+        "/opt/rocm/include",
+        "/opt/rocm-ds/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "/opt/rocm/include/roctracer/roctx.h",
+    "prefix": "roctx",
+    "symbol_count": 8
+  },
+  "linkable": {
+    "lib": "libroctx64.so.4",
+    "soname": "libroctx64.so.4",
+    "available": true,
+    "linkable_count": 8,
+    "linkable": [
+      "roctxMarkA",
+      "roctxRangePop",
+      "roctxRangePushA",
+      "roctxRangeStartA",
+      "roctxRangeStop",
+      "roctxRegisterTracerCallback",
+      "roctx_version_major",
+      "roctx_version_minor"
+    ],
+    "declared_not_linkable": []
+  },
+  "symbols": [
+    {
+      "name": "roctxMarkA",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/roctracer/roctx.h",
+      "decl": "void roctxMarkA(const char * message)",
+      "decl_hash": "fd8f9a1966a5273c"
+    },
+    {
+      "name": "roctxRangePop",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/roctracer/roctx.h",
+      "decl": "int roctxRangePop()",
+      "decl_hash": "65c699ab877e50aa"
+    },
+    {
+      "name": "roctxRangePushA",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/roctracer/roctx.h",
+      "decl": "int roctxRangePushA(const char * message)",
+      "decl_hash": "dd2e33746b5c5adb"
+    },
+    {
+      "name": "roctxRangeStartA",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/roctracer/roctx.h",
+      "decl": "roctx_range_id_t roctxRangeStartA(const char * message)",
+      "decl_hash": "1e7a313e40d63b18"
+    },
+    {
+      "name": "roctxRangeStop",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/roctracer/roctx.h",
+      "decl": "void roctxRangeStop(roctx_range_id_t id)",
+      "decl_hash": "005db1482a36363c"
+    },
+    {
+      "name": "roctx_version_major",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/roctracer/roctx.h",
+      "decl": "uint32_t roctx_version_major()",
+      "decl_hash": "bf7e3996be29dacf"
+    },
+    {
+      "name": "roctx_version_minor",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/roctracer/roctx.h",
+      "decl": "uint32_t roctx_version_minor()",
+      "decl_hash": "b12c0c56f653effd"
+    },
+    {
+      "name": "roctx_range_id_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/roctracer/roctx.h",
+      "decl": "typedef uint64_t roctx_range_id_t",
+      "decl_hash": "39cb8bc2e8a3ad0f"
+    }
+  ]
+}

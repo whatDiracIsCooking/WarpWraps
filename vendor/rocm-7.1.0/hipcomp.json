@@ -1,0 +1,717 @@
+{
+  "harvest": {
+    "tool": "devtools/vendor_harvest.py",
+    "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
+    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include devtools/harvest_aggregates/hipcomp.h",
+    "config": {
+      "backend": "HIP",
+      "sdk_version": "ROCm 7.1.0",
+      "arch": "gfx942",
+      "defines": [
+        "__HIP_PLATFORM_AMD__"
+      ],
+      "includes": [
+        "/opt/rocm/include",
+        "/opt/rocm-ds/include"
+      ]
+    },
+    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "header": "devtools/harvest_aggregates/hipcomp.h",
+    "prefix": "hipcomp",
+    "symbol_count": 86
+  },
+  "linkable": {
+    "lib": "libhipcomp.so",
+    "soname": "libhipcomp.so",
+    "available": true,
+    "linkable_count": 36,
+    "linkable": [
+      "hipcompBatchedANSCompressAsync",
+      "hipcompBatchedANSCompressGetMaxOutputChunkSize",
+      "hipcompBatchedANSCompressGetTempSize",
+      "hipcompBatchedANSDecompressAsync",
+      "hipcompBatchedANSDecompressGetTempSize",
+      "hipcompBatchedANSGetDecompressSizeAsync",
+      "hipcompBatchedBitcompCompressAsync",
+      "hipcompBatchedBitcompCompressGetMaxOutputChunkSize",
+      "hipcompBatchedBitcompCompressGetTempSize",
+      "hipcompBatchedBitcompDecompressAsync",
+      "hipcompBatchedBitcompDecompressGetTempSize",
+      "hipcompBatchedBitcompGetDecompressSizeAsync",
+      "hipcompBatchedCascadedCompressAsync",
+      "hipcompBatchedCascadedCompressGetMaxOutputChunkSize",
+      "hipcompBatchedCascadedCompressGetTempSize",
+      "hipcompBatchedCascadedDecompressAsync",
+      "hipcompBatchedCascadedDecompressGetTempSize",
+      "hipcompBatchedCascadedGetDecompressSizeAsync",
+      "hipcompBatchedGdeflateCompressAsync",
+      "hipcompBatchedGdeflateCompressGetMaxOutputChunkSize",
+      "hipcompBatchedGdeflateCompressGetTempSize",
+      "hipcompBatchedGdeflateDecompressAsync",
+      "hipcompBatchedGdeflateDecompressGetTempSize",
+      "hipcompBatchedGdeflateGetDecompressSizeAsync",
+      "hipcompBatchedLZ4CompressAsync",
+      "hipcompBatchedLZ4CompressGetMaxOutputChunkSize",
+      "hipcompBatchedLZ4CompressGetTempSize",
+      "hipcompBatchedLZ4DecompressAsync",
+      "hipcompBatchedLZ4DecompressGetTempSize",
+      "hipcompBatchedLZ4GetDecompressSizeAsync",
+      "hipcompBatchedSnappyCompressAsync",
+      "hipcompBatchedSnappyCompressGetMaxOutputChunkSize",
+      "hipcompBatchedSnappyCompressGetTempSize",
+      "hipcompBatchedSnappyDecompressAsync",
+      "hipcompBatchedSnappyDecompressGetTempSize",
+      "hipcompBatchedSnappyGetDecompressSizeAsync"
+    ],
+    "declared_not_linkable": [
+      "hipcompBitcompCompressAsync",
+      "hipcompBitcompCompressConfigure",
+      "hipcompBitcompDecompressAsync",
+      "hipcompBitcompDecompressConfigure",
+      "hipcompBitcompDestroyMetadata",
+      "hipcompDecompressAsync",
+      "hipcompDecompressDestroyMetadata",
+      "hipcompDecompressGetMetadata",
+      "hipcompDecompressGetOutputSize",
+      "hipcompDecompressGetTempSize",
+      "hipcompDecompressGetType",
+      "hipcompIsBitcompData"
+    ]
+  },
+  "symbols": [
+    {
+      "name": "HIPCOMP_TYPE_BITS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "HIPCOMP_TYPE_BITS = 255",
+      "value": 255,
+      "value_explicit": true,
+      "decl_hash": "3cd522ee4ad2c545"
+    },
+    {
+      "name": "HIPCOMP_TYPE_CHAR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "HIPCOMP_TYPE_CHAR = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "5b10c2e71be3016a"
+    },
+    {
+      "name": "HIPCOMP_TYPE_INT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "HIPCOMP_TYPE_INT = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "1671c11f4bb73b62"
+    },
+    {
+      "name": "HIPCOMP_TYPE_LONGLONG",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "HIPCOMP_TYPE_LONGLONG = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "6939aa2e48e3789d"
+    },
+    {
+      "name": "HIPCOMP_TYPE_SHORT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "HIPCOMP_TYPE_SHORT = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "e41e62ec0b8cd4bc"
+    },
+    {
+      "name": "HIPCOMP_TYPE_UCHAR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "HIPCOMP_TYPE_UCHAR = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "f7032da5090d2384"
+    },
+    {
+      "name": "HIPCOMP_TYPE_UINT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "HIPCOMP_TYPE_UINT = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "fb69a7df53e7dca0"
+    },
+    {
+      "name": "HIPCOMP_TYPE_ULONGLONG",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "HIPCOMP_TYPE_ULONGLONG = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "53600dd95946ec59"
+    },
+    {
+      "name": "HIPCOMP_TYPE_USHORT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "HIPCOMP_TYPE_USHORT = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "9ad3b4567f154247"
+    },
+    {
+      "name": "hipcompErrorCannotDecompress",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/shared_types.h",
+      "decl": "hipcompErrorCannotDecompress = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "69aba00be6c59653"
+    },
+    {
+      "name": "hipcompErrorCudaError",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/shared_types.h",
+      "decl": "hipcompErrorCudaError = 1000",
+      "value": 1000,
+      "value_explicit": true,
+      "decl_hash": "84fa68c5f35a4739"
+    },
+    {
+      "name": "hipcompErrorInternal",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/shared_types.h",
+      "decl": "hipcompErrorInternal = 10000",
+      "value": 10000,
+      "value_explicit": true,
+      "decl_hash": "7819c26ca8ed4b11"
+    },
+    {
+      "name": "hipcompErrorInvalidValue",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/shared_types.h",
+      "decl": "hipcompErrorInvalidValue = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "6178fe84fd0c4891"
+    },
+    {
+      "name": "hipcompErrorNotSupported",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/shared_types.h",
+      "decl": "hipcompErrorNotSupported = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "d52ec0d7e6ebcd9d"
+    },
+    {
+      "name": "hipcompSuccess",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/shared_types.h",
+      "decl": "hipcompSuccess = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "b33a17a01fe3c979"
+    },
+    {
+      "name": "hipcomp_rANS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "hipcomp_rANS = None",
+      "value": 0,
+      "value_explicit": false,
+      "decl_hash": "9798b24c7edc7012"
+    },
+    {
+      "name": "hipcompANSType_t",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "enum hipcompANSType_t",
+      "decl_hash": "040d9ffe0ea8ea6f"
+    },
+    {
+      "name": "hipcompStatus_t",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/shared_types.h",
+      "decl": "enum hipcompStatus_t",
+      "decl_hash": "42198d87d39c9080"
+    },
+    {
+      "name": "hipcompType_t",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "enum hipcompType_t",
+      "decl_hash": "3f16957dc0628066"
+    },
+    {
+      "name": "hipcompBatchedANSCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "hipcompStatus_t hipcompBatchedANSCompressAsync(const void *const * device_uncompressed_ptr, const size_t * device_uncompressed_bytes, size_t max_uncompressed_chunk_bytes, size_t batch_size, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_ptr, size_t * device_compressed_bytes, hipcompBatchedANSOpts_t format_opts, hipStream_t stream)",
+      "decl_hash": "aaf8f897bc5ead22"
+    },
+    {
+      "name": "hipcompBatchedANSCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "hipcompStatus_t hipcompBatchedANSCompressGetMaxOutputChunkSize(size_t max_chunk_size, hipcompBatchedANSOpts_t format_opts, size_t * max_compressed_size)",
+      "decl_hash": "b68d9d81361ec152"
+    },
+    {
+      "name": "hipcompBatchedANSCompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "hipcompStatus_t hipcompBatchedANSCompressGetTempSize(size_t batch_size, size_t max_chunk_size, hipcompBatchedANSOpts_t format_opts, size_t * temp_bytes)",
+      "decl_hash": "6e947c9b6fcdb2f0"
+    },
+    {
+      "name": "hipcompBatchedANSDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "hipcompStatus_t hipcompBatchedANSDecompressAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, const size_t * device_uncompressed_bytes, size_t * device_actual_uncompressed_bytes, size_t batch_size, void *const device_temp_ptr, const size_t temp_bytes, void *const * device_uncompressed_ptr, hipcompStatus_t * device_statuses, hipStream_t stream)",
+      "decl_hash": "cafe8042f1d4cc01"
+    },
+    {
+      "name": "hipcompBatchedANSDecompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "hipcompStatus_t hipcompBatchedANSDecompressGetTempSize(size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes)",
+      "decl_hash": "1e523f1b296a3f88"
+    },
+    {
+      "name": "hipcompBatchedANSGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "hipcompStatus_t hipcompBatchedANSGetDecompressSizeAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, size_t * device_uncompressed_bytes, size_t batch_size, hipStream_t stream)",
+      "decl_hash": "af6118e3ef9a5bee"
+    },
+    {
+      "name": "hipcompBatchedBitcompCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "hipcompStatus_t hipcompBatchedBitcompCompressAsync(const void *const * device_uncompressed_ptrs, const size_t * device_uncompressed_bytes, size_t max_uncompressed_chunk_bytes, size_t batch_size, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_ptrs, size_t * device_compressed_bytes, const hipcompBatchedBitcompFormatOpts format_opts, hipStream_t stream)",
+      "decl_hash": "713aca75aef0af13"
+    },
+    {
+      "name": "hipcompBatchedBitcompCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "hipcompStatus_t hipcompBatchedBitcompCompressGetMaxOutputChunkSize(size_t max_chunk_size, hipcompBatchedBitcompFormatOpts format_opts, size_t * max_compressed_size)",
+      "decl_hash": "ddb55d7e9d6b5dc0"
+    },
+    {
+      "name": "hipcompBatchedBitcompCompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "hipcompStatus_t hipcompBatchedBitcompCompressGetTempSize(size_t batch_size, size_t max_chunk_bytes, hipcompBatchedBitcompFormatOpts format_opts, size_t * temp_bytes)",
+      "decl_hash": "23011867e37a9383"
+    },
+    {
+      "name": "hipcompBatchedBitcompDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "hipcompStatus_t hipcompBatchedBitcompDecompressAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, const size_t * device_uncompressed_bytes, size_t * device_actual_uncompressed_bytes, size_t batch_size, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_ptrs, hipcompStatus_t * device_statuses, hipStream_t stream)",
+      "decl_hash": "1ffdb2c251d087d9"
+    },
+    {
+      "name": "hipcompBatchedBitcompDecompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "hipcompStatus_t hipcompBatchedBitcompDecompressGetTempSize(size_t batch_size, size_t max_chunk_bytes, size_t * temp_bytes)",
+      "decl_hash": "c855be5c7f08ecc6"
+    },
+    {
+      "name": "hipcompBatchedBitcompGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "hipcompStatus_t hipcompBatchedBitcompGetDecompressSizeAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, size_t * device_uncompressed_bytes, size_t batch_size, hipStream_t stream)",
+      "decl_hash": "40710b9670aa6aab"
+    },
+    {
+      "name": "hipcompBatchedCascadedCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/cascaded.h",
+      "decl": "hipcompStatus_t hipcompBatchedCascadedCompressAsync(const void *const * device_uncompressed_ptrs, const size_t * device_uncompressed_bytes, size_t max_uncompressed_chunk_bytes, size_t batch_size, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_ptrs, size_t * device_compressed_bytes, const hipcompBatchedCascadedOpts_t format_opts, hipStream_t stream)",
+      "decl_hash": "06b286b4a8820aa7"
+    },
+    {
+      "name": "hipcompBatchedCascadedCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/cascaded.h",
+      "decl": "hipcompStatus_t hipcompBatchedCascadedCompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, hipcompBatchedCascadedOpts_t format_opts, size_t * max_compressed_bytes)",
+      "decl_hash": "735c189aac296e77"
+    },
+    {
+      "name": "hipcompBatchedCascadedCompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/cascaded.h",
+      "decl": "hipcompStatus_t hipcompBatchedCascadedCompressGetTempSize(size_t batch_size, size_t max_uncompressed_chunk_bytes, hipcompBatchedCascadedOpts_t format_opts, size_t * temp_bytes)",
+      "decl_hash": "66be07c6502aaa73"
+    },
+    {
+      "name": "hipcompBatchedCascadedDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/cascaded.h",
+      "decl": "hipcompStatus_t hipcompBatchedCascadedDecompressAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, const size_t * device_uncompressed_bytes, size_t * device_actual_uncompressed_bytes, size_t batch_size, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_ptrs, hipcompStatus_t * device_statuses, hipStream_t stream)",
+      "decl_hash": "638f6289ca205a58"
+    },
+    {
+      "name": "hipcompBatchedCascadedDecompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/cascaded.h",
+      "decl": "hipcompStatus_t hipcompBatchedCascadedDecompressGetTempSize(size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes)",
+      "decl_hash": "ed9913c7fbc55e77"
+    },
+    {
+      "name": "hipcompBatchedCascadedGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/cascaded.h",
+      "decl": "hipcompStatus_t hipcompBatchedCascadedGetDecompressSizeAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, size_t * device_uncompressed_bytes, size_t batch_size, hipStream_t stream)",
+      "decl_hash": "dfc1310992ce0985"
+    },
+    {
+      "name": "hipcompBatchedGdeflateCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/gdeflate.h",
+      "decl": "hipcompStatus_t hipcompBatchedGdeflateCompressAsync(const void *const * device_uncompressed_ptrs, const size_t * device_uncompressed_bytes, size_t max_uncompressed_chunk_bytes, size_t batch_size, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_ptrs, size_t * device_compressed_bytes, hipcompBatchedGdeflateOpts_t format_opts, hipStream_t stream)",
+      "decl_hash": "a9bab989c81cd70a"
+    },
+    {
+      "name": "hipcompBatchedGdeflateCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/gdeflate.h",
+      "decl": "hipcompStatus_t hipcompBatchedGdeflateCompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, hipcompBatchedGdeflateOpts_t format_opts, size_t * max_compressed_bytes)",
+      "decl_hash": "07a986c2da7dc60f"
+    },
+    {
+      "name": "hipcompBatchedGdeflateCompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/gdeflate.h",
+      "decl": "hipcompStatus_t hipcompBatchedGdeflateCompressGetTempSize(size_t batch_size, size_t max_uncompressed_chunk_bytes, hipcompBatchedGdeflateOpts_t format_opts, size_t * temp_bytes)",
+      "decl_hash": "8ab4cf050262d228"
+    },
+    {
+      "name": "hipcompBatchedGdeflateDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/gdeflate.h",
+      "decl": "hipcompStatus_t hipcompBatchedGdeflateDecompressAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, const size_t * device_uncompressed_bytes, size_t * device_actual_uncompressed_bytes, size_t batch_size, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_ptrs, hipcompStatus_t * device_statuses, hipStream_t stream)",
+      "decl_hash": "ad6db4db70fa9cf5"
+    },
+    {
+      "name": "hipcompBatchedGdeflateDecompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/gdeflate.h",
+      "decl": "hipcompStatus_t hipcompBatchedGdeflateDecompressGetTempSize(size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes)",
+      "decl_hash": "5c9eb3fb0cf12105"
+    },
+    {
+      "name": "hipcompBatchedGdeflateGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/gdeflate.h",
+      "decl": "hipcompStatus_t hipcompBatchedGdeflateGetDecompressSizeAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, size_t * device_uncompressed_bytes, size_t batch_size, hipStream_t stream)",
+      "decl_hash": "ea619cb05349751d"
+    },
+    {
+      "name": "hipcompBatchedLZ4CompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/lz4.h",
+      "decl": "hipcompStatus_t hipcompBatchedLZ4CompressAsync(const void *const * device_uncompressed_ptrs, const size_t * device_uncompressed_bytes, size_t max_uncompressed_chunk_bytes, size_t batch_size, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_ptrs, size_t * device_compressed_bytes, hipcompBatchedLZ4Opts_t format_opts, hipStream_t stream)",
+      "decl_hash": "d7cdfef33f684a39"
+    },
+    {
+      "name": "hipcompBatchedLZ4CompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/lz4.h",
+      "decl": "hipcompStatus_t hipcompBatchedLZ4CompressGetMaxOutputChunkSize(size_t max_uncompressed_chunk_bytes, hipcompBatchedLZ4Opts_t format_opts, size_t * max_compressed_bytes)",
+      "decl_hash": "933149c8400906c1"
+    },
+    {
+      "name": "hipcompBatchedLZ4CompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/lz4.h",
+      "decl": "hipcompStatus_t hipcompBatchedLZ4CompressGetTempSize(size_t batch_size, size_t max_uncompressed_chunk_bytes, hipcompBatchedLZ4Opts_t format_opts, size_t * temp_bytes)",
+      "decl_hash": "df2be32c8fce4d61"
+    },
+    {
+      "name": "hipcompBatchedLZ4DecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/lz4.h",
+      "decl": "hipcompStatus_t hipcompBatchedLZ4DecompressAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, const size_t * device_uncompressed_bytes, size_t * device_actual_uncompressed_bytes, size_t batch_size, void *const device_temp_ptr, size_t temp_bytes, void *const * device_uncompressed_ptrs, hipcompStatus_t * device_statuses, hipStream_t stream)",
+      "decl_hash": "c7354a38c6d676dd"
+    },
+    {
+      "name": "hipcompBatchedLZ4DecompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/lz4.h",
+      "decl": "hipcompStatus_t hipcompBatchedLZ4DecompressGetTempSize(size_t num_chunks, size_t max_uncompressed_chunk_bytes, size_t * temp_bytes)",
+      "decl_hash": "6d76f2e73cb275b6"
+    },
+    {
+      "name": "hipcompBatchedLZ4GetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/lz4.h",
+      "decl": "hipcompStatus_t hipcompBatchedLZ4GetDecompressSizeAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, size_t * device_uncompressed_bytes, size_t batch_size, hipStream_t stream)",
+      "decl_hash": "d3a4cae86eb8b5b4"
+    },
+    {
+      "name": "hipcompBatchedSnappyCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/snappy.h",
+      "decl": "hipcompStatus_t hipcompBatchedSnappyCompressAsync(const void *const * device_uncompressed_ptr, const size_t * device_uncompressed_bytes, size_t max_uncompressed_chunk_bytes, size_t batch_size, void * device_temp_ptr, size_t temp_bytes, void *const * device_compressed_ptr, size_t * device_compressed_bytes, hipcompBatchedSnappyOpts_t format_ops, hipStream_t stream)",
+      "decl_hash": "675a952105507c1a"
+    },
+    {
+      "name": "hipcompBatchedSnappyCompressGetMaxOutputChunkSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/snappy.h",
+      "decl": "hipcompStatus_t hipcompBatchedSnappyCompressGetMaxOutputChunkSize(size_t max_chunk_size, hipcompBatchedSnappyOpts_t format_opts, size_t * max_compressed_size)",
+      "decl_hash": "a3b0c43d34b476e2"
+    },
+    {
+      "name": "hipcompBatchedSnappyCompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/snappy.h",
+      "decl": "hipcompStatus_t hipcompBatchedSnappyCompressGetTempSize(size_t batch_size, size_t max_chunk_size, hipcompBatchedSnappyOpts_t format_ops, size_t * temp_bytes)",
+      "decl_hash": "b9a011fad113feba"
+    },
+    {
+      "name": "hipcompBatchedSnappyDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/snappy.h",
+      "decl": "hipcompStatus_t hipcompBatchedSnappyDecompressAsync(const void *const * device_compresed_ptrs, const size_t * device_compressed_bytes, const size_t * device_uncompressed_bytes, size_t * device_actual_uncompressed_bytes, size_t batch_size, void *const device_temp_ptr, const size_t temp_bytes, void *const * device_uncompressed_ptr, hipcompStatus_t * device_statuses, hipStream_t stream)",
+      "decl_hash": "4692d6f64571e47c"
+    },
+    {
+      "name": "hipcompBatchedSnappyDecompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/snappy.h",
+      "decl": "hipcompStatus_t hipcompBatchedSnappyDecompressGetTempSize(size_t num_chunks, size_t max_uncompressed_chunk_size, size_t * temp_bytes)",
+      "decl_hash": "d9e0ec9d04a4d3d8"
+    },
+    {
+      "name": "hipcompBatchedSnappyGetDecompressSizeAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/snappy.h",
+      "decl": "hipcompStatus_t hipcompBatchedSnappyGetDecompressSizeAsync(const void *const * device_compressed_ptrs, const size_t * device_compressed_bytes, size_t * device_uncompressed_bytes, size_t batch_size, hipStream_t stream)",
+      "decl_hash": "e2c0875d500db294"
+    },
+    {
+      "name": "hipcompBitcompCompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "hipcompStatus_t hipcompBitcompCompressAsync(const hipcompBitcompFormatOpts * format_opts, hipcompType_t in_type, const void * uncompressed_ptr, size_t uncompressed_bytes, void * temp_ptr, size_t temp_bytes, void * compressed_ptr, size_t * compressed_bytes, hipStream_t stream)",
+      "decl_hash": "8bf607fd6c915377"
+    },
+    {
+      "name": "hipcompBitcompCompressConfigure",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "hipcompStatus_t hipcompBitcompCompressConfigure(const hipcompBitcompFormatOpts * opts, hipcompType_t in_type, size_t in_bytes, size_t * metadata_bytes, size_t * temp_bytes, size_t * max_compressed_bytes)",
+      "decl_hash": "ece612761fe408a2"
+    },
+    {
+      "name": "hipcompBitcompDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "hipcompStatus_t hipcompBitcompDecompressAsync(const void * compressed_ptr, size_t compressed_bytes, void * metadata_ptr, size_t metadata_bytes, void * temp_ptr, size_t temp_bytes, void * uncompressed_ptr, size_t uncompressed_bytes, hipStream_t stream)",
+      "decl_hash": "ab2e47bd075b53fb"
+    },
+    {
+      "name": "hipcompBitcompDecompressConfigure",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "hipcompStatus_t hipcompBitcompDecompressConfigure(const void * compressed_ptr, size_t compressed_bytes, void ** metadata_ptr, size_t * metadata_bytes, size_t * temp_bytes, size_t * uncompressed_bytes, hipStream_t stream)",
+      "decl_hash": "59b0f0412de00d17"
+    },
+    {
+      "name": "hipcompBitcompDestroyMetadata",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "void hipcompBitcompDestroyMetadata(void * metadata_ptr)",
+      "decl_hash": "4e288165ab81af00"
+    },
+    {
+      "name": "hipcompDecompressAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "hipcompStatus_t hipcompDecompressAsync(const void * in_ptr, size_t in_bytes, void * temp_ptr, size_t temp_bytes, void * metadata_ptr, void * out_ptr, size_t out_bytes, hipStream_t stream)",
+      "decl_hash": "e3cc24f6048feee6"
+    },
+    {
+      "name": "hipcompDecompressDestroyMetadata",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "void hipcompDecompressDestroyMetadata(void * metadata_ptr)",
+      "decl_hash": "7c10059cd34d0912"
+    },
+    {
+      "name": "hipcompDecompressGetMetadata",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "hipcompStatus_t hipcompDecompressGetMetadata(const void * in_ptr, size_t in_bytes, void ** metadata_ptr, hipStream_t stream)",
+      "decl_hash": "db2ec13bdb5423a2"
+    },
+    {
+      "name": "hipcompDecompressGetOutputSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "hipcompStatus_t hipcompDecompressGetOutputSize(const void * metadata_ptr, size_t * output_bytes)",
+      "decl_hash": "ecabef837bb49240"
+    },
+    {
+      "name": "hipcompDecompressGetTempSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "hipcompStatus_t hipcompDecompressGetTempSize(const void * metadata_ptr, size_t * temp_bytes)",
+      "decl_hash": "5ab9e02d4c86ea81"
+    },
+    {
+      "name": "hipcompDecompressGetType",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "hipcompStatus_t hipcompDecompressGetType(const void * metadata_ptr, hipcompType_t * type)",
+      "decl_hash": "686b71275e084c96"
+    },
+    {
+      "name": "hipcompIsBitcompData",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "int hipcompIsBitcompData(const void *const in_ptr, size_t in_bytes)",
+      "decl_hash": "2b563d588910f926"
+    },
+    {
+      "name": "hipcompANSType_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "typedef enum hipcompANSType_t hipcompANSType_t",
+      "decl_hash": "a7ed5cf9e1dd9b84"
+    },
+    {
+      "name": "hipcompBatchedANSOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "typedef struct hipcompBatchedANSOpts_t hipcompBatchedANSOpts_t",
+      "decl_hash": "7aa36c35761093f9"
+    },
+    {
+      "name": "hipcompBatchedBitcompFormatOpts",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "typedef struct hipcompBatchedBitcompFormatOpts hipcompBatchedBitcompFormatOpts",
+      "decl_hash": "1e269927dcc95c44"
+    },
+    {
+      "name": "hipcompBatchedCascadedOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/cascaded.h",
+      "decl": "typedef struct hipcompBatchedCascadedOpts_t hipcompBatchedCascadedOpts_t",
+      "decl_hash": "b214771b70d9c9e0"
+    },
+    {
+      "name": "hipcompBatchedGdeflateOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/gdeflate.h",
+      "decl": "typedef struct hipcompBatchedGdeflateOpts_t hipcompBatchedGdeflateOpts_t",
+      "decl_hash": "2119f4a86687b27c"
+    },
+    {
+      "name": "hipcompBatchedLZ4Opts_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/lz4.h",
+      "decl": "typedef struct hipcompBatchedLZ4Opts_t hipcompBatchedLZ4Opts_t",
+      "decl_hash": "1bfc9312b7162b23"
+    },
+    {
+      "name": "hipcompBatchedSnappyOpts_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/snappy.h",
+      "decl": "typedef struct hipcompBatchedSnappyOpts_t hipcompBatchedSnappyOpts_t",
+      "decl_hash": "4f5f92ff213f96ff"
+    },
+    {
+      "name": "hipcompBitcompFormatOpts",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "typedef struct hipcompBitcompFormatOpts hipcompBitcompFormatOpts",
+      "decl_hash": "7cd1d8add13de261"
+    },
+    {
+      "name": "hipcompCascadedFormatOpts",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/cascaded.h",
+      "decl": "typedef struct hipcompCascadedFormatOpts hipcompCascadedFormatOpts",
+      "decl_hash": "d9e136f6d243a983"
+    },
+    {
+      "name": "hipcompLZ4FormatOpts",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/lz4.h",
+      "decl": "typedef struct hipcompLZ4FormatOpts hipcompLZ4FormatOpts",
+      "decl_hash": "23ebc03723621e17"
+    },
+    {
+      "name": "hipcompStatus_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/shared_types.h",
+      "decl": "typedef enum hipcompStatus_t hipcompStatus_t",
+      "decl_hash": "dd72ff6f67e1f502"
+    },
+    {
+      "name": "hipcompType_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm-ds/include/hipcomp.h",
+      "decl": "typedef enum hipcompType_t hipcompType_t",
+      "decl_hash": "ffafe66976a6e334"
+    },
+    {
+      "name": "hipcompBatchedANSDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/ans.h",
+      "decl": "const hipcompBatchedANSOpts_t hipcompBatchedANSDefaultOpts",
+      "decl_hash": "000f7a691b52967b"
+    },
+    {
+      "name": "hipcompBatchedBitcompDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "const hipcompBatchedBitcompFormatOpts hipcompBatchedBitcompDefaultOpts",
+      "decl_hash": "1150ff771b04a5ee"
+    },
+    {
+      "name": "hipcompBatchedCascadedDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/cascaded.h",
+      "decl": "const hipcompBatchedCascadedOpts_t hipcompBatchedCascadedDefaultOpts",
+      "decl_hash": "a6568c99433aa1bb"
+    },
+    {
+      "name": "hipcompBatchedGdeflateDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/gdeflate.h",
+      "decl": "const hipcompBatchedGdeflateOpts_t hipcompBatchedGdeflateDefaultOpts",
+      "decl_hash": "2824f10dc52d8410"
+    },
+    {
+      "name": "hipcompBatchedLZ4DefaultOpts",
+      "kind": "VarDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/lz4.h",
+      "decl": "const hipcompBatchedLZ4Opts_t hipcompBatchedLZ4DefaultOpts",
+      "decl_hash": "0fefe17b42ee8a72"
+    },
+    {
+      "name": "hipcompBatchedSnappyDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/snappy.h",
+      "decl": "const hipcompBatchedSnappyOpts_t hipcompBatchedSnappyDefaultOpts",
+      "decl_hash": "5ee24e2d98c96fe6"
+    },
+    {
+      "name": "hipcompBitcompDefaultOpts",
+      "kind": "VarDecl",
+      "header": "/opt/rocm-ds/include/hipcomp/bitcomp.h",
+      "decl": "const hipcompBitcompFormatOpts hipcompBitcompDefaultOpts",
+      "decl_hash": "d1f090b66a507a30"
+    }
+  ]
+}

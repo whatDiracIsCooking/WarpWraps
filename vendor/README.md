@@ -40,31 +40,44 @@ one and the two genuinely differ:
 
 ## Layout
 
-One directory per SDK pin, one file per wrapped library:
+One directory per SDK version, one file per wrapped library:
 
 - `cuda-13.0.x/` — the CUDA backend, harvested against the toolkit the
   `:cuda-ci` image ships (CUDA 13.0.x; NCCL / cuTENSOR / nvCOMP arrive by apt).
-- `rocm-7.2.4/` — the HIP backend, harvested against ROCm 7.2.4 (arch `gfx942`),
+  This is a within-major **band**, not a point: CUDA 13.0 → 13.3 adds rather
+  than removes, so one dir serves both the 13.0.0 floor and every 13.0.x pin —
+  there is no separate CUDA floor manifest (nor a CI cuda-floor leg).
+- `rocm-7.2.4/` — the HIP **pin**, harvested against ROCm 7.2.4 (arch `gfx942`),
   plus hipCOMP from `/opt/rocm-ds`.
+- `rocm-7.1.0/` — the HIP **floor** (the oldest ROCm `wwr` builds on;
+  `CMakeLists.txt` enforces it). ROCm churns across minors exactly in the
+  surfaces this repo wraps, so pin and floor are distinct manifests. Diffing the
+  two is the changelog AMD does not publish (#116): at 7.1.0 → 7.2.4 nothing
+  leaves the surface (0 floor-only symbols), 34 names are *added* in 7.2 (28
+  amd_smi, 6 hip_runtime_api) — all behind `WWR_*_SINCE_*` / `__has_include`
+  guards in `src/hip`, so the floor is clean.
 
 ## Regenerating
 
 `devtools/vendor_manifests.sh` is the single source of the harvest invocations
 (prefix, defines, include roots per library). Run it **inside the matching
-pinned `-ci` image** — the version dir names encode the pin, and the manifests
-are only reproducible against those exact headers:
+`-ci` image** — the manifests are only reproducible against those exact headers.
+The HIP version dir is **read from the image** (`/opt/rocm/.info/version`), so
+one `hip` invocation writes `rocm-7.2.4/` in the pin image and `rocm-7.1.0/` in
+the floor image; CUDA stays the `13.0.x` band:
 
 ```bash
-devtools/vendor_manifests.sh cuda   # rewrites cuda-13.0.x/
-devtools/vendor_manifests.sh hip    # rewrites rocm-7.2.4/
+devtools/vendor_manifests.sh cuda   # rewrites cuda-13.0.x/  (in :cuda-ci)
+devtools/vendor_manifests.sh hip    # rewrites rocm-<ver>/   (in :hip-ci or :hip-7.1.0-ci)
 devtools/vendor_manifests.sh both   # both (needs the combined image)
 ```
 
 The `vendor-manifests` CI job regenerates into a throwaway tree and fails on any
 diff, printing it — the honesty mechanism that keeps these files from going
-stale-but-trusted. A red diff is either a manifest nobody regenerated after an
-intended change, or a new SDK point release changing the surface under a fixed
-pin.
+stale-but-trusted. It runs three legs — `cuda-13.0.x` (`:cuda-ci`), `rocm-7.2.4`
+(`:hip-ci`) and `rocm-7.1.0` (`:hip-7.1.0-ci`). A red diff is either a manifest
+nobody regenerated after an intended change, or a new SDK point release changing
+the surface under a fixed pin/floor.
 
 ## Consumers
 

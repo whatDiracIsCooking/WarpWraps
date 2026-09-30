@@ -465,14 +465,20 @@ jobs:
   # for -- a new CUDA/ROCm point release changing the surface under a fixed pin,
   # announcing itself to us here instead of to a user.
   #
-  # Two legs, matching `cpp`: the CUDA manifests can only be regenerated where
-  # the CUDA headers live (`cuda-ci`) and the HIP manifests where ROCm's do
-  # (`hip-ci`); no single `-ci` image carries both. Each leg diffs only its own
-  # vendor/<dir>. Gated on `changes` like `cpp`/`install-check` -- a docs-only
-  # PR changes no header and no harvest input, so its skip is expected and
-  # ci-ok tolerates it.
+  # Three legs, matching `cpp` + `cpp-floor`: the CUDA manifests can only be
+  # regenerated where the CUDA headers live (`cuda-ci`) and the HIP manifests
+  # where ROCm's do (`hip-ci`); no single `-ci` image carries both. The third leg
+  # regenerates the HIP FLOOR manifests in `hip-7.1.0-ci` -- the same script (it
+  # reads the ROCm version from the image, writing rocm-7.1.0 there and rocm-7.2.4
+  # in `hip-ci`), the same diff, so a 7.2 point release changing the floor surface
+  # under the fixed 7.1.0 pin announces itself here too (#116). There is no
+  # cuda-floor leg, for the reason cpp-floor gives: the `13-0` pin IS the 13.0.0
+  # floor, so cuda-13.0.x already covers both. Each leg diffs only its own
+  # vendor/<dir> (matrix.sub). Gated on `changes` like `cpp`/`install-check` -- a
+  # docs-only PR changes no header and no harvest input, so its skip is expected
+  # and ci-ok tolerates it.
   vendor-manifests:
-    name: vendor-manifests (${{ matrix.backend }})
+    name: vendor-manifests (${{ matrix.sub }})
     needs: [lint, changes]
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
@@ -486,8 +492,15 @@ jobs:
         include:
           - backend: cuda
             image: cuda-ci
+            sub: cuda-13.0.x
           - backend: hip
             image: hip-ci
+            sub: rocm-7.2.4
+          # The HIP floor. Same `hip` script arg as the pin leg above; the script
+          # derives the version dir from the image, so it writes rocm-7.1.0 here.
+          - backend: hip
+            image: hip-7.1.0-ci
+            sub: rocm-7.1.0
     container:
       image: ghcr.io/whatdiraciscooking/wwr:${{ matrix.image }}
       options: --user root
@@ -506,11 +519,11 @@ jobs:
           set -euo pipefail
           out="$(mktemp -d)"
           VENDOR_ROOT="$out" devtools/vendor_manifests.sh ${{ matrix.backend }}
-          # Compare only THIS leg's version dir; the other leg owns the other.
-          if [ "${{ matrix.backend }}" = cuda ]; then sub=cuda-13.0.x; else sub=rocm-7.2.4; fi
+          # Compare only THIS leg's version dir; each leg owns exactly one.
+          sub=${{ matrix.sub }}
           if ! diff -ruN "vendor/$sub" "$out/$sub"; then
             echo "::error::vendor/$sub is stale. It is machine output -- do NOT" \
-                 "hand-edit. Regenerate in the pinned image:" \
+                 "hand-edit. Regenerate in the ${{ matrix.image }} image:" \
                  "devtools/vendor_manifests.sh ${{ matrix.backend }}" >&2
             exit 1
           fi
