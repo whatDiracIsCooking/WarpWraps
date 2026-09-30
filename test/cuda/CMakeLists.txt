@@ -45,6 +45,7 @@ set(CUDA_TEST_LIBRARIES
     nvml
     nvrtc
     cublas_v2
+    cusolverDn
 )
 
 foreach(_lib IN LISTS CUDA_TEST_LIBRARIES)
