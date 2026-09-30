@@ -717,6 +717,13 @@ struct-initializer macros, for the reasons `wwr.cuda.nccl` gives.
 list used to drop rccl ("nothing here wraps them"); now that this module links
 `roc::rccl` it is a link-time dependency and is retained.
 
+**`librccl` brings an SMI library with it, so this module constrains which SMI
+module can share its process.** Below ROCm 7.11 that is `librocm_smi64.so.1`, a
+hard `DT_NEEDED` of `librccl.so`, which rules out `wwr.hip.amd_smi` in the same
+binary; from 7.11 RCCL resolves `amd_smi` itself and the pairing reverses. See
+"nvml's HIP counterpart" above -- that section is the authority, this is the
+pointer to it, because the constraint is invisible from this end otherwise.
+
 ### `wwr.hip.hipcomp`
 
 **Import:** `import wwr.hip.hipcomp;`
