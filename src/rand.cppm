@@ -228,7 +228,7 @@ WWR_FUNCTION(wwrrandGetScrambleConstants64, curandGetScrambleConstants64,
 // sizing and allocating the per-thread state array:
 //
 //   DeviceBufferWrapper<wwrrandState, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
-//                       MyDeviceHandle, AbortPolicy<wwrError_t>>
+//                       AbortPolicy<wwrError_t>, MyDeviceHandle>
 //       states(count, device);  // device: shared_ptr<MyDeviceHandle> (caller-supplied);
 //                               // AbortPolicy is the caller's own -- the library ships none
 //

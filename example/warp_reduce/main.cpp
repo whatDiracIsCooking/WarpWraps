@@ -69,8 +69,8 @@ struct DeviceHandle {
 };
 template<typename T>
 using DeviceBuffer =
-    ext::DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, DeviceHandle,
-                             AbortPolicy<wwrError_t>>;
+    ext::DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
+                             AbortPolicy<wwrError_t>, DeviceHandle>;
 
 namespace {
 

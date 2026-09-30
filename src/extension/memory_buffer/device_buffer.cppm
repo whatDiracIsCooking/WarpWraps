@@ -37,7 +37,6 @@ export namespace wwr::extension {
  * @tparam T The element type stored in the buffer
  * @tparam P_alloc Error policy type for allocation
  * @tparam P_free Error policy type for deallocation
- * @tparam H Device handle backing the buffer; its tier picks the strategy.
  * @tparam P_device_access Error policy for the DeviceScope guard's device
  *         switch (wwrGetDevice/wwrSetDevice) on the alloc and free paths. Unlike
  *         P_alloc/P_free, this is type-level only: a fresh instance is
@@ -46,6 +45,7 @@ export namespace wwr::extension {
  *         state per buffer; a failed *device switch* means the runtime context
  *         is already unusable -- a catastrophic, near-unreachable case whose
  *         policy needs no per-buffer state, only a reaction.
+ * @tparam H Device handle backing the buffer; its tier picks the strategy.
  *
  * @note P_free MUST NOT THROW - it is called from the destructor. P_device_access
  *       carries the same nothrow constraint: the free-path DeviceScope's switch
@@ -55,15 +55,15 @@ export namespace wwr::extension {
  *          the host. Prefer a stream-bearing handle in hot alloc/free paths.
  */
 template<typename T, error_policy<wwrError_t> P_alloc,
-         nothrow_error_policy<wwrError_t> P_free, device_handle H,
-         nothrow_error_policy<wwrError_t> P_device_access>
+         nothrow_error_policy<wwrError_t> P_free,
+         nothrow_error_policy<wwrError_t> P_device_access, device_handle H>
 class DeviceBufferWrapper
     : public BaseBuffer<T, MemoryKind::Device,
-                        DeviceBufferWrapper<T, P_alloc, P_free, H, P_device_access>, P_alloc,
+                        DeviceBufferWrapper<T, P_alloc, P_free, P_device_access, H>, P_alloc,
                         P_free> {
 private:
   using Base = BaseBuffer<T, MemoryKind::Device,
-                          DeviceBufferWrapper<T, P_alloc, P_free, H, P_device_access>, P_alloc,
+                          DeviceBufferWrapper<T, P_alloc, P_free, P_device_access, H>, P_alloc,
                           P_free>;
 
 public:
