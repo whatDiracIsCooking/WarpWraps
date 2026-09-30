@@ -64,8 +64,8 @@ the handle, the matmul / matrix-layout / preference / matrix-transform
 descriptors with their attribute get/set, the algo-heuristic search, and
 `wwrblasLtMatmul` / `wwrblasLtMatrixTransform` themselves, plus the epilogue /
 order / pointer-mode / matrix-scale enums. The surface is exactly what
-`devtools/header_intersection.py --cuda cublasLt.h --hip hipblaslt.h` reports
-the two backends share by name; cuBLASLt's much larger private surface (algo
+`devtools/header_intersection.py --cuda vendor/cuda-13.0.x/cublasLt.json --hip
+vendor/rocm-7.2.4/hipblaslt.json` reports the two backends share by name; cuBLASLt's much larger private surface (algo
 introspection, logger, tile/stages enums) and hipBLASLt's own additions are
 reached through the raw modules. `wwrblasLtGetVersion` is left out (shared name,
 irreconcilable signatures); status success codes live in `wwr.blas`. See the
@@ -161,8 +161,8 @@ constants. Three things to watch:
   `ncclResetDebugInit` (in NCCL's upstream header, but not the `libnccl-dev` the
   CUDA image ships) — have no counterpart in the installed NCCL and are therefore
   **absent from `wwr.ccl`**, reachable only through the raw `wwr.hip.rccl`
-  module. Run `devtools/header_intersection.py --cuda nccl.h --hip rccl.h` to
-  reproduce.
+  module. Run `devtools/header_intersection.py --cuda vendor/cuda-13.0.x/nccl.json
+  --hip vendor/rocm-7.2.4/rccl.json` to reproduce.
 - The `NCCL_*` values are `#define` macros, which a module cannot re-export; the
   raw modules turn the scalar flag/param ones into `constexpr` (as `cufft` does
   for its direction flags) and `wwr.ccl` aliases those to `WWRCCL_*`. The
@@ -181,7 +181,8 @@ element-wise — cuTENSOR / hipTensor. Unlike `ccl`, this is **not a hipify pair
 cuTENSOR is closed-source over CUDA and hipTensor is built on composable-kernel,
 two independent implementations that merely mirror each other's naming. The
 intersection was therefore **measured, not assumed** (run
-`devtools/header_intersection.py` over the two headers to reproduce): of
+`devtools/header_intersection.py --cuda vendor/cuda-13.0.x/cutensor.json --hip
+vendor/rocm-7.2.4/hiptensor.json` to reproduce): of
 cuTENSOR 2.8.1.0's 45 functions and hipTensor 2.2.0's 38, **37 are shared by
 name with positionally identical signatures**, and `wwr.tensor` carries 36 of
 them plus 18 shared types and 93 value-agreeing constants (28 data types —

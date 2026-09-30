@@ -470,10 +470,11 @@ symbols, no ROCm analogue at all) and NCCL/RCCL (issue #100, now `wwr.ccl`), the
 one popular library where both backends *do* share the surface verbatim — RCCL
 being a source-compatible reimplementation of NCCL, down to the `nccl*` names.
 
-To falsify this, install cuDNN and MIOpen and run
-`devtools/header_intersection.py --cuda cudnn.h --hip miopen.h`. This section is
-reasoned from the two APIs' documented shapes, not measured on this file's
-toolchain — neither header ships in the images.
+To falsify this, install cuDNN and MIOpen, `vendor_harvest.py` each into a
+manifest, and run `devtools/header_intersection.py` over the two (the intersection
+tool reads harvested manifests, not headers directly). This section is reasoned
+from the two APIs' documented shapes, not measured on this file's toolchain —
+neither header ships in the images, so neither is harvested.
 
 ## 20. Scoped, ordered atomics: two spellings for one operation
 

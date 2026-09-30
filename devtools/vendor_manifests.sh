@@ -129,6 +129,14 @@ harvest_cuda() {
   run_cuda cufft         cufft        "$CUDA_INC/cufft.h"        --lib "$CUDA_LIB/libcufft.so"
   run_cuda cufftXt       cufft        "$CUDA_INC/cufftXt.h"      --lib "$CUDA_LIB/libcufft.so"
   run_cuda curand        curand       "$CUDA_INC/curand.h"       --lib "$CUDA_LIB/libcurand.so"
+  # curand_kernel.h re-declares the host generator API (in libcurand) plus the
+  # __device__ curand()/curand_uniform()/distribution templates and the
+  # curandState*_t device RNG-state types, which live in no host .so; those
+  # device-only functions correctly surface as declared_not_linkable. Mirrors
+  # the HIP hiprand_kernel row -- src/cuda/curand.cppm's GMF includes both
+  # <curand.h> and <curand_kernel.h>. Unlike hiprand_kernel.h it needs no
+  # <cstdio> pre-include, so it harvests from the bare vendor header.
+  run_cuda curand_kernel curand       "$CUDA_INC/curand_kernel.h" --lib "$CUDA_LIB/libcurand.so"
   run_cuda cusolverDn    cusolver     "$CUDA_INC/cusolverDn.h"   --lib "$CUDA_LIB/libcusolver.so"
   run_cuda cusolverMg    cusolver     "$CUDA_INC/cusolverMg.h"   --lib "$CUDA_LIB/libcusolverMg.so"
   run_cuda cusolverSp    cusolver     "$CUDA_INC/cusolverSp.h"   --lib "$CUDA_LIB/libcusolver.so"

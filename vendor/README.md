@@ -66,6 +66,21 @@ stale-but-trusted. A red diff is either a manifest nobody regenerated after an
 intended change, or a new SDK point release changing the surface under a fixed
 pin.
 
+## Consumers
+
+`devtools/header_intersection.py` reads these manifests (the `symbols` /
+**declared** block) to answer "which names do the two backends share, and does a
+module wrap them all?" — a set operation over committed data, so it needs **no
+SDK**. That is a deliberate change from its old behaviour of regexing the vendor
+`.h` files at run time: reading the full harvested surface makes its `--coverage`
+numbers **more correct** than the old single-header scan and therefore different
+from it. An umbrella like `cublas_v2.h` (a thin wrapper over `cublas_api.h` that
+mostly `#define`s `_v2` aliases) hid the bulk of the API from a one-file text
+scan; the manifest sees all of it, so the shared surface it reports is materially
+larger. `test/shared/test_header_intersection.py` exercises this off the
+committed manifests (rand and blas), so it runs on a bare CI runner with no GPU
+SDK.
+
 ## Coverage
 
 `devtools/vendor_manifests.sh`'s header lists the deliberate gaps: the
