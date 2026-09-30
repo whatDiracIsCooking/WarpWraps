@@ -16,7 +16,8 @@
  * Absent: hipsparseBfloat16, referenced by no signature in the header and
  * skipped exactly as cublas_v2.cppm skips cublasBfloat16; and any counterpart
  * to cuSPARSE's Preview SpMM-with-custom-operators API, which hipSPARSE does
- * not have. Not stubbed, simply not exported.
+ * not have. Not stubbed, simply not exported -- recorded as documented
+ * omissions in devtools/coverage_decisions.json.
  *
  * Usage:
  *   import wwr.hip.hipsparse;

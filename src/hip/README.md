@@ -337,7 +337,10 @@ multi-device API anywhere in hipBLAS or hipBLASLt -- verified directly
 against the installed ROCm CMake packages and headers, not assumed. Recorded
 here -- like the other deliberate absences on the CUDA side
 (`cufile`, `nvJitLink`, `nvFatbin` have no ROCm analogue either) -- so
-nobody re-investigates this later.
+nobody re-investigates this later. `cusolverMg` is also the `solver`
+omission recorded in `devtools/coverage_decisions.json`, where
+`header_intersection.py --coverage` reads it (and where its CUDA-13 whole-API
+deprecation is noted, rather than in a source header).
 No code follows from this -- it is a deliberate absence, not a gap to fill.
 
 ### `wwr.hip.hip_fp4` / `wwr.hip.hip_fp6` -- blocked, not built
@@ -560,7 +563,10 @@ Skipped here for the same reason. hipSPARSE also has no counterpart to
 cuSPARSE's Preview SpMM-with-custom-operators API
 (`cusparseSpMMOp_createPlan`/`cusparseSpMMOp`/`cusparseSpMMOp_destroyPlan`,
 `cusparseSpMMOpAlg_t`) -- verified by grepping the installed hipSPARSE
-headers; nothing exists. Not stubbed, simply not exported. All 546
+headers; nothing exists. Not stubbed, simply not exported. Both are recorded
+as documented omissions in `devtools/coverage_decisions.json` (the bf16 struct
+under `blas`, the SpMM-Op API under `sparse`), the enforced home
+`header_intersection.py --coverage` reads. All 546
 `HIPSPARSE_EXPORT` declarations found across the header tree are exported
 and `WWR_LINK_CHECK`'d.
 

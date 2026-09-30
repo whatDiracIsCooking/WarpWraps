@@ -325,7 +325,9 @@ WWR_LINK_CHECK(cusparseXcsr2coo)
 // The *_bufferSizeExt variants of gebsr2gebsc and csr2gebsr are declared in
 // cusparse.h but not exported by libcusparse.so (12.6.2, CUDA 13.0): it defines
 // the plain *_bufferSize of both, and the *_bufferSizeExt of 43 other routines.
-// Calling one fails to link, so only the declaration is checked.
+// Calling one fails to link, so only the declaration is checked. Recorded as
+// `sparse` omissions in devtools/coverage_decisions.json (and in
+// cusparse.json's declared_not_linkable).
 WWR_DECLARED_CHECK(cusparseSgebsr2gebsc_bufferSizeExt)
 WWR_DECLARED_CHECK(cusparseDgebsr2gebsc_bufferSizeExt)
 WWR_DECLARED_CHECK(cusparseCgebsr2gebsc_bufferSizeExt)
