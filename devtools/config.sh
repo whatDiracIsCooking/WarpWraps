@@ -89,10 +89,12 @@ DEVCONTAINER_CONFIG=${DEVCONTAINER_CONFIG:-.devcontainer/cuda/devcontainer.json}
 #   CUDA_VERSION  apt's `MAJOR-MINOR` form -- `13-0`, NOT `13.0.0`. It names the
 #                 cuda-toolkit-${CUDA_VERSION} package; doctor maps `13-0` to
 #                 the `13.0` nvcc reports.
-#   ROCM_VERSION  the full `MAJOR.MINOR.PATCH` -- `7.2.4`. It is the last path
-#                 element of the repo.radeon.com/rocm/apt/${ROCM_VERSION} apt
-#                 source, so a typo is a 404 at image-build time; doctor matches
-#                 it against /opt/rocm/.info/version.
+#   ROCM_VERSION  the full `MAJOR.MINOR.PATCH` -- `7.2.4`. It reaches the
+#                 repo.radeon.com/rocm/apt/ source path almost verbatim, so a
+#                 typo is a 404 at image-build time; doctor matches it against
+#                 /opt/rocm/.info/version. ALMOST: AMD publishes an X.Y.0
+#                 release under `X.Y`, so install-rocm.sh strips a trailing
+#                 `.0` for the URL only -- keep the semver here.
 CUDA_VERSION=${CUDA_VERSION:-13-0}
 ROCM_VERSION=${ROCM_VERSION:-7.2.4}
 

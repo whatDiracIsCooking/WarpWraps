@@ -104,7 +104,9 @@ README keep resolving the alias with no edits.
 
 `CUDA_VERSION` is apt's `MAJOR-MINOR` spelling (`13-0`, not `13.0.0`);
 `ROCM_VERSION` is the full `MAJOR.MINOR.PATCH` (`7.2.4`) that also forms the
-`repo.radeon.com/rocm/apt/${ROCM_VERSION}` source path. `devtools/doctor.sh`
+`repo.radeon.com/rocm/apt/` source path — almost verbatim: AMD publishes an
+`X.Y.0` release under `X.Y`, so `install-rocm.sh` strips a trailing `.0` for
+that URL alone and the pin keeps its semver. `devtools/doctor.sh`
 reports the installed SDK against these pins and warns when they have drifted.
 The Dockerfile `ARG` defaults still exist as a fallback for a raw
 `docker build` by hand, so they must not drift from `config.sh` — bump both.
