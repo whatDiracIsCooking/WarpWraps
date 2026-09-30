@@ -45,7 +45,7 @@ static_assert(std::is_same_v<wwrComplex, wwrFloatComplex>);
 // WWR_FUNCTION reference bindings, so &gpu != &backend and WWR_SAME_FUNCTION cannot
 // apply. A bare WWR_LINK_CHECK from this importing TU is the build-time claim: each
 // exported inline wrapper is reachable by name across the import and links. The
-// device-side counterparts in complex.cuh are proved separately by complex.cu.
+// device-side counterparts in complex.h's device section are proved separately by complex.cu.
 WWR_LINK_CHECK(make_wwrFloatComplex)
 WWR_LINK_CHECK(make_wwrDoubleComplex)
 WWR_LINK_CHECK(wwrCrealf)

@@ -177,13 +177,14 @@ add_dependencies(
   compile_time_tests wwr.test.gpu.cooperative_groups.device
 )
 
-# complex.cuh, fp16.cuh and bf16.cuh are the same shape of test for the same
-# reason: their __device__ functions over cuComplex/hipComplex and __half /
-# bfloat16 can only be named by a device pass, and the claim each can break --
-# every wwrC* / conversion resolving on both backends through one include
-# switch, plus (for complex) the §3 aggregate vs class divergence the header is
-# built around -- is a device-compile claim. Building them is the assertion; no
-# ctest entry, no launch. Reached through wwr.device, the same include path a
+# complex (complex.h's device section), fp16.cuh and bf16.cuh are the same shape
+# of test for the same reason: their __device__ functions over
+# cuComplex/hipComplex and __half / bfloat16 can only be named by a device pass,
+# and the claim each can break -- every wwrC* / conversion resolving on both
+# backends through one include switch, plus (for complex) the §3 aggregate vs
+# class divergence the header is built around -- is a device-compile claim.
+# Building them is the assertion; no ctest entry, no launch. Reached through
+# wwr.device, the same include path a
 # real device consumer uses.
 wwr_add_gpu_device_library(
   NAME

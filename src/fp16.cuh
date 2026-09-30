@@ -3,7 +3,7 @@
  * @brief Half type and float conversions for device-compiled TUs
  *
  * The device-compile counterpart to fp16.cppm: wwrHalf and the float<->half
- * conversions. Link wwr.device. Companion to bf16.cuh and complex.cuh.
+ * conversions. Link wwr.device. Companion to bf16.cuh and complex.h.
  *
  * The type is the SAME one fp16.cppm exports under this name, so a host-allocated
  * buffer and a kernel parameter named here agree, and an extern template declared
@@ -14,7 +14,7 @@
  * naming no vendor symbol -- there is nothing for a wrapper to make portable.
  * Only the float<->half conversions, which no operator performs, are here.
  * bfloat16 is the same shape and lives in bf16.cuh; complex diverges the other
- * way -- its type has no operators -- and lives in complex.cuh. See
+ * way -- its type has no operators -- and lives in complex.h's device section. See
  * docs/architecture.md, section 3.
  *
  * The conversions are __device__-only, like rand.h's device generators: they serve a

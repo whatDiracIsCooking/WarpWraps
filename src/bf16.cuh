@@ -14,7 +14,7 @@
  * code naming no vendor symbol -- there is nothing for a wrapper to make portable.
  * Only the float<->bfloat16 conversions, which no operator performs, are here.
  * Half is the same shape and lives in fp16.cuh; complex diverges the other way --
- * its type has no operators -- and lives in complex.cuh. See
+ * its type has no operators -- and lives in complex.h's device section. See
  * docs/architecture.md, section 3.
  *
  * The conversions are __device__-only, like rand.h's device generators: they serve a
