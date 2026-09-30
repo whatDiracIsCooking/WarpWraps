@@ -255,11 +255,14 @@ make the force survive `install(EXPORT)`:
   `-Wl,--whole-archive $<TARGET_FILE:tgt> -Wl,--no-whole-archive`: the
   hand-written form is copied into the export file unevaluated, and
   `$<TARGET_FILE:>` of a target the consumer does not have resolves to nothing.
-- Spell the target **both** ways — `$<BUILD_INTERFACE:…tgt>` and
-  `$<INSTALL_INTERFACE:…wwr::tgt>`. CMake does not namespace the name inside
-  `LINK_LIBRARY` when it writes the export (it does for ordinary link entries), so
-  the bare name matches nothing in the consumer and degrades to a plain `-ltgt`
-  the linker cannot find.
+- Spell the target **both** ways — `$<BUILD_INTERFACE:…tgt>` with the real
+  dotted name, and `$<INSTALL_INTERFACE:…>` with the exported name (the nested
+  `::` alias, e.g. `wwr::extension::init_state::device`). CMake does not
+  namespace the name inside `LINK_LIBRARY` when it writes the export (it does for
+  ordinary link entries), so the exported spelling has to be written out by hand
+  here — a name that matches nothing in the consumer degrades to a plain `-ltgt`
+  the linker cannot find. `_wwr_export_name` in `wwr_install.cmake` is what
+  computes that exported name for every target.
 
 Link it PUBLIC so it is also the ordinary link dependency (which is why the
 `.device` target is not in the module's `LINK_PUBLIC`). `install-check.sh` is

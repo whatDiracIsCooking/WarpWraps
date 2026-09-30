@@ -117,6 +117,25 @@ function(_wwr_install_module_adjacent_headers target destination)
   endif()
 endfunction()
 
+# The exported name for a target: its in-tree `::` alias without the `wwr::`
+# namespace. Strip the leading `wwr.`/`wwr_` and turn the remaining dots into
+# `::`, so the dotted target `wwr.extension.fft` gets EXPORT_NAME
+# `extension::fft` and, under install(EXPORT ... NAMESPACE wwr::) below, an
+# installed consumer links the SAME `wwr::extension::fft` that in-tree
+# CMakeLists already link -- one spelling everywhere (issue #183). `wwr_backend`
+# and `wwr_module_flags` fold in by the same rule (the leading separator is `_`)
+# to `wwr::backend` / `wwr::module_flags`; the device archives (`wwr.*.device`,
+# which carry no in-tree alias) to `wwr::…::device`, which the WHOLE_ARCHIVE
+# $<INSTALL_INTERFACE:> genexes in src/extension name by hand.
+function(_wwr_export_name target out_var)
+  string(REGEX REPLACE "^wwr[._]" "" _name "${target}")
+  string(REPLACE "." "::" _name "${_name}")
+  set(${out_var}
+      "${_name}"
+      PARENT_SCOPE
+  )
+endfunction()
+
 # Install one collected target into the wwr-targets export set. Three shapes:
 #
 #   * an INTERFACE library has no artifact -- it is in the set only for its
@@ -129,6 +148,12 @@ endfunction()
 #     only installs its archive; init_state/random_normal pull it in
 #     WHOLE_ARCHIVE.
 function(_wwr_install_target target)
+  # Unify the exported name with the in-tree `::` alias (issue #183). Set before
+  # any install(TARGETS ... EXPORT), which is what reads EXPORT_NAME into the
+  # generated wwr-targets.cmake.
+  _wwr_export_name(${target} _export_name)
+  set_target_properties(${target} PROPERTIES EXPORT_NAME "${_export_name}")
+
   get_target_property(_type ${target} TYPE)
   if(_type STREQUAL "INTERFACE_LIBRARY")
     install(TARGETS ${target} EXPORT wwr-targets)

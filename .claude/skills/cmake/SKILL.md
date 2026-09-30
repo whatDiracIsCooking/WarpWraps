@@ -114,18 +114,21 @@ set(_raw_blas wwr::cuda::cublas_v2)      # not wwr.cuda.cublas_v2
 3. **`wwr_add_dispatch_check`'s `TARGET`.** It names a target to disassemble,
    not to link — the real name.
 
-### The installed spelling is different (and that is fine)
+### The installed spelling is the same nested alias
 
-`install(EXPORT … NAMESPACE wwr::)` prepends `wwr::` to each target's dotted
-export name, so a **consumer** links `wwr::wwr.extension.fft` — see
-`example/consumer/CMakeLists.txt`. That is a *different* string from the in-tree
-alias `wwr::extension::fft`, and both are correct: in-tree CMakeLists use the
-nested alias, an installed consumer uses the export spelling. Linking the alias
-in-tree does **not** disturb the export — CMake resolves an alias to its real
-target before applying the export namespace, so the package records
-`wwr::wwr.extension.fft` regardless. (Unifying the two spellings — making the
-installed name `wwr::extension::fft` too, via a `::`-bearing `EXPORT_NAME` — is
-tracked in issue #183; leave the export path alone until then.)
+`install(EXPORT … NAMESPACE wwr::)` prepends `wwr::` to each target's
+`EXPORT_NAME`, and `_wwr_install_target` (`wwr_install.cmake`) sets that name to
+the in-tree alias without the namespace — the dotted target `wwr.extension.fft`
+gets `EXPORT_NAME extension::fft`, so a **consumer** links the *same*
+`wwr::extension::fft` the in-tree CMakeLists link (`example/consumer/
+CMakeLists.txt`). One spelling everywhere. `wwr_backend` / `wwr_module_flags`
+fold in the same way (`wwr::backend` / `wwr::module_flags`); the `.device`
+archives, which carry no in-tree alias, export as `wwr::…::device` and are named
+by hand inside the two WHOLE_ARCHIVE `$<INSTALL_INTERFACE:>` genexes in
+`src/extension`. An ordinary link entry is namespaced by CMake automatically, so
+`$<INSTALL_INTERFACE:wwr_backend>` needs no update — only the `LINK_LIBRARY`
+literals, which CMake copies through untranslated, name the export spelling
+explicitly.
 
 ## Install and the package — read-the-buildsystem-back
 
