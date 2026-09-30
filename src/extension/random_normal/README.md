@@ -104,7 +104,7 @@ Two things in here are worth knowing before editing:
   linkage — clang mangles it `f@wwr.extension.random_normal` and it can never
   resolve to a definition from a plain TU, which is what `random_normal.cu` is.
   A GMF can `#include` but not `import`, so the two types in the signatures come
-  from `runtime.h` and `extension/bridge/rand_state_bridge.h` rather than from
+  from `runtime.h` and `rand.h` rather than from
   `import wwr.rand` — they are the same types, so nothing is cast anywhere.
   Reading the define those headers need is why this module links `wwr_backend`
   PRIVATE.

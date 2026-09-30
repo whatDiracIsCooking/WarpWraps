@@ -3,9 +3,11 @@
  * @brief The cuRAND-or-hipRAND device API, for device-compiled translation units
  *
  * The __device__-qualified generator functions, which no module can export.
- * rand.cppm is the other half: the host API and the generator state types.
- * Together they cover what curand.h + curand_kernel.h cover, split by
- * execution space rather than by header.
+ * rand.cppm is the other half: the host API. The generator state types the
+ * functions here operate on come from rand.h (included below), the one home
+ * rand.cppm, rand.cuh and the extension bridges all draw them from. Together
+ * they cover what curand.h + curand_kernel.h cover, split by execution space
+ * rather than by header.
  *
  * Link wwr.rand.device -- separate from wwr.device, which a
  * device TU using this almost certainly also wants.
@@ -24,92 +26,17 @@
 
 #pragma once
 
-// WWR_SELECTED_CUDA / WWR_SELECTED_HIP, and #errors outside a device pass;
-// these vendor headers are device-only.
+// #errors outside a device pass. rand.h carries no such guard of its own (the
+// host bridges and rand.cppm include it from host compiles), so rand.cuh adds
+// it here for its own __device__ code.
 #include "device_guard.h"
 
-#if defined(WWR_SELECTED_CUDA)
-
-#include <curand_kernel.h>
-
-#else
-
-// <cstdio> first, and it is load-bearing: hiprand_kernel.h ->
-// hiprand_kernel_rocm.h -> rocrand/rocrand_kernel.h -> rocrand/rocrand_mtgp32.h
-// calls bare `printf` without declaring it. A real `-x hip` compile usually
-// drags a declaration in through hip_runtime.h before this point, so the
-// failure only shows up when this header is reached first -- include it here
-// so the order of includes in the consuming TU cannot matter. Same reason
-// src/hip/hiprand_kernel.cppm does it.
-#include <cstdio>
-
-#include <hiprand/hiprand_kernel.h>
-
-#endif
+// The state types and the vendor kernel headers -- one home, shared with
+// rand.cppm and the extension bridges, so a wwrrandState* named in a kernel here
+// is the same type the host allocated. See rand.h.
+#include "rand.h"
 
 namespace wwr {
-
-// ========================================================================
-// Generator state types
-//
-// The same types rand.cppm exports under these names, spelled without
-// modules. A wwrrandState* allocated host-side and a wwrrandState* named in
-// a kernel here are the same type, so the kernel signature mangles to match.
-// ========================================================================
-
-#if defined(WWR_SELECTED_CUDA)
-
-// Pseudorandom generators
-using wwrrandStateXORWOW = ::curandStateXORWOW;
-using wwrrandStateXORWOW_t = ::curandStateXORWOW_t;
-using wwrrandStateMRG32k3a = ::curandStateMRG32k3a;
-using wwrrandStateMRG32k3a_t = ::curandStateMRG32k3a_t;
-using wwrrandStateMtgp32 = ::curandStateMtgp32;
-using wwrrandStateMtgp32_t = ::curandStateMtgp32_t;
-using wwrrandStatePhilox4_32_10 = ::curandStatePhilox4_32_10;
-using wwrrandStatePhilox4_32_10_t = ::curandStatePhilox4_32_10_t;
-
-// Quasirandom generators
-using wwrrandStateSobol32 = ::curandStateSobol32;
-using wwrrandStateSobol32_t = ::curandStateSobol32_t;
-using wwrrandStateScrambledSobol32 = ::curandStateScrambledSobol32;
-using wwrrandStateScrambledSobol32_t = ::curandStateScrambledSobol32_t;
-using wwrrandStateSobol64 = ::curandStateSobol64;
-using wwrrandStateSobol64_t = ::curandStateSobol64_t;
-using wwrrandStateScrambledSobol64 = ::curandStateScrambledSobol64;
-using wwrrandStateScrambledSobol64_t = ::curandStateScrambledSobol64_t;
-
-// Default state -- IS wwrrandStateXORWOW here, unlike HIP
-using wwrrandState = ::curandState;
-using wwrrandState_t = ::curandState_t;
-
-#else
-
-// Pseudorandom generators
-using wwrrandStateXORWOW = ::hiprandStateXORWOW;
-using wwrrandStateXORWOW_t = ::hiprandStateXORWOW_t;
-using wwrrandStateMRG32k3a = ::hiprandStateMRG32k3a;
-using wwrrandStateMRG32k3a_t = ::hiprandStateMRG32k3a_t;
-using wwrrandStateMtgp32 = ::hiprandStateMtgp32;
-using wwrrandStateMtgp32_t = ::hiprandStateMtgp32_t;
-using wwrrandStatePhilox4_32_10 = ::hiprandStatePhilox4_32_10;
-using wwrrandStatePhilox4_32_10_t = ::hiprandStatePhilox4_32_10_t;
-
-// Quasirandom generators
-using wwrrandStateSobol32 = ::hiprandStateSobol32;
-using wwrrandStateSobol32_t = ::hiprandStateSobol32_t;
-using wwrrandStateScrambledSobol32 = ::hiprandStateScrambledSobol32;
-using wwrrandStateScrambledSobol32_t = ::hiprandStateScrambledSobol32_t;
-using wwrrandStateSobol64 = ::hiprandStateSobol64;
-using wwrrandStateSobol64_t = ::hiprandStateSobol64_t;
-using wwrrandStateScrambledSobol64 = ::hiprandStateScrambledSobol64;
-using wwrrandStateScrambledSobol64_t = ::hiprandStateScrambledSobol64_t;
-
-// Default state -- its own struct here, NOT wwrrandStateXORWOW
-using wwrrandState = ::hiprandState;
-using wwrrandState_t = ::hiprandState_t;
-
-#endif
 
 // ========================================================================
 // Device functions
