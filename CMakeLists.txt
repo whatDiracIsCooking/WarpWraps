@@ -189,7 +189,11 @@ add_link_options($<$<COMPILE_LANGUAGE:CXX>:-lc++abi>)
 # Find the backend's packages
 # ========================================================================
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
-  find_package(CUDAToolkit REQUIRED)
+  # CUDA 13.0.0 is wwr's toolkit floor -- see docs/architecture.md (version
+  # floors) for what pins it and the rule for raising it. A pre-13 toolkit
+  # fails HERE, naming the floor, rather than deep in a module compile against
+  # a header that assumes 13.
+  find_package(CUDAToolkit 13.0.0 REQUIRED)
 
   # wwr's floor is Ampere (sm_80), above the toolkit's own compute_75: the bf16
   # tensor-core WMMA it wraps and test/gpu/wmma.cu exercises is only defined for
@@ -233,6 +237,45 @@ else()
   endif()
 
   find_package(hip CONFIG REQUIRED)
+
+  # ROCm 7.0.0 is wwr's floor -- see docs/architecture.md (version floors). The
+  # `hip` package's own version is NOT the ROCm release number: hip_VERSION is
+  # 7.2.53211 on ROCm 7.2.4 (its patch is the HIP SDK build, unrelated to ROCm's
+  # .4), so a floor check against it would compare the wrong patch field. The
+  # honest source is /opt/rocm/.info/version (`7.2.4`). Locate it from where
+  # find_package(hip) resolved -- hip_DIR is <rocm>/lib/cmake/hip -- rather than
+  # a hardcoded /opt/rocm, and fail here, naming the floor, if it is too old.
+  get_filename_component(_wwr_rocm_root "${hip_DIR}/../../.." ABSOLUTE)
+  if(EXISTS "${_wwr_rocm_root}/.info/version")
+    file(READ "${_wwr_rocm_root}/.info/version" _wwr_rocm_version)
+    string(STRIP "${_wwr_rocm_version}" _wwr_rocm_version)
+    if(_wwr_rocm_version VERSION_LESS 7.0.0)
+      message(
+        FATAL_ERROR
+          "wwr requires ROCm 7.0.0 or newer, found ${_wwr_rocm_version} at "
+          "${_wwr_rocm_root}. Install a newer ROCm, or point find_package at "
+          "one with -DCMAKE_PREFIX_PATH=<rocm>."
+      )
+    endif()
+    message(STATUS "ROCm version: ${_wwr_rocm_version}")
+  else()
+    # No .info/version to read (a non-standard layout): fall back to the hip
+    # package's major.minor, which does track the ROCm release, and warn that
+    # the floor could not be checked precisely.
+    if(hip_VERSION VERSION_LESS 7.0)
+      message(
+        FATAL_ERROR
+          "wwr requires ROCm 7.0.0 or newer; the hip package reports "
+          "${hip_VERSION} (major.minor tracks the ROCm release)."
+      )
+    endif()
+    message(
+      WARNING
+        "Could not read ${_wwr_rocm_root}/.info/version; checked the ROCm "
+        "7.0.0 floor against hip_VERSION (${hip_VERSION}) major.minor only."
+    )
+  endif()
+
   # rocm_smi and amd_smi are their own separate CMake packages (not part of the
   # `hip` package) -- see src/hip/rocm_smi.cppm and src/hip/amd_smi.cppm for why
   # nvml's HIP counterpart is two modules, not one.
