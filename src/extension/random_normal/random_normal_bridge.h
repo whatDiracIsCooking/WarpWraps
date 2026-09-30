@@ -16,7 +16,7 @@
  * `.h` may be host-only. See src/README.md.
  *
  * The two pointer types come from the wwr* layer's include-only headers
- * (runtime.h for wwrStream_t, rand_state_bridge.h for wwrrandState) rather than
+ * (runtime.h for wwrStream_t, rand.h for wwrrandState) rather than
  * an `import`, since a GMF cannot import. They are the SAME types
  * wwr.runtime_api / wwr.rand export, so the wrapper passes its arguments
  * straight through and the device side needs no cast. Reading the backend
@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "extension/bridge/rand_state_bridge.h"
+#include "rand.h"
 #include "runtime.h"
 
 #include <cstddef>

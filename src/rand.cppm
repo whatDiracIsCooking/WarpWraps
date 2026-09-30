@@ -34,13 +34,23 @@ module;
 
 #include "backend.h"
 
+// The device generator state types, named against the vendor kernel headers.
+// This module re-exports them below (see "Device generator state types"); the
+// same header is included by rand.cuh and the extension bridges, so every one
+// of them names one identical type.
+#include "rand.h"
+
 export module wwr.rand;
 
+// Host API only. The device state types come from rand.h (included above),
+// which is why hipRAND's kernel module is not imported here: on HIP the state
+// types live in the separate wwr.hip.hiprand_kernel, now redundant. On CUDA
+// there is nothing to drop -- wwr.cuda.curand is a single module wrapping both
+// the host (curand.h) and kernel (curand_kernel.h) headers.
 #if defined(WWR_GPU_BACKEND_CUDA)
 import wwr.cuda.curand;
 #else
 import wwr.hip.hiprand;
-import wwr.hip.hiprand_kernel;
 #endif
 
 export namespace wwr {
@@ -211,7 +221,7 @@ WWR_FUNCTION(wwrrandGetScrambleConstants64, curandGetScrambleConstants64,
 #endif
 
 // ========================================================================
-// Device generator state types (curand_kernel.h / hiprand_kernel.h)
+// Device generator state types (re-exported from rand.h)
 //
 // Types only -- the device functions that consume them live in rand.cuh,
 // for the reason in this file's header. What the host needs these for is
@@ -242,30 +252,34 @@ WWR_FUNCTION(wwrrandGetScrambleConstants64, curandGetScrambleConstants64,
 // type.
 // ========================================================================
 
+// Re-exported from rand.h (included in the global module fragment above), the
+// single home for the state-type list. A plain `using` in this exported
+// namespace re-exports the global-module alias to importers; WWR_TYPE is not
+// used here because the backend mapping already lives in rand.h -- restating it
+// would be the duplication this arrangement removes.
+
 // Pseudorandom generators
-WWR_TYPE(wwrrandStateXORWOW, curandStateXORWOW, hiprandStateXORWOW)
-WWR_TYPE(wwrrandStateXORWOW_t, curandStateXORWOW_t, hiprandStateXORWOW_t)
-WWR_TYPE(wwrrandStateMRG32k3a, curandStateMRG32k3a, hiprandStateMRG32k3a)
-WWR_TYPE(wwrrandStateMRG32k3a_t, curandStateMRG32k3a_t, hiprandStateMRG32k3a_t)
-WWR_TYPE(wwrrandStateMtgp32, curandStateMtgp32, hiprandStateMtgp32)
-WWR_TYPE(wwrrandStateMtgp32_t, curandStateMtgp32_t, hiprandStateMtgp32_t)
-WWR_TYPE(wwrrandStatePhilox4_32_10, curandStatePhilox4_32_10, hiprandStatePhilox4_32_10)
-WWR_TYPE(wwrrandStatePhilox4_32_10_t, curandStatePhilox4_32_10_t, hiprandStatePhilox4_32_10_t)
+using wwr::wwrrandStateXORWOW;
+using wwr::wwrrandStateXORWOW_t;
+using wwr::wwrrandStateMRG32k3a;
+using wwr::wwrrandStateMRG32k3a_t;
+using wwr::wwrrandStateMtgp32;
+using wwr::wwrrandStateMtgp32_t;
+using wwr::wwrrandStatePhilox4_32_10;
+using wwr::wwrrandStatePhilox4_32_10_t;
 
 // Quasirandom generators
-WWR_TYPE(wwrrandStateSobol32, curandStateSobol32, hiprandStateSobol32)
-WWR_TYPE(wwrrandStateSobol32_t, curandStateSobol32_t, hiprandStateSobol32_t)
-WWR_TYPE(wwrrandStateScrambledSobol32, curandStateScrambledSobol32, hiprandStateScrambledSobol32)
-WWR_TYPE(wwrrandStateScrambledSobol32_t, curandStateScrambledSobol32_t,
-            hiprandStateScrambledSobol32_t)
-WWR_TYPE(wwrrandStateSobol64, curandStateSobol64, hiprandStateSobol64)
-WWR_TYPE(wwrrandStateSobol64_t, curandStateSobol64_t, hiprandStateSobol64_t)
-WWR_TYPE(wwrrandStateScrambledSobol64, curandStateScrambledSobol64, hiprandStateScrambledSobol64)
-WWR_TYPE(wwrrandStateScrambledSobol64_t, curandStateScrambledSobol64_t,
-            hiprandStateScrambledSobol64_t)
+using wwr::wwrrandStateSobol32;
+using wwr::wwrrandStateSobol32_t;
+using wwr::wwrrandStateScrambledSobol32;
+using wwr::wwrrandStateScrambledSobol32_t;
+using wwr::wwrrandStateSobol64;
+using wwr::wwrrandStateSobol64_t;
+using wwr::wwrrandStateScrambledSobol64;
+using wwr::wwrrandStateScrambledSobol64_t;
 
 // Default state -- see the section comment above
-WWR_TYPE(wwrrandState, curandState, hiprandState)
-WWR_TYPE(wwrrandState_t, curandState_t, hiprandState_t)
+using wwr::wwrrandState;
+using wwr::wwrrandState_t;
 
 } // namespace wwr

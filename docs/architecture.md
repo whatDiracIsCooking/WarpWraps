@@ -36,22 +36,25 @@ compiles on CUDA and fails on HIP. Pick one spelling and keep it. Pinned by
 `test/hip/hiprand_kernel.cppm` and `test/gpu/rand.cppm`, which assert the two
 backends' opposite answers separately.
 
-**Why `rand_state_bridge.h` (`src/extension/bridge/`) declares
-`::curandStateXORWOW`, not `::curandState`.**
-`curandState` is itself a typedef, and a typedef cannot be forward-declared —
-only the struct can. On CUDA the two are one type, so the alias names the same
-type `rand.cuh` and `rand.cppm` do. The asymmetry is deliberate: on HIP the two
-are genuinely distinct, so the HIP branch declares `hiprandState` and nothing
-else.
+**Where the alias lives, and how it coexists with `import wwr.rand`.**
+The state-type aliases live once, in the src/-root shared-type header `rand.h`,
+which `#include`s the vendor kernel header and so names the real `::curandState`
+/ `::hiprandState` typedefs directly. `rand.cppm` re-exports them, and `rand.cuh`
+and the two `*_bridge.h` include the same header, so all four name one identical
+type. The asymmetry is the vendor divergence above: on CUDA `::curandState` and
+`::curandStateXORWOW` are the one type, while on HIP the default state is its own
+struct, so the HIP branch names `::hiprandState` and nothing else.
 
-Forward-declaring is the vendor's own idiom on CUDA — `curand_kernel.h`
-declares `struct curandStateXORWOW;` itself before defining it. Both branches
-were checked to coexist with the same name arriving through
-`import wwr.rand` in one TU: clang merges the two alias declarations
-because both resolve to the same entity, the vendor struct, which lives in the
-global module either way. If a vendor renamed the underlying struct the two
-would name different types and clang would reject it as a typedef redefinition
-— so this fails loudly rather than silently.
+`rand.cppm` both includes `rand.h` in its global module fragment and is itself
+imported as `wwr.rand`, so the same alias can reach one TU by two routes; clang
+merges them because both resolve to the same entity — the vendor type in the
+global module — and the purview re-exports the global-module alias with a plain
+`using`. (Until this was consolidated the type rode a forward-declaring bridge,
+`rand_state_bridge.h`, which had to alias the underlying *struct*
+`::curandStateXORWOW` because a typedef cannot be forward-declared; including the
+real kernel header removes that constraint. The cost trade that choice makes —
+the heavy header now parsed in the TUs that `#include rand.h` — is in
+src/README.md.)
 
 ## 2. Cooperative groups: one namespace, divergent types
 

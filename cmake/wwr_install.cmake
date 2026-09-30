@@ -267,15 +267,16 @@ function(wwr_install_package)
   )
 
   # The extension layer's headers, shipped only when WWR_INSTALL_EXTENSION added
-  # its targets to the sweep above. rand_state_bridge.h, parallel_for.cuh and
-  # the two *_bridge.h are #included by the extension module units and by
-  # parallel_for.cuh through the src/-root spelling
-  # ("extension/bridge/rand_state_bridge.h", ...), so the extension subtree is
-  # mirrored under include/wwr/extension for those spellings to resolve
-  # unchanged after install -- the same shape, and the same reasoning, as the
-  # wrappers directory above. Kept next to the target sweep that needs them, so
-  # install-check.sh --extension actually compiles a consumer against them
-  # rather than the rule being assumed.
+  # its targets to the sweep above. parallel_for.cuh and the two *_bridge.h are
+  # #included by the extension module units and by parallel_for.cuh through the
+  # src/-root spelling ("extension/parallel_for/parallel_for.cuh", ...), so the
+  # extension subtree is mirrored under include/wwr/extension for those
+  # spellings to resolve unchanged after install -- the same shape, and the
+  # same reasoning, as the wrappers directory above. (The state type those
+  # bridges name, wwrrandState, rides rand.h -- a src/-root header installed
+  # by the src/*.h glob above, not part of this extension subtree.) Kept next
+  # to the target sweep that needs them, so install-check.sh --extension
+  # actually compiles a consumer against them rather than assuming the rule.
   if(WWR_INSTALL_EXTENSION)
     install(
       DIRECTORY "${PROJECT_SOURCE_DIR}/src/extension/"

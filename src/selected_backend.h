@@ -13,11 +13,11 @@
  *
  * The legitimate readers are the switch points that include it: device_guard.h
  * directly, and the .cuh headers transitively through it. The src/-root
- * shared-type headers complex.h and runtime.h, and the bridge rand_state_bridge.h
- * (in src/extension/bridge/), include it directly too -- directly rather than
- * through device_guard.h, because they compile in a host TU and so must not carry
- * its device-pass #error. Linking wwr_backend grants the ability to write a
- * backend #if above src and is not a licence to -- see src/README.md.
+ * shared-type headers complex.h, runtime.h and rand.h include it directly too --
+ * directly rather than through device_guard.h, because they compile in a host TU
+ * and so must not carry its device-pass #error. Linking wwr_backend grants the
+ * ability to write a backend #if above src and is not a licence to -- see
+ * src/README.md.
  */
 
 #pragma once
