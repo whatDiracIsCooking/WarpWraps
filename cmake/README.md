@@ -213,21 +213,36 @@ throwaway prefix and building `example/consumer` against it. `cpp-tier.sh`
 cannot: it never installs, so an export regression passes it cleanly. Every
 defect in the list above was found that way rather than reasoned about.
 
-### The extension layer is opt-in
+### The optional layers — wrappers and extension
 
-The sweep above installs the backend dir, the gpu\* layer and `src/wrappers`
-unconditionally. The extension layer (`src/extension`) ships **only** when the
-build sets `-DWWR_INSTALL_EXTENSION=ON` — off by default, because the
-RAII/handle/buffer/error abstractions are a far larger surface than the core and
-a consumer that wants only the core should not pay to install them. When on, the
-sweep also collects `src/extension` (its module libraries *and* the
+The sweep always installs the backend dir and the gpu\* (`wwr*`) core. Two
+layers on top of it can be dropped from the package independently, each gated by
+its own option and exposed as a `find_package` component.
+
+**The wrappers layer (`src/wrappers`)** ships by default and is dropped with
+`-DWWR_INSTALL_WRAPPERS=OFF`. Nothing else in `src/` links a `wwr.wrappers.*`
+target, so dropping it leaves the rest of the export set intact. When off the
+sweep skips `src/wrappers`, its header subtree is not mirrored under
+`include/wwr/wrappers`, and the package records `WWR_HAS_WRAPPERS` OFF — exposed
+by `wwrConfig.cmake` both as a plain variable and as the `wrappers` component, so
+`find_package(wwr COMPONENTS wrappers)` is refused on a core-only install.
+
+**The extension layer (`src/extension`)** ships **only** when the build sets
+`-DWWR_INSTALL_EXTENSION=ON` — off by default, because the RAII/handle/buffer/
+error abstractions are a far larger surface than the core and a consumer that
+wants only the core should not pay to install them. When on, the sweep also
+collects `src/extension` (its module libraries *and* the
 `wwr_add_gpu_device_library` `.device` archives), the extension header subtree is
 mirrored under `include/wwr/extension`, and the package records
-`WWR_HAS_EXTENSION` — exposed by `wwrConfig.cmake` both as a plain variable and
-as the `extension` component, so `find_package(wwr COMPONENTS extension)` is
-refused on a core-only install. `devtools/install-check.sh --extension` installs
-with it on and has `example/consumer` consume an extension module, which is what
-proves the rule.
+`WWR_HAS_EXTENSION` — exposed both as a plain variable and as the `extension`
+component.
+
+`example/consumer` guards each optional layer behind its `WWR_HAS_*` variable, so
+one source compiles against a core-only install and a full one — its core gemm
+runs on the raw `wwr*` layer, needing neither. `devtools/install-check.sh`
+proves each rule the same way the extension one was always proven: the default
+run ships wrappers and the consumer links them, `--no-wrappers` drops them, and
+`--extension` adds the extension layer.
 
 ### Forcing a device archive into an exported target
 

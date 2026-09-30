@@ -439,6 +439,19 @@ option(WWR_INSTALL "Generate install rules and the CMake package"
        ${PROJECT_IS_TOP_LEVEL}
 )
 
+# Whether the wrappers layer (src/wrappers) is part of the installed package.
+# The wrappers are always BUILT in-tree (the examples and test/wrappers link
+# them); this only decides whether wwr_install_package() also ships them. ON by
+# default -- unlike the extension layer below: the type-safe wrappers are the
+# core most consumers come for, so shipping them is the expected case, and a
+# consumer wanting only the raw wwr* + low-level backend modules opts out. Has
+# no effect unless WWR_INSTALL is ON. The install rules, and what a consumer
+# sees when it asks for the layer that was not shipped, live in
+# cmake/wwr_install.cmake and cmake/wwrConfig.cmake.in.
+option(WWR_INSTALL_WRAPPERS
+       "Install the wrappers layer (src/wrappers) as part of the package" ON
+)
+
 # Whether the extension layer (src/extension) is part of the installed package.
 # The extension is always BUILT in-tree (the examples and the device suites link
 # it); this only decides whether wwr_install_package() also ships it. OFF by
