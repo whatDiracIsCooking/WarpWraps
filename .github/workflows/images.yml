@@ -10,8 +10,15 @@
 # ---------------------------------------------------------------------------
 # WHAT IT PUBLISHES, AND WHY THESE ARE NOT THE DEV IMAGES
 # ---------------------------------------------------------------------------
-#   ghcr.io/<owner>/wwr:cuda-ci   the CUDA toolchain, unmodified
-#   ghcr.io/<owner>/wwr:hip-ci    ROCm with ROCM_PRUNE=1
+#   ghcr.io/<owner>/wwr:cuda-ci      the CUDA toolchain, unmodified
+#   ghcr.io/<owner>/wwr:hip-ci       ROCm at the pin (7.2.4) with ROCM_PRUNE=1
+#   ghcr.io/<owner>/wwr:hip-7.0.0-ci ROCm at the 7.0.0 FLOOR, ROCM_PRUNE=1 --
+#                                    ci.yml's cpp-floor leg pulls this to build
+#                                    the tree against the oldest ROCm wwr
+#                                    promises to support (#111, #114). No cuda
+#                                    floor image: the CUDA pin `13-0` already IS
+#                                    the 13.0.0 floor, so `:cuda-13-0-ci` is a
+#                                    tag the cuda leg already publishes.
 #
 # Same Dockerfiles as the dev images, different build args and a different tag
 # (docker/build.sh, "variant tags and the registry"). The `-ci` suffix is what
@@ -76,7 +83,9 @@ on:
         description: 'Which image to publish'
         type: choice
         default: both
-        options: [both, cuda, hip]
+        # `hip` publishes the pinned AND the floor ROCm image; `hip-floor`
+        # publishes only the floor (`:hip-7.0.0-ci`).
+        options: [both, cuda, hip, hip-floor]
 
 concurrency:
   # Never cancel a publish in flight: a half-pushed manifest is worse than a
@@ -94,7 +103,7 @@ jobs:
     # Named for what the run actually does, because a green "publish (hip)" on a
     # pull request -- which pushes nothing -- is the kind of signal this repo
     # goes out of its way not to produce.
-    name: ${{ github.event_name == 'pull_request' && 'build' || 'publish' }} (${{ matrix.image }})
+    name: ${{ github.event_name == 'pull_request' && 'build' || 'publish' }} (${{ matrix.variant }})
     runs-on: ubuntu-latest
     # Generous rather than tuned, and now backed by a number. MEASURED on a
     # hosted runner, build-only: the ROCm install layer is 176.6s and the whole
@@ -114,24 +123,62 @@ jobs:
       packages: write
     strategy:
       fail-fast: false
+      # `variant` names the leg (and its published tag); `image` is the
+      # build.sh target the leg builds. They are separate because the ROCm floor
+      # leg builds the SAME `hip` target as the pinned one, only at a different
+      # ROCM_VERSION -- so `image` alone no longer identifies a leg. `variant`
+      # is what the skip gate and the workflow_dispatch `target` choice match on.
+      #
+      # `push_only` is the ONE tag a leg publishes when it must NOT own the
+      # moving alias. build.sh tags the target with its alias (`:hip-ci`) AND its
+      # version tag (`:hip-7.0.0-ci`) and pushes BOTH -- correct for a pinned leg
+      # that IS the alias, wrong for the floor leg, which would then clobber
+      # `:hip-ci` (7.2.4) with the 7.0.0 image the pinned cpp job pulls. So the
+      # floor leg builds WITHOUT pushing and this step pushes only `push_only`.
+      # Empty on the pinned legs: they push through build.sh as before.
       matrix:
         include:
-          - image: cuda
+          - variant: cuda
+            image: cuda
             # No prune: the CUDA toolkit is 10GB, which fits.
             build_env: ''
-          - image: hip
+            push_only: ''
+          - variant: hip
+            image: hip
             build_env: 'ROCM_PRUNE=1'
+            push_only: ''
+          # THE ROCm FLOOR IMAGE. ci.yml's cpp-floor leg pulls `:hip-7.0.0-ci`;
+          # this is what builds and publishes it. Same Dockerfile.hip, only
+          # ROCM_VERSION overridden to the 7.0.0 floor (CMakeLists.txt enforces,
+          # #111) -- config.sh reads `${ROCM_VERSION:-7.2.4}`, so this env wins
+          # and build.sh tags the version-carrying `wwr:hip-7.0.0-ci`. It also
+          # tags `:hip-ci` (build.sh always tags the alias too), so this leg must
+          # push ONLY the version tag -- see `push_only` above -- or it clobbers
+          # the pinned 7.2.4 image the `cpp (hip)` leg pulls.
+          #
+          # THERE IS NO cuda-floor LEG HERE, on purpose: the CUDA pin `13-0`
+          # already IS the 13.0.0 floor, so `:cuda-13-0-ci` is a tag the default
+          # `cuda` leg above already publishes. Add a cuda floor leg here only if
+          # the CUDA pin ever rises above the declared floor.
+          - variant: hip-floor
+            image: hip
+            build_env: 'ROCM_PRUNE=1 ROCM_VERSION=7.0.0'
+            push_only: 'hip-7.0.0-ci'
     steps:
       - name: skip unselected target
         id: gate
         env:
           CHOICE: ${{ github.event.inputs.target || 'both' }}
         run: |
-          if [ "$CHOICE" = both ] || [ "$CHOICE" = "${{ matrix.image }}" ]; then
+          # `both` runs every leg; `cuda`/`hip` select the pinned legs (and the
+          # floor rides with `hip`, since it is the same target family and cheap
+          # to keep together); `hip-floor` selects only the floor leg.
+          if [ "$CHOICE" = both ] || [ "$CHOICE" = "${{ matrix.variant }}" ] || \
+             { [ "$CHOICE" = hip ] && [ "${{ matrix.variant }}" = hip-floor ]; }; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "target '$CHOICE' selected -- skipping ${{ matrix.image }}"
+            echo "target '$CHOICE' selected -- skipping ${{ matrix.variant }}"
           fi
 
       - uses: actions/checkout@v7
@@ -177,25 +224,42 @@ jobs:
       # cannot be built alone) and applies the suffix to every step, tags the
       # target for the registry, and pushes only the target. The registry owner
       # must be lowercase; github.repository_owner is not guaranteed to be.
+      #
+      # A leg with `push_only` set does NOT let build.sh push: build.sh also tags
+      # and would push the moving alias, which a floor leg must not own. It builds
+      # locally, then the step below pushes only that one version tag.
       - name: build and push
         if: steps.gate.outputs.run == 'true'
         env:
           IMAGE_TAG_SUFFIX: '-ci'
+          PUSH_ONLY: ${{ matrix.push_only }}
           # build.sh pushes only when BUILD_PUSH is non-empty, so emptying it on
           # a PR turns the exact command that publishes on main into a
           # build-only check. One knob, not a second code path -- which matters
           # because the thing being verified is that this command still works.
+          # A `push_only` leg also empties it -- it does its own push below -- so
+          # this is non-empty only for a pinned leg on a non-PR event.
           #
           # THE CONDITION IS INVERTED ON PURPOSE. `x && '' || '1'` does not work
           # here: GitHub's `&&`/`||` return operands rather than booleans and an
           # empty string is FALSY, so the `&&` yields '' and the `||` then hands
           # back '1' -- a PR would push. Whichever branch must be empty has to
           # be the `||` side.
-          BUILD_PUSH: ${{ github.event_name != 'pull_request' && '1' || '' }}
+          BUILD_PUSH: ${{ github.event_name != 'pull_request' && matrix.push_only == '' && '1' || '' }}
         run: |
           owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           export IMAGE_REGISTRY="ghcr.io/$owner"
           env ${{ matrix.build_env }} docker/build.sh ${{ matrix.image }}
+          # The floor leg: publish ONLY its version tag, never the alias build.sh
+          # also produced. Skipped on a PR (nothing is pushed there) and on a
+          # pinned leg (PUSH_ONLY empty), where build.sh already pushed.
+          if [ -n "$PUSH_ONLY" ] && [ "${{ github.event_name }}" != pull_request ]; then
+            src="wwr:${PUSH_ONLY}"
+            dst="$IMAGE_REGISTRY/$src"
+            echo "floor leg: publishing only $dst"
+            docker tag "$src" "$dst"
+            docker push "$dst"
+          fi
 
       - name: report size
         if: steps.gate.outputs.run == 'true'
