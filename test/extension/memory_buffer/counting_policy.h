@@ -48,6 +48,10 @@ using GpuPolicy = CountingPolicy<wwrError_t>;
 template<typename T>
 using CountedHostBuffer = HostBufferWrapper<T, HostPolicy, HostPolicy>;
 template<typename T>
+using CountedPinnedBuffer = PinnedBufferWrapper<T, GpuPolicy, GpuPolicy>;
+template<typename T>
+using CountedUnifiedBuffer = UnifiedBufferWrapper<T, GpuPolicy, GpuPolicy>;
+template<typename T>
 using CountedDeviceBuffer = DeviceBufferWrapper<T, GpuPolicy, GpuPolicy, GpuPolicy, DeviceHandle>;
 template<typename T>
 using CountedHostView = BufferViewWrapper<T, MemoryKind::Host, HostPolicy, HostPolicy>;
