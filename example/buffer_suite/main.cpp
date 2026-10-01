@@ -63,21 +63,15 @@ struct AllocAbortFreeWarn {
   using free = WarnPolicy<E>;
 };
 
-// The consumer's own handle -- the library ships none, only the device_handle
-// ladder it must satisfy (see src/extension/handle/device_handle.cppm). The stream
-// tier (a device index plus an owned stream) routes device allocations and copies
-// through wwrMallocAsync on that stream. Stream is not a buffer, so it names its
-// own policies directly rather than through the suite.
-using Stream =
+// The device handle backing the device buffer. For the stream tier the library
+// ships no bespoke type: a StreamWrapper already exposes dev_idx() and stream(), so
+// it is a device_handle_stream (see src/extension/handle/device_handle.cppm) and
+// backs the buffer directly, routing allocations through wwrMallocAsync on its
+// stream -- no wrapping struct. (The pool tier is the shipped DeviceHandle in
+// wwr.extension.runtime.) The handle is not a buffer, so it names its policies
+// directly rather than through the map above.
+using DeviceHandle =
     ext::StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
-struct DeviceHandle {
-  explicit DeviceHandle(int dev = 0) : dev_(dev), stream_(dev) {}
-  int dev_idx() const noexcept { return dev_; }
-  Stream &stream() noexcept { return stream_; }
-  const Stream &stream() const noexcept { return stream_; }
-  int dev_;
-  Stream stream_;
-};
 
 // The whole buffer prelude in one line: host/pinned/unified/device and each of
 // their views, all bound to the map above and this handle. From here the names are
@@ -98,7 +92,7 @@ int main() {
   }
 
   auto handle = std::make_shared<DeviceHandle>();
-  Stream &stream = handle->stream();
+  const wwrStream_t stream = handle->stream();
 
   // A host buffer filled 0, 1, 2, ...; a device buffer to round-trip through; and
   // a second host buffer for the result. Each is one alias off the suite -- no
@@ -111,11 +105,11 @@ int main() {
   Buf::device<float> device_buf(kCount, handle);
   Buf::host<float> result(kCount);
 
-  if (ext::copy(device_buf, host, stream.get()) != wwrSuccess) {
+  if (ext::copy(device_buf, host, stream) != wwrSuccess) {
     std::println(stderr, "host -> device copy failed");
     return 1;
   }
-  if (ext::copy(result, device_buf, stream.get()) != wwrSuccess) {
+  if (ext::copy(result, device_buf, stream) != wwrSuccess) {
     std::println(stderr, "device -> host copy failed");
     return 1;
   }

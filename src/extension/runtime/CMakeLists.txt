@@ -9,6 +9,7 @@ wwr_add_cxx_module_library(
   mem_pool.cppm
   graph_exec.cppm
   graph.cppm
+  device_handle.cppm
   LINK_PUBLIC
   wwr::runtime_api
   wwr::extension::common

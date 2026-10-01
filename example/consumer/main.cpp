@@ -226,6 +226,12 @@ bool extension_link() {
   static_assert(sizeof(extension::StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
                                                    AbortPolicy<wwrError_t>>) > 0);
 
+  // The shipped DeviceHandle must survive install/export too; name it so a
+  // regression in its export fails here, in the one tier that consumes the installed
+  // prefix. (The stream tier is StreamWrapper, already named just above.)
+  static_assert(sizeof(extension::DeviceHandle<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
+                                               AbortPolicy<wwrError_t>>) > 0);
+
   // Name every alias the suite emits -- host/pinned/unified/device and each view
   // -- so an export regression in wwr.extension.memory_buffer (a suite the
   // installed package cannot reach, a view whose policies drifted from its

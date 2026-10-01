@@ -55,6 +55,15 @@ public:
   using DeviceBoundHandle<wwrStream_t, StreamWrapper<P_create, P_destroy, P_device_access>,
                           P_create, P_destroy, P_device_access>::DeviceBoundHandle;
 
+  /// @brief This stream, viewed as an allocation stream -- the accessor that makes
+  ///        StreamWrapper a device_handle_stream (dev_idx() comes from
+  ///        DeviceBoundHandle). Returns the same raw handle as get(); it is named
+  ///        stream() so a stream used *as* a device handle answers the concept the
+  ///        same way a bundle does, which is what lets a StreamWrapper back a
+  ///        DeviceBuffer directly, with no wrapping struct. const and noexcept, as
+  ///        the device_handle ladder requires (it reads on the destructor path).
+  wwrStream_t stream() const noexcept { return this->get(); }
+
   /// @brief Create a GPU stream on `dev_idx` with flags
   /// @param dev_idx Device to create the stream on
   /// @param flags Flags for stream creation (e.g., wwrStreamNonBlocking)
