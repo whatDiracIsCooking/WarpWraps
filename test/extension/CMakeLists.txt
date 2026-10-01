@@ -32,6 +32,11 @@ add_subdirectory(solver)
 add_subdirectory(sparse)
 add_subdirectory(fft)
 
+# The NCCL/RCCL communicator wrapper. Its error-policy mapping suite is
+# host-only (runs under -LE gpu); its construct/destroy suite is REQUIRES_GPU,
+# since wwrcclCommInitAll needs a live device.
+add_subdirectory(ccl)
+
 # The texture / surface object wrappers. RAII over a vendor handle whose
 # create/destroy needs a live GPU context (and a backing CUDA array), so these
 # are runtime only -- the destroy-exactly-once contract is the whole test.
