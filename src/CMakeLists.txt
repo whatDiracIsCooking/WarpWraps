@@ -121,6 +121,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_raw_ccl wwr::cuda::nccl)
   set(_raw_tensor wwr::cuda::cutensor)
   set(_raw_comp wwr::cuda::nvcomp)
+  set(_raw_rtc wwr::cuda::nvrtc)
 else()
   set(_raw_complex wwr::hip::hip_complex)
   set(_raw_fp8 wwr::hip::hip_fp8)
@@ -134,6 +135,7 @@ else()
   set(_raw_ccl wwr::hip::rccl)
   set(_raw_tensor wwr::hip::hiptensor)
   set(_raw_comp wwr::hip::hipcomp)
+  set(_raw_rtc wwr::hip::hiprtc)
 endif()
 
 # wwr.runtime_api binds straight to the vendor runtime *library*, not a raw
@@ -367,6 +369,18 @@ wwr_add_cxx_module_library(
   comp.cppm
   LINK_PUBLIC
   ${_raw_comp}
+  LINK_PRIVATE
+  wwr::backend
+  IMPORT_STD
+)
+
+wwr_add_cxx_module_library(
+  NAME
+  wwr.rtc
+  PRIMARY_INTERFACE
+  rtc.cppm
+  LINK_PUBLIC
+  ${_raw_rtc}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
