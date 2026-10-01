@@ -6,7 +6,7 @@
 ## What was run
 
 CI gates compile, link, export and every non-device test **on both backends**.
-What it cannot run is the seven `gpu`-labelled suites, because no hosted runner
+What it cannot run is the `gpu`-labelled suites, because no hosted runner
 has a card. Tick what you ran locally:
 
 - [ ] `devtools/cpp-tier.sh` — the full tier on a real GPU. **The only thing

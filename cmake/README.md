@@ -314,18 +314,20 @@ Nothing invokes a test binary by path any more — `docker/compose.yaml` drives
 `wwr_add_gtest_suite_tests(... REQUIRES_GPU)` puts the `gpu` ctest label on
 every entry it registers. Pass it when the binary needs a live device — it
 allocates device memory, launches a kernel, or creates a vendor-library handle.
-Seven targets do (`test/extension/{memory_buffer,runtime,rand,blas,solver,fft,
-sparse}`); `test/gpu/conversions` does not, because host fp16/bf16 conversion
-computes on the CPU.
+The device suites under `test/extension/*` do; `test/gpu/conversions` does not,
+because host fp16/bf16 conversion computes on the CPU.
 
 The label is what lets `.github/workflows/ci.yml` build and test on a
 GitHub-hosted runner, which has no card:
 
 ```
-ctest --preset default    42 entries — everything
-ctest --preset ci-cuda    12 entries — `-LE gpu`
-ctest --preset ci-hip     12 entries — same, the other backend
+ctest --preset default    every entry
+ctest --preset ci-cuda    the `-LE gpu` subset — no device needed
+ctest --preset ci-hip     the same subset, the other backend
 ```
+
+The two ci-* legs run the same set and so report the same count; a divergence is
+a signal rather than a quirk of one backend.
 
 **A label, not a `GTEST_SKIP`.** Nothing in `test/` gates on a device count,
 and nothing should: an excluded test is named in the ctest output, where a
@@ -343,7 +345,7 @@ Two things to get right when adding one:
 - **The `SuiteListIsComplete` guard is deliberately left unlabeled**, even for
   a `REQUIRES_GPU` target. `--gtest_list_tests` enumerates the registry without
   constructing a fixture, so it needs the binary to load but never touches a
-  device — verified: all eight guards pass in a container started without
+  device — verified: the guards all pass in a container started without
   `--gpus`. That keeps the hand-written suite lists honest on the runner too.
   If a target ever grows a static initializer that talks to the driver, label
   the guard rather than deleting it.
