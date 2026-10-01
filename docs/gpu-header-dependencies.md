@@ -11,6 +11,15 @@ device-pass `#error`. `rand.h` goes further: it also carries the rand layer's
 `__device__` generators, in a section gated behind the device-pass macros, so a
 device `.cu` includes `rand.h` directly and there is no `rand.cuh`.
 
+`cooperative_groups.h` and `wmma.h` are a second kind of `.h`, and the reason the
+extension tracks host-*safety* rather than whether host symbols exist: they are
+device-only (no host-usable type or function — one defines nothing, the other a
+device-namespace alias), but their *whole* body sits behind the device-pass
+macros, so a host TU that includes one sees an empty header rather than the
+`#error` a `.cuh` carries. They are host-safe without being host-usable. That
+makes them `.h`, not `.cuh`, even though — unlike the shared-type trio — a host
+consumer gets nothing from them.
+
 See also `src/README.md` ("The switch points"), which explains *why* the graph
 has this shape; this file only states *what* it is.
 
@@ -18,20 +27,28 @@ has this shape; this file only states *what* it is.
 
 `selected_backend.h` is the leaf everything rests on. The device `.cuh` files
 reach it through `device_guard.h`, which adds the "must be a device pass"
-`#error` guard a host-safe header must not have. `cooperative_groups.cuh` and
-`wmma.cuh` reach `device_guard.h` through `runtime.cuh`, whose `WWR_WARP_SIZE`
-they also want — a portable tile size for one, a wave index for the other, both
-because the API is a whole-warp collective. **No host-safe header includes
-another, and every `.cuh`-to-`.cuh` edge stays inside a single target** — the two
-such edges are both into `runtime.cuh`, and all three files are `wwr.device`, so
-neither leaks an include path across targets. That is the concern that keeps every
-`.cuh` rooted directly at `device_guard.h`.
+`#error` guard a host-safe header must not have. `cooperative_groups.h` and
+`wmma.h` reach `device_guard.h` through `runtime.cuh` too — but *only from inside
+their device gate*, so the edge exists in a device pass and vanishes in a host
+compile, where the gate skips it and the header is empty. They want `runtime.cuh`
+for `WWR_WARP_SIZE` (a portable tile size for one, a wave index for the other,
+both because the API is a whole-warp collective) and the backend switch, through
+that one include. **No host-safe header includes another host-safe header, and
+every edge *into* a `.cuh` stays inside a single target** — the device-pass edges
+`cooperative_groups.h` → `runtime.cuh` and `wmma.h` → `runtime.cuh` are both
+within `wwr.device`, so neither leaks an include path across targets. That is the
+concern that keeps every `.cuh` rooted directly at `device_guard.h`, and that lets
+these two gated `.h` reach `runtime.cuh` without a leak.
 
 `complex.h`, `runtime.h`, `rand.h`, `fp16.h`, `bf16.h` and `fp8.h` reach
 `selected_backend.h` *directly*, not through `device_guard.h`: each compiles in a
 host TU and so must not carry the "must be a device pass" `#error`. They appear
-below as leaves of
-`selected_backend.h` alongside `device_guard.h`. `complex.h` is included by
+below as leaves of `selected_backend.h` alongside `device_guard.h`.
+(`cooperative_groups.h` and `wmma.h` differ again: in a host compile their gate is
+shut, so they reach `selected_backend.h` on *no* path and define nothing; they
+reach it through `runtime.cuh` → `device_guard.h` only in a device pass, which is
+why they appear below nested under `runtime.cuh` rather than as leaves here.)
+`complex.h` is included by
 `complex.cppm` (host module) and device `.cu` that reach its gated wrappers
 (`random_normal.cu`, `test/gpu/complex.cu`); `runtime.h` by
 `runtime.cuh` (device) and the host TUs that declare a stream-taking function
@@ -61,9 +78,10 @@ and `src/README.md`.
 selected_backend.h        no #includes — the leaf the switch/shared-type layer rests on
 ├── device_guard.h         + the "is this a device pass?" #error guard; no vendor header
 │   └── runtime.cuh  + <cuda_runtime.h>            | <hip/hip_runtime.h>   (also includes runtime.h)
-│       ├── cooperative_groups.cuh
+│       ├── cooperative_groups.h  (.h; whole body gated — empty in a host TU, includes runtime.cuh only in a device pass)
 │       │                  + <cooperative_groups.h>      | <hip/hip_cooperative_groups.h>
-│       └── wmma.cuh       + <mma.h>                     | <rocwmma/rocwmma.hpp>
+│       └── wmma.h         (.h; whole body gated — empty in a host TU, includes runtime.cuh only in a device pass)
+│                          + <mma.h>                     | <rocwmma/rocwmma.hpp>
 ├── complex.h            + <cuComplex.h>               | <array> <hip/hip_complex.h>
 │                          (+ __device__ wrappers, gated behind the device-pass macros)
 ├── runtime.h           + <cuda_runtime_api.h>        | <hip/hip_runtime_api.h>
@@ -81,8 +99,10 @@ backend.h                 no #includes — independent; consumed only by the .cp
 
 The two columns after each `+` are the CUDA branch (`WWR_SELECTED_CUDA`) and
 the HIP branch (`WWR_SELECTED_HIP` / the `#else`); a translation unit sees
-exactly one. `runtime.cuh`, `cooperative_groups.cuh`, `wmma.cuh`, `complex.h`,
-`runtime.h`, `rand.h`, `fp16.h`, `bf16.h` and `fp8.h` pull vendor headers;
+exactly one — or, for the two fully-gated `.h`, neither, in a host compile where
+the gate is shut. `runtime.cuh`, `cooperative_groups.h`, `wmma.h`, `complex.h`,
+`runtime.h`, `rand.h`, `fp16.h`, `bf16.h` and `fp8.h` pull vendor headers
+(`cooperative_groups.h` and `wmma.h` only inside their device gate);
 `runtime.cuh` shares `runtime.h`'s type while adding the full runtime on top.
 `complex.h`, `rand.h`, `fp16.h`, `bf16.h` and `fp8.h` each carry their
 `__device__` wrappers themselves, in a device-pass-gated section, alongside their
@@ -108,14 +128,14 @@ transitively — through `device_guard.h` internally, and directly through
 | `complex.h` | `complex.cppm`, `extension/random_normal/random_normal.cu`, `test/gpu/complex.cu` (device, for the gated wrappers) | header-only (rides `wwr.device` / `wwr.complex`) |
 | `runtime.h` | `runtime.cuh`, `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h`, `example/warp_reduce/warp_reduce_bridge.h` | header-only (rides `wwr.device` and the src/ include root each consumer carries) |
 | `rand.h` | `rand.cppm`, the two `*_bridge.h`, `extension/init_state/init_state.cu`, `extension/random_normal/random_normal.cu` (device, for the gated generators) | header-only (rides the src/ include root each consumer carries; the device `.cu` also link `wwr.rand.device` for the RNG library; installed by the `src/*.h` glob) |
-| `runtime.cuh` | `extension/parallel_for/parallel_for.cuh` (and, internally, `cooperative_groups.cuh`) | `wwr.device` |
-| `cooperative_groups.cuh` | (none yet — the warp-reduction example will be its first caller) | `wwr.device` |
-| `wmma.cuh` | (none yet — only `test/gpu/wmma.cu` compiles it) | `wwr.device` |
+| `runtime.cuh` | `extension/parallel_for/parallel_for.cuh` (and, internally — in a device pass — `cooperative_groups.h`, `wmma.h`) | `wwr.device` |
+| `cooperative_groups.h` | `example/warp_reduce/warp_reduce.cu`, `test/gpu/cooperative_groups.cu` (compile test) | `wwr.device` |
+| `wmma.h` | (no functional caller yet — only `test/gpu/wmma.cu` compiles it) | `wwr.device` |
 | `fp16.h` | `fp16.cppm` (host, for the type + conversions), `random_normal.cu`, `test/gpu/wmma.cu`, `test/gpu/fp16.cu` (device) | header-only (rides `wwr.fp16` / `wwr.device`) |
 | `bf16.h` | `bf16.cppm` (host), `random_normal.cu`, `test/gpu/wmma.cu`, `test/gpu/bf16.cu` (device) | header-only (rides `wwr.bf16` / `wwr.device`) |
 | `fp8.h` | `test/gpu/fp8.cu` (device, for the gated narrowing). `fp8.cppm` does **not** include it — it imports the raw module instead (static-inline conversions, §12) | header-only (rides `wwr.device`) |
 
-`runtime.cuh`, `cooperative_groups.cuh` and `wmma.cuh` share the `wwr.device`
+`runtime.cuh`, `cooperative_groups.h` and `wmma.h` share the `wwr.device`
 target, as do the device sections of `complex.h` / `fp16.h` / `bf16.h` / `fp8.h`;
 the rand device generators (in `rand.h`) sit behind a separate `wwr.rand.device`
 target on
@@ -127,6 +147,7 @@ and `selected_backend.h`, no vendor headers and no target-specific content, so
 each `.cuh` can include it without one target's include path or vendor headers
 leaking into another's consumers. Routing a `.cuh` in one target through a `.cuh`
 in another would do exactly that leaking, which is why every cross-target pair is
-kept apart. The two `.cuh`-to-`.cuh` edges, `cooperative_groups.cuh` and `wmma.cuh` →
-`runtime.cuh`, are within `wwr.device`, so they carry no such leak: a
-consumer of any of the three already links that one target.
+kept apart. The two edges into a `.cuh` from these gated `.h`,
+`cooperative_groups.h` and `wmma.h` → `runtime.cuh` (taken only in a device pass),
+are within `wwr.device`, so they carry no such leak: a consumer of any of the
+three already links that one target.

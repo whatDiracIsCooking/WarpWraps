@@ -28,7 +28,7 @@ copy, the choices are theirs. `wwr.extension.parallel_for` is what a
 reduction *would* be built on, and it stays a library because an
 index-per-thread map has no such choices in it.
 
-It is also the in-tree consumer of `src/cooperative_groups.cuh`.
+It is also the in-tree consumer of `src/cooperative_groups.h`.
 `test/gpu/cooperative_groups.cu` compiles every portable entity that header
 reaches; this is the only thing that launches one and checks the answer.
 

@@ -2,12 +2,14 @@
  * @file device_guard.h
  * @brief selected_backend.h + the "must be a device pass" guard, in one include
  *
- * runtime.cuh includes it directly; cooperative_groups.cuh, wmma.cuh and
- * atomic.cuh reach it through runtime.cuh. Each opens with the same two
- * requirements: the selected backend, and a refusal to compile outside a device
- * pass. Factored here so the guard exists once. (The rand / complex / fp16 / bf16
- * / fp8 device wrappers moved into their .h files' device-pass-gated sections,
- * which need no #error -- those headers are meant to compile in host TUs too.)
+ * runtime.cuh includes it directly, and atomic.cuh through runtime.cuh; both open
+ * with the same two requirements: the selected backend, and a refusal to compile
+ * outside a device pass. cooperative_groups.h and wmma.h reach it through
+ * runtime.cuh too, but only from inside their device gate -- they are host-safe .h
+ * (empty in a host TU), so they gate rather than #error. Factored here so the
+ * guard exists once. (The rand / complex / fp16 / bf16 / fp8 device wrappers moved
+ * into their .h files' device-pass-gated sections, which need no #error -- those
+ * headers are meant to compile in host TUs too.)
  *
  * The two questions stay apart, as they must: "which
  * backend?" is selected_backend.h's, answered from the compiler's device macro

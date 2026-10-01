@@ -1,9 +1,9 @@
-// Compile-time test for src/wmma.cuh, the include switch plus one
+// Compile-time test for src/wmma.h, the include switch plus one
 // namespace alias. The header defines a single name, wwr::wwrwmma, and has no
 // in-tree caller yet, so without this TU nothing compiles it and a break on one
 // backend would ship unseen -- <mma.h> and <rocwmma/rocwmma.hpp> are separate
 // implementations of a shared spelling, not one header behind two paths, which
-// is a weaker guarantee than cooperative_groups.cuh's.
+// is a weaker guarantee than cooperative_groups.h's.
 //
 // Building this .cu under the selected backend's device pass IS the test: every
 // wwrwmma entity named below has to resolve on both backends. The kernels are
@@ -18,7 +18,7 @@
 // WWR_GPU_BACKEND_* define the host-compiled .cppm tests use).
 #include "bf16.h"
 #include "fp16.h"
-#include "wmma.cuh"
+#include "wmma.h"
 
 namespace {
 
@@ -122,7 +122,7 @@ static_assert(same_type<WmmaBf16, wwr::wwrBfloat16>::value,
 using WmmaBf16 = w::bfloat16_t;
 static_assert(!same_type<WmmaBf16, wwr::wwrBfloat16>::value,
               "rocWMMA's bfloat16_t is still expected to differ from wwrBfloat16; "
-              "if ROCm has unified them, wmma.cuh needs updating");
+              "if ROCm has unified them, wmma.h needs updating");
 #endif
 
 // bf16 WMMA is arch-gated on CUDA in a way the half tile above is not: <mma.h>

@@ -184,7 +184,7 @@ Two kinds of rationale outgrow a header, and both live in
 **`docs/architecture.md`**:
 
 - **A choice this project made**, and could revisit. "Warp size is a
-  configure-time constant." "`cooperative_groups.cuh` wraps nothing." Give it
+  configure-time constant." "`cooperative_groups.h` wraps nothing." Give it
   Context and Consequences, so the decision and the alternative rejected are on
   record.
 - **Something simply true of CUDA, HIP or C++** that this project must live
@@ -212,7 +212,7 @@ Cite `architecture.md` by section number.
 
 Doxygen tags, not narrative. `@brief` on one line; `@param`, `@tparam`,
 `@return` only where the name does not already say it; `@pre` for a genuine
-precondition. `cooperative_groups.cuh`'s per-function blocks are the model:
+precondition. `cooperative_groups.h`'s per-function blocks are the model:
 
 ```cpp
 /// @brief One bit per group member, set where that member's @p pred was true

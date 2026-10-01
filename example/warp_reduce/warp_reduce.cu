@@ -2,7 +2,7 @@
 //
 // The device-kernel half of the warp-reduction example: one block of four
 // warps, every thread cascading over the whole array, then a tile.shfl_down
-// ladder in registers. Written once for both backends -- cooperative_groups.cuh
+// ladder in registers. Written once for both backends -- cooperative_groups.h
 // resolves the only thing that differs (the vendor header), so there is no
 // per-backend #if here.
 //
@@ -12,7 +12,7 @@
 // clang compiles it with `-x hip`.
 #include "warp_reduce_bridge.h"
 
-#include "cooperative_groups.cuh"
+#include "cooperative_groups.h"
 
 #include <cstddef>
 #include <cstdint>

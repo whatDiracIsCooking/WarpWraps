@@ -1,7 +1,7 @@
 # The warp-reduction example: a hand-written warp-level kernel on
-# cooperative_groups.cuh, and the host code that runs it.
+# cooperative_groups.h, and the host code that runs it.
 #
-# This is the in-tree consumer that keeps src/cooperative_groups.cuh honest.
+# This is the in-tree consumer that keeps src/cooperative_groups.h honest.
 # test/gpu/cooperative_groups.cu compiles every portable entity the header
 # reaches; nothing launched one until this, so the shfl_down ladder's answer was
 # never checked on a device. Deliberately an example rather than a
@@ -13,7 +13,7 @@
 # neither. cmake/wwr_add_gpu_device_library.cmake is where that split is
 # spelled out in full.
 
-# wwr.device carries cooperative_groups.cuh, runtime.cuh and runtime.h (the
+# wwr.device carries cooperative_groups.h, runtime.cuh and runtime.h (the
 # stream type warp_reduce_bridge.h names, plus the WWR_WARP_SIZE the tile size
 # is built from), all under the src/ include root it exposes. PRIVATE, as every
 # device-library link is: nothing that links this should inherit a device-code

@@ -1,4 +1,4 @@
-// Compile-time test for src/cooperative_groups.cuh, the include
+// Compile-time test for src/cooperative_groups.h, the include
 // switch. The header defines no wwr* names of its own, and its one in-tree
 // caller (example/warp_reduce) reaches a fraction of what it exposes -- so
 // without this TU most of the header goes uncompiled, and a break on one
@@ -17,7 +17,7 @@
 // WWR_SELECTED_CUDA -- the device-pass macro the header itself switches on,
 // available here for free and consistent across both of HIP's compile passes
 // (unlike the WWR_GPU_BACKEND_* define the host-compiled .cppm tests use).
-#include "cooperative_groups.cuh"
+#include "cooperative_groups.h"
 
 namespace cg = cooperative_groups;
 
