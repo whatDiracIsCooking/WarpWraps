@@ -183,6 +183,9 @@
       "output": {
         "outputOnFailure": true
       },
+      "environment": {
+        "ASAN_OPTIONS": "protect_shadow_gap=0"
+      },
       "filter": {
         "exclude": {
           "label": "no_sanitizer"
