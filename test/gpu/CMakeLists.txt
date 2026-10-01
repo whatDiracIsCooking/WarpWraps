@@ -155,7 +155,7 @@ wwr_add_test_executable(
 add_dependencies(compile_time_tests gpu_compile_tests_tensor)
 set_tests_properties(gpu_compile_tests PROPERTIES LABELS compile_time)
 
-# cooperative_groups.cuh is the odd one out among the wwr* tests above: it
+# cooperative_groups.h is the odd one out among the wwr* tests above: it
 # exports no names, so there is nothing for a .cppm module test to compare, and
 # every cooperative-groups entity is __device__-only, so a host-compiled module
 # test structurally cannot reach it. The claim it CAN break -- the vendor header
@@ -235,16 +235,16 @@ wwr_add_gpu_device_library(
 add_dependencies(compile_time_tests wwr.test.gpu.fp8.device)
 
 # wmma.cu is cooperative_groups.cu's shape with a weaker starting guarantee.
-# wmma.cuh exports one name -- the wwr::wwrwmma alias -- so there is still
+# wmma.h exports one name -- the wwr::wwrwmma alias -- so there is still
 # nothing for a .cppm module test to compare, and every WMMA entity is
 # __device__-only, so a host-compiled module test structurally cannot reach it.
-# But where cooperative_groups.cuh switches between two paths to the same vendor
+# But where cooperative_groups.h switches between two paths to the same vendor
 # API, this one switches between NVIDIA's <mma.h> and AMD's separately written
 # rocWMMA, which merely agrees on the spellings -- so the claim that they stay
 # interchangeable is worth compiling on both backends rather than assuming.
 # Building it is the assertion: no ctest entry, no launch (WMMA is arch-gated
 # and this tier configures with no device). Its include path is wwr.device,
-# which carries wmma.cuh along with the fp16.h/bf16.h it names element
+# which carries wmma.h along with the fp16.h/bf16.h it names element
 # types from.
 wwr_add_gpu_device_library(
   NAME

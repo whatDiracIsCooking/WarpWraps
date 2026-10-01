@@ -37,7 +37,7 @@ target_include_directories(
 add_library(wwr::backend ALIAS wwr_backend)
 
 # The include path, runtime libs and WWR_WARP_SIZE for the device-side
-# headers (runtime.cuh, cooperative_groups.cuh, wmma.cuh, and the device-pass
+# headers (runtime.cuh, cooperative_groups.h, wmma.h, and the device-pass
 # gated sections of complex.h / fp16.h / bf16.h / fp8.h)
 # -- the counterpart to wwr_backend for code reached by #include, not import
 # (a kernel TU imports no modules). Carries NO WWR_GPU_BACKEND define: these
@@ -48,7 +48,7 @@ add_library(wwr::backend ALIAS wwr_backend)
 # per-kernel target that does.
 #
 # WWR_WARP_SIZE is a configure-time constant, not a backend switch.
-# cooperative_groups.cuh and wmma.cuh need no target of their own:
+# cooperative_groups.h and wmma.h need no target of their own:
 # both vendors ship them header-only on the include path CUDA::cudart /
 # hip::host already bring (docs/architecture.md §2, §16 -- and do NOT add
 # find_package(rocwmma), which drags in hip::device; see §17). The common

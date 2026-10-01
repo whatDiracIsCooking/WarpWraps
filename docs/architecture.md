@@ -58,11 +58,22 @@ src/README.md.)
 
 ## 2. Cooperative groups: one namespace, divergent types
 
-`src/cooperative_groups.cuh` wraps nothing: it resolves the include and defines
+`src/cooperative_groups.h` wraps nothing: it resolves the include and defines
 no names of its own — both vendors put cooperative groups in
 `namespace cooperative_groups` and agree on the spellings inside, so a
 forwarding layer would only rename each name to itself. The header is the
-`#include` switch and nothing more.
+`#include` switch and nothing more, with its whole body gated behind the
+device-pass macros so it is a host-safe `.h` (empty in a host TU) rather than a
+`.cuh`.
+
+That `.h` name forces one subtlety on the CUDA branch: the toolkit's own header
+is *also* `cooperative_groups.h`, and `src/` is on the angle-bracket search path,
+so a plain `#include <cooperative_groups.h>` resolves back to this file (a no-op
+under `#pragma once`) and the vendor namespace never arrives. The CUDA branch
+therefore uses `#include_next <cooperative_groups.h>`, which resumes the search
+past `src/` — the standard wrapper-header fix. The HIP branch is immune:
+`<hip/hip_cooperative_groups.h>` does not collide. (The old `.cuh` name sidestepped
+the clash entirely; this is the cost of making it a `.h`.)
 
 The divergences are the caller's to handle:
 `ballot()` is 32-bit on CUDA and 64-bit on HIP, so storing one in an `unsigned`
@@ -330,7 +341,7 @@ the `matrix_a`/`matrix_b`/`accumulator` and `row_major`/`col_major` tags,
 `layout_t`, `fill_fragment`, `load_matrix_sync`, `store_matrix_sync` and
 `mma_sync` are spelled identically. The namespaces are not: `nvcuda::wmma`
 against `rocwmma`. That is one name more than §2's case, which is why
-`src/wmma.cuh` defines the `wwrwmma` alias where `cooperative_groups.cuh`
+`src/wmma.h` defines the `wwrwmma` alias where `cooperative_groups.h`
 defines nothing. Two of the divergences below are silent, and both bite code
 that never reads either file.
 
@@ -499,7 +510,7 @@ ROCm ships a libcu++ counterpart (`<hip/std/atomic>`, `<hip/atomic>`). It does
 not — neither `/opt/rocm/include/hip/std/` nor `/opt/rocm/include/hip/atomic`
 exists in ROCm 7.2.4; the only atomic headers are the builtin-backed
 `amd_detail/amd_hip_atomic.h`. So a thin `namespace` alias in the
-`cooperative_groups.cuh` shape is not available, and the operations are
+`cooperative_groups.h` shape is not available, and the operations are
 forwarded to the `__hip_atomic_*` builtins one by one.
 
 **The HIP builtins accept the whole surface, with a runtime order and scope.**

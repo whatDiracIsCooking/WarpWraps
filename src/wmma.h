@@ -1,5 +1,5 @@
 /**
- * @file wmma.cuh
+ * @file wmma.h
  * @brief The vendor warp-level MMA (tensor-core) API, for device-compiled TUs
  *
  * `#include`d into a .cu (CUDA) or `-x hip` device-compiled (HIP) TU; link
@@ -10,9 +10,18 @@
  * `accumulator`, `row_major`/`col_major`, `layout_t`, `fill_fragment`,
  * `load_matrix_sync`, `store_matrix_sync` and `mma_sync`.
  *
- * That one name is the whole difference from `cooperative_groups.cuh`, whose
- * vendors agree on the namespace so it can define nothing; aliasing
- * this one in the caller would need the backend `#if` only this layer carries.
+ * A `.h`, not a `.cuh`, though it is device-only: like `cooperative_groups.h`
+ * its whole body -- the vendor headers and that one alias -- sits behind the
+ * device-pass macros, so a host TU sees an empty header, not the `#error` a
+ * `.cuh` carries. That one alias is the whole difference from
+ * `cooperative_groups.h`, whose vendors agree on the namespace so it defines
+ * nothing; aliasing this one in the caller would need the backend `#if` only
+ * this layer carries. The alias names a device namespace and has no host use, so
+ * this header is host-*safe*, not host-*usable* -- which is what sets both apart
+ * from `complex.h` / `rand.h`, whose `.h` holds a host-usable surface.
+ * `runtime.cuh` is reached from inside the gate for the backend switch and
+ * WWR_WARP_SIZE (mma_sync is a whole-warp collective, so a kernel mapping tiles
+ * to waves indexes with it).
  *
  * Constraints the caller carries:
  *
@@ -26,11 +35,13 @@
 
 #pragma once
 
-// The device-pass #error, WWR_SELECTED_CUDA / WWR_SELECTED_HIP, and
-// WWR_WARP_SIZE, which is what a wave index into a tiled kernel is built
-// from -- mma_sync is a whole-warp (whole-wavefront) collective, so a kernel
-// mapping tiles to waves needs it for the same reason a portable
-// cooperative-groups tile size does.
+#if defined(__CUDACC__) || defined(__HIP__) || defined(__HIPCC__)
+
+// The device-pass runtime: the device-pass macros stay satisfied here, plus
+// WWR_SELECTED_CUDA / WWR_SELECTED_HIP for the switch below and WWR_WARP_SIZE,
+// which is what a wave index into a tiled kernel is built from -- mma_sync is a
+// whole-warp (whole-wavefront) collective, so a kernel mapping tiles to waves
+// needs it for the same reason a portable cooperative-groups tile size does.
 #include "runtime.cuh"
 
 #if defined(WWR_SELECTED_CUDA)
@@ -60,3 +71,5 @@ namespace wwrwmma = ::rocwmma;
 #endif
 
 } // namespace wwr
+
+#endif // device-compile pass

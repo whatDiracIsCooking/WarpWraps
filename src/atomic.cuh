@@ -42,7 +42,7 @@
 // WWR_SELECTED_CUDA / WWR_SELECTED_HIP, the device-pass #error, and the vendor
 // runtime header -- which on HIP declares the __HIP_MEMORY_SCOPE_* constants
 // (amd_hip_atomic.h, reached through hip_runtime.h) the builtins take. Unlike
-// cooperative_groups.cuh / wmma.cuh it is not WWR_WARP_SIZE that is wanted here
+// cooperative_groups.h / wmma.h it is not WWR_WARP_SIZE that is wanted here
 // but that runtime include, so the same base header serves.
 #include "runtime.cuh"
 

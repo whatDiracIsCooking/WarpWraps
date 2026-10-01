@@ -3,7 +3,7 @@
 // Allocates, fills, launches warp_reduce_sum and checks the number that comes
 // back. Nothing here names a backend: the buffers and the stream are the
 // extension layer's, the kernel behind warp_reduce_sum is written once against
-// cooperative_groups.cuh, and the same source builds and runs on CUDA and HIP.
+// cooperative_groups.h, and the same source builds and runs on CUDA and HIP.
 //
 // Running it needs a GPU; building it does not, which is what
 // devtools/cross-backend-check.sh compiles for the other backend.
