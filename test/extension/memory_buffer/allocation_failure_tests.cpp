@@ -55,4 +55,33 @@ TEST(AllocationFailureTests, FailedDeviceAllocationLeavesCoherentEmptyBuffer) {
   static_cast<void>(wwrGetLastError());
 }
 
+TEST(AllocationFailureTests, FailedPinnedAllocationLeavesCoherentEmptyBuffer) {
+  // Largest count that passes the size check; wwrHostAlloc itself cannot
+  // satisfy it. As with the host kind, a non-aborting policy must record the
+  // failure and leave an empty, null buffer rather than memset a null pointer.
+  GpuPolicy policy;
+  CountedPinnedBuffer<float> buf(CountedPinnedBuffer<float>::max_num_elements, policy);
+
+  EXPECT_GE(buf.alloc_policy().count(), std::size_t{1});
+  EXPECT_EQ(buf.data(), nullptr);
+  EXPECT_EQ(buf.num_elements(), std::size_t{0});
+  EXPECT_EQ(buf.size_bytes(), std::size_t{0});
+
+  static_cast<void>(wwrGetLastError());
+}
+
+TEST(AllocationFailureTests, FailedUnifiedAllocationLeavesCoherentEmptyBuffer) {
+  // Same contract for managed memory: wwrMallocManaged fails the oversized
+  // request and the buffer stays coherent and empty.
+  GpuPolicy policy;
+  CountedUnifiedBuffer<float> buf(CountedUnifiedBuffer<float>::max_num_elements, policy);
+
+  EXPECT_GE(buf.alloc_policy().count(), std::size_t{1});
+  EXPECT_EQ(buf.data(), nullptr);
+  EXPECT_EQ(buf.num_elements(), std::size_t{0});
+  EXPECT_EQ(buf.size_bytes(), std::size_t{0});
+
+  static_cast<void>(wwrGetLastError());
+}
+
 } // namespace wwr::extension::test

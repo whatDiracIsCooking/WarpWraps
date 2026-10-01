@@ -46,6 +46,7 @@ constexpr bool validate_copy(const B1 &dst, const std::size_t dst_offset, const 
  * @brief Synchronous host memory copy for full buffer
  * @note Both buffers must have the same element type
  * @note Uses std::memcpy for synchronous host-to-host copy
+ * @note A full self-copy (dst and src aliasing the same storage) is a no-op
  * @param dst Destination buffer
  * @param src Source buffer
  * @return stdHostMemSuccess on success, stdHostMemInvalidValue if validation fails
@@ -59,6 +60,11 @@ stdHostMemoryError_t copy(B1 &dst, const B2 &src) noexcept {
   // std::memcpy is undefined for null pointers even with a zero length, and an
   // empty buffer has data() == nullptr.
   if (src.num_elements() == 0)
+    return stdHostMemSuccess;
+
+  // std::memcpy is also undefined when its ranges overlap, and dst == src
+  // overlaps completely. A full self-copy would be a no-op anyway, so skip it.
+  if (static_cast<const void *>(dst.data()) == static_cast<const void *>(src.data()))
     return stdHostMemSuccess;
 
   std::memcpy(dst.data(), src.data(), src.size_bytes());

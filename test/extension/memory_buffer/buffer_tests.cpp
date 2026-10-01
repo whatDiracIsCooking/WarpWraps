@@ -746,6 +746,19 @@ TEST(CopyAndMemsetTests, EmptyBufferCopyIsANoOp) {
   EXPECT_EQ(ext::copy(dst, src), stdHostMemSuccess);
 }
 
+TEST(CopyAndMemsetTests, SelfCopyIsASafeNoOp) {
+  // copy(buf, buf) aliases one allocation as both ends. std::memcpy is
+  // undefined when its ranges overlap, so the sync overload must short-circuit
+  // rather than memcpy dst == src; the contents are left untouched.
+  HostBufferWrapper<float, HostAbort, HostAbort> buf(16);
+  for (std::size_t i = 0; i < 16; ++i)
+    buf[i] = static_cast<float>(i) + 1.0f;
+
+  EXPECT_EQ(ext::copy(buf, buf), stdHostMemSuccess);
+  for (std::size_t i = 0; i < 16; ++i)
+    EXPECT_EQ(buf[i], static_cast<float>(i) + 1.0f) << "at index " << i;
+}
+
 TEST(CopyAndMemsetTests, OffsetCopyMovesOnlyTheRequestedRange) {
   HostBufferWrapper<float, HostAbort, HostAbort> host(16);
   for (std::size_t i = 0; i < 16; ++i)
