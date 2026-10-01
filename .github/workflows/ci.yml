@@ -59,18 +59,19 @@
 # Compiling the test sources both ways is most of the value here -- which is
 # why the hip leg is a full build and not the compile-time tier.
 #
-# WHAT IS LEFT: seven runtime suites that genuinely need a card --
-# test/extension/{memory_buffer,runtime,rand,blas,solver,fft,sparse}. They
-# allocate device memory, launch kernels or create vendor handles, and they
-# carry the `gpu` ctest label so `-LE gpu` names them as excluded rather than
-# quietly passing over them. NOTHING HERE TESTS GPU BEHAVIOUR.
-# `devtools/cpp-tier.sh` on a box with a card is the only thing that does, and
-# it stays a human gate.
+# WHAT IS LEFT: the runtime suites that genuinely need a card -- the
+# test/extension/* targets marked REQUIRES_GPU (the keyword
+# cmake/wwr_add_gtest_suite_tests.cmake turns into the `gpu` label). They
+# allocate device memory, launch kernels or create vendor handles, and the label
+# makes `-LE gpu` name them as excluded rather than quietly passing over them.
+# NOTHING HERE TESTS GPU BEHAVIOUR. `devtools/cpp-tier.sh` on a box with a card
+# is the only thing that does, and it stays a human gate.
 #
-# BOTH LEGS REPORT 12, and that is worth keeping equal. Each is
-# {cuda,hip}_compile_tests + gpu_compile_tests + the two conversion suites +
-# eight SuiteListIsComplete guards, so a divergence between them is a signal
-# rather than a quirk of one backend.
+# BOTH LEGS REPORT THE SAME COUNT, and that is worth keeping equal: what `-LE
+# gpu` leaves is {cuda,hip}_compile_tests + gpu_compile_tests + the two
+# conversion suites + one SuiteListIsComplete guard per test binary (the guard is
+# never `gpu`-labelled, so every binary contributes one). A divergence between
+# the legs is therefore a signal rather than a quirk of one backend.
 #
 # Getting there needed one thing: cuda_compile_tests links the driver stubs
 # and cannot LOAD without libcuda.so.1, where hip_compile_tests has no such

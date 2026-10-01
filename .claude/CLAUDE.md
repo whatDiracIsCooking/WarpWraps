@@ -106,9 +106,10 @@ skill drives all of it.
   require in a branch ruleset** — every other name is generated and moves.
 - Both backends are built on the server and run `ctest -LE gpu` — read that as
   **compile-and-link plus a thin runtime slice**, not a test of GPU behaviour.
-- **What CI still cannot do: the device-dependent suites**
-  (`test/extension/{memory_buffer,runtime,rand,blas,solver,fft,sparse}`, the
-  `gpu` ctest label). Only a box with a card runs those, so
+- **What CI still cannot do: the device-dependent suites** — the
+  `test/extension/*` targets marked `REQUIRES_GPU`, which carry the `gpu` ctest
+  label and so are named-and-excluded by `-LE gpu`. Only a box with a card runs
+  those, so
   **`devtools/cpp-tier.sh` before opening a PR remains the gate for anything
   touching device behaviour** — it is local and bypassable, so run it and say
   what you ran.

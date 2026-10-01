@@ -47,7 +47,7 @@ What it cannot do is run a kernel, so these are the local gates that matter:
 
 ```bash
 devtools/cpp-tier.sh              # the full tier. The ONLY thing that runs the
-                                  # seven gpu-labelled suites — needs a card.
+                                  # gpu-labelled suites — needs a card.
 devtools/cross-backend-check.sh   # ~7s: does the OTHER backend still compile?
 devtools/install-check.sh         # install, then build example/consumer
 pytest -n auto -rs                # the Python tier (three files, ~2s)
