@@ -13,19 +13,21 @@
  * module fragment or a plain .cu that declares a stream-taking function across
  * the host/device boundary (the *_bridge.h headers, example/warp_reduce). Code
  * that CAN import gets the same ::cudaStream_t / ::hipStream_t from
- * wwr.runtime_api instead -- and runtime_api.cppm's GMF deliberately does NOT
- * include this header, because the vendor runtime macros would collide with its
- * WWR_RT_VALUE expansions (see that file). The types agree regardless: both
- * paths name the one vendor handle. This is where runtime diverges from
- * complex.h, whose complex.cppm DOES include it (cuComplex.h defines no such
- * colliding macros).
+ * wwr.runtime_api instead. runtime_api.cppm's GMF does NOT include THIS header:
+ * it reaches the stream handle -- and the rest of the runtime surface -- through
+ * its own vendor-include header runtime_api.h, which #undef's the allocation-flag
+ * macros that would otherwise collide with its WWR_RT_VALUE expansions. This lean
+ * header needs only the type, so it leaves those macros defined and is the wrong
+ * include for that module. The types agree regardless: both headers name the one
+ * vendor handle. (complex.cppm, by contrast, DOES include complex.h -- cuComplex.h
+ * defines no such colliding macros.)
  *
  * Only the type lives here. The vendor header included is the minimal one that
  * declares it (cuda_runtime_api.h / hip_runtime_api.h), not the full runtime:
  * runtime.cuh layers <cuda_runtime.h> / <hip/hip_runtime.h> and the device
  * macros on top, and the runtime API surface (functions, constants, the other
- * handle types) is wwr.runtime_api's, reached by import. See
- * docs/architecture.md, section 3.
+ * handle types) is wwr.runtime_api's, reached by import -- that module binding
+ * them through its own runtime_api.h. See docs/architecture.md, section 3.
  */
 
 #pragma once

@@ -100,8 +100,11 @@ WWR_SAME_VALUE(wwrErrorInvalidValue, cudaErrorInvalidValue)
 WWR_SAME_FUNCTION(wwrGetLastError, cudaGetLastError)
 
 WWR_SAME_VALUE(wwrMemcpyDefault, cudaMemcpyDefault)
-WWR_SAME_FUNCTION(wwrMallocAsync, cudaMallocAsync)
-WWR_SAME_FUNCTION(wwrMallocFromPoolAsync, cudaMallocFromPoolAsync)
+// wwrMallocAsync / wwrMallocFromPoolAsync are hand-written forwarders, not plain
+// aliases: the HIP entry points are overload sets whose template overload the
+// disable macro does not suppress, so the wwr* layer forwards rather than binds a
+// reference. &wwr* is therefore not a single backend symbol -- WWR_SAME_FUNCTION
+// does not apply. Proven by compiling and by GpuMemoryBufferTests / basic.cpp.
 WWR_SAME_FUNCTION(wwrFreeAsync, cudaFreeAsync)
 WWR_SAME_FUNCTION(wwrMemcpyAsync, cudaMemcpyAsync)
 WWR_SAME_FUNCTION(wwrMemsetAsync, cudaMemsetAsync)
@@ -224,8 +227,12 @@ WWR_SAME_VALUE(wwrErrorInvalidValue, hipErrorInvalidValue)
 WWR_SAME_FUNCTION(wwrGetLastError, hipGetLastError)
 
 WWR_SAME_VALUE(wwrMemcpyDefault, hipMemcpyDefault)
-WWR_SAME_FUNCTION(wwrMallocAsync, hipMallocAsync)
-WWR_SAME_FUNCTION(wwrMallocFromPoolAsync, hipMallocFromPoolAsync)
+// wwrMallocAsync / wwrMallocFromPoolAsync are hand-written forwarders, not plain
+// aliases: hipMallocAsync / hipMallocFromPoolAsync are overload sets whose
+// template<class T> (T**, ...) overload __HIP_DISABLE_CPP_FUNCTIONS__ does not
+// suppress (unlike hipMalloc's), so the wwr* layer forwards rather than binds a
+// reference. &wwr* is therefore not a single backend symbol -- WWR_SAME_FUNCTION
+// does not apply. Proven by compiling and by GpuMemoryBufferTests / basic.cpp.
 WWR_SAME_FUNCTION(wwrFreeAsync, hipFreeAsync)
 WWR_SAME_FUNCTION(wwrMemcpyAsync, hipMemcpyAsync)
 WWR_SAME_FUNCTION(wwrMemsetAsync, hipMemsetAsync)

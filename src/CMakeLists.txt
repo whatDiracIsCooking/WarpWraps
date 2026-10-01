@@ -101,17 +101,17 @@ add_library(wwr::rand::device ALIAS wwr.rand.device)
 
 # Raw module each wwr* module wraps, per backend.
 #
-# _fp_backend_rt is NOT a raw module: wwr.fp16 / wwr.bf16 import no raw module
-# (their float conversions are external-linkage, so fp16.cppm / bf16.cppm bind
-# to them directly through the vendor header in fp16.h / bf16.h -- see those
-# files). They need only the vendor header's include path, which the backend
-# runtime host lib carries (CUDA::cudart / hip::host, as wwr.device relies on)
-# and which brings no WWR_WARP_SIZE, unlike wwr.device itself.
+# _backend_rt_host is NOT a raw module: wwr.runtime_api / wwr.fp16 / wwr.bf16
+# import no raw module. Their vendor API is external-linkage, so the .cppm binds
+# its wwr* names directly to the declarations a src/-root sibling header pulls
+# in (runtime_api.h / fp16.h / bf16.h -- the rand.h shape). They need only that
+# header's include path plus the link library, both of which the backend runtime
+# host lib carries (CUDA::cudart / hip::host, as wwr.device relies on) -- and it
+# brings no WWR_WARP_SIZE, unlike wwr.device itself.
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
-  set(_raw_runtime_api wwr::cuda::cuda_runtime_api)
   set(_raw_complex wwr::cuda::cuComplex)
   set(_raw_fp8 wwr::cuda::cuda_fp8)
-  set(_fp_backend_rt CUDA::cudart)
+  set(_backend_rt_host CUDA::cudart)
   set(_raw_blas wwr::cuda::cublas_v2)
   set(_raw_blaslt wwr::cuda::cublasLt)
   set(_raw_solver wwr::cuda::cusolverDn)
@@ -122,10 +122,9 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_raw_tensor wwr::cuda::cutensor)
   set(_raw_comp wwr::cuda::nvcomp)
 else()
-  set(_raw_runtime_api wwr::hip::hip_runtime_api)
   set(_raw_complex wwr::hip::hip_complex)
   set(_raw_fp8 wwr::hip::hip_fp8)
-  set(_fp_backend_rt hip::host)
+  set(_backend_rt_host hip::host)
   set(_raw_blas wwr::hip::hipblas)
   set(_raw_blaslt wwr::hip::hipblaslt)
   set(_raw_solver wwr::hip::hipsolver)
@@ -137,13 +136,22 @@ else()
   set(_raw_comp wwr::hip::hipcomp)
 endif()
 
+# wwr.runtime_api binds straight to the vendor runtime *library*, not a raw
+# vendor module: its GMF #includes runtime_api.h, which pulls in
+# cuda_runtime_api.h / hip_runtime_api.h, and the runtime host API is a real
+# external-linkage library, so binding wwr* names to the declarations needs only
+# the prototype plus the link library. _backend_rt_host (CUDA::cudart /
+# hip::host) carries both, PUBLIC (a consumer calling wwr* runtime entry points
+# links the runtime too). The raw module wwr.cuda.cuda_runtime_api /
+# wwr.hip.hip_runtime_api stays as a single-vendor surface, off this path -- the
+# rand.h shape. See src/runtime_api.h and src/README.md.
 wwr_add_cxx_module_library(
   NAME
   wwr.runtime_api
   PRIMARY_INTERFACE
   runtime_api.cppm
   LINK_PUBLIC
-  ${_raw_runtime_api}
+  ${_backend_rt_host}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
@@ -167,7 +175,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   fp16.cppm
   LINK_PUBLIC
-  ${_fp_backend_rt}
+  ${_backend_rt_host}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
@@ -179,7 +187,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   bf16.cppm
   LINK_PUBLIC
-  ${_fp_backend_rt}
+  ${_backend_rt_host}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD

@@ -20,29 +20,30 @@
 module;
 
 #include "backend.h"
+#include "runtime_api.h"
 
-// NB: this GMF must NOT #include runtime.h (or any vendor runtime header). The
-// vendor's cuda_runtime_api.h / hip_runtime_api.h #define preprocessor macros
-// (cudaStreamDefault, cudaEventDefault, cudaArrayDefault, ...) that collide with
-// the cuda##x / hip##x tokens in the WWR_RT_VALUE expansions below. The wwr*
-// names come from the import instead -- macros do not cross a module boundary.
-// wwrStream_t is exported from here via WWR_RT_TYPE(Stream_t) as ::cudaStream_t /
-// ::hipStream_t, the SAME vendor handle runtime.h names for device and GMF code,
-// so a stream still crosses the boundary as one type. (This is where runtime
-// diverges from complex.h, whose cuComplex.h defines no colliding macros.)
+// runtime_api.h is the single vendor-include point: it #includes the vendor
+// runtime header and binds this module's wwr* names to the external-linkage
+// ::cuda* / ::hip* declarations, so no raw vendor module is imported (the rand.h
+// shape -- see runtime_api.h and src/README.md). The vendor header's colliding
+// ALLOCATION-FLAG macros (cudaStreamDefault, cudaEventDefault, cudaArrayDefault,
+// ...) would break the `::`-prefixed WWR_RT_VALUE expansions below, so
+// runtime_api.h #undef's each and replaces it with an equally-named global
+// constexpr -- the one thing a GMF #include leaks that an import did not.
+// wwrStream_t is bound via WWR_RT_TYPE(Stream_t) to ::cudaStream_t / ::hipStream_t,
+// the SAME vendor handle runtime.h names for device and GMF code, so a stream
+// still crosses the module boundary as one type.
 
-// Runtime API: wwrX -> cudaX / hipX
-#define WWR_RT_TYPE(x) WWR_TYPE(wwr##x, cuda##x, hip##x)
-#define WWR_RT_VALUE(x) WWR_VALUE(wwr##x, cuda##x, hip##x)
-#define WWR_RT_FUNCTION(x) WWR_FUNCTION(wwr##x, cuda##x, hip##x)
+// Runtime API: wwrX -> ::cudaX / ::hipX. The _RAW macros bind to the vendor's
+// OWN global names (the declarations runtime_api.h's #include brings in), not to
+// a ::wwr::cuda / ::wwr::hip raw-module re-export -- this module imports none.
+// See backend.h and runtime_api.h.
+#define WWR_RT_TYPE(x) WWR_TYPE_RAW(wwr##x, cuda##x, hip##x)
+#define WWR_RT_VALUE(x) WWR_VALUE_RAW(wwr##x, cuda##x, hip##x)
+#define WWR_RT_FUNCTION(x) WWR_FUNCTION_RAW(wwr##x, cuda##x, hip##x)
 
 export module wwr.runtime_api;
 
-#if defined(WWR_GPU_BACKEND_CUDA)
-import wwr.cuda.cuda_runtime_api;
-#else
-import wwr.hip.hip_runtime_api;
-#endif
 import std;
 
 export namespace wwr {
@@ -55,13 +56,12 @@ WWR_RT_TYPE(Error_t)
 
 // Device properties struct. Spelled out rather than WWR_RT_TYPE(DeviceProp)
 // because the HIP name differs beyond the cuda/hip prefix: hip_runtime_api.h
-// version-renames hipDeviceProp_t to hipDeviceProp_tR0600, and that macro is
-// not in scope here (this unit imports the HIP module, not its header), so the
-// versioned spelling is what the module actually exports.
-WWR_TYPE(wwrDeviceProp, cudaDeviceProp, hipDeviceProp_tR0600)
+// version-renames hipDeviceProp_t to hipDeviceProp_tR0600 (hipDeviceProp_t is
+// its own alias macro), so the real versioned struct is what we bind to.
+WWR_TYPE_RAW(wwrDeviceProp, cudaDeviceProp, hipDeviceProp_tR0600)
 
-// wwrStream_t is ::cudaStream_t / ::hipStream_t here (via the import), the same
-// vendor handle runtime.h names for device and GMF code -- see the GMF comment
+// wwrStream_t is ::cudaStream_t / ::hipStream_t here (from the vendor header),
+// the same vendor handle runtime.h names for device and GMF code -- see the GMF comment
 // above for why this comes from the import and not a shared #include.
 WWR_RT_TYPE(Stream_t)
 WWR_RT_TYPE(StreamCaptureMode)
@@ -117,11 +117,11 @@ WWR_RT_VALUE(MemcpyDeviceToDevice)
 WWR_RT_VALUE(MemcpyDefault)
 
 // Pinned host allocation flags. hip_runtime_api.h spells these hipHostMalloc*
-// (its hipHostAlloc* macros are equal-valued aliases the raw module does not
-// re-export).
-WWR_VALUE(wwrHostAllocDefault, cudaHostAllocDefault, hipHostMallocDefault)
-WWR_VALUE(wwrHostAllocMapped, cudaHostAllocMapped, hipHostMallocMapped)
-WWR_VALUE(wwrHostAllocWriteCombined, cudaHostAllocWriteCombined, hipHostMallocWriteCombined)
+// (its hipHostAlloc* macros are equal-valued aliases); runtime_api.h captures
+// the hipHostMalloc* family as the global constexprs these bind to.
+WWR_VALUE_RAW(wwrHostAllocDefault, cudaHostAllocDefault, hipHostMallocDefault)
+WWR_VALUE_RAW(wwrHostAllocMapped, cudaHostAllocMapped, hipHostMallocMapped)
+WWR_VALUE_RAW(wwrHostAllocWriteCombined, cudaHostAllocWriteCombined, hipHostMallocWriteCombined)
 
 // Managed memory attach flags
 WWR_RT_VALUE(MemAttachGlobal)
@@ -148,9 +148,9 @@ WWR_RT_VALUE(ArraySurfaceLoadStore)
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables): each wwr*
 // below is a deliberate constexpr reference to the selected backend's entry
-// point (via WWR_FUNCTION or a hand-written overload binding). A reference to
-// a vendor function has no const form, so the check cannot be satisfied without
-// abandoning the alias pattern -- see backend.h.
+// point (via WWR_FUNCTION_RAW or a hand-written overload binding). A reference
+// to a vendor function has no const form, so the check cannot be satisfied
+// without abandoning the alias pattern -- see backend.h.
 
 // Errors
 WWR_RT_FUNCTION(GetErrorName)
@@ -162,7 +162,7 @@ WWR_RT_FUNCTION(GetDevice)
 WWR_RT_FUNCTION(SetDevice)
 // Like wwrDeviceProp above, HIP version-renames the entry point
 // (hipGetDeviceProperties -> hipGetDevicePropertiesR0600), so spell it out.
-WWR_FUNCTION(wwrGetDeviceProperties, cudaGetDeviceProperties, hipGetDevicePropertiesR0600)
+WWR_FUNCTION_RAW(wwrGetDeviceProperties, cudaGetDeviceProperties, hipGetDevicePropertiesR0600)
 
 // Streams
 WWR_RT_FUNCTION(StreamCreate)
@@ -205,12 +205,12 @@ WWR_RT_FUNCTION(GraphUpload)
 // Their flags-taking spellings agree -- cudaGraphInstantiate itself on CUDA and
 // hipGraphInstantiateWithFlags on HIP both take
 // (GraphExec_t*, Graph_t, unsigned long long) -- so forward to whichever carries
-// that signature. A WWR_FUNCTION reference cannot do this: it can bind neither
-// two differently-named backend functions nor a default argument. See
+// that signature. A WWR_FUNCTION_RAW reference cannot do this: it can bind
+// neither two differently-named backend functions nor a default argument. See
 // docs/architecture.md section 4.
 inline wwrError_t wwrGraphInstantiate(wwrGraphExec_t *exec, wwrGraph_t graph,
                                       unsigned long long flags = 0) {
-  return WWR_SELECT(cudaGraphInstantiate, hipGraphInstantiateWithFlags)(exec, graph, flags);
+  return WWR_SELECT_RAW(cudaGraphInstantiate, hipGraphInstantiateWithFlags)(exec, graph, flags);
 }
 
 // Device memory
@@ -218,7 +218,7 @@ inline wwrError_t wwrGraphInstantiate(wwrGraphExec_t *exec, wwrGraph_t graph,
 // hip_runtime_api.h overloads hipMalloc with a template<class T>
 // hipMalloc(T**, size_t), so a plain function reference cannot name it; bind
 // the void** overload explicitly (on both backends, for one signature).
-inline constexpr wwrError_t (&wwrMalloc)(void **, std::size_t) = WWR_SELECT(cudaMalloc,
+inline constexpr wwrError_t (&wwrMalloc)(void **, std::size_t) = WWR_SELECT_RAW(cudaMalloc,
                                                                                hipMalloc);
 WWR_RT_FUNCTION(Free)
 WWR_RT_FUNCTION(Memcpy)
@@ -226,8 +226,25 @@ WWR_RT_FUNCTION(Memset)
 WWR_RT_FUNCTION(DeviceSynchronize)
 
 // Stream-ordered device memory
-WWR_RT_FUNCTION(MallocAsync)
-WWR_RT_FUNCTION(MallocFromPoolAsync)
+//
+// wwrMallocAsync / wwrMallocFromPoolAsync are hand-written forwarders, not
+// WWR_RT_FUNCTION reference bindings, because hipMallocAsync /
+// hipMallocFromPoolAsync are overload sets: each carries a template<class T>
+// (T**, ...) convenience overload that -- unlike hipMalloc's, which sits in a
+// __HIP_DISABLE_CPP_FUNCTIONS__-guarded block -- is in a plain `#if __cplusplus`
+// block the disable macro does NOT reach, so the template survives beside the
+// extern "C" void** entry point. A reference cannot cleanly alias one member of
+// that set (the two live in different namespaces here than in the raw module, so
+// an address-identity alias does not even hold), so forward instead -- the
+// wwrGraphInstantiate shape. The void** argument makes the call pick the C
+// overload; cudaMalloc*Async are single functions and resolve the same way.
+inline wwrError_t wwrMallocAsync(void **ptr, std::size_t size, wwrStream_t stream) {
+  return WWR_SELECT_RAW(cudaMallocAsync, hipMallocAsync)(ptr, size, stream);
+}
+inline wwrError_t wwrMallocFromPoolAsync(void **ptr, std::size_t size, wwrMemPool_t pool,
+                                         wwrStream_t stream) {
+  return WWR_SELECT_RAW(cudaMallocFromPoolAsync, hipMallocFromPoolAsync)(ptr, size, pool, stream);
+}
 WWR_RT_FUNCTION(FreeAsync)
 WWR_RT_FUNCTION(MemcpyAsync)
 WWR_RT_FUNCTION(MemsetAsync)
@@ -239,13 +256,13 @@ WWR_RT_FUNCTION(MemsetAsync)
 // wwrMallocHost: hipMallocHost is deprecated, and cudaMallocHost is documented
 // as cudaHostAlloc with cudaHostAllocDefault, which is what callers write.
 inline constexpr wwrError_t (&wwrHostAlloc)(void **, std::size_t,
-                                            unsigned int) = WWR_SELECT(cudaHostAlloc,
+                                            unsigned int) = WWR_SELECT_RAW(cudaHostAlloc,
                                                                           hipHostAlloc);
 WWR_RT_FUNCTION(FreeHost)
 
 // Managed memory -- hipMallocManaged is an overload set too.
 inline constexpr wwrError_t (&wwrMallocManaged)(void **, std::size_t,
-                                                unsigned int) = WWR_SELECT(cudaMallocManaged,
+                                                unsigned int) = WWR_SELECT_RAW(cudaMallocManaged,
                                                                               hipMallocManaged);
 
 // CUDA array allocation -- the backing store a surface object binds to, and a
