@@ -13,7 +13,7 @@
  * than the `#error` a `.cuh` carries through `device_guard.h`. It holds no
  * host-usable symbol -- unlike `complex.h` / `rand.h`, whose `.h` pairs a
  * host-usable type surface with a gated device section, this one is device-only
- * through and through and merely host-*safe*. `runtime.cuh` is reached from
+ * through and through and merely host-*safe*. `runtime.h` is reached from
  * inside the gate, so a device caller still gets WWR_WARP_SIZE (a portable tile
  * size is built from it) and the backend switch through this one include.
  *
@@ -31,10 +31,12 @@
 
 #if defined(__CUDACC__) || defined(__HIP__) || defined(__HIPCC__)
 
-// The device-pass runtime: the device-pass macros stay satisfied here, plus
-// WWR_SELECTED_CUDA / WWR_SELECTED_HIP for the switch below and WWR_WARP_SIZE,
-// which is what a portable tile size is built from.
-#include "runtime.cuh"
+// The device-pass runtime: inside this gate runtime.h's device section is
+// active, giving WWR_SELECTED_CUDA / WWR_SELECTED_HIP for the switch below and
+// WWR_WARP_SIZE, which is what a portable tile size is built from. (runtime.h is
+// host-safe, so unlike the former runtime.cuh it carries no #error of its own --
+// this header's own gate is what keeps it out of a host TU.)
+#include "runtime.h"
 
 #if defined(WWR_SELECTED_CUDA)
 

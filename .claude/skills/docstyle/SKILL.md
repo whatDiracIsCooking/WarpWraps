@@ -119,8 +119,8 @@ prevent`). State the rule; trust the reader.
 **Second-person exhortation.** `Never treat a wwrrandState* and a
 wwrrandStateXORWOW* as interchangeable`. Prefer the declarative: "On HIP these
 are distinct types; on CUDA they are one." Where the rule is load-bearing a
-`static_assert` outranks any amount of prose — `runtime.cuh`'s
-power-of-two check on `WWR_WARP_SIZE` is the right pattern.
+`static_assert` outranks any amount of prose — `runtime.h`'s
+device-section check on `WWR_WARP_SIZE` is the right pattern.
 
 **Prose inside a section banner.** A bare `// ===` / `// Types` / `// ===`
 divider is *fine* — in a 600-line list of `WWR_FUNCTION` entries it is
@@ -248,7 +248,7 @@ and the worst offenders show every banned construct at once:
   verification transcript (`verified by compiling a kernel ... under nvcc
   -arch=sm_86 ... clang -x hip --offload-arch=gfx1200 on ROCm 7.2.4`).
 - `src/CMakeLists.txt` — a 77-line per-target essay that re-derives the warp-size
-  host/device divergence, the *same* argument already in `runtime.cuh` and named
+  host/device divergence, the *same* argument already in `runtime.h` and named
   as the canonical duplication under "Banned constructs" above.
 
 The rewrite recipe is unchanged: keep the constraint one line at the command it

@@ -3,7 +3,7 @@
 // atomicMin/Max, atomicAnd/Or/Xor, atomicSub, atomicInc/Dec).
 //
 // There is no src atomics header to test -- the atomic builtins ride the
-// vendor runtime header, which runtime.cuh already switches
+// vendor runtime header, which runtime.h's device section switches
 // (<cuda_runtime.h> vs <hip/hip_runtime.h>), so any device TU that includes it
 // has them for free, under one identical spelling on both backends. wwr does
 // NOT wrap them: like cooperative_groups.h (see src's
@@ -21,7 +21,7 @@
 // FP atomics are exercised on the default (safe) codegen: -munsafe-fp-atomics
 // is opt-in and not passed here, so atomicAdd on float/double lowers to AMD's
 // correct CAS-loop fallback. See docs/architecture.md section 15.
-#include "runtime.cuh"
+#include "runtime.h"
 
 namespace {
 

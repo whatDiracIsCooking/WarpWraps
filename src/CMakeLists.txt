@@ -16,7 +16,7 @@ else()
 endif()
 
 # The backend define (WWR_GPU_BACKEND_*) and the src/-root include path for
-# the wwr* layer's headers (selected_backend.h, backend.h, runtime.cuh,
+# the wwr* layer's headers (selected_backend.h, backend.h, runtime.h,
 # device_guard.h). Linked PRIVATE by every module below, and by test/gpu and the
 # bridge-using modules (init_state, random_normal), which read
 # selected_backend.h from a host compile with no __CUDACC__/__HIP__ to switch
@@ -37,8 +37,8 @@ target_include_directories(
 add_library(wwr::backend ALIAS wwr_backend)
 
 # The include path, runtime libs and WWR_WARP_SIZE for the device-side
-# headers (runtime.cuh, cooperative_groups.h, wmma.h, and the device-pass
-# gated sections of complex.h / fp16.h / bf16.h / fp8.h)
+# headers (runtime.h, cooperative_groups.h, wmma.h, atomic.cuh, and the
+# device-pass gated sections of complex.h / fp16.h / bf16.h / fp8.h)
 # -- the counterpart to wwr_backend for code reached by #include, not import
 # (a kernel TU imports no modules). Carries NO WWR_GPU_BACKEND define: these
 # headers pick their backend from __CUDACC__/__HIP__, so this is safe to link
@@ -52,8 +52,8 @@ add_library(wwr::backend ALIAS wwr_backend)
 # both vendors ship them header-only on the include path CUDA::cudart /
 # hip::host already bring (docs/architecture.md §2, §16 -- and do NOT add
 # find_package(rocwmma), which drags in hip::device; see §17). The common
-# atomics need no header either -- runtime.cuh's vendor runtime declares them
-# (§15, test/gpu/atomics.cu).
+# atomics need no header either -- the vendor runtime runtime.h's device
+# section pulls in declares them (§15, test/gpu/atomics.cu).
 add_library(wwr.device INTERFACE)
 target_include_directories(
   wwr.device
