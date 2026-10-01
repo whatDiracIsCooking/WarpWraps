@@ -96,6 +96,17 @@ set(GPU_TEST_LIBRARIES
     atomic
 )
 
+# ccl and comp drop out of the shared compile-time runner when their wrapper is
+# not built: wwr::ccl / wwr::comp and the raw vendor targets they link do not
+# exist then, and a `::` alias that resolves to nothing is a configure-time
+# error. tensor is the same idea via its own standalone block below.
+if(NOT WWR_WITH_CCL)
+  list(REMOVE_ITEM GPU_TEST_LIBRARIES ccl)
+endif()
+if(NOT WWR_WITH_COMP)
+  list(REMOVE_ITEM GPU_TEST_LIBRARIES comp)
+endif()
+
 set(_gpu_test_targets "")
 foreach(_lib IN LISTS GPU_TEST_LIBRARIES)
   wwr_add_cxx_module_library(
@@ -147,35 +158,41 @@ add_dependencies(compile_time_tests gpu_compile_tests)
 # the assertion) but carries NO ctest entry and is never launched. Uniform
 # across backends: cuTENSOR does not abort this way, but one code path is
 # simpler, and the shared runner already proves the run/print path elsewhere.
-wwr_add_cxx_module_library(
-  NAME
-  wwr.test.gpu.tensor
-  IMPORT_STD
-  NO_CUDA_DEVICE_LINKING
-  PRIMARY_INTERFACE
-  tensor.cppm
-  LINK_PUBLIC
-  wwr::tensor
-  ${_gpu_test_raw_tensor}
-  LINK_PRIVATE
-  wwr::backend
-  INCLUDE_DIRS_PRIVATE
-  ${PROJECT_SOURCE_DIR}
-)
-add_dependencies(compile_time_tests wwr.test.gpu.tensor)
+# The whole tensor block is gated on WWR_WITH_TENSOR: wwr::tensor and the raw
+# wwr::cuda::cutensor / wwr::hip::hiptensor it links do not exist when the
+# wrapper is off. (The set_tests_properties below is for the shared
+# gpu_compile_tests, not tensor, so it stays outside the guard.)
+if(WWR_WITH_TENSOR)
+  wwr_add_cxx_module_library(
+    NAME
+    wwr.test.gpu.tensor
+    IMPORT_STD
+    NO_CUDA_DEVICE_LINKING
+    PRIMARY_INTERFACE
+    tensor.cppm
+    LINK_PUBLIC
+    wwr::tensor
+    ${_gpu_test_raw_tensor}
+    LINK_PRIVATE
+    wwr::backend
+    INCLUDE_DIRS_PRIVATE
+    ${PROJECT_SOURCE_DIR}
+  )
+  add_dependencies(compile_time_tests wwr.test.gpu.tensor)
 
-wwr_add_test_executable(
-  NAME
-  gpu_compile_tests_tensor
-  MAIN
-  tensor_link_check.cpp
-  LINK_PRIVATE
-  wwr::test::gpu::tensor
-  WHOLE_ARCHIVE
-  wwr.test.gpu.tensor
-  NO_RUN
-)
-add_dependencies(compile_time_tests gpu_compile_tests_tensor)
+  wwr_add_test_executable(
+    NAME
+    gpu_compile_tests_tensor
+    MAIN
+    tensor_link_check.cpp
+    LINK_PRIVATE
+    wwr::test::gpu::tensor
+    WHOLE_ARCHIVE
+    wwr.test.gpu.tensor
+    NO_RUN
+  )
+  add_dependencies(compile_time_tests gpu_compile_tests_tensor)
+endif()
 set_tests_properties(gpu_compile_tests PROPERTIES LABELS compile_time)
 
 # cooperative_groups.h is the odd one out among the wwr* tests above: it

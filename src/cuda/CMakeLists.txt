@@ -364,18 +364,23 @@ wwr_add_cxx_module_library(
 # imported target (see docker/install-cuda.sh, which republishes it under a
 # fixed /opt/nvidia/nvcomp prefix on CMAKE_PREFIX_PATH). CUDA::cudart is linked
 # alongside for the cudaStream_t the batched async signatures take.
-wwr_add_cxx_module_library(
-  NAME
-  wwr.cuda.nvcomp
-  PRIMARY_INTERFACE
-  nvcomp.cppm
-  LINK_PUBLIC
-  nvcomp::nvcomp
-  CUDA::cudart
-  IMPORT_STD
-  INCLUDE_CUDA_TOOLKIT
-  PUBLIC
-)
+# Gated on WWR_WITH_COMP: OFF drops this module, the neutral wwr.comp, and
+# wwr.extension.comp, and the top-level find_package(nvcomp) is gated on the
+# same flag so nvcomp::nvcomp is never required.
+if(WWR_WITH_COMP)
+  wwr_add_cxx_module_library(
+    NAME
+    wwr.cuda.nvcomp
+    PRIMARY_INTERFACE
+    nvcomp.cppm
+    LINK_PUBLIC
+    nvcomp::nvcomp
+    CUDA::cudart
+    IMPORT_STD
+    INCLUDE_CUDA_TOOLKIT
+    PUBLIC
+  )
+endif()
 
 # NVML (NVIDIA Management Library)
 wwr_add_cxx_module_library(
@@ -412,26 +417,31 @@ wwr_add_cxx_module_library(
 # nccl.h (on the default include path; INCLUDE_CUDA_TOOLKIT adds the toolkit
 # include nccl.h needs for <cuda_runtime.h>) and libnccl.so. It is not in the
 # base CUDA toolkit -- Dockerfile.cuda installs it (see docker/Dockerfile.cuda).
-find_library(CUDA_nccl_LIBRARY nccl HINTS ${CUDAToolkit_LIBRARY_DIR} REQUIRED)
-if(NOT TARGET wwr::cuda_nccl)
-  add_library(wwr::cuda_nccl UNKNOWN IMPORTED GLOBAL)
-  set_target_properties(
-    wwr::cuda_nccl PROPERTIES IMPORTED_LOCATION "${CUDA_nccl_LIBRARY}"
+# Gated on WWR_WITH_CCL: OFF drops the whole chain (this module, the neutral
+# wwr.ccl in src/, and wwr.extension.ccl), so the REQUIRED find below never runs
+# and a build on a box without libnccl still configures.
+if(WWR_WITH_CCL)
+  find_library(CUDA_nccl_LIBRARY nccl HINTS ${CUDAToolkit_LIBRARY_DIR} REQUIRED)
+  if(NOT TARGET wwr::cuda_nccl)
+    add_library(wwr::cuda_nccl UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(
+      wwr::cuda_nccl PROPERTIES IMPORTED_LOCATION "${CUDA_nccl_LIBRARY}"
+    )
+  endif()
+
+  wwr_add_cxx_module_library(
+    NAME
+    wwr.cuda.nccl
+    PRIMARY_INTERFACE
+    nccl.cppm
+    LINK_PUBLIC
+    CUDA::cudart
+    wwr::cuda_nccl
+    IMPORT_STD
+    INCLUDE_CUDA_TOOLKIT
+    PUBLIC
   )
 endif()
-
-wwr_add_cxx_module_library(
-  NAME
-  wwr.cuda.nccl
-  PRIMARY_INTERFACE
-  nccl.cppm
-  LINK_PUBLIC
-  CUDA::cudart
-  wwr::cuda_nccl
-  IMPORT_STD
-  INCLUDE_CUDA_TOOLKIT
-  PUBLIC
-)
 
 # cuTENSOR (tensor contraction / reduction / permutation / element-wise)
 # -- HIP counterpart: wwr.hip.hiptensor.
@@ -449,26 +459,31 @@ wwr_add_cxx_module_library(
 # machine's location into the exported package, so it is wrapped in an
 # installable imported target as nccl/cusolverMg are; wwrConfig.cmake re-finds
 # it on the consumer's machine. GLOBAL so the export set can see the name.
-find_path(CUDA_cutensor_INCLUDE_DIR cutensor.h REQUIRED)
-find_library(CUDA_cutensor_LIBRARY cutensor REQUIRED)
-if(NOT TARGET wwr::cuda_cutensor)
-  add_library(wwr::cuda_cutensor UNKNOWN IMPORTED GLOBAL)
-  set_target_properties(
+# Gated on WWR_WITH_TENSOR: OFF drops this module, the neutral wwr.tensor, and
+# wwr.extension.tensor, so the REQUIRED finds below never run and a build on a
+# box without cuTENSOR still configures.
+if(WWR_WITH_TENSOR)
+  find_path(CUDA_cutensor_INCLUDE_DIR cutensor.h REQUIRED)
+  find_library(CUDA_cutensor_LIBRARY cutensor REQUIRED)
+  if(NOT TARGET wwr::cuda_cutensor)
+    add_library(wwr::cuda_cutensor UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(
+      wwr::cuda_cutensor
+      PROPERTIES IMPORTED_LOCATION "${CUDA_cutensor_LIBRARY}"
+                 INTERFACE_INCLUDE_DIRECTORIES "${CUDA_cutensor_INCLUDE_DIR}"
+    )
+  endif()
+
+  wwr_add_cxx_module_library(
+    NAME
+    wwr.cuda.cutensor
+    PRIMARY_INTERFACE
+    cutensor.cppm
+    LINK_PUBLIC
+    CUDA::cudart
     wwr::cuda_cutensor
-    PROPERTIES IMPORTED_LOCATION "${CUDA_cutensor_LIBRARY}"
-               INTERFACE_INCLUDE_DIRECTORIES "${CUDA_cutensor_INCLUDE_DIR}"
+    IMPORT_STD
+    INCLUDE_CUDA_TOOLKIT
+    PUBLIC
   )
 endif()
-
-wwr_add_cxx_module_library(
-  NAME
-  wwr.cuda.cutensor
-  PRIMARY_INTERFACE
-  cutensor.cppm
-  LINK_PUBLIC
-  CUDA::cudart
-  wwr::cuda_cutensor
-  IMPORT_STD
-  INCLUDE_CUDA_TOOLKIT
-  PUBLIC
-)

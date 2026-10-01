@@ -22,7 +22,9 @@ add_subdirectory(rand)
 
 # Backend-neutral batched compression (wwr.comp). Not a src/extension wrapper --
 # it lives here because a compress/decompress round-trip needs a live device.
-add_subdirectory(comp)
+if(WWR_WITH_COMP)
+  add_subdirectory(comp)
+endif()
 
 # The library-handle layers (blas / solver / sparse / fft). Their wrappers are
 # RAII over a vendor handle whose create/destroy needs a live GPU context, so
@@ -36,12 +38,17 @@ add_subdirectory(sparse)
 add_subdirectory(fft)
 # tensor: a host-only error-mapping suite (runs in CI) plus a REQUIRES_GPU
 # lifetime suite for the handle + descriptor (wwrtensorCreate needs a device).
-add_subdirectory(tensor)
+if(WWR_WITH_TENSOR)
+  add_subdirectory(tensor)
+endif()
 
 # The NCCL/RCCL communicator wrapper. Its error-policy mapping suite is
 # host-only (runs under -LE gpu); its construct/destroy suite is REQUIRES_GPU,
-# since wwrcclCommInitAll needs a live device.
-add_subdirectory(ccl)
+# since wwrcclCommInitAll needs a live device. Gated on WWR_WITH_CCL: the target
+# it links (wwr.extension.ccl) does not exist in a build with the wrapper off.
+if(WWR_WITH_CCL)
+  add_subdirectory(ccl)
+endif()
 
 # The texture / surface object wrappers. RAII over a vendor handle whose
 # create/destroy needs a live GPU context (and a backing CUDA array), so these

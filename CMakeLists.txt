@@ -201,6 +201,34 @@ add_link_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
 add_link_options($<$<COMPILE_LANGUAGE:CXX>:-lc++abi>)
 
 # ========================================================================
+# Optional vendor-library wrappers
+# ========================================================================
+# Each flag selects whether a wrapper for a library that is NOT part of the base
+# CUDA/ROCm toolkit is built at all. OFF removes the wrapper's whole chain --
+# the backend module, the backend-neutral wwr.* module, the wwr.extension.*
+# layer, and its tests -- so the build needs neither the library present nor its
+# find_package/find_library to succeed, and a consumer of the package is not
+# forced to have it either (see cmake/wwrConfig.cmake.in). ON by default: all
+# three ship in the standard image.
+#
+# Declared HERE, BEFORE "Find the backend's packages" below, on purpose: the
+# find_package(rccl) / find_package(nvcomp) / find_package(hipcomp) calls in
+# that section are guarded on these flags, so the flags must already be set when
+# it runs. (A flag used only from under src/ -- the cuTENSOR and NCCL
+# hand-rolled finds live in src/cuda, added much later -- would not strictly
+# need to be this early, but keeping all three together beats splitting them by
+# where each library's find happens to sit.)
+option(WWR_WITH_CCL
+       "Build the collective-communications wrapper (NCCL / RCCL)" ON
+)
+option(WWR_WITH_COMP
+       "Build the compression wrapper (nvCOMP / hipCOMP)" ON
+)
+option(WWR_WITH_TENSOR
+       "Build the tensor-contraction wrapper (cuTENSOR / hipTENSOR)" ON
+)
+
+# ========================================================================
 # Find the backend's packages
 # ========================================================================
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
@@ -230,8 +258,11 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   # nvCOMP (GPU lossless compression) is not a FindCUDAToolkit component; it
   # ships its own CMake config package providing nvcomp::nvcomp, which
   # wwr.cuda.nvcomp links. See src/cuda/CMakeLists.txt and
-  # docker/install-cuda.sh.
-  find_package(nvcomp CONFIG REQUIRED)
+  # docker/install-cuda.sh. Gated on WWR_WITH_COMP so a build with the wrapper
+  # disabled does not require nvCOMP to be present.
+  if(WWR_WITH_COMP)
+    find_package(nvcomp CONFIG REQUIRED)
+  endif()
 else()
   # Seed GPU_TARGETS from the environment before find_package(hip).
   #
@@ -313,13 +344,19 @@ else()
   # RCCL (multi-GPU collectives) ships its own ROCm CMake package providing the
   # roc::rccl imported target -- wwr.hip.rccl links it. NCCL's CUDA counterpart
   # is NOT a FindCUDAToolkit component, so wwr.cuda.nccl find_library's it by
-  # hand instead (see src/cuda/CMakeLists.txt).
-  find_package(rccl CONFIG REQUIRED)
+  # hand instead (see src/cuda/CMakeLists.txt). Gated on WWR_WITH_CCL so a HIP
+  # build with the wrapper disabled does not require RCCL to be present.
+  if(WWR_WITH_CCL)
+    find_package(rccl CONFIG REQUIRED)
+  endif()
   # hipCOMP (GPU lossless compression) is built from source into /opt/rocm-ds
   # (not part of ROCm proper) and ships its own CMake package providing the
   # hipcomp::hipcomp imported target -- wwr.hip.hipcomp links it. See
-  # src/hip/CMakeLists.txt and docker/install-rocm-ds.sh.
-  find_package(hipcomp CONFIG REQUIRED)
+  # src/hip/CMakeLists.txt and docker/install-rocm-ds.sh. Gated on
+  # WWR_WITH_COMP, same as the CUDA-side nvcomp.
+  if(WWR_WITH_COMP)
+    find_package(hipcomp CONFIG REQUIRED)
+  endif()
   # hipTensor is NOT found via its CMake package here: hiptensor::hiptensor
   # lists hip::device in its interface, which would force device compilation
   # onto every host consumer of wwr.tensor (see src/hip/CMakeLists.txt). Like

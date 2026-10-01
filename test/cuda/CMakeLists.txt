@@ -51,6 +51,19 @@ set(CUDA_TEST_LIBRARIES
     nccl
 )
 
+# Each raw-module link check drops when its wrapper is not built: the
+# wwr::cuda::{nccl,nvcomp,cutensor} targets do not exist then (see
+# src/cuda/CMakeLists.txt). Same shape as test/gpu and the HIP side.
+if(NOT WWR_WITH_CCL)
+  list(REMOVE_ITEM CUDA_TEST_LIBRARIES nccl)
+endif()
+if(NOT WWR_WITH_COMP)
+  list(REMOVE_ITEM CUDA_TEST_LIBRARIES nvcomp)
+endif()
+if(NOT WWR_WITH_TENSOR)
+  list(REMOVE_ITEM CUDA_TEST_LIBRARIES cutensor)
+endif()
+
 foreach(_lib IN LISTS CUDA_TEST_LIBRARIES)
   if(_lib STREQUAL "cuda_h")
     set(_source "cuda.cppm")
