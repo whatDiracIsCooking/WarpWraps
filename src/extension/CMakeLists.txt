@@ -19,12 +19,20 @@ add_subdirectory(memory_buffer)
 # for DeviceBufferWrapper, so it follows it.
 add_subdirectory(comp)
 add_subdirectory(blas)
+# blaslt links wwr::extension::blas (it reuses blas's wwrblasStatus_t error
+# policy, since wwrblasLtStatus_t is the same underlying type), so it follows
+# blas here.
+add_subdirectory(blaslt)
 add_subdirectory(solver)
 add_subdirectory(fft)
 add_subdirectory(sparse)
 # ccl (NCCL / RCCL collectives): a BaseHandle RAII communicator + typed errors,
 # no layer-2 wrapper. Links handle + common like the handle layers above.
 add_subdirectory(ccl)
+# tensor: a library-handle layer like the four above -- RAII over the cuTENSOR /
+# hipTensor handle and descriptor create/destroy pairs plus the status error
+# policy. Links handle + common (added above); no layer-2 execution wrapper.
+add_subdirectory(tensor)
 # texture/surface: thin BaseHandle RAII wrappers, each linking handle + common +
 # runtime_api (all added above); independent of each other, order-free here.
 add_subdirectory(texture)

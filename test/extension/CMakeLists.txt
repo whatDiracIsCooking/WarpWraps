@@ -28,9 +28,15 @@ add_subdirectory(comp)
 # RAII over a vendor handle whose create/destroy needs a live GPU context, so
 # these are runtime only -- the destroy-exactly-once contract is the whole test.
 add_subdirectory(blas)
+# blaslt: one host-only error suite (runs in CI) plus a REQUIRES_GPU lifetime
+# suite for the handle + descriptor/layout/preference wrappers.
+add_subdirectory(blaslt)
 add_subdirectory(solver)
 add_subdirectory(sparse)
 add_subdirectory(fft)
+# tensor: a host-only error-mapping suite (runs in CI) plus a REQUIRES_GPU
+# lifetime suite for the handle + descriptor (wwrtensorCreate needs a device).
+add_subdirectory(tensor)
 
 # The NCCL/RCCL communicator wrapper. Its error-policy mapping suite is
 # host-only (runs under -LE gpu); its construct/destroy suite is REQUIRES_GPU,

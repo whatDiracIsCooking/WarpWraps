@@ -29,6 +29,7 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_test_raw_ccl wwr::cuda::nccl)
   set(_gpu_test_raw_tensor wwr::cuda::cutensor)
   set(_gpu_test_raw_comp wwr::cuda::nvcomp)
+  set(_gpu_test_raw_rtc wwr::cuda::nvrtc)
   # vector_types wraps no raw vendor module: the backend entity each wwr* alias
   # stands for is the vendor's own global type (::float2, ...), which
   # vector_types.cppm names via the vendor header directly. Empty, so the shared
@@ -59,6 +60,7 @@ else()
   set(_gpu_test_raw_ccl wwr::hip::rccl)
   set(_gpu_test_raw_tensor wwr::hip::hiptensor)
   set(_gpu_test_raw_comp wwr::hip::hipcomp)
+  set(_gpu_test_raw_rtc wwr::hip::hiprtc)
   # See the CUDA branch: vector_types wraps no raw vendor module.
   set(_gpu_test_raw_vector_types)
   # See the CUDA branch: atomic wraps no raw vendor module and has no vendor
@@ -86,6 +88,7 @@ set(GPU_TEST_LIBRARIES
     tx
     ccl
     comp
+    rtc
     # atomic exports only the two portable enums (wwrMemoryOrder /
     # wwrThreadScope); its __device__ operations are a separate device test
     # (atomic.cu below). _gpu_test_raw_atomic is empty -- no vendor entity
