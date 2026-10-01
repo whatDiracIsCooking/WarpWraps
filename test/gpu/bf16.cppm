@@ -30,7 +30,7 @@ WWR_SAME_TYPE(wwr::wwrBfloat16, wwr::hip::__hip_bfloat16)
 // reference bindings, so &gpu != &backend and WWR_SAME_FUNCTION cannot apply. A bare
 // WWR_LINK_CHECK from this importing TU is the build-time claim: the exported inline
 // wrapper is reachable by name across the import and links. The device-side
-// conversions in bf16.cuh are proved separately by bf16.cu.
+// conversions in bf16.h's device section are proved separately by bf16.cu.
 WWR_LINK_CHECK(wwrFloat2Bfloat16)
 WWR_LINK_CHECK(wwrBfloat162Float)
 

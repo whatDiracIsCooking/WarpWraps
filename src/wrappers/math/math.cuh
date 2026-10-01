@@ -9,7 +9,7 @@
  * `wwr::exp(x)` without spelling the `f`-suffixed name or repeating the
  * float/double branch at every call site. Link wwr.device.
  *
- * __device__ __forceinline__, like fp16.cuh's conversions and complex.h's device section's
+ * __device__ __forceinline__, like fp16.h's conversions and complex.h's device section's
  * arithmetic: these serve a kernel body and carry no host counterpart -- host
  * code reaches the same functions through <cmath>. Only float and double are
  * supported; any other T is a compile error, so a stray half or complex argument
@@ -18,7 +18,7 @@
  * The intrinsics themselves live in the global namespace and are declared by the
  * vendor runtime header (which also defines __device__/__forceinline__); both
  * backends spell them the same, so the only per-backend branch is which runtime
- * header to pull. Companion to complex.h, fp16.cuh and bf16.cuh; see
+ * header to pull. Companion to complex.h, fp16.h and bf16.h; see
  * docs/architecture.md, section 3.
  */
 
@@ -31,7 +31,7 @@
 // std::is_same_v for the compile-time float/double branch. Kept before the
 // vendor runtime header below: it pulls libc++'s __config, which a HIP header
 // reached first would poison (host_defines.h clobbers __noinline__ -- the same
-// ordering fp16.cuh documents).
+// ordering fp16.h documents).
 #include <type_traits>
 
 // The math intrinsics (::expf, ::exp, ...) and __device__/__forceinline__.

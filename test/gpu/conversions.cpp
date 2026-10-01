@@ -2,7 +2,7 @@
 // wrappers (wwr.fp16, wwr.bf16).
 //
 // These wrappers run on the CPU -- unlike the __device__ conversions in
-// fp16.cuh / bf16.cuh, which fp16.cu / bf16.cu prove by compiling -- so they can
+// fp16.h / bf16.h, which fp16.cu / bf16.cu prove by compiling -- so they can
 // be exercised for real with no GPU. The compile-time fp16.cppm / bf16.cppm
 // module tests prove the wrappers are reachable and link (WWR_LINK_CHECK); this
 // proves they compute.

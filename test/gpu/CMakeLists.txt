@@ -177,7 +177,7 @@ add_dependencies(
   compile_time_tests wwr.test.gpu.cooperative_groups.device
 )
 
-# complex (complex.h's device section), fp16.cuh and bf16.cuh are the same shape
+# complex, fp16 and bf16 (each in its .h's device section) are the same shape
 # of test for the same reason: their __device__ functions over
 # cuComplex/hipComplex and __half / bfloat16 can only be named by a device pass,
 # and the claim each can break -- every wwrC* / conversion resolving on both
@@ -216,11 +216,12 @@ wwr_add_gpu_device_library(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.bf16.device)
 
-# fp8.cuh is fp16.cuh / bf16.cuh's shape: its __device__ narrowing forwarders
-# and the fp8 scalar/storage types they name can only be reached by a device
-# pass, and the claim it can break -- every wwrFp8* name and narrowing resolving
-# on both backends through one include switch, and (on HIP) <hip/hip_fp8.h>
-# compiling cleanly in a real -x hip pass -- is a device-compile claim. Building
+# fp8 (fp8.h's device section) is fp16 / bf16's shape: its __device__ narrowing
+# forwarders and the fp8 scalar/storage types they name can only be reached by a
+# device pass, and the claim it can break -- every wwrFp8* name and narrowing
+# resolving on both backends through one include switch, and (on HIP)
+# <hip/hip_fp8.h> compiling cleanly in a real -x hip pass -- is a device-compile
+# claim. Building
 # it is the assertion; no ctest entry, no launch. Reached through wwr.device,
 # the same include path a real device consumer uses.
 wwr_add_gpu_device_library(
@@ -243,7 +244,7 @@ add_dependencies(compile_time_tests wwr.test.gpu.fp8.device)
 # interchangeable is worth compiling on both backends rather than assuming.
 # Building it is the assertion: no ctest entry, no launch (WMMA is arch-gated
 # and this tier configures with no device). Its include path is wwr.device,
-# which carries wmma.cuh along with the fp16.cuh/bf16.cuh it names element
+# which carries wmma.cuh along with the fp16.h/bf16.h it names element
 # types from.
 wwr_add_gpu_device_library(
   NAME
@@ -295,7 +296,7 @@ add_dependencies(
   compile_time_tests wwr.test.gpu.atomic.device
 )
 
-# math.cuh is the same shape of test as fp16.cuh / atomics.cu: its wrappers are
+# math.cuh is the same shape of test as fp16.h / atomics.cu: its wrappers are
 # __device__ templates over vendor math intrinsics (::expf/::exp, ...) that only
 # a device pass can name, and the claim they can break -- every function
 # instantiating for float and double, through one include switch, on both

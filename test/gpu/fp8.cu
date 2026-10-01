@@ -1,18 +1,18 @@
-// Compile-time test for src/fp8.cuh, the device-compile half layer. Unlike the
-// .cppm wwr* tests beside it, this header defines __device__ functions over
-// vendor types that only a device pass can name, so -- like fp16.cu / bf16.cu --
-// the test is a device TU and building it under the selected backend IS the
-// assertion. The kernel is never launched: every name below just has to compile
-// through the one include switch on both backends (nvcc and clang's -x hip
-// disagree on more than the include path). Reached through wwr.device, exactly
-// as a real device consumer reaches the header.
-#include "fp8.cuh"
+// Compile-time test for src/fp8.h's device-pass-gated section, the
+// device-compile fp8 layer. Unlike the .cppm wwr* tests beside it, that section
+// defines __device__ functions over vendor types that only a device pass can
+// name, so -- like fp16.cu / bf16.cu -- the test is a device TU and building it
+// under the selected backend IS the assertion. The kernel is never launched:
+// every name below just has to compile through the one include switch on both
+// backends (nvcc and clang's -x hip disagree on more than the include path).
+// Reached through wwr.device, exactly as a real device consumer reaches the header.
+#include "fp8.h"
 
 // Defining a __global__ kernel needs the launch runtime (hipLaunchKernel under
-// HIP). fp8.cuh's vendor headers happen to pull it transitively, but this
+// HIP). fp8.h's vendor headers happen to pull it transitively, but this
 // kernel TU names it itself rather than lean on that. nvcc supplies
 // <cuda_runtime.h> for a .cu implicitly; spell both for a self-contained TU.
-// WWR_SELECTED_* comes from fp8.cuh (via device_guard.h).
+// WWR_SELECTED_* comes from fp8.h (via selected_backend.h).
 #if defined(WWR_SELECTED_CUDA)
 #include <cuda_runtime.h>
 #else

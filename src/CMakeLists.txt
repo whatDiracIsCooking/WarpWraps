@@ -37,8 +37,8 @@ target_include_directories(
 add_library(wwr::backend ALIAS wwr_backend)
 
 # The include path, runtime libs and WWR_WARP_SIZE for the device-side
-# headers (runtime.cuh, complex.h's device section, fp16.cuh,
-# cooperative_groups.cuh, wmma.cuh)
+# headers (runtime.cuh, cooperative_groups.cuh, wmma.cuh, and the device-pass
+# gated sections of complex.h / fp16.h / bf16.h / fp8.h)
 # -- the counterpart to wwr_backend for code reached by #include, not import
 # (a kernel TU imports no modules). Carries NO WWR_GPU_BACKEND define: these
 # headers pick their backend from __CUDACC__/__HIP__, so this is safe to link
@@ -100,12 +100,18 @@ endif()
 add_library(wwr::rand::device ALIAS wwr.rand.device)
 
 # Raw module each wwr* module wraps, per backend.
+#
+# _fp_backend_rt is NOT a raw module: wwr.fp16 / wwr.bf16 import no raw module
+# (their float conversions are external-linkage, so fp16.cppm / bf16.cppm bind
+# to them directly through the vendor header in fp16.h / bf16.h -- see those
+# files). They need only the vendor header's include path, which the backend
+# runtime host lib carries (CUDA::cudart / hip::host, as wwr.device relies on)
+# and which brings no WWR_WARP_SIZE, unlike wwr.device itself.
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_raw_runtime_api wwr::cuda::cuda_runtime_api)
   set(_raw_complex wwr::cuda::cuComplex)
-  set(_raw_fp16 wwr::cuda::cuda_fp16)
-  set(_raw_bf16 wwr::cuda::cuda_bf16)
   set(_raw_fp8 wwr::cuda::cuda_fp8)
+  set(_fp_backend_rt CUDA::cudart)
   set(_raw_blas wwr::cuda::cublas_v2)
   set(_raw_blaslt wwr::cuda::cublasLt)
   set(_raw_solver wwr::cuda::cusolverDn)
@@ -118,9 +124,8 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
 else()
   set(_raw_runtime_api wwr::hip::hip_runtime_api)
   set(_raw_complex wwr::hip::hip_complex)
-  set(_raw_fp16 wwr::hip::hip_fp16)
-  set(_raw_bf16 wwr::hip::hip_bf16)
   set(_raw_fp8 wwr::hip::hip_fp8)
+  set(_fp_backend_rt hip::host)
   set(_raw_blas wwr::hip::hipblas)
   set(_raw_blaslt wwr::hip::hipblaslt)
   set(_raw_solver wwr::hip::hipsolver)
@@ -162,7 +167,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   fp16.cppm
   LINK_PUBLIC
-  ${_raw_fp16}
+  ${_fp_backend_rt}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
@@ -174,7 +179,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   bf16.cppm
   LINK_PUBLIC
-  ${_raw_bf16}
+  ${_fp_backend_rt}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
