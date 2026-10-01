@@ -38,3 +38,16 @@ wwr_add_gtest_suite_tests(
   30
   REQUIRES_GPU
 )
+
+# RuntimePolicyTests deliberately provokes a creation failure (an invalid
+# cudaEventCreateWithFlags) to prove the create policy fires, so the runtime
+# returns cudaErrorInvalidValue by design -- an intentional error that
+# compute-sanitizer memcheck counts, failing an otherwise-clean tree under
+# --error-exitcode. Confine no_sanitizer to that one suite; its siblings
+# (GpuEventTests ...) allocate validly and stay sanitized. APPEND keeps
+# REQUIRES_GPU's `gpu` label (see test/extension/memory_buffer).
+set_property(
+  TEST RuntimePolicyTests
+  APPEND
+  PROPERTY LABELS no_sanitizer
+)

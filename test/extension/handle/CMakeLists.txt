@@ -33,6 +33,21 @@ wwr_add_gtest_suite_tests(
   REQUIRES_GPU
 )
 
+# DeviceBoundHandleTests deliberately forces wwrSetDevice onto an out-of-range
+# ordinal (the select-before-create ordering trick this layer exists for), so
+# the runtime returns cudaErrorInvalidDevice by design. That intentional
+# failure is an error compute-sanitizer memcheck counts, failing an
+# otherwise-clean tree under --error-exitcode -- the same case as the
+# memory_buffer allocation-failure suites, so the same fix: no_sanitizer
+# excludes it from the sanitizer ctest runs (both `-LE no_sanitizer`), every
+# other run keeps it. APPEND keeps REQUIRES_GPU's `gpu` label (see
+# test/extension/memory_buffer for the full rationale).
+set_property(
+  TEST DeviceBoundHandleTests
+  APPEND
+  PROPERTY LABELS no_sanitizer
+)
+
 # BaseHandle::valid() liveness query (see valid.cpp): a pure query with no
 # runtime calls, so -- unlike the device-bound suite above -- it is NOT
 # REQUIRES_GPU and runs in CI. The create() failures are simulated by a
