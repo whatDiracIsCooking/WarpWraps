@@ -1,18 +1,10 @@
-# Expected dispatch of wwr.wrappers.blas -- checked by test/shared/dispatch.py
+# Expected dispatch of wwr.wrappers.blas. Format and semantics: test/shared/dispatch.py.
 #
-# [dispatch] is one key per wrapper<T, IntT>: the wwrblas function(s) its
-# compiled code must call. Names are wwrblas aliases (src/blas.cppm), so this
-# one table checks a CUDA and a HIP build. A key listing two functions covers two
-# overloads with the same template arguments; each must call exactly one of them.
-#
-# Order follows the extern template lists in src/wrappers/blas. When adding a
-# wrapper, add its entry by hand next to its extern templates: the table is only
-# worth something if it is an independent statement of what should be called,
-# not a copy of what is. (--print shows what is, for comparison.)
-#
-# The plain rule is wwrblas<S|D|C|Z><name>, plus _64 for IntT = int64_t. The
-# exceptions are BLAS's own: I<s|d|c|z>amax/amin, Sc/Dz for asum and nrm2 on
-# complex input, and Cs/Zd for the real-scalar complex rot and scal overloads.
+# Rule: wwrblas<S|D|C|Z><name>, plus _64 for IntT = int64_t. The exceptions are
+# BLAS's own: I<s|d|c|z>amax/amin, Sc/Dz for asum and nrm2 on complex input, and
+# Cs/Zd for the real-scalar complex rot and scal overloads. A [dispatch] key
+# listing two functions covers two overloads with the same template arguments;
+# each must call exactly one of them.
 
 [check]
 module = "wwr.wrappers.blas"
@@ -22,9 +14,7 @@ prefix = "wwrblas"
 # by name, so the check has to recognise it as a dispatch target too.
 forwarder_module = "wwr.blas"
 
-# How the demangler spells each template argument, mapped to the name this table
-# uses. wwrComplex and wwrFloatComplex are the same underlying vendor type, so
-# the demangler cannot tell them apart -- this table's choice is wwrComplex.
+# Float complex has two interchangeable spellings; this table uses wwrComplex.
 [type_names.CUDA]
 float2 = "wwrComplex"
 double2 = "wwrDoubleComplex"
