@@ -25,6 +25,10 @@ add_subdirectory(sparse)
 # ccl (NCCL / RCCL collectives): a BaseHandle RAII communicator + typed errors,
 # no layer-2 wrapper. Links handle + common like the handle layers above.
 add_subdirectory(ccl)
+# tensor: a library-handle layer like the four above -- RAII over the cuTENSOR /
+# hipTensor handle and descriptor create/destroy pairs plus the status error
+# policy. Links handle + common (added above); no layer-2 execution wrapper.
+add_subdirectory(tensor)
 # texture/surface: thin BaseHandle RAII wrappers, each linking handle + common +
 # runtime_api (all added above); independent of each other, order-free here.
 add_subdirectory(texture)

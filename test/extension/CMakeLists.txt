@@ -31,6 +31,9 @@ add_subdirectory(blas)
 add_subdirectory(solver)
 add_subdirectory(sparse)
 add_subdirectory(fft)
+# tensor: a host-only error-mapping suite (runs in CI) plus a REQUIRES_GPU
+# lifetime suite for the handle + descriptor (wwrtensorCreate needs a device).
+add_subdirectory(tensor)
 
 # The NCCL/RCCL communicator wrapper. Its error-policy mapping suite is
 # host-only (runs under -LE gpu); its construct/destroy suite is REQUIRES_GPU,
