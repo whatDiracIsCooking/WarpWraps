@@ -35,9 +35,9 @@
  *   import wwr.extension.random_normal;
  *   using namespace wwr::extension;
  *
- *   auto device = std::make_shared<MyDeviceHandle>();  // caller-supplied; this layer ships none
+ *   auto device = std::make_shared<MyDeviceHandle>();  // a kit::DeviceHandle, a StreamWrapper, or your own
  *   auto stream = device->stream().get();
- *   using Abort = AbortPolicy<wwrError_t>;  // your own policy; the library ships none
+ *   using Abort = kit::AbortPolicy<wwrError_t>;  // the kit's opt-in policy, or your own; core forces none
  *   DeviceBufferWrapper<wwrrandState, Abort, Abort, Abort, MyDeviceHandle> states(n, device);
  *   DeviceBufferWrapper<float, Abort, Abort, Abort, MyDeviceHandle> values(n, device);
  *   init_state(stream, n, states.data(), seed);

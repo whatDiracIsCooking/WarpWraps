@@ -26,22 +26,13 @@ import wwr.extension.memory_buffer;
 using namespace wwr;
 namespace ext = wwr::extension;
 
-// Two policies -- the whole point of the map is that the two slots need not agree.
-// alloc aborts, because a failed allocation is unrecoverable here; free only
-// warns, because it runs from a destructor and must never throw or abort a
-// teardown (the free slot requires a nothrow_error_policy -- both of these are).
-// Each is a template on the error type, so one policy serves every error family.
-template<typename E>
-struct AbortPolicy {
-  using error_type = E;
-  void handle_error(const E error, std::source_location loc) noexcept {
-    if (error != ext::success_code<E>()) {
-      std::println(stderr, "alloc error at {}:{}: {} ({})", loc.file_name(), loc.line(),
-                   ext::error_name(error), ext::error_string(error));
-      std::abort();
-    }
-  }
-};
+// The map's two slots need not agree: alloc aborts (a failed allocation is
+// unrecoverable here), free only warns (it runs from a destructor and must never
+// throw or abort a teardown -- the free slot requires a nothrow_error_policy).
+// alloc uses the kit's ready AbortPolicy; the warn-on-free behaviour has no kit
+// equivalent, so this example brings its own. Each is a template on the error type,
+// so one policy serves every error family.
+namespace kit = wwr::extension::kit;
 template<typename E>
 struct WarnPolicy {
   using error_type = E;
@@ -54,11 +45,11 @@ struct WarnPolicy {
 
 // The policy map: abort on allocation, warn on free -- for every error family the
 // suite touches (stdHostMemoryError_t for host, wwrError_t for the GPU kinds). The
-// single-policy convenience device_buffers<P, H> uses one policy for both slots
+// single-policy convenience kit::device_buffers<P, H> uses one policy for both slots
 // and so cannot express this split; the map is the escape hatch that can.
 struct AllocAbortFreeWarn {
   template<typename E>
-  using alloc = AbortPolicy<E>;
+  using alloc = kit::AbortPolicy<E>;
   template<typename E>
   using free = WarnPolicy<E>;
 };
@@ -68,15 +59,15 @@ struct AllocAbortFreeWarn {
 // it is a device_handle_stream (see src/extension/handle/device_handle.cppm) and
 // backs the buffer directly, routing allocations through wwrMallocAsync on its
 // stream -- no wrapping struct. (The pool tier is the shipped DeviceHandle in
-// wwr.extension.runtime.) The handle is not a buffer, so it names its policies
-// directly rather than through the map above.
-using DeviceHandle =
-    ext::StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
+// wwr.extension.runtime.) The handle is not a buffer, so it names its policy
+// directly (the kit's AbortPolicy) rather than through the map above.
+using DeviceHandle = ext::StreamWrapper<kit::AbortPolicy<wwrError_t>, kit::AbortPolicy<wwrError_t>,
+                                        kit::AbortPolicy<wwrError_t>>;
 
 // The whole buffer prelude in one line: host/pinned/unified/device and each of
 // their views, all bound to the map above and this handle. From here the names are
 // Buf::host<T>, Buf::device<T>, Buf::host_view<T>, and so on.
-using Buf = ext::device_buffer_suite<AllocAbortFreeWarn, DeviceHandle>;
+using Buf = kit::device_buffer_suite<AllocAbortFreeWarn, DeviceHandle>;
 
 namespace {
 constexpr std::size_t kCount = 4096;

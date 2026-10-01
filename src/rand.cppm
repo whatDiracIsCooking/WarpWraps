@@ -221,10 +221,11 @@ WWR_FUNCTION_RAW(wwrrandGetScrambleConstants64, curandGetScrambleConstants64,
 // needs these for is
 // sizing and allocating the per-thread state array:
 //
-//   DeviceBufferWrapper<wwrrandState, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
-//                       AbortPolicy<wwrError_t>, MyDeviceHandle>
-//       states(count, device);  // device: shared_ptr<MyDeviceHandle> (caller-supplied);
-//                               // AbortPolicy is the caller's own -- the library ships none
+//   DeviceBufferWrapper<wwrrandState, kit::AbortPolicy<wwrError_t>, kit::AbortPolicy<wwrError_t>,
+//                       kit::AbortPolicy<wwrError_t>, MyDeviceHandle>
+//       states(count, device);  // device: shared_ptr to a device handle (kit::DeviceHandle,
+//                               // a StreamWrapper, or your own); error policy is the kit's
+//                               // opt-in kit::AbortPolicy, or your own -- the core forces none
 //
 // wwrrandState is the default pseudorandom state on both backends, and on
 // both backends that default is xorwow-backed. It is NOT, however, the same

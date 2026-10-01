@@ -26,10 +26,10 @@ import wwr.runtime_api;                      // wwrError_t
 export namespace wwr::extension::test {
 
 /// The reference model the extension suites allocate against: the shipped
-/// DeviceHandle at the fullest tier, bound to this suite's own AbortPolicy (the
-/// library ships none).
-using DeviceHandle = ::wwr::extension::DeviceHandle<AbortPolicy<wwrError_t>,
-                                                    AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
+/// kit::DeviceHandle at the fullest tier, bound to the kit's AbortPolicy (aliased
+/// into the test namespace by wwr.test.shared.abort_policy).
+using DeviceHandle = ::wwr::extension::kit::DeviceHandle<AbortPolicy<wwrError_t>,
+                                                         AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 
 /// Pinning the fullest rung also pins the two it refines -- and guards that a
 /// StreamWrapper still answers the stream tier (the handle buffer_suite/warp_reduce

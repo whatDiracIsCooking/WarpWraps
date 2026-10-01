@@ -28,6 +28,8 @@
  * Usage:
  *   import wwr.extension.texture;
  *
+ *   // the kit's opt-in policy, or your own; the core forces none.
+ *   using wwr::extension::kit::AbortPolicy;
  *   wwr::extension::TextureObject<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>
  *       tex{res_desc, tex_desc};
  *   kernel<<<...>>>(tex.get());   // or the implicit conversion to the handle
