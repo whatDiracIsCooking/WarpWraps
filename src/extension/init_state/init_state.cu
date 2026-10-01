@@ -52,7 +52,10 @@ void init_state(const wwrStream_t stream, const std::size_t count, wwrrandState 
     return;
   }
   const init_state_functor functor{states, seed, sequence_offset, offset};
-  parallel_for(stream, count, functor);
+  // This void launcher drops parallel_for's launch status (wwrError_t is
+  // [[nodiscard]] under HIP); threading it up through the module is a separate
+  // change.
+  static_cast<void>(parallel_for(stream, count, functor));
 }
 
 } // namespace wwr::extension::device

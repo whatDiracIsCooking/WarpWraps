@@ -28,11 +28,16 @@
  * ENUMS, the opaque HANDLE typedefs, every entry-point FUNCTION) has external
  * linkage and is reached straight from the vendor header, no macro dance.
  *
- * Host-only: there is no device-pass-gated section (a .cu reaches the runtime
- * API through runtime.h, not this header), so this file is
- * #included by exactly one TU -- runtime_api.cppm's global module fragment. It
- * reads selected_backend.h directly rather than device_guard.h, so it carries
- * no device-pass #error and compiles in that host TU. See src/rand.h,
+ * Two includers, both reaching the runtime API by #include rather than import:
+ * runtime_api.cppm's global module fragment (host), and runtime.h's device
+ * section, which pulls this header in AFTER the full vendor runtime header so a
+ * device .cu/.cuh gets the same neutral surface the module exports (the flag
+ * dance below is what both need and neither can get from the bare vendor
+ * header). The validate-#undef-replace dance is idempotent per TU and the vendor
+ * #include is guarded, so arriving after cuda_runtime.h / hip_runtime.h is a
+ * no-op for the include and runs the dance exactly once. It reads
+ * selected_backend.h directly rather than device_guard.h, so it carries no
+ * device-pass #error and compiles in the host TU too. See src/rand.h,
  * src/backend.h, and docs/architecture.md, section 12.
  */
 

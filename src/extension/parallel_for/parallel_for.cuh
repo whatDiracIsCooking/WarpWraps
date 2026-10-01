@@ -87,10 +87,15 @@ __global__ void parallel_for_kernel(WWR_GRID_CONSTANT const Functor f, IndexType
 /// @param stream GPU stream for async kernel launch
 /// @param count Number of elements to process
 /// @param functor Per-thread functor invoked with thread index
+/// @return The synchronous launch status from wwrGetLastError -- wwrSuccess if
+///         the grid was configured and queued (including the empty count < 1
+///         case, which launches nothing). This reports LAUNCH errors only (bad
+///         configuration, resource limits); a kernel's own execution errors are
+///         asynchronous and surface at the next synchronization, not here.
 template<std::integral IndexType = std::size_t, device_functor<IndexType> Functor>
-void parallel_for(wwrStream_t stream, const IndexType count, Functor functor) {
+wwrError_t parallel_for(wwrStream_t stream, const IndexType count, Functor functor) {
   if (count < 1) {
-    return;
+    return wwrSuccess;
   }
 
   // 4 warps per block. WWR_WARP_SIZE (runtime.h) is a configure-time
@@ -107,6 +112,8 @@ void parallel_for(wwrStream_t stream, const IndexType count, Functor functor) {
   const uint32_t num_blocks = static_cast<uint32_t>((count + kBlockSize - 1) / kBlockSize);
 
   device::parallel_for_kernel<<<num_blocks, kBlockSize, 0, stream>>>(functor, count);
+
+  return wwrGetLastError();
 }
 
 } // namespace wwr::extension

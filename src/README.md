@@ -452,9 +452,13 @@ plain `.cu` (the `*_bridge.h`, `example/warp_reduce`), reached bare through the
 `::hipStream_t` to importers -- but `runtime_api.cppm` does not include
 `runtime.h`: it draws the handle (and the rest of the runtime surface) from its
 own vendor-include header `runtime_api.h`, which `#undef`s the allocation-flag
-macros that would otherwise collide with its `WWR_RT_VALUE` expansions -- the
-`#undef` `runtime.h`, which names only the handle type and binds no flag values,
-does not do. `wwrrandState` lives the
+macros that would otherwise collide with its `WWR_RT_VALUE` expansions.
+`runtime.h`'s *always-on* part names only the handle type, so it binds no flag
+values and needs no such `#undef`; its *device section*, though, now binds the
+whole neutral runtime surface for device `.cu`/`.cuh` TUs (which cannot import
+`wwr.runtime_api`) and reuses that same `runtime_api.h` flag dance to do it --
+through the one list both sites share, `runtime_api_surface.h`. `wwrrandState`
+lives the
 same way, in the src/-root
 header `rand.h`, `#include`d (not imported) by `rand.cppm` and the two
 `*_bridge.h` (and reached in a device pass by `rand.h`'s own gated generators)

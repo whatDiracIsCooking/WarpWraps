@@ -87,7 +87,10 @@ void random_normal(const wwrStream_t stream, const std::size_t count, wwrrandSta
     return;
   }
   const random_normal_functor<T> functor{states, output, scale};
-  parallel_for(stream, count, functor);
+  // This void launcher drops parallel_for's launch status (wwrError_t is
+  // [[nodiscard]] under HIP); threading it up through the module is a separate
+  // change.
+  static_cast<void>(parallel_for(stream, count, functor));
 }
 
 // One per supported type, matching interface.cppm's extern template list and
