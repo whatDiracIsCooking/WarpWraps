@@ -67,9 +67,12 @@ from pathlib import Path
 # WWR_FUNCTION(wwrblasSaxpy, cublasSaxpy_v2, hipblasSaxpy) -- the alias is
 # constrained to the configured prefix so an unrelated WWR_FUNCTION line in the
 # same file (handle create/destroy, stream setters) cannot be mistaken for a
-# dispatch target.
+# dispatch target. The _RAW variant (WWR_FUNCTION_RAW, used by src/rand.cppm and
+# any other module that binds the vendor header's own global names directly
+# rather than importing a raw module) carries the same (wwr, cuda, hip) triple
+# and maps identically, so it is matched too.
 GPU_FUNCTION_RE_TEMPLATE = (
-    r"WWR_FUNCTION\(\s*({prefix}\w+)\s*,\s*(\w+)\s*,\s*(\w+)\s*\)"
+    r"WWR_FUNCTION(?:_RAW)?\(\s*({prefix}\w+)\s*,\s*(\w+)\s*,\s*(\w+)\s*\)"
 )
 
 # A wrapper as llvm-cxxfilt prints it: return type, then
