@@ -118,9 +118,13 @@ def test_real_tree_link_complete():
     assert len(report.checked) > 20  # actually verifying, not skipping everything
 
 
-def test_link_exceptions_are_exactly_hiptensor_and_rccl():
+def test_no_link_check_exceptions():
+    # #179 link-checked the last two exceptions (hiptensor, rccl) in a NO_RUN
+    # executable, so nothing is excepted now: every manifest-backed library's
+    # re-exported functions carry a WWR_*_CHECK.
     report = mc.check_link_completeness()
-    assert set(report.excepted) == {"hip/hiptensor", "hip/rccl"}
+    assert report.excepted == []
+    assert mc.LINK_CHECK_EXCEPTIONS == {}
 
 
 def test_unchecked_flags_a_wrapped_function_without_a_check():

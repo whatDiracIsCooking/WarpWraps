@@ -294,14 +294,13 @@ _CHECK = re.compile(r"WWR_(?:LINK|DECLARED)_CHECK\(\s*([A-Za-z_]\w*)\s*\)")
 # As above, but captures which macro -- assertion 3 needs LINK vs DECLARED.
 _MACRO_CHECK = re.compile(r"WWR_(LINK|DECLARED)_CHECK\(\s*([A-Za-z_]\w*)\s*\)")
 
-LINK_CHECK_EXCEPTIONS: dict[tuple[str, str], str] = {
-    # hiptensor/rccl compile and link, but their .so's SIGBUS at load in the
-    # driverless hip_compile_tests on GPU-less CI -- the problem test/cuda solves
-    # with driver stubs + the `gpu` label and test/hip has no mechanism for yet.
-    # Tracked in #179; drop these once it lands.
-    ("hip", "hiptensor"): "runtime-load fault in driverless CI (#179)",
-    ("hip", "rccl"): "runtime-load fault in driverless CI (#179)",
-}
+# Empty: every manifest-backed library is now link-checked. hiptensor and rccl
+# were the last exceptions -- their .so's abort at load without a GPU, so #179
+# link-checks them in a NO_RUN executable (built, so every symbol resolves; never
+# launched) instead of the runnable hip_compile_tests. The mechanism stays so
+# that removing a library from the suite is caught (its functions become
+# unchecked) rather than silently dropping coverage.
+LINK_CHECK_EXCEPTIONS: dict[tuple[str, str], str] = {}
 
 
 def unchecked_functions(
