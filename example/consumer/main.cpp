@@ -45,6 +45,7 @@ import std;
 
 import wwr.runtime_api; // wwrMalloc, wwrMemcpy, wwrGetDevice, wwrSuccess
 import wwr.blas;        // wwrblasHandle_t, wwrblasCreate, WWRBLAS_OP_N, wwrblasSgemm
+import wwr.atomic;      // wwrMemoryOrder, wwrThreadScope -- the scoped-atomic enums
 
 #if defined(WWR_CONSUMER_HAS_WRAPPERS)
 import wwr.wrappers.blas;
@@ -287,6 +288,19 @@ int main() {
   if (!extension_link())
     return 1;
 #endif
+
+  // wwr.atomic is the one core module whose whole surface is two enums: the
+  // scoped-atomic *operations* are __device__-only (a kernel #includes atomic.h),
+  // but a host configurator names the scope and order here and hands them to a
+  // kernel. Being enum-only it is proved like the link checks above -- naming both
+  // exported enums from the installed package is the assertion, nothing runs. It
+  // is the only module with no dependents, so this is its one install-consumption
+  // check (see src/atomic.h, docs/architecture.md §20).
+  constexpr auto atomic_scope = wwrThreadScope::device;
+  constexpr auto atomic_order = wwrMemoryOrder::acq_rel;
+  static_assert(atomic_scope != wwrThreadScope::thread && atomic_order != wwrMemoryOrder::relaxed,
+                "wwr.atomic enums did not survive install/consume");
+  std::println("atomic : wwr.atomic enums (scope/order) resolved from the installed package");
 
   int device = 0;
   if (wwrGetDevice(&device) != wwrSuccess) {

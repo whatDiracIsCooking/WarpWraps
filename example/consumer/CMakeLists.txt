@@ -50,13 +50,16 @@ add_executable(consumer main.cpp)
 # them brings in wwr's module sources, which this build compiles -- `import
 # wwr.blas;` in main.cpp resolves because of these lines and nothing else.
 #
-# The core the consumer always links: two wwr* modules it imports directly --
+# The core the consumer always links: three wwr* modules it imports directly --
 # wwr.runtime_api for device memory, wwr.blas for the handle and the raw
-# wwrblasSgemm its core gemm runs. These ship in every install, wrappers or no.
+# wwrblasSgemm its core gemm runs, and wwr.atomic for the scoped-atomic enums
+# (the one module with no dependents, so linking it here is its only
+# install-consumption check). These ship in every install, wrappers or no.
 target_link_libraries(
   consumer
   PRIVATE wwr::runtime_api
           wwr::blas
+          wwr::atomic
 )
 
 # The wrappers layer is optional in the package (installed by default, dropped

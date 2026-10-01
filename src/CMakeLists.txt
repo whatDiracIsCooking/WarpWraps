@@ -37,7 +37,7 @@ target_include_directories(
 add_library(wwr::backend ALIAS wwr_backend)
 
 # The include path, runtime libs and WWR_WARP_SIZE for the device-side
-# headers (runtime.h, cooperative_groups.h, wmma.h, atomic.cuh, and the
+# headers (runtime.h, cooperative_groups.h, wmma.h, atomic.h, and the
 # device-pass gated sections of complex.h / fp16.h / bf16.h / fp8.h)
 # -- the counterpart to wwr_backend for code reached by #include, not import
 # (a kernel TU imports no modules). Carries NO WWR_GPU_BACKEND define: these
@@ -65,7 +65,7 @@ target_compile_definitions(
   INTERFACE WWR_WARP_SIZE=${WWR_WARP_SIZE}
 )
 if(WWR_GPU_BACKEND STREQUAL "CUDA")
-  # CUDA::cudart carries the toolkit's include path, which is where atomic.cuh's
+  # CUDA::cudart carries the toolkit's include path, which is where atomic.h's
   # <cuda/atomic> (libcu++) lives. CUDA 13.0 relocated that header from
   # include/cuda/atomic to include/cccl/cuda/atomic, but CMake 4.2's
   # FindCUDAToolkit adds the cccl dir to CUDA::cudart's interface for exactly
@@ -219,6 +219,27 @@ wwr_add_cxx_module_library(
   vector_types.cppm
   LINK_PUBLIC
   ${_backend_rt_host}
+  LINK_PRIVATE
+  wwr::backend
+  IMPORT_STD
+)
+
+# wwr.atomic exports only the two portable enums (wwrMemoryOrder /
+# wwrThreadScope) -- the scoped atomic *operations* are __device__-only and stay
+# in atomic.h's device section, reached by a device .cu through wwr.device, so
+# this module wraps no vendor library and imports no raw module. Its GMF
+# #includes only atomic.h, whose host path carries no vendor header, so no
+# LINK_PUBLIC is needed: just wwr::backend PRIVATE for the WWR_GPU_BACKEND_*
+# define selected_backend.h reads in this host compile. The enums are plain
+# project-owned data with no vendor entity behind them (the vector_types shape
+# of "no raw module", one step thinner -- not even a vendor global type to
+# alias).
+# See src/atomic.h and docs/architecture.md §20.
+wwr_add_cxx_module_library(
+  NAME
+  wwr.atomic
+  PRIMARY_INTERFACE
+  atomic.cppm
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD

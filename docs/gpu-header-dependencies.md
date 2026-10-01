@@ -29,7 +29,7 @@ has this shape; this file only states *what* it is.
 ## The graph
 
 `selected_backend.h` is the leaf everything rests on. The device-only `.cuh`
-files — `atomic.cuh`, `parallel_for.cuh`, `math.cuh` — reach it through
+files — `parallel_for.cuh`, `math.cuh` — reach it through
 `device_guard.h`, which adds the "must be a device pass" `#error` guard a
 host-safe header must not have. `cooperative_groups.h` and `wmma.h` need no such
 `#error`: inside their own device gate they `#include` `runtime.h` — host-safe,
@@ -37,25 +37,32 @@ reaching `selected_backend.h` directly — so the edge exists in a device pass a
 vanishes in a host compile, where the gate skips it and the header is empty. They
 want `runtime.h` for `WWR_WARP_SIZE` (a portable tile size for one, a wave index
 for the other, both because the API is a whole-warp collective) and the backend
-switch, through that one include. **Every edge *into* a device header stays
+switch, through that one include. `atomic.h`'s device section does the same —
+`#include`s `runtime.h` from inside its gate — but for a different payload: the
+runtime header on HIP declares the `__HIP_MEMORY_SCOPE_*` constants its builtins
+take. **Every edge *into* a device header stays
 inside a single target** — the device-pass edges `cooperative_groups.h` →
-`runtime.h` and `wmma.h` → `runtime.h` are both within `wwr.device`, so neither
+`runtime.h`, `wmma.h` → `runtime.h` and `atomic.h` → `runtime.h` are all within
+`wwr.device`, so none
 leaks an include path across targets. That is the concern that keeps each `.cuh`
-rooted directly at `device_guard.h` for its guard, and that lets these two gated
+rooted directly at `device_guard.h` for its guard, and that lets these gated
 `.h` reach `runtime.h` without a leak.
 
-`complex.h`, `runtime.h`, `rand.h`, `fp16.h`, `bf16.h` and `fp8.h` reach
+`complex.h`, `runtime.h`, `rand.h`, `fp16.h`, `bf16.h`, `fp8.h` and `atomic.h` reach
 `selected_backend.h` *directly*, not through `device_guard.h`: each compiles in a
 host TU and so must not carry the "must be a device pass" `#error`. They appear
 below as leaves of `selected_backend.h` alongside `device_guard.h`.
-(`cooperative_groups.h` and `wmma.h` differ again: in a host compile their gate is
-shut, so they reach `selected_backend.h` on *no* path and define nothing; they
-reach it through `runtime.h` only in a device pass, which is why they appear below
-nested under `runtime.h` rather than as leaves here.)
+(`atomic.h` is a leaf here *and* has the device-pass edge into `runtime.h` above:
+its enums reach `selected_backend.h` directly at file scope — so it is not empty
+in a host compile, unlike the two gated `.h` — while its forwarders additionally
+pull `runtime.h` in a device pass. `cooperative_groups.h` and `wmma.h` differ: in
+a host compile their gate is shut, so they reach `selected_backend.h` on *no* path
+and define nothing; they reach it through `runtime.h` only in a device pass, which
+is why they appear below nested under `runtime.h` rather than as leaves here.)
 `complex.h` is included by
 `complex.cppm` (host module) and device `.cu` that reach its gated wrappers
 (`random_normal.cu`, `test/gpu/complex.cu`); `runtime.h` by the device headers
-(`atomic.cuh`, `parallel_for.cuh`, and `cooperative_groups.h` / `wmma.h` inside
+(`parallel_for.cuh`, and `atomic.h` / `cooperative_groups.h` / `wmma.h` inside
 their gate) and the host TUs that declare a stream-taking function across the
 boundary in a GMF or plain `.cu` (the two `*_bridge.h`, `example/warp_reduce`) —
 `runtime_api.cppm` does *not* include `runtime.h`: it reaches the same handle, and
@@ -75,6 +82,15 @@ external-linkage). `fp8.cppm` is the lone holdout: its conversions are
 static-inline (§12), so it imports `wwr.{cuda,hip}.*fp8` for the host wrappers and
 does *not* include `fp8.h`.
 
+`atomic.h` is the leanest of these: its always-on half is two project-owned enums
+(`wwrMemoryOrder`, `wwrThreadScope`) with no vendor header behind them, so a host
+compile of `atomic.cppm` (which `#include`s it to re-export the enums as
+`wwr.atomic`) pulls nothing from the vendor at all. Its device section — the
+vendor-constant mappings and the `wwrAtomic*` forwarders — pulls `<cuda/atomic>`
+on CUDA and reaches the HIP scope constants through `runtime.h`, and is included
+only by a device `.cu` (`test/gpu/atomic.cu`, and any kernel using the scoped
+atomics).
+
 Unlike `complex.h` and `runtime.h`, whose always-on vendor header is host-cheap,
 `rand.h` pulls the heavy `curand_kernel.h` / `hiprand_kernel.h`. That weight lands
 only in the TUs that `#include rand.h` and is firewalled from every `import
@@ -84,7 +100,9 @@ header and `src/README.md`.
 ```
 selected_backend.h        no #includes — the leaf the switch/shared-type layer rests on
 ├── device_guard.h         + the "is this a device pass?" #error guard; no vendor header
-│                            (included directly by the device-only .cuh: atomic.cuh, parallel_for.cuh, math.cuh)
+│                            (included directly by the device-only .cuh: parallel_for.cuh, math.cuh)
+├── atomic.h             (the wwrMemoryOrder / wwrThreadScope enums, always — no vendor header)
+│                          (+ vendor-constant mappings & __device__ forwarders, with <cuda/atomic> | runtime.h's __HIP_MEMORY_SCOPE_*, gated behind the device-pass macros)
 ├── complex.h            + <cuComplex.h>               | <array> <hip/hip_complex.h>
 │                          (+ __device__ wrappers, gated behind the device-pass macros)
 ├── runtime.h           + <cuda_runtime_api.h>        | <hip/hip_runtime_api.h>   (the stream type, always)
@@ -110,19 +128,21 @@ The two columns after each `+` are the CUDA branch (`WWR_SELECTED_CUDA`) and
 the HIP branch (`WWR_SELECTED_HIP` / the `#else`); a translation unit sees
 exactly one — or, for the two fully-gated `.h`, neither, in a host compile where
 the gate is shut. `cooperative_groups.h`, `wmma.h`, `complex.h`,
-`runtime.h`, `rand.h`, `fp16.h`, `bf16.h` and `fp8.h` pull vendor headers
-(`cooperative_groups.h` and `wmma.h` only inside their device gate);
+`runtime.h`, `rand.h`, `fp16.h`, `bf16.h`, `fp8.h` and `atomic.h` pull vendor headers
+(`cooperative_groups.h` and `wmma.h` only inside their device gate; `atomic.h`
+only inside its device gate, and on CUDA only — its HIP scope constants ride
+`runtime.h`, and its always-on enum half pulls nothing);
 `runtime.h` adds the full runtime (`<cuda_runtime.h>` / `<hip/hip_runtime.h>`) on
 top of its always-on stream-type header in that gated section.
-`complex.h`, `rand.h`, `fp16.h`, `bf16.h` and `fp8.h` each carry their
+`complex.h`, `rand.h`, `fp16.h`, `bf16.h`, `fp8.h` and `atomic.h` each carry their
 `__device__` wrappers themselves, in a device-pass-gated section, alongside their
-types and vendor headers. `device_guard.h` pulls none — it carries only the guard. That guard is a check on
+types (and, for `atomic.h`, its enums) and vendor headers. `device_guard.h` pulls none — it carries only the guard. That guard is a check on
 `__CUDACC__` / `__HIP__` / `__HIPCC__`, separate from the backend selection: it
 answers "is this a device pass?", not "which backend?", which is why it lives in
 `device_guard.h` and not in `selected_backend.h` (a host-safe header includes the
 latter from a host compile and must not `#error` there — which is exactly why
-`complex.h`, `runtime.h` and `rand.h` reach `selected_backend.h` directly rather
-than through `device_guard.h`).
+`complex.h`, `runtime.h`, `rand.h` and `atomic.h` reach `selected_backend.h`
+directly rather than through `device_guard.h`).
 
 ## Consumers (reverse edges)
 
@@ -132,20 +152,21 @@ transitively — through `device_guard.h` internally, and directly through
 
 | Header | Included by | CMake target that carries it |
 |---|---|---|
-| `selected_backend.h` | (internal — `device_guard.h`; and `complex.h`, `runtime.h`, `rand.h`, `fp16.h`, `bf16.h`, `fp8.h`) | — (header-only, no target of its own) |
-| `device_guard.h` | (internal — the device-only `.cuh`: `atomic.cuh`, `parallel_for.cuh`, `math.cuh`) | — (header-only; rides the target of each including `.cuh`) |
+| `selected_backend.h` | (internal — `device_guard.h`; and `complex.h`, `runtime.h`, `rand.h`, `fp16.h`, `bf16.h`, `fp8.h`, `atomic.h`) | — (header-only, no target of its own) |
+| `device_guard.h` | (internal — the device-only `.cuh`: `parallel_for.cuh`, `math.cuh`) | — (header-only; rides the target of each including `.cuh`) |
 | `backend.h` | `blas.cppm`, `bf16.cppm`, `complex.cppm`, `fp16.cppm`, `rand.cppm`, `runtime_api.cppm`, `solver.cppm` | each module's own target |
 | `complex.h` | `complex.cppm`, `extension/random_normal/random_normal.cu`, `test/gpu/complex.cu` (device, for the gated wrappers) | header-only (rides `wwr.device` / `wwr.complex`) |
-| `runtime.h` | `atomic.cuh`, `extension/parallel_for/parallel_for.cuh`, `cooperative_groups.h` / `wmma.h` (device, inside their gate), `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h`, `example/warp_reduce/warp_reduce_bridge.h` | header-only (rides `wwr.device` and the src/ include root each consumer carries) |
+| `runtime.h` | `extension/parallel_for/parallel_for.cuh`, `atomic.h` / `cooperative_groups.h` / `wmma.h` (device, inside their gate), `extension/init_state/init_state_bridge.h`, `extension/random_normal/random_normal_bridge.h`, `example/warp_reduce/warp_reduce_bridge.h` | header-only (rides `wwr.device` and the src/ include root each consumer carries) |
 | `rand.h` | `rand.cppm`, the two `*_bridge.h`, `extension/init_state/init_state.cu`, `extension/random_normal/random_normal.cu` (device, for the gated generators) | header-only (rides the src/ include root each consumer carries; the device `.cu` also link `wwr.rand.device` for the RNG library; installed by the `src/*.h` glob) |
-| `atomic.cuh` | `test/gpu/atomic.cu` (compile test) | `wwr.device` |
+| `atomic.h` | `atomic.cppm` (host module, re-exports the enums as `wwr.atomic`), `test/gpu/atomic.cu` (device compile test) | header-only (rides `wwr.device` / `wwr.atomic`) |
 | `cooperative_groups.h` | `example/warp_reduce/warp_reduce.cu`, `test/gpu/cooperative_groups.cu` (compile test) | `wwr.device` |
 | `wmma.h` | (no functional caller yet — only `test/gpu/wmma.cu` compiles it) | `wwr.device` |
 | `fp16.h` | `fp16.cppm` (host, for the type + conversions), `random_normal.cu`, `test/gpu/wmma.cu`, `test/gpu/fp16.cu` (device) | header-only (rides `wwr.fp16` / `wwr.device`) |
 | `bf16.h` | `bf16.cppm` (host), `random_normal.cu`, `test/gpu/wmma.cu`, `test/gpu/bf16.cu` (device) | header-only (rides `wwr.bf16` / `wwr.device`) |
 | `fp8.h` | `test/gpu/fp8.cu` (device, for the gated narrowing). `fp8.cppm` does **not** include it — it imports the raw module instead (static-inline conversions, §12) | header-only (rides `wwr.device`) |
 
-`cooperative_groups.h`, `wmma.h`, `atomic.cuh` and `runtime.h`'s device section
+`cooperative_groups.h`, `wmma.h`, and the device sections of `atomic.h` and
+`runtime.h`
 share the `wwr.device` target, as do the device sections of `complex.h` /
 `fp16.h` / `bf16.h` / `fp8.h`; the rand device generators (in `rand.h`) sit behind
 a separate `wwr.rand.device` target on

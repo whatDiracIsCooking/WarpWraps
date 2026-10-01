@@ -19,7 +19,7 @@
  * is why this stays a `.h`: a host GMF or plain .cu that only names wwrStream_t
  * (the *_bridge.h, example/warp_reduce) gets just the type, while a device pass
  * gets the runtime surface on top. The device-only wrappers that must refuse a
- * host compile outright stay `.cuh` (atomic.cuh, parallel_for.cuh) and reach the
+ * host compile outright stay `.cuh` (parallel_for.cuh, math.cuh) and reach the
  * #error through device_guard.h, which they now include directly; the two gated
  * `.h` (cooperative_groups.h, wmma.h) include this header from inside their own
  * device gate. See src/README.md, "The switch points".
