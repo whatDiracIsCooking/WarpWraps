@@ -37,6 +37,7 @@ against `wwr*` names and builds unchanged for either backend.
 | `wwr.ccl` | `wwr.cuda.nccl` | `wwr.hip.rccl` |
 | `wwr.tensor` | `wwr.cuda.cutensor` | `wwr.hip.hiptensor` |
 | `wwr.comp` | `wwr.cuda.nvcomp` | `wwr.hip.hipcomp` |
+| `wwr.rtc` | `wwr.cuda.nvrtc` | `wwr.hip.hiprtc` |
 
 `gpu.fp8` is the narrow-float scalar layer above `fp16` / `bf16`, scoped to the
 intersection of the vendor type pair: the OCP `E4M3`/`E5M2` fp8 formats, plus
@@ -253,6 +254,35 @@ Three things to watch:
   on host consumers, so `wwr.hip.hiptensor` `find_library`s `libhiptensor` and
   links `hip::host` instead (see `src/hip/README.md`). hipTensor was kept off the
   `ROCM_PRUNE` list.
+
+`gpu.rtc` covers **runtime compilation** — NVRTC / hipRTC. hipRTC was written
+"for parity with nvrtc", so this is a hipify pair like `ccl`, but a partial one:
+the surface is the measured intersection (run
+`devtools/header_intersection.py --cuda vendor/cuda-13.0.x/nvrtc.json --hip
+vendor/rocm-7.1.0/hiprtc.json` to reproduce) — 23 names shared by spelling: the
+program lifecycle (`wwrrtcCreateProgram` / `DestroyProgram`), `wwrrtcCompileProgram`,
+the log (`wwrrtcGetProgramLog` / `Size`) and name-expression
+(`wwrrtcAddNameExpression` / `wwrrtcGetLoweredName`) queries, `wwrrtcVersion` /
+`wwrrtcGetErrorString`, the `wwrrtcProgram` / `wwrrtcResult` types, and the 12
+result codes both `nvrtcResult` / `hiprtcResult` enums share. One spot does more
+than rename:
+
+- **The compiled-output getter diverges in name.** NVRTC emits PTX
+  (`nvrtcGetPTX` / `nvrtcGetPTXSize`), hipRTC emits a code object
+  (`hiprtcGetCode` / `hiprtcGetCodeSize`). `wwr.rtc` picks hipRTC's neutral
+  spelling, `wwrrtcGetCode` / `wwrrtcGetCodeSize`, mapping each to the backend's
+  own — the one shape in the `WWR_FUNCTION` table whose CUDA and HIP names are
+  not a prefix swap, so `test/gpu/rtc.cppm` pins the two separately.
+
+Single-backend names are left out, reachable only through the raw modules:
+NVRTC's CUBIN / LTO IR / OptiX IR getters, its PCH and flow-callback surface, its
+supported-arch query and the `NVRTC_ERROR_CANCELLED` / PCH / time-trace result
+codes; and hipRTC's **linking** surface (`hiprtcLink*`, with the `hipJitOption` /
+`hipJitInputType` enums the `hiprtcJIT_option` / `hiprtcJITInputType` macro
+aliases expand to — see `src/hip/README.md`), its bitcode getters and
+`HIPRTC_ERROR_LINKING`. Like `gpu.rand` / `gpu.ccl`, `gpu.rtc` breaks the first
+rule below — it was ported whole before any `src/wrappers` consumer exists — so
+every name in it is checked in full by `test/gpu/rtc.cppm`.
 
 ## How a name is mapped
 
