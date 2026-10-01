@@ -30,3 +30,24 @@ wwr_add_gtest_suite_tests(
   30
   REQUIRES_GPU
 )
+
+# Host-only error-mapping suite: no device, so NOT REQUIRES_GPU -- this is the
+# `ctest -LE gpu` (CI) coverage of the solver_error specializations.
+wwr_add_gtest_executable(
+  NAME
+  extension_solver_error_tests
+  SOURCES
+  error_tests.cpp
+  LINK
+  wwr::extension::common
+  wwr::extension::solver
+)
+
+wwr_add_gtest_suite_tests(
+  TARGET
+  extension_solver_error_tests
+  SUITES
+  SolverErrorTests
+  TIMEOUT
+  30
+)
