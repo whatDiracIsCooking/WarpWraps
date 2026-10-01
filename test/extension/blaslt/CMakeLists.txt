@@ -11,7 +11,18 @@
 # Links wwr::extension::blas alongside wwr::extension::blaslt so the error suite
 # resolves the specializations with BOTH visible (the duplicate-specialization
 # guard); wwr::backend for the WWR_GPU_BACKEND_* define the test's compute-type
-# include is gated on; wwr::solver for WWRSOLVER_R_32F (the scale/element type).
+# import is gated on; wwr::solver for WWRSOLVER_R_32F (the scale/element type).
+#
+# The raw backend module carries the compute-type value enumerator
+# (CUBLAS_COMPUTE_32F / HIPBLAS_COMPUTE_32F) that cuBLASLt / hipBLASLt re-export
+# the type but not the value of. It is imported as a BMI, not a textual vendor
+# header, to dodge the libc++ <array> / `import std;` clash on HIP -- see
+# matmul_tests.cpp's header -- so its module target is linked per backend here.
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
+  set(_blaslt_compute_module wwr::cuda::cublas_v2)
+else()
+  set(_blaslt_compute_module wwr::hip::hipblas)
+endif()
 
 wwr_add_gtest_executable(
   NAME
@@ -22,6 +33,7 @@ wwr_add_gtest_executable(
   wwr::backend
   wwr::blaslt
   wwr::solver
+  ${_blaslt_compute_module}
   wwr::extension::blas
   wwr::extension::blaslt
   wwr::extension::common

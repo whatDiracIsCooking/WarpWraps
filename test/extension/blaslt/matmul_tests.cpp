@@ -22,22 +22,24 @@
 //
 // Backend-neutral -- built and run for either WWR_GPU_BACKEND.
 
-// The compute-type enumerator is a vendor constant src/blaslt.cppm does not
-// surface under a wwrblasLt* name (its numeric value differs per backend, which
-// is why it stays unneutralised). Reach it by including the vendor header behind
-// the backend define that wwr::backend supplies. The scale/element data type is
-// wwrsolverDataType_t (cudaDataType / hipDataType), which wwr.solver already
-// neutralises as WWRSOLVER_R_32F. A plain gtest consumer TU is not a module unit,
-// so these #includes go at the top directly, with no global module fragment.
-#if defined(WWR_GPU_BACKEND_CUDA)
-#include <cublas_api.h> // CUBLAS_COMPUTE_32F
-#else
-#include <hipblas/hipblas.h> // HIPBLAS_COMPUTE_32F
-#endif
-
+// The compute-type enumerator is a vendor constant wwr.blaslt does not surface
+// under a wwrblasLt* name: cuBLASLt / hipBLASLt re-export the compute TYPE
+// (wwrblasLtComputeType_t) but not its value enumerators, which live in the plain
+// cublas / hipblas modules. Reach it through the raw backend module behind the
+// WWR_GPU_BACKEND_* define wwr::backend supplies -- a MODULE import, never a
+// textual vendor #include: <hipblas/hipblas.h> pulls libc++ <array> in
+// mid-header, which clashes with `import std;`'s modules mode and fails the HIP
+// dependency scan (__config: "too few arguments to function-like macro"). The
+// scale/element data type is wwrsolverDataType_t (cudaDataType / hipDataType),
+// which wwr.solver already neutralises as WWRSOLVER_R_32F.
 #include <gtest/gtest.h>
 
 import std;
+#if defined(WWR_GPU_BACKEND_CUDA)
+import wwr.cuda.cublas_v2; // wwr::cuda::CUBLAS_COMPUTE_32F
+#else
+import wwr.hip.hipblas; // wwr::hip::HIPBLAS_COMPUTE_32F
+#endif
 import wwr.extension.common; // success_code, the error_policy concept
 import wwr.extension.handle;  // BaseHandle
 import wwr.extension.blas;    // the wwrblasStatus_t specializations, imported ALONGSIDE blaslt
@@ -48,9 +50,9 @@ import wwr.test.shared.abort_policy; // AbortPolicy
 namespace wwr::extension::test {
 
 #if defined(WWR_GPU_BACKEND_CUDA)
-inline constexpr auto kComputeType = CUBLAS_COMPUTE_32F;
+inline constexpr auto kComputeType = wwr::cuda::CUBLAS_COMPUTE_32F;
 #else
-inline constexpr auto kComputeType = HIPBLAS_COMPUTE_32F;
+inline constexpr auto kComputeType = wwr::hip::HIPBLAS_COMPUTE_32F;
 #endif
 
 // ============================================================================
