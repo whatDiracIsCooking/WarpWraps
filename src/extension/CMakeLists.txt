@@ -15,6 +15,9 @@ add_subdirectory(handle)
 add_subdirectory(parallel_for)
 add_subdirectory(runtime)
 add_subdirectory(memory_buffer)
+# comp (the compression error policy + scratch-buffer RAII) links memory_buffer
+# for DeviceBufferWrapper, so it follows it.
+add_subdirectory(comp)
 add_subdirectory(blas)
 add_subdirectory(solver)
 add_subdirectory(fft)
