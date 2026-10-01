@@ -306,10 +306,10 @@ needs no cast.
 The common atomics (`atomicAdd`, `atomicCAS`, `atomicExch`, `atomicMin`/`Max`,
 `atomicAnd`/`Or`/`Xor`, `atomicSub`, `atomicInc`/`Dec`) are spelled identically
 in the global namespace on CUDA and HIP, with the same signatures, and are
-declared by the vendor runtime header `runtime.cuh` already switches. So
-wwr wraps none of them, for the reason §2 gives: a forwarding
+declared by the vendor runtime header `runtime.h`'s device section already
+switches. So wwr wraps none of them, for the reason §2 gives: a forwarding
 function per name would only rename each name to itself. A device TU that
-includes `runtime.cuh` calls them bare; `test/gpu/atomics.cu` is what
+includes `runtime.h` calls them bare; `test/gpu/atomics.cu` is what
 pins that the common widths resolve under both front ends, nvcc being the
 permissive one.
 

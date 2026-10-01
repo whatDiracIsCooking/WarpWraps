@@ -9,9 +9,9 @@
 # module -- consumers #include it directly into a .cu (CUDA) or
 # device-compiled (HIP) translation unit. See parallel_for.cuh's own header
 # comment for why backend.h's module-name-switch technique does not apply
-# here, and how backend selection is done instead (src/runtime.cuh,
-# keyed off the compiler's own __CUDACC__ / __HIP__ / __HIPCC__ device-compile
-# macros).
+# here, and how backend selection is done instead (src/runtime.h and
+# src/device_guard.h, keyed off the compiler's own __CUDACC__ / __HIP__ /
+# __HIPCC__ device-compile macros).
 #
 # NOTE: this replaced src/cuda/extension/parallel_for's CUDA-only,
 # Thrust-based `parallel_for` target (removed; last at tag `pre-split`). It is
@@ -23,7 +23,8 @@ add_library(wwr.extension.parallel_for INTERFACE)
 
 # The include root is src/ itself, not this directory: parallel_for.cuh is
 # reached as "extension/parallel_for/parallel_for.cuh" and pulls in the
-# src/-root header "runtime.cuh" alongside it. The installed tree mirrors src/
+# src/-root headers "runtime.h" and "device_guard.h" alongside it. The installed
+# tree mirrors src/
 # under include/wwr/ for exactly that reason, so the spelling resolves
 # unchanged
 # after install.
@@ -33,7 +34,7 @@ target_include_directories(
             $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )
 
-# wwr.device (src/CMakeLists.txt) carries runtime.cuh's
+# wwr.device (src/CMakeLists.txt) carries runtime.h's
 # include path plus the runtime-only libs (CUDA::cudart / hip::host, never
 # hip::device -- see that target's own comment). A real device-KERNEL
 # consumer of THIS library still links hip::device itself, scoped to a small

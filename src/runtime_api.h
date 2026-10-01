@@ -29,7 +29,7 @@
  * linkage and is reached straight from the vendor header, no macro dance.
  *
  * Host-only: there is no device-pass-gated section (a .cu reaches the runtime
- * API through runtime.h / runtime.cuh, not this header), so this file is
+ * API through runtime.h, not this header), so this file is
  * #included by exactly one TU -- runtime_api.cppm's global module fragment. It
  * reads selected_backend.h directly rather than device_guard.h, so it carries
  * no device-pass #error and compiles in that host TU. See src/rand.h,

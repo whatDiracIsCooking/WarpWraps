@@ -8,8 +8,9 @@
 ///
 /// `#include`d directly into a .cu (CUDA) or `-x hip` device-compiled (HIP)
 /// translation unit, so it reaches the backend through the wwr* layer's
-/// runtime.cuh rather than backend.h: there is no module involved at
-/// the point of use. Link `wwr.device`.
+/// runtime.h (and device_guard.h for the device-pass gate) rather than
+/// backend.h: there is no module involved at the point of use. Link
+/// `wwr.device`.
 ///
 /// A functor's `operator()` is plain `__device__` on both backends. Its
 /// callability is constrained on the kernel template below -- a device entity,
@@ -25,10 +26,13 @@
 #include <type_traits>
 
 // WWR_GRID_CONSTANT, WWR_WARP_SIZE and wwrStream_t for the signature below, all
-// the wwr* layer's, reached bare through wwr.device's include path. runtime.cuh
-// is also the device-pass gate: it #errors outside a CUDA or HIP device compile,
-// so this header carries no guard of its own.
-#include "runtime.cuh"
+// the wwr* layer's, reached bare through wwr.device's include path. runtime.h's
+// device section carries the two macros and the full runtime; wwrStream_t is in
+// its always-on part. device_guard.h is the device-pass gate -- it #errors
+// outside a CUDA or HIP device compile, the guard runtime.h (host-safe) does not
+// carry, so this device-only .cuh includes it directly.
+#include "device_guard.h"
+#include "runtime.h"
 
 namespace wwr::extension {
 
@@ -89,7 +93,7 @@ void parallel_for(wwrStream_t stream, const IndexType count, Functor functor) {
     return;
   }
 
-  // 4 warps per block. WWR_WARP_SIZE (runtime.cuh) is a configure-time
+  // 4 warps per block. WWR_WARP_SIZE (runtime.h) is a configure-time
   // value -- -DWWR_WARP_SIZE, default 32, so this is 128 unless a
   // CDNA build sets 64 and makes it 256. Neither backend offers a warp size
   // that can be used in a constant expression, and HIP's one compile-time

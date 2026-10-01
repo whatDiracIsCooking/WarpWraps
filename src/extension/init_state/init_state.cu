@@ -7,7 +7,7 @@
 // the .cuh device headers this includes -- in this project .cu/.cuh means
 // "device-compiled, whichever backend", not "CUDA only".
 //
-// There is no per-backend #if here: rand.h and runtime.cuh resolve
+// There is no per-backend #if here: rand.h and runtime.h resolve
 // every backend difference this TU would otherwise have to spell twice, so
 // the functor and the launcher are written once. rand.h is #included (not a
 // .cuh) because it carries the rand layer's device generators in a device-pass

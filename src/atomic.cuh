@@ -7,7 +7,8 @@
  * an explicit memory order and thread scope, where the two backends diverge in
  * spelling and so clear the bar the common atomics do not (docs/architecture.md
  * §15 -- those are spelled identically on both, ride the vendor runtime header
- * runtime.cuh switches, and are wrapped by nothing; test/gpu/atomics.cu pins
+ * runtime.h's device section switches, and are wrapped by nothing;
+ * test/gpu/atomics.cu pins
  * them). Here CUDA spells the operation `cuda::atomic_ref<T, Scope>` from
  * <cuda/atomic> and HIP spells it a `__hip_atomic_*` clang builtin -- two
  * spellings for one operation, so a forwarder does work rather than renaming a
@@ -39,12 +40,14 @@
 
 #pragma once
 
-// WWR_SELECTED_CUDA / WWR_SELECTED_HIP, the device-pass #error, and the vendor
-// runtime header -- which on HIP declares the __HIP_MEMORY_SCOPE_* constants
-// (amd_hip_atomic.h, reached through hip_runtime.h) the builtins take. Unlike
-// cooperative_groups.h / wmma.h it is not WWR_WARP_SIZE that is wanted here
-// but that runtime include, so the same base header serves.
-#include "runtime.cuh"
+// device_guard.h for WWR_SELECTED_CUDA / WWR_SELECTED_HIP and the device-pass
+// #error (this is a device-only .cuh, so it refuses a host compile outright);
+// runtime.h for the vendor runtime header its device section pulls in -- which
+// on HIP declares the __HIP_MEMORY_SCOPE_* constants (amd_hip_atomic.h, reached
+// through hip_runtime.h) the builtins take. Unlike cooperative_groups.h /
+// wmma.h it is not WWR_WARP_SIZE that is wanted here but that runtime include.
+#include "device_guard.h"
+#include "runtime.h"
 
 #if defined(WWR_SELECTED_CUDA)
 
