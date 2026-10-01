@@ -37,7 +37,7 @@ function(_wwr_register_gtest_suite_guard target)
     NAME ${target}.SuiteListIsComplete
     COMMAND
       ${CMAKE_COMMAND} -DEXE=$<TARGET_FILE:${target}> "-DEXPECTED=${_suites}"
-      -P ${CMAKE_SOURCE_DIR}/cmake/wwr_check_gtest_suites.cmake
+      -P ${PROJECT_SOURCE_DIR}/cmake/wwr_check_gtest_suites.cmake
   )
   set_tests_properties(${target}.SuiteListIsComplete PROPERTIES TIMEOUT 60)
 

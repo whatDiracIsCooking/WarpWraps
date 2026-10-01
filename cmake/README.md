@@ -287,7 +287,7 @@ exists in the binary but is missing from the CMake list. The list is
 hand-maintained; the guard is what keeps it honest, so when it fails, add the
 suite rather than deleting the guard. It runs
 `wwr_check_gtest_suites.cmake`, whose path is resolved from
-`${CMAKE_SOURCE_DIR}/cmake/`.
+`${PROJECT_SOURCE_DIR}/cmake/`.
 
 **Why per suite, not per binary or per case.** Measured on the math suite (276
 cases, RTX 3080; date not recorded): one entry per binary is ~0.9s but
