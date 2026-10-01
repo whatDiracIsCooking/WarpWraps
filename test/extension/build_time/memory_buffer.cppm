@@ -179,7 +179,7 @@ static_assert(std::is_constructible_v<FakeBuffer<FakeHandle>, std::size_t,
 // device_buffer_suite adds it.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-using ConvBuf = device_buffers<AbortPolicy, DeviceHandle>;
+using ConvBuf = kit::device_buffers<AbortPolicy, DeviceHandle>;
 
 // The right wrapper and error family per kind: host speaks stdHostMemoryError_t,
 // the GPU-managed kinds speak wwrError_t, and device carries its access policy.
@@ -195,7 +195,7 @@ static_assert(std::same_as<ConvBuf::host_view<float>,
                            BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>>);
 static_assert(std::same_as<ConvBuf::device_view<float>,
                            BufferViewWrapper<float, MemoryKind::Device, Abort, Abort>>);
-static_assert(std::same_as<ConvBuf::host_view<float>, view_of<ConvBuf::host<float>>>);
+static_assert(std::same_as<ConvBuf::host_view<float>, kit::view_of<ConvBuf::host<float>>>);
 
 // The convenience is the map form under a single-policy map -- the two agree.
 struct SingleAbortMap {
@@ -204,14 +204,14 @@ struct SingleAbortMap {
   template<typename E>
   using free = AbortPolicy<E>;
 };
-static_assert(std::same_as<device_buffers<AbortPolicy, DeviceHandle>,
-                           device_buffer_suite<single_policy_map<AbortPolicy>, DeviceHandle>>);
-static_assert(std::same_as<ConvBuf::host<float>, buffer_suite<SingleAbortMap>::host<float>>);
+static_assert(std::same_as<kit::device_buffers<AbortPolicy, DeviceHandle>,
+                           kit::device_buffer_suite<kit::single_policy_map<AbortPolicy>, DeviceHandle>>);
+static_assert(std::same_as<ConvBuf::host<float>, kit::buffer_suite<SingleAbortMap>::host<float>>);
 
 // buffer_suite and device_buffer_suite share the host/pinned/unified aliases; the
 // device kind lives only on the device suite (buffer_suite<M>::device does not
 // exist, which is what lets a host-only consumer skip the handle).
-static_assert(std::same_as<buffer_suite<SingleAbortMap>::host<float>,
-                           device_buffer_suite<SingleAbortMap, DeviceHandle>::host<float>>);
+static_assert(std::same_as<kit::buffer_suite<SingleAbortMap>::host<float>,
+                           kit::device_buffer_suite<SingleAbortMap, DeviceHandle>::host<float>>);
 
 } // namespace wwr::extension::test

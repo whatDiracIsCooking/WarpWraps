@@ -21,6 +21,7 @@ wwr_add_cxx_module_library(
   scoped_device_index.cppm
   noncopyable.cppm
   policy_slot.cppm
+  abort_policy.cppm
   LINK_PUBLIC
   wwr::runtime_api
   wwr::extension::error_handling

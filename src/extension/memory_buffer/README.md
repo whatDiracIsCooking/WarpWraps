@@ -118,7 +118,7 @@ UnifiedBuffer<T> buf(n, wwrMemAttachHost);   // wwrMallocManaged with flags
 
 ## Error Handling
 
-Error policies are parameterised via `P_alloc` and `P_free` template arguments; there is no default, so every use names them (the library ships no policy). The error type varies by memory kind:
+Error policies are parameterised via `P_alloc` and `P_free` template arguments; there is no default, so every use names them (the core forces no policy; `wwr::extension::kit::AbortPolicy` is a ready one, or bring your own). The error type varies by memory kind:
 
 | Kind | Error type |
 |---|---|
@@ -218,14 +218,17 @@ value only and never dereferences it.
 
 The `:suite` partition emits the buffer *and* view aliases from one place, so a
 consumer names a policy and (for device buffers) a handle instead of writing one
-alias per kind plus a matching view alias for each. Two entry points over one
-mechanism.
+alias per kind plus a matching view alias for each. These live in the opt-in
+namespace `wwr::extension::kit` (not `wwr::extension` directly), so a plain
+`using namespace wwr::extension;` does not pull generic names like `buffers` into
+scope — opt in with `using namespace wwr::extension::kit;` or name `kit::`. Two
+entry points over one mechanism.
 
-**Single policy for every kind — the convenience.** `buffers<P>` /
-`device_buffers<P, H>` take one policy template and use it across all kinds:
+**Single policy for every kind — the convenience.** `kit::buffers<P>` /
+`kit::device_buffers<P, H>` take one policy template and use it across all kinds:
 
 ```cpp
-using Buf = device_buffers<AbortPolicy, MyDeviceHandle>;   // AbortPolicy is template<class E>
+using Buf = kit::device_buffers<kit::AbortPolicy, MyDeviceHandle>;   // kit::AbortPolicy is template<class E>
 
 Buf::device<float>    d(1024, dev);
 Buf::host<float>      h(1024);       // stdHostMemoryError_t, chosen by the suite

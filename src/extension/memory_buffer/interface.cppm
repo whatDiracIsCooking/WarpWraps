@@ -9,24 +9,25 @@
  * - :pinned_buffer - Pinned host memory buffers (wwrHostAlloc/wwrFreeHost)
  * - :unified_buffer - Unified memory buffers (wwrMallocManaged)
  * - :host_buffer - Standard host memory buffers (std::malloc/std::free)
- * - :suite - buffer/view alias binders (buffer_suite / device_buffer_suite and
- *   the buffers / device_buffers single-policy convenience) over the above
+ * - :suite - buffer/view alias binders in wwr::extension::kit (kit::buffer_suite /
+ *   kit::device_buffer_suite and the kit::buffers / kit::device_buffers single-policy
+ *   convenience) over the above
  *
  * Usage:
  *   import wwr.extension.memory_buffer;
  *   import wwr.extension.runtime;   // StreamWrapper (a stream-tier handle), DeviceHandle
  *   using namespace wwr::extension;
  *
- *   using Abort = AbortPolicy<wwrError_t>;  // your own policy; the library ships none
+ *   using Abort = kit::AbortPolicy<wwrError_t>;  // the kit's opt-in policy, or your own
  *   using Handle = StreamWrapper<Abort, Abort, Abort>;  // a stream is a device_handle_stream;
- *                                                       // DeviceHandle<...> adds a pool
+ *                                                       // kit::DeviceHandle<...> adds a pool
  *   auto dev = std::make_shared<Handle>(0);
  *   // DeviceBufferWrapper is device-bound: its last arg is the device-access policy.
  *   DeviceBufferWrapper<float, Abort, Abort, Abort, Handle> dev_buf(1024, dev);  // Device memory
  *   PinnedBufferWrapper<float, Abort, Abort> pin_buf(1024);       // Pinned host memory
  *   UnifiedBufferWrapper<float, Abort, Abort> uni_buf(1024);      // Unified memory
- *   HostBufferWrapper<float, AbortPolicy<stdHostMemoryError_t>,
- *                     AbortPolicy<stdHostMemoryError_t>> host_buf(1024);  // Standard host memory
+ *   HostBufferWrapper<float, kit::AbortPolicy<stdHostMemoryError_t>,
+ *                     kit::AbortPolicy<stdHostMemoryError_t>> host_buf(1024);  // Standard host memory
  */
 
 export module wwr.extension.memory_buffer;

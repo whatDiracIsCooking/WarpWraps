@@ -187,9 +187,11 @@ bool wrappers_link() {
 // (wwr.extension.random_normal.device) to resolve and link, which is the
 // fragile part of the extension install -- the archive has to survive the export
 // set and re-attach in a find_package consumer.
-// The library ships no error policy -- a consumer brings its own. This is this
-// consumer's: print to stderr and abort on failure. It only names the wrapper's
-// policy arguments below; nothing here runs it.
+// The library's core forces no error policy; the kit offers an opt-in one
+// (kit::AbortPolicy, asserted below). This consumer also keeps a local policy, to
+// prove bring-your-own authoring still works against the installed package: print to
+// stderr and abort on failure. It only names the wrapper's policy arguments below;
+// nothing here runs it.
 template<typename T>
 struct AbortPolicy {
   using error_type = T;
@@ -205,7 +207,7 @@ struct AbortPolicy {
 // The buffer/view suite (#177), exercised in its MAP form -- this is the heavy
 // consumer (every kind plus views) where a per-kind policy map earns its keep,
 // and the install fixture must prove concept-only authoring, so the map brings
-// this consumer's own AbortPolicy rather than a library default. The map has two
+// this consumer's own AbortPolicy rather than the kit's. The map has two
 // keys, alloc/free -- buffer vocabulary; it never names a handle, which arrives
 // already built. This one uses the same policy for both, but a divergent consumer
 // would map them to different policies here.
@@ -226,18 +228,19 @@ bool extension_link() {
   static_assert(sizeof(extension::StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
                                                    AbortPolicy<wwrError_t>>) > 0);
 
-  // The shipped DeviceHandle must survive install/export too; name it so a
-  // regression in its export fails here, in the one tier that consumes the installed
-  // prefix. (The stream tier is StreamWrapper, already named just above.)
-  static_assert(sizeof(extension::DeviceHandle<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>,
-                                               AbortPolicy<wwrError_t>>) > 0);
+  // The shipped kit (kit::DeviceHandle + kit::AbortPolicy) must survive install/export
+  // too; name both so a regression in their export fails here, in the one tier that
+  // consumes the installed prefix. (The stream tier is StreamWrapper, named just above.)
+  static_assert(sizeof(extension::kit::DeviceHandle<extension::kit::AbortPolicy<wwrError_t>,
+                                                    extension::kit::AbortPolicy<wwrError_t>,
+                                                    extension::kit::AbortPolicy<wwrError_t>>) > 0);
 
   // Name every alias the suite emits -- host/pinned/unified/device and each view
   // -- so an export regression in wwr.extension.memory_buffer (a suite the
   // installed package cannot reach, a view whose policies drifted from its
   // buffer) fails to compile here, in the one tier that consumes the installed
   // prefix. Naming the types is the proof; nothing is constructed.
-  using Buf = extension::device_buffer_suite<AbortMap, ConsumerDeviceHandle>;
+  using Buf = extension::kit::device_buffer_suite<AbortMap, ConsumerDeviceHandle>;
   static_assert(sizeof(Buf::host<float>) > 0);
   static_assert(sizeof(Buf::pinned<float>) > 0);
   static_assert(sizeof(Buf::unified<float>) > 0);

@@ -22,6 +22,8 @@
  * Usage:
  *   import wwr.extension.surface;
  *
+ *   // the kit's opt-in policy, or your own; the core forces none.
+ *   using wwr::extension::kit::AbortPolicy;
  *   wwr::extension::SurfaceObject<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>
  *       surf{res_desc};
  *   kernel<<<...>>>(surf.get());   // or the implicit conversion to the handle

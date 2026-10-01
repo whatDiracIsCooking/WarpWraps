@@ -26,22 +26,11 @@ import wwr.extension.memory_buffer;
 
 using namespace wwr;
 namespace ext = wwr::extension;
+namespace kit = wwr::extension::kit; // the opt-in ready-made helpers: AbortPolicy, device_buffers
 
-// The extension layer ships the RAII wrappers themselves, but no error policy --
-// policy choice belongs to the consumer. This is this example's own: print to
-// stderr and abort on any failure. A consumer wanting recovery or logging writes
-// a different policy and passes it as the wrappers' error-policy arguments.
-template<typename T>
-struct AbortPolicy {
-  using error_type = T;
-  void handle_error(const T error, std::source_location loc) noexcept {
-    if (error != ext::success_code<T>()) {
-      std::println(stderr, "GPU error at {}:{} in {}: {} ({})", loc.file_name(), loc.line(),
-                   loc.function_name(), ext::error_name(error), ext::error_string(error));
-      std::abort();
-    }
-  }
-};
+// The kit ships an opt-in abort-on-error policy, kit::AbortPolicy, so this example
+// need not hand-roll one. A consumer wanting recovery or logging passes their own
+// policy in the wrappers' error-policy slots instead.
 
 // A DeviceBuffer is backed by whatever handle type the consumer provides. For the
 // stream tier the library ships no bespoke type: a StreamWrapper already exposes
@@ -49,17 +38,17 @@ struct AbortPolicy {
 // src/extension/handle/device_handle.cppm) and backs the buffer directly, routing
 // allocations through wwrMallocAsync on its stream -- no wrapping struct. (The
 // fullest tier, with an owned pool, is the shipped DeviceHandle in
-// wwr.extension.runtime.) The wrapper names its three error policies, this
-// example's own AbortPolicy.
-using DeviceHandle =
-    ext::StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
+// wwr.extension.runtime.) The wrapper names its three error policies, the kit's
+// AbortPolicy.
+using DeviceHandle = ext::StreamWrapper<kit::AbortPolicy<wwrError_t>, kit::AbortPolicy<wwrError_t>,
+                                        kit::AbortPolicy<wwrError_t>>;
 
-// The whole buffer prelude in one line. device_buffers is the single-policy
+// The whole buffer prelude in one line. kit::device_buffers is the single-policy
 // convenience over the suite: it binds host/device (and pinned/unified/views,
-// unused here) to this example's AbortPolicy and DeviceHandle, choosing the error
-// family each kind speaks -- stdHostMemoryError_t for host, wwrError_t for device,
-// including the device-access policy -- so no per-kind alias is written by hand.
-using Buf = ext::device_buffers<AbortPolicy, DeviceHandle>;
+// unused here) to kit::AbortPolicy and DeviceHandle, choosing the error family each
+// kind speaks -- stdHostMemoryError_t for host, wwrError_t for device, including the
+// device-access policy -- so no per-kind alias is written by hand.
+using Buf = kit::device_buffers<kit::AbortPolicy, DeviceHandle>;
 
 namespace {
 

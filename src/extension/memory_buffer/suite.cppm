@@ -9,7 +9,8 @@
  * *same* policy pair as the source buffer, so a drifted pair fails with a
  * no-matching-constructor wall rather than a legible error). This partition moves
  * that wrapper -> error-family mapping and the buffer/view pairing into the
- * library. It ships no policy: the consumer still brings one.
+ * library. It binds no policy of its own: the consumer names one (kit::AbortPolicy
+ * or their own).
  *
  * Two entry points over one mechanism:
  *   - buffer_suite<M> / device_buffer_suite<M, H> take a policy MAP -- a type
@@ -24,11 +25,17 @@
  * there is no sentinel handle to invent and buffer_suite<M>::device simply does
  * not exist.
  *
+ * These live in the nested namespace wwr::extension::kit -- the opt-in layer of
+ * ready-made helpers -- not in wwr::extension directly, so a plain
+ * `using namespace wwr::extension;` does not pull generic names like `buffers` or
+ * `device_buffers` into a consumer's scope. A consumer opts in with
+ * `using namespace wwr::extension::kit;` or names `kit::` explicitly.
+ *
  * Usage:
  *   import wwr.extension.memory_buffer;
  *   using namespace wwr::extension;
  *
- *   using Buf = device_buffers<AbortPolicy, MyDeviceHandle>; // AbortPolicy is template<class E>
+ *   using Buf = kit::device_buffers<kit::AbortPolicy, MyDeviceHandle>; // AbortPolicy is template<class E>
  *   Buf::device<float> d(1024, dev);
  *   Buf::host<float>   h(1024);   // stdHostMemoryError_t, chosen by the suite
  */
@@ -47,7 +54,7 @@ import wwr.extension.common;
 import wwr.extension.handle;
 import std;
 
-export namespace wwr::extension {
+export namespace wwr::extension::kit {
 
 /**
  * @brief The non-owning view type over buffer B, carrying B's kind and policies
@@ -158,4 +165,4 @@ using buffers = buffer_suite<single_policy_map<P>>;
 template<template<typename> class P, device_handle H>
 using device_buffers = device_buffer_suite<single_policy_map<P>, H>;
 
-} // namespace wwr::extension
+} // namespace wwr::extension::kit

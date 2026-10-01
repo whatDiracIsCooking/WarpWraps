@@ -19,12 +19,18 @@
  * MemPoolWrapper, and runtime already imports handle, so defining it there would
  * close a module cycle.
  *
+ * It is declared in the nested namespace wwr::extension::kit -- the opt-in layer
+ * of ready-made helpers -- so a plain `using namespace wwr::extension;` does not
+ * pull the generic name `DeviceHandle` into a consumer's scope (a downstream GPU
+ * codebase is likely to have its own). A consumer opts in with
+ * `using namespace wwr::extension::kit;` or names `kit::DeviceHandle` explicitly.
+ *
  * Usage:
  *   import wwr.extension.runtime;
  *   using namespace wwr::extension;
  *
- *   using Abort = AbortPolicy<wwrError_t>;              // your own policy; none shipped
- *   auto h = std::make_shared<DeviceHandle<Abort, Abort, Abort>>();   // dev + stream + pool
+ *   using Abort = kit::AbortPolicy<wwrError_t>;         // kit's opt-in policy, or your own
+ *   auto h = std::make_shared<kit::DeviceHandle<Abort, Abort, Abort>>();  // dev + stream + pool
  */
 
 export module wwr.extension.runtime:device_handle;
@@ -35,7 +41,7 @@ import wwr.runtime_api;
 import wwr.extension.common; // error_policy / nothrow_error_policy, gpu_check
 import std;
 
-export namespace wwr::extension {
+export namespace wwr::extension::kit {
 
 /**
  * @brief Pool-tier device handle: an owned stream and memory pool on one device
@@ -99,4 +105,4 @@ private:
   Pool pool_;
 };
 
-} // namespace wwr::extension
+} // namespace wwr::extension::kit

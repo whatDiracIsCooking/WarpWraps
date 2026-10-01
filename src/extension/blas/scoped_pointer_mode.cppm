@@ -11,7 +11,8 @@
  *   }                           // previous pointer mode restored on the handle
  *
  *   // handle_owner is a shared_ptr to any blas_handle (e.g. a BlasHandleWrapper);
- *   // MyPolicy is your own error_policy<wwrblasStatus_t>; the library ships none.
+ *   // MyPolicy is any error_policy<wwrblasStatus_t>: the kit's opt-in kit::AbortPolicy,
+ *   // or your own -- the core forces none.
  */
 
 export module wwr.extension.blas:scoped_pointer_mode;

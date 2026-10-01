@@ -12,7 +12,7 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 
 **Borrow-safe operations are free functions.** `sync`, `wait_event`, `begin_capture` (stream), `record`, `sync` (event), and `launch`, `upload` (executable graph) are free functions taking the raw handle (`wwrStream_t`/`wwrEvent_t`/`wwrGraphExec_t`). An owning wrapper and its view both convert to that handle, so one definition serves the owner, its view, and a bare handle alike (found by ADL on the wrapper/view types). Operations that *produce* an owned handle — `end_capture` (stream), `instantiate` (graph) — stay members, since they need the wrapper's error policy. A handle's `view()` (from `BaseHandle`/`DeviceBoundHandle`) returns its non-owning, copyable, trivially-destructible view.
 
-**The module ships the wrappers, not error policies for them.** Each `*Wrapper` takes its create and destroy error policies as explicit template arguments — neither has a default, so every use names both; the device-bound wrappers (stream, event, mem pool) take a third, the device-access policy. `AbortPolicy` is the consumer's own — the library ships none. Binding is a one-line `using` a consumer writes once, for exactly the names it uses (`using Stream = StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;`) — see the [Usage](#usage) block and `example/warp_reduce`.
+**The module ships the wrappers, not error policies for them.** Each `*Wrapper` takes its create and destroy error policies as explicit template arguments — neither has a default, so every use names both; the device-bound wrappers (stream, event, mem pool) take a third, the device-access policy. The error-handling *core* forces no policy; `wwr::extension::kit::AbortPolicy` is the kit's opt-in one, or bring your own. Binding is a one-line `using` a consumer writes once, for exactly the names it uses (`using Stream = StreamWrapper<kit::AbortPolicy<wwrError_t>, kit::AbortPolicy<wwrError_t>, kit::AbortPolicy<wwrError_t>>;`) — see the [Usage](#usage) block and `example/warp_reduce`.
 
 ## Partitions
 
@@ -23,7 +23,7 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 | `:mem_pool` | RAII wrapper for `wwrMemPool_t` |
 | `:graph` | RAII wrapper for `wwrGraph_t` |
 | `:graph_exec` | RAII wrapper for `wwrGraphExec_t` |
-| `:device_handle` | `DeviceHandle`, a ready-made pool-tier device handle (the stream tier is just `StreamWrapper`) |
+| `:device_handle` | `kit::DeviceHandle`, a ready-made pool-tier device handle (the stream tier is just `StreamWrapper`) |
 
 ## Exported Types and Functions
 
@@ -103,16 +103,18 @@ The free functions `launch(exec, stream)` and `upload(exec, stream)` run the gra
 >
 > `wwrGraphInstantiate` is a hand-written forwarding function in `wwr.runtime_api`, not a plain alias: the backends' plain `*Instantiate` entry points disagree on signature beyond the prefix (CUDA takes flags, HIP takes an error-node/log-buffer triple), so `wwrGraphInstantiate(exec, graph, flags = 0)` forwards to `cudaGraphInstantiate` on CUDA and `hipGraphInstantiateWithFlags` on HIP — both of which take `(GraphExec_t*, Graph_t, unsigned long long)`.
 
-### Device handle (`device_handle`)
+### Device handle (`kit::DeviceHandle`)
 
 ```cpp
+namespace wwr::extension::kit {
 template<error_policy<wwrError_t> P_create,
          nothrow_error_policy<wwrError_t> P_destroy,
          error_policy<wwrError_t> P_device>
 class DeviceHandle;
+}
 ```
 
-A ready-made backing for a `DeviceBuffer` (or a stream-bound library handle): one device's index, properties, an owned `StreamWrapper` and an owned `MemPoolWrapper`, exposed as `dev_idx()` / `props()` / `stream()` / `pool()`. It is the fullest rung of the `device_handle` ladder (`device_handle_pool`), so a buffer built on it draws from that pool on that stream. Move-only; constructed from a device index (`DeviceHandle(int index = 0)`).
+A ready-made backing for a `DeviceBuffer` (or a stream-bound library handle): one device's index, properties, an owned `StreamWrapper` and an owned `MemPoolWrapper`, exposed as `dev_idx()` / `props()` / `stream()` / `pool()`. It is the fullest rung of the `device_handle` ladder (`device_handle_pool`), so a buffer built on it draws from that pool on that stream. Move-only; constructed from a device index (`DeviceHandle(int index = 0)`). It lives in the opt-in namespace `wwr::extension::kit` (with the buffer suite), out of `wwr::extension` so a plain `using namespace wwr::extension;` does not pull the generic name `DeviceHandle` into scope.
 
 > The **stream tier needs no type here** — a `StreamWrapper` already exposes `dev_idx()` and `stream()`, so it *is* a `device_handle_stream` and backs a buffer directly. `DeviceHandle` is for the pool tier.
 >
@@ -124,9 +126,10 @@ A ready-made backing for a `DeviceBuffer` (or a stream-bound library handle): on
 import wwr.extension.runtime;
 using namespace wwr::extension;
 
-// Bind the wrappers to an error policy — your names, defined once. AbortPolicy
-// is your own abort-on-failure policy; the library ships none.
-using Abort = AbortPolicy<wwrError_t>;
+// Bind the wrappers to an error policy — your names, defined once. kit::AbortPolicy
+// is the kit's opt-in abort-on-failure policy; the core forces none, so bring your
+// own if you prefer.
+using Abort = kit::AbortPolicy<wwrError_t>;
 // Device-bound wrappers take a third policy: device access (wwrSetDevice/wwrGetDevice).
 using Stream = StreamWrapper<Abort, Abort, Abort>;
 using Event = EventWrapper<Abort, Abort, Abort>;

@@ -10,7 +10,8 @@
  *     ...                                       // work on target_idx
  *   }                                           // previous device restored
  *
- *   // MyPolicy is your own error_policy<wwrError_t>; the library ships none.
+ *   // MyPolicy is any error_policy<wwrError_t>: the kit's opt-in kit::AbortPolicy,
+ *   // or your own -- the core forces none.
  */
 
 export module wwr.extension.common:scoped_device_index;
