@@ -1,52 +1,28 @@
-# wwr.extension.tensor tests, split by whether they need a live device.
-#
-# error_tests.cpp is host-only -- the wwrtensorStatus_t success_code/error_name/
-# error_string mapping is a pure table lookup with no device contact -- so it is
-# NOT REQUIRES_GPU and runs in CI (ctest -LE gpu). It is the same split as
-# test/extension/handle (valid vs device-bound).
-wwr_add_gtest_executable(
+# wwr.extension.tensor -- link-check only (NO_RUN). See link_check.cpp's header
+# for the full why: cuTENSOR / hipTENSOR abort in a library global constructor
+# on a GPU-less host, so no binary linking this module can be RUN -- or even
+# `--gtest_list_tests`'d -- on the GPU-less CI runner. A GoogleTest suite is
+# therefore impossible here (its SuiteListIsComplete guard would launch the
+# binary and abort), so this follows the vendor module's precedent
+# (test/gpu/tensor_link_check.cpp, test/hip's hiptensor NO_RUN executable): it
+# is BUILT so every wwrtensor* symbol resolves at link -- the link is the proof
+# -- with the move/copy contract pinned by compile-time static_asserts, but
+# carrying no ctest entry and never launched. success_code's zero-enumerator
+# contract is pinned by the static_assert in tensor_error.cppm.
+wwr_add_test_executable(
   NAME
-  extension_tensor_error_tests
-  SOURCES
-  error_tests.cpp
-  LINK
-  wwr::extension::tensor
-  wwr::extension::common
-)
-
-wwr_add_gtest_suite_tests(
-  TARGET
-  extension_tensor_error_tests
-  SUITES
-  TensorErrorTests
-  TIMEOUT
-  30
-)
-
-# lifetime_tests.cpp exercises the RAII handle + descriptor: wwrtensorCreate
-# needs a live GPU context, so it is REQUIRES_GPU (labeled `gpu`, excluded in
-# CI). The destroy-exactly-once contract through a counting policy is the whole
-# test.
-wwr_add_gtest_executable(
-  NAME
-  extension_tensor_lifetime_tests
-  SOURCES
-  lifetime_tests.cpp
-  LINK
+  extension_tensor_link_check
+  MAIN
+  link_check.cpp
+  LINK_PRIVATE
   wwr::extension::tensor
   wwr::extension::common
   wwr::extension::handle
+  NO_RUN
 )
 
-# One ctest entry per suite. Add a suite here when you add one to the test file,
-# or the SuiteListIsComplete guard test will fail and say so.
-wwr_add_gtest_suite_tests(
-  TARGET
-  extension_tensor_lifetime_tests
-  SUITES
-  TensorHandleTests
-  TensorDescriptorTests
-  TIMEOUT
-  30
-  REQUIRES_GPU
-)
+# Built as part of the compile-time tier too, so a tensor-binding regression is
+# caught by the cheap check and not only by a full build.
+if(TARGET compile_time_tests)
+  add_dependencies(compile_time_tests extension_tensor_link_check)
+endif()
