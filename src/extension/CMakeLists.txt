@@ -19,6 +19,10 @@ add_subdirectory(memory_buffer)
 # for DeviceBufferWrapper, so it follows it.
 add_subdirectory(comp)
 add_subdirectory(blas)
+# blaslt links wwr::extension::blas (it reuses blas's wwrblasStatus_t error
+# policy, since wwrblasLtStatus_t is the same underlying type), so it follows
+# blas here.
+add_subdirectory(blaslt)
 add_subdirectory(solver)
 add_subdirectory(fft)
 add_subdirectory(sparse)

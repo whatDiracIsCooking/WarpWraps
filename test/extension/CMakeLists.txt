@@ -28,6 +28,9 @@ add_subdirectory(comp)
 # RAII over a vendor handle whose create/destroy needs a live GPU context, so
 # these are runtime only -- the destroy-exactly-once contract is the whole test.
 add_subdirectory(blas)
+# blaslt: one host-only error suite (runs in CI) plus a REQUIRES_GPU lifetime
+# suite for the handle + descriptor/layout/preference wrappers.
+add_subdirectory(blaslt)
 add_subdirectory(solver)
 add_subdirectory(sparse)
 add_subdirectory(fft)
