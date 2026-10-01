@@ -1,11 +1,12 @@
 # `example/`
 
-Three things, and only the first two are part of this build.
+Four things, and only the first three are part of this build.
 
 | Directory | What it is | Who builds it |
 |---|---|---|
 | `warp_reduce/` | A warp-level reduction kernel written against the `wwr*` layer | the main build, on either backend |
 | `buffer_suite/` | A tour of the memory-buffer suite — the policy **map** and views | the main build, on either backend |
+| `device_handle/` | The ready-made pool-tier handle — `kit::DeviceHandle` | the main build, on either backend |
 | `consumer/` | A standalone project consuming an **installed** wwr | `devtools/install-check.sh` |
 
 `consumer/` has its own `project()` call and is not added by
@@ -48,18 +49,38 @@ No kernel and no `.cu`: it exercises only the host-callable RAII + copy surface 
 host→device→host round-trip and a sub-view check), so it is one ordinary host
 module translation unit.
 
+## `device_handle/` — the ready-made handle, so you roll none
+
+It is the answer to "do I have to hand-roll a device handle?". `warp_reduce` and
+`buffer_suite` both back their device buffers on a `StreamWrapper` they name
+themselves — the **stream tier**, which allocates with `wwrMallocAsync`. This
+reaches instead for `kit::DeviceHandle`, the opt-in helper at the **pool tier**:
+one line owns a stream *and* a memory pool on a device, so a buffer built on it
+draws from that pool (`wwrMallocFromPoolAsync`), and a freed buffer's memory
+returns to the pool rather than the OS, so the next same-size allocation needs no
+fresh driver call. It also queries the device's static properties once at
+construction and exposes them as `props()` — the one thing the stream-tier handle
+cannot hand you.
+
+Like `buffer_suite` there is no kernel and no `.cu`: a round-trip proves the
+pool-backed buffer works, then a second allocation after the first frees shows the
+reuse. (The reuse is semantics, not something the example measures — no
+pool-attribute getter is exported, so it asserts only that the second draw
+succeeds.)
+
 ## Running it
 
-Needs a real device. Building either does not — that is what
+Needs a real device. Building them does not — that is what
 `devtools/cross-backend-check.sh` does for the backend you are not on.
 
 ```bash
 devtools/cpp-tier.sh                    # or any preset that builds the tree
 ./build/example/warp_reduce/wwr.example.warp_reduce
 ./build/example/buffer_suite/wwr.example.buffer_suite
+./build/example/device_handle/wwr.example.device_handle
 ```
 
 Exit status is 0 on success, 1 on a wrong answer, and 77 (ctest's "skipped")
-when no device is reachable. There is no ctest entry for either: the runtime tier
-has nothing device-dependent in it, and registering these would turn every
+when no device is reachable. There is no ctest entry for any of them: the runtime
+tier has nothing device-dependent in it, and registering these would turn every
 driverless box red.

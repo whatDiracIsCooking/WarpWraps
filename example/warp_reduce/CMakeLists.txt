@@ -13,9 +13,10 @@
 # neither. cmake/wwr_add_gpu_device_library.cmake is where that split is
 # spelled out in full.
 
-# wwr.device carries cooperative_groups.h, runtime.cuh and runtime.h (the
-# stream type warp_reduce_bridge.h names, plus the WWR_WARP_SIZE the tile size
-# is built from), all under the src/ include root it exposes. PRIVATE, as every
+# wwr.device carries cooperative_groups.h and runtime.h (the stream type
+# warp_reduce_bridge.h names, plus the WWR_WARP_SIZE the tile size is built from
+# in runtime.h's device section), all under the src/ include root it exposes.
+# PRIVATE, as every
 # device-library link is: nothing that links this should inherit a device-code
 # include path.
 wwr_add_gpu_device_library(

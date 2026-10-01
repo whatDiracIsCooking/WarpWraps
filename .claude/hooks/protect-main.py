@@ -131,8 +131,9 @@ TOKEN_ENDERS = frozenset(" \t;|&<>()")
 # Quoted strings, which is where a heredoc's paths live.
 QUOTED = re.compile(r"""['"]([^'"]{2,})['"]""")
 
-# Pipeline/list separators. Splitting on these gives us command position.
-SEGMENT = re.compile(r"(?:\|\||&&|[;|\n()])")
+# Pipeline/list separators are split out by _split_segments, which honours
+# quotes -- a quote-blind regex tore a `(`/`;`/`|` out of a quoted argument and
+# the fragments were re-read as shell syntax.
 
 # Targets that are never the repo, however the command spells them.
 HARMLESS = ("/dev/null", "/dev/stdout", "/dev/stderr", "/dev/tty")
@@ -267,6 +268,56 @@ def _strip_comments(command: str) -> str:
     return "".join(out)
 
 
+def _split_segments(command: str) -> list[str]:
+    """Pipeline/list segments, honouring quotes. Splitting on these separators
+    gives us command position.
+
+    Splits on the same operators the old quote-blind regex did -- `||`, `&&`,
+    `;`, `|`, a newline, and a `(`/`)` subshell bound -- but NEVER on one inside
+    single or double quotes. The regex split every such character: it tore
+    `(squash merge -> -D)` out of an `echo` argument, and _redirect_targets then
+    read the bare `->` as a `>` into a file `-D`, and a quoted `;` turned
+    `echo "a; rm b"` into a fake `rm b`. Both land as a mutation in the primary
+    checkout and deny a read-only command -- the `/pr full` teardown's
+    explanatory echoes among them. A lone `&` is not a separator, matching the
+    old pattern (only `&&` was). See _strip_comments, which fixes the same class
+    of misread for `#` comments."""
+    segments: list[str] = []
+    buf: list[str] = []
+    quote: str | None = None
+
+    def flush() -> None:
+        segments.append("".join(buf))
+        buf.clear()
+
+    i, n = 0, len(command)
+    while i < n:
+        c = command[i]
+        if quote:
+            buf.append(c)
+            if c == quote:
+                quote = None
+            i += 1
+        elif c in ("'", '"'):
+            quote = c
+            buf.append(c)
+            i += 1
+        elif c == "|":
+            flush()
+            i += 2 if (i + 1 < n and command[i + 1] == "|") else 1
+        elif c == "&" and i + 1 < n and command[i + 1] == "&":
+            flush()
+            i += 2
+        elif c in ";\n()":
+            flush()
+            i += 1
+        else:
+            buf.append(c)
+            i += 1
+    flush()
+    return segments
+
+
 def _read_token(s: str, j: int) -> tuple[str, int]:
     """One shell token at index j -- a quoted string (unquoted) or a bare run up
     to whitespace/metachar -- and the index just past it."""
@@ -345,7 +396,7 @@ def _bash_targets(command: str) -> list[str] | None:
     targets: list[str] = []
     mutates = False
 
-    for segment in SEGMENT.split(command):
+    for segment in _split_segments(command):
         segment = segment.strip()
         if not segment:
             continue
@@ -511,7 +562,7 @@ def _current_branch(repo: str) -> str:
 def _git_policy(command: str, cwd: str, main_root: str) -> None:
     """Deny git operations that damage the shared primary checkout."""
     worktrees = os.path.join(main_root, ".claude", "worktrees") + os.sep
-    for segment in SEGMENT.split(command):
+    for segment in _split_segments(command):
         words = _words(segment.strip())
         if not words:
             continue

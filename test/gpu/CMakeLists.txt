@@ -284,12 +284,12 @@ add_dependencies(compile_time_tests wwr.test.gpu.wmma.device)
 
 # atomics.cu tests the portable common atomics, which wwr does NOT wrap:
 # atomicAdd/CAS/... are spelled identically on both backends and ride the vendor
-# runtime header that runtime.cuh switches, so there is no atomics header
-# to test. The claim it CAN break -- every operation resolving for the common
-# widths under BOTH front ends, nvcc being the permissive one -- is a
-# device-compile claim, so this is a device TU. Building it is the assertion; no
-# ctest entry, no launch. Reached through wwr.device, which carries
-# runtime.cuh and the runtime header.
+# runtime header that runtime.h's device section switches, so there is no
+# atomics header to test. The claim it CAN break -- every operation resolving
+# for the common widths under BOTH front ends, nvcc being the permissive one --
+# is a device-compile claim, so this is a device TU. Building it is the
+# assertion; no ctest entry, no launch. Reached through wwr.device, which
+# carries runtime.h and the runtime header.
 wwr_add_gpu_device_library(
   NAME
   wwr.test.gpu.atomics.device

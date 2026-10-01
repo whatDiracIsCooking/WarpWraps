@@ -19,7 +19,7 @@
  * this layer carries. The alias names a device namespace and has no host use, so
  * this header is host-*safe*, not host-*usable* -- which is what sets both apart
  * from `complex.h` / `rand.h`, whose `.h` holds a host-usable surface.
- * `runtime.cuh` is reached from inside the gate for the backend switch and
+ * `runtime.h` is reached from inside the gate for the backend switch and
  * WWR_WARP_SIZE (mma_sync is a whole-warp collective, so a kernel mapping tiles
  * to waves indexes with it).
  *
@@ -37,12 +37,14 @@
 
 #if defined(__CUDACC__) || defined(__HIP__) || defined(__HIPCC__)
 
-// The device-pass runtime: the device-pass macros stay satisfied here, plus
-// WWR_SELECTED_CUDA / WWR_SELECTED_HIP for the switch below and WWR_WARP_SIZE,
-// which is what a wave index into a tiled kernel is built from -- mma_sync is a
-// whole-warp (whole-wavefront) collective, so a kernel mapping tiles to waves
-// needs it for the same reason a portable cooperative-groups tile size does.
-#include "runtime.cuh"
+// The device-pass runtime: inside this gate runtime.h's device section is
+// active, giving WWR_SELECTED_CUDA / WWR_SELECTED_HIP for the switch below and
+// WWR_WARP_SIZE, which is what a wave index into a tiled kernel is built from --
+// mma_sync is a whole-warp (whole-wavefront) collective, so a kernel mapping
+// tiles to waves needs it for the same reason a portable cooperative-groups
+// tile size does. (runtime.h is host-safe; this header's own gate is what keeps
+// it out of a host TU.)
+#include "runtime.h"
 
 #if defined(WWR_SELECTED_CUDA)
 

@@ -11,3 +11,4 @@
 # code.
 add_subdirectory(warp_reduce)
 add_subdirectory(buffer_suite)
+add_subdirectory(device_handle)

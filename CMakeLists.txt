@@ -164,7 +164,7 @@ message(STATUS "GPU backend: ${WWR_GPU_BACKEND}")
 # ========================================================================
 # Warp / wavefront size
 # ========================================================================
-# WWR_WARP_SIZE (src/runtime.cuh) is a configure-time constant because
+# WWR_WARP_SIZE (src/runtime.h) is a configure-time constant because
 # neither backend offers a compile-time spelling that is correct in every pass.
 # 32 is right for every NVIDIA arch and for RDNA (gfx10xx-gfx12xx);
 # set 64 for CDNA (gfx90a, gfx942). Nothing validates it against a real device.
