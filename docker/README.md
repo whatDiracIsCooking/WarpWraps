@@ -382,6 +382,16 @@ COMPUTE_SANITIZER_TOOL=racecheck dc compute-sanitizer
 
 Uses the `compute-sanitizer` preset, built into `build-compose-compute-sanitizer/`.
 
+The service runs `ctest -LE no_sanitizer`, which excludes the suites whose only
+sanitizer findings are known-benign: the two allocation-failure suites
+(`test/extension/memory_buffer`), the two deliberate-error suites
+(`DeviceBoundHandleTests`, `RuntimePolicyTests`, whose provoked CUDA error is the
+assertion), and the two vendor-noise suites (`CclCommTests`, NCCL init probing;
+`CompRoundTrip`, nvcomp's `unsnap_kernel` shared-memory hazards). To sanitize the
+two *vendor* suites anyway — filtering only the vendor frames in place rather than
+skipping the suite — run them directly with the committed suppression file; its
+header (`devtools/compute-sanitizer-suppressions.xml`) has the exact commands.
+
 ## Interactive Shell
 
 ```bash

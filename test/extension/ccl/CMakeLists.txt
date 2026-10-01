@@ -41,3 +41,21 @@ wwr_add_gtest_suite_tests(
   30
   REQUIRES_GPU
 )
+
+# CclCommTests drives wwrcclCommInitAll, whose NCCL backend probes the driver
+# entry point (cudaGetDriverEntryPointByVersion) and per-arch kernel images
+# (cudaFuncGetAttributes -> cudaErrorNoKernelImageForDevice) during init and
+# handles the misses internally. compute-sanitizer memcheck still counts those
+# benign CUDA API returns, so under --error-exitcode they fail an
+# otherwise-clean tree. no_sanitizer excludes the suite from the sanitizer
+# ctest runs (the asan and compute-sanitizer services both `-LE no_sanitizer`)
+# while every other run keeps it. APPEND, not a plain set: REQUIRES_GPU above
+# already put `gpu` on this entry and the plain form would replace it -- see
+# test/extension/memory_buffer for the full rationale. To sanitize the suite
+# anyway, filter the vendor frames in place with
+# devtools/compute-sanitizer-suppressions.xml.
+set_property(
+  TEST CclCommTests
+  APPEND
+  PROPERTY LABELS no_sanitizer
+)

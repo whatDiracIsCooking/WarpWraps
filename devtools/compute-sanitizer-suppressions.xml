@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  compute-sanitizer suppressions for the known-benign vendor-library reports the
+  GPU suites provoke. This is the in-place alternative to the no_sanitizer ctest
+  label: the label EXCLUDES a whole suite from the sanitizer run, while this file
+  lets the suite RUN and ignores only the matching vendor frames. The two noisy
+  vendor suites (test/extension/ccl CclCommTests, test/extension/comp
+  CompRoundTrip) carry the label, so the default `-LE no_sanitizer` runs the asan
+  and compute-sanitizer compose services do never see this noise; use this file
+  only to sanitize those excluded suites on purpose, e.g.
+
+    compute-sanitizer --tool memcheck  --error-exitcode 1 --target-processes all \
+      --suppressions devtools/compute-sanitizer-suppressions.xml --save /tmp/cs.rec \
+      ctest --test-dir build-compute-sanitizer -R 'CclCommTests|CompRoundTrip'
+    compute-sanitizer --tool racecheck --error-exitcode 1 --target-processes all \
+      --suppressions devtools/compute-sanitizer-suppressions.xml --save /tmp/cs.rec \
+      ctest --test-dir build-compute-sanitizer -R 'CompRoundTrip'
+
+  (--suppressions requires --save; the saved record file is a scratch artifact.)
+
+  It deliberately does NOT suppress the deliberate-error PROJECT suites
+  (DeviceBoundHandleTests, RuntimePolicyTests): their provoked CUDA error IS the
+  assertion, so excluding them with the label is correct, not filtering it away.
+
+  Matching rules (compute-sanitizer manual, "Error suppression"): report kind
+  must match; integer fields match exactly; string fields are regex; a <hostStack>
+  is compared frame-by-frame, so omit it to match on <what> alone; <pc>/<count>
+  are intentionally left out so a vendor version bump that shifts offsets does not
+  silently stop a record from matching.
+-->
+<ComputeSanitizerOutput>
+
+  <!-- NCCL communicator init (ncclCudaLibraryInit / ncclInitKernelsForDevice):
+       it version-probes the driver entry point and queries attributes of kernel
+       images not built for this device, handling every miss internally. -->
+  <record><kind>Api</kind><what><api>cudaGetDriverEntryPointByVersion</api></what></record>
+  <record><kind>Api</kind><what><error>cudaErrorNoKernelImageForDevice</error></what></record>
+
+  <!-- The paired sticky-error readback. cudaGetLastError returning an error is a
+       report of a prior call, never itself a defect; the originating API is still
+       reported on its own. -->
+  <record><kind>Api</kind><what><api>cudaGetLastError</api></what></record>
+
+  <!-- nvcomp Snappy decompressor: shared-memory read/write hazards internal to
+       unsnap_kernel. Benign (the round-trip verifies correct output); the three
+       records cover the read-vs-write direction and 1-/2-destination shapes
+       racecheck emits. -->
+  <record><kind>Analysis</kind><what><text>Race condition</text>
+    <source><direction>Read</direction><where><func>unsnap_kernel</func></where></source>
+    <destination><direction>Write</direction><where><func>unsnap_kernel</func></where></destination>
+    <destination><direction>Write</direction><where><func>unsnap_kernel</func></where></destination></what></record>
+  <record><kind>Analysis</kind><what><text>Race condition</text>
+    <source><direction>Read</direction><where><func>unsnap_kernel</func></where></source>
+    <destination><direction>Write</direction><where><func>unsnap_kernel</func></where></destination></what></record>
+  <record><kind>Analysis</kind><what><text>Race condition</text>
+    <source><direction>Write</direction><where><func>unsnap_kernel</func></where></source>
+    <destination><direction>Read</direction><where><func>unsnap_kernel</func></where></destination>
+    <destination><direction>Read</direction><where><func>unsnap_kernel</func></where></destination></what></record>
+
+</ComputeSanitizerOutput>
