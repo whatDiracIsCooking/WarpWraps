@@ -652,6 +652,87 @@ TEST(DeviceBufferTests, MovedStreamOrderedBufferFreesOnce) {
   EXPECT_EQ(wwrGetLastError(), wwrSuccess);
 }
 
+// ── DeviceBufferWrapper as a std::vector element ────────────────────
+//
+// The wrapper is move-only with a noexcept, source-nulling move (BaseBuffer's
+// move ctor clears other.data_), so a std::vector of them reallocates by
+// MOVING: each growth moves every live element into fresh storage, then
+// destroys the moved-from husks -- whose data_ is already null, so
+// deallocate() short-circuits and no block is freed twice. These pin that the
+// device allocation an element owns survives the move unchanged (a move
+// transfers the raw pointer; it does not touch device memory), that its
+// contents are intact afterward, and that pop_back/clear free live blocks on
+// the handle's stream with nothing left behind. Under compute-sanitizer a
+// double free or use-after-free on the moved-from husk would surface here.
+
+TEST(DeviceBufferTests, VectorReallocationPreservesBlocksAndContents) {
+  auto dev_h = std::make_shared<DeviceHandle>(0);
+  const wwrStream_t stream = dev_h->stream().get();
+
+  std::vector<DeviceBufferWrapper<std::byte, Abort, Abort, Abort, DeviceHandle>> bufs;
+  bufs.reserve(1); // capacity 1: the second push is forced to reallocate
+
+  bufs.emplace_back(16, dev_h);
+  ASSERT_EQ(ext::memset(bufs[0], 0xCD, stream), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
+  std::byte *const block0 = bufs[0].data();
+
+  // Grow past capacity -> reallocation moves element 0 into new storage and
+  // destroys the now-null moved-from husk.
+  bufs.emplace_back(16, dev_h);
+  ASSERT_GT(bufs.capacity(), std::size_t{1}) << "no reallocation happened";
+
+  // The move transferred the raw device pointer unchanged -- it did not
+  // reallocate device memory.
+  EXPECT_EQ(bufs[0].data(), block0);
+
+  // ...and the block's contents survived the move.
+  HostBufferWrapper<std::byte, HostAbort, HostAbort> host(16);
+  ASSERT_EQ(ext::copy(host, bufs[0], stream), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
+  for (std::size_t i = 0; i < 16; ++i)
+    EXPECT_EQ(static_cast<int>(host[i]), 0xCD) << "at index " << i;
+
+  // Destroying the moved-from husk double-freed nothing.
+  EXPECT_EQ(wwrGetLastError(), wwrSuccess);
+}
+
+TEST(DeviceBufferTests, VectorPopBackFreesLiveBlockOnStream) {
+  auto dev_h = std::make_shared<DeviceHandle>(0);
+  const wwrStream_t stream = dev_h->stream().get();
+
+  std::vector<DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>> bufs;
+  bufs.emplace_back(64, dev_h);
+  bufs.emplace_back(128, dev_h);
+  float *const kept = bufs[0].data();
+
+  // pop_back destroys a LIVE buffer: its destructor frees the block via
+  // wwrFreeAsync on the handle's stream. The surviving element is untouched.
+  bufs.pop_back();
+  ASSERT_EQ(bufs.size(), std::size_t{1});
+  EXPECT_EQ(bufs[0].data(), kept);
+  EXPECT_EQ(bufs[0].num_elements(), std::size_t{64});
+
+  // The async free drains cleanly -- no double free, no error on the stream.
+  EXPECT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
+  EXPECT_EQ(wwrGetLastError(), wwrSuccess);
+}
+
+TEST(DeviceBufferTests, VectorClearFreesEveryBlockOnce) {
+  auto dev_h = std::make_shared<DeviceHandle>(0);
+  const wwrStream_t stream = dev_h->stream().get();
+
+  std::vector<DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>> bufs;
+  for (int i = 0; i < 8; ++i)
+    bufs.emplace_back(256, dev_h);
+
+  bufs.clear(); // destroys all eight live buffers, each freeing on the stream
+  EXPECT_TRUE(bufs.empty());
+
+  EXPECT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
+  EXPECT_EQ(wwrGetLastError(), wwrSuccess);
+}
+
 TEST(DeviceHandleTests, ReportsIndexAndQueriesProperties) {
   DeviceHandle dev(0);
   EXPECT_EQ(dev.dev_idx(), 0);
