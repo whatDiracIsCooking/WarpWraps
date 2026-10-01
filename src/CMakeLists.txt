@@ -205,6 +205,25 @@ wwr_add_cxx_module_library(
   IMPORT_STD
 )
 
+# wwr.vector_types imports no raw vendor module, the fp16 / bf16 shape: its GMF
+# #includes vector_types.h, the vendor vector types are plain aggregates/classes
+# the aliases name directly, and the make_* constructors are a portable brace
+# with no vendor call (see src/vector_types.h). It needs only the vendor
+# header's include path, which the backend runtime host lib carries
+# (CUDA::cudart / hip::host) -- PUBLIC, as a consumer naming wwr::float2
+# includes it too.
+wwr_add_cxx_module_library(
+  NAME
+  wwr.vector_types
+  PRIMARY_INTERFACE
+  vector_types.cppm
+  LINK_PUBLIC
+  ${_backend_rt_host}
+  LINK_PRIVATE
+  wwr::backend
+  IMPORT_STD
+)
+
 # wwr.fp6 / wwr.fp4 -- BLOCKED on the HIP backend, not registered
 #
 # src/fp6.cppm and src/fp4.cppm exist as complete, reviewed source (same shape

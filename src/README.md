@@ -10,10 +10,12 @@ cmake --preset hip                                   # WWR_GPU_BACKEND=HIP
 Each module here — the `wwr*` layer, living directly under `src/` alongside the
 `src/cuda`, `src/hip` and `src/wrappers` subdirectories — re-exports one raw
 library module (`src/cuda` or `src/hip`) under backend-neutral `wwr*` names in
-namespace `wwr`. (Exceptions: `wwr.runtime_api`, `wwr.rand`, `wwr.fp16` and
-`wwr.bf16` import no raw module — their vendor API is external-linkage, so they
-bind directly to the vendor headers reached through the sibling `runtime_api.h` /
-`rand.h` / `fp16.h` / `bf16.h`. See below.) These modules are the **only** place
+namespace `wwr`. (Exceptions: `wwr.runtime_api`, `wwr.rand`, `wwr.fp16`,
+`wwr.bf16` and `wwr.vector_types` import no raw module — the first four bind
+directly to an external-linkage vendor API reached through the sibling
+`runtime_api.h` / `rand.h` / `fp16.h` / `bf16.h`, and `wwr.vector_types` needs
+nothing to bind (its types are plain data and its constructors are a portable
+brace — see `vector_types.h`). See below.) These modules are the **only** place
 in the project that names both
 backends; everything above them (`src/wrappers`, `test/wrappers`) is written once
 against `wwr*` names and builds unchanged for either backend.
@@ -25,6 +27,7 @@ against `wwr*` names and builds unchanged for either backend.
 | `wwr.fp16` | `cuda_fp16.h` via `fp16.h` (no import) | `hip/hip_fp16.h` via `fp16.h` (no import) |
 | `wwr.bf16` | `cuda_bf16.h` via `bf16.h` (no import) | `hip/hip_bf16.h` via `bf16.h` (no import) |
 | `wwr.fp8` | `wwr.cuda.cuda_fp8` | `wwr.hip.hip_fp8` |
+| `wwr.vector_types` | `vector_functions.h` via `vector_types.h` (no import) | `hip/hip_vector_types.h` via `vector_types.h` (no import) |
 | `wwr.blas` | `wwr.cuda.cublas_v2` | `wwr.hip.hipblas` |
 | `wwr.blaslt` | `wwr.cuda.cublasLt` | `wwr.hip.hipblaslt` |
 | `wwr.solver` | `wwr.cuda.cusolverDn` | `wwr.hip.hipsolver` |
@@ -56,6 +59,25 @@ toolchain (`amd_detail/amd_hip_ocp_types.h` `#error`s outside real `-x hip`
 device mode or GCC ≥ 13 — see `src/hip/README.md`), and a build must compile for
 either backend, so wiring them would fail the HIP path. They flip on with their
 raw modules.
+
+`gpu.vector_types` re-exports the CUDA/HIP vector types (`float2`, `int4`, …)
+and their `make_*` constructors into namespace `wwr` — and, unlike every other
+module here, keeps the vendors' own names rather than coining `wwr`-prefixed
+ones. It can, because the two backends spell these types identically
+(`wwr::float2` IS `::float2`), so there is nothing to translate and a parallel
+vocabulary would only add noise; `complex` has no such luxury
+(`cuFloatComplex` ≠ `hipFloatComplex`, so `wwrFloatComplex` is mandatory). The
+surface is the `char` … `double` scalar bases in ranks 1–3, plus rank 4 for the
+bases CUDA 13 does not deprecate (`char`/`uchar`/`short`/`ushort`/`int`/`uint`/
+`float`). The 64-bit 4-vectors `long4` / `ulong4` / `longlong4` / `ulonglong4` /
+`double4` are left out: CUDA 13 deprecates the plain names in favour of
+`*_16a` / `*_32a` alignment-pinned forms HIP has no counterpart for, so no
+spelling of a 64-bit 4-vector is portable. Construction is a portable brace
+(`float2{x, y}` — a CUDA aggregate, a HIP `HIP_vector_type` constructor), which
+is why this module — unlike `complex` — imports no raw module and the host
+`make_*` call no vendor function. `dim3` is not here: it is launch geometry, not
+a data vector, and only the HIP raw module exposes it today. See the file
+header.
 
 `gpu.blas` names follow cuBLAS's typed names without the `_v2` suffix:
 `wwrblasSgemm` is `cublasSgemm_v2` or `hipblasSgemm`, and `wwrblasSgemm_64` is
@@ -286,12 +308,13 @@ gets an empty header rather than an error. They are host-*safe* without being
 host-*usable* — no `wwr*` name reaches a host consumer — which is what makes them
 `.h`, not `.cuh`.
 
-(`rand`, `complex`, `fp16`, `bf16` and `fp8` are no longer among them: their
-device wrappers fold into `rand.h` / `complex.h` / `fp16.h` / `bf16.h` / `fp8.h`'s
-own device-pass-gated sections, so a device consumer `#include`s the one neutral
-`.h` — the `.h` + `.cppm` shape for a vendor header with both host and device
-symbols. `rand.h` links `wwr.rand.device` for its RNG library; the rest ride
-`wwr.device`. See the `gpu.*` sections above and the respective `src/*.h`.)
+(`rand`, `complex`, `fp16`, `bf16`, `fp8` and `vector_types` are no longer among
+them: their device wrappers fold into `rand.h` / `complex.h` / `fp16.h` /
+`bf16.h` / `fp8.h` / `vector_types.h`'s own device-pass-gated sections, so a
+device consumer `#include`s the one neutral `.h` — the `.h` + `.cppm` shape for a
+vendor header with both host and device symbols. `rand.h` links
+`wwr.rand.device` for its RNG library; the rest ride `wwr.device`. See the
+`gpu.*` sections above and the respective `src/*.h`.)
 
 All four reach both — the backend selection and that guard — through one
 header, `device_guard.h`, which is `selected_backend.h` plus the device-pass
@@ -313,13 +336,13 @@ target they are in.
 | `wmma.h` | `wwrwmma`, aliasing the vendor's `nvcuda::wmma` / `rocwmma` — the namespace is the only name here, the spellings inside it agree | `wwr.device` |
 | `atomic.cuh` | `wwrMemoryOrder`, `wwrThreadScope`, and the `wwrAtomic*` forwarders — `Load`/`Store`/`Exchange`, `CompareExchange{Strong,Weak}`, `Fetch{Add,Sub,And,Or,Xor,Min,Max}` — each carrying an explicit order and scope | `wwr.device` |
 
-The `rand`, `complex`, `fp16`, `bf16` and `fp8` device wrappers are **not** in
-this table: each lives in its `.h`'s device-pass-gated section alongside that
-module's types, reached by `#include "<name>.h"`. `rand`'s (`wwrrand_init`,
-`wwrrand_normal`, …) link through `wwr.rand.device`; the rest (`complex`'s
-`make_wwr*Complex`/`wwrC*`, `fp16`'s `wwrFloat2Half`/`wwrHalf2Float`, `bf16`'s
-`wwrFloat2Bfloat16`/`wwrBfloat162Float`, `fp8`'s `wwrFloat2Fp8`/`wwrDouble2Fp8`)
-ride `wwr.device`.
+The `rand`, `complex`, `fp16`, `bf16`, `fp8` and `vector_types` device wrappers
+are **not** in this table: each lives in its `.h`'s device-pass-gated section
+alongside that module's types, reached by `#include "<name>.h"`. `rand`'s
+(`wwrrand_init`, `wwrrand_normal`, …) link through `wwr.rand.device`; the rest
+(`complex`'s `make_wwr*Complex`/`wwrC*`, `fp16`'s `wwrFloat2Half`/`wwrHalf2Float`,
+`bf16`'s `wwrFloat2Bfloat16`/`wwrBfloat162Float`, `fp8`'s
+`wwrFloat2Fp8`/`wwrDouble2Fp8`, `vector_types`'s `make_*`) ride `wwr.device`.
 
 `cooperative_groups.h`, `wmma.h` and `atomic.cuh` are the three with no
 `.cppm` counterpart: every entity they hand a kernel is `__device__`-only, so
@@ -475,12 +498,13 @@ does not fully separate them:
 | Class | Compiles in a host TU | Compiles in a device pass | Named |
 |---|:---:|:---:|---|
 | host-only | ✅ | ❌ | `*.h` — `backend.h`, and `dispatch_macros.h` under `src/wrappers` |
-| shared-type | ✅ | ✅ | `*.h` — `runtime.h`, `complex.h`, `rand.h`, `fp16.h`, `bf16.h`, `fp8.h` |
+| shared-type | ✅ | ✅ | `*.h` — `runtime.h`, `complex.h`, `rand.h`, `fp16.h`, `bf16.h`, `fp8.h`, `vector_types.h` |
 | **bridge** | ✅ | ✅ | `*_bridge.h` |
 | device-only | ❌ | ✅ | `*.cuh` — `runtime.cuh`, `atomic.cuh`, `parallel_for.cuh` |
 | device-only, gated | ✅ (empty) | ✅ | `*.h` — `cooperative_groups.h`, `wmma.h` |
 
-`rand.h`, `complex.h`, `fp16.h`, `bf16.h` and `fp8.h` are the shared-type row's
+`rand.h`, `complex.h`, `fp16.h`, `bf16.h`, `fp8.h` and `vector_types.h` are the
+shared-type row's
 hybrids: each carries its crossing type(s) *and*, in a device-pass-gated section,
 the `__device__` wrappers that used to live in the matching `.cuh`. Each still
 compiles in both modes — the device section simply gates itself out in a host TU —

@@ -29,6 +29,11 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_gpu_test_raw_ccl wwr::cuda::nccl)
   set(_gpu_test_raw_tensor wwr::cuda::cutensor)
   set(_gpu_test_raw_comp wwr::cuda::nvcomp)
+  # vector_types wraps no raw vendor module: the backend entity each wwr* alias
+  # stands for is the vendor's own global type (::float2, ...), which
+  # vector_types.cppm names via the vendor header directly. Empty, so the shared
+  # foreach links only wwr::vector_types.
+  set(_gpu_test_raw_vector_types)
 else()
   set(_gpu_test_raw_runtime_api wwr::hip::hip_runtime_api)
   set(_gpu_test_raw_complex wwr::hip::hip_complex)
@@ -50,6 +55,8 @@ else()
   set(_gpu_test_raw_ccl wwr::hip::rccl)
   set(_gpu_test_raw_tensor wwr::hip::hiptensor)
   set(_gpu_test_raw_comp wwr::hip::hipcomp)
+  # See the CUDA branch: vector_types wraps no raw vendor module.
+  set(_gpu_test_raw_vector_types)
 endif()
 
 set(GPU_TEST_LIBRARIES
@@ -58,6 +65,7 @@ set(GPU_TEST_LIBRARIES
     fp16
     bf16
     fp8
+    vector_types
     # fp6, fp4 deliberately NOT listed -- their wwr* modules are BLOCKED on the
     # HIP backend (see src/CMakeLists.txt's "wwr.fp6 / wwr.fp4 -- BLOCKED"
     # comment and src/hip/README.md). test/gpu/fp6.cppm and test/gpu/fp4.cppm
@@ -215,6 +223,24 @@ wwr_add_gpu_device_library(
   wwr::device
 )
 add_dependencies(compile_time_tests wwr.test.gpu.bf16.device)
+
+# vector_types (vector_types.h's device section) is the same shape: its
+# __device__ make_* constructors over the vendor vector types can only be
+# named by a device pass, and the claim it can break -- every type aliasing and
+# constructor resolving on both backends through one include switch, plus the
+# per-type layout parity (N elements, no padding, trivially copyable) the header
+# relies on for a value to cross the host/device boundary -- is a device-compile
+# claim. Building it is the assertion; no ctest entry, no launch. Reached
+# through wwr.device, the same include path a real device consumer uses.
+wwr_add_gpu_device_library(
+  NAME
+  wwr.test.gpu.vector_types.device
+  SOURCES
+  vector_types.cu
+  LINK_PRIVATE
+  wwr::device
+)
+add_dependencies(compile_time_tests wwr.test.gpu.vector_types.device)
 
 # fp8 (fp8.h's device section) is fp16 / bf16's shape: its __device__ narrowing
 # forwarders and the fp8 scalar/storage types they name can only be reached by a
