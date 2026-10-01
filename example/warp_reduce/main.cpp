@@ -43,25 +43,16 @@ struct AbortPolicy {
   }
 };
 
-// StreamWrapper names its error policies explicitly -- it is not a buffer, so the
-// buffer suite below does not bind it. The device-bound wrappers name a wwrError_t
-// device-access policy for their device set/get calls.
-using Stream =
+// A DeviceBuffer is backed by whatever handle type the consumer provides. For the
+// stream tier the library ships no bespoke type: a StreamWrapper already exposes
+// dev_idx() and stream(), so it *is* a device_handle_stream (see
+// src/extension/handle/device_handle.cppm) and backs the buffer directly, routing
+// allocations through wwrMallocAsync on its stream -- no wrapping struct. (The
+// fullest tier, with an owned pool, is the shipped DeviceHandle in
+// wwr.extension.runtime.) The wrapper names its three error policies, this
+// example's own AbortPolicy.
+using DeviceHandle =
     ext::StreamWrapper<AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
-
-// A DeviceBuffer is backed by whatever handle type the consumer provides: the
-// library ships no concrete one, only the device_handle capability ladder the
-// handle must satisfy (see src/extension/handle/device_handle.cppm). This is
-// this example's own -- the stream tier (a device index plus an owned stream),
-// which routes the buffer's allocations through wwrMallocAsync on that stream.
-struct DeviceHandle {
-  explicit DeviceHandle(int dev = 0) : dev_(dev), stream_(dev) {}
-  int dev_idx() const noexcept { return dev_; }
-  Stream &stream() noexcept { return stream_; }
-  const Stream &stream() const noexcept { return stream_; }
-  int dev_;
-  Stream stream_;
-};
 
 // The whole buffer prelude in one line. device_buffers is the single-policy
 // convenience over the suite: it binds host/device (and pinned/unified/views,
@@ -88,10 +79,10 @@ int main() {
     return 77; // ctest's conventional "skipped"
   }
 
-  // A DeviceBuffer is drawn from a shared handle; this one's owned stream is
-  // what this example submits its copies and kernel on.
+  // A DeviceBuffer is drawn from a shared handle; the handle's own stream is what
+  // this example submits its copies and kernel on.
   auto device_handle = std::make_shared<DeviceHandle>();
-  Stream &stream = device_handle->stream();
+  const wwrStream_t stream = device_handle->stream();
 
   Buf::host<float> host(kCount);
   std::fill_n(host.data(), kCount, 1.0F);
@@ -100,14 +91,14 @@ int main() {
   Buf::device<float> output(1, device_handle);
   Buf::host<float> result(1);
 
-  if (ext::copy(input, host, stream.get()) != wwrSuccess) {
+  if (ext::copy(input, host, stream) != wwrSuccess) {
     std::println(stderr, "host -> device copy failed");
     return 1;
   }
 
-  example::warp_reduce_sum(stream.get(), kCount, input.data(), output.data());
+  example::warp_reduce_sum(stream, kCount, input.data(), output.data());
 
-  if (ext::copy(result, output, stream.get()) != wwrSuccess) {
+  if (ext::copy(result, output, stream) != wwrSuccess) {
     std::println(stderr, "device -> host copy failed");
     return 1;
   }

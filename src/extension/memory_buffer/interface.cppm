@@ -14,12 +14,15 @@
  *
  * Usage:
  *   import wwr.extension.memory_buffer;
+ *   import wwr.extension.runtime;   // StreamWrapper (a stream-tier handle), DeviceHandle
  *   using namespace wwr::extension;
  *
- *   auto dev = std::make_shared<MyDeviceHandle>(0);  // caller-supplied; this layer ships none
  *   using Abort = AbortPolicy<wwrError_t>;  // your own policy; the library ships none
+ *   using Handle = StreamWrapper<Abort, Abort, Abort>;  // a stream is a device_handle_stream;
+ *                                                       // DeviceHandle<...> adds a pool
+ *   auto dev = std::make_shared<Handle>(0);
  *   // DeviceBufferWrapper is device-bound: its last arg is the device-access policy.
- *   DeviceBufferWrapper<float, Abort, Abort, Abort, MyDeviceHandle> dev_buf(1024, dev);  // Device memory
+ *   DeviceBufferWrapper<float, Abort, Abort, Abort, Handle> dev_buf(1024, dev);  // Device memory
  *   PinnedBufferWrapper<float, Abort, Abort> pin_buf(1024);       // Pinned host memory
  *   UnifiedBufferWrapper<float, Abort, Abort> uni_buf(1024);      // Unified memory
  *   HostBufferWrapper<float, AbortPolicy<stdHostMemoryError_t>,

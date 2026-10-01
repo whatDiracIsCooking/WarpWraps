@@ -8,6 +8,8 @@
  * - :mem_pool - RAII wrapper for GPU memory pools
  * - :graph - RAII wrapper for GPU graphs
  * - :graph_exec - RAII wrapper for GPU executable graphs
+ * - :device_handle - DeviceHandle, a ready-made pool-tier device handle, so a
+ *   consumer need not hand-roll one (the stream tier is just StreamWrapper)
  *
  * Usage:
  *   import wwr.extension.runtime;
@@ -27,3 +29,4 @@ export import :event;
 export import :mem_pool;
 export import :graph_exec;
 export import :graph;
+export import :device_handle;

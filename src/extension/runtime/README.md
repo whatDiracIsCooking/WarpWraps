@@ -23,6 +23,7 @@ This module exposes type-safe, RAII-managed wrappers for core GPU runtime object
 | `:mem_pool` | RAII wrapper for `wwrMemPool_t` |
 | `:graph` | RAII wrapper for `wwrGraph_t` |
 | `:graph_exec` | RAII wrapper for `wwrGraphExec_t` |
+| `:device_handle` | `DeviceHandle`, a ready-made pool-tier device handle (the stream tier is just `StreamWrapper`) |
 
 ## Exported Types and Functions
 
@@ -101,6 +102,21 @@ The free functions `launch(exec, stream)` and `upload(exec, stream)` run the gra
 > Neither graph type is device-bound — both sit on `BaseHandle`, not `DeviceBoundHandle`. A graph describes work whose nodes may target different devices, and an executable graph runs on whatever device the stream passed to `launch()` belongs to, so there is no owning device to record.
 >
 > `wwrGraphInstantiate` is a hand-written forwarding function in `wwr.runtime_api`, not a plain alias: the backends' plain `*Instantiate` entry points disagree on signature beyond the prefix (CUDA takes flags, HIP takes an error-node/log-buffer triple), so `wwrGraphInstantiate(exec, graph, flags = 0)` forwards to `cudaGraphInstantiate` on CUDA and `hipGraphInstantiateWithFlags` on HIP — both of which take `(GraphExec_t*, Graph_t, unsigned long long)`.
+
+### Device handle (`device_handle`)
+
+```cpp
+template<error_policy<wwrError_t> P_create,
+         nothrow_error_policy<wwrError_t> P_destroy,
+         error_policy<wwrError_t> P_device>
+class DeviceHandle;
+```
+
+A ready-made backing for a `DeviceBuffer` (or a stream-bound library handle): one device's index, properties, an owned `StreamWrapper` and an owned `MemPoolWrapper`, exposed as `dev_idx()` / `props()` / `stream()` / `pool()`. It is the fullest rung of the `device_handle` ladder (`device_handle_pool`), so a buffer built on it draws from that pool on that stream. Move-only; constructed from a device index (`DeviceHandle(int index = 0)`).
+
+> The **stream tier needs no type here** — a `StreamWrapper` already exposes `dev_idx()` and `stream()`, so it *is* a `device_handle_stream` and backs a buffer directly. `DeviceHandle` is for the pool tier.
+>
+> This is the handle that lived here until [#93](https://github.com/whatDiracIsCooking/WarpWraps/pull/93) moved it to `test/shared` to keep a forced `AbortPolicy` out of the library. It is back because it is now **policy-templated** — it bakes no policy, so the reason it left no longer applies.
 
 ## Usage
 

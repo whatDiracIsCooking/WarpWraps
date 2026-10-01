@@ -30,9 +30,11 @@ export namespace wwr::extension {
  *   - device_handle (only) -> synchronous wwrMalloc
  *
  * H has no default: this layer ships no concrete handle, so the caller supplies
- * one satisfying the tier they want (see the device_handle ladder in
- * wwr.extension.handle). Device memory resides on the GPU and provides the
- * fastest access for device code.
+ * one satisfying the tier they want -- a StreamWrapper is already a stream-tier
+ * handle (device_handle_stream), the shipped DeviceHandle in wwr.extension.runtime
+ * is the pool tier, or a type of their own against the device_handle ladder in
+ * wwr.extension.handle. Device memory resides on the GPU and provides the fastest
+ * access for device code.
  *
  * @tparam T The element type stored in the buffer
  * @tparam P_alloc Error policy type for allocation
