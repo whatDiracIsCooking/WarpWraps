@@ -639,21 +639,24 @@ around a name the floor already ships, or around one absent from the pin, fails
 too, so the guards are validated as a spec rather than trusted. It complements the
 `cpp-floor` leg (which needs the SDK) and the `test/hip/*.cppm` mirrors (which need
 a compile). It reasons only about names whose leading token is the manifest's
-prefix — the rule `vendor_harvest.py` harvests by — so it validates 34 of the 36
-guards above; the two `HIPBLASLT_*` uppercase constants lead with `hipblaslt`,
-which no manifest captures (prefix `hipblas`), so they sit outside its reach. That
-is the harvester's prefix limitation, not the check's; it reports the count so the
-gap stays visible until the harvester's variant-library rule is widened.
+prefix, plus any `extra_prefixes` `vendor_harvest.py` recorded for a variant
+library — the rule it harvests by — so it validates all 36 guards above, the two
+`HIPBLASLT_*` uppercase constants included: they lead with `hipblaslt`, captured
+alongside base prefix `hipblas` via that library's `extra_prefix` (#167). A
+version-guarded `using ::` on a companion token no manifest covers would be
+counted as a residual blind spot, pinned at 0 so the next one is noticed.
 
 The same file carries a second assertion, **link-check completeness**: every
 function a module re-exports (a `using ::` the manifest records as a FunctionDecl)
 must carry a `WWR_LINK_CHECK` / `WWR_DECLARED_CHECK`, so a newly wrapped function
 cannot ship with only "it compiles" behind it — the check `src/hip/README.md`'s
-hipSPARSE-546 note made by hand. Every manifest-backed library is verified except
-`hiptensor` and `rccl`, named as exceptions with a reason: their `.so`s SIGBUS at
-load in the driverless `hip_compile_tests` on GPU-less CI, so they cannot be
-link-checked until `test/hip` grows the driver-stub / `gpu`-label mechanism
-`test/cuda` already has (#179).
+hipSPARSE-546 note made by hand. Every manifest-backed library is now verified,
+with no exceptions. `hiptensor` and `rccl` were the last holdouts: their `.so`s
+abort at load without a GPU, so the runnable `hip_compile_tests` cannot link them.
+#179 link-checks them in a second, `NO_RUN` executable instead — built, so every
+symbol resolves against the vendor `.so` at link time (the link IS the assertion),
+but never launched, matching `test/gpu`'s `gpu_compile_tests_tensor` for the
+hiptensor-backed `wwr.tensor`.
 
 A third assertion, **macro correctness** (#121), closes the loop the second one
 opens: given that a re-exported function carries *a* check, does it carry the
