@@ -16,8 +16,8 @@
 // device-pass macro the header itself switches on, available here for free and
 // consistent across both of HIP's compile passes (unlike the
 // WWR_GPU_BACKEND_* define the host-compiled .cppm tests use).
-#include "bf16.cuh"
-#include "fp16.cuh"
+#include "bf16.h"
+#include "fp16.h"
 #include "wmma.cuh"
 
 namespace {
@@ -111,7 +111,7 @@ __global__ void wwr_wmma_tile(const wwr::wwrHalf *a, const wwr::wwrHalf *b, floa
 // trap rather than a missing feature: both backends do 16x16x16 bf16, but
 // wwr::wwrBfloat16 is __nv_bfloat16 on CUDA and __hip_bfloat16 on HIP, and
 // rocWMMA knows only the older hip_bfloat16 that its own bfloat16_t names. So
-// the type bf16.cuh hands a kernel works on one backend and fails to instantiate
+// the type bf16.h hands a kernel works on one backend and fails to instantiate
 // PackTraits on the other, which is why this kernel needs the #if that the tile
 // above does not.
 #if defined(WWR_SELECTED_CUDA)

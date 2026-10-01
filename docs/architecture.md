@@ -334,7 +334,7 @@ against `rocwmma`. That is one name more than §2's case, which is why
 defines nothing. Two of the divergences below are silent, and both bite code
 that never reads either file.
 
-**`wwrBfloat16` is not a WMMA element type on HIP.** `bf16.cuh` aliases it to
+**`wwrBfloat16` is not a WMMA element type on HIP.** `bf16.h` aliases it to
 `__nv_bfloat16` (CUDA) and `__hip_bfloat16` (HIP), but rocWMMA's `bfloat16_t`
 is the *older* `hip_bfloat16`, a distinct type. Both backends do 16x16x16 bf16;
 only CUDA does it with the type this layer hands out. The HIP failure is a

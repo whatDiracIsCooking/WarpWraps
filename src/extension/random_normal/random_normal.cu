@@ -6,12 +6,13 @@
 // there is no per-backend #if in it.
 #include "extension/random_normal/random_normal_bridge.h"
 
-#include "bf16.cuh"
 #include "extension/parallel_for/parallel_for.cuh"
-#include "fp16.cuh"
-// complex.h and rand.h, not .cuh: each carries its device wrappers in a
-// device-pass-gated section alongside its types -- see src/complex.h, src/rand.h.
+// bf16.h / complex.h / fp16.h / rand.h, not .cuh: each carries its device
+// wrappers in a device-pass-gated section alongside its types -- see the
+// respective src/*.h.
+#include "bf16.h"
 #include "complex.h"
+#include "fp16.h"
 #include "rand.h"
 
 #include <cstddef>

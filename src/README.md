@@ -10,19 +10,19 @@ cmake --preset hip                                   # WWR_GPU_BACKEND=HIP
 Each module here — the `wwr*` layer, living directly under `src/` alongside the
 `src/cuda`, `src/hip` and `src/wrappers` subdirectories — re-exports one raw
 library module (`src/cuda` or `src/hip`) under backend-neutral `wwr*` names in
-namespace `wwr`. (`wwr.rand` is the one exception: its vendor host API is a real
-library, so it binds directly to the vendor headers reached through `rand.h` and
-imports no raw module — see below.) These modules are the **only** place in the
-project that names both backends; everything above them (`src/wrappers`,
-`test/wrappers`) is written once against `wwr*` names and builds unchanged for
-either backend.
+namespace `wwr`. (Exceptions: `wwr.rand`, `wwr.fp16` and `wwr.bf16` import no raw
+module — their vendor host API is external-linkage, so they bind directly to the
+vendor headers reached through the sibling `rand.h` / `fp16.h` / `bf16.h`. See
+below.) These modules are the **only** place in the project that names both
+backends; everything above them (`src/wrappers`, `test/wrappers`) is written once
+against `wwr*` names and builds unchanged for either backend.
 
 | Module | CUDA backend wraps | HIP backend wraps |
 |---|---|---|
 | `wwr.runtime_api` | `wwr.cuda.cuda_runtime_api` | `wwr.hip.hip_runtime_api` |
 | `wwr.complex` | `wwr.cuda.cuComplex` | `wwr.hip.hip_complex` |
-| `wwr.fp16` | `wwr.cuda.cuda_fp16` | `wwr.hip.hip_fp16` |
-| `wwr.bf16` | `wwr.cuda.cuda_bf16` | `wwr.hip.hip_bf16` |
+| `wwr.fp16` | `cuda_fp16.h` via `fp16.h` (no import) | `hip/hip_fp16.h` via `fp16.h` (no import) |
+| `wwr.bf16` | `cuda_bf16.h` via `bf16.h` (no import) | `hip/hip_bf16.h` via `bf16.h` (no import) |
 | `wwr.fp8` | `wwr.cuda.cuda_fp8` | `wwr.hip.hip_fp8` |
 | `wwr.blas` | `wwr.cuda.cublas_v2` | `wwr.hip.hipblas` |
 | `wwr.blaslt` | `wwr.cuda.cublasLt` | `wwr.hip.hipblaslt` |
@@ -271,7 +271,7 @@ see its section above and `docs/architecture.md` §12.
 A `.cppm` here is a module, and code that imports one is host code. A kernel
 translation unit — a `.cu` under CUDA, a `-x hip` compiled source under HIP —
 imports no modules at all, so none of the modules above can serve it. The
-seven `.cuh` headers are the counterpart for that case: same `wwr*` names,
+four `.cuh` headers are the counterpart for that case: same `wwr*` names,
 reached by `#include`, with the backend resolved through `selected_backend.h`
 (which reads the compiler's own device-compile macro before `backend.h`'s
 CMake define) rather than by an `import`. Each also `#error`s if included
@@ -279,39 +279,38 @@ outside a device-compile pass — a *separate* check on `__CUDACC__` / `__HIP__`
 / `__HIPCC__`, because `selected_backend.h` would otherwise resolve a backend
 in a host compile too, and what these carry is device-only.
 
-(`rand` and `complex` are no longer among them: their device wrappers fold into
-`rand.h` / `complex.h`'s own device-pass-gated sections, so a device consumer
-`#include`s the one neutral `.h` — the `.h` + `.cppm` shape for a vendor header
-with both host and device symbols. `rand.h` still links `wwr.rand.device` for the
-include path and RNG library; `complex.h` rides `wwr.device`. See the `gpu.rand` /
-`gpu.complex` sections above and `src/rand.h` / `src/complex.h`.)
+(`rand`, `complex`, `fp16`, `bf16` and `fp8` are no longer among them: their
+device wrappers fold into `rand.h` / `complex.h` / `fp16.h` / `bf16.h` / `fp8.h`'s
+own device-pass-gated sections, so a device consumer `#include`s the one neutral
+`.h` — the `.h` + `.cppm` shape for a vendor header with both host and device
+symbols. `rand.h` links `wwr.rand.device` for its RNG library; the rest ride
+`wwr.device`. See the `gpu.*` sections above and the respective `src/*.h`.)
 
-All seven reach both — the backend selection and that guard — through one
+All four reach both — the backend selection and that guard — through one
 header, `device_guard.h`, which is `selected_backend.h` plus the device-pass
-`#error` and nothing else. Four include it directly; `cooperative_groups.cuh`,
-`wmma.cuh` and `atomic.cuh` reach it through `runtime.cuh`, which they include
-anyway — the first two for `WWR_WARP_SIZE`, `atomic.cuh` for the vendor runtime
-header its builtins need. The guard cannot move into `selected_backend.h`
-itself, which is "for anything" and must not `#error` in the host compiles the
-bridges do; `device_guard.h` is the device-only layer above it that can. It
-carries no vendor header and no target-specific content, so all seven `.cuh`
-share it regardless of which target they are in.
+`#error` and nothing else. `runtime.cuh` includes it directly;
+`cooperative_groups.cuh`, `wmma.cuh` and `atomic.cuh` reach it through
+`runtime.cuh`, which they include anyway — the first two for `WWR_WARP_SIZE`,
+`atomic.cuh` for the vendor runtime header its builtins need. The guard cannot
+move into `selected_backend.h` itself, which is "for anything" and must not
+`#error` in the host compiles the bridges do; `device_guard.h` is the device-only
+layer above it that can. It carries no vendor header and no target-specific
+content, so all four `.cuh` share it regardless of which target they are in.
 
 | Header | Provides | Link |
 |---|---|---|
 | `runtime.cuh` | `WWR_GRID_CONSTANT`, `WWR_WARP_SIZE` | `wwr.device` |
-| `fp16.cuh` | `wwrHalf`, `wwrFloat2Half`, `wwrHalf2Float` | `wwr.device` |
-| `bf16.cuh` | `wwrBfloat16`, `wwrFloat2Bfloat16`, `wwrBfloat162Float` | `wwr.device` |
-| `fp8.cuh` | `wwrFp8Storage`/`x2`/`x4`, `wwrSaturation` (`wwrNosat`, `wwrSatfinite`), `wwrFp8Interpretation` (`wwrE4m3`, `wwrE5m2`), `wwrFp8E4m3`/`E5m2` (+`x2`/`x4`), `wwrFloat2Fp8`, `wwrDouble2Fp8` | `wwr.device` |
 | `cooperative_groups.cuh` | nothing of its own — the vendor's `namespace cooperative_groups`, reached through the one `#include` that differs | `wwr.device` |
 | `wmma.cuh` | `wwrwmma`, aliasing the vendor's `nvcuda::wmma` / `rocwmma` — the namespace is the only name here, the spellings inside it agree | `wwr.device` |
 | `atomic.cuh` | `wwrMemoryOrder`, `wwrThreadScope`, and the `wwrAtomic*` forwarders — `Load`/`Store`/`Exchange`, `CompareExchange{Strong,Weak}`, `Fetch{Add,Sub,And,Or,Xor,Min,Max}` — each carrying an explicit order and scope | `wwr.device` |
 
-`rand`'s and `complex`'s device wrappers are **not** in this table: they live in
-`rand.h` / `complex.h`'s device-pass-gated sections alongside their types, reached
-by `#include "rand.h"` / `#include "complex.h"`. `rand`'s (`wwrrand_init`,
-`wwrrand_normal`, …) link through `wwr.rand.device`; `complex`'s (`make_wwr*Complex`,
-`wwrCreal*`, the `wwrC*` arithmetic, `wwrComplex*To*`) ride `wwr.device`.
+The `rand`, `complex`, `fp16`, `bf16` and `fp8` device wrappers are **not** in
+this table: each lives in its `.h`'s device-pass-gated section alongside that
+module's types, reached by `#include "<name>.h"`. `rand`'s (`wwrrand_init`,
+`wwrrand_normal`, …) link through `wwr.rand.device`; the rest (`complex`'s
+`make_wwr*Complex`/`wwrC*`, `fp16`'s `wwrFloat2Half`/`wwrHalf2Float`, `bf16`'s
+`wwrFloat2Bfloat16`/`wwrBfloat162Float`, `fp8`'s `wwrFloat2Fp8`/`wwrDouble2Fp8`)
+ride `wwr.device`.
 
 `cooperative_groups.cuh`, `wmma.cuh` and `atomic.cuh` are the three with no
 `.cppm` counterpart: every entity they hand a kernel is `__device__`-only, so
@@ -460,18 +459,19 @@ does not fully separate them:
 | Class | Compiles in a host TU | Compiles in a device pass | Named |
 |---|:---:|:---:|---|
 | host-only | ✅ | ❌ | `*.h` — `backend.h`, and `dispatch_macros.h` under `src/wrappers` |
-| shared-type | ✅ | ✅ | `*.h` — `complex.h`, `runtime.h`, `rand.h` |
+| shared-type | ✅ | ✅ | `*.h` — `runtime.h`, `complex.h`, `rand.h`, `fp16.h`, `bf16.h`, `fp8.h` |
 | **bridge** | ✅ | ✅ | `*_bridge.h` |
-| device-only | ❌ | ✅ | `*.cuh` — `runtime.cuh`, `fp16.cuh`, `bf16.cuh`, `fp8.cuh`, `cooperative_groups.cuh`, `parallel_for.cuh` |
+| device-only | ❌ | ✅ | `*.cuh` — `runtime.cuh`, `cooperative_groups.cuh`, `wmma.cuh`, `atomic.cuh`, `parallel_for.cuh` |
 
-`rand.h` and `complex.h` are the shared-type row's hybrids: each carries its
-crossing type(s) *and*, in a device-pass-gated section, the `__device__` wrappers
-that used to live in `rand.cuh` / `complex.cuh`. Each still compiles in both modes
-— the device section simply gates itself out in a host TU — so it stays a `.h`, and
-a device consumer `#include`s it instead of a separate `.cuh`. This is the `.h` +
-`.cppm` shape for a vendor header carrying both host and device symbols; a wrapper
-with no host half stays a `.cuh` (the device-only row). (`fp16`, `bf16`, `fp8` and
-`runtime` are candidates for the same fold; not yet done.)
+`rand.h`, `complex.h`, `fp16.h`, `bf16.h` and `fp8.h` are the shared-type row's
+hybrids: each carries its crossing type(s) *and*, in a device-pass-gated section,
+the `__device__` wrappers that used to live in the matching `.cuh`. Each still
+compiles in both modes — the device section simply gates itself out in a host TU —
+so it stays a `.h`, and a device consumer `#include`s it instead of a separate
+`.cuh`. This is the `.h` + `.cppm` shape for a vendor header carrying both host and
+device symbols; a wrapper with no host half stays a `.cuh` (the device-only row).
+(`runtime` is the last both-sides candidate not yet folded — its `.cppm`,
+`runtime_api.cppm`, is irregular; see its own note.)
 
 So `.h` on its own does *not* mean "safe from a `.cu`" (`backend.h` is `.h` and
 host-only), and three `.h`s — `complex.h`, `runtime.h`, `rand.h` — deliberately

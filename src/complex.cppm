@@ -15,7 +15,7 @@
  *   wwrDoubleComplex z = make_wwrDoubleComplex(1.0, 2.0);
  *
  * The wrappers below duplicate complex.h's device section on purpose, the same
- * way fp16.cppm duplicates fp16.cuh: a host TU reaches this construction and
+ * way fp16.cppm duplicates fp16.h's device section: a host TU reaches this construction and
  * arithmetic by importing the module, a device TU reaches the same names by
  * including complex.h, and neither can use the other's -- the device wrappers are
  * gated to a device pass and a module cannot be #included into a kernel. The two
