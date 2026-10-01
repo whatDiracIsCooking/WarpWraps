@@ -405,6 +405,11 @@ if(WWR_ENABLE_ASAN)
   )
   add_link_options(-fsanitize=address)
 endif()
+# Running these binaries against a real GPU needs
+# ASAN_OPTIONS=protect_shadow_gap=0: the CUDA driver's unified-addressing
+# reservations collide with ASan's guarded shadow gap, so the first CUDA call
+# returns cudaErrorMemoryAllocation on a card with plenty of free memory. The
+# 'asan' test preset sets it; a hand-run binary must too.
 
 # ========================================================================
 # Coverage (clang source-based, host code only)
