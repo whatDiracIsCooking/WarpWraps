@@ -40,6 +40,13 @@ set(HIP_TEST_LIBRARIES
     hipcomp
 )
 
+# hipcomp's raw-module link check drops when the comp wrapper is not built:
+# wwr::hip::hipcomp does not exist then (see src/hip/CMakeLists.txt). Same shape
+# as test/gpu and the CUDA side.
+if(NOT WWR_WITH_COMP)
+  list(REMOVE_ITEM HIP_TEST_LIBRARIES hipcomp)
+endif()
+
 # hiptensor and rccl: link-checked in a NO_RUN executable (see below). Their
 # shared objects load but their initialisation needs a GPU, so they cannot share
 # hip_compile_tests, which must RUN GPU-less on CI.
@@ -47,6 +54,17 @@ set(HIP_TEST_LIBRARIES_GPU
     hiptensor
     rccl
 )
+
+# The GPU-only link checks drop when their wrapper is not built: wwr::hip::rccl
+# and wwr::hip::hiptensor do not exist then (see src/hip/CMakeLists.txt). Same
+# shape as test/gpu and the CUDA side. If BOTH go, the list is empty and the
+# NO_RUN executable below is skipped.
+if(NOT WWR_WITH_CCL)
+  list(REMOVE_ITEM HIP_TEST_LIBRARIES_GPU rccl)
+endif()
+if(NOT WWR_WITH_TENSOR)
+  list(REMOVE_ITEM HIP_TEST_LIBRARIES_GPU hiptensor)
+endif()
 
 # One wwr.test.hip.<lib> module per library, built identically for both groups.
 foreach(_lib IN LISTS HIP_TEST_LIBRARIES HIP_TEST_LIBRARIES_GPU)
@@ -121,16 +139,20 @@ foreach(_lib IN LISTS HIP_TEST_LIBRARIES_GPU)
   list(APPEND _hip_test_targets_gpu wwr.test.hip.${_lib})
 endforeach()
 
-wwr_add_test_executable(
-  NAME
-  hip_compile_tests_gpu
-  MAIN
-  gpu_link_check.cpp
-  LINK_PRIVATE
-  ${_hip_test_targets_gpu}
-  WHOLE_ARCHIVE
-  ${_hip_test_targets_gpu}
-  NO_RUN
-)
+# Skipped entirely when both WWR_WITH_TENSOR and WWR_WITH_CCL are off: the list
+# is empty, and there is nothing to link-check.
+if(_hip_test_targets_gpu)
+  wwr_add_test_executable(
+    NAME
+    hip_compile_tests_gpu
+    MAIN
+    gpu_link_check.cpp
+    LINK_PRIVATE
+    ${_hip_test_targets_gpu}
+    WHOLE_ARCHIVE
+    ${_hip_test_targets_gpu}
+    NO_RUN
+  )
 
-add_dependencies(compile_time_tests hip_compile_tests_gpu)
+  add_dependencies(compile_time_tests hip_compile_tests_gpu)
+endif()

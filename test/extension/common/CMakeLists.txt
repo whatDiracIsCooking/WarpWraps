@@ -23,6 +23,15 @@ add_dependencies(
   compile_time_tests wwr.test.extension.common_error_handle
 )
 
+# Everything below is a GoogleTest runtime suite. This directory is added before
+# test/extension's own early return (its build-time half above must configure
+# under WWR_COMPILE_TIME_ONLY), so it has to return early itself before the
+# GoogleTest part -- which WWR_COMPILE_TIME_ONLY does not fetch. This is the
+# idiom documented in test/extension/build_time/CMakeLists.txt.
+if(WWR_COMPILE_TIME_ONLY)
+  return()
+endif()
+
 # Host-only error-mapping suite: no device, so NOT REQUIRES_GPU -- this is the
 # `ctest -LE gpu` (CI) coverage of common/error's wwrError_t specializations.
 wwr_add_gtest_executable(

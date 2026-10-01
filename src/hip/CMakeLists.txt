@@ -328,16 +328,20 @@ wwr_add_cxx_module_library(
 # /opt/rocm/include, so `#include <rccl/rccl.h>` resolves; hip::host is linked
 # alongside because rccl.h pulls in <hip/hip_runtime.h> and <hip/hip_fp16.h> and
 # roc::rccl does not guarantee to bring the HIP runtime's include path itself.
-wwr_add_cxx_module_library(
-  NAME
-  wwr.hip.rccl
-  PRIMARY_INTERFACE
-  rccl.cppm
-  LINK_PUBLIC
-  roc::rccl
-  hip::host
-  IMPORT_STD
-)
+# Gated on WWR_WITH_CCL (the find_package(rccl) in the top-level CMakeLists.txt
+# is gated on the same flag), so a HIP build with the wrapper off needs no RCCL.
+if(WWR_WITH_CCL)
+  wwr_add_cxx_module_library(
+    NAME
+    wwr.hip.rccl
+    PRIMARY_INTERFACE
+    rccl.cppm
+    LINK_PUBLIC
+    roc::rccl
+    hip::host
+    IMPORT_STD
+  )
+endif()
 
 # hipCOMP (GPU lossless compression)
 #
@@ -346,16 +350,20 @@ wwr_add_cxx_module_library(
 # docker/install-rocm-ds.sh), which ships the hipcomp::hipcomp imported target
 # find_package(hipcomp) resolves off CMAKE_PREFIX_PATH. hip::host is linked
 # alongside because hipcomp.h pulls in <hip/hip_runtime.h> for hipStream_t.
-wwr_add_cxx_module_library(
-  NAME
-  wwr.hip.hipcomp
-  PRIMARY_INTERFACE
-  hipcomp.cppm
-  LINK_PUBLIC
-  hipcomp::hipcomp
-  hip::host
-  IMPORT_STD
-)
+# Gated on WWR_WITH_COMP (the top-level find_package(hipcomp) is gated on the
+# same flag), so a build with the wrapper off needs no hipCOMP.
+if(WWR_WITH_COMP)
+  wwr_add_cxx_module_library(
+    NAME
+    wwr.hip.hipcomp
+    PRIMARY_INTERFACE
+    hipcomp.cppm
+    LINK_PUBLIC
+    hipcomp::hipcomp
+    hip::host
+    IMPORT_STD
+  )
+endif()
 
 # hipTensor (tensor contraction / reduction / permutation / element-wise)
 #
@@ -385,33 +393,38 @@ wwr_add_cxx_module_library(
 # include dir resolves at either end; hiptensor.cppm picks the same way with
 # __has_include. The re-exported surface is identical -- all 170 names this
 # module exports are declared at 7.1 too -- so only the filename moves.
-find_path(
-  HIP_hiptensor_INCLUDE_DIR
-  NAMES hiptensor/hiptensor.h hiptensor/hiptensor.hpp
-  HINTS ${ROCM_PATH} $ENV{ROCM_PATH} /opt/rocm
-  PATH_SUFFIXES include REQUIRED
-)
-find_library(
-  HIP_hiptensor_LIBRARY hiptensor
-  HINTS ${ROCM_PATH} $ENV{ROCM_PATH} /opt/rocm
-  PATH_SUFFIXES lib REQUIRED
-)
-if(NOT TARGET wwr::hip_hiptensor)
-  add_library(wwr::hip_hiptensor UNKNOWN IMPORTED GLOBAL)
-  set_target_properties(
+# Gated on WWR_WITH_TENSOR: OFF drops this module, the neutral wwr.tensor, and
+# wwr.extension.tensor, so the REQUIRED finds below never run and a build on a
+# box without hipTensor still configures.
+if(WWR_WITH_TENSOR)
+  find_path(
+    HIP_hiptensor_INCLUDE_DIR
+    NAMES hiptensor/hiptensor.h hiptensor/hiptensor.hpp
+    HINTS ${ROCM_PATH} $ENV{ROCM_PATH} /opt/rocm
+    PATH_SUFFIXES include REQUIRED
+  )
+  find_library(
+    HIP_hiptensor_LIBRARY hiptensor
+    HINTS ${ROCM_PATH} $ENV{ROCM_PATH} /opt/rocm
+    PATH_SUFFIXES lib REQUIRED
+  )
+  if(NOT TARGET wwr::hip_hiptensor)
+    add_library(wwr::hip_hiptensor UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(
+      wwr::hip_hiptensor
+      PROPERTIES IMPORTED_LOCATION "${HIP_hiptensor_LIBRARY}"
+                 INTERFACE_INCLUDE_DIRECTORIES "${HIP_hiptensor_INCLUDE_DIR}"
+    )
+  endif()
+
+  wwr_add_cxx_module_library(
+    NAME
+    wwr.hip.hiptensor
+    PRIMARY_INTERFACE
+    hiptensor.cppm
+    LINK_PUBLIC
     wwr::hip_hiptensor
-    PROPERTIES IMPORTED_LOCATION "${HIP_hiptensor_LIBRARY}"
-               INTERFACE_INCLUDE_DIRECTORIES "${HIP_hiptensor_INCLUDE_DIR}"
+    hip::host
+    IMPORT_STD
   )
 endif()
-
-wwr_add_cxx_module_library(
-  NAME
-  wwr.hip.hiptensor
-  PRIMARY_INTERFACE
-  hiptensor.cppm
-  LINK_PUBLIC
-  wwr::hip_hiptensor
-  hip::host
-  IMPORT_STD
-)

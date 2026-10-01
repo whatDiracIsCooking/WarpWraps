@@ -359,41 +359,56 @@ wwr_add_cxx_module_library(
   IMPORT_STD
 )
 
-wwr_add_cxx_module_library(
-  NAME
-  wwr.ccl
-  PRIMARY_INTERFACE
-  ccl.cppm
-  LINK_PUBLIC
-  ${_raw_ccl}
-  LINK_PRIVATE
-  wwr::backend
-  IMPORT_STD
-)
+# wwr.ccl is gated on WWR_WITH_CCL, which also drops the backend module it links
+# (${_raw_ccl} = wwr.cuda.nccl / wwr.hip.rccl) and wwr.extension.ccl. The whole
+# chain drops together so no surviving exported target links a target the export
+# set no longer contains. _raw_ccl stays set above but is simply unused here.
+if(WWR_WITH_CCL)
+  wwr_add_cxx_module_library(
+    NAME
+    wwr.ccl
+    PRIMARY_INTERFACE
+    ccl.cppm
+    LINK_PUBLIC
+    ${_raw_ccl}
+    LINK_PRIVATE
+    wwr::backend
+    IMPORT_STD
+  )
+endif()
 
-wwr_add_cxx_module_library(
-  NAME
-  wwr.tensor
-  PRIMARY_INTERFACE
-  tensor.cppm
-  LINK_PUBLIC
-  ${_raw_tensor}
-  LINK_PRIVATE
-  wwr::backend
-  IMPORT_STD
-)
+# wwr.tensor / wwr.comp are gated on WWR_WITH_TENSOR / WWR_WITH_COMP, each of
+# which also drops the backend module it links (${_raw_tensor} / ${_raw_comp})
+# and the matching wwr.extension.* layer -- the whole chain drops together so no
+# surviving exported target links a target the export set no longer contains.
+# Same shape as wwr.ccl above.
+if(WWR_WITH_TENSOR)
+  wwr_add_cxx_module_library(
+    NAME
+    wwr.tensor
+    PRIMARY_INTERFACE
+    tensor.cppm
+    LINK_PUBLIC
+    ${_raw_tensor}
+    LINK_PRIVATE
+    wwr::backend
+    IMPORT_STD
+  )
+endif()
 
-wwr_add_cxx_module_library(
-  NAME
-  wwr.comp
-  PRIMARY_INTERFACE
-  comp.cppm
-  LINK_PUBLIC
-  ${_raw_comp}
-  LINK_PRIVATE
-  wwr::backend
-  IMPORT_STD
-)
+if(WWR_WITH_COMP)
+  wwr_add_cxx_module_library(
+    NAME
+    wwr.comp
+    PRIMARY_INTERFACE
+    comp.cppm
+    LINK_PUBLIC
+    ${_raw_comp}
+    LINK_PRIVATE
+    wwr::backend
+    IMPORT_STD
+  )
+endif()
 
 wwr_add_cxx_module_library(
   NAME

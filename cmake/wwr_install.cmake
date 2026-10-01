@@ -357,6 +357,18 @@ function(wwr_install_package)
   # option.
   set(WWR_PACKAGE_HAS_WRAPPERS "${WWR_INSTALL_WRAPPERS}")
   set(WWR_PACKAGE_HAS_EXTENSION "${WWR_INSTALL_EXTENSION}")
+  # WWR_WITH_CCL is a BUILD flag, not an install flag: when OFF its targets were
+  # never defined, so the target sweeps above already omit them from the export
+  # set with no special-casing (the "read the buildsystem back" design). This
+  # only tells wwrConfig.cmake.in to skip the NCCL/RCCL find_dependency and to
+  # refuse the `ccl` component. No install(DIRECTORY) EXCLUDE is needed: the ccl
+  # dirs ship no .h/.cuh, so the extension header glob below finds nothing in
+  # them.
+  # comp/tensor are identical -- their extension dirs are header-free too, so
+  # the extension header glob below needs no EXCLUDE for them either.
+  set(WWR_PACKAGE_HAS_CCL "${WWR_WITH_CCL}")
+  set(WWR_PACKAGE_HAS_COMP "${WWR_WITH_COMP}")
+  set(WWR_PACKAGE_HAS_TENSOR "${WWR_WITH_TENSOR}")
   set(WWR_PACKAGE_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}")
   set(WWR_PACKAGE_CXX_COMPILER_VERSION "${CMAKE_CXX_COMPILER_VERSION}")
   set(WWR_PACKAGE_CXX_STANDARD_LIBRARY "${CMAKE_CXX_STANDARD_LIBRARY}")

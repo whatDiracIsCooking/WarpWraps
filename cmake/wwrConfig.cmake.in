@@ -22,6 +22,19 @@ set(WWR_HAS_WRAPPERS @WWR_PACKAGE_HAS_WRAPPERS@)
 # with -DWWR_INSTALL_EXTENSION=ON. A bare boolean, not quoted -- it is tested
 # directly below. See section 1c.
 set(WWR_HAS_EXTENSION @WWR_PACKAGE_HAS_EXTENSION@)
+# Whether this installation shipped the collective-communications wrapper
+# (wwr.ccl / wwr.extension.ccl), built with -DWWR_WITH_CCL=ON (the default). A
+# bare boolean -- tested directly below. See section 1d and section 3.
+# comp/tensor get WWR_HAS_COMP / WWR_HAS_TENSOR the same way.
+set(WWR_HAS_CCL @WWR_PACKAGE_HAS_CCL@)
+# Whether this installation shipped the compression wrapper (wwr.comp /
+# wwr.extension.comp), built with -DWWR_WITH_COMP=ON (the default). See section
+# 1e and section 3.
+set(WWR_HAS_COMP @WWR_PACKAGE_HAS_COMP@)
+# Whether this installation shipped the tensor-contraction wrapper (wwr.tensor /
+# wwr.extension.tensor), built with -DWWR_WITH_TENSOR=ON (the default). See
+# section 1f and section 3.
+set(WWR_HAS_TENSOR @WWR_PACKAGE_HAS_TENSOR@)
 set(WWR_BUILT_WITH_CXX_COMPILER_ID "@WWR_PACKAGE_CXX_COMPILER_ID@")
 set(WWR_BUILT_WITH_CXX_COMPILER_VERSION
     "@WWR_PACKAGE_CXX_COMPILER_VERSION@"
@@ -91,6 +104,56 @@ if(wwr_FIND_REQUIRED_extension AND NOT WWR_HAS_EXTENSION)
   # a list and find_package prints the ';' separators between them.
   set(wwr_NOT_FOUND_MESSAGE
       "This wwr installation was built without the extension layer, but the 'extension' component was requested. Reinstall the package with -DWWR_INSTALL_EXTENSION=ON."
+  )
+  return()
+endif()
+
+# ---------------------------------------------------------------------------
+# 1d. Collective-communications component
+# ---------------------------------------------------------------------------
+# The ccl wrapper (wwr.ccl and wwr.extension.ccl, backed by NCCL or RCCL) ships
+# only from a build configured with -DWWR_WITH_CCL=ON (the default). Exposed as
+# the `ccl` component so `find_package(wwr COMPONENTS ccl)` is refused here,
+# naming the cause, rather than later when `import wwr.ccl;` fails to resolve
+# against a build that disabled it. wwr_ccl_FOUND is set either way, so the
+# check_required_components() at the end of this file agrees with this verdict.
+set(wwr_ccl_FOUND ${WWR_HAS_CCL})
+if(wwr_FIND_REQUIRED_ccl AND NOT WWR_HAS_CCL)
+  set(wwr_FOUND FALSE)
+  # One string argument, not several: set() with multiple quoted arguments builds
+  # a list and find_package prints the ';' separators between them.
+  set(wwr_NOT_FOUND_MESSAGE
+      "This wwr installation was built without the collective-communications wrapper, but the 'ccl' component was requested. Reinstall the package with -DWWR_WITH_CCL=ON (the default)."
+  )
+  return()
+endif()
+
+# ---------------------------------------------------------------------------
+# 1e. Compression component
+# ---------------------------------------------------------------------------
+# The comp wrapper (wwr.comp and wwr.extension.comp, backed by nvCOMP or
+# hipCOMP) ships only from a build configured with -DWWR_WITH_COMP=ON (the
+# default). Exposed as the `comp` component, same as `ccl` above.
+set(wwr_comp_FOUND ${WWR_HAS_COMP})
+if(wwr_FIND_REQUIRED_comp AND NOT WWR_HAS_COMP)
+  set(wwr_FOUND FALSE)
+  set(wwr_NOT_FOUND_MESSAGE
+      "This wwr installation was built without the compression wrapper, but the 'comp' component was requested. Reinstall the package with -DWWR_WITH_COMP=ON (the default)."
+  )
+  return()
+endif()
+
+# ---------------------------------------------------------------------------
+# 1f. Tensor-contraction component
+# ---------------------------------------------------------------------------
+# The tensor wrapper (wwr.tensor and wwr.extension.tensor, backed by cuTENSOR or
+# hipTensor) ships only from a build configured with -DWWR_WITH_TENSOR=ON (the
+# default). Exposed as the `tensor` component, same as `ccl` above.
+set(wwr_tensor_FOUND ${WWR_HAS_TENSOR})
+if(wwr_FIND_REQUIRED_tensor AND NOT WWR_HAS_TENSOR)
+  set(wwr_FOUND FALSE)
+  set(wwr_NOT_FOUND_MESSAGE
+      "This wwr installation was built without the tensor-contraction wrapper, but the 'tensor' component was requested. Reinstall the package with -DWWR_WITH_TENSOR=ON (the default)."
   )
   return()
 endif()
@@ -186,7 +249,10 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   # libnccl is likewise not a FindCUDAToolkit component (no CUDA::nccl target) --
   # src/cuda/CMakeLists.txt finds it by hand and links it through the imported
   # target wwr::cuda_nccl, so the name is recreated here, same as cusolverMg.
-  if(NOT TARGET wwr::cuda_nccl)
+  # Guarded on WWR_HAS_CCL: a package built with -DWWR_WITH_CCL=OFF ships no
+  # wwr.cuda.nccl, so re-finding libnccl would demand a library the consumer was
+  # promised they would not need.
+  if(WWR_HAS_CCL AND NOT TARGET wwr::cuda_nccl)
     find_library(WWR_nccl_LIBRARY NAMES nccl HINTS ${CUDAToolkit_LIBRARY_DIR})
     if(NOT WWR_nccl_LIBRARY)
       set(wwr_FOUND FALSE)
@@ -204,16 +270,19 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
 
   # nvCOMP is not a FindCUDAToolkit component either, but unlike nccl it ships
   # its own CMake config package providing nvcomp::nvcomp, which wwr.cuda.nvcomp
-  # links -- so re-find it the ordinary way.
-  find_dependency(nvcomp)
+  # links -- so re-find it the ordinary way. Guarded on WWR_HAS_COMP: a package
+  # built with -DWWR_WITH_COMP=OFF ships no wwr.cuda.nvcomp and must not demand it.
+  if(WWR_HAS_COMP)
+    find_dependency(nvcomp)
+  endif()
 
   # cuTENSOR ships no CMake config package and is not a FindCUDAToolkit
   # component, so src/cuda/CMakeLists.txt finds its header and library by hand
   # and links them through the imported target wwr::cuda_cutensor, recreated
   # here from CMAKE_PREFIX_PATH (docker/install-cuda.sh puts /opt/nvidia/cutensor
   # there). Unlike nccl, the header is off any default path, so the include dir
-  # is part of the target too.
-  if(NOT TARGET wwr::cuda_cutensor)
+  # is part of the target too. Guarded on WWR_HAS_TENSOR, same as the ccl blocks.
+  if(WWR_HAS_TENSOR AND NOT TARGET wwr::cuda_cutensor)
     find_path(WWR_cutensor_INCLUDE_DIR cutensor.h)
     find_library(WWR_cutensor_LIBRARY NAMES cutensor)
     if(NOT WWR_cutensor_INCLUDE_DIR OR NOT WWR_cutensor_LIBRARY)
@@ -242,15 +311,23 @@ else()
   find_dependency(hipsparse)
   find_dependency(hipfft)
   find_dependency(hiprand)
-  find_dependency(rccl)
-  find_dependency(hipcomp)
+  # Guarded on WWR_HAS_CCL, same as the CUDA-side libnccl block above: a package
+  # built with -DWWR_WITH_CCL=OFF ships no wwr.hip.rccl, so it must not demand
+  # RCCL of a consumer.
+  if(WWR_HAS_CCL)
+    find_dependency(rccl)
+  endif()
+  # Guarded on WWR_HAS_COMP, same as the CUDA-side nvcomp.
+  if(WWR_HAS_COMP)
+    find_dependency(hipcomp)
+  endif()
 
   # hipTensor is linked through the hand-wrapped imported target
   # wwr::hip_hiptensor (NOT hiptensor::hiptensor, whose hip::device interface
   # would force device compilation on host consumers -- see
   # src/hip/CMakeLists.txt), so the name is recreated here, same as cuTENSOR
-  # above and nccl on the CUDA side.
-  if(NOT TARGET wwr::hip_hiptensor)
+  # above and nccl on the CUDA side. Guarded on WWR_HAS_TENSOR.
+  if(WWR_HAS_TENSOR AND NOT TARGET wwr::hip_hiptensor)
     find_path(WWR_hiptensor_INCLUDE_DIR hiptensor/hiptensor.h
               HINTS ${ROCM_PATH} $ENV{ROCM_PATH} /opt/rocm PATH_SUFFIXES include)
     find_library(WWR_hiptensor_LIBRARY NAMES hiptensor
