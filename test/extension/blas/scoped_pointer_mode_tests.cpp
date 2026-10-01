@@ -89,6 +89,20 @@ TEST(ScopedPointerModeTests, NestedScopesRestoreInReverseOrder) {
   EXPECT_EQ(read_mode(handle->get()), WWRBLAS_POINTER_MODE_HOST);
 }
 
+TEST(ScopedPointerModeTests, OriginalModeReportsRecordedMode) {
+  // The accessor exposes the mode the guard recorded at construction -- the one
+  // it will restore -- not the target it switched to. Start in DEVICE so a stale
+  // read of the target (HOST) would be visibly wrong.
+  auto owner = std::make_shared<DeviceHandle>(0);
+  auto handle = std::make_shared<BlasHandle>(owner);
+  set_mode(handle->get(), WWRBLAS_POINTER_MODE_DEVICE);
+  {
+    Scope scope{handle, WWRBLAS_POINTER_MODE_HOST};
+    EXPECT_EQ(scope.original_mode(), WWRBLAS_POINTER_MODE_DEVICE); // the recorded mode
+    EXPECT_EQ(read_mode(handle->get()), WWRBLAS_POINTER_MODE_HOST); // the target, live on the handle
+  }
+}
+
 TEST(ScopedPointerModeTests, RawHandleBorrowSetsAndRestores) {
   // The convenience ctor's raw-handle path: the guard BORROWS a bare
   // wwrblasHandle_t, so the real handle must outlive it -- here the BlasHandle
