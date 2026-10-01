@@ -149,6 +149,23 @@ BASH_CASES = [
     (True, "a redirect after a quoted hash still denies",
      'echo "a # b" > CLAUDE.md'),
     (True, "a redirect to a quoted target still denies", 'echo x > "CLAUDE.md"'),
+
+    # Segment splitting is quote-aware too, not just the redirect scan. A quoted
+    # `(`, `;` or `|` is argument text, not shell syntax -- but the old splitter
+    # cut on it regardless, exposing a fragment the passes above then misread.
+    # The `(squash merge -> -D)` echo is the exact `/pr full` teardown note that
+    # denied the worktree cleanup; `echo "a; rm b"` and `echo "a | rm b"` would
+    # each surface a fake `rm b` mutation.
+    (False, "parens inside a quoted echo are not a subshell",
+     "echo '=== delete branch (squash merge -> -D) ==='"),
+    (False, "a semicolon inside quotes is not a separator", 'echo "a; rm b"'),
+    (False, "a pipe inside quotes is not a pipeline", 'echo "a | rm b"'),
+    # ...and a real separator after a quoted note still lands the mutation, so
+    # the quote-awareness did not blind the splitter to genuine shell syntax.
+    (True, "a real && after a quoted arrow still denies",
+     "echo '(a -> b)' && echo x > CLAUDE.md"),
+    (True, "a real semicolon still separates a mutation",
+     'echo "harmless (note)" ; rm -f CLAUDE.md'),
 ]
 
 # (deny?, label, file_path) -- the original Write/Edit contract.
