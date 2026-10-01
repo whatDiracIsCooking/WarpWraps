@@ -53,13 +53,15 @@ why they appear below nested under `runtime.cuh` rather than as leaves here.)
 (`random_normal.cu`, `test/gpu/complex.cu`); `runtime.h` by
 `runtime.cuh` (device) and the host TUs that declare a stream-taking function
 across the boundary in a GMF or plain `.cu` (the two `*_bridge.h`,
-`example/warp_reduce`) — `runtime_api.cppm` exports the same type via `import`
-rather than including it, because the vendor runtime macros would collide with
-its `WWR_RT_VALUE` expansions. `rand.h` is included by `rand.cppm` (host module,
+`example/warp_reduce`) — `runtime_api.cppm` does *not* include `runtime.h`: it
+reaches the same handle, and the rest of the runtime surface, through its own
+vendor-include header `runtime_api.h`, which `#undef`s the allocation-flag macros
+that would otherwise collide with its `WWR_RT_VALUE` expansions (the type-only
+`runtime.h` leaves them defined). `rand.h` is included by `rand.cppm` (host module,
 which re-exports the state types and binds the host API), the two `*_bridge.h`,
 and the two extension device `.cu` (which reach its gated `__device__`
-generators); unlike `runtime_api.cppm`, `rand.cppm` *does* include its shared-type
-header — the vendor kernel headers define no colliding macros.
+generators); `rand.cppm` includes `rand.h` directly, with no `#undef` needed —
+the vendor kernel headers define no colliding macros.
 
 `fp16.h`, `bf16.h` and `fp8.h` are the same shape: each is included by its device
 `.cu` consumers for the gated wrappers, and `fp16.h` / `bf16.h` are also included
@@ -84,7 +86,8 @@ selected_backend.h        no #includes — the leaf the switch/shared-type layer
 │                          + <mma.h>                     | <rocwmma/rocwmma.hpp>
 ├── complex.h            + <cuComplex.h>               | <array> <hip/hip_complex.h>
 │                          (+ __device__ wrappers, gated behind the device-pass macros)
-├── runtime.h           + <cuda_runtime_api.h>        | <hip/hip_runtime_api.h>
+├── runtime.h           + <cuda_runtime_api.h>        | <hip/hip_runtime_api.h>   (the stream type only)
+├── runtime_api.h       + <cuda_runtime_api.h>        | <hip/hip_runtime_api.h>   (runtime_api.cppm's GMF only; #undef's the colliding flag macros)
 ├── rand.h               + <curand.h> <curand_kernel.h> | <cstdio> <hiprand/hiprand.h> <hiprand/hiprand_kernel.h>
 │                          (+ __device__ generators, gated behind the device-pass macros)
 ├── fp16.h               + <cuda_fp16.h>               | <array> <hip/hip_fp16.h>

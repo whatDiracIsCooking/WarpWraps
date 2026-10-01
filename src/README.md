@@ -10,16 +10,17 @@ cmake --preset hip                                   # WWR_GPU_BACKEND=HIP
 Each module here — the `wwr*` layer, living directly under `src/` alongside the
 `src/cuda`, `src/hip` and `src/wrappers` subdirectories — re-exports one raw
 library module (`src/cuda` or `src/hip`) under backend-neutral `wwr*` names in
-namespace `wwr`. (Exceptions: `wwr.rand`, `wwr.fp16` and `wwr.bf16` import no raw
-module — their vendor host API is external-linkage, so they bind directly to the
-vendor headers reached through the sibling `rand.h` / `fp16.h` / `bf16.h`. See
-below.) These modules are the **only** place in the project that names both
+namespace `wwr`. (Exceptions: `wwr.runtime_api`, `wwr.rand`, `wwr.fp16` and
+`wwr.bf16` import no raw module — their vendor API is external-linkage, so they
+bind directly to the vendor headers reached through the sibling `runtime_api.h` /
+`rand.h` / `fp16.h` / `bf16.h`. See below.) These modules are the **only** place
+in the project that names both
 backends; everything above them (`src/wrappers`, `test/wrappers`) is written once
 against `wwr*` names and builds unchanged for either backend.
 
 | Module | CUDA backend wraps | HIP backend wraps |
 |---|---|---|
-| `wwr.runtime_api` | `wwr.cuda.cuda_runtime_api` | `wwr.hip.hip_runtime_api` |
+| `wwr.runtime_api` | `cuda_runtime_api.h` via `runtime_api.h` (no import) | `hip/hip_runtime_api.h` via `runtime_api.h` (no import) |
 | `wwr.complex` | `wwr.cuda.cuComplex` | `wwr.hip.hip_complex` |
 | `wwr.fp16` | `cuda_fp16.h` via `fp16.h` (no import) | `hip/hip_fp16.h` via `fp16.h` (no import) |
 | `wwr.bf16` | `cuda_bf16.h` via `bf16.h` (no import) | `hip/hip_bf16.h` via `bf16.h` (no import) |
@@ -381,9 +382,12 @@ companion to `complex.h`): `#include`d, not imported, by `runtime.cuh` and the
 host TUs that declare a stream-taking function across the boundary in a GMF or
 plain `.cu` (the `*_bridge.h`, `example/warp_reduce`), reached bare through the
 `src/` include root. `wwr.runtime_api` exports the same `::cudaStream_t` /
-`::hipStream_t` to importers -- but `runtime_api.cppm` does not itself include
-`runtime.h`, because the vendor runtime macros would collide with its
-`WWR_RT_VALUE` expansions. `wwrrandState` lives the same way, in the src/-root
+`::hipStream_t` to importers -- but `runtime_api.cppm` does not include
+`runtime.h`: it draws the handle (and the rest of the runtime surface) from its
+own vendor-include header `runtime_api.h`, which `#undef`s the allocation-flag
+macros that would otherwise collide with its `WWR_RT_VALUE` expansions -- the
+`#undef` the lean, type-only `runtime.h` does not do. `wwrrandState` lives the
+same way, in the src/-root
 header `rand.h`, `#include`d (not imported) by `rand.cppm` and the two
 `*_bridge.h` (and reached in a device pass by `rand.h`'s own gated generators)
 -- with one difference "`_bridge`, shared-type `.h`, and why the extension is not
@@ -529,9 +533,11 @@ serve both, and is why `wwr.device` still carries no define.
 
 `wwrStream_t` moved from a bridge to the shared-type header `runtime.h` because
 `runtime.cuh` and the host GMF consumers all reach it by `#include` and its vendor
-header is cheap. (`runtime_api.cppm` exports the same type by import, not by
-including `runtime.h` -- vendor runtime macros would collide with its
-`WWR_RT_VALUE` expansions.) `wwrrandState` followed into the shared-type header
+header is cheap. (`runtime_api.cppm` exports the same type, but reaches it through
+its own vendor-include header `runtime_api.h`, not `runtime.h` -- `runtime_api.h`
+`#undef`s the allocation-flag macros that would collide with its `WWR_RT_VALUE`
+expansions, which the type-only `runtime.h` leaves defined.) `wwrrandState`
+followed into the shared-type header
 `rand.h` -- but `rand.h` is the heavy exception: its vendor kernel headers
 (`curand_kernel.h` / `hiprand_kernel.h`) are *not* cheap, so this is a deliberate
 trade. The type once rode a *forward-declaring* bridge that kept those headers out
