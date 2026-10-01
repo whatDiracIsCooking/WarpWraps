@@ -73,8 +73,6 @@ export namespace wwr::extension {
  */
 template<blas_handle H, error_policy<wwrblasStatus_t> P>
 struct ScopedPointerMode : private NonCopyable {
-  wwrblasPointerMode_t original_mode{}; ///< Mode current at construction, restored on destruction
-
   /// @brief Switch `handle`'s pointer mode to `target_mode`, recording the
   ///        previous mode to restore. Routes both entering calls through
   ///        `policy_mode`, then retains it -- and the co-owned handle -- for the
@@ -86,7 +84,7 @@ struct ScopedPointerMode : private NonCopyable {
                             std::source_location location = std::source_location::current())
       : handle_(std::move(handle)), policy_mode_(std::move(policy_mode)) {
     const wwrblasHandle_t raw = raw_handle(*handle_);
-    gpu_check(wwrblasGetPointerMode(raw, &original_mode), policy_mode_, location);
+    gpu_check(wwrblasGetPointerMode(raw, &original_mode_), policy_mode_, location);
     gpu_check(wwrblasSetPointerMode(raw, target_mode), policy_mode_, location);
   }
 
@@ -112,12 +110,16 @@ struct ScopedPointerMode : private NonCopyable {
   // class note on the noexcept-destructor caveat for throwing policies). The
   // retained handle is still alive by construction, so the restore is well-defined.
   ~ScopedPointerMode() {
-    gpu_check(wwrblasSetPointerMode(raw_handle(*handle_), original_mode), policy_mode_);
+    gpu_check(wwrblasSetPointerMode(raw_handle(*handle_), original_mode_), policy_mode_);
   }
 
   // Copy operations are implicitly deleted via the NonCopyable base. The
   // user-declared destructor suppresses the implicit moves, so the guard stays
   // non-movable as well -- handle_ is thus never null after construction.
+
+  /// @brief The pointer mode current on the handle at construction -- the mode
+  ///        this guard restores on destruction.
+  [[nodiscard]] wwrblasPointerMode_t original_mode() const noexcept { return original_mode_; }
 
 private:
   // Name the raw wwrblasHandle_t regardless of which blas_handle shape H is: the
@@ -132,6 +134,7 @@ private:
       return h.get();
   }
 
+  wwrblasPointerMode_t original_mode_{}; ///< Mode current at construction, restored on destruction
   std::shared_ptr<H> handle_; ///< Co-owned handle whose pointer mode this guard toggles and restores
   [[no_unique_address]] P policy_mode_{}; ///< Policy for the get/set calls
 };
