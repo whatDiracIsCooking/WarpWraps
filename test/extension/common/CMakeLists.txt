@@ -22,3 +22,24 @@ wwr_add_cxx_module_library(
 add_dependencies(
   compile_time_tests wwr.test.extension.common_error_handle
 )
+
+# Host-only error-mapping suite: no device, so NOT REQUIRES_GPU -- this is the
+# `ctest -LE gpu` (CI) coverage of common/error's wwrError_t specializations.
+wwr_add_gtest_executable(
+  NAME
+  extension_common_error_tests
+  SOURCES
+  error_tests.cpp
+  LINK
+  wwr::runtime_api
+  wwr::extension::common
+)
+
+wwr_add_gtest_suite_tests(
+  TARGET
+  extension_common_error_tests
+  SUITES
+  CommonErrorTests
+  TIMEOUT
+  30
+)

@@ -868,4 +868,59 @@ TEST(CopyAndMemsetTests, VoidBufferCopiesByBytes) {
   EXPECT_EQ(wwrStreamSynchronize(wwrStream_t{0}), wwrSuccess);
 }
 
+// ── validation edge branches ───────────────────────────────────────
+// The cases above exercise the *neighbouring* validation branches -- a
+// count that overruns the remaining span, and an undersized destination
+// through the synchronous host overload. These pin the branches those miss:
+// a zero count (valid, short-circuits before the bounds checks), an offset
+// that is itself past the end (distinct from a count overflow), and the
+// rejection arm of the stream-ordered copy overload specifically.
+
+TEST(CopyAndMemsetTests, OffsetMemsetWithZeroCountIsValidNoOp) {
+  // Zero count is valid regardless of offset: validate_memset returns before
+  // the bounds checks, and the async memset moves zero bytes.
+  auto dev_h = std::make_shared<DeviceHandle>(0);
+  const wwrStream_t stream = dev_h->stream().get();
+  DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle> dev(16, dev_h);
+  ASSERT_EQ(ext::memset(dev, 4, 0, 0xAB, stream), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
+}
+
+TEST(CopyAndMemsetTests, OffsetMemsetRejectsOffsetPastEnd) {
+  // An offset beyond the buffer is rejected by the offset check itself, before
+  // the count-overflow check the sibling out-of-bounds case exercises.
+  auto dev_h = std::make_shared<DeviceHandle>(0);
+  DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle> dev(16, dev_h);
+  EXPECT_EQ(ext::memset(dev, 20, 4, 0, wwrStream_t{0}), wwrErrorInvalidValue);
+}
+
+TEST(CopyAndMemsetTests, OffsetCopyRejectsOffsetPastEnd) {
+  // src_offset past the source's end trips the offset check, not the
+  // count-overflow check the sibling out-of-bounds case exercises.
+  auto dev_h = std::make_shared<DeviceHandle>(0);
+  HostBufferWrapper<float, HostAbort, HostAbort> host(16);
+  DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle> dev(16, dev_h);
+  EXPECT_EQ(ext::copy(dev, 0, host, 20, 1, wwrStream_t{0}), wwrErrorInvalidValue);
+}
+
+TEST(CopyAndMemsetTests, StreamCopyRejectsUndersizedDestination) {
+  // The full-buffer stream overload has its own validation arm, distinct from
+  // the synchronous host overload's -- an undersized destination must reject.
+  auto dev_h = std::make_shared<DeviceHandle>(0);
+  DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle> src(16, dev_h);
+  HostBufferWrapper<float, HostAbort, HostAbort> dst(4);
+  EXPECT_EQ(ext::copy(dst, src, dev_h->stream().get()), wwrErrorInvalidValue);
+}
+
+TEST(CopyAndMemsetTests, OffsetCopyWithZeroCountIsValidNoOp) {
+  // A zero-count offset copy validates and then short-circuits to success
+  // before issuing any transfer.
+  auto dev_h = std::make_shared<DeviceHandle>(0);
+  const wwrStream_t stream = dev_h->stream().get();
+  HostBufferWrapper<float, HostAbort, HostAbort> host(16);
+  DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle> dev(16, dev_h);
+  ASSERT_EQ(ext::copy(dev, 0, host, 0, 0, stream), wwrSuccess);
+  ASSERT_EQ(wwrStreamSynchronize(stream), wwrSuccess);
+}
+
 } // namespace wwr::extension::test
