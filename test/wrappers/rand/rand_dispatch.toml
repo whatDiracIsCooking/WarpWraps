@@ -1,27 +1,13 @@
-# Expected dispatch of wwr.wrappers.rand -- checked by test/shared/dispatch.py
+# Expected dispatch of wwr.wrappers.rand. Format and semantics: test/shared/dispatch.py.
 #
-# [dispatch] is one key per generate_*<T>: the wwrrandGenerate function its
-# compiled code must call. Names are wwrrand aliases (src/rand.cppm), so this one
-# table checks a CUDA and a HIP build alike.
-#
-# The rule is wwrrandGenerate<suffix>, where <suffix> is the precision-specific
-# name: float -> Uniform / Normal / LogNormal, double -> UniformDouble /
-# NormalDouble / LogNormalDouble. There are no _64 variants -- the count is a
-# size_t argument, not an index-type suffix on the call
+# Rule: wwrrandGenerate<suffix>, <suffix> the precision-specific name (float ->
+# Uniform/Normal/LogNormal, double -> UniformDouble/NormalDouble/LogNormalDouble).
+# No _64 -- the count is a size_t argument, not an index suffix on the call
 # (src/wrappers/rand/dispatch_macros.h).
-#
-# Order follows the instantiation lists in src/wrappers/rand/exec.cppm. When
-# adding a wrapper, add its entry by hand next to its instantiations: the table
-# is only worth something as an independent statement of what should be called,
-# not a copy of what is. (--print shows what is, for comparison.)
 
 [check]
 module = "wwr.wrappers.rand"
 prefix = "wwrrand"
-# wwr.rand is pure WWR_FUNCTION aliases -- no inline forwarders to
-# recognise, unlike wwr.blas -- so there is no forwarder_module here. The
-# generate wrappers are templated on precision alone (float/double), so no
-# [type_names] complex-type mapping is needed either.
 
 [dispatch]
 

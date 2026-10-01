@@ -46,14 +46,26 @@ getrs/getriBatched shims). If one of those is not inlined, the wrapper calls it
 by name rather than the vendor symbol, and this is what recognises it. Omit the
 key for a module that has none.
 
+`[type_names]` maps each template argument from the demangler's spelling to the
+name the table uses. It is also where a genuine ambiguity is resolved: a float
+complex demangles identically whether the source wrote wwrComplex or
+wwrFloatComplex, so each table picks one spelling and uses it throughout.
+
 Fails on: a wrapper calling the wrong function, calling none (a missing dispatch
 branch falls off the end), calling more than one, an instantiation the table
 lists but the object lacks, and a wrapper calling a wwr* function that the table
 does not list at all.
 
---print dumps what the objects actually contain, as a `[dispatch]` block ready
-to paste, for writing entries for a new wrapper. Never paste its output unread:
-it records whatever the code does, bugs included.
+Add a wrapper's entry by hand, next to its instantiations, as an independent
+statement of what it should call -- the table is only worth something if it is
+not a copy of what the code does. --print dumps what the objects actually
+contain, as a `[dispatch]` block ready to paste; use it to compare, never to
+author. Never paste its output unread: it records whatever the code does, bugs
+included.
+
+Each --table file documents only its own module: the naming rule that maps a
+wrapper to its wwr* function, and that rule's exceptions. The machinery above is
+the same for every module and is not restated there.
 """
 
 import argparse

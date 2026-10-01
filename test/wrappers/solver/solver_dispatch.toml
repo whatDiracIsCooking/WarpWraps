@@ -1,15 +1,6 @@
-# Expected dispatch of wwr.wrappers.solver -- checked by test/shared/dispatch.py
+# Expected dispatch of wwr.wrappers.solver. Format and semantics: test/shared/dispatch.py.
 #
-# [dispatch] is one key per wrapper<T>: the wwrsolverDn function its compiled
-# code must call. Names are wwrsolver aliases (src/solver.cppm), so this one
-# table checks a CUDA and a HIP build.
-#
-# Order follows the instantiation lists in src/wrappers/solver. When adding a
-# wrapper, add its entry by hand next to its instantiations: the table is only
-# worth something if it is an independent statement of what should be called,
-# not a copy of what is. (--print shows what is, for comparison.)
-#
-# The plain rule is wwrsolverDn<S|D|C|Z><name>, with no _64 variants -- neither
+# The rule is wwrsolverDn<S|D|C|Z><name>, with no _64 variants -- neither
 # cuSOLVER's nor hipSOLVER's legacy typed API has an int64_t-index sibling entry
 # point (see src/wrappers/solver/dispatch_macros.h). Which of the four types a
 # wrapper covers is the LAPACK surface's business, not the rule's: orgqr/orgbr/
@@ -33,12 +24,8 @@
 [check]
 module = "wwr.wrappers.solver"
 prefix = "wwrsolver"
-# wwr.solver is pure WWR_FUNCTION aliases -- no inline forwarders to
-# recognise, unlike wwr.blas -- so there is no forwarder_module here.
 
-# How the demangler spells each template argument, mapped to the name this table
-# uses. wwrComplex and wwrFloatComplex are the same underlying vendor type, so
-# the demangler cannot tell them apart -- this table's choice is wwrFloatComplex,
+# Float complex has two interchangeable spellings; this table uses wwrFloatComplex,
 # which is what src/wrappers/solver spells throughout.
 [type_names.CUDA]
 float2 = "wwrFloatComplex"

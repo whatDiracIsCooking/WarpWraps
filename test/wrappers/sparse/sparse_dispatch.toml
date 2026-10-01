@@ -1,16 +1,7 @@
-# Expected dispatch of wwr.wrappers.sparse -- checked by test/shared/dispatch.py
+# Expected dispatch of wwr.wrappers.sparse. Format and semantics: test/shared/dispatch.py.
 #
-# [dispatch] is one key per wrapper<T>: the wwrsparse function its compiled code
-# must call. Names are wwrsparse aliases (src/sparse.cppm), so this one table
-# checks a CUDA and a HIP build.
-#
-# Order follows the extern template lists in src/wrappers/sparse. When adding a
-# wrapper, add its entry by hand next to its extern templates: the table is only
-# worth something if it is an independent statement of what should be called,
-# not a copy of what is. (--print shows what is, for comparison.)
-#
-# The rule is wwrsparse<S|D|C|Z><name>. There is no _64 variant -- the legacy
-# typed cuSPARSE/hipSPARSE functions take a single index width.
+# Rule: wwrsparse<S|D|C|Z><name>. No _64 -- the legacy typed cuSPARSE/hipSPARSE
+# functions take a single index width.
 
 [check]
 module = "wwr.wrappers.sparse"
@@ -21,9 +12,7 @@ prefix = "wwrsparse"
 # called by name, so the check has to recognise it as a dispatch target too.
 forwarder_module = "wwr.sparse"
 
-# How the demangler spells each template argument, mapped to the name this table
-# uses. wwrComplex and wwrFloatComplex are the same underlying vendor type, so
-# the demangler cannot tell them apart -- this table's choice is wwrComplex.
+# Float complex has two interchangeable spellings; this table uses wwrComplex.
 [type_names.CUDA]
 float2 = "wwrComplex"
 double2 = "wwrDoubleComplex"
