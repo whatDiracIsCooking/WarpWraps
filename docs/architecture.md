@@ -494,7 +494,7 @@ neither header ships in the images, so neither is harvested.
 ## 20. Scoped, ordered atomics: two spellings for one operation
 
 Measured 2026-09-29 in `docker/build.sh combined` (clang 20.1.8, CUDA 13.0.88,
-ROCm 7.2.4). `src/atomic.cuh` wraps the atomics that carry an explicit memory
+ROCm 7.2.4). `src/atomic.h` wraps the atomics that carry an explicit memory
 order and thread scope — the surface *above* the common atomics §15 covers.
 The common ones (`atomicAdd`/`CAS`/…) are spelled identically on both backends
 and wrapped by nothing; these are not, so a forwarder does work rather than
@@ -576,11 +576,29 @@ attempted; the mapping table above is the claim, read from the two models.
 that wants AMD's native FP-atomic codegen on its own `wwr_add_gpu_device_library`
 target.
 
-A raw `wwr.cuda.atomic` / wwr* layer module was declined (#123): the audience is
-device code, which imports no modules, so a module would serve only host-side
-`cuda::atomic` over managed memory, has no signature-identity assertion the way
-every other raw `.cppm` does, and precompiles to a 21MB BMI against 6.8MB for
-the largest raw module today.
+A module over the atomic *operations* stays declined (#123): their audience is
+device code, which imports no modules, so such a module would serve only
+host-side `cuda::atomic` over managed memory, has no signature-identity assertion
+the way every other raw `.cppm` does, and — because it would pull `<cuda/atomic>`
+into the interface — precompiles to a 21MB BMI against 6.8MB for the largest raw
+module today. The operations therefore remain `__device__`-only, in
+`atomic.h`'s device-pass-gated section, reached by a device `.cu` through
+`#include` and `wwr.device`.
+
+What a module *can* carry is the pair of enums the operations take — a host
+configurator picks a `wwrThreadScope` (the scope template argument) and a
+`wwrMemoryOrder` (the order runtime argument), and a kernel consumes them, so
+they cross the host/device boundary exactly as `wwrStream_t` and the complex
+types do. `atomic.h` is accordingly a shared-type `.h` (like `runtime.h`): the
+two enums always present and host-visible, the mappings and forwarders behind the
+device-pass gate. `wwr.atomic` (`atomic.cppm`) re-exports *only* the enums, and
+escapes all three objections above — its GMF `#include`s only `atomic.h`, whose
+host path carries no vendor header, so the BMI is tiny; and there is no vendor
+entity behind project-owned enums to assert identity against, so `test/gpu/
+atomic.cppm` pins instead that the re-export carries both enums intact (the
+`vector_types` shape of a test with no `WWR_SAME_*` comparison, one step
+thinner). `import wwr.atomic` is for naming a scope or order host-side; a kernel
+still `#include`s `atomic.h`.
 
 ## 21. Toolkit version floors, and the ratchet policy
 

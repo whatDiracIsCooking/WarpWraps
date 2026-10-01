@@ -1,4 +1,6 @@
-// Compile-time test for src/atomic.cuh, the scoped/ordered atomic forwarders.
+// Compile-time test for src/atomic.h's device section, the scoped/ordered atomic
+// forwarders (the two portable enums it also defines are pinned host-side by
+// test/gpu/atomic.cppm, which imports wwr.atomic).
 // This is the surface ABOVE the bare common atomics: test/gpu/atomics.cu (note
 // the plural) keeps its own job unchanged -- the atomicAdd/CAS/... that both
 // backends spell identically and wwr does NOT wrap. Here every operation
@@ -8,7 +10,7 @@
 //
 // Building this .cu under the selected backend's device pass IS the test: every
 // forwarder x every portable scope named below has to resolve through
-// atomic.cuh's one #include switch on both backends. The kernel is never
+// atomic.h's one #include switch on both backends. The kernel is never
 // launched -- ordering *semantics* cannot be proven by a compile, and a runtime
 // memory-model test is a flake generator, so the compile is the honest limit:
 // it pins that every portable combination resolves, not that the orderings mean
@@ -19,7 +21,7 @@
 // FP atomics ride the default (safe) codegen: -munsafe-fp-atomics is opt-in and
 // not passed here, so atomicAdd on float/double lowers to AMD's correct CAS
 // fallback. See docs/architecture.md section 15.
-#include "atomic.cuh"
+#include "atomic.h"
 
 namespace {
 
@@ -72,7 +74,7 @@ __device__ void wwr_atomic_exercise(int *i, unsigned *u, unsigned long long *ull
 // the instantiation is the assertion. The two vendor-only scopes (CUDA's
 // cluster, HIP's wavefront) are deliberately absent: they have no portable
 // counterpart, exactly as §15 leaves atomicAdd_block/_system out. Reached
-// through wwr.device, which carries atomic.cuh and (on CUDA >= 13) the cccl
+// through wwr.device, which carries atomic.h and (on CUDA >= 13) the cccl
 // include dir <cuda/atomic> needs.
 __global__ void wwr_atomic_all_scopes(int *i, unsigned *u, unsigned long long *ull, float *f,
                                       double *d) {

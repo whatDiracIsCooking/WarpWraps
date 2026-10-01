@@ -1,18 +1,34 @@
 /**
- * @file atomic.cuh
- * @brief Scoped, memory-ordered device atomics for device-compiled TUs
+ * @file atomic.h
+ * @brief Scoped, memory-ordered device atomics, plus the portable order/scope enums
  *
- * `#include`d into a .cu (CUDA) or `-x hip` device-compiled (HIP) TU; link
- * `wwr.device`. The surface ABOVE the common atomics: every operation carries
- * an explicit memory order and thread scope, where the two backends diverge in
- * spelling and so clear the bar the common atomics do not (docs/architecture.md
- * §15 -- those are spelled identically on both, ride the vendor runtime header
- * runtime.h's device section switches, and are wrapped by nothing;
- * test/gpu/atomics.cu pins
- * them). Here CUDA spells the operation `cuda::atomic_ref<T, Scope>` from
- * <cuda/atomic> and HIP spells it a `__hip_atomic_*` clang builtin -- two
- * spellings for one operation, so a forwarder does work rather than renaming a
- * name to itself.
+ * A src/-root header carrying two things, split by compile context rather than
+ * by file -- the `.h` + `.cppm` shape complex.h / rand.h / runtime.h already took:
+ *   - the portable `wwrMemoryOrder` / `wwrThreadScope` enums (always), the one
+ *     surface a host configurator and a kernel must agree on -- re-exported by
+ *     atomic.cppm so `import wwr.atomic` can name a scope or order, and named
+ *     directly by a device TU that #includes this header;
+ *   - the `wwrToVendorScope` / `wwrToVendorOrder` mappings and the `wwrAtomic*`
+ *     forwarders, in a section gated behind the compiler's device-pass macros --
+ *     the device half that used to be the whole of the former atomic.cuh.
+ *
+ * It reaches selected_backend.h directly, not device_guard.h, so it carries no
+ * device-pass #error and compiles in a host TU too -- the device section gates
+ * itself out there (where __device__ is not a keyword and the vendor atomic
+ * spellings are unwanted, so those must be ABSENT rather than #error). That is
+ * what lets atomic.cppm's host compile reach the enums while a device .cu gets
+ * the forwarders on top, and is why this is now a `.h`, not the device-only
+ * `.cuh` it was. Link wwr.device for the device section.
+ *
+ * The forwarders are the surface ABOVE the common atomics: every operation
+ * carries an explicit memory order and thread scope, where the two backends
+ * diverge in spelling and so clear the bar the common atomics do not
+ * (docs/architecture.md §15 -- those are spelled identically on both, ride the
+ * vendor runtime header runtime.h's device section pulls in, and are wrapped by
+ * nothing; test/gpu/atomics.cu pins them). Here CUDA spells the operation
+ * `cuda::atomic_ref<T, Scope>` from <cuda/atomic> and HIP spells it a
+ * `__hip_atomic_*` clang builtin -- two spellings for one operation, so a
+ * forwarder does work rather than renaming a name to itself.
  *
  * Two enums of the project's own, because neither vendor's spelling is
  * portable: `wwrMemoryOrder` and `wwrThreadScope`. The scope is a TEMPLATE
@@ -21,6 +37,13 @@
  * takes the order as a runtime argument; the HIP builtin takes both as function
  * arguments and accepts a runtime value for each (measured, see §20), so it
  * follows the shape libcu++ dictates without complaint.
+ *
+ * Only the enums are re-exported by the module: every forwarder is
+ * `__device__ __forceinline__`, callable from no host TU, so a module could
+ * export nothing else of the operation surface. A module over the host-side
+ * `cuda::atomic` operations was declined (#123) -- see docs/architecture.md §20,
+ * which also has why the enum-only module escapes that decline (its BMI carries
+ * no libcu++).
  *
  * The mapping from `wwrThreadScope` to each vendor's scope constant is the
  * risk: a wrong row is silent -- it compiles on both and gives up an ordering
@@ -33,20 +56,60 @@
  * A compile is the only honest test: ordering *semantics* cannot be proven by
  * one, and a runtime memory-model test is a flake generator. test/gpu/atomic.cu
  * pins that every forwarder x every portable scope resolves under both front
- * ends; the mapping's meaning is a documentation claim (§20), not a runtime
- * assertion. `-munsafe-fp-atomics` is untouched here, as §15 has it: a TU that
- * wants AMD's native FP-atomic codegen passes it on its own device library.
+ * ends, and test/gpu/atomic.cppm that the module exports the two enums; the
+ * mapping's meaning is a documentation claim (§20), not a runtime assertion.
+ * `-munsafe-fp-atomics` is untouched here, as §15 has it: a TU that wants AMD's
+ * native FP-atomic codegen passes it on its own device library.
  */
 
 #pragma once
 
-// device_guard.h for WWR_SELECTED_CUDA / WWR_SELECTED_HIP and the device-pass
-// #error (this is a device-only .cuh, so it refuses a host compile outright);
-// runtime.h for the vendor runtime header its device section pulls in -- which
-// on HIP declares the __HIP_MEMORY_SCOPE_* constants (amd_hip_atomic.h, reached
-// through hip_runtime.h) the builtins take. Unlike cooperative_groups.h /
-// wmma.h it is not WWR_WARP_SIZE that is wanted here but that runtime include.
-#include "device_guard.h"
+// WWR_SELECTED_CUDA / WWR_SELECTED_HIP, from the compiler's device macro in a
+// device pass or from WWR_GPU_BACKEND_* in a host compile. Directly, not via
+// device_guard.h: this header is host-safe (atomic.cppm's compile reaches it for
+// the enums) and must not #error outside a device pass.
+#include "selected_backend.h"
+
+namespace wwr {
+
+// ========================================================================
+// The portable order and scope -- neither vendor's spelling carries across, so
+// these are the project's own (docs/architecture.md §20). Always present: they
+// are plain data, the host-visible surface atomic.cppm re-exports, and backend-
+// neutral (one definition on both, no #if).
+// ========================================================================
+
+/// @brief Memory order for a scoped atomic. Maps to cuda::memory_order (CUDA)
+/// or the __ATOMIC_* clang constant (HIP). `consume` is omitted -- both
+/// vendors treat it as `acquire`.
+enum class wwrMemoryOrder { relaxed, acquire, release, acq_rel, seq_cst };
+
+/// @brief Thread scope an atomic is ordered against. Only the four rows both
+/// backends share; CUDA's `cluster` and HIP's `wavefront` are vendor-only and
+/// reached by naming the vendor form directly (docs/architecture.md §20).
+enum class wwrThreadScope { thread, block, device, system };
+
+} // namespace wwr
+
+// ========================================================================
+// The mappings and forwarders -- present only in a device-compile pass
+//
+// The vendor scope/order mappings and the __device__ __forceinline__
+// forwarders, gated behind the compiler's own device-pass macros so the rest of
+// this header still compiles in a host TU (where __device__ is not a keyword and
+// the vendor atomic spellings are unwanted, so these must be ABSENT rather than
+// #error). A .cu that #includes atomic.h gets them; atomic.cppm, compiled as
+// host C++, does not -- it uses only the enums above. This is the device half
+// that once was the whole of the former atomic.cuh. Link wwr.device.
+// ========================================================================
+
+#if defined(__CUDACC__) || defined(__HIP__) || defined(__HIPCC__)
+
+// The vendor runtime header -- which on HIP declares the __HIP_MEMORY_SCOPE_*
+// constants (amd_hip_atomic.h, reached through hip_runtime.h) the builtins take.
+// Taken from inside the device gate, as cooperative_groups.h / wmma.h take it:
+// runtime.h is host-safe and its own device section self-gates, so it pulls the
+// heavy runtime header only here, in a device pass.
 #include "runtime.h"
 
 #if defined(WWR_SELECTED_CUDA)
@@ -60,21 +123,6 @@
 #endif
 
 namespace wwr {
-
-// ========================================================================
-// The portable order and scope -- neither vendor's spelling carries across, so
-// these are the project's own (docs/architecture.md §20)
-// ========================================================================
-
-/// @brief Memory order for a scoped atomic. Maps to cuda::memory_order (CUDA)
-/// or the __ATOMIC_* clang constant (HIP). `consume` is omitted -- both
-/// vendors treat it as `acquire`.
-enum class wwrMemoryOrder { relaxed, acquire, release, acq_rel, seq_cst };
-
-/// @brief Thread scope an atomic is ordered against. Only the four rows both
-/// backends share; CUDA's `cluster` and HIP's `wavefront` are vendor-only and
-/// reached by naming the vendor form directly (docs/architecture.md §20).
-enum class wwrThreadScope { thread, block, device, system };
 
 #if defined(WWR_SELECTED_CUDA)
 
@@ -295,3 +343,5 @@ __device__ __forceinline__ T wwrAtomicFetchMax(T *ptr, const T value,
 }
 
 } // namespace wwr
+
+#endif // device-compile pass

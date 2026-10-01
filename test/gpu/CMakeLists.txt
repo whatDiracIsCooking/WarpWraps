@@ -35,6 +35,10 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   # vector_types.cppm names via the vendor header directly. Empty, so the shared
   # foreach links only wwr::vector_types.
   set(_gpu_test_raw_vector_types)
+  # atomic wraps no raw vendor module and, unlike vector_types, has no vendor
+  # entity behind its names at all: wwr.atomic exports two project-owned enums.
+  # Empty, so the shared foreach links only wwr::atomic.
+  set(_gpu_test_raw_atomic)
 else()
   set(_gpu_test_raw_runtime_api wwr::hip::hip_runtime_api)
   set(_gpu_test_raw_complex wwr::hip::hip_complex)
@@ -59,6 +63,9 @@ else()
   set(_gpu_test_raw_rtc wwr::hip::hiprtc)
   # See the CUDA branch: vector_types wraps no raw vendor module.
   set(_gpu_test_raw_vector_types)
+  # See the CUDA branch: atomic wraps no raw vendor module and has no vendor
+  # entity behind its names.
+  set(_gpu_test_raw_atomic)
 endif()
 
 set(GPU_TEST_LIBRARIES
@@ -82,6 +89,11 @@ set(GPU_TEST_LIBRARIES
     ccl
     comp
     rtc
+    # atomic exports only the two portable enums (wwrMemoryOrder /
+    # wwrThreadScope); its __device__ operations are a separate device test
+    # (atomic.cu below). _gpu_test_raw_atomic is empty -- no vendor entity
+    # behind the enums. See test/gpu/atomic.cppm.
+    atomic
 )
 
 set(_gpu_test_targets "")
@@ -305,14 +317,16 @@ add_dependencies(
   compile_time_tests wwr.test.gpu.atomics.device
 )
 
-# atomic.cu (singular) tests src/atomic.cuh, the scoped/ordered atomics wwr
-# DOES wrap -- the surface above atomics.cu's bare common atomics, where the two
-# backends diverge (cuda::atomic_ref vs a __hip_atomic_* builtin). The claim it
-# CAN break -- every forwarder x every portable scope resolving under BOTH front
-# ends -- is a device-compile claim, so this is a device TU. Building it is the
-# assertion; no ctest entry, no launch (ordering semantics need a card, not a
-# compile). Reached through wwr.device, which carries atomic.cuh and, on CUDA
-# 13+, the cccl include dir <cuda/atomic> needs.
+# atomic.cu (singular) tests src/atomic.h's device section, the scoped/ordered
+# atomics wwr DOES wrap -- the surface above atomics.cu's bare common atomics,
+# where the two backends diverge (cuda::atomic_ref vs a __hip_atomic_* builtin).
+# The claim it CAN break -- every forwarder x every portable scope resolving
+# under BOTH front ends -- is a device-compile claim, so this is a device TU
+# (atomic.h's two enums are a separate host-module test, wwr.test.gpu.atomic in
+# the shared runner above). Building it is the assertion; no ctest entry, no
+# launch (ordering semantics need a card, not a compile). Reached through
+# wwr.device, which carries atomic.h and, on CUDA 13+, the cccl include dir
+# <cuda/atomic> needs.
 wwr_add_gpu_device_library(
   NAME
   wwr.test.gpu.atomic.device
