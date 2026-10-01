@@ -18,7 +18,10 @@
     "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
     "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
     "prefix": "hipblas",
-    "symbol_count": 81
+    "extra_prefixes": [
+      "hipblaslt"
+    ],
+    "symbol_count": 158
   },
   "linkable": {
     "lib": "libhipblaslt.so.1",
@@ -54,6 +57,663 @@
     "declared_not_linkable": []
   },
   "symbols": [
+    {
+      "name": "HIPBLASLT_EPILOGUE_BGRADA",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_BGRADA = 256",
+      "value": 256,
+      "value_explicit": true,
+      "decl_hash": "385d3954579ef95a"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_BGRADB",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_BGRADB = 512",
+      "value": 512,
+      "value_explicit": true,
+      "decl_hash": "1726365de979c5bf"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_BIAS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_BIAS = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "615d9294386d88c5"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_CLAMP_AUX_BIAS_EXT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_CLAMP_AUX_BIAS_EXT = 131204",
+      "value": 131204,
+      "value_explicit": true,
+      "decl_hash": "ef4a34ac1b4d0f72"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_CLAMP_AUX_EXT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_CLAMP_AUX_EXT = 131200",
+      "value": 131200,
+      "value_explicit": true,
+      "decl_hash": "4b65f6465cd01e62"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_CLAMP_BIAS_EXT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_CLAMP_BIAS_EXT = 131076",
+      "value": 131076,
+      "value_explicit": true,
+      "decl_hash": "984b95c122dddb11"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_CLAMP_EXT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_CLAMP_EXT = 131072",
+      "value": 131072,
+      "value_explicit": true,
+      "decl_hash": "d67b255257edf029"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_DEFAULT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_DEFAULT = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "2b442dcc944ece53"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_DGELU",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_DGELU = 192",
+      "value": 192,
+      "value_explicit": true,
+      "decl_hash": "1cc413e504a46170"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_DGELU_BGRAD",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_DGELU_BGRAD = 208",
+      "value": 208,
+      "value_explicit": true,
+      "decl_hash": "551b63f43ce5dafd"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_GELU",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_GELU = 32",
+      "value": 32,
+      "value_explicit": true,
+      "decl_hash": "c88fa7ed74d61654"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_GELU_AUX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_GELU_AUX = 160",
+      "value": 160,
+      "value_explicit": true,
+      "decl_hash": "9d86cc76ee23c105"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_GELU_AUX_BIAS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_GELU_AUX_BIAS = 164",
+      "value": 164,
+      "value_explicit": true,
+      "decl_hash": "e787867a613ff31c"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_GELU_BIAS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_GELU_BIAS = 36",
+      "value": 36,
+      "value_explicit": true,
+      "decl_hash": "858d6c1bf32d2d68"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_RELU",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_RELU = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "222f9deb662a5d4c"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_RELU_AUX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_RELU_AUX = 130",
+      "value": 130,
+      "value_explicit": true,
+      "decl_hash": "c079ad1dfc1f5d2b"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_RELU_AUX_BIAS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_RELU_AUX_BIAS = 134",
+      "value": 134,
+      "value_explicit": true,
+      "decl_hash": "7c41b3d3cd1ddbf1"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_RELU_BIAS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_RELU_BIAS = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "2eb742a128615dd8"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_SWISH_BIAS_EXT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_SWISH_BIAS_EXT = 65540",
+      "value": 65540,
+      "value_explicit": true,
+      "decl_hash": "8e054316d5e455ef"
+    },
+    {
+      "name": "HIPBLASLT_EPILOGUE_SWISH_EXT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_EPILOGUE_SWISH_EXT = 65536",
+      "value": 65536,
+      "value_explicit": true,
+      "decl_hash": "74a067597ae2d7ec"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_AMAX_D_POINTER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_AMAX_D_POINTER = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "eb568cf08b541e29"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_A_SCALE_MODE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_A_SCALE_MODE = 31",
+      "value": 31,
+      "value_explicit": true,
+      "decl_hash": "cda49e961003e2c6"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_A_SCALE_POINTER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_A_SCALE_POINTER = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "721e593ff2d8e68e"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_BIAS_DATA_TYPE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_BIAS_DATA_TYPE = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "c63ba53ac650aaae"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_BIAS_POINTER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_BIAS_POINTER = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "dced0589af825912"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_B_SCALE_MODE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_B_SCALE_MODE = 32",
+      "value": 32,
+      "value_explicit": true,
+      "decl_hash": "e10102445033f275"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_B_SCALE_POINTER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_B_SCALE_POINTER = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "dda7a0bdb9db3ab2"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_COMPUTE_INPUT_TYPE_A_EXT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_COMPUTE_INPUT_TYPE_A_EXT = 100",
+      "value": 100,
+      "value_explicit": true,
+      "decl_hash": "a0dad983bdc7ba4c"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_COMPUTE_INPUT_TYPE_B_EXT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_COMPUTE_INPUT_TYPE_B_EXT = None",
+      "value": 101,
+      "value_explicit": false,
+      "decl_hash": "6849a26fa0cc1bc1"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_C_SCALE_POINTER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_C_SCALE_POINTER = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "4910d2e9d9aea61a"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_D_SCALE_POINTER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_D_SCALE_POINTER = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "098267bcca78bacc"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_EPILOGUE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_EPILOGUE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "8caae903c9384fae"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_EPILOGUE_ACT_ARG0_EXT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_EPILOGUE_ACT_ARG0_EXT = None",
+      "value": 102,
+      "value_explicit": false,
+      "decl_hash": "83e82f074fb4b9dc"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_EPILOGUE_ACT_ARG1_EXT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_EPILOGUE_ACT_ARG1_EXT = None",
+      "value": 103,
+      "value_explicit": false,
+      "decl_hash": "ffefe3e53a73ba24"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_BATCH_STRIDE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_BATCH_STRIDE = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "f351cac7d19fcb87"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_DATA_TYPE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_DATA_TYPE = 22",
+      "value": 22,
+      "value_explicit": true,
+      "decl_hash": "ac606cbaaf21b9e2"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_LD",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_LD = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "b0f248fa6127486a"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_POINTER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_POINTER = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "933af91ddd1ded6c"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_SCALE_POINTER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_SCALE_POINTER = 9",
+      "value": 9,
+      "value_explicit": true,
+      "decl_hash": "25f594ddc1fde011"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_MAX = None",
+      "value": 104,
+      "value_explicit": false,
+      "decl_hash": "f9ef277abdb0182c"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_POINTER_MODE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_POINTER_MODE = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "f4b145c8bc0dc473"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_TRANSA",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_TRANSA = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "bd99f35476fe6e18"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_DESC_TRANSB",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_DESC_TRANSB = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "54bc3ac5a89b4353"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_MATRIX_SCALE_BLK128x128_32F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_MATRIX_SCALE_BLK128x128_32F = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "b49f1eec04893d86"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_MATRIX_SCALE_END",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_MATRIX_SCALE_END = None",
+      "value": 6,
+      "value_explicit": false,
+      "decl_hash": "33070b47ac2f3f61"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_MATRIX_SCALE_OUTER_VEC_32F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_MATRIX_SCALE_OUTER_VEC_32F = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "25e7324b70ceb3e7"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_MATRIX_SCALE_SCALAR_32F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_MATRIX_SCALE_SCALAR_32F = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "2f1d127e48dfa892"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_MATRIX_SCALE_VEC128_32F",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_MATRIX_SCALE_VEC128_32F = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "eb48439a68b6fc82"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_MATRIX_SCALE_VEC16_UE4M3",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_MATRIX_SCALE_VEC16_UE4M3 = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "40d05829adf153e0"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_MATRIX_SCALE_VEC32_UE8M0",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_MATRIX_SCALE_VEC32_UE8M0 = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "6388ecd57a8ddd85"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_PREF_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_PREF_MAX = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "607c802a33bdc509"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "55f126a4213ea197"
+    },
+    {
+      "name": "HIPBLASLT_MATMUL_PREF_SEARCH_MODE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATMUL_PREF_SEARCH_MODE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "88fb50c6cb46cc7f"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_LAYOUT_BATCH_COUNT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_LAYOUT_BATCH_COUNT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "2ef5b6f90a6d021b"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_LAYOUT_COLS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_LAYOUT_COLS = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "a208bf61c535976a"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_LAYOUT_LD",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_LAYOUT_LD = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "5c555af2e0a854db"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_LAYOUT_ORDER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_LAYOUT_ORDER = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "5aa6879ec8664fc3"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_LAYOUT_ROWS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_LAYOUT_ROWS = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "ecf673ab0867de1b"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_LAYOUT_STRIDED_BATCH_OFFSET",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_LAYOUT_STRIDED_BATCH_OFFSET = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "0d2a7526da544678"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_LAYOUT_TYPE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_LAYOUT_TYPE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "ee7108892fe2230f"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_TRANSFORM_DESC_POINTER_MODE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_TRANSFORM_DESC_POINTER_MODE = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "b5750c9a732de12b"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE = None",
+      "value": 0,
+      "value_explicit": false,
+      "decl_hash": "f7c3d0d3b1e5b9c9"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_TRANSFORM_DESC_TRANSA",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_TRANSFORM_DESC_TRANSA = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "b7b26dc2fd4d2c58"
+    },
+    {
+      "name": "HIPBLASLT_MATRIX_TRANSFORM_DESC_TRANSB",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_MATRIX_TRANSFORM_DESC_TRANSB = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "781aef8c8ebe94c7"
+    },
+    {
+      "name": "HIPBLASLT_ORDER_COL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_ORDER_COL = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "3e05ca39f6cd3d5d"
+    },
+    {
+      "name": "HIPBLASLT_ORDER_COL16_4R16",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_ORDER_COL16_4R16 = 100",
+      "value": 100,
+      "value_explicit": true,
+      "decl_hash": "906f0670c215c491"
+    },
+    {
+      "name": "HIPBLASLT_ORDER_COL16_4R2",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_ORDER_COL16_4R2 = 103",
+      "value": 103,
+      "value_explicit": true,
+      "decl_hash": "edab2492423b24b3"
+    },
+    {
+      "name": "HIPBLASLT_ORDER_COL16_4R4",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_ORDER_COL16_4R4 = 102",
+      "value": 102,
+      "value_explicit": true,
+      "decl_hash": "12c560f60cf26660"
+    },
+    {
+      "name": "HIPBLASLT_ORDER_COL16_4R8",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_ORDER_COL16_4R8 = 101",
+      "value": 101,
+      "value_explicit": true,
+      "decl_hash": "87462606d49a25eb"
+    },
+    {
+      "name": "HIPBLASLT_ORDER_ROW",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_ORDER_ROW = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "6b6fa219c39b2728"
+    },
+    {
+      "name": "HIPBLASLT_POINTER_MODE_ALPHA_DEVICE_VECTOR_BETA_HOST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_POINTER_MODE_ALPHA_DEVICE_VECTOR_BETA_HOST = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "de3164d92213f290"
+    },
+    {
+      "name": "HIPBLASLT_POINTER_MODE_DEVICE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_POINTER_MODE_DEVICE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "32d44e30a0d43cce"
+    },
+    {
+      "name": "HIPBLASLT_POINTER_MODE_HOST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt.h",
+      "decl": "HIPBLASLT_POINTER_MODE_HOST = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "ae75ad7399e1d700"
+    },
     {
       "name": "HIPBLAS_COMPUTE_16F",
       "kind": "EnumConstantDecl",
@@ -704,6 +1364,34 @@
       "header": "/opt/rocm/include/hipblas-common/hipblas-common.h",
       "decl": "typedef enum hipblasStatus_t hipblasStatus_t",
       "decl_hash": "9b0ffcaa56c9f3da"
+    },
+    {
+      "name": "hipblaslt_bf8",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt_float8.h",
+      "decl": "typedef struct hipblaslt_bf8 hipblaslt_bf8",
+      "decl_hash": "077bb50afc95b57d"
+    },
+    {
+      "name": "hipblaslt_bf8_fnuz",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt_float8.h",
+      "decl": "typedef struct hipblaslt_bf8_fnuz hipblaslt_bf8_fnuz",
+      "decl_hash": "be7ce1d4b101f3d8"
+    },
+    {
+      "name": "hipblaslt_f8",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt_float8.h",
+      "decl": "typedef struct hipblaslt_f8 hipblaslt_f8",
+      "decl_hash": "298829d0466007f3"
+    },
+    {
+      "name": "hipblaslt_f8_fnuz",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblaslt/hipblaslt_float8.h",
+      "decl": "typedef struct hipblaslt_f8_fnuz hipblaslt_f8_fnuz",
+      "decl_hash": "67d3e1642b8a48b3"
     }
   ]
 }

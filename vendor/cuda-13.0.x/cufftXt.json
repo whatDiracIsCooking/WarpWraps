@@ -16,7 +16,10 @@
     "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
     "header": "/usr/local/cuda/include/cufftXt.h",
     "prefix": "cufft",
-    "symbol_count": 148
+    "extra_prefixes": [
+      "lib"
+    ],
+    "symbol_count": 155
   },
   "linkable": {
     "lib": "libcufft.so.12",
@@ -553,6 +556,51 @@
       "decl_hash": "d6102bd4ee8294b9"
     },
     {
+      "name": "LIB_FORMAT_CUFFT",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cudalibxt.h",
+      "decl": "LIB_FORMAT_CUFFT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "f5e9627dce89acf7"
+    },
+    {
+      "name": "LIB_FORMAT_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cudalibxt.h",
+      "decl": "LIB_FORMAT_UNDEFINED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "aa68568b1829ee0f"
+    },
+    {
+      "name": "LIB_XT_COPY_DEVICE_TO_DEVICE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cudalibxt.h",
+      "decl": "LIB_XT_COPY_DEVICE_TO_DEVICE = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "03e3b89cdd011500"
+    },
+    {
+      "name": "LIB_XT_COPY_DEVICE_TO_HOST",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cudalibxt.h",
+      "decl": "LIB_XT_COPY_DEVICE_TO_HOST = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "6442573ae9332231"
+    },
+    {
+      "name": "LIB_XT_COPY_HOST_TO_DEVICE",
+      "kind": "EnumConstantDecl",
+      "header": "/usr/local/cuda/include/cudalibxt.h",
+      "decl": "LIB_XT_COPY_HOST_TO_DEVICE = None",
+      "value": 0,
+      "value_explicit": false,
+      "decl_hash": "5f69057bbdf479d8"
+    },
+    {
       "name": "cufftCompatibility_t",
       "kind": "EnumDecl",
       "header": "/usr/local/cuda/include/cufft.h",
@@ -614,6 +662,13 @@
       "header": "/usr/local/cuda/include/cufftXt.h",
       "decl": "enum cufftXtWorkAreaPolicy_t",
       "decl_hash": "9206239a26ea4a90"
+    },
+    {
+      "name": "libFormat_t",
+      "kind": "EnumDecl",
+      "header": "/usr/local/cuda/include/cudalibxt.h",
+      "decl": "enum libFormat_t",
+      "decl_hash": "94206ce83a3f0849"
     },
     {
       "name": "cufftCreate",
@@ -1279,6 +1334,13 @@
       "header": "/usr/local/cuda/include/cufftXt.h",
       "decl": "typedef enum cufftXtWorkAreaPolicy_t cufftXtWorkAreaPolicy",
       "decl_hash": "c422e7e31fc9e8e0"
+    },
+    {
+      "name": "libFormat",
+      "kind": "TypedefDecl",
+      "header": "/usr/local/cuda/include/cudalibxt.h",
+      "decl": "typedef enum libFormat_t libFormat",
+      "decl_hash": "4e18afeafa3ae93b"
     }
   ]
 }

@@ -18,7 +18,10 @@
     "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
     "header": "/opt/rocm/include/roctracer/roctracer.h",
     "prefix": "roctracer",
-    "symbol_count": 53
+    "extra_prefixes": [
+      "activity"
+    ],
+    "symbol_count": 76
   },
   "linkable": {
     "lib": "libroctracer64.so.4",
@@ -69,6 +72,130 @@
     "declared_not_linkable": []
   },
   "symbols": [
+    {
+      "name": "activity_record_s",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "struct activity_record_s",
+      "decl_hash": "c067885be2fd5855"
+    },
+    {
+      "name": "ACTIVITY_API_PHASE_ENTER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_API_PHASE_ENTER = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "3e5f5bc6d58e7db5"
+    },
+    {
+      "name": "ACTIVITY_API_PHASE_EXIT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_API_PHASE_EXIT = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "df5fb034ce423486"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_EXT_API",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_EXT_API = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "df9c088cf9667b95"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_HCC_OPS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_HCC_OPS = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "f719174184f132e3"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_HIP_API",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_HIP_API = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "c4740512da058689"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_HIP_OPS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_HIP_OPS = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "178d4755e393f17d"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_HIP_VDI",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_HIP_VDI = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "98d3d9f6123636be"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_HSA_API",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_HSA_API = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "fca70fbbfe5c3e4d"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_HSA_EVT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_HSA_EVT = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "ec18e222c0bb364d"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_HSA_OPS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_HSA_OPS = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "47dd2d5663f473f7"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_KFD_API",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_KFD_API = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "5fa91192306526bc"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_NUMBER",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_NUMBER = None",
+      "value": 8,
+      "value_explicit": false,
+      "decl_hash": "76eeda53973ee766"
+    },
+    {
+      "name": "ACTIVITY_DOMAIN_ROCTX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "ACTIVITY_DOMAIN_ROCTX = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "79df11b6b1614762"
+    },
     {
       "name": "ROCTRACER_STATUS_BAD_DOMAIN",
       "kind": "EnumConstantDecl",
@@ -412,6 +539,69 @@
       "header": "/opt/rocm/include/roctracer/roctracer.h",
       "decl": "uint32_t roctracer_version_minor()",
       "decl_hash": "2f6d223df5d4e7f5"
+    },
+    {
+      "name": "activity_api_phase_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "typedef enum activity_api_phase_t activity_api_phase_t",
+      "decl_hash": "1546816d0b8230d4"
+    },
+    {
+      "name": "activity_async_callback_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "typedef void (*)(uint32_t, void *, void *) activity_async_callback_t",
+      "decl_hash": "de63ff1d0d18e1bd"
+    },
+    {
+      "name": "activity_correlation_id_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "typedef uint64_t activity_correlation_id_t",
+      "decl_hash": "5679b65d0874dd37"
+    },
+    {
+      "name": "activity_domain_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "typedef enum activity_domain_t activity_domain_t",
+      "decl_hash": "d3cc6bbbd86296ab"
+    },
+    {
+      "name": "activity_kind_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "typedef uint32_t activity_kind_t",
+      "decl_hash": "f8bbb1444f651391"
+    },
+    {
+      "name": "activity_op_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "typedef uint32_t activity_op_t",
+      "decl_hash": "87eadd9368825f52"
+    },
+    {
+      "name": "activity_record_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "typedef struct activity_record_s activity_record_t",
+      "decl_hash": "4831401c689cabcd"
+    },
+    {
+      "name": "activity_rtapi_callback_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "typedef void (*)(uint32_t, uint32_t, const void *, void *) activity_rtapi_callback_t",
+      "decl_hash": "d94e78aace1d77ac"
+    },
+    {
+      "name": "activity_sync_callback_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/roctracer/ext/prof_protocol.h",
+      "decl": "typedef void (*)(uint32_t, activity_record_t *, const void *, void *) activity_sync_callback_t",
+      "decl_hash": "10f1ed73bbc05932"
     },
     {
       "name": "roctracer_allocator_t",

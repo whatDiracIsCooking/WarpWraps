@@ -25,7 +25,7 @@ import manifest_conformance as mc  # noqa: E402
 # The real pin/floor name sets for one library with a genuine floor delta.
 _PIN = ROOT / "vendor" / "rocm-7.2.4" / "hip_runtime_api.json"
 _FLOOR = ROOT / "vendor" / "rocm-7.1.0" / "hip_runtime_api.json"
-PREFIX, PIN = mc.load_manifest(_PIN)
+ACCEPTED, PIN = mc.load_manifest(_PIN)
 _, FLOOR = mc.load_manifest(_FLOOR)
 
 # hipKernelGetName was added in ROCm 7.2 (pin-only); hipMalloc is at both.
@@ -43,7 +43,8 @@ DECLARED_NOT_LINKABLE = "hipExternalMemoryGetMappedMipmappedArray"
 
 
 def check(src: str):
-    return mc.check_source(src, PREFIX, PIN, FLOOR, "hip/hip_runtime_api", "rocm-7.1.0")
+    return mc.check_source(
+        src, ACCEPTED, PIN, FLOOR, "hip/hip_runtime_api", "rocm-7.1.0")
 
 
 def test_real_tree_is_conformant():
@@ -137,13 +138,14 @@ def test_unchecked_ignores_unwrapped_and_nonfunction_names():
 
 
 def test_blind_spot_is_bounded():
-    # Variant-library uppercase constants (HIPBLASLT_* etc.) are captured by no
-    # manifest -- the harvester's prefix rule, not this checker's. Exactly two are
-    # version-guarded (WWR_HIPBLASLT_SINCE_1_2's ...SIGMOID_*_EXT); pin the count
-    # so a newly uncovered guarded constant is noticed here. See the module
-    # docstring's KNOWN BLIND SPOT.
+    # #167 whitelisted each variant library's own token (HIPBLASLT_* -> hipblaslt
+    # etc.) as an extra_prefix, so the once-blind guarded constants
+    # (WWR_HIPBLASLT_SINCE_1_2's ...SIGMOID_*_EXT) are now in scope and validated.
+    # The count is the RESIDUAL -- a guarded using:: on a companion token nobody
+    # whitelisted yet -- pinned at 0 so the next one is noticed, not silently
+    # unchecked. See the module docstring's BLIND SPOTS.
     report = mc.check_all()
-    assert report.blind_spots == 2
+    assert report.blind_spots == 0
 
 
 # ── Assertion 3: macro correctness ──────────────────────────────────────────

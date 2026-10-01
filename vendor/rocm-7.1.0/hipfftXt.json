@@ -18,7 +18,10 @@
     "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
     "header": "/opt/rocm/include/hipfft/hipfftXt.h",
     "prefix": "hipfft",
-    "symbol_count": 120
+    "extra_prefixes": [
+      "hiplib"
+    ],
+    "symbol_count": 124
   },
   "linkable": {
     "lib": "libhipfft.so.0",
@@ -484,6 +487,24 @@
       "decl_hash": "ec6f295cbfce20a9"
     },
     {
+      "name": "HIPLIB_FORMAT_HIPFFT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "HIPLIB_FORMAT_HIPFFT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "34eebdf906a1d7d9"
+    },
+    {
+      "name": "HIPLIB_FORMAT_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "HIPLIB_FORMAT_UNDEFINED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "de45a954ab24f862"
+    },
+    {
       "name": "hipfftLibraryPropertyType_t",
       "kind": "EnumDecl",
       "header": "/opt/rocm/include/hipfft/hipfft.h",
@@ -524,6 +545,13 @@
       "header": "/opt/rocm/include/hipfft/hipfftXt.h",
       "decl": "enum hipfftXtSubFormat_t",
       "decl_hash": "9db228c6bb321b78"
+    },
+    {
+      "name": "hiplibFormat_t",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "enum hiplibFormat_t",
+      "decl_hash": "10fdea1322b0fccf"
     },
     {
       "name": "hipfftCreate",
@@ -1057,6 +1085,13 @@
       "header": "/opt/rocm/include/hipfft/hipfftXt.h",
       "decl": "typedef enum hipfftXtSubFormat_t hipfftXtSubFormat",
       "decl_hash": "bd8de375fdc56ba4"
+    },
+    {
+      "name": "hiplibFormat",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "typedef enum hiplibFormat_t hiplibFormat",
+      "decl_hash": "67b15d868d8e71d9"
     }
   ]
 }

@@ -79,6 +79,13 @@ Usage:
     devtools/vendor_harvest.py --backend HIP --sdk-version "ROCm 7.2.4" \\
         -D __HIP_PLATFORM_AMD__ -D CUDART_VERSION=12000 \\
         -I /opt/rocm/include /opt/rocm/include/hipsparse/hipsparse.h
+
+    # A variant library harvested under its base prefix, admitting its own
+    # uppercase-constant token too (HIPBLASLT_* -> hipblaslt, past prefix hipblas):
+    devtools/vendor_harvest.py --backend HIP --sdk-version "ROCm 7.2.4" \\
+        -D __HIP_PLATFORM_AMD__ -I /opt/rocm/include \\
+        --prefix hipblas --extra-prefix hipblaslt \\
+        /opt/rocm/include/hipblaslt/hipblaslt.h
 """
 
 from __future__ import annotations
@@ -305,14 +312,27 @@ def enum_value(node: dict) -> str | None:
     return None
 
 
-def harvest(ast: dict, prefix: str) -> list[dict]:
-    """Walk the AST, emitting every declaration whose name carries ``prefix``.
+def harvest(ast: dict, prefix: str, extra_prefixes: list[str] = ()) -> list[dict]:
+    """Walk the AST, emitting every declaration whose name carries an accepted token.
+
+    A name is kept iff ``leading_prefix(name)`` is the primary ``prefix`` OR one of
+    ``extra_prefixes`` -- the widening for VARIANT LIBRARIES. A variant harvested
+    under a base prefix (hipblaslt under ``hipblas``, cublasLt under ``cublas``)
+    declares its own uppercase constants whose leading token is the VARIANT, not
+    the base (``HIPBLASLT_EPILOGUE_*`` -> ``hipblaslt``, ``CUBLASLT_MATMUL_TILE_*``
+    -> ``cublaslt``); the exact-``prefix`` rule dropped them. Each extra token is an
+    EXPLICIT, curated addition (see vendor_manifests.sh), never a ``startswith``
+    relaxation: the exact-token rule is also the NOISE FILTER that keeps the STL and
+    C headers a vendor header transitively pulls in (``<system_error>``'s
+    ``no_buffer_space``, ``pthread`` constants, ``round_*``) out of the manifest, so
+    only a whitelisted token widens it.
 
     File attribution uses clang's DOCUMENT-ORDER sticky ``loc.file``: a node
     prints ``file`` only when it differs from the previous node's, so the current
     file is carried forward across the whole pre-order walk (NOT scoped to a
     subtree -- restoring it per-subtree loses a file a sibling just entered).
     """
+    accepted = {prefix, *extra_prefixes}
     state = {"file": None}
     # Per enum, a running counter so an implicit-valued constant still gets a
     # number (its ordinal within the enum), matching C's rules.
@@ -333,7 +353,7 @@ def harvest(ast: dict, prefix: str) -> list[dict]:
         if kind == "EnumDecl":
             enum_counter["next"] = 0
 
-        if kind in _DECL_KINDS and name and leading_prefix(name) == prefix:
+        if kind in _DECL_KINDS and name and leading_prefix(name) in accepted:
             attrs = _child_attrs(node)
             entry: dict = {
                 "name": name,
@@ -454,6 +474,7 @@ def build_manifest(
     header: Path,
     ast: dict,
     prefix: str,
+    extra_prefixes: list[str],
     backend: str,
     sdk_version: str | None,
     arch: str | None,
@@ -466,26 +487,33 @@ def build_manifest(
     lib_soname: str | None,
     lib_reason: str | None,
 ) -> dict:
-    symbols = harvest(ast, prefix)
-    return {
-        "harvest": {
-            "tool": "devtools/vendor_harvest.py",
-            "note": "declared + linkable surface for ONE (backend, sdk, arch, "
-                    "defines) configuration; not a code generator -- see the "
-                    "file header",
-            "command": " ".join(command),
-            "config": {
-                "backend": backend,
-                "sdk_version": sdk_version,
-                "arch": arch,
-                "defines": defines,
-                "includes": includes,
-            },
-            "clang": clang_version,
-            "header": str(header),
-            "prefix": prefix,
-            "symbol_count": len(symbols),
+    symbols = harvest(ast, prefix, extra_prefixes)
+    harvest_block = {
+        "tool": "devtools/vendor_harvest.py",
+        "note": "declared + linkable surface for ONE (backend, sdk, arch, "
+                "defines) configuration; not a code generator -- see the "
+                "file header",
+        "command": " ".join(command),
+        "config": {
+            "backend": backend,
+            "sdk_version": sdk_version,
+            "arch": arch,
+            "defines": defines,
+            "includes": includes,
         },
+        "clang": clang_version,
+        "header": str(header),
+        "prefix": prefix,
+    }
+    # A variant library harvested under a base prefix admits its own leading
+    # token(s) too (see harvest()); record them so the conformance checker keys
+    # membership on the same accepted set. Absent when empty -- a non-variant
+    # manifest is byte-identical to before this field existed.
+    if extra_prefixes:
+        harvest_block["extra_prefixes"] = sorted(set(extra_prefixes))
+    harvest_block["symbol_count"] = len(symbols)
+    return {
+        "harvest": harvest_block,
         "linkable": linkable_report(
             symbols, prefix, linkable, lib, lib_soname, lib_reason),
         "symbols": symbols,
@@ -520,6 +548,14 @@ def main(argv: list[str] | None = None) -> int:
                         metavar="DIR", help="an include dir (repeatable)")
     parser.add_argument("--prefix", help="pin the vendor prefix (else the mode "
                         "of prefixed identifiers, seeded by --backend)")
+    parser.add_argument("--extra-prefix", dest="extra_prefixes", action="append",
+                        default=[], metavar="TOKEN", help="an ADDITIONAL leading "
+                        "token to admit beyond --prefix (repeatable). For a variant "
+                        "library harvested under a base prefix whose own uppercase "
+                        "constants lead with the variant token (hipblaslt under "
+                        "prefix hipblas: --extra-prefix hipblaslt). An explicit "
+                        "whitelist, not a startswith relaxation -- the exact-token "
+                        "rule keeps transitive STL/C noise out")
     parser.add_argument("--std", default="c++17",
                         help="C++ standard passed to clang (default c++17)")
     parser.add_argument("--lib", type=Path, default=None,
@@ -600,7 +636,8 @@ def main(argv: list[str] | None = None) -> int:
         "-ferror-limit=0", "-Xclang", "-ast-dump=json", *flags, str(args.header),
     ]
     manifest = build_manifest(
-        header=args.header, ast=ast, prefix=prefix, backend=args.backend,
+        header=args.header, ast=ast, prefix=prefix,
+        extra_prefixes=args.extra_prefixes, backend=args.backend,
         sdk_version=args.sdk_version, arch=args.arch, defines=args.defines,
         includes=args.includes, clang_version=clang_version_string(clang),
         command=command, linkable=linkable, lib=lib_name,
