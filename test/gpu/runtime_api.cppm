@@ -98,6 +98,7 @@ WWR_SAME_FUNCTION(wwrDeviceSynchronize, cudaDeviceSynchronize)
 
 WWR_SAME_VALUE(wwrErrorInvalidValue, cudaErrorInvalidValue)
 WWR_SAME_FUNCTION(wwrGetLastError, cudaGetLastError)
+WWR_SAME_FUNCTION(wwrPeekAtLastError, cudaPeekAtLastError)
 
 WWR_SAME_VALUE(wwrMemcpyDefault, cudaMemcpyDefault)
 // wwrMallocAsync / wwrMallocFromPoolAsync are hand-written forwarders, not plain
@@ -225,6 +226,7 @@ WWR_SAME_FUNCTION(wwrDeviceSynchronize, hipDeviceSynchronize)
 
 WWR_SAME_VALUE(wwrErrorInvalidValue, hipErrorInvalidValue)
 WWR_SAME_FUNCTION(wwrGetLastError, hipGetLastError)
+WWR_SAME_FUNCTION(wwrPeekAtLastError, hipPeekAtLastError)
 
 WWR_SAME_VALUE(wwrMemcpyDefault, hipMemcpyDefault)
 // wwrMallocAsync / wwrMallocFromPoolAsync are hand-written forwarders, not plain

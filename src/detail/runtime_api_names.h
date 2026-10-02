@@ -144,6 +144,7 @@ WWR_RT_VALUE(ArraySurfaceLoadStore)
 WWR_RT_FUNCTION(GetErrorName)
 WWR_RT_FUNCTION(GetErrorString)
 WWR_RT_FUNCTION(GetLastError)
+WWR_RT_FUNCTION(PeekAtLastError)
 
 // Device
 WWR_RT_FUNCTION(GetDevice)

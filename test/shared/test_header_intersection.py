@@ -337,15 +337,19 @@ def test_resolved_names_reads_the_paste_and_explicit_macros():
 
 def test_runtime_paste_surface_is_legible_to_coverage():
     # Before #258 the literal scan saw ~9/686 (blind to the WWR_RT_* paste). Now
-    # the token-pasted GetLastError reads COVERED, while its unreferenced sibling
-    # PeekAtLastError reads MISSING -- the #257 gap, correctly surfaced.
+    # the token-pasted error-handling pair resolves and reads COVERED:
+    # GetLastError (clears the sticky error) and its sibling PeekAtLastError (the
+    # #257 gap, wrapped in the same change that closed it).
     report = _report(RT_CUDA, RT_HIP, RT_SRC)
     cov = report["coverage"]
     covered = cov["intersection"] - len(cov["missing"])
     assert covered >= 80, f"paste surface still largely invisible: {covered}"
     missing = {m["key"] for m in cov["missing"]}
-    assert "getlasterror" not in missing   # WWR_RT_FUNCTION(GetLastError) resolved
-    assert "peekatlasterror" in missing     # #257: sibling not yet wrapped
+    assert "getlasterror" not in missing
+    assert "peekatlasterror" not in missing
+    # Gap detection itself (an unreferenced shared symbol lands in `missing`) is
+    # pinned by the synthetic-fixture tests below, independent of which real
+    # runtime symbols are wrapped at any given point in the milestone.
 
 
 def test_deprecated_shared_symbol_is_not_a_gap(tmp_path):
