@@ -38,3 +38,5 @@ target_link_libraries(wwr.thrust INTERFACE wwr::device)
 # cleanly. Keep this block alphabetical.
 # ============================================================================
 add_subdirectory(reorder)
+add_subdirectory(scan)
+add_subdirectory(reduce)
