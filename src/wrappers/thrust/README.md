@@ -117,6 +117,49 @@ Also present and identical: `transform_if` (3).
   "deprecated" doc mentions in both trees (chiefly "relying on the address of a
   predicate's arguments is deprecated"); none is a removed overload. No action.
 
+## A-transform: the elementwise family (issue #241)
+
+The first family built on this audit. It ships at **two altitudes**, split by
+whether the operation needs a caller-supplied functor:
+
+- **Module `wwr.wrappers.thrust` (`elementwise.cppm`)** — the value-based and
+  fixed-op surface: `fill`, `sequence`, `replace`, and `transform_unary` /
+  `transform_binary` over a small portable op set (`UnaryOp::Negate|Abs|Square`,
+  `BinaryOp::Plus|Minus|Multiply`). No caller functor crosses the host/device
+  boundary, so each is instantiated once in `elementwise.cu`
+  (`thrust::<algo>(wwr::par_on(stream), …)`) and bound by `extern template`,
+  exactly as `src/extension/random_normal` is. Import it and call — no device TU
+  on the consumer side.
+- **Header template `algorithms.cuh`** — `for_each`, `generate`, `tabulate`, and
+  a free-functor `transform`. Their whole point is an *arbitrary* caller op,
+  which cannot be pre-instantiated, so they are header templates a consumer's own
+  `.cu` `#include`s and instantiates with its functor (the same way
+  `parallel_for.cuh` is consumed).
+
+Per-algorithm element coverage, justified where it narrows: `fill` / `replace` /
+`transform` (negate, square, binary) cover the full numeric set incl. complex
+(complex handled through the `wwrC*` device primitives — `cuComplex`/`hipComplex`
+have no operators or `operator==`, so `replace` on them routes through
+`replace_if` with a component-wise predicate); `sequence` is reals + integers
+(no meaningful linear step for complex); `transform` **abs** is reals + signed
+integers only (complex magnitude is a different, real-valued type — not an
+in-place elementwise map).
+
+### transform vs. parallel_for — reach for which
+
+This family **does not replace** `src/extension/parallel_for`; they coexist at
+different altitudes:
+
+| Reach for… | When |
+|---|---|
+| `wwr.wrappers.thrust` / `algorithms.cuh` | A clean elementwise *map* over contiguous device buffer(s) — `out[i] = op(in[i])`, fills, sequences, replaces — where you want Thrust's typed, range/iterator ergonomics and a one-line call. |
+| `parallel_for.cuh` | The lower-level, hand-written index-per-thread kernel: manual indexing, multi-array gather/scatter, or any non-elementwise per-index work. |
+
+`parallel_for` itself once *was* Thrust-backed and **dropped** that backend for
+the hand-written `.cuh` (see `src/extension/parallel_for/CMakeLists.txt` and
+memory `project-thrust-algorithms-break-under-rdc`); `transform` now *is* Thrust,
+at the higher range altitude. The two are complementary, not redundant.
+
 ## Scope boundary of this audit
 
 This covers the four A-family algorithm sets named in issue #236. It does **not**

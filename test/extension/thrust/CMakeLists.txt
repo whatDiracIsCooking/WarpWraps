@@ -61,3 +61,47 @@ wwr_add_gtest_suite_tests(
   60
   REQUIRES_GPU
 )
+
+# ===========================================================================
+# A-transform: elementwise family (issue #241) acceptance.
+# ---------------------------------------------------------------------------
+# Self-contained block -- sibling A-families append their own below; keep each
+# additive and separated so the serialized merge is trivial.
+#
+# Unlike the F2 stream suite above, the wrappers under test are the host module
+# wwr.wrappers.thrust.elementwise, so there is no device TU here: the host suite
+# imports the module and drives it end to end. REQUIRES_GPU: it launches and
+# synchronizes on a real device.
+wwr_add_gtest_executable(
+  NAME
+  extension_thrust_elementwise_tests
+  SOURCES
+  elementwise_tests.cpp
+  LINK
+  wwr::runtime_api
+  wwr::complex
+  wwr::wrappers::thrust::elementwise
+)
+
+# Under CUDA, Thrust instantiates host-side error-category helpers that nvcc's
+# default (gcc) host pass compiled against libstdc++ while the rest is libc++;
+# link libstdc++ AFTER the module's device archive so those symbols resolve --
+# the same both-standard-libraries link the F2 suite above makes, same reason.
+# HIP compiles the .cu as CXX under libc++, so it needs nothing here.
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
+  target_link_libraries(
+    extension_thrust_elementwise_tests
+    PRIVATE /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+  )
+endif()
+
+wwr_add_gtest_suite_tests(
+  TARGET
+  extension_thrust_elementwise_tests
+  SUITES
+  ThrustElementwiseTests
+  TIMEOUT
+  120
+  REQUIRES_GPU
+)
+# ===========================================================================
