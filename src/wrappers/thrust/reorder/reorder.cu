@@ -13,7 +13,7 @@
 // the bridge declarations that follow.
 #include "wrappers/thrust/execution_policy.cuh"
 
-#include "wrappers/thrust/reorder_bridge.h"
+#include "wrappers/thrust/reorder/reorder_bridge.h"
 
 #include <thrust/copy.h>
 #include <thrust/device_ptr.h>
