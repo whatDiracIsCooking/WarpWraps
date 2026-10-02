@@ -48,10 +48,12 @@ header for how the verdict is applied). It needs **no SDK** — pure data.
 - **whole-surface** (`rand`, `fft`, `tx`) — promises the full intersection
   (`WWR_FUNCTION(gpu, cu, hip)` spells both names). An undocumented gap **fails**
   `--coverage`; a gap listed in `omissions` **passes** (a named, justified skip).
-- **curated-subset** (`blas`, `solver`, `sparse`, `runtime_api`) — wraps only
-  what the layer above uses, so its gaps are a discovery menu: **reported, never
-  failed**. Completeness for these is enforced by the compiler,
-  `test/shared/alias_coverage.py`, and the dispatch tables.
+- **curated-subset** (`blas`, `solver`, `sparse`, `runtime_api`) —
+  demand-complete: carries a `wwr*` name only once a consumer (a wrapper, a
+  test, or the example) reaches for it, not the whole intersection, so its gaps
+  are a discovery menu: **reported, never failed**. Completeness for these is
+  enforced by the compiler, `test/shared/alias_coverage.py`, and the dispatch
+  tables. (`runtime_api` is slated to move to whole-surface — see milestone #4.)
 
 ### An `omissions` entry
 

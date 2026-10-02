@@ -2,7 +2,7 @@
   "$schema-doc": "devtools/coverage_decisions.json -- the CURATED half of the shared-surface spec. See devtools/header_intersection.py's header for how it is applied, and devtools/README-coverage-decisions.md for the schema. This file is HAND-WRITTEN decisions only, NOT harvested: it sits on top of the machine-generated vendor/*.json manifests and records the handful of human judgements the manifests cannot derive -- each module's contract class, and the shared names a whole-surface module deliberately does not wrap. Everything derivable stays derived in the manifests; only exceptions live here.",
   "contract_classes": {
     "whole-surface": "Promises to wrap everything the two backends share (WWR_FUNCTION spells both names). A shared name absent from the module source is a DEFECT and fails --coverage -- UNLESS it is listed under this module's `omissions`, which turns a named, justified gap into a pass.",
-    "curated-subset": "Wraps only the names the layer above uses; never promised the full intersection. --coverage REPORTS its `missing` list as a discovery menu and does not fail. Completeness is enforced elsewhere (the compiler, test/shared/alias_coverage.py, the dispatch tables)."
+    "curated-subset": "Demand-complete: carries a wwr* name only once a consumer (a wrapper, a test, or the example) reaches for it, never the full intersection. --coverage REPORTS its `missing` list as a discovery menu and does not fail. Completeness is enforced elsewhere (the compiler, test/shared/alias_coverage.py, the dispatch tables)."
   },
   "modules": {
     "rand": {

@@ -77,11 +77,11 @@ For these ``--coverage`` is the real completeness gate: an undocumented gap is a
 genuine hole and FAILS, but a gap listed under that module's ``omissions`` in the
 decisions file is a deliberate, justified skip and PASSES.
 
-A CURATED-SUBSET module (blas, solver, sparse, runtime_api) lists only the names
-the layer above it uses ("Only the names src/wrappers/blas uses are listed") --
-it never promised the full intersection, so its "missing" list is
-reachable-but-unused vendor symbols, a discovery menu that is REPORTED, not
-failed. For all four, completeness is enforced elsewhere: the compiler (an
+A CURATED-SUBSET module (blas, solver, sparse, runtime_api) is demand-complete:
+it carries a wwr* name only once a consumer reaches for it, never the full
+intersection, so its "missing" list is reachable-but-unused vendor symbols, a
+discovery menu that is REPORTED, not failed. For all four, completeness is
+enforced elsewhere: the compiler (an
 unresolved wwr* name cannot be consumed), ``test/shared/alias_coverage.py``
 (every alias defined has a test), and the dispatch tables that
 ``test/shared/dispatch.py`` checks. Without ``--module`` (an ad-hoc run) any gap
