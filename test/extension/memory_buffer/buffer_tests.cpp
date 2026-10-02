@@ -98,6 +98,47 @@ TYPED_TEST(HostAccessibleOwningBufferTest, MoveAssignmentReleasesThenTakesOwners
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Construction from a std::vector: owning, host-reachable, non-device kinds
+//
+// The std::vector constructors live on BaseBuffer behind !IsView && !is_device,
+// so they reach Host and Pinned but not Unified (is_device) or Device. One
+// typed suite proves the shared copy-in once per eligible kind; build_time/
+// memory_buffer.cppm asserts the eligibility (which kinds offer the ctor).
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+template<typename Buf>
+class VectorConstructedBufferTest : public ::testing::Test {};
+
+using VectorConstructibleBufferTypes =
+    ::testing::Types<HostBufferWrapper<float, HostAbort, HostAbort>, PinnedBufferWrapper<float, Abort, Abort>>;
+TYPED_TEST_SUITE(VectorConstructedBufferTest, VectorConstructibleBufferTypes);
+
+TYPED_TEST(VectorConstructedBufferTest, CopiesVectorElements) {
+  const std::vector<float> values{1.0f, 2.0f, 3.0f, 4.0f};
+  TypeParam buf(values);
+  ASSERT_NE(buf.data(), nullptr);
+  EXPECT_EQ(buf.num_elements(), values.size());
+  EXPECT_EQ(buf.size_bytes(), values.size() * sizeof(float));
+  for (std::size_t i = 0; i < values.size(); ++i) {
+    EXPECT_EQ(buf[i], values[i]) << "at index " << i;
+  }
+}
+
+TYPED_TEST(VectorConstructedBufferTest, DoesNotAliasSourceVector) {
+  std::vector<float> values{5.0f, 6.0f, 7.0f};
+  TypeParam buf(values);
+  values[0] = 99.0f;       // mutate the source after the copy
+  EXPECT_EQ(buf[0], 5.0f); // the buffer kept its own copy
+}
+
+TYPED_TEST(VectorConstructedBufferTest, EmptyVectorIsEmptyBuffer) {
+  const std::vector<float> values;
+  TypeParam buf(values);
+  EXPECT_EQ(buf.data(), nullptr);
+  EXPECT_EQ(buf.num_elements(), std::size_t{0});
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // HostBufferWrapper
 //
 // Zero-init, the move constructor and move-assignment are covered for every

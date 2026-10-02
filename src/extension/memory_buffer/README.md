@@ -85,6 +85,8 @@ instantiable; `storage_type` is `T` for every case in which the operator is enab
 
 **With error policy (host and pinned only):** `Buffer<T> buf(n, policy);` or `Buffer<T> buf(n, policy_alloc, policy_free);`
 
+**From a `std::vector` (`HostBuffer` and `PinnedBuffer` only):** `Buffer<T> buf(values);` — sizes the buffer to `values.size()` and copies the bytes in with `std::memcpy`. The same `policy` / `policy_alloc, policy_free` overloads are offered. Restricted to the host-reachable non-device kinds (`!is_device`): the copy writes through an ordinary host pointer, so `UnifiedBuffer` (host-reachable but `is_device`) and `DeviceBuffer` are excluded, as are views.
+
 **Device and unified buffers are drawn from a shared handle** (`MyDeviceHandle` is the consumer's own — see above):
 ```cpp
 auto device = std::make_shared<MyDeviceHandle>(0);

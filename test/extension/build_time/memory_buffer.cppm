@@ -54,6 +54,21 @@ static_assert(buffer_typename<HostBufferWrapper<float, HostAbort, HostAbort>, fl
 static_assert(HostBufferWrapper<void, HostAbort, HostAbort>::element_size == 1);
 static_assert(HostBufferWrapper<float, HostAbort, HostAbort>::element_size == sizeof(float));
 
+// Construction from a std::vector is offered only for owning, host-reachable,
+// non-device kinds (!IsView && !is_device): the copy writes through an ordinary
+// host pointer. Host and Pinned qualify; Unified is host-reachable but still
+// is_device, Device is neither, and a view owns no storage to copy into. The
+// three policy arities mirror the count constructors.
+static_assert(std::is_constructible_v<HostBufferWrapper<float, HostAbort, HostAbort>, const std::vector<float> &>);
+static_assert(std::is_constructible_v<HostBufferWrapper<float, HostAbort, HostAbort>, const std::vector<float> &, HostAbort>);
+static_assert(std::is_constructible_v<HostBufferWrapper<float, HostAbort, HostAbort>, const std::vector<float> &, HostAbort, HostAbort>);
+static_assert(std::is_constructible_v<PinnedBufferWrapper<float, Abort, Abort>, const std::vector<float> &>);
+static_assert(!std::is_constructible_v<UnifiedBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>, const std::vector<float> &>);
+static_assert(!std::is_constructible_v<DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>, const std::vector<float> &>);
+static_assert(!std::is_constructible_v<BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>, const std::vector<float> &>);
+// A void buffer's vector is spelled in storage_type (std::byte), never void.
+static_assert(std::is_constructible_v<HostBufferWrapper<void, HostAbort, HostAbort>, const std::vector<std::byte> &>);
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Zero-cost alloc/free policy slots (issues #67, #71)
 //

@@ -154,6 +154,62 @@ public:
   }
 
   /**
+     * @brief Construct an owning buffer holding a copy of a std::vector's elements
+     *
+     * @param values Source elements; the buffer is sized to values.size() and
+     *               the bytes are copied in with a plain std::memcpy
+     * @param location Source location for error reporting
+     *
+     * @note Only available for owning, host-reachable buffers that are not
+     *       device buffers - Host and Pinned, i.e. !IsView && !is_device. The
+     *       copy writes through an ordinary host pointer, so Device and Unified
+     *       are excluded (Unified is host-reachable but still is_device).
+     * @note Spelled std::vector<storage_type>, not std::vector<T>: for a void
+     *       buffer storage_type is std::byte, and std::vector<void> would make
+     *       the declaration ill-formed even behind the constraint - the same
+     *       reason operator[] is declared in storage_type.
+     */
+  BaseBuffer(const std::vector<storage_type> &values,
+             const std::source_location location = std::source_location::current())
+    requires(!IsView && !is_device)
+      : BaseBuffer(values.size(), location) {
+    copy_in_(values);
+  }
+
+  /**
+     * @brief Construct from a std::vector with a custom allocation policy
+     *
+     * @param values Source elements (see the single-argument overload)
+     * @param policy Error policy for both allocation and deallocation
+     * @param location Source location for error reporting
+     *
+     * @note Only available for owning, host-reachable buffers (!IsView && !is_device)
+     */
+  BaseBuffer(const std::vector<storage_type> &values, P_alloc policy,
+             const std::source_location location = std::source_location::current())
+    requires(!IsView && !is_device)
+      : BaseBuffer(values.size(), std::move(policy), location) {
+    copy_in_(values);
+  }
+
+  /**
+     * @brief Construct from a std::vector with separate alloc/free policies
+     *
+     * @param values Source elements (see the single-argument overload)
+     * @param policy_alloc Error policy for allocation
+     * @param policy_free Error policy for deallocation
+     * @param location Source location for error reporting
+     *
+     * @note Only available for owning, host-reachable buffers (!IsView && !is_device)
+     */
+  BaseBuffer(const std::vector<storage_type> &values, P_alloc policy_alloc, P_free policy_free,
+             const std::source_location location = std::source_location::current())
+    requires(!IsView && !is_device)
+      : BaseBuffer(values.size(), std::move(policy_alloc), std::move(policy_free), location) {
+    copy_in_(values);
+  }
+
+  /**
      * @brief Construct a sub-view from any buffer of the same T and K
      *
      * @param src The source buffer to create a view of
@@ -447,6 +503,25 @@ protected:
   }
 
 private:
+  /**
+     * @brief Copy a host vector's bytes into the just-allocated storage
+     *
+     * @param values The source vector, whose size the delegated-to count
+     *               constructor has already allocated for
+     *
+     * @note Guarded on data_: a rejected size or a failed allocation under a
+     *       non-fatal policy leaves data_ null and num_elements_ 0, and
+     *       std::memcpy is undefined on a null destination even for zero bytes.
+     *       On success num_elements_ == values.size(), so the byte count is
+     *       exact. storage_type is trivially copyable (the class static_assert),
+     *       so a bytewise copy reproduces the elements.
+     */
+  void copy_in_(const std::vector<storage_type> &values) noexcept {
+    if (data_ != nullptr) {
+      std::memcpy(data_, values.data(), num_elements_ * element_size);
+    }
+  }
+
   /**
      * @brief Size-check, then allocate, maintaining the empty-buffer invariant
      *
