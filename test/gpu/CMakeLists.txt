@@ -402,15 +402,19 @@ add_dependencies(compile_time_tests wwr.test.gpu.math.device)
 # target carries the right include dirs on both backends -- CCCL on CUDA,
 # rocThrust on HIP. A device TU because thrust/*.h assume a device pass;
 # building it is the assertion; no ctest entry, no launch.
-wwr_add_gpu_device_library(
-  NAME
-  wwr.test.gpu.thrust.device
-  SOURCES
-  thrust.cu
-  LINK_PRIVATE
-  wwr::thrust
-)
-add_dependencies(compile_time_tests wwr.test.gpu.thrust.device)
+#
+# TEMPORARILY DISABLED: wwr::thrust was defined by src/wrappers/thrust/, which
+# has been torn down (step 1 of the Thrust-layer rebuild). thrust.cu stays on
+# disk, out of the build; restore against the new layout in a later step.
+# wwr_add_gpu_device_library(
+#   NAME
+#   wwr.test.gpu.thrust.device
+#   SOURCES
+#   thrust.cu
+#   LINK_PRIVATE
+#   wwr::thrust
+# )
+# add_dependencies(compile_time_tests wwr.test.gpu.thrust.device)
 
 # Guard: every wwr* function alias in the wwr* layer is independently verified
 # by a WWR_SAME_FUNCTION restatement in the matching test/gpu module, or by a

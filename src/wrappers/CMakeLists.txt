@@ -8,4 +8,6 @@ add_subdirectory(solver)
 add_subdirectory(sparse)
 add_subdirectory(fft)
 add_subdirectory(rand)
-add_subdirectory(thrust)
+# add_subdirectory(thrust)  # temporarily removed: the Thrust layer is being
+# rebuilt from scratch (new src/thrust/ design). Step 1 tears down the old
+# src/wrappers/thrust/ layer; restore under the new layout in a later step.
