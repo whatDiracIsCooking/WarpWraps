@@ -13,7 +13,7 @@
  *     gated behind the compiler's device-pass macros -- the device half that
  *     used to live in the separate runtime.cuh, folded in so a device .cu
  *     includes this one neutral header. The surface is the SAME list the module
- *     exports (runtime_api_surface.h), so a device .cu/.cuh -- which cannot
+ *     exports (detail/runtime_api_names.h), so a device .cu/.cuh -- which cannot
  *     import the module -- still allocates, copies, launches and synchronises
  *     through wwr* names; the device section's banner has the no-collision
  *     argument.
@@ -40,7 +40,7 @@
  * the runtime API surface (functions, constants, the other handle types) reaches
  * a HOST TU as wwr.runtime_api's, by import; a DEVICE TU, which cannot import,
  * gets that same surface from this header's device section below (the shared
- * runtime_api_surface.h). runtime_api.cppm exports the SAME
+ * detail/runtime_api_names.h). runtime_api.cppm exports the SAME
  * ::cudaStream_t / ::hipStream_t to importers, but does NOT include this header:
  * it draws the handle (and the rest of the surface) from its own vendor-include
  * header runtime_api.h, which #undef's the allocation-flag macros that would
@@ -97,7 +97,7 @@ using wwrStream_t = ::hipStream_t;
 // Why the surface is here as well as in the module: a device .cu/.cuh CANNOT
 // import wwr.runtime_api, yet a launcher written in one legitimately allocates,
 // copies, launches and synchronises. So runtime.h pastes the SAME list the
-// module exports -- runtime_api_surface.h -- binding it to the vendor's ::cuda*
+// module exports -- detail/runtime_api_names.h -- binding it to the vendor's ::cuda*
 // / ::hip* names from the MINIMAL api header, BEFORE the full runtime header
 // below adds the C++ convenience overloads that would defeat the reference
 // binding (the section below has the ordering argument). Selection keys on
@@ -163,7 +163,7 @@ using wwrStream_t = ::hipStream_t;
 #define WWR_RT_FUNCTION(x) WWR_FUNCTION_RAW(wwr##x, cuda##x, hip##x)
 
 namespace wwr {
-#include "runtime_api_surface.h"
+#include "detail/runtime_api_names.h"
 } // namespace wwr
 
 #undef WWR_SELECT_RAW

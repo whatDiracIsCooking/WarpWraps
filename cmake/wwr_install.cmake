@@ -289,12 +289,27 @@ function(wwr_install_package)
           DESTINATION "${WWR_INSTALL_INCLUDEDIR}"
   )
 
+  # The src/detail/ shared include fragments (runtime_api_names.h, ...) -- the
+  # macro-driven name lists pasted (never imported) by the module's purview,
+  # runtime.h's device section AND wwr/runtime_api.h, each `#include`d
+  # root-relative as "detail/...". Mirrored under include/wwr/detail/ so that
+  # spelling resolves against the package include root for the two header paths
+  # that travel (runtime.h and wwr/runtime_api.h); the module compiles in-tree
+  # only, so its copy never needs the installed fragment.
+  install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/src/detail/"
+    DESTINATION "${WWR_INSTALL_INCLUDEDIR}/detail"
+    FILES_MATCHING
+    PATTERN "*.h"
+  )
+
   # The src/wwr/ header-only consumption path (wwr/runtime_api.h, ...) -- the
   # self-contained .h a non-module consumer #includes instead of importing.
   # Mirrored under include/wwr/wwr/ so `#include "wwr/runtime_api.h"` resolves
   # against the package include root, exactly as the wrappers/ and extension/
-  # subtrees below are mirrored. Each header there is self-contained bar
-  # selected_backend.h, which the src/*.h glob above already installs.
+  # subtrees below are mirrored. It pulls the shared name list via
+  # "detail/runtime_api_names.h" (installed just above) and the flag-dance
+  # preamble + selected_backend.h, which the src/*.h glob above installs.
   install(
     DIRECTORY "${PROJECT_SOURCE_DIR}/src/wwr/"
     DESTINATION "${WWR_INSTALL_INCLUDEDIR}/wwr"

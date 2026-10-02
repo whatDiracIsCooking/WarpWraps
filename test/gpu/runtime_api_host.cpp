@@ -8,8 +8,8 @@
 // representative spread across types, constants (including a flag that went
 // through runtime_api.h's #undef-to-constexpr dance) and functions is enough:
 // the full surface is already pinned name-by-name by the module test, and this
-// shares runtime_api_surface.h with it, so what is under test here is the include
-// PATH, not the list.
+// shares detail/runtime_api_names.h with it, so what is under test here is the
+// include PATH, not the list.
 //
 // A plain .cpp, not a .cppm: that is the whole point. It imports nothing and
 // links wwr::runtime_api::host, the header-only target. The expected backend

@@ -2,10 +2,10 @@
 //
 // main.cpp reaches the runtime API by `import wwr.runtime_api;`. This TU reaches
 // the SAME surface the other way a consumer can: #include "wwr/runtime_api.h",
-// no import at all. It is the install-check for that path -- that runtime_api.h,
-// the runtime_api_surface.h it pulls in, and the wwr::runtime_api::host target
-// all travel in the package and re-attach in a find_package consumer, so a
-// project not using C++ modules can still use wwr.
+// no import at all. It is the install-check for that path -- that
+// wwr/runtime_api.h, the detail/runtime_api_names.h it pulls in, and the
+// wwr::runtime_api::host target all travel in the package and re-attach in a
+// find_package consumer, so a project not using C++ modules can still use wwr.
 //
 // A SEPARATE translation unit from main.cpp on purpose: main.cpp imports
 // wwr.runtime_api, and importing the module AND #including this header in one TU
