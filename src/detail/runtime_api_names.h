@@ -76,6 +76,29 @@ WWR_RT_TYPE(ChannelFormatKind)
 WWR_RT_TYPE(ResourceType)
 WWR_RT_TYPE(Array_t)
 
+// Execution control -- stream/event/launch/occupancy/func types (#261). Plain
+// typedefs, enums, structs and the stream-callback function-pointer typedef; the
+// _st tags are aliased alongside their typedefs because both shared names must
+// carry a wwr* spelling.
+WWR_RT_TYPE(StreamCallback_t)
+WWR_RT_TYPE(StreamCaptureStatus)
+WWR_RT_TYPE(StreamUpdateCaptureDependenciesFlags)
+WWR_RT_TYPE(EventRecordNodeParams)
+WWR_RT_TYPE(EventWaitNodeParams)
+WWR_RT_TYPE(FuncAttribute)
+WWR_RT_TYPE(FuncAttributes)
+WWR_RT_TYPE(Function_t)
+WWR_RT_TYPE(Kernel_t)
+WWR_RT_TYPE(KernelNodeParams)
+WWR_RT_TYPE(LaunchAttribute)
+WWR_RT_TYPE(LaunchAttribute_st)
+WWR_RT_TYPE(LaunchAttributeID)
+WWR_RT_TYPE(LaunchAttributeValue)
+WWR_RT_TYPE(LaunchConfig_st)
+WWR_RT_TYPE(LaunchConfig_t)
+WWR_RT_TYPE(LaunchMemSyncDomain)
+WWR_RT_TYPE(LaunchMemSyncDomainMap)
+
 // ========================================================================
 // Constants
 // ========================================================================
@@ -198,6 +221,29 @@ WWR_RT_VALUE(ResourceTypeLinear)
 // wrappers -- the backends spell these as macros).
 WWR_RT_VALUE(ArrayDefault)
 WWR_RT_VALUE(ArraySurfaceLoadStore)
+
+// Execution control -- stream/launch/func enum constants (#261). Enum values,
+// not flag macros, so WWR_RT_VALUE binds them straight from the vendor header.
+WWR_RT_VALUE(StreamCaptureStatusNone)
+WWR_RT_VALUE(StreamCaptureStatusActive)
+WWR_RT_VALUE(StreamCaptureStatusInvalidated)
+WWR_RT_VALUE(StreamAddCaptureDependencies)
+WWR_RT_VALUE(StreamSetCaptureDependencies)
+WWR_RT_VALUE(FuncAttributeMax)
+WWR_RT_VALUE(FuncAttributeMaxDynamicSharedMemorySize)
+WWR_RT_VALUE(FuncAttributePreferredSharedMemoryCarveout)
+WWR_RT_VALUE(FuncCachePreferNone)
+WWR_RT_VALUE(FuncCachePreferShared)
+WWR_RT_VALUE(FuncCachePreferL1)
+WWR_RT_VALUE(FuncCachePreferEqual)
+WWR_RT_VALUE(LaunchAttributeAccessPolicyWindow)
+WWR_RT_VALUE(LaunchAttributeCooperative)
+WWR_RT_VALUE(LaunchAttributeSynchronizationPolicy)
+WWR_RT_VALUE(LaunchAttributePriority)
+WWR_RT_VALUE(LaunchAttributeMemSyncDomain)
+WWR_RT_VALUE(LaunchAttributeMemSyncDomainMap)
+WWR_RT_VALUE(LaunchMemSyncDomainDefault)
+WWR_RT_VALUE(LaunchMemSyncDomainRemote)
 
 // ========================================================================
 // Functions
@@ -335,4 +381,59 @@ WWR_RT_FUNCTION(CreateTextureObject)
 WWR_RT_FUNCTION(DestroyTextureObject)
 WWR_RT_FUNCTION(CreateSurfaceObject)
 WWR_RT_FUNCTION(DestroySurfaceObject)
+
+// Execution control -- stream/event/launch/func entry points (#261). Each is a
+// single (non-overloaded) function on both backends, so a WWR_FUNCTION reference
+// names it directly.
+WWR_RT_FUNCTION(StreamQuery)
+WWR_RT_FUNCTION(StreamGetPriority)
+WWR_RT_FUNCTION(StreamGetId)
+WWR_RT_FUNCTION(StreamGetDevice)
+WWR_RT_FUNCTION(StreamGetAttribute)
+WWR_RT_FUNCTION(StreamSetAttribute)
+WWR_RT_FUNCTION(StreamAddCallback)
+WWR_RT_FUNCTION(StreamAttachMemAsync)
+WWR_RT_FUNCTION(StreamIsCapturing)
+WWR_RT_FUNCTION(StreamGetCaptureInfo)
+WWR_RT_FUNCTION(StreamUpdateCaptureDependencies)
+WWR_RT_FUNCTION(EventElapsedTime)
+WWR_RT_FUNCTION(LaunchKernel)
+WWR_RT_FUNCTION(LaunchKernelExC)
+WWR_RT_FUNCTION(LaunchHostFunc)
+WWR_RT_FUNCTION(FuncGetAttributes)
+WWR_RT_FUNCTION(FuncSetAttribute)
+WWR_RT_FUNCTION(FuncSetCacheConfig)
+
+// Occupancy / cooperative-launch forwarders (#261). On HIP each of these entry
+// points is an overload set: a template<class T> convenience overload survives
+// beside the extern-C function because it sits OUTSIDE the
+// __HIP_DISABLE_CPP_FUNCTIONS__ guard (the wwrMallocAsync situation). A reference
+// binding cannot alias one member of an overload set, so forward instead -- the
+// concrete argument types pick the C overload; the cuda* entry points are single
+// functions and resolve the same way. cudaLaunchCooperativeKernel additionally
+// differs in signature (its sharedMem is size_t where HIP takes unsigned int), a
+// second reason a reference cannot bind it.
+inline wwrError_t wwrOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, const void *func,
+                                                               int blockSize,
+                                                               std::size_t dynamicSMemSize) {
+  return WWR_SELECT_RAW(cudaOccupancyMaxActiveBlocksPerMultiprocessor,
+                        hipOccupancyMaxActiveBlocksPerMultiprocessor)(numBlocks, func, blockSize,
+                                                                      dynamicSMemSize);
+}
+inline wwrError_t wwrOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int *numBlocks,
+                                                                        const void *func,
+                                                                        int blockSize,
+                                                                        std::size_t dynamicSMemSize,
+                                                                        unsigned int flags) {
+  return WWR_SELECT_RAW(cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags,
+                        hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags)(
+      numBlocks, func, blockSize, dynamicSMemSize, flags);
+}
+inline wwrError_t wwrLaunchCooperativeKernel(const void *func, dim3 gridDim, dim3 blockDim,
+                                             void **args, std::size_t sharedMem,
+                                             wwrStream_t stream) {
+  return WWR_SELECT_RAW(cudaLaunchCooperativeKernel,
+                        hipLaunchCooperativeKernel)(func, gridDim, blockDim, args, sharedMem,
+                                                    stream);
+}
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
