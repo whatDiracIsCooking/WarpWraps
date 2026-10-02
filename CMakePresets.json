@@ -18,7 +18,11 @@
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CUDA_ARCHITECTURES": "native",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "WWR_GPU_BACKEND": "CUDA"
+        "WWR_GPU_BACKEND": "CUDA",
+        "WWR_WITH_CCL": "ON",
+        "WWR_WITH_COMP": "ON",
+        "WWR_WITH_TENSOR": "ON",
+        "WWR_INSTALL_WRAPPERS": "ON"
       }
     },
     {

@@ -212,7 +212,7 @@ function(wwr_install_package)
   # from src/ NON-recursively; recursing would re-collect src/cuda, src/hip and
   # src/wrappers, which are swept separately above and below.
   _wwr_collect_library_targets("${PROJECT_SOURCE_DIR}/src" _gpu_targets)
-  # The wrappers layer (src/wrappers) ships by default but can be dropped -- see
+  # The wrappers layer (src/wrappers) ships only when opted into -- see
   # WWR_INSTALL_WRAPPERS in the top-level CMakeLists.txt. Gated like the
   # extension sweep below so a core-only install omits its targets from the
   # export set. Nothing else in src/ links a wwr.wrappers.* target, so dropping
