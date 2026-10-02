@@ -12,6 +12,10 @@
 #     pasted call actually returns success against a real cuRAND / hipRAND
 #     generator. rand_tests.cpp does that for float and double.
 
+# GPU_SOURCE is the file carrying the WWR_FUNCTION_RAW(wwrrand...) alias lines
+# the check maps vendor symbols back through -- the shared fragment, not
+# rand.cppm, since the host surface moved there (rand.cppm now just #includes
+# it, and dispatch.py scans one file's text, not its includes).
 wwr_add_dispatch_check(
   NAME
   wwr.test.wrappers.rand_dispatch
@@ -20,7 +24,7 @@ wwr_add_dispatch_check(
   TABLE
   rand_dispatch.toml
   GPU_SOURCE
-  src/rand.cppm
+  src/detail/rand_names.h
 )
 
 # Build-time targets are configured above; the GoogleTest runtime suite needs a

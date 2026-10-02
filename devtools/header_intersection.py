@@ -101,7 +101,7 @@ Usage:
     devtools/header_intersection.py \\
         --cuda vendor/cuda-13.0.x/curand.json vendor/cuda-13.0.x/curand_kernel.json \\
         --hip  vendor/rocm-7.2.4/hiprand.json vendor/rocm-7.2.4/hiprand_kernel.json \\
-        --coverage src/rand.cppm src/rand.h
+        --coverage src/rand.cppm src/rand.h src/detail/rand_names.h
 """
 
 from __future__ import annotations

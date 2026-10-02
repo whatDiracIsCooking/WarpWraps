@@ -80,15 +80,12 @@ using wwrBfloat16 = ::__hip_bfloat16;
 
 namespace wwr {
 
-/// @brief Convert a float to bfloat16 (round to nearest even)
-__device__ __forceinline__ wwrBfloat16 wwrFloat2Bfloat16(const float value) {
-  return ::__float2bfloat16(value);
-}
-
-/// @brief Widen a bfloat16 value back to float (exact)
-__device__ __forceinline__ float wwrBfloat162Float(const wwrBfloat16 value) {
-  return ::__bfloat162float(value);
-}
+// The two conversions, from the one fragment every path shares -- here with the
+// device qualifier (bf16.cppm and wwr/bf16.h paste the same list with `inline`).
+// See detail/bf16_names.h.
+#define WWR_BF16_FN __device__ __forceinline__
+#include "detail/bf16_names.h"
+#undef WWR_BF16_FN
 
 } // namespace wwr
 

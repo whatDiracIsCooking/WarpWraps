@@ -37,14 +37,12 @@ export namespace wwr {
 
 using wwr::wwrBfloat16;
 
-/// @brief Convert a float to bfloat16 (round to nearest even)
-inline wwrBfloat16 wwrFloat2Bfloat16(const float value) {
-  return ::__float2bfloat16(value);
-}
-
-/// @brief Widen a bfloat16 value back to float (exact)
-inline float wwrBfloat162Float(const wwrBfloat16 value) {
-  return ::__bfloat162float(value);
-}
+// The two conversions, from the one fragment every path shares -- here with the
+// host `inline` qualifier (bf16.h's device section pastes the same list with
+// __device__ __forceinline__; wwr/bf16.h is the non-module host twin). See
+// detail/bf16_names.h.
+#define WWR_BF16_FN inline
+#include "detail/bf16_names.h"
+#undef WWR_BF16_FN
 
 } // namespace wwr

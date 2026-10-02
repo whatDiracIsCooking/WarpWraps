@@ -205,6 +205,18 @@ wwr_add_cxx_module_library(
   IMPORT_STD
 )
 
+# The non-module HOST consumption path for the fp16 surface -- `#include
+# "wwr/fp16.h"` instead of import. Header-only counterpart to wwr.fp16's usage
+# requirements: the WWR_GPU_BACKEND_* define and the src/ include root
+# (wwr::backend) and the backend runtime host library (CUDA::cudart / hip::host,
+# which carries the vendor fp16 header's include path). Compiles no module unit;
+# src/wwr/ and src/detail/ install under include/wwr/ (cmake/wwr_install.cmake)
+# and this target joins the export set like wwr.runtime_api.host above.
+add_library(wwr.fp16.host INTERFACE)
+target_link_libraries(wwr.fp16.host INTERFACE wwr::backend ${_backend_rt_host})
+# In-tree :: alias; exported as wwr::fp16::host by _wwr_export_name's rule.
+add_library(wwr::fp16::host ALIAS wwr.fp16.host)
+
 wwr_add_cxx_module_library(
   NAME
   wwr.bf16
@@ -216,6 +228,13 @@ wwr_add_cxx_module_library(
   wwr::backend
   IMPORT_STD
 )
+
+# The non-module HOST consumption path for the bf16 surface -- the fp16.host
+# twin, same deps for the same reasons. See wwr.fp16.host above.
+add_library(wwr.bf16.host INTERFACE)
+target_link_libraries(wwr.bf16.host INTERFACE wwr::backend ${_backend_rt_host})
+# In-tree :: alias; exported as wwr::bf16::host by _wwr_export_name's rule.
+add_library(wwr::bf16::host ALIAS wwr.bf16.host)
 
 wwr_add_cxx_module_library(
   NAME
@@ -368,6 +387,18 @@ wwr_add_cxx_module_library(
   wwr::backend
   IMPORT_STD
 )
+
+# The non-module HOST consumption path for the rand surface -- `#include
+# "wwr/rand.h"` instead of import. Header-only counterpart to wwr.rand's usage
+# requirements: wwr::backend for the WWR_GPU_BACKEND_* define, and
+# wwr::rand::device for the RNG host library and the src/-root include path that
+# makes rand.h / detail/rand_names.h resolve (the same pair wwr.rand links
+# PUBLIC). Compiles no module unit; it joins the export set like
+# wwr.runtime_api.host, and src/wwr/ installs under include/wwr/.
+add_library(wwr.rand.host INTERFACE)
+target_link_libraries(wwr.rand.host INTERFACE wwr::backend wwr::rand::device)
+# In-tree :: alias; exported as wwr::rand::host by _wwr_export_name's rule.
+add_library(wwr::rand::host ALIAS wwr.rand.host)
 
 wwr_add_cxx_module_library(
   NAME

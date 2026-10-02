@@ -72,6 +72,11 @@ using namespace wwr;
 // and the two spellings of the surface cannot share a TU. Compile+link only.
 bool runtime_host_check();
 
+// Defined in host_headers_check.cpp -- the same non-module (#include) path for
+// the fp16 / bf16 / rand surfaces, its own TU for the same reason. Compile+link
+// only.
+bool host_headers_check();
+
 namespace {
 
 // C = A * B for square column-major matrices, via the backend's BLAS.
@@ -290,6 +295,12 @@ int main() {
   if (!runtime_host_check())
     return 1;
   std::println("host   : runtime API consumed via #include (non-module path)");
+
+  // The same non-module (#include) path for the fp16 / bf16 / rand surfaces.
+  // See host_headers_check.cpp.
+  if (!host_headers_check())
+    return 1;
+  std::println("host   : fp16/bf16/rand consumed via #include (non-module path)");
 
 #if defined(WWR_CONSUMER_HAS_WRAPPERS)
   if (!wrappers_link())
