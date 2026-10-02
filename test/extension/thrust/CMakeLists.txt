@@ -61,3 +61,9 @@ wwr_add_gtest_suite_tests(
   60
   REQUIRES_GPU
 )
+
+# --- A-family algorithm-layer tests (issues #238-#241). Each family's
+# REQUIRES_GPU acceptance lives in its own subdirectory over the module it
+# tests; added alphabetically, one add_subdirectory per family so the four
+# merge additively. ---
+add_subdirectory(reduce)

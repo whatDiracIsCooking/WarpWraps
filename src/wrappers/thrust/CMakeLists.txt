@@ -30,3 +30,9 @@ target_include_directories(
             $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(wwr.thrust INTERFACE wwr::device)
+
+# --- A-family algorithm layers (issues #238-#241). Each is a self-contained
+# subdirectory (host module + device archive) over the wwr::thrust interface
+# above; added alphabetically, one add_subdirectory per family so the four can
+# be merged additively. ---
+add_subdirectory(reduce)
