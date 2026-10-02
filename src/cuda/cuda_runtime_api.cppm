@@ -1018,4 +1018,31 @@ using ::cudaGetDriverEntryPoint;
 using ::cudaGetDriverEntryPointByVersion;
 using ::cudaGetExportTable;
 
+// Memory surface additions for the whole-surface neutral layer (#260)
+using ::cudaMemAccessDesc;
+using ::cudaMemAccessFlags;
+using ::cudaMemAccessFlagsProtNone;
+using ::cudaMemAccessFlagsProtRead;
+using ::cudaMemAccessFlagsProtReadWrite;
+using ::cudaMemAllocationTypeMax;
+using ::cudaMemFreeNodeParams;
+using ::cudaMemLocation;
+using ::cudaMemcpy3DBatchAsync;
+using ::cudaMemcpy3DBatchOp;
+using ::cudaMemcpy3DOperand;
+using ::cudaMemcpy3DOperandType;
+using ::cudaMemcpyAttributes;
+using ::cudaMemcpyBatchAsync;
+using ::cudaMemcpyFlagDefault;
+using ::cudaMemcpyFlagPreferOverlapWithCompute;
+using ::cudaMemcpyFlags;
+using ::cudaMemcpyOperandTypeMax;
+using ::cudaMemcpyOperandTypePointer;
+using ::cudaMemcpySrcAccessOrder;
+using ::cudaMemcpySrcAccessOrderAny;
+using ::cudaMemcpySrcAccessOrderDuringApiCall;
+using ::cudaMemcpySrcAccessOrderInvalid;
+using ::cudaMemcpySrcAccessOrderMax;
+using ::cudaMemcpySrcAccessOrderStream;
+
 } // namespace wwr::cuda
