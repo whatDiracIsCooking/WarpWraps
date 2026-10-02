@@ -49,6 +49,17 @@ BLAS_CUDA = [CUDA / "cublas_v2.json"]
 BLAS_HIP = [ROCM / "hipblas.json"]
 BLAS_SRC = [ROOT / "src" / "blas.cppm"]
 
+# runtime_api's neutral surface binds its vendor names through the 1-arg
+# WWR_RT_* paste (see src/runtime_api.cppm), so the vendor identifier never
+# appears literally -- the surface a raw text scan is blind to.
+RT_CUDA = [CUDA / "cuda_runtime_api.json"]
+RT_HIP = [ROCM / "hip_runtime_api.json"]
+RT_SRC = [
+    ROOT / "src" / "runtime_api.cppm",
+    ROOT / "src" / "runtime_api.h",
+    ROOT / "src" / "runtime_api_surface.h",
+]
+
 
 def _report(cuda, hip, coverage=None):
     return hi.build_report(hi.Side("cuda", cuda), hi.Side("hip", hip), coverage)
@@ -298,3 +309,62 @@ def test_real_whole_surface_module_passes_clean(tmp_path):
     assert cov["contract"] == hi.WHOLE_SURFACE
     assert cov["fails"] is False
     assert cov["undocumented_gaps"] == []
+
+
+# --- The macro-argument-aware coverage matcher (#258) -------------------------
+# runtime_api binds vendor names through the 1-arg WWR_RT_* paste, so the vendor
+# identifier is never literal. These pin that --coverage resolves the paste (and
+# the N-arg explicit forms), and that a vendor-deprecated shared symbol is never
+# reported as a gap -- derived from the manifest flag, not hand-listed.
+
+
+def test_resolved_names_reads_the_paste_and_explicit_macros():
+    text = (
+        "WWR_RT_FUNCTION(GetLastError)\n"
+        "WWR_RT_VALUE(MemcpyHostToDevice)\n"
+        "WWR_FUNCTION_RAW(wwrGetDeviceProperties, cudaGetDeviceProperties, "
+        "hipGetDevicePropertiesR0600)\n"
+    )
+    got = hi.resolved_names(text)
+    # 1-arg paste: the preprocessor synthesises cuda<Tail> / hip<Tail>.
+    assert {"cudaGetLastError", "hipGetLastError"} <= got
+    assert {"cudaMemcpyHostToDevice", "hipMemcpyHostToDevice"} <= got
+    # N-arg explicit: the vendor names are the 2nd/3rd args verbatim.
+    assert {"cudaGetDeviceProperties", "hipGetDevicePropertiesR0600"} <= got
+
+
+def test_runtime_paste_surface_is_legible_to_coverage():
+    # Before #258 the literal scan saw ~9/686 (blind to the WWR_RT_* paste). Now
+    # the token-pasted GetLastError reads COVERED, while its unreferenced sibling
+    # PeekAtLastError reads MISSING -- the #257 gap, correctly surfaced.
+    report = _report(RT_CUDA, RT_HIP, RT_SRC)
+    cov = report["coverage"]
+    covered = cov["intersection"] - len(cov["missing"])
+    assert covered >= 80, f"paste surface still largely invisible: {covered}"
+    missing = {m["key"] for m in cov["missing"]}
+    assert "getlasterror" not in missing   # WWR_RT_FUNCTION(GetLastError) resolved
+    assert "peekatlasterror" in missing     # #257: sibling not yet wrapped
+
+
+def test_deprecated_shared_symbol_is_not_a_gap(tmp_path):
+    # A symbol flagged deprecated in EITHER manifest is auto-omitted from the gap
+    # verdict. fooBar is live and referenced; fooBaz is deprecated and
+    # unreferenced, so a whole-surface module with no omissions still passes.
+    cuda = tmp_path / "c.json"
+    cuda.write_text(json.dumps({
+        "harvest": {"prefix": "foo"},
+        "symbols": [
+            {"name": "fooBar", "kind": "FunctionDecl"},
+            {"name": "fooBaz", "kind": "FunctionDecl", "deprecated": True},
+        ],
+    }))
+    hip = _write(tmp_path, "h.json", "bar", ["barBar", "barBaz"])
+    src = tmp_path / "mod.cppm"
+    src.write_text("fooBar barBar")
+    decision = {"contract": hi.WHOLE_SURFACE, "omissions": []}
+    report = hi.build_report(hi.Side("cuda", [cuda]), hi.Side("hip", [hip]),
+                             [src], decision)
+    cov = report["coverage"]
+    assert cov["fails"] is False
+    assert cov["undocumented_gaps"] == []
+    assert {i["key"] for i in cov["deprecated_omissions"]} == {"baz"}
