@@ -30,3 +30,9 @@ target_include_directories(
             $<INSTALL_INTERFACE:${WWR_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(wwr.thrust INTERFACE wwr::device)
+
+# A-family algorithm wrappers (issues #238-#241), each a self-contained
+# subdirectory built on wwr::thrust and F2's execution_policy.cuh. One
+# add_subdirectory per family; keep them one-per-line so the four parallel
+# family branches merge additively.
+add_subdirectory(scan)

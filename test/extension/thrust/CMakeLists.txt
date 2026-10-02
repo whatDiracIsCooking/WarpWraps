@@ -61,3 +61,9 @@ wwr_add_gtest_suite_tests(
   60
   REQUIRES_GPU
 )
+
+# Per-family A-algorithm acceptance suites (issues #238-#241), each a
+# self-contained subdirectory importing its wwr.wrappers.thrust.* module. One
+# add_subdirectory per family, one-per-line, so the four parallel family
+# branches merge additively.
+add_subdirectory(scan)
