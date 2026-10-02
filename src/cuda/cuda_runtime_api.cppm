@@ -1054,4 +1054,21 @@ using ::cudaIpcEventHandle_st;
 using ::cudaIpcMemHandle_st;
 using ::cudaSetValidDevices;
 
+// Array/texture-family additions for the whole-surface neutral layer (#264)
+using ::cudaAddressModeBorder;
+using ::cudaAddressModeClamp;
+using ::cudaAddressModeMirror;
+using ::cudaAddressModeWrap;
+using ::cudaArray;
+using ::cudaFilterModeLinear;
+using ::cudaFilterModePoint;
+using ::cudaMemcpyOperandTypeArray;
+using ::cudaMipmappedArray;
+using ::cudaReadModeElementType;
+using ::cudaReadModeNormalizedFloat;
+using ::cudaSurfaceBoundaryMode;
+using ::cudaTextureAddressMode;
+using ::cudaTextureFilterMode;
+using ::cudaTextureReadMode;
+
 } // namespace wwr::cuda

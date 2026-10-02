@@ -135,6 +135,20 @@ WWR_RT_TYPE(IpcEventHandle_t)
 WWR_RT_TYPE(IpcMemHandle_st)
 WWR_RT_TYPE(IpcMemHandle_t)
 
+// Array / texture / surface / channel types (#264).
+WWR_RT_TYPE(Array)
+WWR_RT_TYPE(Array_const_t)
+WWR_RT_TYPE(Extent)
+WWR_RT_TYPE(MipmappedArray)
+WWR_RT_TYPE(MipmappedArray_const_t)
+WWR_RT_TYPE(MipmappedArray_t)
+WWR_RT_TYPE(Pos)
+WWR_RT_TYPE(ResourceViewFormat)
+WWR_RT_TYPE(SurfaceBoundaryMode)
+WWR_RT_TYPE(TextureAddressMode)
+WWR_RT_TYPE(TextureFilterMode)
+WWR_RT_TYPE(TextureReadMode)
+
 // ========================================================================
 // Constants
 // ========================================================================
@@ -331,6 +345,20 @@ WWR_RT_VALUE(MemoryTypeUnregistered)
 WWR_RT_VALUE(DriverEntryPointSuccess)
 WWR_RT_VALUE(DriverEntryPointSymbolNotFound)
 WWR_RT_VALUE(DriverEntryPointVersionNotSufficent)
+
+// Texture-addressing / filter / read-mode / resource enum constants (#264).
+WWR_RT_VALUE(AddressModeBorder)
+WWR_RT_VALUE(AddressModeClamp)
+WWR_RT_VALUE(AddressModeMirror)
+WWR_RT_VALUE(AddressModeWrap)
+WWR_RT_VALUE(ChannelFormatKindNone)
+WWR_RT_VALUE(FilterModeLinear)
+WWR_RT_VALUE(FilterModePoint)
+WWR_RT_VALUE(MemcpyOperandTypeArray)
+WWR_RT_VALUE(ReadModeElementType)
+WWR_RT_VALUE(ReadModeNormalizedFloat)
+WWR_RT_VALUE(ResourceTypeMipmappedArray)
+WWR_RT_VALUE(ResourceTypePitch2D)
 
 // ========================================================================
 // Functions
@@ -619,4 +647,29 @@ WWR_RT_FUNCTION(IpcOpenMemHandle)
 WWR_RT_FUNCTION(PointerGetAttributes)
 WWR_RT_FUNCTION(SetDeviceFlags)
 WWR_RT_FUNCTION(SetValidDevices)
+// Array / texture / surface / channel functions (#264).
+WWR_RT_FUNCTION(ArrayGetInfo)
+WWR_RT_FUNCTION(FreeMipmappedArray)
+WWR_RT_FUNCTION(GetChannelDesc)
+WWR_RT_FUNCTION(GetMipmappedArrayLevel)
+WWR_RT_FUNCTION(GetTextureObjectResourceDesc)
+WWR_RT_FUNCTION(GetTextureObjectResourceViewDesc)
+WWR_RT_FUNCTION(GetTextureObjectTextureDesc)
+WWR_RT_FUNCTION(Malloc3DArray)
+WWR_RT_FUNCTION(MallocMipmappedArray)
+WWR_RT_FUNCTION(Memcpy2DArrayToArray)
+WWR_RT_FUNCTION(Memcpy2DFromArray)
+WWR_RT_FUNCTION(Memcpy2DFromArrayAsync)
+WWR_RT_FUNCTION(Memcpy2DToArray)
+WWR_RT_FUNCTION(Memcpy2DToArrayAsync)
+
+// cudaCreateChannelDesc is an overload set on both backends: a template<class T>
+// cudaCreateChannelDesc<T>() sits beside the extern-C
+// cudaCreateChannelDesc(int, int, int, int, ChannelFormatKind), so a reference
+// binding cannot name one member -- forward to the C overload (it returns the desc
+// by value, not an error code); the concrete int/kind args select it.
+inline wwrChannelFormatDesc wwrCreateChannelDesc(int x, int y, int z, int w,
+                                                 wwrChannelFormatKind f) {
+  return WWR_SELECT_RAW(cudaCreateChannelDesc, hipCreateChannelDesc)(x, y, z, w, f);
+}
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
