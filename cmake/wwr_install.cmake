@@ -289,6 +289,19 @@ function(wwr_install_package)
           DESTINATION "${WWR_INSTALL_INCLUDEDIR}"
   )
 
+  # The src/wwr/ header-only consumption path (wwr/runtime_api.h, ...) -- the
+  # self-contained .h a non-module consumer #includes instead of importing.
+  # Mirrored under include/wwr/wwr/ so `#include "wwr/runtime_api.h"` resolves
+  # against the package include root, exactly as the wrappers/ and extension/
+  # subtrees below are mirrored. Each header there is self-contained bar
+  # selected_backend.h, which the src/*.h glob above already installs.
+  install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/src/wwr/"
+    DESTINATION "${WWR_INSTALL_INCLUDEDIR}/wwr"
+    FILES_MATCHING
+    PATTERN "*.h"
+  )
+
   # The shared dispatch header under src/wrappers, included through src/ (e.g.
   # "wrappers/common/dispatch_sdcz.h"), mirrored to include/wwr/wrappers.
   # Shipped only when WWR_INSTALL_WRAPPERS added the wrapper targets to the

@@ -67,6 +67,11 @@ import wwr.extension.tx;            // wwr::extension::ScopedRange
 // inside it, so unlike this project's own tests it has to say so.
 using namespace wwr;
 
+// Defined in runtime_host_check.cpp -- the non-module (#include) consumption of
+// the runtime API, kept in its own TU because this one imports wwr.runtime_api
+// and the two spellings of the surface cannot share a TU. Compile+link only.
+bool runtime_host_check();
+
 namespace {
 
 // C = A * B for square column-major matrices, via the backend's BLAS.
@@ -279,6 +284,13 @@ int main() {
 
   // Compile-and-link proof first: no device needed, and it is what proves the
   // install regardless of whether a GPU is present to run the gemm.
+
+  // The non-module (#include) path for the runtime API, proved from the same
+  // installed package as the imports above. See runtime_host_check.cpp.
+  if (!runtime_host_check())
+    return 1;
+  std::println("host   : runtime API consumed via #include (non-module path)");
+
 #if defined(WWR_CONSUMER_HAS_WRAPPERS)
   if (!wrappers_link())
     return 1;

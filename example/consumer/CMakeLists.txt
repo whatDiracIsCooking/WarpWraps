@@ -43,7 +43,13 @@ find_package(wwr 0.1 REQUIRED)
 message(STATUS "wwr backend:   ${WWR_GPU_BACKEND}")
 message(STATUS "wwr warp size: ${WWR_WARP_SIZE}")
 
-add_executable(consumer main.cpp)
+# main.cpp consumes the runtime API by `import wwr.runtime_api;`;
+# runtime_host_check.cpp consumes the SAME surface the non-module way, by
+# `#include "wwr/runtime_api.h"` (see that file's header for why the two must
+# be separate TUs). wwr::runtime_api::host is the header-only target that
+# path needs -- a core interface library, shipped in every install.
+add_executable(consumer main.cpp runtime_host_check.cpp)
+target_link_libraries(consumer PRIVATE wwr::runtime_api::host)
 
 # The nested :: spellings are the exported names -- the SAME names wwr's own
 # in-tree CMakeLists link (wwr::blas, not a doubled wwr::wwr.blas). Linking
