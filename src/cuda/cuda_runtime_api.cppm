@@ -1045,4 +1045,13 @@ using ::cudaMemcpySrcAccessOrderInvalid;
 using ::cudaMemcpySrcAccessOrderMax;
 using ::cudaMemcpySrcAccessOrderStream;
 
+// Device-family additions for the whole-surface neutral layer (#262)
+using ::cudaDriverEntryPointQueryResult;
+using ::cudaDriverEntryPointSuccess;
+using ::cudaDriverEntryPointSymbolNotFound;
+using ::cudaDriverEntryPointVersionNotSufficent;
+using ::cudaIpcEventHandle_st;
+using ::cudaIpcMemHandle_st;
+using ::cudaSetValidDevices;
+
 } // namespace wwr::cuda
