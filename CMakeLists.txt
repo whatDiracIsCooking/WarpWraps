@@ -358,10 +358,11 @@ else()
   # rocThrust is HIP's Thrust (the thrust:: API over rocPRIM); wwr.thrust links
   # roc::rocthrust + roc::rocprim (see src/wrappers/thrust). Each is its own
   # ROCm CMake package with an honest version, so the floor is checked directly
-  # here, unlike the `hip` package above. 4.2.0 is the floor -- see
-  # docs/architecture.md (version floors). Header-only: nothing to harvest.
-  find_package(rocthrust 4.2.0 CONFIG REQUIRED)
-  find_package(rocprim 4.2.0 CONFIG REQUIRED)
+  # here, unlike the `hip` package above. 4.1.0 is the floor -- ROCm 7.1 ships
+  # 4.1.0, 7.2.4 ships 4.2.0 -- see docs/architecture.md (version floors).
+  # Header-only: nothing to harvest.
+  find_package(rocthrust 4.1.0 CONFIG REQUIRED)
+  find_package(rocprim 4.1.0 CONFIG REQUIRED)
   # RCCL (multi-GPU collectives) ships its own ROCm CMake package providing the
   # roc::rccl imported target -- wwr.hip.rccl links it. NCCL's CUDA counterpart
   # is NOT a FindCUDAToolkit component, so wwr.cuda.nccl find_library's it by
