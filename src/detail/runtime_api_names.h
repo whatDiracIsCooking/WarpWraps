@@ -149,6 +149,23 @@ WWR_RT_TYPE(TextureAddressMode)
 WWR_RT_TYPE(TextureFilterMode)
 WWR_RT_TYPE(TextureReadMode)
 
+// Long-tail types -- compute-mode/limit/jit/library/user-object/access/uuid (#266).
+WWR_RT_TYPE(AccessPolicyWindow)
+WWR_RT_TYPE(AccessProperty)
+WWR_RT_TYPE(ComputeMode)
+WWR_RT_TYPE(FlushGPUDirectRDMAWritesOptions)
+WWR_RT_TYPE(GPUDirectRDMAWritesOrdering)
+WWR_RT_TYPE(JitOption)
+WWR_RT_TYPE(Library_t)
+WWR_RT_TYPE(LibraryOption)
+WWR_RT_TYPE(Offset3D)
+WWR_RT_TYPE(SharedMemConfig)
+WWR_RT_TYPE(SynchronizationPolicy)
+WWR_RT_TYPE(UserObject_t)
+WWR_RT_TYPE(UserObjectFlags)
+WWR_RT_TYPE(UserObjectRetainFlags)
+WWR_RT_TYPE(UUID_t)
+
 // ========================================================================
 // Constants
 // ========================================================================
@@ -359,6 +376,78 @@ WWR_RT_VALUE(ReadModeElementType)
 WWR_RT_VALUE(ReadModeNormalizedFloat)
 WWR_RT_VALUE(ResourceTypeMipmappedArray)
 WWR_RT_VALUE(ResourceTypePitch2D)
+
+// Long-tail enum constants -- resource-view-format, compute-mode, jit, limit,
+// access-property, boundary-mode, shared-mem, sync-policy, rdma-ordering (#266).
+WWR_RT_VALUE(AccessPropertyNormal)
+WWR_RT_VALUE(AccessPropertyPersisting)
+WWR_RT_VALUE(AccessPropertyStreaming)
+WWR_RT_VALUE(BoundaryModeClamp)
+WWR_RT_VALUE(BoundaryModeTrap)
+WWR_RT_VALUE(BoundaryModeZero)
+WWR_RT_VALUE(ComputeModeDefault)
+WWR_RT_VALUE(ComputeModeExclusive)
+WWR_RT_VALUE(ComputeModeExclusiveProcess)
+WWR_RT_VALUE(ComputeModeProhibited)
+WWR_RT_VALUE(DevP2PAttrAccessSupported)
+WWR_RT_VALUE(DevP2PAttrNativeAtomicSupported)
+WWR_RT_VALUE(DevP2PAttrPerformanceRank)
+WWR_RT_VALUE(FlushGPUDirectRDMAWritesOptionHost)
+WWR_RT_VALUE(FlushGPUDirectRDMAWritesOptionMemOps)
+WWR_RT_VALUE(GPUDirectRDMAWritesOrderingAllDevices)
+WWR_RT_VALUE(GPUDirectRDMAWritesOrderingNone)
+WWR_RT_VALUE(GPUDirectRDMAWritesOrderingOwner)
+WWR_RT_VALUE(JitCacheOptionCA)
+WWR_RT_VALUE(JitCacheOptionCG)
+WWR_RT_VALUE(JitCacheOptionNone)
+WWR_RT_VALUE(LibraryBinaryIsPreserved)
+WWR_RT_VALUE(LibraryHostUniversalFunctionAndDataTable)
+WWR_RT_VALUE(LimitMallocHeapSize)
+WWR_RT_VALUE(LimitPrintfFifoSize)
+WWR_RT_VALUE(LimitStackSize)
+WWR_RT_VALUE(ResViewFormatFloat1)
+WWR_RT_VALUE(ResViewFormatFloat2)
+WWR_RT_VALUE(ResViewFormatFloat4)
+WWR_RT_VALUE(ResViewFormatHalf1)
+WWR_RT_VALUE(ResViewFormatHalf2)
+WWR_RT_VALUE(ResViewFormatHalf4)
+WWR_RT_VALUE(ResViewFormatNone)
+WWR_RT_VALUE(ResViewFormatSignedBlockCompressed4)
+WWR_RT_VALUE(ResViewFormatSignedBlockCompressed5)
+WWR_RT_VALUE(ResViewFormatSignedBlockCompressed6H)
+WWR_RT_VALUE(ResViewFormatSignedChar1)
+WWR_RT_VALUE(ResViewFormatSignedChar2)
+WWR_RT_VALUE(ResViewFormatSignedChar4)
+WWR_RT_VALUE(ResViewFormatSignedInt1)
+WWR_RT_VALUE(ResViewFormatSignedInt2)
+WWR_RT_VALUE(ResViewFormatSignedInt4)
+WWR_RT_VALUE(ResViewFormatSignedShort1)
+WWR_RT_VALUE(ResViewFormatSignedShort2)
+WWR_RT_VALUE(ResViewFormatSignedShort4)
+WWR_RT_VALUE(ResViewFormatUnsignedBlockCompressed1)
+WWR_RT_VALUE(ResViewFormatUnsignedBlockCompressed2)
+WWR_RT_VALUE(ResViewFormatUnsignedBlockCompressed3)
+WWR_RT_VALUE(ResViewFormatUnsignedBlockCompressed4)
+WWR_RT_VALUE(ResViewFormatUnsignedBlockCompressed5)
+WWR_RT_VALUE(ResViewFormatUnsignedBlockCompressed6H)
+WWR_RT_VALUE(ResViewFormatUnsignedBlockCompressed7)
+WWR_RT_VALUE(ResViewFormatUnsignedChar1)
+WWR_RT_VALUE(ResViewFormatUnsignedChar2)
+WWR_RT_VALUE(ResViewFormatUnsignedChar4)
+WWR_RT_VALUE(ResViewFormatUnsignedInt1)
+WWR_RT_VALUE(ResViewFormatUnsignedInt2)
+WWR_RT_VALUE(ResViewFormatUnsignedInt4)
+WWR_RT_VALUE(ResViewFormatUnsignedShort1)
+WWR_RT_VALUE(ResViewFormatUnsignedShort2)
+WWR_RT_VALUE(ResViewFormatUnsignedShort4)
+WWR_RT_VALUE(SharedMemBankSizeDefault)
+WWR_RT_VALUE(SharedMemBankSizeEightByte)
+WWR_RT_VALUE(SharedMemBankSizeFourByte)
+WWR_RT_VALUE(SyncPolicyAuto)
+WWR_RT_VALUE(SyncPolicyBlockingSync)
+WWR_RT_VALUE(SyncPolicySpin)
+WWR_RT_VALUE(SyncPolicyYield)
+WWR_RT_VALUE(UserObjectNoDestructorSync)
 
 // ========================================================================
 // Functions
@@ -671,5 +760,28 @@ WWR_RT_FUNCTION(Memcpy2DToArrayAsync)
 inline wwrChannelFormatDesc wwrCreateChannelDesc(int x, int y, int z, int w,
                                                  wwrChannelFormatKind f) {
   return WWR_SELECT_RAW(cudaCreateChannelDesc, hipCreateChannelDesc)(x, y, z, w, f);
+}
+// Long-tail functions -- symbol/library/user-object/version (#266).
+WWR_RT_FUNCTION(GetFuncBySymbol)
+WWR_RT_FUNCTION(LibraryGetKernel)
+WWR_RT_FUNCTION(LibraryGetKernelCount)
+WWR_RT_FUNCTION(LibraryLoadData)
+WWR_RT_FUNCTION(LibraryLoadFromFile)
+WWR_RT_FUNCTION(LibraryUnload)
+WWR_RT_FUNCTION(RuntimeGetVersion)
+WWR_RT_FUNCTION(ThreadExchangeStreamCaptureMode)
+WWR_RT_FUNCTION(UserObjectCreate)
+WWR_RT_FUNCTION(UserObjectRelease)
+WWR_RT_FUNCTION(UserObjectRetain)
+
+// wwrGetSymbol{Address,Size} forward: cudaGetSymbol{Address,Size} are overload sets
+// on both backends (a template<class T>(..., const T&) sits beside the extern-C
+// (..., const void*) entry point), so a reference binding cannot name one member.
+// The const void* argument selects the C overload.
+inline wwrError_t wwrGetSymbolAddress(void **devPtr, const void *symbol) {
+  return WWR_SELECT_RAW(cudaGetSymbolAddress, hipGetSymbolAddress)(devPtr, symbol);
+}
+inline wwrError_t wwrGetSymbolSize(std::size_t *size, const void *symbol) {
+  return WWR_SELECT_RAW(cudaGetSymbolSize, hipGetSymbolSize)(size, symbol);
 }
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
