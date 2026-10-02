@@ -31,7 +31,7 @@
 
 module;
 
-#include "wrappers/thrust/reorder_bridge.h"
+#include "wrappers/thrust/reorder/reorder_bridge.h"
 
 export module wwr.wrappers.thrust.reorder;
 
