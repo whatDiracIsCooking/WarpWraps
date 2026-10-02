@@ -118,6 +118,13 @@
           "hip": "hipExternal*|hipDestroyExternal*|hipImportExternal*|hipSignalExternalSemaphoresAsync|hipWaitExternalSemaphoresAsync",
           "why": "The external memory / semaphore interop family (import, map, signal, wait and destroy of Vulkan / D3D / NvSci external resources and timeline semaphores) is DEFERRED for v1, not rejected: it has no neutral consumer and pulls in platform handle types wwr does not model. Deliberate, reversible omission. The single declared-not-linkable HIP member is documented separately above (externalmemorygetmappedmipmappedarray).",
           "source": "issue #265 (milestone #4: whole-surface runtime_api), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-7.2.4/hip_runtime_api.json"
+        },
+        {
+          "key": "floor_absent_rocm_7_1_0",
+          "cuda": "cudaStreamCopyAttributes|cudaOccupancyAvailableDynamicSMemPerBlock",
+          "hip": "hipStreamCopyAttributes|hipOccupancyAvailableDynamicSMemPerBlock",
+          "why": "Present in the pinned ROCm 7.2.4 intersection but NOT reachable in the ROCm 7.1.0 floor build the CMakeLists enforces (hip-floor CI leg): in 7.1.0 these entry points are only declared inside the __HIP_DISABLE_CPP_FUNCTIONS__-guarded C++ helper region, which runtime_api.h suppresses, so ::hipStreamCopyAttributes / ::hipOccupancyAvailableDynamicSMemPerBlock do not resolve in the neutral surface's include context. Wrapping them compiles at the pin and fails at the floor. Omitted until the ROCm floor rises; the raw single-vendor modules (which do not define that macro) still carry them.",
+          "source": ".github/workflows/ci.yml (cpp-floor hip leg, ROCm 7.1.0 floor), vendor/rocm-7.1.0/hip_runtime_api.json"
         }
       ]
     }

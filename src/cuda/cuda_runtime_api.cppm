@@ -254,6 +254,17 @@ using ::cudaDevAttrWarpSize;
 using ::cudaFuncAttributes;
 using ::cudaPointerAttributes;
 
+// Execution-control types (#261)
+using ::cudaEventRecordNodeParams;
+using ::cudaEventWaitNodeParams;
+using ::cudaFunction_t;
+using ::cudaKernel_t;
+using ::cudaLaunchAttribute_st;
+using ::cudaLaunchConfig_st;
+using ::cudaLaunchConfig_t;
+using ::cudaLaunchMemSyncDomain;
+using ::cudaLaunchMemSyncDomainMap;
+
 // Array types
 using ::cudaArray_const_t;
 using ::cudaArray_t;
@@ -328,6 +339,7 @@ using ::cudaGraphExecUpdateErrorUnsupportedFunctionChange;
 using ::cudaGraphExecUpdateSuccess;
 
 using ::cudaKernelNodeParams;
+using ::cudaLaunchAttribute;
 using ::cudaLaunchAttributeID;
 // cudaLaunchAttributeID enumerators
 using ::cudaLaunchAttributeAccessPolicyWindow;
@@ -427,6 +439,7 @@ using ::cudaSharedMemBankSizeFourByte;
 
 using ::cudaFuncAttribute;
 // cudaFuncAttribute enum values
+using ::cudaFuncAttributeMax;
 using ::cudaFuncAttributeClusterDimMustBeSet;
 using ::cudaFuncAttributeClusterSchedulingPolicyPreference;
 using ::cudaFuncAttributeMaxDynamicSharedMemorySize;
@@ -497,6 +510,9 @@ using ::cudaStreamCaptureStatus;
 using ::cudaStreamCaptureStatusActive;
 using ::cudaStreamCaptureStatusInvalidated;
 using ::cudaStreamCaptureStatusNone;
+// cudaLaunchMemSyncDomain enum values (#261)
+using ::cudaLaunchMemSyncDomainDefault;
+using ::cudaLaunchMemSyncDomainRemote;
 
 using ::cudaStreamCaptureMode;
 // cudaStreamCaptureMode enum values
@@ -805,6 +821,7 @@ using ::cudaStreamDestroy;
 using ::cudaStreamEndCapture;
 using ::cudaStreamGetAttribute;
 using ::cudaStreamGetCaptureInfo;
+using ::cudaStreamGetDevice;
 using ::cudaStreamGetFlags;
 using ::cudaStreamGetId;
 using ::cudaStreamGetPriority;
@@ -840,6 +857,7 @@ using ::cudaWaitExternalSemaphoresAsync;
 using ::cudaLaunchCooperativeKernel;
 using ::cudaLaunchHostFunc;
 using ::cudaLaunchKernel;
+using ::cudaLaunchKernelExC;
 
 // ========================================================================
 // Occupancy and Function Configuration
