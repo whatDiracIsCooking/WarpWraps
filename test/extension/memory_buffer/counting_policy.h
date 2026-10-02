@@ -50,7 +50,7 @@ using CountedHostBuffer = HostBufferWrapper<T, HostPolicy, HostPolicy>;
 template<typename T>
 using CountedPinnedBuffer = PinnedBufferWrapper<T, GpuPolicy, GpuPolicy>;
 template<typename T>
-using CountedUnifiedBuffer = UnifiedBufferWrapper<T, GpuPolicy, GpuPolicy>;
+using CountedUnifiedBuffer = UnifiedBufferWrapper<T, GpuPolicy, GpuPolicy, GpuPolicy, DeviceHandle>;
 template<typename T>
 using CountedDeviceBuffer = DeviceBufferWrapper<T, GpuPolicy, GpuPolicy, GpuPolicy, DeviceHandle>;
 template<typename T>

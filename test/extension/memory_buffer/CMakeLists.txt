@@ -32,10 +32,11 @@ wwr_add_gtest_executable(
 # One ctest entry per suite. Add a suite here when you add one to the test file,
 # or the SuiteListIsComplete guard test will fail and say so.
 #
-# HostAccessibleOwningBufferTest is a TYPED_TEST_SUITE over three owning,
-# host-accessible kinds; TYPES names them in the same order as the
+# HostAccessibleOwningBufferTest is a TYPED_TEST_SUITE over the two owning,
+# host-accessible, bare-count kinds; TYPES names them in the same order as the
 # ::testing::Types list so its ctest entries read HostAccessibleOwningBufferTest
-# <HostBuffer> rather than .../0.
+# <HostBuffer> rather than .../0. Unified is handle-backed, so it is not in that
+# typed suite -- its own contract lives in the plain UnifiedBufferTests suite.
 wwr_add_gtest_suite_tests(
   TARGET
   extension_memory_buffer_tests
@@ -55,12 +56,12 @@ wwr_add_gtest_suite_tests(
   HostMemoryAllocTests
   HostMemoryErrorTests
   SizeOverflowRejectionTests
+  UnifiedBufferTests
   TYPED_SUITES
   HostAccessibleOwningBufferTest
   TYPES
   HostBuffer
   PinnedBuffer
-  UnifiedBuffer
   TIMEOUT
   60
   REQUIRES_GPU

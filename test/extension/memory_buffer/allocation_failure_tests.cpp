@@ -74,7 +74,8 @@ TEST(AllocationFailureTests, FailedUnifiedAllocationLeavesCoherentEmptyBuffer) {
   // Same contract for managed memory: wwrMallocManaged fails the oversized
   // request and the buffer stays coherent and empty.
   GpuPolicy policy;
-  CountedUnifiedBuffer<float> buf(CountedUnifiedBuffer<float>::max_num_elements, policy);
+  auto dev = std::make_shared<DeviceHandle>(0);
+  CountedUnifiedBuffer<float> buf(CountedUnifiedBuffer<float>::max_num_elements, dev, policy);
 
   EXPECT_GE(buf.alloc_policy().count(), std::size_t{1});
   EXPECT_EQ(buf.data(), nullptr);

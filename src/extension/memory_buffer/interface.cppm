@@ -7,7 +7,7 @@
  * all buffer types:
  * - :device_buffer - GPU device memory buffers (alloc call set by the handle's tier)
  * - :pinned_buffer - Pinned host memory buffers (wwrHostAlloc/wwrFreeHost)
- * - :unified_buffer - Unified memory buffers (wwrMallocManaged)
+ * - :unified_buffer - Unified memory buffers (handle-backed; wwrMallocManaged, sync wwrFree)
  * - :host_buffer - Standard host memory buffers (std::malloc/std::free)
  * - :suite - buffer/view alias binders in wwr::extension::kit (kit::buffer_suite /
  *   kit::device_buffer_suite and the kit::buffers / kit::device_buffers single-policy
@@ -22,10 +22,12 @@
  *   using Handle = StreamWrapper<Abort, Abort, Abort>;  // a stream is a device_handle_stream;
  *                                                       // kit::DeviceHandle<...> adds a pool
  *   auto dev = std::make_shared<Handle>(0);
- *   // DeviceBufferWrapper is device-bound: its last arg is the device-access policy.
+ *   // DeviceBufferWrapper and UnifiedBufferWrapper are both handle-backed and
+ *   // device-bound: their fourth policy is the device-access policy, and both take
+ *   // a shared handle (unified reads only its dev_idx()).
  *   DeviceBufferWrapper<float, Abort, Abort, Abort, Handle> dev_buf(1024, dev);  // Device memory
+ *   UnifiedBufferWrapper<float, Abort, Abort, Abort, Handle> uni_buf(1024, dev); // Unified memory
  *   PinnedBufferWrapper<float, Abort, Abort> pin_buf(1024);       // Pinned host memory
- *   UnifiedBufferWrapper<float, Abort, Abort> uni_buf(1024);      // Unified memory
  *   HostBufferWrapper<float, kit::AbortPolicy<stdHostMemoryError_t>,
  *                     kit::AbortPolicy<stdHostMemoryError_t>> host_buf(1024);  // Standard host memory
  */
