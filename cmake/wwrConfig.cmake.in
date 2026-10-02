@@ -14,25 +14,25 @@ include(CMakeFindDependencyMacro)
 
 set(WWR_GPU_BACKEND "@WWR_PACKAGE_BACKEND@")
 set(WWR_WARP_SIZE "@WWR_PACKAGE_WARP_SIZE@")
-# Whether this installation shipped the wrappers layer (src/wrappers). ON
-# unless the build passed -DWWR_INSTALL_WRAPPERS=OFF. A bare boolean, not
-# quoted -- it is tested directly below. See section 1b.
+# Whether this installation shipped the wrappers layer (src/wrappers). Shipped
+# only when the build passed -DWWR_INSTALL_WRAPPERS=ON (OFF by default). A bare
+# boolean, not quoted -- it is tested directly below. See section 1b.
 set(WWR_HAS_WRAPPERS @WWR_PACKAGE_HAS_WRAPPERS@)
 # Whether this installation shipped the extension layer (src/extension), built
 # with -DWWR_INSTALL_EXTENSION=ON. A bare boolean, not quoted -- it is tested
 # directly below. See section 1c.
 set(WWR_HAS_EXTENSION @WWR_PACKAGE_HAS_EXTENSION@)
 # Whether this installation shipped the collective-communications wrapper
-# (wwr.ccl / wwr.extension.ccl), built with -DWWR_WITH_CCL=ON (the default). A
-# bare boolean -- tested directly below. See section 1d and section 3.
+# (wwr.ccl / wwr.extension.ccl), built with -DWWR_WITH_CCL=ON (OFF by default).
+# A bare boolean -- tested directly below. See section 1d and section 3.
 # comp/tensor get WWR_HAS_COMP / WWR_HAS_TENSOR the same way.
 set(WWR_HAS_CCL @WWR_PACKAGE_HAS_CCL@)
 # Whether this installation shipped the compression wrapper (wwr.comp /
-# wwr.extension.comp), built with -DWWR_WITH_COMP=ON (the default). See section
-# 1e and section 3.
+# wwr.extension.comp), built with -DWWR_WITH_COMP=ON (OFF by default). See
+# section 1e and section 3.
 set(WWR_HAS_COMP @WWR_PACKAGE_HAS_COMP@)
 # Whether this installation shipped the tensor-contraction wrapper (wwr.tensor /
-# wwr.extension.tensor), built with -DWWR_WITH_TENSOR=ON (the default). See
+# wwr.extension.tensor), built with -DWWR_WITH_TENSOR=ON (OFF by default). See
 # section 1f and section 3.
 set(WWR_HAS_TENSOR @WWR_PACKAGE_HAS_TENSOR@)
 set(WWR_BUILT_WITH_CXX_COMPILER_ID "@WWR_PACKAGE_CXX_COMPILER_ID@")
@@ -71,7 +71,8 @@ endif()
 # ---------------------------------------------------------------------------
 # 1b. Wrappers component
 # ---------------------------------------------------------------------------
-# The wrappers layer ships unless the build passed -DWWR_INSTALL_WRAPPERS=OFF.
+# The wrappers layer ships only when the build passed -DWWR_INSTALL_WRAPPERS=ON
+# (OFF by default).
 # Exposed as the `wrappers` component so `find_package(wwr COMPONENTS wrappers)`
 # is refused here, naming the cause, rather than later when
 # `import wwr.wrappers.blas;` fails to resolve against a core-only install.
@@ -83,7 +84,7 @@ if(wwr_FIND_REQUIRED_wrappers AND NOT WWR_HAS_WRAPPERS)
   # One string argument, not several: set() with multiple quoted arguments builds
   # a list and find_package prints the ';' separators between them.
   set(wwr_NOT_FOUND_MESSAGE
-      "This wwr installation was built without the wrappers layer, but the 'wrappers' component was requested. Reinstall the package with -DWWR_INSTALL_WRAPPERS=ON (the default)."
+      "This wwr installation was built without the wrappers layer, but the 'wrappers' component was requested. Reinstall the package with -DWWR_INSTALL_WRAPPERS=ON."
   )
   return()
 endif()
@@ -112,8 +113,8 @@ endif()
 # 1d. Collective-communications component
 # ---------------------------------------------------------------------------
 # The ccl wrapper (wwr.ccl and wwr.extension.ccl, backed by NCCL or RCCL) ships
-# only from a build configured with -DWWR_WITH_CCL=ON (the default). Exposed as
-# the `ccl` component so `find_package(wwr COMPONENTS ccl)` is refused here,
+# only from a build configured with -DWWR_WITH_CCL=ON (OFF by default). Exposed
+# as the `ccl` component so `find_package(wwr COMPONENTS ccl)` is refused here,
 # naming the cause, rather than later when `import wwr.ccl;` fails to resolve
 # against a build that disabled it. wwr_ccl_FOUND is set either way, so the
 # check_required_components() at the end of this file agrees with this verdict.
@@ -123,7 +124,7 @@ if(wwr_FIND_REQUIRED_ccl AND NOT WWR_HAS_CCL)
   # One string argument, not several: set() with multiple quoted arguments builds
   # a list and find_package prints the ';' separators between them.
   set(wwr_NOT_FOUND_MESSAGE
-      "This wwr installation was built without the collective-communications wrapper, but the 'ccl' component was requested. Reinstall the package with -DWWR_WITH_CCL=ON (the default)."
+      "This wwr installation was built without the collective-communications wrapper, but the 'ccl' component was requested. Reinstall the package with -DWWR_WITH_CCL=ON."
   )
   return()
 endif()
@@ -132,13 +133,13 @@ endif()
 # 1e. Compression component
 # ---------------------------------------------------------------------------
 # The comp wrapper (wwr.comp and wwr.extension.comp, backed by nvCOMP or
-# hipCOMP) ships only from a build configured with -DWWR_WITH_COMP=ON (the
+# hipCOMP) ships only from a build configured with -DWWR_WITH_COMP=ON (OFF by
 # default). Exposed as the `comp` component, same as `ccl` above.
 set(wwr_comp_FOUND ${WWR_HAS_COMP})
 if(wwr_FIND_REQUIRED_comp AND NOT WWR_HAS_COMP)
   set(wwr_FOUND FALSE)
   set(wwr_NOT_FOUND_MESSAGE
-      "This wwr installation was built without the compression wrapper, but the 'comp' component was requested. Reinstall the package with -DWWR_WITH_COMP=ON (the default)."
+      "This wwr installation was built without the compression wrapper, but the 'comp' component was requested. Reinstall the package with -DWWR_WITH_COMP=ON."
   )
   return()
 endif()
@@ -147,13 +148,13 @@ endif()
 # 1f. Tensor-contraction component
 # ---------------------------------------------------------------------------
 # The tensor wrapper (wwr.tensor and wwr.extension.tensor, backed by cuTENSOR or
-# hipTensor) ships only from a build configured with -DWWR_WITH_TENSOR=ON (the
-# default). Exposed as the `tensor` component, same as `ccl` above.
+# hipTensor) ships only from a build configured with -DWWR_WITH_TENSOR=ON (OFF
+# by default). Exposed as the `tensor` component, same as `ccl` above.
 set(wwr_tensor_FOUND ${WWR_HAS_TENSOR})
 if(wwr_FIND_REQUIRED_tensor AND NOT WWR_HAS_TENSOR)
   set(wwr_FOUND FALSE)
   set(wwr_NOT_FOUND_MESSAGE
-      "This wwr installation was built without the tensor-contraction wrapper, but the 'tensor' component was requested. Reinstall the package with -DWWR_WITH_TENSOR=ON (the default)."
+      "This wwr installation was built without the tensor-contraction wrapper, but the 'tensor' component was requested. Reinstall the package with -DWWR_WITH_TENSOR=ON."
   )
   return()
 endif()
