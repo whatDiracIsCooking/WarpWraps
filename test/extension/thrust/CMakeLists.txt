@@ -107,3 +107,4 @@ wwr_add_gtest_suite_tests(
 # add_subdirectory per family, one-per-line, so the four parallel family
 # branches merge additively.
 add_subdirectory(scan)
+add_subdirectory(reduce)
