@@ -426,11 +426,6 @@ add_library(wwr::module_flags ALIAS wwr_module_flags)
 # ========================================================================
 # AddressSanitizer (host code only)
 # ========================================================================
-# Honour the pre-rename name for one release (see issue #129).
-if(DEFINED ENABLE_ASAN AND NOT DEFINED WWR_ENABLE_ASAN)
-  message(DEPRECATION "ENABLE_ASAN is now WWR_ENABLE_ASAN")
-  set(WWR_ENABLE_ASAN ${ENABLE_ASAN})
-endif()
 option(WWR_ENABLE_ASAN
        "Enable AddressSanitizer instrumentation for host (CXX) code" OFF
 )
