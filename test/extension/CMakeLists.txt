@@ -20,6 +20,11 @@ add_subdirectory(memory_buffer)
 # so running the kernels IS the test. One integration suite covers both.
 add_subdirectory(rand)
 
+# The wwr* Thrust execution-policy shim (wwr::par_on). Like rand it has no
+# build-time half: the acceptance is that a device TU's thrust::sort runs on the
+# stream par_on bound, so running the sort on a real device IS the test.
+add_subdirectory(thrust)
+
 # Backend-neutral batched compression (wwr.comp). Not a src/extension wrapper --
 # it lives here because a compress/decompress round-trip needs a live device.
 if(WWR_WITH_COMP)
