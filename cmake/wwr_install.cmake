@@ -212,6 +212,14 @@ function(wwr_install_package)
   # from src/ NON-recursively; recursing would re-collect src/cuda, src/hip and
   # src/wrappers, which are swept separately above and below.
   _wwr_collect_library_targets("${PROJECT_SOURCE_DIR}/src" _gpu_targets)
+  # The wwr* Thrust layer (src/thrust) is the one core-layer target in its own
+  # subdirectory, so the non-recursive src/ sweep above misses it. Collected
+  # explicitly. Ships always, like the rest of the core wwr* layer -- it is not
+  # gated like the wrappers/extension sweeps below. wwrConfig.cmake.in already
+  # resolves the CCCL / rocthrust dependency wwr.thrust links.
+  _wwr_collect_library_targets(
+    "${PROJECT_SOURCE_DIR}/src/thrust" _thrust_targets
+  )
   # The wrappers layer (src/wrappers) ships only when opted into -- see
   # WWR_INSTALL_WRAPPERS in the top-level CMakeLists.txt. Gated like the
   # extension sweep below so a core-only install omits its targets from the
@@ -253,7 +261,7 @@ function(wwr_install_package)
   )
 
   set(_targets ${_root_targets} ${_backend_targets} ${_gpu_targets}
-               ${_wrapper_targets} ${_extension_targets}
+               ${_thrust_targets} ${_wrapper_targets} ${_extension_targets}
   )
   list(REMOVE_DUPLICATES _targets)
 
@@ -287,6 +295,19 @@ function(wwr_install_package)
   )
   install(FILES ${_gpu_layer_headers}
           DESTINATION "${WWR_INSTALL_INCLUDEDIR}"
+  )
+
+  # The wwr* Thrust layer's device headers (src/thrust/*.cuh), included through
+  # the src/ root ("thrust/reorder.cuh", ...) so the subtree is mirrored under
+  # include/wwr/thrust for those spellings to resolve unchanged after install --
+  # the same shape as the wrappers/ and extension/ subtrees below. It is
+  # unconditional: the layer is part of the core wwr* layer, not opt-in.
+  install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/src/thrust/"
+    DESTINATION "${WWR_INSTALL_INCLUDEDIR}/thrust"
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.cuh"
   )
 
   # The src/detail/ shared include fragments (runtime_api_names.h, ...) -- the

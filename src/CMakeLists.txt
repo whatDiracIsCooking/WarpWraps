@@ -469,6 +469,12 @@ unset(_wwr_targets)
 unset(_target)
 unset(_type)
 
+# The wwr* Thrust layer: device-includable headers that wrap Thrust/rocThrust
+# under backend-neutral wwr* symbols (the wwr::thrust INTERFACE target carries
+# the backend's Thrust include dirs). Header-only and consumed by device TUs, so
+# it is added before wrappers/extension, which build on these names.
+add_subdirectory(thrust)
+
 # The wrappers, written once against the wwr* names above. Added last so the
 # wwr.* module targets they link already exist.
 add_subdirectory(wrappers)
