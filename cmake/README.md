@@ -216,16 +216,18 @@ defect in the list above was found that way rather than reasoned about.
 ### The optional layers — wrappers and extension
 
 The sweep always installs the backend dir and the gpu\* (`wwr*`) core. Two
-layers on top of it can be dropped from the package independently, each gated by
-its own option and exposed as a `find_package` component.
+layers on top of it can be added to the package independently, each gated by
+its own option and exposed as a `find_package` component. Both are off by
+default: a default install is the raw core alone.
 
-**The wrappers layer (`src/wrappers`)** ships by default and is dropped with
-`-DWWR_INSTALL_WRAPPERS=OFF`. Nothing else in `src/` links a `wwr.wrappers.*`
-target, so dropping it leaves the rest of the export set intact. When off the
-sweep skips `src/wrappers`, its header subtree is not mirrored under
-`include/wwr/wrappers`, and the package records `WWR_HAS_WRAPPERS` OFF — exposed
-by `wwrConfig.cmake` both as a plain variable and as the `wrappers` component, so
-`find_package(wwr COMPONENTS wrappers)` is refused on a core-only install.
+**The wrappers layer (`src/wrappers`)** ships only with
+`-DWWR_INSTALL_WRAPPERS=ON` — off by default. Nothing else in `src/` links a
+`wwr.wrappers.*` target, so omitting it leaves the rest of the export set
+intact. When off the sweep skips `src/wrappers`, its header subtree is not
+mirrored under `include/wwr/wrappers`, and the package records
+`WWR_HAS_WRAPPERS` OFF — exposed by `wwrConfig.cmake` both as a plain variable
+and as the `wrappers` component, so `find_package(wwr COMPONENTS wrappers)` is
+refused on a core-only install.
 
 **The extension layer (`src/extension`)** ships **only** when the build sets
 `-DWWR_INSTALL_EXTENSION=ON` — off by default, because the RAII/handle/buffer/

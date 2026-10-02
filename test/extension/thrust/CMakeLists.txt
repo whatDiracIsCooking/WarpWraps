@@ -62,8 +62,49 @@ wwr_add_gtest_suite_tests(
   REQUIRES_GPU
 )
 
-# --- A-family algorithm-layer tests (issues #238-#241). Each family's
-# REQUIRES_GPU acceptance lives in its own subdirectory over the module it
-# tests; added alphabetically, one add_subdirectory per family so the four
-# merge additively. ---
+# ============================================================================
+# A-sort family (issue #238): reorder module acceptance.
+#
+# Self-contained block; the four A-families each append one like it. Unlike
+# the F2 stream test above, this drives the MODULE wwr.wrappers.thrust.reorder
+# (which carries its own device archive), so there is no local .cu -- a plain
+# host gtest that imports the module and checks each algorithm reorders
+# correctly on a caller-created non-default stream.
+# ============================================================================
+wwr_add_gtest_executable(
+  NAME
+  extension_thrust_reorder_tests
+  SOURCES
+  reorder_tests.cpp
+  LINK
+  wwr::runtime_api
+  wwr::wrappers::thrust::reorder
+)
+# Under CUDA, Thrust instantiates host-side error-category helpers that nvcc's
+# default (gcc) host pass compiles against libstdc++ while the rest is libc++;
+# link libstdc++ explicitly, AFTER the module's device archive, so those host
+# symbols resolve -- the same link the F2 stream test makes, for the same
+# reason. HIP compiles the source as CXX under libc++ and needs nothing here.
+if(WWR_GPU_BACKEND STREQUAL "CUDA")
+  target_link_libraries(
+    extension_thrust_reorder_tests
+    PRIVATE /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+  )
+endif()
+
+wwr_add_gtest_suite_tests(
+  TARGET
+  extension_thrust_reorder_tests
+  SUITES
+  ThrustReorderTests
+  TIMEOUT
+  60
+  REQUIRES_GPU
+)
+
+# Per-family A-algorithm acceptance suites (issues #238-#241), each a
+# self-contained subdirectory importing its wwr.wrappers.thrust.* module. One
+# add_subdirectory per family, one-per-line, so the four parallel family
+# branches merge additively.
+add_subdirectory(scan)
 add_subdirectory(reduce)
