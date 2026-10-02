@@ -71,16 +71,18 @@ it). This is the decisions-only companion to the machine-generated ``vendor/*``
 manifests: everything derivable stays derived there; only the human judgements
 that a diff cannot compute live in the decisions file. There are two classes.
 
-A WHOLE-SURFACE module (rand, fft, tx) promises to wrap everything the two
-backends share and spells both names out (``WWR_FUNCTION(gpu, cu, hip)``).
+A WHOLE-SURFACE module (rand, fft, tx, runtime_api) promises to wrap everything
+the two backends share -- the reductions spell both names out
+(``WWR_FUNCTION(gpu, cu, hip)``); runtime_api pastes them through the 1-arg
+``WWR_RT_*`` family, which ``--coverage`` reconstructs (see resolved_names).
 For these ``--coverage`` is the real completeness gate: an undocumented gap is a
 genuine hole and FAILS, but a gap listed under that module's ``omissions`` in the
 decisions file is a deliberate, justified skip and PASSES.
 
-A CURATED-SUBSET module (blas, solver, sparse, runtime_api) is demand-complete:
+A CURATED-SUBSET module (blas, solver, sparse) is demand-complete:
 it carries a wwr* name only once a consumer reaches for it, never the full
 intersection, so its "missing" list is reachable-but-unused vendor symbols, a
-discovery menu that is REPORTED, not failed. For all four, completeness is
+discovery menu that is REPORTED, not failed. For these, completeness is
 enforced elsewhere: the compiler (an
 unresolved wwr* name cannot be consumed), ``test/shared/alias_coverage.py``
 (every alias defined has a test), and the dispatch tables that

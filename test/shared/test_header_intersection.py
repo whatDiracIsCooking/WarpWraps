@@ -187,8 +187,8 @@ def test_decisions_file_is_committed_and_well_formed():
     # The class split the docstring names must hold.
     whole = {n for n, b in mods.items() if b["contract"] == hi.WHOLE_SURFACE}
     subset = {n for n, b in mods.items() if b["contract"] == hi.CURATED_SUBSET}
-    assert {"rand", "fft", "tx"} <= whole
-    assert {"blas", "solver", "sparse", "runtime_api"} <= subset
+    assert {"rand", "fft", "tx", "runtime_api"} <= whole
+    assert {"blas", "solver", "sparse"} <= subset
 
 
 def test_named_omissions_are_recorded_with_rationale():
@@ -354,6 +354,26 @@ def test_runtime_paste_surface_is_legible_to_coverage():
     # Gap detection itself (an unreferenced shared symbol lands in `missing`) is
     # pinned by the synthetic-fixture tests below, independent of which real
     # runtime symbols are wrapped at any given point in the milestone.
+
+
+def test_runtime_api_whole_surface_passes_clean():
+    # THE GATE (#267). runtime_api is now whole-surface: every non-deprecated shared
+    # cuda∩hip runtime symbol must be either aliased in detail/runtime_api_names.h
+    # or a documented omission in coverage_decisions.json. This runs off committed
+    # manifests + source (no SDK), so CI's `test` job fails the day a vendor bump
+    # adds a shared symbol nobody wrapped, or a wrapper is removed without an
+    # omission. Mirrors test_real_whole_surface_module_passes_clean for fft.
+    decision = hi.module_decision(hi.load_decisions(), "runtime_api")
+    assert decision is not None
+    report = hi.build_report(hi.Side("cuda", RT_CUDA), hi.Side("hip", RT_HIP),
+                             RT_SRC, decision)
+    cov = report["coverage"]
+    assert cov["contract"] == hi.WHOLE_SURFACE
+    assert cov["undocumented_gaps"] == [], (
+        "unwrapped, undocumented shared runtime symbol(s): "
+        f"{[g['cuda']['names'] for g in cov['undocumented_gaps']]}"
+    )
+    assert cov["fails"] is False
 
 
 def test_deprecated_shared_symbol_is_not_a_gap(tmp_path):
