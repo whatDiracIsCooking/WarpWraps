@@ -397,24 +397,22 @@ wwr_add_gpu_device_library(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.math.device)
 
-# wwr::thrust (issue #235, F1): the backend-neutral Thrust interface target.
-# Thrust is header-only, so the claim worth proving is purely that the one
-# target carries the right include dirs on both backends -- CCCL on CUDA,
-# rocThrust on HIP. A device TU because thrust/*.h assume a device pass;
-# building it is the assertion; no ctest entry, no launch.
-#
-# TEMPORARILY DISABLED: wwr::thrust was defined by src/wrappers/thrust/, which
-# has been torn down (step 1 of the Thrust-layer rebuild). thrust.cu stays on
-# disk, out of the build; restore against the new layout in a later step.
-# wwr_add_gpu_device_library(
-#   NAME
-#   wwr.test.gpu.thrust.device
-#   SOURCES
-#   thrust.cu
-#   LINK_PRIVATE
-#   wwr::thrust
-# )
-# add_dependencies(compile_time_tests wwr.test.gpu.thrust.device)
+# wwr::thrust: compile-time acceptance for the backend-neutral Thrust re-export
+# layer (src/thrust, step 2). Pulls all four family headers, so every
+# `using ::thrust::<name>` is checked against the selected backend -- CCCL on
+# CUDA, rocThrust on HIP -- and one call per family proves wwr::par_on threads
+# through. A device TU because thrust/*.h assume a device pass; building it is
+# the assertion; no ctest entry, no launch. Links wwr::thrust for the backend's
+# Thrust include dirs and the src/ include root the family headers resolve off.
+wwr_add_gpu_device_library(
+  NAME
+  wwr.test.gpu.thrust.device
+  SOURCES
+  thrust.cu
+  LINK_PRIVATE
+  wwr::thrust
+)
+add_dependencies(compile_time_tests wwr.test.gpu.thrust.device)
 
 # Guard: every wwr* function alias in the wwr* layer is independently verified
 # by a WWR_SAME_FUNCTION restatement in the matching test/gpu module, or by a
