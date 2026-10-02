@@ -1,15 +1,16 @@
 /**
- * @file runtime_api_surface.h
+ * @file detail/runtime_api_names.h
  * @brief The backend-neutral runtime-API surface, as a macro-driven include
- *        fragment shared by the module and the device-side header
+ *        fragment shared by every consumption path
  *
  * NOT a standalone header: it is the list of wwr* runtime names (types,
  * constants, functions and the few hand-written forwarders) with NO namespace
  * of its own and NO vendor #include. The includer supplies all of that and
- * pastes this inside its own `namespace wwr` -- so one list binds both
- * wwr.runtime_api (host, `export namespace wwr`) and runtime.h's device section
- * (a device .cu/.cuh, which cannot import the module). Add a runtime name here,
- * once, and both paths gain it.
+ * pastes this inside its own `namespace wwr` -- so one list binds all three
+ * ways the surface is consumed: wwr.runtime_api (the module, host,
+ * `export namespace wwr`), runtime.h's device section (a device .cu/.cuh, which
+ * cannot import the module), and wwr/runtime_api.h (the non-module #include
+ * path, host). Add a runtime name here, once, and every path gains it.
  *
  * Before including, the includer must have, in order:
  *   - the vendor runtime header in scope and its allocation-flag macros run
@@ -19,19 +20,20 @@
  *   - std::size_t available (import std, or <cstddef>);
  *   - WWR_SELECT_RAW(cuda, hip) picking the selected backend's raw name --
  *     keyed on WWR_GPU_BACKEND_* in the module (backend.h) or WWR_SELECTED_* in
- *     a device pass (runtime.h), the one thing that legitimately differs
- *     between the two sites -- plus WWR_TYPE_RAW / WWR_VALUE_RAW /
- *     WWR_FUNCTION_RAW and the WWR_RT_TYPE / WWR_RT_VALUE / WWR_RT_FUNCTION
- *     conveniences on top of them.
+ *     a device pass (runtime.h) and the #include path (wwr/runtime_api.h), the
+ *     one thing that legitimately differs between the sites -- plus
+ *     WWR_TYPE_RAW / WWR_VALUE_RAW / WWR_FUNCTION_RAW and the WWR_RT_TYPE /
+ *     WWR_RT_VALUE / WWR_RT_FUNCTION conveniences on top of them.
  *
- * See src/runtime_api.cppm, src/runtime.h and docs/architecture.md section 3.
+ * See src/runtime_api.cppm, src/runtime.h, src/wwr/runtime_api.h and
+ * docs/architecture.md section 3.
  */
 
 #pragma once
 
 #ifndef WWR_RT_TYPE
 #error                                                                                             \
-    "runtime_api_surface.h is an include fragment, not a standalone header: define WWR_RT_TYPE/VALUE/FUNCTION, the _RAW macros and WWR_SELECT_RAW, ensure the vendor runtime header + flag dance and std::size_t are in scope, and #include it inside namespace wwr. See src/runtime.h and src/runtime_api.cppm."
+    "detail/runtime_api_names.h is an include fragment, not a standalone header: define WWR_RT_TYPE/VALUE/FUNCTION, the _RAW macros and WWR_SELECT_RAW, ensure the vendor runtime header + flag dance and std::size_t are in scope, and #include it inside namespace wwr. See src/runtime.h, src/runtime_api.cppm and src/wwr/runtime_api.h."
 #endif
 
 // ========================================================================

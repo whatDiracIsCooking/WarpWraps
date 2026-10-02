@@ -457,7 +457,9 @@ macros that would otherwise collide with its `WWR_RT_VALUE` expansions.
 values and needs no such `#undef`; its *device section*, though, now binds the
 whole neutral runtime surface for device `.cu`/`.cuh` TUs (which cannot import
 `wwr.runtime_api`) and reuses that same `runtime_api.h` flag dance to do it --
-through the one list both sites share, `runtime_api_surface.h`. `wwrrandState`
+through the one list every path shares, `detail/runtime_api_names.h` (the module
+purview, this device section, and the non-module `wwr/runtime_api.h` all paste
+it). `wwrrandState`
 lives the
 same way, in the src/-root
 header `rand.h`, `#include`d (not imported) by `rand.cppm` and the two

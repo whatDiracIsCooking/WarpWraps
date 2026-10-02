@@ -159,6 +159,28 @@ wwr_add_cxx_module_library(
   IMPORT_STD
 )
 
+# The non-module HOST consumption path for the runtime surface. A project
+# that does not use C++ modules reaches the same wwr* runtime names by
+# `#include "wwr/runtime_api.h"` instead of import. That header (src/wwr/) is
+# a single self-contained file -- vendor include, flag dance and wwr*
+# bindings, like the vendor runtime header it wraps -- independent of the
+# module layer (the one shared primitive is selected_backend.h, the backend
+# switch). This INTERFACE target is the header-only counterpart to
+# wwr.runtime_api's usage requirements: it carries exactly what the #include
+# needs -- the WWR_GPU_BACKEND_* define and the src/ include root
+# (wwr::backend) and the runtime host library (CUDA::cudart / hip::host). It
+# compiles no module unit, which is the point: header-only consumption
+# without the module machinery. src/wwr/'s headers install under
+# include/wwr/wwr/ (cmake/wwr_install.cmake), and this target joins the
+# export set like the other INTERFACE libraries here.
+add_library(wwr.runtime_api.host INTERFACE)
+target_link_libraries(
+  wwr.runtime_api.host INTERFACE wwr::backend ${_backend_rt_host}
+)
+# In-tree :: alias (a raw add_library gets none automatically); exported as
+# wwr::runtime_api::host by _wwr_export_name's dotted-to-:: rule.
+add_library(wwr::runtime_api::host ALIAS wwr.runtime_api.host)
+
 wwr_add_cxx_module_library(
   NAME
   wwr.complex

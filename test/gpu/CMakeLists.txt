@@ -145,6 +145,30 @@ wwr_add_test_executable(
 
 add_dependencies(compile_time_tests gpu_compile_tests)
 
+# The non-module HOST #include path for the runtime surface -- the
+# counterpart to the wwr.test.gpu.runtime_api module test above, through
+# `#include "wwr/runtime_api.h"` rather than import. A plain .cpp (imports
+# nothing), so it uses wwr_add_test_executable rather than the module-library
+# macro, and links wwr::runtime_api::host, the header-only target. Host-only
+# -- it names no device function and launches no kernel, so it carries no gpu
+# label and runs in CI. PROJECT_SOURCE_DIR on the include path is for
+# gpu_check_macros.h's root-relative "test/shared/link_check.h", the same
+# reason the module tests above add it.
+wwr_add_test_executable(
+  NAME
+  wwr.test.gpu.runtime_api_host
+  MAIN
+  runtime_api_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::runtime_api::host
+)
+target_include_directories(
+  wwr.test.gpu.runtime_api_host PRIVATE ${PROJECT_SOURCE_DIR}
+)
+add_dependencies(compile_time_tests wwr.test.gpu.runtime_api_host)
+
 # tensor is the one wwr* compile-time test kept OUT of the shared, RUN
 # gpu_compile_tests binary above: on HIP, libhiptensor.so runs a device probe in
 # a global constructor that aborts at process startup on any host without a

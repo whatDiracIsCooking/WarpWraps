@@ -49,12 +49,13 @@ import std;
 export namespace wwr {
 
 // The whole neutral runtime surface -- types, constants, functions and the
-// hand-written forwarders -- lives in runtime_api_surface.h, the one list this
-// module and runtime.h's device section share (a device .cu/.cuh cannot import
-// this module, so it pastes the same fragment through a #include). The WWR_RT_*
-// / _RAW macros above and WWR_SELECT_RAW from backend.h, plus runtime_api.h's
-// vendor header and flag dance and `import std`'s std::size_t, are exactly what
-// that fragment's header documents it needs in scope.
-#include "runtime_api_surface.h"
+// hand-written forwarders -- lives in detail/runtime_api_names.h, the one list
+// every consumption path shares: this module, runtime.h's device section (a
+// device .cu/.cuh cannot import this module, so it pastes the same fragment
+// through a #include) and wwr/runtime_api.h (the non-module #include path). The
+// WWR_RT_* / _RAW macros above and WWR_SELECT_RAW from backend.h, plus
+// runtime_api.h's vendor header and flag dance and `import std`'s std::size_t,
+// are exactly what that fragment's header documents it needs in scope.
+#include "detail/runtime_api_names.h"
 
 } // namespace wwr
