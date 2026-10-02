@@ -740,61 +740,56 @@ is no `.so` to harvest and nothing for `vendor_harvest.py` or the link-check
 machinery to touch — `wwr::thrust` is a bare INTERFACE target carrying only the
 vendor include dirs and link deps.
 
-## 22. The Thrust algorithm layer, and why it is not a raw module
 
-`src/wrappers/thrust` is a typed, backend-neutral algorithm layer (sort, scan,
-reduce, transform and their families) over Thrust/rocThrust. It is a
-**wrappers-altitude** layer, not a raw `wwr.cuda.thrust` module alongside
-`wwr.cuda.cublas_v2` and the rest. That is the decision this section records;
-the version floors it is built against are §21.
+## 22. The Thrust re-export layer, and why it is device-only
 
-**Context — why not a module.** The raw-module pattern (§8, §14) wraps a vendor
-`.so`: a `.cppm` re-exports the C entry points, a bridge header gives a device
-TU the same names by `#include`, and the two bind across the link. Thrust fits
-none of that. It is header-only C++ templates in `namespace thrust::`, with no
-`.so` and nothing to re-export — the names a caller writes are already
-`thrust::sort`, identical on both backends (the README's audit confirms every
-in-scope policy-first overload is byte-identical across CCCL 3.0.1 and rocThrust
-2.8.5). A module over it would only rename each `thrust::` name to itself —
-`cooperative_groups.h`'s "wraps nothing" situation (§2) — while dragging the
-whole CUB + libcu++ template tree into its BMI, payload a module is supposed to
-*summarise*, not carry. And a device TU cannot `import` (§8), so the device code
-that actually instantiates a Thrust call could not consume such a module anyway.
-`src/extension/parallel_for` reached the same conclusion from the other side: it
-once *was* Thrust-backed and dropped that backend for a hand-written `.cuh`
-(memory `project-thrust-algorithms-break-under-rdc`).
+`src/thrust` is a backend-neutral re-export of Thrust/rocThrust into namespace
+`wwr::thrust` — one device-includable header per Thrust header (`sort.cuh`
+mirrors `<thrust/sort.h>`, …), plus `execution_policy.cuh`. It sits in the `wwr*`
+layer directly under `src/`. The version floors it is built against are §21.
 
-**Decision — the per-family blas-template shape.** Each family is a
-self-contained subdirectory following the pattern `src/wrappers/blas` and
-`src/extension/random_normal` already use: a host `interface.cppm` of thin typed
-forwarders, a device `.cu` holding the one explicit `thrust::<algo>(...)`
-instantiation per supported type, and a bridge header (`#include`d in the
-module's global module fragment) that gives both sides external-linkage
-declarations to bind across the host/device link (§14). Only the stream-bound
-execution policy diverges between the backends — `thrust::cuda::par.on(stream)`
-vs `thrust::hip::par.on(stream)` — and `wwr::par_on(stream)`
-(`execution_policy.cuh`) is the one-line shim over exactly that, selected from
-the compiler's own device-pass macro, so each family `.cu` writes the call once.
-A caller-supplied functor cannot cross the host/device link, so the families
-split by whether the op is fixed: a fixed op (a value, or a compile-time-selected
-`UnaryOp`/`BinaryOp`) is pre-instantiated in the `.cu` and reached through the
-module; an arbitrary caller functor (`for_each`, `generate`, `tabulate`, the
-free-functor `transform`) lives in a `.cuh` header template the caller's own
-device TU `#include`s and instantiates — the `parallel_for.cuh` consumption
-model.
+**Why it is device-only, and cannot be otherwise.** Two facts box GPU Thrust out
+of C++ modules from both sides. A module interface unit is compiled as ordinary
+host C++ (no device pass), so it cannot *instantiate* a Thrust device algorithm —
+no kernels come out of a host compile. And a device TU cannot `import` (§8), so
+even a module that somehow held the instantiation could not be *consumed* by the
+device code that needs it. The device-instantiated template therefore can live
+neither in a module nor be delivered through one; the most a module could ever
+offer is a host-callable *facade* whose definition is a separately compiled `.cu`
+bound at link time. This is not a Thrust quirk — it holds for any
+device-instantiated template library (CUB, a project's own `__device__`
+templates). So this layer is headers a `.cu` (or `-x hip`) TU `#include`s; a host
+TU that wants these algorithms must itself go through the device pass. (Only
+Thrust's *host* execution policies — `thrust::host`/`seq`, pure CPU code — could
+live in a module, and that is not GPU work.)
 
-**Consequences — coverage is per-family, not uniform `sdcz`.** Each family
-instantiates only the element types its algorithms are meaningful for, so the
-type set is a per-family decision rather than one fixed list. The reorder family
-excludes complex (sort/unique/partition need an ordering or equality complex
-lacks) but keeps the unsigned integers; reduce and scan take `float`/`double`/
-`int`/`int64` only (a total order for the extrema, no dependence on the
-unaudited `thrust::complex`); transform admits complex for `fill`/`replace`/
-`transform` but not `sequence` (no linear step) and not `abs` (complex magnitude
-is a different, real-valued type). The exact per-family sets and their
-justifications are the README's coverage table — this layer owns that table, not
-`coverage_decisions.json` (which governs the whole-surface vendor modules, a
-machine-harvestable surface this header-only layer has no part of). The layer is
-deliberately extensible: the audited portable subset is the four A-families in
-scope today, and further families (search, gather, set operations) can be added
-as sibling subdirectories without disturbing the ones that exist.
+**Why `using`, 1:1 with Thrust's headers.** The algorithm names are identical on
+both backends — a caller writes `thrust::sort` either way (the layer's history
+carries an audit confirming every in-scope policy-first overload is
+byte-identical across CCCL 3.0.1 and rocThrust 2.8.5) — so each header is a plain
+`using ::thrust::<name>` re-export: every overload comes across, nothing to keep
+in sync. Mirroring Thrust's own header layout 1:1, under the same names, means
+the layer coins no vocabulary of its own: know `<thrust/count.h>`, know
+`"thrust/count.cuh"`. The sole wwr addition is `wwr::par_on(stream)`, the one-line
+shim over the single spelling that *does* diverge — `thrust::cuda::par.on` vs
+`thrust::hip::par.on` — passed as the leading argument:
+`wwr::thrust::sort(wwr::par_on(stream), first, last)`. Because it re-exports
+rather than curates, there is no per-type coverage table and no
+`coverage_decisions.json` entry (that governs the machine-harvestable `.so`
+vendor modules; this header-only layer has no `.so`). Its acceptance is the
+compile-time device TU `test/gpu/thrust.cu`, which pulls every leaf so each
+re-exported name is checked against the selected backend.
+
+**History — an earlier host-launcher design, torn down.** A first iteration
+(milestone #3) built this as a *wrappers-altitude* layer under
+`src/wrappers/thrust`: per-family host `interface.cppm` modules of typed
+forwarders, each over a curated element-type set, bound through a bridge header
+to a device `.cu`'s explicit instantiations — the `src/wrappers/blas` shape. It
+was torn down (#268) and rebuilt as the present device-only layer (#276 and its
+follow-up) once the reasoning above was followed through: the host modules were
+bespoke, per-purpose curation (`reduce_sum`, `count_if_nonzero`, …) at odds with
+a plain re-export, and — the decisive point — a module was never going to serve
+the device code that actually instantiates Thrust. `src/extension/parallel_for`
+reached the same device-only conclusion from the other side: it once *was*
+Thrust-backed and dropped that backend for a hand-written `.cuh` (memory
+`project-thrust-algorithms-break-under-rdc`).

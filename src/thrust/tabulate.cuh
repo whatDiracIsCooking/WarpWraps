@@ -1,10 +1,10 @@
 /**
- * @file scan.cuh
- * @brief Backend-neutral wwr::thrust re-export of <thrust/scan.h>
+ * @file tabulate.cuh
+ * @brief Backend-neutral wwr::thrust re-export of <thrust/tabulate.h>
  *
  * One leaf header per Thrust header, mirroring Thrust's own layout 1:1 so the
- * spelling a caller already knows carries over: <thrust/scan.h> becomes
- * "thrust/scan.cuh". A plain `using`-re-export into namespace wwr::thrust --
+ * spelling a caller already knows carries over: <thrust/tabulate.h> becomes
+ * "thrust/tabulate.cuh". A plain `using`-re-export into namespace wwr::thrust --
  * the names are identical on CUDA (CCCL) and HIP (rocThrust), so every overload
  * comes across. The leading `::` is load-bearing: inside namespace wwr::thrust
  * a bare `thrust` names THIS namespace.
@@ -18,13 +18,10 @@
 
 #include "execution_policy.cuh"
 
-#include <thrust/scan.h>
+#include <thrust/tabulate.h>
 
 namespace wwr::thrust {
 
-using ::thrust::exclusive_scan;
-using ::thrust::exclusive_scan_by_key;
-using ::thrust::inclusive_scan;
-using ::thrust::inclusive_scan_by_key;
+using ::thrust::tabulate;
 
 } // namespace wwr::thrust

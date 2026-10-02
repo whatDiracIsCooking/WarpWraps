@@ -1,42 +1,28 @@
 /**
  * @file reduce.cuh
- * @brief Backend-neutral wwr::thrust re-export of the reduce family
+ * @brief Backend-neutral wwr::thrust re-export of <thrust/reduce.h>
  *
- * reduce, transform_reduce, count, inner_product and the element extrema --
- * the algorithms that fold a range to a value (or a position). Plain `using`-
- * re-exports into namespace wwr::thrust; see reorder.cuh for the pattern, the
- * load-bearing leading `::`, and why the execution policy stays behind
- * wwr::par_on rather than being re-exported. Link wwr::thrust.
+ * One leaf header per Thrust header, mirroring Thrust's own layout 1:1 so the
+ * spelling a caller already knows carries over: <thrust/reduce.h> becomes
+ * "thrust/reduce.cuh". A plain `using`-re-export into namespace wwr::thrust --
+ * the names are identical on CUDA (CCCL) and HIP (rocThrust), so every overload
+ * comes across. The leading `::` is load-bearing: inside namespace wwr::thrust
+ * a bare `thrust` names THIS namespace.
  *
- * Extrema are the element-position algorithms (min_element / max_element /
- * minmax_element), not scalar thrust::min / thrust::max -- the latter were
- * removed from CCCL 3.0's public extrema.h and are deliberately not re-exported.
+ * The one divergent spelling, the stream-bound execution policy, is owned by
+ * wwr::par_on (execution_policy.cuh) and passed as the leading argument. Device-
+ * includable header, not a module (docs/architecture.md §8); link wwr::thrust.
  */
 
 #pragma once
 
 #include "execution_policy.cuh"
 
-#include <thrust/count.h>
-#include <thrust/extrema.h>
-#include <thrust/inner_product.h>
 #include <thrust/reduce.h>
-#include <thrust/transform_reduce.h>
 
 namespace wwr::thrust {
 
 using ::thrust::reduce;
 using ::thrust::reduce_by_key;
-
-using ::thrust::transform_reduce;
-
-using ::thrust::count;
-using ::thrust::count_if;
-
-using ::thrust::inner_product;
-
-using ::thrust::max_element;
-using ::thrust::min_element;
-using ::thrust::minmax_element;
 
 } // namespace wwr::thrust
