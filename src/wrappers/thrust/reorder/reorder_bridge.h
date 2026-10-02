@@ -3,7 +3,7 @@
  * @brief Declarations shared between the reorder module's interface unit and its
  *        device-compiled translation unit
  *
- * Included by reorder.cppm in its GLOBAL MODULE FRAGMENT, and by reorder.cu
+ * Included by interface.cppm in its GLOBAL MODULE FRAGMENT, and by reorder.cu
  * directly. The declarations must live in the GMF, not the module purview: a
  * purview name gets module linkage and can never bind to a definition compiled
  * in a plain TU, which is what reorder.cu is. See docs/architecture.md §14.

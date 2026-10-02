@@ -115,7 +115,7 @@ void reverse(const wwrStream_t stream, T *d, const std::size_t n) {
   ::thrust::reverse(wwr::par_on(stream), first, first + n);
 }
 
-// One instantiation per supported type, matching reorder.cppm's extern template
+// One instantiation per supported type, matching interface.cppm's extern template
 // list and instantiations.cpp's. All three lists cover the same orderable-real
 // set (sort needs operator<, so complex is excluded -- README.md's audit). A
 // type added here without being added there links against nothing.

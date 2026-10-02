@@ -4,8 +4,8 @@
  *
  * The one genuine wwr*-layer divergence Thrust has: the stream-bound execution
  * policy is `thrust::cuda::par.on(stream)` on CUDA and `thrust::hip::par.on(stream)`
- * on HIP. `wwr::par_on(stream)` is the §2 "forwarding that isn't quite nothing"
- * shim over that -- it names the backend's `par` and returns the policy its
+ * on HIP. `wwr::par_on(stream)` is the one-line shim over that (§22) -- it
+ * names the backend's `par` and returns the policy its
  * `.on(stream)` yields, so a family `.cu` writes `thrust::sort(wwr::par_on(stream),
  * ...)` once and the right backend policy is selected from the compiler's own
  * device-pass macro. The audit (README.md) confirms every in-scope algorithm's
@@ -41,7 +41,7 @@
 #include <thrust/system/cuda/execution_policy.h>
 #else
 
-// Two rocThrust-vs-toolchain gaps this layer owns (§2), both bridged for every
+// Two rocThrust-vs-toolchain gaps this layer owns, both bridged for every
 // device TU through the one header that pulls rocThrust. rocThrust 2.8.5 was
 // written against an older libc++ and a pristine HIP runtime; neither holds in
 // this toolchain, and the Thrust headers below hit both unless we restore what

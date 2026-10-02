@@ -3,7 +3,7 @@
  * @brief The one explicit instantiation of each reorder wrapper per type
  *
  * Implementation unit of wwr.wrappers.thrust.reorder. Pairs with the
- * `extern template` declarations in reorder.cppm: together they keep every
+ * `extern template` declarations in interface.cppm: together they keep every
  * importer from instantiating the templates again at each call site.
  *
  * These instantiate the exported WRAPPERS. The device-side work they call

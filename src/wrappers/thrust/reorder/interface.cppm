@@ -1,5 +1,5 @@
 /**
- * @file reorder.cppm
+ * @file interface.cppm
  * @brief Primary interface for wwr.wrappers.thrust.reorder
  *
  * Portable, typed wrappers for the Thrust reorder family -- sort, unique,
