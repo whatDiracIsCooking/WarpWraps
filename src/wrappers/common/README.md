@@ -22,12 +22,24 @@ backend.
 
 ## Module Partitions
 
-### `:fp_types` — `fp_types.cppm`
+### `:fp_types` — `fp_types.cppm` + `fp_types.h`
 
 C++20 concepts and type mappings for the floating-point types used across GPU
 BLAS and solver operations. The complex and half-precision types are `src`'s
 backend-neutral aliases: `wwrFloatComplex` is `cuFloatComplex` on a CUDA build
 and `hipFloatComplex` on a HIP build, and so on.
+
+The definitions live in the non-module header `fp_types.h`; `fp_types.cppm`
+`#include`s it in its global module fragment and re-exports the names with
+`using`, the same `.h` + `.cppm` shape as `complex.{h,cppm}`. Because concepts
+and alias templates are pure compile-time constructs with no `__device__`
+bodies, the one definition in `fp_types.h` serves both routes with nothing to
+duplicate: a host TU reaches it through `import wwr.wrappers.common`, and a
+device `.cu` — which cannot import a module — reaches the same concepts by
+`#include "wrappers/common/fp_types.h"`. The header pulls the wwr\* types from
+`complex.h` / `fp16.h` / `bf16.h`, so the module links `wwr::backend` PRIVATE for
+the `WWR_GPU_BACKEND_*` define `selected_backend.h` reads in that host compile
+(see `CMakeLists.txt`).
 
 | Concept | Matches |
 |---|---|
@@ -79,6 +91,7 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE interface.cppm
   PARTITIONS fp_types.cppm int_types.cppm
   LINK_PUBLIC wwr.complex wwr.fp16 wwr.bf16
+  LINK_PRIVATE wwr.backend
   IMPORT_STD
 )
 ```

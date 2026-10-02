@@ -1,29 +1,39 @@
 /**
  * @file fp_types.cppm
- * @brief Floating-point type concepts for GPU operations
+ * @brief Backend-neutral floating-point concepts and type maps: the module face
+ *        of fp_types.h
  *
- * This module provides C++20 concepts for constraining template parameters
- * to floating-point types commonly used in GPU BLAS/solver libraries. The
- * complex and half-precision types are the backend-neutral wwr* aliases from
- * src, so the concepts match cuComplex/__nv_bfloat16 on a CUDA build and
- * hipComplex/__hip_bfloat16 on a HIP build.
+ * The host-module counterpart to fp_types.h: it re-exports the concepts (real_fp
+ * ... usual_and_half_fp), the type maps (RealToComplexType, ComplexToRealType,
+ * HalfToFloatType) and the complex type aliases, so a host TU reaches them with
+ * `import wwr.wrappers.common`. The definitions all live in fp_types.h -- the
+ * same header a device .cu includes directly -- and this partition only brings
+ * them into the module and exports them.
+ *
+ * Unlike complex.cppm / fp16.cppm, there is nothing here to duplicate: fp_types.h
+ * holds only concepts and alias templates, pure compile-time constructs with no
+ * __device__ bodies, so the single definition serves both this module and a
+ * device include. The GMF #includes the header and the names are re-exported
+ * below. See docs/architecture.md, section 3.
  *
  * Usage:
  *   import wwr.wrappers.common;
  *   using namespace wwr;
  */
 
-export module wwr.wrappers.common:fp_types;
+module;
 
-import std;
-import wwr.complex;
-import wwr.fp16;
-import wwr.bf16;
+// The concepts, type maps, and (via complex.h) the complex type aliases. They
+// land in the global module here and are re-exported below.
+#include "fp_types.h"
+
+export module wwr.wrappers.common:fp_types;
 
 export namespace wwr {
 
 // ========================================================================
-// GPU Complex Types
+// GPU Complex Types -- re-exported from fp_types.h (via complex.h), so
+// importers of wwr.wrappers.common see them for convenience
 // ========================================================================
 
 using wwr::wwrComplex;
@@ -34,87 +44,18 @@ using wwr::wwrFloatComplex;
 // Floating-Point Type Concepts
 // ========================================================================
 
-/**
- * @brief Concept constraining type T to real floating-point types
- *
- * Constrains T to be either float or double, which are the real-valued
- * floating-point types supported by GPU BLAS operations.
- */
-template<typename T>
-concept real_fp = std::is_same_v<T, float> || std::is_same_v<T, double>;
-
-/**
- * @brief Concept constraining type T to GPU complex floating-point types
- *
- * Constrains T to be either wwrFloatComplex or wwrDoubleComplex, which are
- * the complex-valued floating-point types supported by GPU BLAS operations.
- */
-template<typename T>
-concept complex_fp = std::is_same_v<T, wwrFloatComplex> || std::is_same_v<T, wwrDoubleComplex>;
-
-/**
- * @brief Concept constraining type T to usual GPU BLAS floating-point types
- *
- * Constrains T to be any of the usual floating-point types supported by GPU BLAS operations,
- * including both real (float, double) and complex (wwrFloatComplex, wwrDoubleComplex) types.
- */
-template<typename T>
-concept usual_fp = real_fp<T> || complex_fp<T>;
-
-/**
- * @brief Concept constraining type T to GPU half-precision floating-point types
- *
- * Constrains T to be either wwrHalf or wwrBfloat16, which are the
- * half-precision floating-point types supported by GPU BLAS operations.
- */
-template<typename T>
-concept half_fp = std::is_same_v<T, wwrHalf> || std::is_same_v<T, wwrBfloat16>;
-
-/**
- * @brief Concept constraining type T to usual or half-precision GPU BLAS floating-point types
- *
- * Constrains T to be any floating-point type supported by GPU BLAS operations,
- * including usual types (float, double, wwrFloatComplex, wwrDoubleComplex) and
- * half-precision types (wwrHalf, wwrBfloat16).
- */
-template<typename T>
-concept usual_and_half_fp = usual_fp<T> || half_fp<T>;
+using wwr::complex_fp;
+using wwr::half_fp;
+using wwr::real_fp;
+using wwr::usual_and_half_fp;
+using wwr::usual_fp;
 
 // ========================================================================
-// Real <-> Complex Type Mappings
+// Real <-> Complex and Half-Precision Type Mappings
 // ========================================================================
 
-/**
- * @brief Maps a real_fp type to its corresponding GPU complex type.
- *   float  -> wwrFloatComplex
- *   double -> wwrDoubleComplex
- */
-template<real_fp T>
-using RealToComplexType =
-    std::conditional_t<std::is_same_v<T, float>, wwrFloatComplex, wwrDoubleComplex>;
-
-/**
- * @brief Maps a usual_fp type to its underlying real scalar type.
- *   float           -> float
- *   double          -> double
- *   wwrFloatComplex  -> float
- *   wwrDoubleComplex -> double
- */
-template<usual_fp T>
-using ComplexToRealType =
-    std::conditional_t<std::is_same_v<T, float> || std::is_same_v<T, wwrFloatComplex>, float,
-                       double>;
-
-// ========================================================================
-// Half-Precision Type Mappings
-// ========================================================================
-
-/**
- * @brief Maps a half_fp type to its corresponding single-precision type.
- *   wwrHalf     -> float
- *   wwrBfloat16 -> float
- */
-template<half_fp T>
-using HalfToFloatType = float;
+using wwr::ComplexToRealType;
+using wwr::HalfToFloatType;
+using wwr::RealToComplexType;
 
 } // namespace wwr
