@@ -67,6 +67,24 @@ wwr_add_gtest_suite_tests(
   REQUIRES_GPU
 )
 
+# A second call for VectorConstructedBufferTest: the std::vector constructors
+# are offered only for non-device kinds, so this typed suite spans Host and
+# Pinned but NOT Unified -- a different (shorter) TYPES list than the one above,
+# which is why it cannot share that call. Suite names accumulate for this
+# target's one SuiteListIsComplete guard, so both calls are checked together.
+wwr_add_gtest_suite_tests(
+  TARGET
+  extension_memory_buffer_tests
+  TYPED_SUITES
+  VectorConstructedBufferTest
+  TYPES
+  HostBuffer
+  PinnedBuffer
+  TIMEOUT
+  60
+  REQUIRES_GPU
+)
+
 # The no_sanitizer-labeled suites deliberately force a real allocation failure
 # to prove the failure path stays coherent, and every sanitizer treats that
 # intentional failure as an error of its own: compute-sanitizer's memcheck
