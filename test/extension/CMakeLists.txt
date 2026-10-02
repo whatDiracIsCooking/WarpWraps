@@ -20,13 +20,11 @@ add_subdirectory(memory_buffer)
 # so running the kernels IS the test. One integration suite covers both.
 add_subdirectory(rand)
 
-# The wwr* Thrust execution-policy shim (wwr::par_on). Like rand it has no
-# build-time half: the acceptance is that a device TU's thrust::sort runs on the
-# stream par_on bound, so running the sort on a real device IS the test.
-# TEMPORARILY DISABLED: the src/wrappers/thrust/ layer these tests exercise has
-# been torn down (step 1 of the Thrust-layer rebuild). The test sources remain
-# on disk, out of the build, to be reworked against the new layout in step 3.
-# add_subdirectory(thrust)
+# No Thrust extension suite: the wwr::thrust layer (src/thrust) is a device-only
+# `using` re-export with no host-callable surface, so there is nothing a host
+# gtest could drive -- a device TU cannot import it, and a module cannot carry a
+# device-instantiated Thrust template (docs/architecture.md §22). Its sole
+# acceptance is the compile-time device TU test/gpu/thrust.cu.
 
 # Backend-neutral batched compression (wwr.comp). Not a src/extension wrapper --
 # it lives here because a compress/decompress round-trip needs a live device.

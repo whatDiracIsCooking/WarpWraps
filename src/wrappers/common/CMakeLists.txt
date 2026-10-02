@@ -19,7 +19,7 @@
 # the define to pick the backend's types. It does NOT license a backend #if
 # here -- the #if lives in those src/ headers (src/CMakeLists.txt). Re-added
 # under $<INSTALL_INTERFACE:> below so an installed consumer recompiling
-# fp_types.cppm gets it too, exactly as wwr.wrappers.thrust.scan does.
+# fp_types.cppm gets it too.
 wwr_add_cxx_module_library(
   NAME
   wwr.wrappers.common
@@ -44,8 +44,7 @@ wwr_add_cxx_module_library(
 # reach an installed consumer, since that consumer is the one recompiling
 # fp_types.cppm's module unit. The src/ include root is already carried by
 # INCLUDE_DIRS_PUBLIC's $<INSTALL_INTERFACE:>, so only the define is re-added
-# here -- see wwr.wrappers.thrust.scan and the comment at the end of
-# src/CMakeLists.txt.
+# here -- see the comment at the end of src/CMakeLists.txt.
 target_link_libraries(
   wwr.wrappers.common PUBLIC $<INSTALL_INTERFACE:wwr_backend>
 )

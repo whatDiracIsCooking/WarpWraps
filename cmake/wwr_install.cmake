@@ -298,7 +298,7 @@ function(wwr_install_package)
   )
 
   # The wwr* Thrust layer's device headers (src/thrust/*.cuh), included through
-  # the src/ root ("thrust/reorder.cuh", ...) so the subtree is mirrored under
+  # the src/ root ("thrust/sort.cuh", ...) so the subtree is mirrored under
   # include/wwr/thrust for those spellings to resolve unchanged after install --
   # the same shape as the wrappers/ and extension/ subtrees below. It is
   # unconditional: the layer is part of the core wwr* layer, not opt-in.
