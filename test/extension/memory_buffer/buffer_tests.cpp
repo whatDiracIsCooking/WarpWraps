@@ -42,24 +42,26 @@ namespace ext = wwr::extension;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Owning host-accessible buffers: the shared RAII contract, once per kind
 //
-// HostBufferWrapper, PinnedBufferWrapper and UnifiedBufferWrapper are all owning, host-accessible
+// HostBufferWrapper and PinnedBufferWrapper are both owning, host-accessible
 // (operator[]), zero-initialising, and built from a bare element count. Their
 // allocate/zero-init and the move that transfers ownership are one shared
 // BaseBuffer implementation, so a typed suite proves that contract once per
-// kind instead of copying three near-identical TEST()s per property. It also
-// covers move-ASSIGNMENT for the pinned and unified kinds, which the old
-// per-kind tests never did -- only the host kind's was exercised.
+// kind instead of copying two near-identical TEST()s per property. It also
+// covers move-ASSIGNMENT for the pinned kind, which the old per-kind tests never
+// did -- only the host kind's was exercised.
 //
-// Device memory is excluded on purpose: it is not host-accessible, is built
-// from a DeviceHandle rather than a count, and its move frees on a stream --
-// see DeviceBufferTests, which carries its own move-assignment test.
+// Device and unified memory are excluded on purpose: both are built from a
+// DeviceHandle rather than a bare count. Device memory is additionally not
+// host-accessible and frees on a stream (see DeviceBufferTests); unified memory
+// is host-accessible but still handle-backed, so it carries its own move and
+// zero-init tests in UnifiedBufferTests below.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 template<typename Buf>
 class HostAccessibleOwningBufferTest : public ::testing::Test {};
 
 using HostAccessibleOwningBufferTypes =
-    ::testing::Types<HostBufferWrapper<float, HostAbort, HostAbort>, PinnedBufferWrapper<float, Abort, Abort>, UnifiedBufferWrapper<float, Abort, Abort>>;
+    ::testing::Types<HostBufferWrapper<float, HostAbort, HostAbort>, PinnedBufferWrapper<float, Abort, Abort>>;
 TYPED_TEST_SUITE(HostAccessibleOwningBufferTest, HostAccessibleOwningBufferTypes);
 
 TYPED_TEST(HostAccessibleOwningBufferTest, AllocatesAndZeroInitialises) {
@@ -775,9 +777,8 @@ TEST(DeviceBufferTests, HandleBufferRetainsStreamAfterLocalHandleReset) {
 }
 
 // Allocate+zero-init and the ownership-transferring move are covered for the
-// pinned and unified kinds by HostAccessibleOwningBufferTest above. What stays
-// here is what those cannot express: the flags-taking constructors, and that
-// unified memory is genuinely host-writable.
+// pinned kind by HostAccessibleOwningBufferTest above. What stays here is what
+// that cannot express: the flags-taking pinned constructor.
 
 TEST(HostAccessibleBufferTests, PinnedBufferWithFlags) {
   PinnedBufferWrapper<float, Abort, Abort> buf(64, wwrHostAllocMapped);
@@ -785,18 +786,93 @@ TEST(HostAccessibleBufferTests, PinnedBufferWithFlags) {
   EXPECT_EQ(buf.num_elements(), std::size_t{64});
 }
 
-TEST(HostAccessibleBufferTests, UnifiedBufferIsHostAccessible) {
-  UnifiedBufferWrapper<float, Abort, Abort> buf(64);
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// UnifiedBufferWrapper
+//
+// Unified memory is host-accessible like the host/pinned kinds, but handle-backed
+// like the device kind: it is drawn from a shared DeviceHandle and device-bound,
+// yet always freed synchronously (managed memory rejects wwrFreeAsync). So its
+// allocate/zero-init, move-ownership and host-accessibility contracts are proven
+// here rather than through the bare-count typed suite above.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+using UnifiedBuffer = UnifiedBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>;
+
+TEST(UnifiedBufferTests, AllocatesAndZeroInitialises) {
+  auto dev = std::make_shared<DeviceHandle>(0);
+  UnifiedBuffer buf(16, dev);
+  ASSERT_NE(buf.data(), nullptr);
+  EXPECT_EQ(buf.num_elements(), std::size_t{16});
+  EXPECT_EQ(buf.size_bytes(), std::size_t{16 * sizeof(float)});
+  for (std::size_t i = 0; i < buf.num_elements(); ++i)
+    EXPECT_EQ(buf[i], 0.0f) << "at index " << i;
+}
+
+TEST(UnifiedBufferTests, IsHostAccessible) {
+  auto dev = std::make_shared<DeviceHandle>(0);
+  UnifiedBuffer buf(64, dev);
   ASSERT_NE(buf.data(), nullptr);
   for (std::size_t i = 0; i < 64; ++i)
     buf[i] = static_cast<float>(i);
   EXPECT_EQ(buf[10], 10.0f);
 }
 
-TEST(HostAccessibleBufferTests, UnifiedBufferWithFlags) {
-  UnifiedBufferWrapper<float, Abort, Abort> buf(64, wwrMemAttachHost);
+TEST(UnifiedBufferTests, WithFlags) {
+  auto dev = std::make_shared<DeviceHandle>(0);
+  UnifiedBuffer buf(64, dev, wwrMemAttachHost);
   EXPECT_NE(buf.data(), nullptr);
   EXPECT_EQ(buf.num_elements(), std::size_t{64});
+}
+
+TEST(UnifiedBufferTests, MoveConstructorTransfersOwnership) {
+  auto dev = std::make_shared<DeviceHandle>(0);
+  UnifiedBuffer src(8, dev);
+  float *const raw = src.data();
+
+  UnifiedBuffer dst(std::move(src));
+  EXPECT_EQ(dst.data(), raw);
+  EXPECT_EQ(dst.num_elements(), std::size_t{8});
+  EXPECT_EQ(src.data(), nullptr);
+  EXPECT_EQ(src.num_elements(), std::size_t{0});
+}
+
+TEST(UnifiedBufferTests, MoveAssignmentReleasesThenTakesOwnership) {
+  auto dev = std::make_shared<DeviceHandle>(0);
+  UnifiedBuffer src(8, dev);
+  UnifiedBuffer dst(32, dev);
+  float *const raw = src.data();
+
+  dst = std::move(src);
+  EXPECT_EQ(dst.data(), raw);
+  EXPECT_EQ(dst.num_elements(), std::size_t{8});
+  EXPECT_EQ(src.data(), nullptr);
+  EXPECT_EQ(src.num_elements(), std::size_t{0});
+}
+
+TEST(UnifiedBufferTests, FreesSynchronouslyOnAStreamTierHandle) {
+  // DeviceHandle is a pool-tier handle (it has a stream), but managed memory
+  // must still be released with the synchronous wwrFree -- wwrFreeAsync rejects
+  // a managed pointer (cudaErrorNotSupported). The free policy here is AbortPolicy,
+  // so a wrong (async) free would abort the process; reaching the end of this
+  // scope cleanly is the proof the free stayed synchronous.
+  {
+    auto dev = std::make_shared<DeviceHandle>(0);
+    UnifiedBuffer buf(64, dev);
+    ASSERT_NE(buf.data(), nullptr);
+  }
+  EXPECT_EQ(wwrGetLastError(), wwrSuccess);
+}
+
+TEST(UnifiedBufferTests, RetainsHandleAfterLocalHandleReset) {
+  // The buffer keeps a shared_ptr to the handle, so dropping the local reference
+  // must not strand the free: the destructor still has a live handle to read
+  // dev_idx() from.
+  auto dev = std::make_shared<DeviceHandle>(0);
+  UnifiedBuffer buf(256, dev);
+  dev.reset(); // the buffer's retained handle is now the sole owner
+  ASSERT_NE(buf.data(), nullptr);
+  // ~buf makes the handle's device current, then frees synchronously - no
+  // use-after-free of the handle.
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

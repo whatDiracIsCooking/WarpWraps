@@ -11,19 +11,23 @@ RAII-based memory buffer management for all GPU-relevant memory kinds. Provides 
 The module ships the `*Wrapper` classes (in the `wwr::extension` namespace); each takes its `P_alloc`/`P_free` error policies as explicit template arguments — neither has a default, so every use names both. It ships **no** error policy either: `AbortPolicy` below is the consumer's own abort-on-failure policy (see `example/warp_reduce`). Binding a wrapper to a policy is a one-line `using` a consumer writes once, for the names it uses:
 
 ```cpp
-// DeviceBufferWrapper is device-bound: parameter order is
+// DeviceBufferWrapper and UnifiedBufferWrapper are both device-bound: parameter order is
 // T, P_alloc, P_free, P_device_access, H — the device-access policy precedes the handle.
 template<typename T> using DeviceBuffer  = DeviceBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, MyDeviceHandle>;
+template<typename T> using UnifiedBuffer = UnifiedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>, MyDeviceHandle>;
 template<typename T> using PinnedBuffer  = PinnedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
-template<typename T> using UnifiedBuffer = UnifiedBufferWrapper<T, AbortPolicy<wwrError_t>, AbortPolicy<wwrError_t>>;
 template<typename T> using HostBuffer    = HostBufferWrapper<T, AbortPolicy<stdHostMemoryError_t>, AbortPolicy<stdHostMemoryError_t>>;
 ```
 
-`DeviceBufferWrapper` takes two arguments the others don't: because it is
-device-bound, the device-access error policy (fourth), and the handle type
-backing it (fifth). This layer ships **no** concrete handle — `MyDeviceHandle`
-above is the consumer's own, any type satisfying the `device_handle` ladder (see
-`handle/device_handle.cppm` and the one `example/warp_reduce/main.cpp` defines).
+`DeviceBufferWrapper` and `UnifiedBufferWrapper` take two arguments the host and
+pinned kinds don't: because they are device-bound, the device-access error policy
+(fourth) and the handle type backing them (fifth). This layer ships **no**
+concrete handle — `MyDeviceHandle` above is the consumer's own, any type
+satisfying the `device_handle` ladder (see `handle/device_handle.cppm` and the one
+`example/warp_reduce/main.cpp` defines). The difference between them is what the
+handle's *tier* buys: a device buffer picks its alloc/free calls from it, while a
+unified buffer reads only `dev_idx()` — managed memory has one allocation call and
+a sync-only free, so a stream or pool on the handle goes unused.
 
 Writing this prelude by hand is what the **suite** below removes: it binds these
 aliases (and their views) from one place, so the wrapper → error-family mapping
@@ -35,8 +39,8 @@ The examples below use those names (see also `example/warp_reduce`). Each wrappe
 | Wrapper | Memory kind | Allocation API | Host-accessible |
 |---|---|---|---|
 | `DeviceBufferWrapper<T, …, H>` | GPU device memory | pool / async / sync, by the caller-supplied handle's tier | No |
+| `UnifiedBufferWrapper<T, …, H>` | Unified (managed) memory | `wwrMallocManaged` (handle-backed, device-bound; always sync `wwrFree`) | Yes |
 | `PinnedBufferWrapper<T>` | Page-locked host memory | `wwrHostAlloc` (`wwrHostAllocDefault` unless flags are given) | Yes |
-| `UnifiedBufferWrapper<T>` | Unified (managed) memory | `wwrMallocManaged` | Yes |
 | `HostBufferWrapper<T>` | Standard host memory | `std::malloc` | Yes |
 
 ### Common Interface (from `BaseBuffer`)
@@ -75,17 +79,19 @@ instantiable; `storage_type` is `T` for every case in which the operator is enab
 
 ### Constructors
 
-**Default (all types except `DeviceBuffer`):** `Buffer<T> buf;` — empty buffer (`nullptr`, 0 elements).
+**Default (host and pinned only):** `Buffer<T> buf;` — empty buffer (`nullptr`, 0 elements).
 
-**Synchronous allocation (all types except `DeviceBuffer`):** `Buffer<T> buf(n);` — allocates `n` elements.
+**Synchronous allocation (host and pinned only):** `Buffer<T> buf(n);` — allocates `n` elements.
 
-**With error policy (all types except `DeviceBuffer`):** `Buffer<T> buf(n, policy);` or `Buffer<T> buf(n, policy_alloc, policy_free);`
+**With error policy (host and pinned only):** `Buffer<T> buf(n, policy);` or `Buffer<T> buf(n, policy_alloc, policy_free);`
 
-**Device buffers are drawn from a shared handle** (`MyDeviceHandle` is the consumer's own — see above):
+**Device and unified buffers are drawn from a shared handle** (`MyDeviceHandle` is the consumer's own — see above):
 ```cpp
 auto device = std::make_shared<MyDeviceHandle>(0);
-DeviceBuffer<T> buf(n, device);          // strategy follows the handle's tier
-DeviceBuffer<T> buf(n, device, policy);  // ...with a custom error policy
+DeviceBuffer<T>  buf(n, device);          // strategy follows the handle's tier
+DeviceBuffer<T>  buf(n, device, policy);  // ...with a custom error policy
+UnifiedBuffer<T> buf(n, device);          // managed memory, device-bound by the handle
+UnifiedBuffer<T> buf(n, device, policy);  // ...with a custom error policy
 ```
 
 A `DeviceBuffer` selects the handle's device with `wwrSetDevice`, allocates `n` elements, and
@@ -106,6 +112,15 @@ it. The bare tier has only `wwrFree`, whose implicit device synchronisation is w
 safe — and what makes that tier's destructor block the host, so prefer a stream-bearing handle
 in hot alloc/free paths.
 
+A `UnifiedBuffer` is handle-backed the same way — it makes the handle's device current with a
+`ScopedDeviceIndex` guard and retains the `shared_ptr` — but its tier does **not** pick the calls.
+Managed memory has a single allocation primitive (`wwrMallocManaged`, synchronous, no stream) and
+can only be released with the synchronous `wwrFree`: `wwrFreeAsync` rejects a managed pointer
+(`cudaErrorNotSupported`). So the free is always `wwrFree`, whatever the handle offers; a
+stream/pool-tier handle is accepted but its stream and pool go unused. `wwrFree`'s implicit device
+synchronisation means the destructor blocks the host — there being no async alternative for managed
+memory.
+
 **Pinned-specific with flags:**
 ```cpp
 PinnedBuffer<T> buf(n, wwrHostAllocMapped);  // wwrHostAlloc with flags
@@ -113,7 +128,7 @@ PinnedBuffer<T> buf(n, wwrHostAllocMapped);  // wwrHostAlloc with flags
 
 **Unified-specific with flags:**
 ```cpp
-UnifiedBuffer<T> buf(n, wwrMemAttachHost);   // wwrMallocManaged with flags
+UnifiedBuffer<T> buf(n, device, wwrMemAttachHost);  // wwrMallocManaged with flags, on the handle
 ```
 
 ## Error Handling
@@ -231,6 +246,7 @@ entry points over one mechanism.
 using Buf = kit::device_buffers<kit::AbortPolicy, MyDeviceHandle>;   // kit::AbortPolicy is template<class E>
 
 Buf::device<float>    d(1024, dev);
+Buf::unified<float>   u(1024, dev);  // handle-backed too (reads only dev_idx())
 Buf::host<float>      h(1024);       // stdHostMemoryError_t, chosen by the suite
 Buf::host_view<float> v(h, 4, 8);    // policies follow Buf::host, cannot drift
 ```
@@ -246,11 +262,12 @@ struct MyPolicies {
 using Buf = device_buffer_suite<MyPolicies, MyDeviceHandle>;
 ```
 
-`buffer_suite<M>` / `buffers<P>` stop at host/pinned/unified (plus views); the
-`device_*` forms add `device` / `device_view` and take the handle. A host-only
-consumer therefore needs no handle, and `buffer_suite<M>::device` simply does not
-exist. The suite ships **no** policy — the consumer still brings one — and the raw
-wrappers stay usable underneath; the suite is an addition, not a replacement.
+`buffer_suite<M>` / `buffers<P>` stop at host/pinned (plus views); the `device_*`
+forms add the handle-backed kinds — `device` / `unified` and their views — and take
+the handle. A host-only consumer therefore needs no handle, and
+`buffer_suite<M>::device` / `::unified` simply do not exist. The suite ships **no**
+policy — the consumer still brings one — and the raw wrappers stay usable
+underneath; the suite is an addition, not a replacement.
 
 Four things trip people up:
 
@@ -258,9 +275,9 @@ Four things trip people up:
   not a concrete `AbortPolicy<wwrError_t>`. The suite instantiates it per kind
   with that kind's error type.
 - **The map's keys are `alloc` and `free`** — buffer vocabulary. The map never
-  names a handle; `H` arrives already built. The device buffer's third policy
-  (`P_device_access`) is bound by the suite from the `free` policy, so the two-key
-  map suffices.
+  names a handle; `H` arrives already built. The device and unified buffers' third
+  policy (`P_device_access`) is bound by the suite from the `free` policy, so the
+  two-key map suffices.
 - **In a dependent context, spell it `typename Suite::template device<float>`.**
   When `Suite` is a template parameter both `typename` and `template` are
   required; in non-dependent code (a concrete `using Buf = …`) neither is.

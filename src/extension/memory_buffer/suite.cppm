@@ -19,11 +19,11 @@
  *   - buffers<P> / device_buffers<P, H> are the single-policy convenience over
  *     the map, for the common case of one policy template across all kinds.
  *
- * The split (host/pinned/unified in buffer_suite, device added by
- * device_buffer_suite) is what lets a host-only consumer skip the device handle:
- * H is constrained bare on device_buffer_suite and checked when it is named, so
- * there is no sentinel handle to invent and buffer_suite<M>::device simply does
- * not exist.
+ * The split (host/pinned in buffer_suite, the handle-backed device and unified
+ * added by device_buffer_suite) is what lets a host-only consumer skip the device
+ * handle: H is constrained bare on device_buffer_suite and checked when it is
+ * named, so there is no sentinel handle to invent and buffer_suite<M>::device /
+ * ::unified simply do not exist.
  *
  * These live in the nested namespace wwr::extension::kit -- the opt-in layer of
  * ready-made helpers -- not in wwr::extension directly, so a plain
@@ -74,16 +74,16 @@ using view_of = BufferViewWrapper<typename B::value_type, B::memory_kind,
                                   typename B::alloc_policy_type, typename B::free_policy_type>;
 
 /**
- * @brief Host/pinned/unified buffer and view aliases bound from one policy map
+ * @brief Host/pinned buffer and view aliases bound from one policy map
  *
  * @tparam M A policy map: `template<class E> using alloc/free = ...;`. Feeds only
- *           buffer slots -- host speaks stdHostMemoryError_t, the GPU-managed
- *           kinds speak wwrError_t -- so the map is checked against both families.
+ *           buffer slots -- host speaks stdHostMemoryError_t, pinned speaks
+ *           wwrError_t -- so the map is checked against both families.
  *
- * @note No device buffer here: that needs a handle, which device_buffer_suite
- *       adds. The requires-clause is checked eagerly when the specialization is
- *       named, so a malformed map fails at the consumer's `using` line rather
- *       than deep inside a later allocation.
+ * @note No device or unified buffer here: both need a handle, which
+ *       device_buffer_suite adds. The requires-clause is checked eagerly when the
+ *       specialization is named, so a malformed map fails at the consumer's
+ *       `using` line rather than deep inside a later allocation.
  */
 template<typename M>
   requires policy_map<M, stdHostMemoryError_t> && policy_map<M, wwrError_t>
@@ -94,27 +94,25 @@ struct buffer_suite {
   template<typename T>
   using pinned = PinnedBufferWrapper<T, typename M::template alloc<wwrError_t>,
                                      typename M::template free<wwrError_t>>;
-  template<typename T>
-  using unified = UnifiedBufferWrapper<T, typename M::template alloc<wwrError_t>,
-                                       typename M::template free<wwrError_t>>;
 
   template<typename T>
   using host_view = view_of<host<T>>;
   template<typename T>
   using pinned_view = view_of<pinned<T>>;
-  template<typename T>
-  using unified_view = view_of<unified<T>>;
 };
 
 /**
- * @brief buffer_suite plus the device buffer and its view, backed by handle H
+ * @brief buffer_suite plus the handle-backed kinds -- device and unified -- and
+ *        their views, backed by handle H
  *
  * @tparam M A policy map, as for buffer_suite.
- * @tparam H The device handle backing device buffers; its tier picks the alloc
- *           strategy (see the device_handle ladder in wwr.extension.handle).
+ * @tparam H The device handle backing the device and unified buffers. For device
+ *           it also picks the alloc strategy by tier (see the device_handle ladder
+ *           in wwr.extension.handle); unified reads only dev_idx() (managed memory
+ *           has one alloc call and a sync-only free, so its tier is immaterial).
  *
- * @note The device buffer's third policy (P_device_access, the ScopedDeviceIndex
- *       switch) is bound from the map's free policy: it carries the same
+ * @note Both buffers' third policy (P_device_access, the ScopedDeviceIndex switch)
+ *       is bound from the map's free policy: it carries the same
  *       nothrow-on-the-destructor-path constraint, so the two-key map suffices
  *       and no separate slot is asked of the consumer.
  */
@@ -125,7 +123,13 @@ struct device_buffer_suite : buffer_suite<M> {
                                      typename M::template free<wwrError_t>,
                                      typename M::template free<wwrError_t>, H>;
   template<typename T>
+  using unified = UnifiedBufferWrapper<T, typename M::template alloc<wwrError_t>,
+                                       typename M::template free<wwrError_t>,
+                                       typename M::template free<wwrError_t>, H>;
+  template<typename T>
   using device_view = view_of<device<T>>;
+  template<typename T>
+  using unified_view = view_of<unified<T>>;
 };
 
 /**
@@ -146,7 +150,7 @@ struct single_policy_map {
 };
 
 /**
- * @brief Single-policy convenience: host/pinned/unified aliases from one policy
+ * @brief Single-policy convenience: host/pinned aliases from one policy
  *
  * @tparam P A policy template on the error type; used across every kind.
  *
@@ -157,10 +161,11 @@ template<template<typename> class P>
 using buffers = buffer_suite<single_policy_map<P>>;
 
 /**
- * @brief Single-policy convenience with the device buffer added, backed by H
+ * @brief Single-policy convenience with the handle-backed device and unified
+ *        buffers added, backed by H
  *
  * @tparam P A policy template on the error type; used across every kind.
- * @tparam H The device handle backing device buffers.
+ * @tparam H The device handle backing the device and unified buffers.
  */
 template<template<typename> class P, device_handle H>
 using device_buffers = device_buffer_suite<single_policy_map<P>, H>;

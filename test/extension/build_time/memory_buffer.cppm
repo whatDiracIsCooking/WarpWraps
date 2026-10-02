@@ -32,7 +32,12 @@ static_assert(std::is_nothrow_move_assignable_v<HostBufferWrapper<float, HostAbo
 static_assert(std::is_nothrow_move_constructible_v<DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>>);
 static_assert(std::is_nothrow_move_assignable_v<DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>>);
 static_assert(std::is_nothrow_move_constructible_v<PinnedBufferWrapper<float, Abort, Abort>>);
-static_assert(std::is_nothrow_move_constructible_v<UnifiedBufferWrapper<float, Abort, Abort>>);
+static_assert(
+    std::is_nothrow_move_constructible_v<UnifiedBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>>);
+static_assert(
+    std::is_nothrow_move_assignable_v<UnifiedBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>>);
+static_assert(
+    !std::is_copy_constructible_v<UnifiedBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>>);
 
 // Views share the buffer_base interface but are copyable and never own.
 static_assert(std::is_copy_constructible_v<BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>>);
@@ -168,6 +173,19 @@ static_assert(std::is_constructible_v<FakeBuffer<IndexOnlyFake>, std::size_t,
 static_assert(std::is_constructible_v<FakeBuffer<FakeHandle>, std::size_t,
                                       std::shared_ptr<FakeHandle>>);
 
+// UnifiedBufferWrapper is handle-backed too, but reads only dev_idx(): it binds
+// against the bare tier and every richer one alike, and -- unlike the device
+// buffer -- a stream/pool tier buys it nothing (the free is always synchronous).
+template<typename H>
+using FakeUnified = UnifiedBufferWrapper<float, Abort, Abort, Abort, H>;
+static_assert(buffer_base<FakeUnified<IndexOnlyFake>>);
+static_assert(buffer_base<FakeUnified<StreamOnlyFake>>);
+static_assert(buffer_base<FakeUnified<FakeHandle>>);
+static_assert(std::is_nothrow_move_constructible_v<FakeUnified<IndexOnlyFake>>);
+static_assert(!std::is_copy_constructible_v<FakeUnified<IndexOnlyFake>>);
+static_assert(std::is_constructible_v<FakeUnified<IndexOnlyFake>, std::size_t,
+                                      std::shared_ptr<IndexOnlyFake>>);
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // The buffer/view suite (#177)
 //
@@ -175,17 +193,19 @@ static_assert(std::is_constructible_v<FakeBuffer<FakeHandle>, std::size_t,
 // *exactly* the wrappers a consumer would spell by hand -- the right error family
 // per kind, and each view paired to its buffer's policies (the drift footgun the
 // suite exists to close). The convenience is the map form under a single-policy
-// map, so the two must agree; and buffer_suite stops before the device kind while
-// device_buffer_suite adds it.
+// map, so the two must agree; and buffer_suite stops before the handle-backed
+// kinds (device, unified) while device_buffer_suite adds them.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 using ConvBuf = kit::device_buffers<AbortPolicy, DeviceHandle>;
 
 // The right wrapper and error family per kind: host speaks stdHostMemoryError_t,
-// the GPU-managed kinds speak wwrError_t, and device carries its access policy.
+// the GPU-managed kinds speak wwrError_t, and the handle-backed device/unified
+// kinds carry their access policy and handle.
 static_assert(std::same_as<ConvBuf::host<float>, HostBufferWrapper<float, HostAbort, HostAbort>>);
 static_assert(std::same_as<ConvBuf::pinned<float>, PinnedBufferWrapper<float, Abort, Abort>>);
-static_assert(std::same_as<ConvBuf::unified<float>, UnifiedBufferWrapper<float, Abort, Abort>>);
+static_assert(std::same_as<ConvBuf::unified<float>,
+                           UnifiedBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>>);
 static_assert(std::same_as<ConvBuf::device<float>,
                            DeviceBufferWrapper<float, Abort, Abort, Abort, DeviceHandle>>);
 
@@ -195,6 +215,8 @@ static_assert(std::same_as<ConvBuf::host_view<float>,
                            BufferViewWrapper<float, MemoryKind::Host, HostAbort, HostAbort>>);
 static_assert(std::same_as<ConvBuf::device_view<float>,
                            BufferViewWrapper<float, MemoryKind::Device, Abort, Abort>>);
+static_assert(std::same_as<ConvBuf::unified_view<float>,
+                           BufferViewWrapper<float, MemoryKind::Unified, Abort, Abort>>);
 static_assert(std::same_as<ConvBuf::host_view<float>, kit::view_of<ConvBuf::host<float>>>);
 
 // The convenience is the map form under a single-policy map -- the two agree.
@@ -208,10 +230,13 @@ static_assert(std::same_as<kit::device_buffers<AbortPolicy, DeviceHandle>,
                            kit::device_buffer_suite<kit::single_policy_map<AbortPolicy>, DeviceHandle>>);
 static_assert(std::same_as<ConvBuf::host<float>, kit::buffer_suite<SingleAbortMap>::host<float>>);
 
-// buffer_suite and device_buffer_suite share the host/pinned/unified aliases; the
-// device kind lives only on the device suite (buffer_suite<M>::device does not
-// exist, which is what lets a host-only consumer skip the handle).
+// buffer_suite and device_buffer_suite share the host/pinned aliases; the
+// handle-backed kinds (device, unified) live only on the device suite
+// (buffer_suite<M>::device / ::unified do not exist, which is what lets a
+// host-only consumer skip the handle).
 static_assert(std::same_as<kit::buffer_suite<SingleAbortMap>::host<float>,
                            kit::device_buffer_suite<SingleAbortMap, DeviceHandle>::host<float>>);
+static_assert(std::same_as<kit::buffer_suite<SingleAbortMap>::pinned<float>,
+                           kit::device_buffer_suite<SingleAbortMap, DeviceHandle>::pinned<float>>);
 
 } // namespace wwr::extension::test
