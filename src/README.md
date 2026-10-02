@@ -640,9 +640,14 @@ truth for the state-type list, shared by `rand.cppm`, `rand.h`'s own device
 generators and the two bridges. `rand.h` also includes the vendor *host* header
 (`curand.h` /
 `hiprand.h`, cheap beside the kernel one) so the same one-source-of-truth covers
-the host API: `rand.cppm` binds its `wwr*` names straight to those declarations
-and imports no raw vendor module (safe because the host API is external-linkage
--- see the `gpu.rand` section and docs/architecture.md §12). The BMI firewalls
+the host API: it binds `wwr*` names straight to those declarations and imports no
+raw vendor module (safe because the host API is external-linkage -- see the
+`gpu.rand` section and docs/architecture.md §12). That host-API binding list lives
+in the shared fragment `detail/rand_names.h`, pasted by both `rand.cppm`'s purview
+and the non-module `#include` path `wwr/rand.h` -- the `runtime_api` shape, one
+list for the two host consumption paths (`wwr.fp16` / `wwr.bf16` follow it too,
+sharing `detail/{fp16,bf16}_names.h` across module, device section and
+`wwr/{fp16,bf16}.h`). The BMI firewalls
 the header from every `import wwr.rand` consumer, and two of those three TUs would
 `#include` such a header in any design (a wrapper declaring the device boundary
 names the state type), so the added cost is bounded and small. See `rand.h`'s own

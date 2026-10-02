@@ -32,14 +32,12 @@ export namespace wwr {
 
 using wwr::wwrHalf;
 
-/// @brief Convert a float to half precision (round to nearest even)
-inline wwrHalf wwrFloat2Half(const float value) {
-  return ::__float2half(value);
-}
-
-/// @brief Widen a half-precision value back to float (exact)
-inline float wwrHalf2Float(const wwrHalf value) {
-  return ::__half2float(value);
-}
+// The two conversions, from the one fragment every path shares -- here with the
+// host `inline` qualifier (fp16.h's device section pastes the same list with
+// __device__ __forceinline__; wwr/fp16.h is the non-module host twin). See
+// detail/fp16_names.h.
+#define WWR_FP16_FN inline
+#include "detail/fp16_names.h"
+#undef WWR_FP16_FN
 
 } // namespace wwr

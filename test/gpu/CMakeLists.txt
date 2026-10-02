@@ -169,6 +169,51 @@ target_include_directories(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.runtime_api_host)
 
+# The non-module HOST #include paths for the fp16 / bf16 / rand surfaces -- the
+# same shape as wwr.test.gpu.runtime_api_host above, one per rolled-out module:
+# a plain .cpp that `#include`s "wwr/<x>.h" and links the header-only
+# wwr::<x>::host target. All host-only (no device function, no kernel), so no
+# gpu label and they run in CI. PROJECT_SOURCE_DIR on the include path is for
+# gpu_check_macros.h's root-relative "test/shared/link_check.h", as above.
+wwr_add_test_executable(
+  NAME
+  wwr.test.gpu.fp16_host
+  MAIN
+  fp16_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::fp16::host
+)
+target_include_directories(wwr.test.gpu.fp16_host PRIVATE ${PROJECT_SOURCE_DIR})
+add_dependencies(compile_time_tests wwr.test.gpu.fp16_host)
+
+wwr_add_test_executable(
+  NAME
+  wwr.test.gpu.bf16_host
+  MAIN
+  bf16_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::bf16::host
+)
+target_include_directories(wwr.test.gpu.bf16_host PRIVATE ${PROJECT_SOURCE_DIR})
+add_dependencies(compile_time_tests wwr.test.gpu.bf16_host)
+
+wwr_add_test_executable(
+  NAME
+  wwr.test.gpu.rand_host
+  MAIN
+  rand_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::rand::host
+)
+target_include_directories(wwr.test.gpu.rand_host PRIVATE ${PROJECT_SOURCE_DIR})
+add_dependencies(compile_time_tests wwr.test.gpu.rand_host)
+
 # tensor is the one wwr* compile-time test kept OUT of the shared, RUN
 # gpu_compile_tests binary above: on HIP, libhiptensor.so runs a device probe in
 # a global constructor that aborts at process startup on any host without a

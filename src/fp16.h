@@ -71,15 +71,12 @@ using wwrHalf = ::__half;
 
 namespace wwr {
 
-/// @brief Convert a float to half precision (round to nearest even)
-__device__ __forceinline__ wwrHalf wwrFloat2Half(const float value) {
-  return ::__float2half(value);
-}
-
-/// @brief Widen a half-precision value back to float (exact)
-__device__ __forceinline__ float wwrHalf2Float(const wwrHalf value) {
-  return ::__half2float(value);
-}
+// The two conversions, from the one fragment every path shares -- here with the
+// device qualifier (fp16.cppm and wwr/fp16.h paste the same list with `inline`).
+// See detail/fp16_names.h.
+#define WWR_FP16_FN __device__ __forceinline__
+#include "detail/fp16_names.h"
+#undef WWR_FP16_FN
 
 } // namespace wwr
 

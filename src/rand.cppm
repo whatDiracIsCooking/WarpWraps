@@ -23,6 +23,12 @@
  * enumerator VALUES differ even where names agree. See docs/architecture.md,
  * sections 1 and 6.
  *
+ * The host API surface itself -- types, constants, functions and the two
+ * scramble-constant forwarders -- is NOT restated here: it is the one fragment
+ * the two host paths share, detail/rand_names.h, pasted below inside the exported
+ * `namespace wwr` exactly as wwr/rand.h (the non-module #include path) pastes it.
+ * Add a host name there, once, and both paths gain it.
+ *
  * Usage:
  *   import wwr.rand;
  *
@@ -36,10 +42,10 @@ module;
 
 // The single vendor-include point for the rand layer. It brings in BOTH the
 // device generator state types (re-exported below, see "Device generator state
-// types") AND the host API (curand.h / hiprand.h), which this module binds to
-// directly with the _RAW macros. No raw vendor module is imported: the host API
-// is a real external-linkage library, so a reference or type alias needs only
-// the declarations this header supplies. rand.h is also included by the
+// types") AND the host API (curand.h / hiprand.h), which detail/rand_names.h
+// binds to directly with the _RAW macros. No raw vendor module is imported: the
+// host API is a real external-linkage library, so a reference or type alias needs
+// only the declarations this header supplies. rand.h is also included by the
 // extension bridges (and reached by a device .cu for its gated generators), so
 // every one of them names one identical state type. See rand.h and backend.h.
 #include "rand.h"
@@ -48,176 +54,20 @@ export module wwr.rand;
 
 export namespace wwr {
 
-// ========================================================================
-// Types
-// ========================================================================
-
-WWR_TYPE_RAW(wwrrandGenerator_t, curandGenerator_t, hiprandGenerator_t)
-WWR_TYPE_RAW(wwrrandStatus_t, curandStatus_t, hiprandStatus_t)
-WWR_TYPE_RAW(wwrrandRngType_t, curandRngType_t, hiprandRngType_t)
-WWR_TYPE_RAW(wwrrandOrdering_t, curandOrdering_t, hiprandOrdering_t)
-WWR_TYPE_RAW(wwrrandDirectionVectorSet_t, curandDirectionVectorSet_t, hiprandDirectionVectorSet_t)
-WWR_TYPE_RAW(wwrrandDirectionVectors32_t, curandDirectionVectors32_t, hiprandDirectionVectors32_t)
-WWR_TYPE_RAW(wwrrandDirectionVectors64_t, curandDirectionVectors64_t, hiprandDirectionVectors64_t)
-WWR_TYPE_RAW(wwrrandDiscreteDistribution_t, curandDiscreteDistribution_t,
-            hiprandDiscreteDistribution_t)
-
-// ========================================================================
-// Constants - status
-// ========================================================================
-
-WWR_VALUE_RAW(WWRRAND_STATUS_SUCCESS, CURAND_STATUS_SUCCESS, HIPRAND_STATUS_SUCCESS)
-WWR_VALUE_RAW(WWRRAND_STATUS_VERSION_MISMATCH, CURAND_STATUS_VERSION_MISMATCH,
-             HIPRAND_STATUS_VERSION_MISMATCH)
-WWR_VALUE_RAW(WWRRAND_STATUS_NOT_INITIALIZED, CURAND_STATUS_NOT_INITIALIZED,
-             HIPRAND_STATUS_NOT_INITIALIZED)
-WWR_VALUE_RAW(WWRRAND_STATUS_ALLOCATION_FAILED, CURAND_STATUS_ALLOCATION_FAILED,
-             HIPRAND_STATUS_ALLOCATION_FAILED)
-WWR_VALUE_RAW(WWRRAND_STATUS_TYPE_ERROR, CURAND_STATUS_TYPE_ERROR, HIPRAND_STATUS_TYPE_ERROR)
-WWR_VALUE_RAW(WWRRAND_STATUS_OUT_OF_RANGE, CURAND_STATUS_OUT_OF_RANGE, HIPRAND_STATUS_OUT_OF_RANGE)
-WWR_VALUE_RAW(WWRRAND_STATUS_LENGTH_NOT_MULTIPLE, CURAND_STATUS_LENGTH_NOT_MULTIPLE,
-             HIPRAND_STATUS_LENGTH_NOT_MULTIPLE)
-WWR_VALUE_RAW(WWRRAND_STATUS_DOUBLE_PRECISION_REQUIRED, CURAND_STATUS_DOUBLE_PRECISION_REQUIRED,
-             HIPRAND_STATUS_DOUBLE_PRECISION_REQUIRED)
-WWR_VALUE_RAW(WWRRAND_STATUS_LAUNCH_FAILURE, CURAND_STATUS_LAUNCH_FAILURE,
-             HIPRAND_STATUS_LAUNCH_FAILURE)
-WWR_VALUE_RAW(WWRRAND_STATUS_PREEXISTING_FAILURE, CURAND_STATUS_PREEXISTING_FAILURE,
-             HIPRAND_STATUS_PREEXISTING_FAILURE)
-WWR_VALUE_RAW(WWRRAND_STATUS_INITIALIZATION_FAILED, CURAND_STATUS_INITIALIZATION_FAILED,
-             HIPRAND_STATUS_INITIALIZATION_FAILED)
-WWR_VALUE_RAW(WWRRAND_STATUS_ARCH_MISMATCH, CURAND_STATUS_ARCH_MISMATCH,
-             HIPRAND_STATUS_ARCH_MISMATCH)
-WWR_VALUE_RAW(WWRRAND_STATUS_INTERNAL_ERROR, CURAND_STATUS_INTERNAL_ERROR,
-             HIPRAND_STATUS_INTERNAL_ERROR)
-
-// ========================================================================
-// Constants - RNG type (values differ between backends, see file header)
-// ========================================================================
-
-WWR_VALUE_RAW(WWRRAND_RNG_TEST, CURAND_RNG_TEST, HIPRAND_RNG_TEST)
-WWR_VALUE_RAW(WWRRAND_RNG_PSEUDO_DEFAULT, CURAND_RNG_PSEUDO_DEFAULT, HIPRAND_RNG_PSEUDO_DEFAULT)
-WWR_VALUE_RAW(WWRRAND_RNG_PSEUDO_XORWOW, CURAND_RNG_PSEUDO_XORWOW, HIPRAND_RNG_PSEUDO_XORWOW)
-WWR_VALUE_RAW(WWRRAND_RNG_PSEUDO_MRG32K3A, CURAND_RNG_PSEUDO_MRG32K3A, HIPRAND_RNG_PSEUDO_MRG32K3A)
-WWR_VALUE_RAW(WWRRAND_RNG_PSEUDO_MTGP32, CURAND_RNG_PSEUDO_MTGP32, HIPRAND_RNG_PSEUDO_MTGP32)
-WWR_VALUE_RAW(WWRRAND_RNG_PSEUDO_MT19937, CURAND_RNG_PSEUDO_MT19937, HIPRAND_RNG_PSEUDO_MT19937)
-WWR_VALUE_RAW(WWRRAND_RNG_PSEUDO_PHILOX4_32_10, CURAND_RNG_PSEUDO_PHILOX4_32_10,
-             HIPRAND_RNG_PSEUDO_PHILOX4_32_10)
-WWR_VALUE_RAW(WWRRAND_RNG_QUASI_DEFAULT, CURAND_RNG_QUASI_DEFAULT, HIPRAND_RNG_QUASI_DEFAULT)
-WWR_VALUE_RAW(WWRRAND_RNG_QUASI_SOBOL32, CURAND_RNG_QUASI_SOBOL32, HIPRAND_RNG_QUASI_SOBOL32)
-WWR_VALUE_RAW(WWRRAND_RNG_QUASI_SCRAMBLED_SOBOL32, CURAND_RNG_QUASI_SCRAMBLED_SOBOL32,
-             HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32)
-WWR_VALUE_RAW(WWRRAND_RNG_QUASI_SOBOL64, CURAND_RNG_QUASI_SOBOL64, HIPRAND_RNG_QUASI_SOBOL64)
-WWR_VALUE_RAW(WWRRAND_RNG_QUASI_SCRAMBLED_SOBOL64, CURAND_RNG_QUASI_SCRAMBLED_SOBOL64,
-             HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64)
-
-// ========================================================================
-// Constants - ordering
-// ========================================================================
-
-WWR_VALUE_RAW(WWRRAND_ORDERING_PSEUDO_BEST, CURAND_ORDERING_PSEUDO_BEST,
-             HIPRAND_ORDERING_PSEUDO_BEST)
-WWR_VALUE_RAW(WWRRAND_ORDERING_PSEUDO_DEFAULT, CURAND_ORDERING_PSEUDO_DEFAULT,
-             HIPRAND_ORDERING_PSEUDO_DEFAULT)
-WWR_VALUE_RAW(WWRRAND_ORDERING_PSEUDO_SEEDED, CURAND_ORDERING_PSEUDO_SEEDED,
-             HIPRAND_ORDERING_PSEUDO_SEEDED)
-WWR_VALUE_RAW(WWRRAND_ORDERING_PSEUDO_LEGACY, CURAND_ORDERING_PSEUDO_LEGACY,
-             HIPRAND_ORDERING_PSEUDO_LEGACY)
-WWR_VALUE_RAW(WWRRAND_ORDERING_PSEUDO_DYNAMIC, CURAND_ORDERING_PSEUDO_DYNAMIC,
-             HIPRAND_ORDERING_PSEUDO_DYNAMIC)
-WWR_VALUE_RAW(WWRRAND_ORDERING_QUASI_DEFAULT, CURAND_ORDERING_QUASI_DEFAULT,
-             HIPRAND_ORDERING_QUASI_DEFAULT)
-
-// ========================================================================
-// Constants - direction vector set
-// ========================================================================
-
-WWR_VALUE_RAW(WWRRAND_DIRECTION_VECTORS_32_JOEKUO6, CURAND_DIRECTION_VECTORS_32_JOEKUO6,
-             HIPRAND_DIRECTION_VECTORS_32_JOEKUO6)
-WWR_VALUE_RAW(WWRRAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6,
-             CURAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6,
-             HIPRAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6)
-WWR_VALUE_RAW(WWRRAND_DIRECTION_VECTORS_64_JOEKUO6, CURAND_DIRECTION_VECTORS_64_JOEKUO6,
-             HIPRAND_DIRECTION_VECTORS_64_JOEKUO6)
-WWR_VALUE_RAW(WWRRAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6,
-             CURAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6,
-             HIPRAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6)
-
-// ========================================================================
-// Generator management and configuration
-// ========================================================================
-
-WWR_FUNCTION_RAW(wwrrandCreateGenerator, curandCreateGenerator, hiprandCreateGenerator)
-WWR_FUNCTION_RAW(wwrrandCreateGeneratorHost, curandCreateGeneratorHost, hiprandCreateGeneratorHost)
-WWR_FUNCTION_RAW(wwrrandDestroyGenerator, curandDestroyGenerator, hiprandDestroyGenerator)
-WWR_FUNCTION_RAW(wwrrandGetVersion, curandGetVersion, hiprandGetVersion)
-WWR_FUNCTION_RAW(wwrrandSetStream, curandSetStream, hiprandSetStream)
-WWR_FUNCTION_RAW(wwrrandSetPseudoRandomGeneratorSeed, curandSetPseudoRandomGeneratorSeed,
-                hiprandSetPseudoRandomGeneratorSeed)
-WWR_FUNCTION_RAW(wwrrandSetGeneratorOffset, curandSetGeneratorOffset, hiprandSetGeneratorOffset)
-WWR_FUNCTION_RAW(wwrrandSetGeneratorOrdering, curandSetGeneratorOrdering,
-                hiprandSetGeneratorOrdering)
-WWR_FUNCTION_RAW(wwrrandSetQuasiRandomGeneratorDimensions, curandSetQuasiRandomGeneratorDimensions,
-                hiprandSetQuasiRandomGeneratorDimensions)
-WWR_FUNCTION_RAW(wwrrandGenerateSeeds, curandGenerateSeeds, hiprandGenerateSeeds)
-
-// ========================================================================
-// Generation
-// ========================================================================
-
-WWR_FUNCTION_RAW(wwrrandGenerate, curandGenerate, hiprandGenerate)
-WWR_FUNCTION_RAW(wwrrandGenerateLongLong, curandGenerateLongLong, hiprandGenerateLongLong)
-WWR_FUNCTION_RAW(wwrrandGenerateUniform, curandGenerateUniform, hiprandGenerateUniform)
-WWR_FUNCTION_RAW(wwrrandGenerateUniformDouble, curandGenerateUniformDouble,
-                hiprandGenerateUniformDouble)
-WWR_FUNCTION_RAW(wwrrandGenerateNormal, curandGenerateNormal, hiprandGenerateNormal)
-WWR_FUNCTION_RAW(wwrrandGenerateNormalDouble, curandGenerateNormalDouble,
-                hiprandGenerateNormalDouble)
-WWR_FUNCTION_RAW(wwrrandGenerateLogNormal, curandGenerateLogNormal, hiprandGenerateLogNormal)
-WWR_FUNCTION_RAW(wwrrandGenerateLogNormalDouble, curandGenerateLogNormalDouble,
-                hiprandGenerateLogNormalDouble)
-WWR_FUNCTION_RAW(wwrrandGeneratePoisson, curandGeneratePoisson, hiprandGeneratePoisson)
-
-// ========================================================================
-// Discrete distributions
-// ========================================================================
-
-WWR_FUNCTION_RAW(wwrrandCreatePoissonDistribution, curandCreatePoissonDistribution,
-                hiprandCreatePoissonDistribution)
-WWR_FUNCTION_RAW(wwrrandDestroyDistribution, curandDestroyDistribution, hiprandDestroyDistribution)
-
-// ========================================================================
-// Quasirandom direction vectors and scramble constants
-// ========================================================================
-
-WWR_FUNCTION_RAW(wwrrandGetDirectionVectors32, curandGetDirectionVectors32,
-                hiprandGetDirectionVectors32)
-WWR_FUNCTION_RAW(wwrrandGetDirectionVectors64, curandGetDirectionVectors64,
-                hiprandGetDirectionVectors64)
-
-// The scramble constants are a read-only table owned by the library.
-// hipRAND hands them out as const (const unsigned int**); cuRAND does not
-// (unsigned int**). These keep hipRAND's const-correct signature on both
-// backends. On CUDA the const_cast only changes how the out-pointer is
-// written; the table itself is never written through it.
-#if defined(WWR_GPU_BACKEND_CUDA)
-inline wwrrandStatus_t wwrrandGetScrambleConstants32(const unsigned int **constants) {
-  return ::curandGetScrambleConstants32(const_cast<unsigned int **>(constants));
-}
-inline wwrrandStatus_t wwrrandGetScrambleConstants64(const unsigned long long **constants) {
-  return ::curandGetScrambleConstants64(const_cast<unsigned long long **>(constants));
-}
-#else
-WWR_FUNCTION_RAW(wwrrandGetScrambleConstants32, curandGetScrambleConstants32,
-                hiprandGetScrambleConstants32)
-WWR_FUNCTION_RAW(wwrrandGetScrambleConstants64, curandGetScrambleConstants64,
-                hiprandGetScrambleConstants64)
-#endif
+// The whole neutral HOST surface -- types, constants, functions and the two
+// scramble-constant forwarders -- lives in detail/rand_names.h, the one list the
+// two host paths share: this module and wwr/rand.h (the non-module #include
+// path). The WWR_*_RAW macros from backend.h and WWR_SELECTED_* and the vendor
+// host header from rand.h's #include are exactly what that fragment's header
+// documents it needs in scope. The device state types below are a disjoint
+// surface and stay out of it.
+#include "detail/rand_names.h"
 
 // ========================================================================
 // Device generator state types (re-exported from rand.h)
 //
 // Types only -- the device functions that consume them live in rand.h's
-// device-pass-gated section, for the reason in this file's header. What the host
+// device-pass-gated section, for the reason in rand.h's header. What the host
 // needs these for is
 // sizing and allocating the per-thread state array:
 //
@@ -251,7 +101,8 @@ WWR_FUNCTION_RAW(wwrrandGetScrambleConstants64, curandGetScrambleConstants64,
 // single home for the state-type list. A plain `using` in this exported
 // namespace re-exports the global-module alias to importers; WWR_TYPE is not
 // used here because the backend mapping already lives in rand.h -- restating it
-// would be the duplication this arrangement removes.
+// would be the duplication this arrangement removes. A non-module consumer of
+// wwr/rand.h sees these straight from rand.h, so that path restates nothing.
 
 // Pseudorandom generators
 using wwr::wwrrandStateXORWOW;
