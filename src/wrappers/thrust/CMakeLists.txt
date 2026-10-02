@@ -113,3 +113,8 @@ target_include_directories(
 target_link_libraries(
   wwr.wrappers.thrust.reorder PUBLIC $<INSTALL_INTERFACE:wwr_backend>
 )
+
+# A-family algorithm wrappers, each a self-contained subdirectory built on
+# wwr::thrust and F2's execution_policy.cuh. One add_subdirectory per family,
+# one-per-line, so the parallel family branches merge additively.
+add_subdirectory(transform)
