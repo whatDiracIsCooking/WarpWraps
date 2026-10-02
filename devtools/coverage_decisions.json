@@ -86,10 +86,10 @@
       ]
     },
     "runtime_api": {
-      "contract": "curated-subset",
+      "contract": "whole-surface",
       "cuda": ["cuda-13.0.x/cuda_runtime_api.json"],
       "hip": ["rocm-7.2.4/hip_runtime_api.json"],
-      "src": ["src/cuda/cuda_runtime_api.cppm"],
+      "src": ["src/runtime_api.cppm", "src/runtime_api.h", "src/detail/runtime_api_names.h"],
       "omissions": [
         {
           "key": "externalmemorygetmappedmipmappedarray",

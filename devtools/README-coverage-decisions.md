@@ -45,15 +45,20 @@ header for how the verdict is applied). It needs **no SDK** — pure data.
 
 ### The two contract classes
 
-- **whole-surface** (`rand`, `fft`, `tx`) — promises the full intersection
-  (`WWR_FUNCTION(gpu, cu, hip)` spells both names). An undocumented gap **fails**
-  `--coverage`; a gap listed in `omissions` **passes** (a named, justified skip).
-- **curated-subset** (`blas`, `solver`, `sparse`, `runtime_api`) —
+- **whole-surface** (`rand`, `fft`, `tx`, `runtime_api`) — promises the full
+  intersection. The reductions spell both names out (`WWR_FUNCTION(gpu, cu, hip)`);
+  `runtime_api` pastes them through the 1-arg `WWR_RT_*` family, which `--coverage`
+  reconstructs. An undocumented gap **fails** `--coverage`; a gap listed in
+  `omissions` **passes** (a named, justified skip). `runtime_api` reached
+  whole-surface in milestone #4 — its `omissions` record the deferred families
+  (graph, graphics-interop, external), the ROCm-floor-absent names, and one
+  cross-kind name collision.
+- **curated-subset** (`blas`, `solver`, `sparse`) —
   demand-complete: carries a `wwr*` name only once a consumer (a wrapper, a
   test, or the example) reaches for it, not the whole intersection, so its gaps
   are a discovery menu: **reported, never failed**. Completeness for these is
   enforced by the compiler, `test/shared/alias_coverage.py`, and the dispatch
-  tables. (`runtime_api` is slated to move to whole-surface — see milestone #4.)
+  tables.
 
 ### An `omissions` entry
 

@@ -6,14 +6,16 @@
  * or the HIP runtime API (hip_runtime_api.h), whichever backend this build is
  * configured for. See backend.h for the switch.
  *
- * The surface is demand-complete: a name is added once a consumer -- src/wrappers,
- * a test, or the example -- reaches for it, not the whole runtime intersection.
- * Names live in the shared list detail/runtime_api_names.h (see the note below);
- * one that differs between the backends beyond the cuda/hip prefix gets its own
- * explicit #if block here. (The promotion to intersection-complete -- a wwr* name
- * for every non-deprecated shared symbol or a documented family omission -- is
- * tracked in coverage_decisions.json; until it lands, an unwrapped shared symbol
- * is "not needed yet", not a defect.)
+ * The surface is whole-surface (intersection-complete): every non-deprecated
+ * symbol the two backends share carries a wwr* name, or a documented omission in
+ * coverage_decisions.json says why not (the graph / graphics-interop / external
+ * families deferred for v1, a few names absent from the ROCm floor, one cross-kind
+ * name collision). An undocumented shared symbol is a DEFECT -- the macro-aware
+ * header_intersection.py --coverage gate, run by test/shared/test_header_intersection.py
+ * in CI, fails on it (so a vendor bump that adds a shared symbol is caught).
+ * Names live in the shared list detail/runtime_api_names.h; one that differs
+ * between the backends beyond the cuda/hip prefix gets its own explicit #if block
+ * here, as a hand-written forwarder or a spelled-out _RAW binding.
  *
  * Usage:
  *   import wwr.runtime_api;
