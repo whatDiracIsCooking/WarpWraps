@@ -71,3 +71,4 @@ wwr_add_gtest_suite_tests(
 add_subdirectory(reorder)
 add_subdirectory(scan)
 add_subdirectory(reduce)
+add_subdirectory(transform)
