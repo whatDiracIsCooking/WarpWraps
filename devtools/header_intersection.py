@@ -60,7 +60,10 @@ compares, and see ``rand.cppm`` on why the values differ). Read a green
 ``--coverage`` run as "every shared name is aliased", not "the aliases are
 correct" -- that is what dispatch.py and the compiler are for.
 
-``--coverage`` matches by LITERAL name against the module SOURCE, so read its
+``--coverage`` matches the module SOURCE by the vendor names its backend.h
+binding macros resolve to -- the 1-arg ``WWR_RT_*`` paste synthesises the vendor
+name, so it is reconstructed rather than scanned for literally -- and never
+reports a vendor-DEPRECATED shared symbol (the manifest flag) as a gap. Read its
 "missing" list against the module's CONTRACT. The contract class -- and the
 shared names a module deliberately skips -- are the curated half of the spec and
 live in ``devtools/coverage_decisions.json`` (pass ``--module <name>`` to apply
@@ -158,6 +161,9 @@ class Side:
         # normalised key -> coarse kind (func/const/type), first-seen wins by
         # sorted name so it is deterministic across manifests.
         self._kind_src: dict[str, tuple[str, str]] = {}
+        # normalised key -> True if ANY name for it is vendor-deprecated. OR'd
+        # across manifests so a key deprecated in one header stays flagged.
+        self._deprecated: dict[str, bool] = {}
         self.prefixes: list[str] = []
         for path in paths:
             self._load(path)
@@ -181,6 +187,9 @@ class Side:
             if not key:
                 continue
             self.by_key.setdefault(key, set()).add(ident)
+            self._deprecated[key] = self._deprecated.get(key, False) or bool(
+                sym.get("deprecated")
+            )
             kind = _manifest_kind(sym.get("kind", ""))
             # Keep the tag from the alphabetically-first name so a key that spans
             # two manifests (a tag here, its typedef there) resolves the same way
@@ -199,9 +208,63 @@ class Side:
     def kind(self, key: str) -> str:
         return self._kind_src[key][1]
 
+    def deprecated(self, key: str) -> bool:
+        return self._deprecated.get(key, False)
+
 
 def tokens(text: str) -> set[str]:
     return set(_IDENT_RE.findall(text))
+
+
+# --- Resolving the backend.h binding macros to the vendor names they name -----
+# A wwr* module names its backend symbols through the backend.h macro family, not
+# as bare identifiers. Two shapes carry a vendor name:
+#
+#   WWR_RT_FUNCTION(GetLastError)              -> cudaGetLastError / hipGetLastError
+#   WWR_FUNCTION_RAW(wwrX, cudaX, hipFooR0600) -> cudaX / hipFooR0600
+#
+# The 1-arg WWR_RT_* paste is the one a raw identifier scan is BLIND to: the
+# vendor name never appears in the source, the preprocessor concatenates the
+# cuda/hip prefix onto the shared tail (see src/runtime_api.cppm). The N-arg
+# forms spell the vendor names out, so a text scan already sees them -- parsing
+# them here too makes the matcher one uniform source of truth instead of leaning
+# on that incidental overlap. Unioned with tokens() by the coverage pass, so a
+# token-pasted surface is matched exactly like one that spells its names out.
+
+# WWR_RT_{TYPE,VALUE,FUNCTION}(Tail) -> cudaTail, hipTail
+_RT_PASTE_RE = re.compile(
+    r"\bWWR_RT_(?:TYPE|VALUE|FUNCTION)\s*\(\s*([A-Za-z_]\w*)\s*\)"
+)
+# WWR_{TYPE,VALUE,FUNCTION}[_RAW](wwr_name, cuda_name, hip_name) -> cuda_name, hip_name
+_EXPLICIT_RE = re.compile(
+    r"\bWWR_(?:TYPE|VALUE|FUNCTION)(?:_RAW)?\s*\(\s*"
+    r"[A-Za-z_]\w*\s*,\s*([A-Za-z_]\w*)\s*,\s*([A-Za-z_]\w*)\s*\)"
+)
+# WWR_SELECT[_RAW](cuda_name, hip_name) -> cuda_name, hip_name
+_SELECT_RE = re.compile(
+    r"\bWWR_SELECT(?:_RAW)?\s*\(\s*([A-Za-z_]\w*)\s*,\s*([A-Za-z_]\w*)\s*\)"
+)
+
+
+def resolved_names(text: str) -> set[str]:
+    """The vendor identifiers the backend.h binding macros in ``text`` name.
+
+    Reconstructs the ``cuda*`` / ``hip*`` names each WWR_* invocation binds --
+    including the 1-arg ``WWR_RT_*`` paste, whose vendor name the preprocessor
+    synthesises and so is invisible to a raw identifier scan. The coverage pass
+    unions this with :func:`tokens`.
+    """
+    names: set[str] = set()
+    for tail in _RT_PASTE_RE.findall(text):
+        names.add("cuda" + tail)
+        names.add("hip" + tail)
+    for cuda_name, hip_name in _EXPLICIT_RE.findall(text):
+        names.add(cuda_name)
+        names.add(hip_name)
+    for cuda_name, hip_name in _SELECT_RE.findall(text):
+        names.add(cuda_name)
+        names.add(hip_name)
+    return names
 
 
 # --- The curated half of the spec ---------------------------------------------
@@ -287,7 +350,8 @@ def build_report(
         return {"names": side.names(key), "kind": side.kind(key)}
 
     intersection = [
-        {"key": k, "cuda": entry(cuda, k), "hip": entry(hip, k)}
+        {"key": k, "cuda": entry(cuda, k), "hip": entry(hip, k),
+         "deprecated": cuda.deprecated(k) or hip.deprecated(k)}
         for k in sorted(ckeys & hkeys)
     ]
     report = {
@@ -313,7 +377,9 @@ def build_report(
     if coverage:
         present: set[str] = set()
         for path in coverage:
-            present |= tokens(path.read_text())
+            text = path.read_text()
+            present |= tokens(text)
+            present |= resolved_names(text)
         missing = [
             item
             for item in intersection
@@ -322,26 +388,33 @@ def build_report(
         ]
         # Apply the curated decisions. A whole-surface module's gaps are DEFECTS
         # unless documented as an omission; a curated-subset module's gaps are a
-        # discovery menu, reported not failed. With no decision (an ad-hoc run)
-        # the historical behaviour holds: every gap fails.
+        # discovery menu, reported not failed. A gap on a vendor-DEPRECATED symbol
+        # is auto-omitted either way -- derived from the manifest flag, never
+        # hand-listed. With no decision (an ad-hoc run) every non-deprecated gap
+        # fails, as before.
         contract = (decision or {}).get("contract")
         omissions = (decision or {}).get("omissions", [])
-        documented, undocumented = [], []
+        documented, undocumented, deprecated = [], [], []
         for item in missing:
-            om = next((o for o in omissions if _omission_matches(item, o)), None)
-            (documented if om else undocumented).append(item)
+            if item["deprecated"]:
+                deprecated.append(item)
+            elif next((o for o in omissions if _omission_matches(item, o)), None):
+                documented.append(item)
+            else:
+                undocumented.append(item)
         if contract == CURATED_SUBSET:
             fails = False  # a subset never promised the full intersection
         elif contract == WHOLE_SURFACE:
             fails = bool(undocumented)  # only a gap nobody documented is a defect
         else:
-            fails = bool(missing)  # no decision: any gap fails, as before
+            fails = bool(undocumented)  # no decision: any non-deprecated gap fails
         report["coverage"] = {
             "module": ", ".join(str(p) for p in coverage),
             "contract": contract,
             "intersection": len(intersection),
             "missing": missing,
             "documented_omissions": documented,
+            "deprecated_omissions": deprecated,
             "undocumented_gaps": undocumented,
             "fails": fails,
         }
@@ -388,6 +461,7 @@ def render_text(report: dict, show: str) -> str:
         cov = report["coverage"]
         missing = cov["missing"]
         documented = cov.get("documented_omissions", [])
+        deprecated = cov.get("deprecated_omissions", [])
         undocumented = cov.get("undocumented_gaps", missing)
         covered = cov["intersection"] - len(missing)
         contract = cov.get("contract")
@@ -395,17 +469,20 @@ def render_text(report: dict, show: str) -> str:
         out.append(f"== Coverage in {cov['module']}{label} ==")
         out.append(f"  {cov['intersection']} shared symbols, "
                    f"{covered} referenced, {len(missing)} not referenced "
-                   f"({len(documented)} documented omission(s), "
+                   f"({len(documented)} documented, {len(deprecated)} deprecated, "
                    f"{len(undocumented)} undocumented)")
         # On a whole-surface module an undocumented gap is a DEFECT; a documented
-        # omission is a deliberate, justified pass. On a curated-subset module the
-        # whole list is a discovery menu (REPORTED, not failed).
+        # omission or a vendor-deprecated symbol is a justified pass. On a
+        # curated-subset module the whole list is a discovery menu (REPORTED).
         gap_tag = "MISSING" if cov.get("fails", bool(undocumented)) else "unused"
         for item in undocumented:
             out.append(f"    {gap_tag} [{item['cuda']['kind']:5}] "
                        f"{_fmt(item['cuda'])}  {_fmt(item['hip'])}")
         for item in documented:
             out.append(f"    omission [{item['cuda']['kind']:5}] "
+                       f"{_fmt(item['cuda'])}  {_fmt(item['hip'])}")
+        for item in deprecated:
+            out.append(f"    deprecated [{item['cuda']['kind']:5}] "
                        f"{_fmt(item['cuda'])}  {_fmt(item['hip'])}")
         out.append("")
 
@@ -425,10 +502,12 @@ def main(argv: list[str] | None = None) -> int:
                         help="HIP vendor manifest(s) under vendor/")
     parser.add_argument("--coverage", nargs="+", type=Path, metavar="SRC",
                         help="src file(s) -- e.g. a wwr* module and its .cuh -- to "
-                             "check the intersection against by literal name; a "
-                             "shared symbol counts as covered when either backend's "
-                             "name appears verbatim (so token-pasted dispatch call "
-                             "sites, which name no vendor symbol, won't match)")
+                             "check the intersection against; a shared symbol counts "
+                             "as covered when either backend's name appears verbatim "
+                             "OR is named by a backend.h binding macro (the 1-arg "
+                             "WWR_RT_* paste synthesises the vendor name, so it is "
+                             "resolved, not matched literally). Vendor-deprecated "
+                             "shared symbols are never reported as gaps")
     parser.add_argument("--module", metavar="NAME",
                         help="apply devtools/coverage_decisions.json for this "
                              "module (e.g. rand, blas) -- sets the contract class "
