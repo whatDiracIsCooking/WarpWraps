@@ -97,6 +97,27 @@
           "hip": "hipExternalMemoryGetMappedMipmappedArray",
           "why": "Declared in the HIP runtime header but not exported by libamdhip64.so.7.2.70204. Calling it fails to link, so hip_runtime_api.cppm carries only the declaration (WWR_DECLARED_CHECK). Recorded in hip_runtime_api.json's declared_not_linkable.",
           "source": "test/hip/hip_runtime_api.cppm (WWR_DECLARED_CHECK), vendor/rocm-7.2.4/hip_runtime_api.json"
+        },
+        {
+          "key": "graphics_interop",
+          "cuda": "cudaGraphics*",
+          "hip": "hipGraphics*",
+          "why": "The graphics-interop family (cudaGraphics* / hipGraphics*: OpenGL / Direct3D / EGL / VDPAU resource registration and mapping) is DEFERRED for v1, not rejected. wwr targets compute and no neutral graphics-interop layer is scoped; both backends declare the family, so this is a deliberate, reversible omission rather than an absent counterpart. Listed before the broad graph entry below because the cudaGraph* wildcard there also prefix-matches these names.",
+          "source": "issue #265 (milestone #4: whole-surface runtime_api), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-7.2.4/hip_runtime_api.json"
+        },
+        {
+          "key": "graph",
+          "cuda": "cudaGraph*|cudaChildGraphNodeParams|cudaDeviceGetGraphMemAttribute|cudaDeviceGraphMemTrim|cudaDeviceSetGraphMemAttribute|cudaStreamBeginCaptureToGraph",
+          "hip": "hipGraph*|hipChildGraphNodeParams|hipDeviceGetGraphMemAttribute|hipDeviceGraphMemTrim|hipDeviceSetGraphMemAttribute|hipStreamBeginCaptureToGraph",
+          "why": "The CUDA execution-graph API -- Graph / GraphExec / GraphNode construction and update, stream-capture-to-graph, and the device-side graph-memory and child-graph-node helpers -- is DEFERRED for v1, not rejected. The few entry points the existing wrappers already use (wwrGraphCreate / GraphDestroy / GraphExecDestroy / GraphLaunch / GraphUpload / GraphInstantiate and the wwrGraph_t / wwrGraphExec_t handles) stay wrapped; the rest of the ~130-symbol surface is a deliberate, reversible omission until a neutral graph layer is scoped. The cudaGraph* wildcard also prefix-matches the graphics-interop names documented separately above.",
+          "source": "issue #265 (milestone #4: whole-surface runtime_api), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-7.2.4/hip_runtime_api.json"
+        },
+        {
+          "key": "external",
+          "cuda": "cudaExternal*|cudaDestroyExternal*|cudaImportExternal*|cudaSignalExternalSemaphoresAsync|cudaWaitExternalSemaphoresAsync",
+          "hip": "hipExternal*|hipDestroyExternal*|hipImportExternal*|hipSignalExternalSemaphoresAsync|hipWaitExternalSemaphoresAsync",
+          "why": "The external memory / semaphore interop family (import, map, signal, wait and destroy of Vulkan / D3D / NvSci external resources and timeline semaphores) is DEFERRED for v1, not rejected: it has no neutral consumer and pulls in platform handle types wwr does not model. Deliberate, reversible omission. The single declared-not-linkable HIP member is documented separately above (externalmemorygetmappedmipmappedarray).",
+          "source": "issue #265 (milestone #4: whole-surface runtime_api), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-7.2.4/hip_runtime_api.json"
         }
       ]
     }
