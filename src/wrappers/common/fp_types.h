@@ -22,6 +22,16 @@
 
 #pragma once
 
+// <type_traits> supplies the concepts' is_same_v / conditional_t. <array> and
+// <algorithm> are load-bearing pre-includes for the HIP backend: this header
+// pulls bf16.h then fp16.h into one TU -- the same order amd_hip_fp8.h uses --
+// so amd_hip_bf16.h's device_library_decls.h poisons __local before
+// amd_hip_fp16.h does the TU's first <algorithm>, and host_defines.h poisons
+// __noinline__ for libc++'s __config before <array>. Seeing both libc++ headers
+// first, while the macros are still clean, sidesteps both. They must stay before
+// the vendor type headers. docs/architecture.md, sections 9 and 10.
+#include <algorithm>
+#include <array>
 #include <type_traits>
 
 // The backend-neutral wwr* floating-point types the concepts below name. These
