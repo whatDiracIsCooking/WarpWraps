@@ -50,14 +50,16 @@ BLAS_HIP = [ROCM / "hipblas.json"]
 BLAS_SRC = [ROOT / "src" / "blas.cppm"]
 
 # runtime_api's neutral surface binds its vendor names through the 1-arg
-# WWR_RT_* paste (see src/runtime_api.cppm), so the vendor identifier never
-# appears literally -- the surface a raw text scan is blind to.
+# WWR_RT_* paste, so the vendor identifier never appears literally -- the
+# surface a raw text scan is blind to. The paste list lives in the shared
+# fragment detail/runtime_api_names.h (included by runtime_api.cppm); the .cppm
+# itself carries the macro definitions and the hand-written #if forwarders.
 RT_CUDA = [CUDA / "cuda_runtime_api.json"]
 RT_HIP = [ROCM / "hip_runtime_api.json"]
 RT_SRC = [
     ROOT / "src" / "runtime_api.cppm",
     ROOT / "src" / "runtime_api.h",
-    ROOT / "src" / "runtime_api_surface.h",
+    ROOT / "src" / "detail" / "runtime_api_names.h",
 ]
 
 
