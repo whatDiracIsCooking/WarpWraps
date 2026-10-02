@@ -1071,4 +1071,31 @@ using ::cudaTextureAddressMode;
 using ::cudaTextureFilterMode;
 using ::cudaTextureReadMode;
 
+// Long-tail additions for the whole-surface neutral layer (#266)
+using ::cudaBoundaryModeClamp;
+using ::cudaBoundaryModeTrap;
+using ::cudaBoundaryModeZero;
+using ::cudaFlushGPUDirectRDMAWritesOptionHost;
+using ::cudaFlushGPUDirectRDMAWritesOptionMemOps;
+using ::cudaFlushGPUDirectRDMAWritesOptions;
+using ::cudaGPUDirectRDMAWritesOrdering;
+using ::cudaGPUDirectRDMAWritesOrderingAllDevices;
+using ::cudaGPUDirectRDMAWritesOrderingNone;
+using ::cudaGPUDirectRDMAWritesOrderingOwner;
+using ::cudaJitCacheOptionCA;
+using ::cudaJitCacheOptionCG;
+using ::cudaJitCacheOptionNone;
+using ::cudaJitOption;
+using ::cudaLibraryBinaryIsPreserved;
+using ::cudaLibraryGetKernel;
+using ::cudaLibraryGetKernelCount;
+using ::cudaLibraryHostUniversalFunctionAndDataTable;
+using ::cudaLibraryLoadData;
+using ::cudaLibraryLoadFromFile;
+using ::cudaLibraryOption;
+using ::cudaLibraryUnload;
+using ::cudaLibrary_t;
+using ::cudaOffset3D;
+using ::cudaUUID_t;
+
 } // namespace wwr::cuda

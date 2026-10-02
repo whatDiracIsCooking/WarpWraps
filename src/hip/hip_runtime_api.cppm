@@ -1727,4 +1727,14 @@ using ::hipIpcMemHandle_st;
 // Array/texture-family additions for the whole-surface neutral layer (#264)
 using ::hipArray;
 
+// Long-tail additions for the whole-surface neutral layer (#266)
+using ::hipJitCacheOptionCA;
+using ::hipJitCacheOptionCG;
+using ::hipJitCacheOptionNone;
+using ::hipJitOption;
+using ::hipLibraryBinaryIsPreserved;
+using ::hipLibraryHostUniversalFunctionAndDataTable;
+using ::hipLibraryOption;
+using ::hipUUID_t;
+
 } // namespace wwr::hip

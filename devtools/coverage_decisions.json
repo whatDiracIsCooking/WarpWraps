@@ -121,10 +121,17 @@
         },
         {
           "key": "floor_absent_rocm_7_1_0",
-          "cuda": "cudaStreamCopyAttributes|cudaOccupancyAvailableDynamicSMemPerBlock",
-          "hip": "hipStreamCopyAttributes|hipOccupancyAvailableDynamicSMemPerBlock",
-          "why": "Present in the pinned ROCm 7.2.4 intersection but NOT reachable in the ROCm 7.1.0 floor build the CMakeLists enforces (hip-floor CI leg): in 7.1.0 these entry points are only declared inside the __HIP_DISABLE_CPP_FUNCTIONS__-guarded C++ helper region, which runtime_api.h suppresses, so ::hipStreamCopyAttributes / ::hipOccupancyAvailableDynamicSMemPerBlock do not resolve in the neutral surface's include context. Wrapping them compiles at the pin and fails at the floor. Omitted until the ROCm floor rises; the raw single-vendor modules (which do not define that macro) still carry them.",
+          "cuda": "cudaStreamCopyAttributes|cudaOccupancyAvailableDynamicSMemPerBlock|cudaLibraryEnumerateKernels",
+          "hip": "hipStreamCopyAttributes|hipOccupancyAvailableDynamicSMemPerBlock|hipLibraryEnumerateKernels",
+          "why": "Present in the pinned ROCm 7.2.4 intersection but NOT reachable in the ROCm 7.1.0 floor build the CMakeLists enforces (hip-floor CI leg): hipStreamCopyAttributes / hipOccupancyAvailableDynamicSMemPerBlock are only declared inside the __HIP_DISABLE_CPP_FUNCTIONS__-guarded C++ helper region (which runtime_api.h suppresses), and hipLibraryEnumerateKernels is absent from the 7.1.0 hiprtc/library headers entirely. Wrapping any of them compiles at the pin and fails at the floor. Omitted until the ROCm floor rises; the raw single-vendor modules (which do not define that macro) still carry the first two.",
           "source": ".github/workflows/ci.yml (cpp-floor hip leg, ROCm 7.1.0 floor), vendor/rocm-7.1.0/hip_runtime_api.json"
+        },
+        {
+          "key": "jitcachemode_kind_collision",
+          "cuda": "cudaJitCacheMode",
+          "hip": "hipJitCacheMode",
+          "why": "A spurious name-collision, not a shared entity: cudaJitCacheMode is an ENUM CONSTANT of cudaJitOption on CUDA, while hipJitCacheMode is an ENUM TYPE on HIP. They normalise to the same key but are different kinds, so neither WWR_RT_VALUE nor WWR_RT_TYPE can bind both -- there is nothing to wrap. The genuinely shared jit names (JitCacheOption*, JitOption, etc.) are wrapped normally.",
+          "source": "vendor/cuda-13.0.x/cuda_runtime_api.json (EnumConstantDecl) vs vendor/rocm-7.2.4/hip_runtime_api.json (enum type)"
         }
       ]
     }
