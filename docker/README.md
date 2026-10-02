@@ -121,7 +121,7 @@ whatever its vendor publishes:
 |---|---|---|
 | `install-cuda.sh` | apt, NVIDIA's CUDA repo | the toolkit, plus NCCL, **cuTENSOR** and **nvCOMP** — three packages the `cuda-toolkit-*` meta does not pull |
 | `install-cugraph.sh` | PyPI wheels → `/opt/rapids` | **cuGraph** and the RAPIDS libraries it links (raft, rmm, cuvs). There is no apt package; RAPIDS ships conda and wheels only |
-| `install-rocm.sh` | apt, AMD's ROCm repo | the HIP SDK, which already includes hipTensor and RCCL |
+| `install-rocm.sh` | apt, AMD's ROCm repo | the HIP SDK, which already includes hipTensor, RCCL, and the header-only rocThrust + rocPRIM that back `wwr::thrust` |
 | `install-rocm-ds.sh` | git + cmake → `/opt/rocm-ds` | **hipCOMP** — AMD packages it nowhere; ROCm-DS has no apt channel |
 
 **cuGraph has no HIP counterpart in these images, on purpose.** rocGRAPH and

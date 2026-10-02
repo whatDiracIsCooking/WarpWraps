@@ -724,3 +724,16 @@ locates by climbing from `hip_DIR` (`<rocm>/lib/cmake/hip`) rather than
 hardcoding `/opt/rocm`, and compares to `7.1.0`. Where that file is absent (a
 non-standard layout) it falls back to `hip_VERSION`'s major.minor — which *does*
 track the ROCm release — and warns that the check was coarse.
+
+**The Thrust floors (#235, 2026-10-02).** `wwr::thrust` is backed by Thrust from
+the backend's own toolkit, each floored in the same style. CUDA uses CCCL
+(Thrust + CUB + libcudacxx), which ships with the toolkit and reports an honest
+package version, so `find_package(CCCL 3.0.0 CONFIG REQUIRED)` is the whole
+check — the floor is CCCL 3.0.0, which CUDA 13.0 carries (Thrust 3.0.1). HIP
+uses rocThrust over rocPRIM, each its own ROCm CMake package with a version that
+*is* the library release (unlike `hip` above), so the floor is checked directly:
+`find_package(rocthrust 4.2.0 CONFIG REQUIRED)` and the same for `rocprim`, both
+4.2.0 as ROCm 7.2 ships. All three are header-only template libraries, so there
+is no `.so` to harvest and nothing for `vendor_harvest.py` or the link-check
+machinery to touch — `wwr::thrust` is a bare INTERFACE target carrying only the
+vendor include dirs and link deps.

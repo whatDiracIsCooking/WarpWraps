@@ -276,6 +276,18 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
     find_dependency(nvcomp)
   endif()
 
+  # wwr.thrust links CCCL::Thrust (a header-only target find_package(CCCL)
+  # creates), so the name has to exist before the export set is included. CCCL's
+  # config sits under the toolkit's per-architecture lib/cmake, off the default
+  # search path, so hint it from the first toolkit include dir -- same
+  # derivation as the top-level CMakeLists.txt. find_dependency forwards no
+  # HINTS, so call find_package here (it still populates wwr_FOUND on failure).
+  list(GET CUDAToolkit_INCLUDE_DIRS 0 _wwr_cuda_inc)
+  cmake_path(GET _wwr_cuda_inc PARENT_PATH _wwr_cccl_prefix)
+  find_package(CCCL CONFIG REQUIRED HINTS "${_wwr_cccl_prefix}")
+  unset(_wwr_cuda_inc)
+  unset(_wwr_cccl_prefix)
+
   # cuTENSOR ships no CMake config package and is not a FindCUDAToolkit
   # component, so src/cuda/CMakeLists.txt finds its header and library by hand
   # and links them through the imported target wwr::cuda_cutensor, recreated
@@ -311,6 +323,10 @@ else()
   find_dependency(hipsparse)
   find_dependency(hipfft)
   find_dependency(hiprand)
+  # wwr.thrust links roc::rocthrust + roc::rocprim (HIP's Thrust), so those names
+  # have to exist before the export set is included.
+  find_dependency(rocthrust)
+  find_dependency(rocprim)
   # Guarded on WWR_HAS_CCL, same as the CUDA-side libnccl block above: a package
   # built with -DWWR_WITH_CCL=OFF ships no wwr.hip.rccl, so it must not demand
   # RCCL of a consumer.
