@@ -1720,4 +1720,8 @@ using ::hipGetProcAddress;
 using ::hipProfilerStart;
 using ::hipProfilerStop;
 
+// Device-family additions for the whole-surface neutral layer (#262)
+using ::hipIpcEventHandle_st;
+using ::hipIpcMemHandle_st;
+
 } // namespace wwr::hip

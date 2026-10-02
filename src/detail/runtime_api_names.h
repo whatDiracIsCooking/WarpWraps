@@ -127,6 +127,14 @@ WWR_RT_TYPE(MemoryType)
 WWR_RT_TYPE(MemsetParams)
 WWR_RT_TYPE(PitchedPtr)
 
+// Device / peer / IPC / version / pointer / symbol types (#262).
+WWR_RT_TYPE(DeviceP2PAttr)
+WWR_RT_TYPE(DriverEntryPointQueryResult)
+WWR_RT_TYPE(IpcEventHandle_st)
+WWR_RT_TYPE(IpcEventHandle_t)
+WWR_RT_TYPE(IpcMemHandle_st)
+WWR_RT_TYPE(IpcMemHandle_t)
+
 // ========================================================================
 // Constants
 // ========================================================================
@@ -318,6 +326,11 @@ WWR_RT_VALUE(MemoryTypeDevice)
 WWR_RT_VALUE(MemoryTypeHost)
 WWR_RT_VALUE(MemoryTypeManaged)
 WWR_RT_VALUE(MemoryTypeUnregistered)
+
+// Device enum constants (#262).
+WWR_RT_VALUE(DriverEntryPointSuccess)
+WWR_RT_VALUE(DriverEntryPointSymbolNotFound)
+WWR_RT_VALUE(DriverEntryPointVersionNotSufficent)
 
 // ========================================================================
 // Functions
@@ -577,4 +590,33 @@ inline wwrError_t wwrMemcpyFromSymbolAsync(void *dst, const void *symbol, std::s
   return WWR_SELECT_RAW(cudaMemcpyFromSymbolAsync,
                         hipMemcpyFromSymbolAsync)(dst, symbol, count, offset, kind, stream);
 }
+// Device / peer / IPC / version / pointer / symbol functions (#262).
+WWR_RT_FUNCTION(DeviceCanAccessPeer)
+WWR_RT_FUNCTION(DeviceDisablePeerAccess)
+WWR_RT_FUNCTION(DeviceEnablePeerAccess)
+WWR_RT_FUNCTION(DeviceGetAttribute)
+WWR_RT_FUNCTION(DeviceGetByPCIBusId)
+WWR_RT_FUNCTION(DeviceGetCacheConfig)
+WWR_RT_FUNCTION(DeviceGetDefaultMemPool)
+WWR_RT_FUNCTION(DeviceGetLimit)
+WWR_RT_FUNCTION(DeviceGetMemPool)
+WWR_RT_FUNCTION(DeviceGetP2PAttribute)
+WWR_RT_FUNCTION(DeviceGetPCIBusId)
+WWR_RT_FUNCTION(DeviceGetStreamPriorityRange)
+WWR_RT_FUNCTION(DeviceGetTexture1DLinearMaxWidth)
+WWR_RT_FUNCTION(DeviceReset)
+WWR_RT_FUNCTION(DeviceSetCacheConfig)
+WWR_RT_FUNCTION(DeviceSetLimit)
+WWR_RT_FUNCTION(DeviceSetMemPool)
+WWR_RT_FUNCTION(DriverGetVersion)
+WWR_RT_FUNCTION(GetDeviceCount)
+WWR_RT_FUNCTION(GetDeviceFlags)
+WWR_RT_FUNCTION(IpcCloseMemHandle)
+WWR_RT_FUNCTION(IpcGetEventHandle)
+WWR_RT_FUNCTION(IpcGetMemHandle)
+WWR_RT_FUNCTION(IpcOpenEventHandle)
+WWR_RT_FUNCTION(IpcOpenMemHandle)
+WWR_RT_FUNCTION(PointerGetAttributes)
+WWR_RT_FUNCTION(SetDeviceFlags)
+WWR_RT_FUNCTION(SetValidDevices)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
