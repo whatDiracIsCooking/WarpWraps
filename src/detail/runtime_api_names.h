@@ -99,6 +99,34 @@ WWR_RT_TYPE(LaunchConfig_t)
 WWR_RT_TYPE(LaunchMemSyncDomain)
 WWR_RT_TYPE(LaunchMemSyncDomainMap)
 
+// Memory -- alloc/pool/location/copy types (#260).
+WWR_RT_TYPE(HostFn_t)
+WWR_RT_TYPE(HostNodeParams)
+WWR_RT_TYPE(MemAccessDesc)
+WWR_RT_TYPE(MemAccessFlags)
+WWR_RT_TYPE(MemAllocNodeParams)
+WWR_RT_TYPE(MemAllocationHandleType)
+WWR_RT_TYPE(MemAllocationType)
+WWR_RT_TYPE(MemFreeNodeParams)
+WWR_RT_TYPE(MemLocation)
+WWR_RT_TYPE(MemLocationType)
+WWR_RT_TYPE(MemPoolAttr)
+WWR_RT_TYPE(MemPoolPtrExportData)
+WWR_RT_TYPE(MemRangeAttribute)
+WWR_RT_TYPE(Memcpy3DBatchOp)
+WWR_RT_TYPE(Memcpy3DOperand)
+WWR_RT_TYPE(Memcpy3DOperandType)
+WWR_RT_TYPE(Memcpy3DParms)
+WWR_RT_TYPE(Memcpy3DPeerParms)
+WWR_RT_TYPE(MemcpyAttributes)
+WWR_RT_TYPE(MemcpyFlags)
+WWR_RT_TYPE(MemcpyNodeParams)
+WWR_RT_TYPE(MemcpySrcAccessOrder)
+WWR_RT_TYPE(MemoryAdvise)
+WWR_RT_TYPE(MemoryType)
+WWR_RT_TYPE(MemsetParams)
+WWR_RT_TYPE(PitchedPtr)
+
 // ========================================================================
 // Constants
 // ========================================================================
@@ -244,6 +272,52 @@ WWR_RT_VALUE(LaunchAttributeMemSyncDomain)
 WWR_RT_VALUE(LaunchAttributeMemSyncDomainMap)
 WWR_RT_VALUE(LaunchMemSyncDomainDefault)
 WWR_RT_VALUE(LaunchMemSyncDomainRemote)
+
+// Memory -- access/advise/pool/copy enum constants (#260).
+WWR_RT_VALUE(MemAccessFlagsProtNone)
+WWR_RT_VALUE(MemAccessFlagsProtRead)
+WWR_RT_VALUE(MemAccessFlagsProtReadWrite)
+WWR_RT_VALUE(MemAdviseSetAccessedBy)
+WWR_RT_VALUE(MemAdviseSetPreferredLocation)
+WWR_RT_VALUE(MemAdviseSetReadMostly)
+WWR_RT_VALUE(MemAdviseUnsetAccessedBy)
+WWR_RT_VALUE(MemAdviseUnsetPreferredLocation)
+WWR_RT_VALUE(MemAdviseUnsetReadMostly)
+WWR_RT_VALUE(MemAllocationTypeInvalid)
+WWR_RT_VALUE(MemAllocationTypeMax)
+WWR_RT_VALUE(MemHandleTypePosixFileDescriptor)
+WWR_RT_VALUE(MemHandleTypeWin32)
+WWR_RT_VALUE(MemHandleTypeWin32Kmt)
+WWR_RT_VALUE(MemLocationTypeHost)
+WWR_RT_VALUE(MemLocationTypeHostNuma)
+WWR_RT_VALUE(MemLocationTypeHostNumaCurrent)
+WWR_RT_VALUE(MemLocationTypeInvalid)
+WWR_RT_VALUE(MemLocationTypeNone)
+WWR_RT_VALUE(MemPoolAttrReservedMemCurrent)
+WWR_RT_VALUE(MemPoolAttrReservedMemHigh)
+WWR_RT_VALUE(MemPoolAttrUsedMemCurrent)
+WWR_RT_VALUE(MemPoolAttrUsedMemHigh)
+WWR_RT_VALUE(MemPoolReuseAllowInternalDependencies)
+WWR_RT_VALUE(MemPoolReuseAllowOpportunistic)
+WWR_RT_VALUE(MemPoolReuseFollowEventDependencies)
+WWR_RT_VALUE(MemRangeAttributeAccessedBy)
+WWR_RT_VALUE(MemRangeAttributeLastPrefetchLocation)
+WWR_RT_VALUE(MemRangeAttributePreferredLocation)
+WWR_RT_VALUE(MemRangeAttributeReadMostly)
+WWR_RT_VALUE(MemcpyFlagDefault)
+WWR_RT_VALUE(MemcpyFlagPreferOverlapWithCompute)
+WWR_RT_VALUE(MemcpyHostToHost)
+WWR_RT_VALUE(MemcpyOperandTypeMax)
+WWR_RT_VALUE(MemcpyOperandTypePointer)
+WWR_RT_VALUE(MemcpySrcAccessOrderAny)
+WWR_RT_VALUE(MemcpySrcAccessOrderDuringApiCall)
+WWR_RT_VALUE(MemcpySrcAccessOrderInvalid)
+WWR_RT_VALUE(MemcpySrcAccessOrderMax)
+WWR_RT_VALUE(MemcpySrcAccessOrderStream)
+WWR_RT_VALUE(MemoryTypeDevice)
+WWR_RT_VALUE(MemoryTypeHost)
+WWR_RT_VALUE(MemoryTypeManaged)
+WWR_RT_VALUE(MemoryTypeUnregistered)
 
 // ========================================================================
 // Functions
@@ -435,5 +509,72 @@ inline wwrError_t wwrLaunchCooperativeKernel(const void *func, dim3 gridDim, dim
   return WWR_SELECT_RAW(cudaLaunchCooperativeKernel,
                         hipLaunchCooperativeKernel)(func, gridDim, blockDim, args, sharedMem,
                                                     stream);
+}
+
+// Memory -- alloc/free/copy/set/advise/pool functions (#260).
+WWR_RT_FUNCTION(HostGetDevicePointer)
+WWR_RT_FUNCTION(HostGetFlags)
+WWR_RT_FUNCTION(HostRegister)
+WWR_RT_FUNCTION(HostUnregister)
+WWR_RT_FUNCTION(Malloc3D)
+WWR_RT_FUNCTION(MemAdvise)
+WWR_RT_FUNCTION(MemGetInfo)
+WWR_RT_FUNCTION(MemPoolExportPointer)
+WWR_RT_FUNCTION(MemPoolExportToShareableHandle)
+WWR_RT_FUNCTION(MemPoolGetAccess)
+WWR_RT_FUNCTION(MemPoolGetAttribute)
+WWR_RT_FUNCTION(MemPoolImportFromShareableHandle)
+WWR_RT_FUNCTION(MemPoolImportPointer)
+WWR_RT_FUNCTION(MemPoolSetAccess)
+WWR_RT_FUNCTION(MemPoolTrimTo)
+WWR_RT_FUNCTION(MemPrefetchAsync)
+WWR_RT_FUNCTION(MemRangeGetAttribute)
+WWR_RT_FUNCTION(MemRangeGetAttributes)
+WWR_RT_FUNCTION(Memcpy2D)
+WWR_RT_FUNCTION(Memcpy2DAsync)
+WWR_RT_FUNCTION(Memcpy3D)
+WWR_RT_FUNCTION(Memcpy3DAsync)
+WWR_RT_FUNCTION(Memcpy3DBatchAsync)
+WWR_RT_FUNCTION(Memcpy3DPeer)
+WWR_RT_FUNCTION(Memcpy3DPeerAsync)
+WWR_RT_FUNCTION(MemcpyBatchAsync)
+WWR_RT_FUNCTION(MemcpyPeer)
+WWR_RT_FUNCTION(MemcpyPeerAsync)
+WWR_RT_FUNCTION(Memset2D)
+WWR_RT_FUNCTION(Memset2DAsync)
+WWR_RT_FUNCTION(Memset3D)
+WWR_RT_FUNCTION(Memset3DAsync)
+
+// Memory forwarders (#260). On HIP these entry points are overload sets (a
+// template<class T> convenience overload survives beside the extern-C function),
+// so a reference binding cannot name one member -- forward instead; the concrete
+// argument types pick the C overload, and the cuda* entry points resolve the same
+// way. hipMemcpy{To,From}Symbol default offset/kind (and the Async pair default
+// the stream), matched here so callers keep the vendor ergonomics.
+inline wwrError_t wwrMallocPitch(void **devPtr, std::size_t *pitch, std::size_t width,
+                                 std::size_t height) {
+  return WWR_SELECT_RAW(cudaMallocPitch, hipMallocPitch)(devPtr, pitch, width, height);
+}
+inline wwrError_t wwrMemcpyToSymbol(const void *symbol, const void *src, std::size_t count,
+                                    std::size_t offset = 0,
+                                    wwrMemcpyKind kind = wwrMemcpyHostToDevice) {
+  return WWR_SELECT_RAW(cudaMemcpyToSymbol, hipMemcpyToSymbol)(symbol, src, count, offset, kind);
+}
+inline wwrError_t wwrMemcpyFromSymbol(void *dst, const void *symbol, std::size_t count,
+                                      std::size_t offset = 0,
+                                      wwrMemcpyKind kind = wwrMemcpyDeviceToHost) {
+  return WWR_SELECT_RAW(cudaMemcpyFromSymbol, hipMemcpyFromSymbol)(dst, symbol, count, offset, kind);
+}
+inline wwrError_t wwrMemcpyToSymbolAsync(const void *symbol, const void *src, std::size_t count,
+                                         std::size_t offset, wwrMemcpyKind kind,
+                                         wwrStream_t stream = nullptr) {
+  return WWR_SELECT_RAW(cudaMemcpyToSymbolAsync, hipMemcpyToSymbolAsync)(symbol, src, count, offset,
+                                                                         kind, stream);
+}
+inline wwrError_t wwrMemcpyFromSymbolAsync(void *dst, const void *symbol, std::size_t count,
+                                           std::size_t offset, wwrMemcpyKind kind,
+                                           wwrStream_t stream = nullptr) {
+  return WWR_SELECT_RAW(cudaMemcpyFromSymbolAsync,
+                        hipMemcpyFromSymbolAsync)(dst, symbol, count, offset, kind, stream);
 }
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
