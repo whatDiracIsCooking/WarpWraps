@@ -208,8 +208,11 @@ add_link_options($<$<COMPILE_LANGUAGE:CXX>:-lc++abi>)
 # the backend module, the backend-neutral wwr.* module, the wwr.extension.*
 # layer, and its tests -- so the build needs neither the library present nor its
 # find_package/find_library to succeed, and a consumer of the package is not
-# forced to have it either (see cmake/wwrConfig.cmake.in). ON by default: all
-# three ship in the standard image.
+# forced to have it either (see cmake/wwrConfig.cmake.in). OFF by default: a
+# default build/install is the minimal wwr* core and demands none of these
+# non-toolkit libraries be present. The dev and CI presets turn all three back
+# on (the base preset in CMakePresets.json), so the full tree is still built
+# and tested -- only a bare, preset-less `cmake` configure gets the minimum.
 #
 # Declared HERE, BEFORE "Find the backend's packages" below, on purpose: the
 # find_package(rccl) / find_package(nvcomp) / find_package(hipcomp) calls in
@@ -219,13 +222,13 @@ add_link_options($<$<COMPILE_LANGUAGE:CXX>:-lc++abi>)
 # need to be this early, but keeping all three together beats splitting them by
 # where each library's find happens to sit.)
 option(WWR_WITH_CCL
-       "Build the collective-communications wrapper (NCCL / RCCL)" ON
+       "Build the collective-communications wrapper (NCCL / RCCL)" OFF
 )
 option(WWR_WITH_COMP
-       "Build the compression wrapper (nvCOMP / hipCOMP)" ON
+       "Build the compression wrapper (nvCOMP / hipCOMP)" OFF
 )
 option(WWR_WITH_TENSOR
-       "Build the tensor-contraction wrapper (cuTENSOR / hipTENSOR)" ON
+       "Build the tensor-contraction wrapper (cuTENSOR / hipTENSOR)" OFF
 )
 
 # ========================================================================
@@ -510,15 +513,15 @@ option(WWR_INSTALL "Generate install rules and the CMake package"
 
 # Whether the wrappers layer (src/wrappers) is part of the installed package.
 # The wrappers are always BUILT in-tree (the examples and test/wrappers link
-# them); this only decides whether wwr_install_package() also ships them. ON by
-# default -- unlike the extension layer below: the type-safe wrappers are the
-# core most consumers come for, so shipping them is the expected case, and a
-# consumer wanting only the raw wwr* + low-level backend modules opts out. Has
-# no effect unless WWR_INSTALL is ON. The install rules, and what a consumer
-# sees when it asks for the layer that was not shipped, live in
-# cmake/wwr_install.cmake and cmake/wwrConfig.cmake.in.
+# them); this only decides whether wwr_install_package() also ships them. OFF by
+# default, like the extension layer below and the vendor-wrapper flags above: a
+# default install is the minimal raw wwr* + low-level backend modules, and a
+# consumer that wants the type-safe wrappers opts in. Has no effect unless
+# WWR_INSTALL is ON. The install rules, and what a consumer sees when it asks
+# for the layer that was not shipped, live in cmake/wwr_install.cmake and
+# cmake/wwrConfig.cmake.in.
 option(WWR_INSTALL_WRAPPERS
-       "Install the wrappers layer (src/wrappers) as part of the package" ON
+       "Install the wrappers layer (src/wrappers) as part of the package" OFF
 )
 
 # Whether the extension layer (src/extension) is part of the installed package.

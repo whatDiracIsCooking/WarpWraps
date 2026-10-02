@@ -62,8 +62,8 @@ target_link_libraries(
           wwr::atomic
 )
 
-# The wrappers layer is optional in the package (installed by default, dropped
-# with -DWWR_INSTALL_WRAPPERS=OFF). WWR_HAS_WRAPPERS comes from wwrConfig.cmake
+# The wrappers layer is optional in the package (off by default, installed with
+# -DWWR_INSTALL_WRAPPERS=ON). WWR_HAS_WRAPPERS comes from wwrConfig.cmake
 # and says whether this install shipped it. When it did, link the wrapper
 # modules and let main.cpp exercise them under WWR_CONSUMER_HAS_WRAPPERS, which
 # is what proves the wrapper install rules (per-target module sources and the
