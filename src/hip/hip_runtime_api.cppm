@@ -1724,4 +1724,7 @@ using ::hipProfilerStop;
 using ::hipIpcEventHandle_st;
 using ::hipIpcMemHandle_st;
 
+// Array/texture-family additions for the whole-surface neutral layer (#264)
+using ::hipArray;
+
 } // namespace wwr::hip
