@@ -263,6 +263,20 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   if(WWR_WITH_COMP)
     find_package(nvcomp CONFIG REQUIRED)
   endif()
+
+  # Thrust ships with the toolkit as part of CCCL; wwr.thrust links the
+  # CCCL::Thrust target this config provides (see src/wrappers/thrust). CCCL
+  # 3.0.0 is the floor -- see docs/architecture.md (version floors). It is
+  # header-only, so there is nothing for vendor_harvest.py to harvest (§21).
+  # CCCL's config ships under the toolkit's own per-architecture lib/cmake, off
+  # the default search path, and no CUDAToolkit_* dir variable names the
+  # <triple> prefix it sits under -- only the first include dir does. Strip that
+  # dir's trailing /include to the target prefix and hint find_package there.
+  list(GET CUDAToolkit_INCLUDE_DIRS 0 _wwr_cuda_inc)
+  cmake_path(GET _wwr_cuda_inc PARENT_PATH _wwr_cccl_prefix)
+  find_package(CCCL 3.0.0 CONFIG REQUIRED HINTS "${_wwr_cccl_prefix}")
+  unset(_wwr_cuda_inc)
+  unset(_wwr_cccl_prefix)
 else()
   # Seed GPU_TARGETS from the environment before find_package(hip).
   #
@@ -341,6 +355,14 @@ else()
   # wwr.hip.hipfftXt does not add a second find_package call.
   find_package(hipfft CONFIG REQUIRED)
   find_package(hiprand CONFIG REQUIRED)
+  # rocThrust is HIP's Thrust (the thrust:: API over rocPRIM); wwr.thrust links
+  # roc::rocthrust + roc::rocprim (see src/wrappers/thrust). Each is its own
+  # ROCm CMake package with an honest version, so the floor is checked directly
+  # here, unlike the `hip` package above. 4.1.0 is the floor -- ROCm 7.1 ships
+  # 4.1.0, 7.2.4 ships 4.2.0 -- see docs/architecture.md (version floors).
+  # Header-only: nothing to harvest.
+  find_package(rocthrust 4.1.0 CONFIG REQUIRED)
+  find_package(rocprim 4.1.0 CONFIG REQUIRED)
   # RCCL (multi-GPU collectives) ships its own ROCm CMake package providing the
   # roc::rccl imported target -- wwr.hip.rccl links it. NCCL's CUDA counterpart
   # is NOT a FindCUDAToolkit component, so wwr.cuda.nccl find_library's it by
