@@ -214,6 +214,19 @@ wwr_add_test_executable(
 target_include_directories(wwr.test.gpu.rand_host PRIVATE ${PROJECT_SOURCE_DIR})
 add_dependencies(compile_time_tests wwr.test.gpu.rand_host)
 
+wwr_add_test_executable(
+  NAME
+  wwr.test.gpu.blas_host
+  MAIN
+  blas_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::blas::host
+)
+target_include_directories(wwr.test.gpu.blas_host PRIVATE ${PROJECT_SOURCE_DIR})
+add_dependencies(compile_time_tests wwr.test.gpu.blas_host)
+
 # tensor is the one wwr* compile-time test kept OUT of the shared, RUN
 # gpu_compile_tests binary above: on HIP, libhiptensor.so runs a device probe in
 # a global constructor that aborts at process startup on any host without a

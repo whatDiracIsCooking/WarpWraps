@@ -32,16 +32,17 @@ HeaderFilterRegex: '.*/src/.*'
 # function-pointer aliases -- so they trip readability-identifier-naming and
 # cppcoreguidelines-avoid-non-const-global-variables on essentially every line,
 # and always will. HeaderFilterRegex pulls them in because a .cpp TU imports
-# them; this drops them back out. detail/rand_names.h is here for the same reason
-# as rand.cppm: it is the rand host-API binding list (WWRRAND_* constants and
-# wwrrand* aliases, neither matching the wwr[A-Z] exemptions below), moved out of
-# rand.cppm into the shared fragment. detail/{fp16,bf16}_names.h and
+# them; this drops them back out. detail/rand_names.h and detail/blas_names.h are
+# here for the same reason as rand.cppm / blas.cppm: they are the rand / blas
+# host-API binding lists (WWRRAND_* / WWRBLAS_* constants and wwrrand* / wwrblas*
+# aliases, none matching the wwr[A-Z] exemptions below), moved out of the .cppm
+# into the shared fragment. detail/{fp16,bf16}_names.h and
 # detail/runtime_api_names.h are NOT excluded -- their wwrFloat2Half / wwrSuccess
 # names match the exemptions and carry no WWR_* constants. It is the SAME set
 # devtools/config.sh excludes from coverage as the compile-time re-export layer
 # that never runs, so keep it in sync with COVERAGE_IGNORE_REGEX there (YAML
 # cannot source the shell value).
-ExcludeHeaderFilterRegex: '/src/(cuda|hip)/|/src/(blas|complex|fft|rand|solver|sparse)\.cppm$|/src/detail/rand_names\.h$'
+ExcludeHeaderFilterRegex: '/src/(cuda|hip)/|/src/(blas|complex|fft|rand|solver|sparse)\.cppm$|/src/detail/(rand|blas)_names\.h$'
 FormatStyle: file
 
 CheckOptions:

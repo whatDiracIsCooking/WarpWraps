@@ -30,14 +30,36 @@ import sys
 import tomllib
 from pathlib import Path
 
-# WWR_FUNCTION(wwr_name, ...) -- anchored at line start so the macro *definition*
-# in backend.h ("#define WWR_FUNCTION ...") and the paste inside
-# WWR_RT_FUNCTION's definition are not read as invocations.
-_WWR_FUNCTION_RE = re.compile(r"^\s*WWR_FUNCTION\(\s*(\w+)\s*,")
+# WWR_FUNCTION(wwr_name, ...) / WWR_FUNCTION_RAW(wwr_name, ...) -- anchored at line
+# start so the macro *definitions* (in backend.h, "#define WWR_FUNCTION ...") and
+# the paste inside WWR_RT_FUNCTION's definition are not read as invocations. A
+# module binds either way: WWR_FUNCTION through the raw vendor module's ::wwr::cuda
+# re-exports, WWR_FUNCTION_RAW straight to the vendor header's globals (the
+# "rand.h shape", e.g. blas's detail/blas_names.h).
+_WWR_FUNCTION_RE = re.compile(r"^\s*WWR_FUNCTION(?:_RAW)?\(\s*(\w+)\s*,")
 # WWR_RT_FUNCTION(X) expands to WWR_FUNCTION(wwrX, cudaX, hipX); alias is wwrX.
 _WWR_RT_FUNCTION_RE = re.compile(r"^\s*WWR_RT_FUNCTION\(\s*(\w+)\s*\)")
 _WWR_SAME_FUNCTION_RE = re.compile(r"^\s*WWR_SAME_FUNCTION\(\s*(\w+)\s*,")
 _WWR_NAME_RE = re.compile(r"^wwr\w+$")
+
+# Modules whose alias list a wwr* module keeps in the shared fragment
+# src/detail/<m>_names.h rather than inline in src/<m>.cppm -- the surface is read
+# from both. See detail/*_names.h and src/README.md.
+#
+# runtime_api is deliberately NOT subject to this guard: it is whole-surface and
+# its aliases (WWR_RT_FUNCTION, in detail/runtime_api_names.h) are covered by its
+# own live SDK-free coverage gate, not per-alias WWR_SAME_FUNCTION / dispatch.
+_WHOLE_SURFACE_MODULES = frozenset({"runtime_api"})
+
+
+def module_source(root: Path, module: str) -> str:
+    """A module's alias-defining source: its .cppm plus, if present, the shared
+    fragment detail/<module>_names.h it pastes."""
+    text = (root / "src" / f"{module}.cppm").read_text()
+    fragment = root / "src" / "detail" / f"{module}_names.h"
+    if fragment.exists():
+        text += "\n" + fragment.read_text()
+    return text
 
 
 def parse_aliases(text: str) -> set[str]:
@@ -94,8 +116,7 @@ def coverage_gap(aliases: set[str], same: set[str], toml_targets: set[str]) -> s
 
 def check_module(root: Path, module: str) -> set[str]:
     """Uncovered aliases for one module (empty set == fully covered)."""
-    src = (root / "src" / f"{module}.cppm").read_text()
-    aliases = parse_aliases(src)
+    aliases = parse_aliases(module_source(root, module))
     if not aliases:
         return set()
 
@@ -112,11 +133,18 @@ def check_module(root: Path, module: str) -> set[str]:
 
 
 def discover_modules(root: Path) -> list[str]:
-    """The wwr* layer modules (directly under src/) that define at least one alias."""
-    gpu_dir = root / "src"
-    modules = [
-        p.stem for p in sorted(gpu_dir.glob("*.cppm")) if parse_aliases(p.read_text())
-    ]
+    """The wwr* layer modules (directly under src/) that define at least one alias.
+
+    A module's aliases may live in src/<m>.cppm or in the shared fragment
+    detail/<m>_names.h (the "rand.h shape"), so both are read; the whole-surface
+    modules (runtime_api) are excluded -- see _WHOLE_SURFACE_MODULES.
+    """
+    modules = []
+    for p in sorted((root / "src").glob("*.cppm")):
+        if p.stem in _WHOLE_SURFACE_MODULES:
+            continue
+        if parse_aliases(module_source(root, p.stem)):
+            modules.append(p.stem)
     return modules
 
 

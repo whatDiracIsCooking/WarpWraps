@@ -112,7 +112,11 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_raw_complex wwr::cuda::cuComplex)
   set(_raw_fp8 wwr::cuda::cuda_fp8)
   set(_backend_rt_host CUDA::cudart)
-  set(_raw_blas wwr::cuda::cublas_v2)
+  # blas is the "rand.h shape": it binds the vendor library's declarations
+  # directly (blas.h + _RAW), importing no raw module -- so it links the vendor
+  # cuBLAS library, not wwr::cuda::cublas_v2 (which stays for the cuBLAS-only
+  # extras). CUDA::cublas also carries the toolkit include (cuComplex.h too).
+  set(_backend_blas CUDA::cublas)
   set(_raw_blaslt wwr::cuda::cublasLt)
   set(_raw_solver wwr::cuda::cusolverDn)
   set(_raw_sparse wwr::cuda::cusparse)
@@ -126,7 +130,8 @@ else()
   set(_raw_complex wwr::hip::hip_complex)
   set(_raw_fp8 wwr::hip::hip_fp8)
   set(_backend_rt_host hip::host)
-  set(_raw_blas wwr::hip::hipblas)
+  # See the CUDA branch: blas links the vendor hipBLAS library directly.
+  set(_backend_blas roc::hipblas)
   set(_raw_blaslt wwr::hip::hipblaslt)
   set(_raw_solver wwr::hip::hipsolver)
   set(_raw_sparse wwr::hip::hipsparse)
@@ -309,12 +314,28 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   blas.cppm
   LINK_PUBLIC
-  ${_raw_blas}
+  ${_backend_blas}
   wwr::complex
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
 )
+
+# The non-module HOST consumption path for the blas surface -- `#include
+# "wwr/blas.h"` instead of import. Header-only counterpart to wwr.blas's usage
+# requirements: wwr::backend for the WWR_GPU_BACKEND_* define and the src/
+# include root (blas.h / detail/blas_names.h / complex.h all resolve
+# root-relative), and ${_backend_blas} for the vendor header and library plus
+# the toolkit include that carries cuComplex.h / hip_complex.h (which complex.h
+# pulls in for the getri/getrs forwarders' types). NOT wwr::complex: this path
+# #includes complex.h, the header, not the module -- linking the module would
+# drag module machinery into a header-only consumer. Compiles no module unit; it
+# joins the export set like wwr.runtime_api.host, and src/wwr/ installs under
+# include/wwr/.
+add_library(wwr.blas.host INTERFACE)
+target_link_libraries(wwr.blas.host INTERFACE wwr::backend ${_backend_blas})
+# In-tree :: alias; exported as wwr::blas::host by _wwr_export_name's rule.
+add_library(wwr::blas::host ALIAS wwr.blas.host)
 
 wwr_add_cxx_module_library(
   NAME
