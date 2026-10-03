@@ -136,7 +136,11 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_raw_ccl wwr::cuda::nccl)
   set(_raw_tensor wwr::cuda::cutensor)
   set(_raw_comp wwr::cuda::nvcomp)
-  set(_raw_rtc wwr::cuda::nvrtc)
+  # rtc is the "rand.h shape" too (see _backend_blas / _backend_solver): it
+  # binds the vendor library's declarations directly (rtc.h + _RAW), importing
+  # no raw module -- so it links the vendor NVRTC library, not wwr::cuda::nvrtc
+  # (which stays for the NVRTC-only CUBIN / LTO IR / OptiX IR extras).
+  set(_backend_rtc CUDA::nvrtc)
 else()
   set(_raw_complex wwr::hip::hip_complex)
   set(_raw_fp8 wwr::hip::hip_fp8)
@@ -156,7 +160,10 @@ else()
   set(_raw_ccl wwr::hip::rccl)
   set(_raw_tensor wwr::hip::hiptensor)
   set(_raw_comp wwr::hip::hipcomp)
-  set(_raw_rtc wwr::hip::hiprtc)
+  # See the CUDA branch: rtc links the vendor hipRTC library directly. ROCm
+  # ships it from its own `hiprtc` find_package config (hiprtc::hiprtc), the
+  # same target the raw wwr.hip.hiprtc module links.
+  set(_backend_rtc hiprtc::hiprtc)
 endif()
 
 # wwr.runtime_api binds straight to the vendor runtime *library*, not a raw
@@ -532,11 +539,24 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   rtc.cppm
   LINK_PUBLIC
-  ${_raw_rtc}
+  ${_backend_rtc}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
 )
+
+# The non-module HOST consumption path for the rtc surface -- `#include
+# "wwr/rtc.h"` instead of import. Header-only counterpart to wwr.rtc's usage
+# requirements: wwr::backend for the WWR_GPU_BACKEND_* define and the src/
+# include root (rtc.h / detail/rtc_names.h resolve root-relative), and
+# ${_backend_rtc} for the vendor header and library. Like wwr.solver.host this
+# path names no complex type, so it needs nothing beyond those two. Compiles no
+# module unit; it joins the export set like wwr.runtime_api.host, and src/wwr/
+# installs under include/wwr/.
+add_library(wwr.rtc.host INTERFACE)
+target_link_libraries(wwr.rtc.host INTERFACE wwr::backend ${_backend_rtc})
+# In-tree :: alias; exported as wwr::rtc::host by _wwr_export_name's rule.
+add_library(wwr::rtc::host ALIAS wwr.rtc.host)
 
 # Installed consumers compile these module units themselves (a C++23 module
 # package ships interface SOURCES, not BMIs), so every unit's compile
