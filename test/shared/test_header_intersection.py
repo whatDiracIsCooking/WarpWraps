@@ -51,7 +51,11 @@ RAND_SRC = [
 
 BLAS_CUDA = [CUDA / "cublas_v2.json"]
 BLAS_HIP = [ROCM / "hipblas.json"]
-BLAS_SRC = [ROOT / "src" / "blas.cppm"]
+# detail/blas_names.h carries the wwrblas* surface (the WWR_FUNCTION_RAW aliases,
+# moved out of blas.cppm into the fragment the module and wwr/blas.h both paste);
+# blas.cppm now just #includes it, so a text scan sees its names only via the
+# fragment.
+BLAS_SRC = [ROOT / "src" / "blas.cppm", ROOT / "src" / "detail" / "blas_names.h"]
 
 # runtime_api's neutral surface binds its vendor names through the 1-arg
 # WWR_RT_* paste, so the vendor identifier never appears literally -- the

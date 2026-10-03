@@ -183,15 +183,16 @@ COVERAGE_PRESET=${COVERAGE_PRESET:-coverage}
 #     deliberately never given runtime suites (see CLAUDE.md, "Two kinds of C++
 #     test"). fp16/bf16/runtime_api.cppm are NOT here: they carry host-side logic
 #     the runtime suites do execute, so they stay in the denominator.
-#   * src/detail/rand_names.h -- the rand host-API binding list, moved out of
-#     rand.cppm into the shared fragment; excluded for the same reason rand.cppm
-#     is. detail/{fp16,bf16}_names.h stay IN the denominator: their conversions
-#     are executed by the conversions.cpp runtime suite, like fp16/bf16.cppm.
+#   * src/detail/{rand,blas}_names.h -- the rand / blas host-API binding lists,
+#     moved out of rand.cppm / blas.cppm into the shared fragments; excluded for
+#     the same reason those .cppm are. detail/{fp16,bf16}_names.h stay IN the
+#     denominator: their conversions are executed by the conversions.cpp runtime
+#     suite, like fp16/bf16.cppm.
 #
 # Set empty to report over all of src/. Keep this in sync with the wrapper set
 # under src/ if a neutral module is added or removed, and with .clang-tidy's
 # ExcludeHeaderFilterRegex (the SAME set).
-COVERAGE_IGNORE_REGEX=${COVERAGE_IGNORE_REGEX:-'/src/(cuda|hip)/|/src/(blas|complex|fft|rand|solver|sparse)\.cppm$|/src/detail/rand_names\.h$'}
+COVERAGE_IGNORE_REGEX=${COVERAGE_IGNORE_REGEX:-'/src/(cuda|hip)/|/src/(blas|complex|fft|rand|solver|sparse)\.cppm$|/src/detail/(rand|blas)_names\.h$'}
 
 # --- cross-backend check --------------------------------------------------
 

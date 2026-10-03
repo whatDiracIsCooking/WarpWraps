@@ -300,7 +300,7 @@ int main() {
   // See host_headers_check.cpp.
   if (!host_headers_check())
     return 1;
-  std::println("host   : fp16/bf16/rand consumed via #include (non-module path)");
+  std::println("host   : fp16/bf16/rand/blas consumed via #include (non-module path)");
 
 #if defined(WWR_CONSUMER_HAS_WRAPPERS)
   if (!wrappers_link())

@@ -28,6 +28,13 @@ def test_parses_gpu_function():
     assert ac.parse_aliases(src) == {"wwrblasSgemm"}
 
 
+def test_parses_gpu_function_raw():
+    # The "rand.h shape" binds straight to the vendor globals with WWR_FUNCTION_RAW
+    # (e.g. blas's detail/blas_names.h); the alias is still the first argument.
+    src = "WWR_FUNCTION_RAW(wwrblasSgemm, cublasSgemm_v2, hipblasSgemm)\n"
+    assert ac.parse_aliases(src) == {"wwrblasSgemm"}
+
+
 def test_parses_gpu_rt_function_prefix_paste():
     # WWR_RT_FUNCTION(StreamCreate) -> alias wwrStreamCreate
     src = "WWR_RT_FUNCTION(StreamCreate)\n"
