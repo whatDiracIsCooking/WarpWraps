@@ -117,7 +117,13 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   # cuBLAS library, not wwr::cuda::cublas_v2 (which stays for the cuBLAS-only
   # extras). CUDA::cublas also carries the toolkit include (cuComplex.h too).
   set(_backend_blas CUDA::cublas)
-  set(_raw_blaslt wwr::cuda::cublasLt)
+  # blaslt is the "rand.h shape" too (see _backend_blas): it binds the vendor
+  # library's declarations directly (blaslt.h + _RAW), importing no raw module
+  # -- so it links the vendor cuBLASLt library, not wwr::cuda::cublasLt (which
+  # stays for the much larger private algo-introspection / logger / tile-stages
+  # surface). CUDA::cublasLt also carries the toolkit include (cublasLt.h pulls
+  # in cublas_api.h for the two inherited-type renames).
+  set(_backend_blaslt CUDA::cublasLt)
   # solver is the "rand.h shape" too (see _backend_blas): it binds the vendor
   # library's declarations directly (solver.h + _RAW), importing no raw module
   # -- so it links the vendor cuSOLVER library, not wwr::cuda::cusolverDn (which
@@ -135,14 +141,22 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_raw_ccl wwr::cuda::nccl)
   set(_raw_tensor wwr::cuda::cutensor)
   set(_raw_comp wwr::cuda::nvcomp)
-  set(_raw_rtc wwr::cuda::nvrtc)
+  # rtc is the "rand.h shape" too (see _backend_blas / _backend_solver): it
+  # binds the vendor library's declarations directly (rtc.h + _RAW), importing
+  # no raw module -- so it links the vendor NVRTC library, not wwr::cuda::nvrtc
+  # (which stays for the NVRTC-only CUBIN / LTO IR / OptiX IR extras).
+  set(_backend_rtc CUDA::nvrtc)
 else()
   set(_raw_complex wwr::hip::hip_complex)
   set(_raw_fp8 wwr::hip::hip_fp8)
   set(_backend_rt_host hip::host)
   # See the CUDA branch: blas links the vendor hipBLAS library directly.
   set(_backend_blas roc::hipblas)
-  set(_raw_blaslt wwr::hip::hipblaslt)
+  # See the CUDA branch: blaslt links the vendor hipBLASLt library directly.
+  # Unlike the other vendor libraries roc::hipblaslt does NOT pull in hip::host
+  # transitively (see src/hip/CMakeLists.txt), so hip::host is linked alongside
+  # it or hipblaslt.h's `__HIP_PLATFORM_AMD__`-gated #includes fail.
+  set(_backend_blaslt roc::hipblaslt hip::host)
   # See the CUDA branch: solver links the vendor hipSOLVER library directly.
   set(_backend_solver roc::hipsolver)
   set(_raw_sparse wwr::hip::hipsparse)
@@ -154,7 +168,10 @@ else()
   set(_raw_ccl wwr::hip::rccl)
   set(_raw_tensor wwr::hip::hiptensor)
   set(_raw_comp wwr::hip::hipcomp)
-  set(_raw_rtc wwr::hip::hiprtc)
+  # See the CUDA branch: rtc links the vendor hipRTC library directly. ROCm
+  # ships it from its own `hiprtc` find_package config (hiprtc::hiprtc), the
+  # same target the raw wwr.hip.hiprtc module links.
+  set(_backend_rtc hiprtc::hiprtc)
 endif()
 
 # wwr.runtime_api binds straight to the vendor runtime *library*, not a raw
@@ -357,11 +374,25 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   blaslt.cppm
   LINK_PUBLIC
-  ${_raw_blaslt}
+  ${_backend_blaslt}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
 )
+
+# The non-module HOST consumption path for the blaslt surface -- `#include
+# "wwr/blaslt.h"` instead of import. Header-only counterpart to wwr.blaslt's
+# usage requirements: wwr::backend for the WWR_GPU_BACKEND_* define and the src/
+# include root (blaslt.h / detail/blaslt_names.h resolve root-relative), and
+# ${_backend_blaslt} for the vendor header and library (plus hip::host on HIP,
+# which roc::hipblaslt does not pull in transitively). Unlike wwr.blas.host this
+# path names no complex type, so it needs nothing beyond those two. Compiles no
+# module unit; it joins the export set like wwr.runtime_api.host, and src/wwr/
+# installs under include/wwr/.
+add_library(wwr.blaslt.host INTERFACE)
+target_link_libraries(wwr.blaslt.host INTERFACE wwr::backend ${_backend_blaslt})
+# In-tree :: alias; exported as wwr::blaslt::host by _wwr_export_name's rule.
+add_library(wwr::blaslt::host ALIAS wwr.blaslt.host)
 
 wwr_add_cxx_module_library(
   NAME
@@ -529,11 +560,24 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   rtc.cppm
   LINK_PUBLIC
-  ${_raw_rtc}
+  ${_backend_rtc}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
 )
+
+# The non-module HOST consumption path for the rtc surface -- `#include
+# "wwr/rtc.h"` instead of import. Header-only counterpart to wwr.rtc's usage
+# requirements: wwr::backend for the WWR_GPU_BACKEND_* define and the src/
+# include root (rtc.h / detail/rtc_names.h resolve root-relative), and
+# ${_backend_rtc} for the vendor header and library. Like wwr.solver.host this
+# path names no complex type, so it needs nothing beyond those two. Compiles no
+# module unit; it joins the export set like wwr.runtime_api.host, and src/wwr/
+# installs under include/wwr/.
+add_library(wwr.rtc.host INTERFACE)
+target_link_libraries(wwr.rtc.host INTERFACE wwr::backend ${_backend_rtc})
+# In-tree :: alias; exported as wwr::rtc::host by _wwr_export_name's rule.
+add_library(wwr::rtc::host ALIAS wwr.rtc.host)
 
 # Installed consumers compile these module units themselves (a C++23 module
 # package ships interface SOURCES, not BMIs), so every unit's compile
