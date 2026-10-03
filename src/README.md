@@ -32,7 +32,7 @@ against `wwr*` names and builds unchanged for either backend.
 | `wwr.blaslt` | `cublasLt.h` via `blaslt.h` (no import) | `hipblaslt/hipblaslt.h` via `blaslt.h` (no import) |
 | `wwr.solver` | `cusolverDn.h` via `solver.h` (no import) | `hipsolver.h` via `solver.h` (no import) |
 | `wwr.sparse` | `wwr.cuda.cusparse` | `wwr.hip.hipsparse` |
-| `wwr.fft` | `wwr.cuda.cufft` | `wwr.hip.hipfft` |
+| `wwr.fft` | `cufft.h` via `fft.h` (no import) | `hipfft/hipfft.h` via `fft.h` (no import) |
 | `wwr.rand` | `curand.h` / `curand_kernel.h` via `rand.h` (no import) | `hiprand.h` / `hiprand_kernel.h` via `rand.h` (no import) |
 | `wwr.ccl` | `wwr.cuda.nccl` | `wwr.hip.rccl` |
 | `wwr.tensor` | `wwr.cuda.cutensor` | `wwr.hip.hiptensor` |
@@ -156,7 +156,14 @@ function — `wwrfftGetStatusName`/`String` are hand-written switches, one per
 backend. Only the 14 result codes both enums share get a `WWRFFT_*` alias; a
 backend-only code (cuFFT's `MISSING_DEPENDENCY`, hipFFT's `PARSE_ERROR`, …) is
 reached through the raw module. `wwrfftGetProperty` is likewise omitted — the
-two disagree on its property-type enum. See the file header.
+two disagree on its property-type enum. Like `gpu.blas` and `gpu.solver` it is
+the "rand.h shape": the surface lives in the shared fragment
+`detail/fft_names.h`, bound straight to the vendor header's `::cufft*` /
+`::hipfft*` declarations (from `fft.h`) with the `_RAW` macros and imported by no
+raw vendor module, so the one list serves both `fft.cppm` and the non-module
+`#include` path `wwr/fft.h`. The raw module `wwr.cuda.cufft` / `wwr.hip.hipfft`
+stays for the base-API extras off this path, and `wwr.cuda.cufftXt` /
+`wwr.hip.hipfftXt` for the multi-GPU surface. See the file header.
 
 `gpu.rand` covers the cuRAND / hipRAND host API — generators, the
 `wwrrandGenerate*` functions, Poisson distributions, quasirandom direction
