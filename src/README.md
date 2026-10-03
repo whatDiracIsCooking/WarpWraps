@@ -30,7 +30,7 @@ against `wwr*` names and builds unchanged for either backend.
 | `wwr.vector_types` | `vector_functions.h` via `vector_types.h` (no import) | `hip/hip_vector_types.h` via `vector_types.h` (no import) |
 | `wwr.blas` | `cublas_v2.h` via `blas.h` (no import) | `hipblas/hipblas.h` via `blas.h` (no import) |
 | `wwr.blaslt` | `wwr.cuda.cublasLt` | `wwr.hip.hipblaslt` |
-| `wwr.solver` | `wwr.cuda.cusolverDn` | `wwr.hip.hipsolver` |
+| `wwr.solver` | `cusolverDn.h` via `solver.h` (no import) | `hipsolver.h` via `solver.h` (no import) |
 | `wwr.sparse` | `wwr.cuda.cusparse` | `wwr.hip.hipsparse` |
 | `wwr.fft` | `wwr.cuda.cufft` | `wwr.hip.hipfft` |
 | `wwr.rand` | `curand.h` / `curand_kernel.h` via `rand.h` (no import) | `hiprand.h` / `hiprand_kernel.h` via `rand.h` (no import) |
@@ -112,7 +112,14 @@ plus their `_bufferSize` functions). The CUDA-only modern eigen/SVD API is not
 covered here or by `wwr.wrappers.solver`; reach it through
 `wwr.cuda.cusolverDn`. Neither library has a status-to-string
 function, so `wwrsolverGetStatusName`/`String` are hand-written switches, one
-per backend.
+per backend. Like `gpu.blas` it is the "rand.h shape": the surface lives in the
+shared fragment `detail/solver_names.h`, bound straight to the vendor header's
+`::cusolverDn*` / `::hipsolverDn*` declarations (from `solver.h`, which also
+pulls in `library_types.h` for the `cudaDataType` / `hipDataType` enumerators)
+with the `_RAW` macros and imported by no raw vendor module, so the one list
+serves both `solver.cppm` and the non-module `#include` path `wwr/solver.h`. The
+raw module `wwr.cuda.cusolverDn` / `wwr.hip.hipsolver` stays for the CUDA-only
+modern eigen/SVD extras, off this path.
 
 `gpu.sparse` covers the legacy typed (S/D/C/Z) cuSPARSE / hipSPARSE functions
 the two backends still share and cuSPARSE has not deprecated: the BSR

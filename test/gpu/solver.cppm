@@ -5,7 +5,7 @@
 //
 // The 200+ typed legacy entry points (wwrsolverDnSpotrf, ...) are not
 // repeated here, for the same reason test/gpu/blas.cppm skips its 374: they
-// are written out in full in src/solver.cppm, not derived by a
+// are written out in full in src/detail/solver_names.h, not derived by a
 // prefix-pasting macro, so a line here would restate that line. A misspelled
 // backend name does not compile, and a wrong-but-existing one is a signature
 // mismatch at the instantiation in src/wrappers/solver/instantiations.cpp,
@@ -33,8 +33,6 @@ export module wwr.test.gpu.solver;
 
 import std;
 import wwr.solver;
-import wwr.blas;
-import wwr.complex;
 #if defined(WWR_GPU_BACKEND_CUDA)
 import wwr.cuda.cusolverDn;
 #else
