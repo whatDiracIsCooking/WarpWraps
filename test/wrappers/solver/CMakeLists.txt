@@ -28,6 +28,10 @@ add_dependencies(
   compile_time_tests wwr.test.wrappers.solver_type_traits
 )
 
+# GPU_SOURCE is the file carrying the WWR_FUNCTION_RAW(wwrsolver...) alias lines
+# the check maps vendor symbols back through -- the shared fragment, not
+# solver.cppm, since the surface moved there (solver.cppm now just #includes it,
+# and dispatch.py scans one file's text, not its includes).
 wwr_add_dispatch_check(
   NAME
   wwr.test.wrappers.solver_dispatch
@@ -36,5 +40,5 @@ wwr_add_dispatch_check(
   TABLE
   solver_dispatch.toml
   GPU_SOURCE
-  src/solver.cppm
+  src/detail/solver_names.h
 )

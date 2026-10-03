@@ -118,7 +118,12 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   # extras). CUDA::cublas also carries the toolkit include (cuComplex.h too).
   set(_backend_blas CUDA::cublas)
   set(_raw_blaslt wwr::cuda::cublasLt)
-  set(_raw_solver wwr::cuda::cusolverDn)
+  # solver is the "rand.h shape" too (see _backend_blas): it binds the vendor
+  # library's declarations directly (solver.h + _RAW), importing no raw module
+  # -- so it links the vendor cuSOLVER library, not wwr::cuda::cusolverDn (which
+  # stays for the CUDA-only modern eigen/SVD extras). CUDA::cusolver also
+  # carries the toolkit include (library_types.h too).
+  set(_backend_solver CUDA::cusolver)
   set(_raw_sparse wwr::cuda::cusparse)
   set(_raw_fft wwr::cuda::cufft)
   set(_raw_tx wwr::cuda::nvToolsExt)
@@ -133,7 +138,8 @@ else()
   # See the CUDA branch: blas links the vendor hipBLAS library directly.
   set(_backend_blas roc::hipblas)
   set(_raw_blaslt wwr::hip::hipblaslt)
-  set(_raw_solver wwr::hip::hipsolver)
+  # See the CUDA branch: solver links the vendor hipSOLVER library directly.
+  set(_backend_solver roc::hipsolver)
   set(_raw_sparse wwr::hip::hipsparse)
   set(_raw_fft wwr::hip::hipfft)
   set(_raw_tx wwr::hip::roctx)
@@ -355,13 +361,25 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   solver.cppm
   LINK_PUBLIC
-  ${_raw_solver}
-  wwr::complex
-  wwr::blas
+  ${_backend_solver}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
 )
+
+# The non-module HOST consumption path for the solver surface -- `#include
+# "wwr/solver.h"` instead of import. Header-only counterpart to wwr.solver's
+# usage requirements: wwr::backend for the WWR_GPU_BACKEND_* define and the src/
+# include root (solver.h / detail/solver_names.h resolve root-relative), and
+# ${_backend_solver} for the vendor header and library plus the toolkit include
+# that carries library_types.h (for the data-type enumerators). Unlike
+# wwr.blas.host this path names no complex type, so it needs nothing beyond
+# those two. Compiles no module unit; it joins the export set like
+# wwr.runtime_api.host, and src/wwr/ installs under include/wwr/.
+add_library(wwr.solver.host INTERFACE)
+target_link_libraries(wwr.solver.host INTERFACE wwr::backend ${_backend_solver})
+# In-tree :: alias; exported as wwr::solver::host by _wwr_export_name's rule.
+add_library(wwr::solver::host ALIAS wwr.solver.host)
 
 wwr_add_cxx_module_library(
   NAME
