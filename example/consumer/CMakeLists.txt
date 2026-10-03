@@ -71,6 +71,15 @@ if(WWR_HAS_TENSOR)
   target_compile_definitions(consumer PRIVATE WWR_CONSUMER_HAS_TENSOR)
 endif()
 
+# wwr::comp::host is the same optional-component shape as wwr::tensor::host
+# above: comp ships only from a build configured with -DWWR_WITH_COMP=ON, so
+# link it under WWR_HAS_COMP and gate the matching #include "wwr/comp.h" in
+# host_headers_check.cpp with WWR_CONSUMER_HAS_COMP.
+if(WWR_HAS_COMP)
+  target_link_libraries(consumer PRIVATE wwr::comp::host)
+  target_compile_definitions(consumer PRIVATE WWR_CONSUMER_HAS_COMP)
+endif()
+
 # The nested :: spellings are the exported names -- the SAME names wwr's own
 # in-tree CMakeLists link (wwr::blas, not a doubled wwr::wwr.blas). Linking
 # them brings in wwr's module sources, which this build compiles -- `import

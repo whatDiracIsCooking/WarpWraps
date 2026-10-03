@@ -36,7 +36,7 @@ against `wwr*` names and builds unchanged for either backend.
 | `wwr.rand` | `curand.h` / `curand_kernel.h` via `rand.h` (no import) | `hiprand.h` / `hiprand_kernel.h` via `rand.h` (no import) |
 | `wwr.ccl` | `wwr.cuda.nccl` | `wwr.hip.rccl` |
 | `wwr.tensor` | `cutensor.h` via `tensor.h` (no import) | `hiptensor/hiptensor.h` via `tensor.h` (no import) |
-| `wwr.comp` | `wwr.cuda.nvcomp` | `wwr.hip.hipcomp` |
+| `wwr.comp` | `nvcomp.h` via `comp.h` (no import) | `hipcomp.h` via `comp.h` (no import) |
 | `wwr.rtc` | `nvrtc.h` via `rtc.h` (no import) | `hip/hiprtc.h` via `rtc.h` (no import) |
 
 `gpu.fp8` is the narrow-float scalar layer above `fp16` / `bf16`, scoped to the
@@ -302,6 +302,35 @@ stays for the per-backend extras, off this path. Three things to watch:
   on host consumers, so `wwr.hip.hiptensor` `find_library`s `libhiptensor` and
   links `hip::host` instead (see `src/hip/README.md`). hipTensor was kept off the
   `ROCM_PRUNE` list.
+
+`gpu.comp` covers **batched lossless compression** — nvCOMP / hipCOMP, for the
+LZ4 / Snappy / Cascaded algorithms both backends implement in both directions
+(issue #110, option a). It is the one wwr\* module whose functions are
+hand-written forwarding shims rather than aliases: nvCOMP 5.3 and hipCOMP 2.2
+(a hipify of nvCOMP branch-2.2) are version-skewed, so the batched low-level
+signatures diverge (split compress/decompress opts, an extra device-status /
+decompress-opts parameter, Sync/Async temp-size queries with no 2.2 counterpart),
+and no reference-alias could present one portable signature. Each shim is written
+once against the hipCOMP 2.2 shape and reconciles the skew on the CUDA path
+(Async temp-size, NULL compress statuses, defaulted decompress opts); the neutral
+opts are plain structs the per-backend `backend_opts` builders translate. Still,
+like `gpu.blas` / `gpu.solver` it is the **"rand.h shape"**: the surface (the
+three types, the status / data-type constants, the opts, the builders and the
+forwarders) lives in the shared fragment `detail/comp_names.h`, bound straight to
+the vendor headers' `::nvcomp*` / `::hipcomp*` declarations (from `comp.h`, the
+single vendor-include point, which also pulls in `<cstddef>` for the shims'
+`std::size_t`) — `WWR_TYPE_RAW` / `WWR_VALUE_RAW` for the names, the shims calling
+the vendor globals directly — imported by no raw vendor module, so the one list
+serves both `comp.cppm` and the non-module `#include` path `wwr/comp.h`. Unlike
+`sparse.h` / `fft.h` / `tensor.h`, `comp.h`'s HIP branch carries **no** `#include
+<array>` pre-include: hipCOMP's C-style headers do not trip the `__noinline__`
+poisoning of `docs/architecture.md` §9 (the raw `wwr.hip.hipcomp` module carries
+none either, and hipcomp is not on §9's affected list). Enumerator **values** are
+pinned per backend in `test/gpu/comp.cppm`, which still imports the raw module to
+check the shim signatures against `nvcomp*` / `hipcomp*` names. The raw module
+`wwr.cuda.nvcomp` / `wwr.hip.hipcomp` stays for the full nvCOMP 5.3 / hipCOMP 2.2
+surface this layer omits (Deflate/GZIP/Zstd/GDeflate/Bitcomp/ANS, CRC32, the
+hardware-decompression backend, the exact Sync temp-size query), off this path.
 
 `gpu.rtc` covers **runtime compilation** — NVRTC / hipRTC. hipRTC was written
 "for parity with nvrtc", so this is a hipify pair like `ccl`, but a partial one:

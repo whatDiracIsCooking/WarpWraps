@@ -153,7 +153,15 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   # cutensor.h needs for <cuda_runtime.h> / <library_types.h>. Only defined
   # under WWR_WITH_TENSOR, like the targets that use it.
   set(_backend_tensor wwr::cuda_cutensor CUDA::cudart)
-  set(_raw_comp wwr::cuda::nvcomp)
+  # comp is the "rand.h shape" too (see _backend_blas): it binds the vendor
+  # library's declarations directly (comp.h + _RAW / hand-written shims),
+  # importing no raw module -- so it links the vendor nvCOMP library
+  # nvcomp::nvcomp (the config package, see src/cuda/CMakeLists.txt), not the
+  # raw module wwr.cuda.nvcomp (which stays for the full nvCOMP 5.3 surface
+  # this layer omits). CUDA::cudart carries the toolkit include for the
+  # cudaStream_t the batched async signatures take. Only defined under
+  # WWR_WITH_COMP, like the targets that use it.
+  set(_backend_comp nvcomp::nvcomp CUDA::cudart)
   # rtc is the "rand.h shape" too (see _backend_blas / _backend_solver): it
   # binds the vendor library's declarations directly (rtc.h + _RAW), importing
   # no raw module -- so it links the vendor NVRTC library, not wwr::cuda::nvrtc
@@ -186,7 +194,12 @@ else()
   # and hip::host carries the HIP host include path. Only defined under
   # WWR_WITH_TENSOR, like the targets that use it.
   set(_backend_tensor wwr::hip_hiptensor hip::host)
-  set(_raw_comp wwr::hip::hipcomp)
+  # See the CUDA branch: comp links the vendor hipCOMP library directly.
+  # hipcomp::hipcomp is the imported target find_package(hipcomp) resolves
+  # (built from source into /opt/rocm-ds, see src/hip/CMakeLists.txt); hip::host
+  # is linked alongside because hipcomp.h pulls in <hip/hip_runtime.h> for
+  # hipStream_t.
+  set(_backend_comp hipcomp::hipcomp hip::host)
   # See the CUDA branch: rtc links the vendor hipRTC library directly. ROCm
   # ships it from its own `hiprtc` find_package config (hiprtc::hiprtc), the
   # same target the raw wwr.hip.hiprtc module links.
@@ -557,13 +570,13 @@ if(WWR_WITH_CCL)
 endif()
 
 # wwr.tensor / wwr.comp are gated on WWR_WITH_TENSOR / WWR_WITH_COMP, each of
-# which also drops the backend it links (${_backend_tensor} / ${_raw_comp}) and
-# the matching wwr.extension.* layer -- the whole chain drops together so no
+# which also drops the backend it links (${_backend_tensor} / ${_backend_comp})
+# and the matching wwr.extension.* layer -- the whole chain drops together so no
 # surviving exported target links a target the export set no longer contains.
-# Same shape as wwr.ccl above. tensor is the "rand.h shape" (see _backend_blas):
-# it links the vendor cuTENSOR / hipTensor library (${_backend_tensor}), not the
-# raw module wwr.cuda.cutensor / wwr.hip.hiptensor (which stays for the
-# per-backend extras).
+# Same shape as wwr.ccl above. Both are the "rand.h shape" (see _backend_blas):
+# they link the vendor library (${_backend_tensor} / ${_backend_comp}), not the
+# raw module wwr.cuda.cutensor / wwr.hip.hiptensor / wwr.cuda.nvcomp /
+# wwr.hip.hipcomp (which stay for the per-backend extras).
 if(WWR_WITH_TENSOR)
   wwr_add_cxx_module_library(
     NAME
@@ -600,11 +613,26 @@ if(WWR_WITH_COMP)
     PRIMARY_INTERFACE
     comp.cppm
     LINK_PUBLIC
-    ${_raw_comp}
+    ${_backend_comp}
     LINK_PRIVATE
     wwr::backend
     IMPORT_STD
   )
+
+  # The non-module HOST consumption path for the comp surface -- `#include
+  # "wwr/comp.h"` instead of import. Header-only counterpart to wwr.comp's usage
+  # requirements: wwr::backend for the WWR_GPU_BACKEND_* define and the src/
+  # include root (comp.h / detail/comp_names.h resolve root-relative), and
+  # ${_backend_comp} for the vendor headers and library (plus CUDA::cudart /
+  # hip::host for the stream type the batched signatures name). Like
+  # wwr.fft.host this path names no complex type, so it needs nothing beyond
+  # those two. Compiles no module unit; it joins the export set like
+  # wwr.runtime_api.host, and src/wwr/ installs under include/wwr/. Inside the
+  # WWR_WITH_COMP gate, like wwr.comp itself.
+  add_library(wwr.comp.host INTERFACE)
+  target_link_libraries(wwr.comp.host INTERFACE wwr::backend ${_backend_comp})
+  # In-tree :: alias; exported as wwr::comp::host by _wwr_export_name's rule.
+  add_library(wwr::comp::host ALIAS wwr.comp.host)
 endif()
 
 wwr_add_cxx_module_library(

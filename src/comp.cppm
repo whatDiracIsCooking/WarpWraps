@@ -35,6 +35,19 @@
  * names never guarantee matching values (this bit WWRRAND_RNG_* -- see
  * rand.cppm). Here they happen to agree, which the pins lock in.
  *
+ * The wwrcomp* surface itself -- types, constants, neutral opts, backend option
+ * builders and the LZ4/Snappy/Cascaded forwarders -- is NOT restated here: it is
+ * the one fragment the two host paths share, detail/comp_names.h, pasted below
+ * inside the exported `namespace wwr` exactly as wwr/comp.h (the non-module
+ * #include path) pastes it. Add a name there, once, and both paths gain it. The
+ * vendor headers are drawn from comp.h, the single vendor-include point (the
+ * "rand.h shape"): this module binds wwr* references straight to the `::nvcomp*`
+ * / `::hipcomp*` declarations with the _RAW macros and imports no raw vendor
+ * module -- nvCOMP / hipCOMP are external-linkage libraries, so a reference or
+ * type alias needs only the declaration, and the shims call the vendor globals
+ * directly. The raw module wwr.cuda.nvcomp / wwr.hip.hipcomp stays for the full
+ * surface this layer omits, off this path.
+ *
  * Usage:
  *   import wwr.comp;
  *
@@ -46,232 +59,26 @@
 
 module;
 
-#include <cstddef>
-
 #include "backend.h"
+
+// The single vendor-include point for the comp layer: nvcomp/*.h / hipcomp/*.h
+// plus <cstddef>, whose `::nvcomp*` / `::hipcomp*` declarations the _RAW bindings
+// and the shims in detail/comp_names.h resolve against. No raw vendor module is
+// imported -- nvCOMP / hipCOMP are external-linkage libraries, so a reference,
+// type alias or a shim forwarding to a vendor global needs only these
+// declarations. See comp.h and backend.h.
+#include "comp.h"
 
 export module wwr.comp;
 
-#if defined(WWR_GPU_BACKEND_CUDA)
-import wwr.cuda.nvcomp;
-#else
-import wwr.hip.hipcomp;
-#endif
-
 export namespace wwr {
 
-// ========================================================================
-// Types
-// ========================================================================
-WWR_TYPE(wwrcompStatus_t, nvcompStatus_t, hipcompStatus_t)
-WWR_TYPE(wwrcompType_t, nvcompType_t, hipcompType_t)
-WWR_TYPE(wwrcompStream_t, cudaStream_t, hipStream_t)
-
-// ========================================================================
-// Status codes -- the six both backends define (nvCOMP 5.3 adds twelve more,
-// which have no hipCOMP 2.2 counterpart and are absent here). Values agree
-// across backends; the pins in test/gpu/comp.cppm keep it that way.
-// ========================================================================
-WWR_VALUE(WWRCOMP_SUCCESS, nvcompSuccess, hipcompSuccess)
-WWR_VALUE(WWRCOMP_ERROR_INVALID_VALUE, nvcompErrorInvalidValue, hipcompErrorInvalidValue)
-WWR_VALUE(WWRCOMP_ERROR_NOT_SUPPORTED, nvcompErrorNotSupported, hipcompErrorNotSupported)
-WWR_VALUE(WWRCOMP_ERROR_CANNOT_DECOMPRESS, nvcompErrorCannotDecompress, hipcompErrorCannotDecompress)
-WWR_VALUE(WWRCOMP_ERROR_CUDA_ERROR, nvcompErrorCudaError, hipcompErrorCudaError)
-WWR_VALUE(WWRCOMP_ERROR_INTERNAL, nvcompErrorInternal, hipcompErrorInternal)
-
-// ========================================================================
-// Data types -- the nine both backends define (nvCOMP adds FLOAT16 / FLOAT8,
-// absent from hipCOMP 2.2 and so absent here).
-// ========================================================================
-WWR_VALUE(WWRCOMP_TYPE_CHAR, NVCOMP_TYPE_CHAR, HIPCOMP_TYPE_CHAR)
-WWR_VALUE(WWRCOMP_TYPE_UCHAR, NVCOMP_TYPE_UCHAR, HIPCOMP_TYPE_UCHAR)
-WWR_VALUE(WWRCOMP_TYPE_SHORT, NVCOMP_TYPE_SHORT, HIPCOMP_TYPE_SHORT)
-WWR_VALUE(WWRCOMP_TYPE_USHORT, NVCOMP_TYPE_USHORT, HIPCOMP_TYPE_USHORT)
-WWR_VALUE(WWRCOMP_TYPE_INT, NVCOMP_TYPE_INT, HIPCOMP_TYPE_INT)
-WWR_VALUE(WWRCOMP_TYPE_UINT, NVCOMP_TYPE_UINT, HIPCOMP_TYPE_UINT)
-WWR_VALUE(WWRCOMP_TYPE_LONGLONG, NVCOMP_TYPE_LONGLONG, HIPCOMP_TYPE_LONGLONG)
-WWR_VALUE(WWRCOMP_TYPE_ULONGLONG, NVCOMP_TYPE_ULONGLONG, HIPCOMP_TYPE_ULONGLONG)
-WWR_VALUE(WWRCOMP_TYPE_BITS, NVCOMP_TYPE_BITS, HIPCOMP_TYPE_BITS)
-
-// ========================================================================
-// Neutral options -- only the fields both backends share.
-// ========================================================================
-struct wwrcompBatchedLZ4Opts {
-  wwrcompType_t data_type;
-};
-
-struct wwrcompBatchedSnappyOpts {};
-
-struct wwrcompBatchedCascadedOpts {
-  std::size_t chunk_size;
-  wwrcompType_t type;
-  int num_RLEs;
-  int num_deltas;
-  int use_bp;
-};
+// The whole neutral compression surface -- types, constants, neutral opts, the
+// backend option builders and the LZ4/Snappy/Cascaded batched forwarders -- lives
+// in detail/comp_names.h, the one list both host paths share: this module and
+// wwr/comp.h (the non-module #include path). The WWR_*_RAW macros from backend.h,
+// WWR_SELECTED_*, std::size_t and the vendor headers from comp.h's #include are
+// exactly what that fragment's header documents it needs in scope.
+#include "detail/comp_names.h"
 
 } // namespace wwr
-
-// ========================================================================
-// Backend option builders: neutral opts -> the selected backend's struct.
-// Overloaded on the neutral type so the forwarders can call one name.
-// ========================================================================
-namespace wwr::detail {
-
-#if defined(WWR_GPU_BACKEND_CUDA)
-inline ::wwr::cuda::nvcompBatchedLZ4CompressOpts_t backend_opts(wwr::wwrcompBatchedLZ4Opts o) {
-  ::wwr::cuda::nvcompBatchedLZ4CompressOpts_t r{};
-  r.data_type = o.data_type;
-  return r;
-}
-inline ::wwr::cuda::nvcompBatchedSnappyCompressOpts_t backend_opts(wwr::wwrcompBatchedSnappyOpts) {
-  return {};
-}
-inline ::wwr::cuda::nvcompBatchedCascadedCompressOpts_t backend_opts(wwr::wwrcompBatchedCascadedOpts o) {
-  ::wwr::cuda::nvcompBatchedCascadedCompressOpts_t r{};
-  r.internal_chunk_bytes = o.chunk_size;
-  r.type = o.type;
-  r.num_RLEs = o.num_RLEs;
-  r.num_deltas = o.num_deltas;
-  r.use_bp = o.use_bp;
-  return r;
-}
-#else
-inline ::wwr::hip::hipcompBatchedLZ4Opts_t backend_opts(wwr::wwrcompBatchedLZ4Opts o) {
-  return {o.data_type};
-}
-inline ::wwr::hip::hipcompBatchedSnappyOpts_t backend_opts(wwr::wwrcompBatchedSnappyOpts) {
-  return {};
-}
-inline ::wwr::hip::hipcompBatchedCascadedOpts_t backend_opts(wwr::wwrcompBatchedCascadedOpts o) {
-  return {o.chunk_size, o.type, o.num_RLEs, o.num_deltas, o.use_bp};
-}
-#endif
-
-} // namespace wwr::detail
-
-// ========================================================================
-// Batched LLIF forwarders. One neutral signature per call, modelled on the
-// hipCOMP 2.2 shape; the backend body reconciles the nvCOMP 5.3 skew (Async
-// temp-size, NULL compress statuses, defaulted decompress opts). The macro
-// generates the six-call surface identically for each algorithm; the only
-// per-algorithm variation -- opts type and vendor symbol stem -- are its
-// arguments. Defined per backend so each expansion is a single backend's body.
-// ========================================================================
-#if defined(WWR_GPU_BACKEND_CUDA)
-#define WWR_COMP_DEFINE(Algo, Opts)                                                                 \
-  export namespace wwr {                                                                            \
-  inline wwrcompStatus_t wwrcompBatched##Algo##CompressGetTempSize(                                 \
-      std::size_t batch_size, std::size_t max_uncompressed_chunk_bytes, Opts opts,                  \
-      std::size_t *temp_bytes) {                                                                    \
-    return ::wwr::cuda::nvcompBatched##Algo##CompressGetTempSizeAsync(                              \
-        batch_size, max_uncompressed_chunk_bytes, ::wwr::detail::backend_opts(opts), temp_bytes,   \
-        batch_size *max_uncompressed_chunk_bytes);                                                  \
-  }                                                                                                 \
-  inline wwrcompStatus_t wwrcompBatched##Algo##CompressGetMaxOutputChunkSize(                       \
-      std::size_t max_uncompressed_chunk_bytes, Opts opts, std::size_t *max_compressed_chunk_bytes) { \
-    return ::wwr::cuda::nvcompBatched##Algo##CompressGetMaxOutputChunkSize(                         \
-        max_uncompressed_chunk_bytes, ::wwr::detail::backend_opts(opts), max_compressed_chunk_bytes); \
-  }                                                                                                 \
-  inline wwrcompStatus_t wwrcompBatched##Algo##CompressAsync(                                       \
-      const void *const *device_uncompressed_chunk_ptrs,                                            \
-      const std::size_t *device_uncompressed_chunk_bytes,                                           \
-      std::size_t max_uncompressed_chunk_bytes, std::size_t batch_size, void *device_temp_ptr,      \
-      std::size_t temp_bytes, void *const *device_compressed_chunk_ptrs,                            \
-      std::size_t *device_compressed_chunk_bytes, Opts opts, wwrcompStream_t stream) {              \
-    return ::wwr::cuda::nvcompBatched##Algo##CompressAsync(                                         \
-        device_uncompressed_chunk_ptrs, device_uncompressed_chunk_bytes,                            \
-        max_uncompressed_chunk_bytes, batch_size, device_temp_ptr, temp_bytes,                      \
-        device_compressed_chunk_ptrs, device_compressed_chunk_bytes,                                \
-        ::wwr::detail::backend_opts(opts), nullptr, stream);                                        \
-  }                                                                                                 \
-  inline wwrcompStatus_t wwrcompBatched##Algo##DecompressGetTempSize(                               \
-      std::size_t num_chunks, std::size_t max_uncompressed_chunk_bytes, std::size_t *temp_bytes) {  \
-    return ::wwr::cuda::nvcompBatched##Algo##DecompressGetTempSizeAsync(                            \
-        num_chunks, max_uncompressed_chunk_bytes,                                                   \
-        ::wwr::cuda::nvcompBatched##Algo##DecompressOpts_t{}, temp_bytes,                           \
-        num_chunks *max_uncompressed_chunk_bytes);                                                  \
-  }                                                                                                 \
-  inline wwrcompStatus_t wwrcompBatched##Algo##GetDecompressSizeAsync(                              \
-      const void *const *device_compressed_chunk_ptrs,                                              \
-      const std::size_t *device_compressed_chunk_bytes,                                             \
-      std::size_t *device_uncompressed_chunk_bytes, std::size_t batch_size,                         \
-      wwrcompStream_t stream) {                                                                     \
-    return ::wwr::cuda::nvcompBatched##Algo##GetDecompressSizeAsync(                                \
-        device_compressed_chunk_ptrs, device_compressed_chunk_bytes,                                \
-        device_uncompressed_chunk_bytes, batch_size, stream);                                       \
-  }                                                                                                 \
-  inline wwrcompStatus_t wwrcompBatched##Algo##DecompressAsync(                                     \
-      const void *const *device_compressed_chunk_ptrs,                                              \
-      const std::size_t *device_compressed_chunk_bytes,                                             \
-      const std::size_t *device_uncompressed_buffer_bytes,                                          \
-      std::size_t *device_uncompressed_chunk_bytes, std::size_t num_chunks, void *device_temp_ptr,  \
-      std::size_t temp_bytes, void *const *device_uncompressed_chunk_ptrs,                          \
-      wwrcompStatus_t *device_statuses, wwrcompStream_t stream) {                                   \
-    return ::wwr::cuda::nvcompBatched##Algo##DecompressAsync(                                       \
-        device_compressed_chunk_ptrs, device_compressed_chunk_bytes,                                \
-        device_uncompressed_buffer_bytes, device_uncompressed_chunk_bytes, num_chunks,             \
-        device_temp_ptr, temp_bytes, device_uncompressed_chunk_ptrs,                                \
-        ::wwr::cuda::nvcompBatched##Algo##DecompressOpts_t{}, device_statuses, stream);             \
-  }                                                                                                 \
-  }
-#else
-#define WWR_COMP_DEFINE(Algo, Opts)                                                                 \
-  export namespace wwr {                                                                            \
-  inline wwrcompStatus_t wwrcompBatched##Algo##CompressGetTempSize(                                 \
-      std::size_t batch_size, std::size_t max_uncompressed_chunk_bytes, Opts opts,                  \
-      std::size_t *temp_bytes) {                                                                    \
-    return ::wwr::hip::hipcompBatched##Algo##CompressGetTempSize(                                   \
-        batch_size, max_uncompressed_chunk_bytes, ::wwr::detail::backend_opts(opts), temp_bytes);  \
-  }                                                                                                 \
-  inline wwrcompStatus_t wwrcompBatched##Algo##CompressGetMaxOutputChunkSize(                       \
-      std::size_t max_uncompressed_chunk_bytes, Opts opts, std::size_t *max_compressed_chunk_bytes) { \
-    return ::wwr::hip::hipcompBatched##Algo##CompressGetMaxOutputChunkSize(                         \
-        max_uncompressed_chunk_bytes, ::wwr::detail::backend_opts(opts), max_compressed_chunk_bytes); \
-  }                                                                                                 \
-  inline wwrcompStatus_t wwrcompBatched##Algo##CompressAsync(                                       \
-      const void *const *device_uncompressed_chunk_ptrs,                                            \
-      const std::size_t *device_uncompressed_chunk_bytes,                                           \
-      std::size_t max_uncompressed_chunk_bytes, std::size_t batch_size, void *device_temp_ptr,      \
-      std::size_t temp_bytes, void *const *device_compressed_chunk_ptrs,                            \
-      std::size_t *device_compressed_chunk_bytes, Opts opts, wwrcompStream_t stream) {              \
-    return ::wwr::hip::hipcompBatched##Algo##CompressAsync(                                         \
-        device_uncompressed_chunk_ptrs, device_uncompressed_chunk_bytes,                            \
-        max_uncompressed_chunk_bytes, batch_size, device_temp_ptr, temp_bytes,                      \
-        device_compressed_chunk_ptrs, device_compressed_chunk_bytes,                                \
-        ::wwr::detail::backend_opts(opts), stream);                                                 \
-  }                                                                                                 \
-  inline wwrcompStatus_t wwrcompBatched##Algo##DecompressGetTempSize(                               \
-      std::size_t num_chunks, std::size_t max_uncompressed_chunk_bytes, std::size_t *temp_bytes) {  \
-    return ::wwr::hip::hipcompBatched##Algo##DecompressGetTempSize(                                 \
-        num_chunks, max_uncompressed_chunk_bytes, temp_bytes);                                      \
-  }                                                                                                 \
-  inline wwrcompStatus_t wwrcompBatched##Algo##GetDecompressSizeAsync(                              \
-      const void *const *device_compressed_chunk_ptrs,                                              \
-      const std::size_t *device_compressed_chunk_bytes,                                             \
-      std::size_t *device_uncompressed_chunk_bytes, std::size_t batch_size,                         \
-      wwrcompStream_t stream) {                                                                     \
-    return ::wwr::hip::hipcompBatched##Algo##GetDecompressSizeAsync(                                \
-        device_compressed_chunk_ptrs, device_compressed_chunk_bytes,                                \
-        device_uncompressed_chunk_bytes, batch_size, stream);                                       \
-  }                                                                                                 \
-  inline wwrcompStatus_t wwrcompBatched##Algo##DecompressAsync(                                     \
-      const void *const *device_compressed_chunk_ptrs,                                              \
-      const std::size_t *device_compressed_chunk_bytes,                                             \
-      const std::size_t *device_uncompressed_buffer_bytes,                                          \
-      std::size_t *device_uncompressed_chunk_bytes, std::size_t num_chunks, void *device_temp_ptr,  \
-      std::size_t temp_bytes, void *const *device_uncompressed_chunk_ptrs,                          \
-      wwrcompStatus_t *device_statuses, wwrcompStream_t stream) {                                   \
-    return ::wwr::hip::hipcompBatched##Algo##DecompressAsync(                                       \
-        device_compressed_chunk_ptrs, device_compressed_chunk_bytes,                                \
-        device_uncompressed_buffer_bytes, device_uncompressed_chunk_bytes, num_chunks,             \
-        device_temp_ptr, temp_bytes, device_uncompressed_chunk_ptrs, device_statuses, stream);      \
-  }                                                                                                 \
-  }
-#endif
-
-WWR_COMP_DEFINE(LZ4, wwrcompBatchedLZ4Opts)
-WWR_COMP_DEFINE(Snappy, wwrcompBatchedSnappyOpts)
-WWR_COMP_DEFINE(Cascaded, wwrcompBatchedCascadedOpts)
-
-#undef WWR_COMP_DEFINE
