@@ -242,6 +242,62 @@ target_include_directories(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.solver_host)
 
+wwr_add_test_executable(
+  NAME
+  wwr.test.gpu.blaslt_host
+  MAIN
+  blaslt_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::blaslt::host
+)
+target_include_directories(
+  wwr.test.gpu.blaslt_host PRIVATE ${PROJECT_SOURCE_DIR}
+)
+add_dependencies(compile_time_tests wwr.test.gpu.blaslt_host)
+
+wwr_add_test_executable(
+  NAME
+  wwr.test.gpu.rtc_host
+  MAIN
+  rtc_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::rtc::host
+)
+target_include_directories(wwr.test.gpu.rtc_host PRIVATE ${PROJECT_SOURCE_DIR})
+add_dependencies(compile_time_tests wwr.test.gpu.rtc_host)
+
+wwr_add_test_executable(
+  NAME
+  wwr.test.gpu.fft_host
+  MAIN
+  fft_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::fft::host
+)
+target_include_directories(wwr.test.gpu.fft_host PRIVATE ${PROJECT_SOURCE_DIR})
+add_dependencies(compile_time_tests wwr.test.gpu.fft_host)
+
+wwr_add_test_executable(
+  NAME
+  wwr.test.gpu.sparse_host
+  MAIN
+  sparse_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::sparse::host
+)
+target_include_directories(
+  wwr.test.gpu.sparse_host PRIVATE ${PROJECT_SOURCE_DIR}
+)
+add_dependencies(compile_time_tests wwr.test.gpu.sparse_host)
+
 # tensor is the one wwr* compile-time test kept OUT of the shared, RUN
 # gpu_compile_tests binary above: on HIP, libhiptensor.so runs a device probe in
 # a global constructor that aborts at process startup on any host without a

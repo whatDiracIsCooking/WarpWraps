@@ -32,6 +32,17 @@
  *   enums; hipBLASLt's hipblasLtGetArchName / hipblasLtGetGitRevision and its
  *   *_EXT epilogue and descriptor attributes.
  *
+ * The wwrblasLt* surface itself is NOT restated here: it is the one fragment the
+ * two host paths share, detail/blaslt_names.h, pasted below inside the exported
+ * `namespace wwr` exactly as wwr/blaslt.h (the non-module #include path) pastes
+ * it. Add a name there, once, and both paths gain it. The vendor header is drawn
+ * from blaslt.h, the single vendor-include point (the "rand.h shape"): this
+ * module binds wwr* references straight to the `::cublasLt*` / `::hipblasLt*`
+ * declarations with the _RAW macros and imports no raw vendor module -- the host
+ * API is a real external-linkage library, so a reference needs only the
+ * declaration. No import is needed for the surface: it has no hand-written body,
+ * only type / constant / function aliases.
+ *
  * Usage:
  *   import wwr.blaslt;
  *
@@ -43,262 +54,23 @@ module;
 
 #include "backend.h"
 
-export module wwr.blaslt;
+// The single vendor-include point for the blaslt layer: cublasLt.h /
+// hipblaslt/hipblaslt.h, whose `::cublasLt*` / `::hipblasLt*` declarations (and
+// the cublasStatus_t / cublasComputeType_t the two inherited-type renames name)
+// the _RAW bindings in detail/blaslt_names.h resolve against. No raw vendor
+// module is imported -- the host API is external-linkage, so a reference or type
+// alias needs only these declarations. See blaslt.h and backend.h.
+#include "blaslt.h"
 
-#if defined(WWR_GPU_BACKEND_CUDA)
-import wwr.cuda.cublasLt;
-#else
-import wwr.hip.hipblaslt;
-#endif
+export module wwr.blaslt;
 
 export namespace wwr {
 
-// ========================================================================
-// Types
-// ========================================================================
-
-WWR_TYPE(wwrblasLtStatus_t, cublasStatus_t, hipblasStatus_t)
-WWR_TYPE(wwrblasLtComputeType_t, cublasComputeType_t, hipblasComputeType_t)
-
-WWR_TYPE(wwrblasLtHandle_t, cublasLtHandle_t, hipblasLtHandle_t)
-
-WWR_TYPE(wwrblasLtMatmulDesc_t, cublasLtMatmulDesc_t, hipblasLtMatmulDesc_t)
-WWR_TYPE(wwrblasLtMatmulDescOpaque_t, cublasLtMatmulDescOpaque_t, hipblasLtMatmulDescOpaque_t)
-WWR_TYPE(wwrblasLtMatmulDescAttributes_t, cublasLtMatmulDescAttributes_t,
-            hipblasLtMatmulDescAttributes_t)
-
-WWR_TYPE(wwrblasLtMatrixLayout_t, cublasLtMatrixLayout_t, hipblasLtMatrixLayout_t)
-WWR_TYPE(wwrblasLtMatrixLayoutOpaque_t, cublasLtMatrixLayoutOpaque_t,
-            hipblasLtMatrixLayoutOpaque_t)
-WWR_TYPE(wwrblasLtMatrixLayoutAttribute_t, cublasLtMatrixLayoutAttribute_t,
-            hipblasLtMatrixLayoutAttribute_t)
-
-WWR_TYPE(wwrblasLtMatmulPreference_t, cublasLtMatmulPreference_t, hipblasLtMatmulPreference_t)
-WWR_TYPE(wwrblasLtMatmulPreferenceOpaque_t, cublasLtMatmulPreferenceOpaque_t,
-            hipblasLtMatmulPreferenceOpaque_t)
-WWR_TYPE(wwrblasLtMatmulPreferenceAttributes_t, cublasLtMatmulPreferenceAttributes_t,
-            hipblasLtMatmulPreferenceAttributes_t)
-
-WWR_TYPE(wwrblasLtMatmulAlgo_t, cublasLtMatmulAlgo_t, hipblasLtMatmulAlgo_t)
-WWR_TYPE(wwrblasLtMatmulHeuristicResult_t, cublasLtMatmulHeuristicResult_t,
-            hipblasLtMatmulHeuristicResult_t)
-
-WWR_TYPE(wwrblasLtMatrixTransformDesc_t, cublasLtMatrixTransformDesc_t,
-            hipblasLtMatrixTransformDesc_t)
-WWR_TYPE(wwrblasLtMatrixTransformDescOpaque_t, cublasLtMatrixTransformDescOpaque_t,
-            hipblasLtMatrixTransformDescOpaque_t)
-WWR_TYPE(wwrblasLtMatrixTransformDescAttributes_t, cublasLtMatrixTransformDescAttributes_t,
-            hipblasLtMatrixTransformDescAttributes_t)
-
-WWR_TYPE(wwrblasLtEpilogue_t, cublasLtEpilogue_t, hipblasLtEpilogue_t)
-WWR_TYPE(wwrblasLtMatmulMatrixScale_t, cublasLtMatmulMatrixScale_t, hipblasLtMatmulMatrixScale_t)
-WWR_TYPE(wwrblasLtOrder_t, cublasLtOrder_t, hipblasLtOrder_t)
-WWR_TYPE(wwrblasLtPointerMode_t, cublasLtPointerMode_t, hipblasLtPointerMode_t)
-
-// ========================================================================
-// Constants: cublasLtEpilogue_t
-// ========================================================================
-
-WWR_VALUE(WWRBLASLT_EPILOGUE_DEFAULT, CUBLASLT_EPILOGUE_DEFAULT, HIPBLASLT_EPILOGUE_DEFAULT)
-WWR_VALUE(WWRBLASLT_EPILOGUE_RELU, CUBLASLT_EPILOGUE_RELU, HIPBLASLT_EPILOGUE_RELU)
-WWR_VALUE(WWRBLASLT_EPILOGUE_RELU_AUX, CUBLASLT_EPILOGUE_RELU_AUX, HIPBLASLT_EPILOGUE_RELU_AUX)
-WWR_VALUE(WWRBLASLT_EPILOGUE_BIAS, CUBLASLT_EPILOGUE_BIAS, HIPBLASLT_EPILOGUE_BIAS)
-WWR_VALUE(WWRBLASLT_EPILOGUE_RELU_BIAS, CUBLASLT_EPILOGUE_RELU_BIAS, HIPBLASLT_EPILOGUE_RELU_BIAS)
-WWR_VALUE(WWRBLASLT_EPILOGUE_RELU_AUX_BIAS, CUBLASLT_EPILOGUE_RELU_AUX_BIAS,
-             HIPBLASLT_EPILOGUE_RELU_AUX_BIAS)
-WWR_VALUE(WWRBLASLT_EPILOGUE_DGELU, CUBLASLT_EPILOGUE_DGELU, HIPBLASLT_EPILOGUE_DGELU)
-WWR_VALUE(WWRBLASLT_EPILOGUE_DGELU_BGRAD, CUBLASLT_EPILOGUE_DGELU_BGRAD,
-             HIPBLASLT_EPILOGUE_DGELU_BGRAD)
-WWR_VALUE(WWRBLASLT_EPILOGUE_GELU, CUBLASLT_EPILOGUE_GELU, HIPBLASLT_EPILOGUE_GELU)
-WWR_VALUE(WWRBLASLT_EPILOGUE_GELU_AUX, CUBLASLT_EPILOGUE_GELU_AUX, HIPBLASLT_EPILOGUE_GELU_AUX)
-WWR_VALUE(WWRBLASLT_EPILOGUE_GELU_BIAS, CUBLASLT_EPILOGUE_GELU_BIAS, HIPBLASLT_EPILOGUE_GELU_BIAS)
-WWR_VALUE(WWRBLASLT_EPILOGUE_GELU_AUX_BIAS, CUBLASLT_EPILOGUE_GELU_AUX_BIAS,
-             HIPBLASLT_EPILOGUE_GELU_AUX_BIAS)
-WWR_VALUE(WWRBLASLT_EPILOGUE_BGRADA, CUBLASLT_EPILOGUE_BGRADA, HIPBLASLT_EPILOGUE_BGRADA)
-WWR_VALUE(WWRBLASLT_EPILOGUE_BGRADB, CUBLASLT_EPILOGUE_BGRADB, HIPBLASLT_EPILOGUE_BGRADB)
-
-// ========================================================================
-// Constants: cublasLtMatmulDescAttributes_t
-// ========================================================================
-
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_TRANSA, CUBLASLT_MATMUL_DESC_TRANSA, HIPBLASLT_MATMUL_DESC_TRANSA)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_TRANSB, CUBLASLT_MATMUL_DESC_TRANSB, HIPBLASLT_MATMUL_DESC_TRANSB)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_EPILOGUE, CUBLASLT_MATMUL_DESC_EPILOGUE,
-             HIPBLASLT_MATMUL_DESC_EPILOGUE)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_BIAS_POINTER, CUBLASLT_MATMUL_DESC_BIAS_POINTER,
-             HIPBLASLT_MATMUL_DESC_BIAS_POINTER)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_BIAS_DATA_TYPE, CUBLASLT_MATMUL_DESC_BIAS_DATA_TYPE,
-             HIPBLASLT_MATMUL_DESC_BIAS_DATA_TYPE)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_A_SCALE_POINTER, CUBLASLT_MATMUL_DESC_A_SCALE_POINTER,
-             HIPBLASLT_MATMUL_DESC_A_SCALE_POINTER)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_B_SCALE_POINTER, CUBLASLT_MATMUL_DESC_B_SCALE_POINTER,
-             HIPBLASLT_MATMUL_DESC_B_SCALE_POINTER)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_C_SCALE_POINTER, CUBLASLT_MATMUL_DESC_C_SCALE_POINTER,
-             HIPBLASLT_MATMUL_DESC_C_SCALE_POINTER)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_D_SCALE_POINTER, CUBLASLT_MATMUL_DESC_D_SCALE_POINTER,
-             HIPBLASLT_MATMUL_DESC_D_SCALE_POINTER)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_A_SCALE_MODE, CUBLASLT_MATMUL_DESC_A_SCALE_MODE,
-             HIPBLASLT_MATMUL_DESC_A_SCALE_MODE)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_B_SCALE_MODE, CUBLASLT_MATMUL_DESC_B_SCALE_MODE,
-             HIPBLASLT_MATMUL_DESC_B_SCALE_MODE)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_AMAX_D_POINTER, CUBLASLT_MATMUL_DESC_AMAX_D_POINTER,
-             HIPBLASLT_MATMUL_DESC_AMAX_D_POINTER)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_POINTER_MODE, CUBLASLT_MATMUL_DESC_POINTER_MODE,
-             HIPBLASLT_MATMUL_DESC_POINTER_MODE)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_EPILOGUE_AUX_POINTER, CUBLASLT_MATMUL_DESC_EPILOGUE_AUX_POINTER,
-             HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_POINTER)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_EPILOGUE_AUX_LD, CUBLASLT_MATMUL_DESC_EPILOGUE_AUX_LD,
-             HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_LD)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_EPILOGUE_AUX_BATCH_STRIDE,
-             CUBLASLT_MATMUL_DESC_EPILOGUE_AUX_BATCH_STRIDE,
-             HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_BATCH_STRIDE)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_EPILOGUE_AUX_DATA_TYPE,
-             CUBLASLT_MATMUL_DESC_EPILOGUE_AUX_DATA_TYPE,
-             HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_DATA_TYPE)
-WWR_VALUE(WWRBLASLT_MATMUL_DESC_EPILOGUE_AUX_SCALE_POINTER,
-             CUBLASLT_MATMUL_DESC_EPILOGUE_AUX_SCALE_POINTER,
-             HIPBLASLT_MATMUL_DESC_EPILOGUE_AUX_SCALE_POINTER)
-
-// ========================================================================
-// Constants: cublasLtMatmulMatrixScale_t
-// ========================================================================
-
-WWR_VALUE(WWRBLASLT_MATMUL_MATRIX_SCALE_SCALAR_32F, CUBLASLT_MATMUL_MATRIX_SCALE_SCALAR_32F,
-             HIPBLASLT_MATMUL_MATRIX_SCALE_SCALAR_32F)
-WWR_VALUE(WWRBLASLT_MATMUL_MATRIX_SCALE_VEC16_UE4M3, CUBLASLT_MATMUL_MATRIX_SCALE_VEC16_UE4M3,
-             HIPBLASLT_MATMUL_MATRIX_SCALE_VEC16_UE4M3)
-WWR_VALUE(WWRBLASLT_MATMUL_MATRIX_SCALE_VEC32_UE8M0, CUBLASLT_MATMUL_MATRIX_SCALE_VEC32_UE8M0,
-             HIPBLASLT_MATMUL_MATRIX_SCALE_VEC32_UE8M0)
-WWR_VALUE(WWRBLASLT_MATMUL_MATRIX_SCALE_VEC128_32F, CUBLASLT_MATMUL_MATRIX_SCALE_VEC128_32F,
-             HIPBLASLT_MATMUL_MATRIX_SCALE_VEC128_32F)
-WWR_VALUE(WWRBLASLT_MATMUL_MATRIX_SCALE_BLK128x128_32F,
-             CUBLASLT_MATMUL_MATRIX_SCALE_BLK128x128_32F,
-             HIPBLASLT_MATMUL_MATRIX_SCALE_BLK128x128_32F)
-WWR_VALUE(WWRBLASLT_MATMUL_MATRIX_SCALE_OUTER_VEC_32F, CUBLASLT_MATMUL_MATRIX_SCALE_OUTER_VEC_32F,
-             HIPBLASLT_MATMUL_MATRIX_SCALE_OUTER_VEC_32F)
-WWR_VALUE(WWRBLASLT_MATMUL_MATRIX_SCALE_END, CUBLASLT_MATMUL_MATRIX_SCALE_END,
-             HIPBLASLT_MATMUL_MATRIX_SCALE_END)
-
-// ========================================================================
-// Constants: cublasLtMatmulPreferenceAttributes_t
-// ========================================================================
-
-WWR_VALUE(WWRBLASLT_MATMUL_PREF_SEARCH_MODE, CUBLASLT_MATMUL_PREF_SEARCH_MODE,
-             HIPBLASLT_MATMUL_PREF_SEARCH_MODE)
-WWR_VALUE(WWRBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES, CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
-             HIPBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES)
-
-// ========================================================================
-// Constants: cublasLtMatrixLayoutAttribute_t
-// ========================================================================
-
-WWR_VALUE(WWRBLASLT_MATRIX_LAYOUT_TYPE, CUBLASLT_MATRIX_LAYOUT_TYPE, HIPBLASLT_MATRIX_LAYOUT_TYPE)
-WWR_VALUE(WWRBLASLT_MATRIX_LAYOUT_ORDER, CUBLASLT_MATRIX_LAYOUT_ORDER,
-             HIPBLASLT_MATRIX_LAYOUT_ORDER)
-WWR_VALUE(WWRBLASLT_MATRIX_LAYOUT_ROWS, CUBLASLT_MATRIX_LAYOUT_ROWS, HIPBLASLT_MATRIX_LAYOUT_ROWS)
-WWR_VALUE(WWRBLASLT_MATRIX_LAYOUT_COLS, CUBLASLT_MATRIX_LAYOUT_COLS, HIPBLASLT_MATRIX_LAYOUT_COLS)
-WWR_VALUE(WWRBLASLT_MATRIX_LAYOUT_LD, CUBLASLT_MATRIX_LAYOUT_LD, HIPBLASLT_MATRIX_LAYOUT_LD)
-WWR_VALUE(WWRBLASLT_MATRIX_LAYOUT_BATCH_COUNT, CUBLASLT_MATRIX_LAYOUT_BATCH_COUNT,
-             HIPBLASLT_MATRIX_LAYOUT_BATCH_COUNT)
-WWR_VALUE(WWRBLASLT_MATRIX_LAYOUT_STRIDED_BATCH_OFFSET,
-             CUBLASLT_MATRIX_LAYOUT_STRIDED_BATCH_OFFSET,
-             HIPBLASLT_MATRIX_LAYOUT_STRIDED_BATCH_OFFSET)
-
-// ========================================================================
-// Constants: cublasLtMatrixTransformDescAttributes_t
-// ========================================================================
-
-WWR_VALUE(WWRBLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE, CUBLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE,
-             HIPBLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE)
-WWR_VALUE(WWRBLASLT_MATRIX_TRANSFORM_DESC_POINTER_MODE,
-             CUBLASLT_MATRIX_TRANSFORM_DESC_POINTER_MODE,
-             HIPBLASLT_MATRIX_TRANSFORM_DESC_POINTER_MODE)
-WWR_VALUE(WWRBLASLT_MATRIX_TRANSFORM_DESC_TRANSA, CUBLASLT_MATRIX_TRANSFORM_DESC_TRANSA,
-             HIPBLASLT_MATRIX_TRANSFORM_DESC_TRANSA)
-WWR_VALUE(WWRBLASLT_MATRIX_TRANSFORM_DESC_TRANSB, CUBLASLT_MATRIX_TRANSFORM_DESC_TRANSB,
-             HIPBLASLT_MATRIX_TRANSFORM_DESC_TRANSB)
-
-// ========================================================================
-// Constants: cublasLtOrder_t
-// ========================================================================
-
-WWR_VALUE(WWRBLASLT_ORDER_COL, CUBLASLT_ORDER_COL, HIPBLASLT_ORDER_COL)
-WWR_VALUE(WWRBLASLT_ORDER_ROW, CUBLASLT_ORDER_ROW, HIPBLASLT_ORDER_ROW)
-
-// ========================================================================
-// Constants: cublasLtPointerMode_t
-// ========================================================================
-
-WWR_VALUE(WWRBLASLT_POINTER_MODE_HOST, CUBLASLT_POINTER_MODE_HOST, HIPBLASLT_POINTER_MODE_HOST)
-WWR_VALUE(WWRBLASLT_POINTER_MODE_DEVICE, CUBLASLT_POINTER_MODE_DEVICE,
-             HIPBLASLT_POINTER_MODE_DEVICE)
-WWR_VALUE(WWRBLASLT_POINTER_MODE_ALPHA_DEVICE_VECTOR_BETA_HOST,
-             CUBLASLT_POINTER_MODE_ALPHA_DEVICE_VECTOR_BETA_HOST,
-             HIPBLASLT_POINTER_MODE_ALPHA_DEVICE_VECTOR_BETA_HOST)
-
-// ========================================================================
-// Handle management
-// ========================================================================
-
-WWR_FUNCTION(wwrblasLtCreate, cublasLtCreate, hipblasLtCreate)
-WWR_FUNCTION(wwrblasLtDestroy, cublasLtDestroy, hipblasLtDestroy)
-
-// ========================================================================
-// Matmul descriptor
-// ========================================================================
-
-WWR_FUNCTION(wwrblasLtMatmulDescCreate, cublasLtMatmulDescCreate, hipblasLtMatmulDescCreate)
-WWR_FUNCTION(wwrblasLtMatmulDescDestroy, cublasLtMatmulDescDestroy, hipblasLtMatmulDescDestroy)
-WWR_FUNCTION(wwrblasLtMatmulDescSetAttribute, cublasLtMatmulDescSetAttribute,
-                hipblasLtMatmulDescSetAttribute)
-WWR_FUNCTION(wwrblasLtMatmulDescGetAttribute, cublasLtMatmulDescGetAttribute,
-                hipblasLtMatmulDescGetAttribute)
-
-// ========================================================================
-// Matrix layout descriptor
-// ========================================================================
-
-WWR_FUNCTION(wwrblasLtMatrixLayoutCreate, cublasLtMatrixLayoutCreate, hipblasLtMatrixLayoutCreate)
-WWR_FUNCTION(wwrblasLtMatrixLayoutDestroy, cublasLtMatrixLayoutDestroy,
-                hipblasLtMatrixLayoutDestroy)
-WWR_FUNCTION(wwrblasLtMatrixLayoutSetAttribute, cublasLtMatrixLayoutSetAttribute,
-                hipblasLtMatrixLayoutSetAttribute)
-WWR_FUNCTION(wwrblasLtMatrixLayoutGetAttribute, cublasLtMatrixLayoutGetAttribute,
-                hipblasLtMatrixLayoutGetAttribute)
-
-// ========================================================================
-// Matmul preference descriptor
-// ========================================================================
-
-WWR_FUNCTION(wwrblasLtMatmulPreferenceCreate, cublasLtMatmulPreferenceCreate,
-                hipblasLtMatmulPreferenceCreate)
-WWR_FUNCTION(wwrblasLtMatmulPreferenceDestroy, cublasLtMatmulPreferenceDestroy,
-                hipblasLtMatmulPreferenceDestroy)
-WWR_FUNCTION(wwrblasLtMatmulPreferenceSetAttribute, cublasLtMatmulPreferenceSetAttribute,
-                hipblasLtMatmulPreferenceSetAttribute)
-WWR_FUNCTION(wwrblasLtMatmulPreferenceGetAttribute, cublasLtMatmulPreferenceGetAttribute,
-                hipblasLtMatmulPreferenceGetAttribute)
-
-// ========================================================================
-// Heuristic search and matmul execution
-// ========================================================================
-
-WWR_FUNCTION(wwrblasLtMatmulAlgoGetHeuristic, cublasLtMatmulAlgoGetHeuristic,
-                hipblasLtMatmulAlgoGetHeuristic)
-WWR_FUNCTION(wwrblasLtMatmul, cublasLtMatmul, hipblasLtMatmul)
-
-// ========================================================================
-// Matrix transform descriptor and execution
-// ========================================================================
-
-WWR_FUNCTION(wwrblasLtMatrixTransformDescCreate, cublasLtMatrixTransformDescCreate,
-                hipblasLtMatrixTransformDescCreate)
-WWR_FUNCTION(wwrblasLtMatrixTransformDescDestroy, cublasLtMatrixTransformDescDestroy,
-                hipblasLtMatrixTransformDescDestroy)
-WWR_FUNCTION(wwrblasLtMatrixTransformDescSetAttribute, cublasLtMatrixTransformDescSetAttribute,
-                hipblasLtMatrixTransformDescSetAttribute)
-WWR_FUNCTION(wwrblasLtMatrixTransformDescGetAttribute, cublasLtMatrixTransformDescGetAttribute,
-                hipblasLtMatrixTransformDescGetAttribute)
-WWR_FUNCTION(wwrblasLtMatrixTransform, cublasLtMatrixTransform, hipblasLtMatrixTransform)
+// The whole neutral "Lt" GEMM surface -- types, constants and functions -- lives
+// in detail/blaslt_names.h, the one list both host paths share: this module and
+// wwr/blaslt.h (the non-module #include path). The WWR_*_RAW macros from
+// backend.h and the vendor header from blaslt.h's #include are exactly what that
+// fragment's header documents it needs in scope.
+#include "detail/blaslt_names.h"
 
 } // namespace wwr
