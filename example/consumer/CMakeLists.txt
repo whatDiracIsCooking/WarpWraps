@@ -47,17 +47,17 @@ message(STATUS "wwr warp size: ${WWR_WARP_SIZE}")
 # runtime_host_check.cpp consumes the SAME surface the non-module way, by
 # `#include "wwr/runtime_api.h"` (see that file's header for why the two must
 # be separate TUs). host_headers_check.cpp does the same for the fp16 / bf16 /
-# rand / blas / solver / blaslt / rtc / fft surfaces. wwr::runtime_api::host /
-# wwr::fp16::host / wwr::bf16::host / wwr::rand::host / wwr::blas::host /
-# wwr::solver::host / wwr::blaslt::host / wwr::rtc::host / wwr::fft::host are
-# the header-only targets those paths need -- core interface libraries, in
-# every install.
+# rand / blas / solver / blaslt / rtc / fft / sparse surfaces.
+# wwr::runtime_api::host / wwr::fp16::host / wwr::bf16::host / wwr::rand::host /
+# wwr::blas::host / wwr::solver::host / wwr::blaslt::host / wwr::rtc::host /
+# wwr::fft::host / wwr::sparse::host are the header-only targets those paths
+# need -- core interface libraries, in every install.
 add_executable(consumer main.cpp runtime_host_check.cpp host_headers_check.cpp)
 target_link_libraries(
   consumer
   PRIVATE wwr::runtime_api::host wwr::fp16::host wwr::bf16::host wwr::rand::host
           wwr::blas::host wwr::solver::host wwr::blaslt::host wwr::rtc::host
-          wwr::fft::host
+          wwr::fft::host wwr::sparse::host
 )
 
 # The nested :: spellings are the exported names -- the SAME names wwr's own

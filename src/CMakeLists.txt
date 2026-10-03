@@ -130,7 +130,12 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   # stays for the CUDA-only modern eigen/SVD extras). CUDA::cusolver also
   # carries the toolkit include (library_types.h too).
   set(_backend_solver CUDA::cusolver)
-  set(_raw_sparse wwr::cuda::cusparse)
+  # sparse is the "rand.h shape" too (see _backend_blas): it binds the vendor
+  # library's declarations directly (sparse.h + _RAW), importing no raw module
+  # -- so it links the vendor cuSPARSE library, not wwr::cuda::cusparse (which
+  # stays for the modern generic API and the single-vendor extras).
+  # CUDA::cusparse also carries the toolkit include.
+  set(_backend_sparse CUDA::cusparse)
   # fft is the "rand.h shape" too (see _backend_blas): it binds the vendor
   # library's declarations directly (fft.h + _RAW), importing no raw module --
   # so it links the vendor cuFFT library, not wwr::cuda::cufft (which stays for
@@ -159,7 +164,8 @@ else()
   set(_backend_blaslt roc::hipblaslt hip::host)
   # See the CUDA branch: solver links the vendor hipSOLVER library directly.
   set(_backend_solver roc::hipsolver)
-  set(_raw_sparse wwr::hip::hipsparse)
+  # See the CUDA branch: sparse links the vendor hipSPARSE library directly.
+  set(_backend_sparse roc::hipsparse)
   # See the CUDA branch: fft links the vendor hipFFT library directly.
   # hipFFT's config exports the imported target as hip::hipfft (not roc::),
   # unlike hipBLAS/hipSOLVER -- same target the raw wwr.hip.hipfft module links.
@@ -426,12 +432,28 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   sparse.cppm
   LINK_PUBLIC
-  ${_raw_sparse}
+  ${_backend_sparse}
   wwr::complex
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
 )
+
+# The non-module HOST consumption path for the sparse surface -- `#include
+# "wwr/sparse.h"` instead of import. Header-only counterpart to wwr.sparse's
+# usage requirements: wwr::backend for the WWR_GPU_BACKEND_* define and the src/
+# include root (sparse.h / detail/sparse_names.h / complex.h all resolve
+# root-relative), and ${_backend_sparse} for the vendor header and library plus
+# the toolkit include that carries cuComplex.h / hip_complex.h (which complex.h
+# pulls in for the *_bufferSize shims' complex types). Like wwr.blas.host it
+# names complex types, but NOT wwr::complex: this path #includes complex.h, the
+# header, not the module -- linking the module would drag module machinery
+# into a header-only consumer. Compiles no module unit; it joins the export
+# set like wwr.runtime_api.host, and src/wwr/ installs under include/wwr/.
+add_library(wwr.sparse.host INTERFACE)
+target_link_libraries(wwr.sparse.host INTERFACE wwr::backend ${_backend_sparse})
+# In-tree :: alias; exported as wwr::sparse::host by _wwr_export_name's rule.
+add_library(wwr::sparse::host ALIAS wwr.sparse.host)
 
 wwr_add_cxx_module_library(
   NAME
