@@ -29,7 +29,7 @@ against `wwr*` names and builds unchanged for either backend.
 | `wwr.fp8` | `wwr.cuda.cuda_fp8` | `wwr.hip.hip_fp8` |
 | `wwr.vector_types` | `vector_functions.h` via `vector_types.h` (no import) | `hip/hip_vector_types.h` via `vector_types.h` (no import) |
 | `wwr.blas` | `cublas_v2.h` via `blas.h` (no import) | `hipblas/hipblas.h` via `blas.h` (no import) |
-| `wwr.blaslt` | `wwr.cuda.cublasLt` | `wwr.hip.hipblaslt` |
+| `wwr.blaslt` | `cublasLt.h` via `blaslt.h` (no import) | `hipblaslt/hipblaslt.h` via `blaslt.h` (no import) |
 | `wwr.solver` | `cusolverDn.h` via `solver.h` (no import) | `hipsolver.h` via `solver.h` (no import) |
 | `wwr.sparse` | `wwr.cuda.cusparse` | `wwr.hip.hipsparse` |
 | `wwr.fft` | `wwr.cuda.cufft` | `wwr.hip.hipfft` |
@@ -102,8 +102,14 @@ order / pointer-mode / matrix-scale enums. The surface is exactly what
 vendor/rocm-7.2.4/hipblaslt.json` reports the two backends share by name; cuBLASLt's much larger private surface (algo
 introspection, logger, tile/stages enums) and hipBLASLt's own additions are
 reached through the raw modules. `wwrblasLtGetVersion` is left out (shared name,
-irreconcilable signatures); status success codes live in `wwr.blas`. See the
-file header.
+irreconcilable signatures); status success codes live in `wwr.blas`. Like
+`gpu.blas` it is the "rand.h shape": the surface lives in the shared fragment
+`detail/blaslt_names.h`, bound straight to the vendor header's `::cublasLt*` /
+`::hipblasLt*` declarations (from `blaslt.h`) with the `_RAW` macros and imported
+by no raw vendor module, so the one list serves both `blaslt.cppm` and the
+non-module `#include` path `wwr/blaslt.h`. The raw module `wwr.cuda.cublasLt` /
+`wwr.hip.hipblaslt` stays for the much larger private surface, off this path. See
+the file header.
 
 `gpu.solver` covers cuSOLVER Dense / hipSOLVER Dense. It has every legacy
 (int-based) function, since the two backends match 1:1 there, but only the 8
