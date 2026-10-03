@@ -31,7 +31,7 @@ against `wwr*` names and builds unchanged for either backend.
 | `wwr.blas` | `cublas_v2.h` via `blas.h` (no import) | `hipblas/hipblas.h` via `blas.h` (no import) |
 | `wwr.blaslt` | `wwr.cuda.cublasLt` | `wwr.hip.hipblaslt` |
 | `wwr.solver` | `cusolverDn.h` via `solver.h` (no import) | `hipsolver.h` via `solver.h` (no import) |
-| `wwr.sparse` | `wwr.cuda.cusparse` | `wwr.hip.hipsparse` |
+| `wwr.sparse` | `cusparse.h` via `sparse.h` (no import) | `hipsparse/hipsparse.h` via `sparse.h` (no import) |
 | `wwr.fft` | `wwr.cuda.cufft` | `wwr.hip.hipfft` |
 | `wwr.rand` | `curand.h` / `curand_kernel.h` via `rand.h` (no import) | `hiprand.h` / `hiprand_kernel.h` via `rand.h` (no import) |
 | `wwr.ccl` | `wwr.cuda.nccl` | `wwr.hip.rccl` |
@@ -134,10 +134,26 @@ through `wwr.cuda.cusparse` / `wwr.hip.hipsparse`. One spot does more than
 rename: cuSPARSE spells the byte count of `gebsr2gebsc_bufferSize` /
 `csr2gebsr_bufferSize` as `int*` where hipSPARSE spells it `size_t*`, so these
 keep hipSPARSE's `size_t*` signature on both backends, forwarding through an
-`int` on CUDA (the mirror of `gpu.blas`'s `getrsBatched` shims). cuSPARSE-only
-functions (the Preview `SpMMOp` API, `CreateSlicedEll`) and the legacy typed
-functions cuSPARSE removed but hipSPARSE keeps (`csrmv`, `csrsv2`, `csrmm`,
-`csrsm2`, `csric02`, `csrilu02`, `gemvi`, the HYB path, ...) are left out.
+`int` on CUDA (the mirror of `gpu.blas`'s `getrsBatched` shims; the CUDA shim
+bodies call the vendor global `::cusparse*` directly, since no raw module is
+imported). cuSPARSE-only functions (the Preview `SpMMOp` API, `CreateSlicedEll`)
+and the legacy typed functions cuSPARSE removed but hipSPARSE keeps (`csrmv`,
+`csrsv2`, `csrmm`, `csrsm2`, `csric02`, `csrilu02`, `gemvi`, the HYB path, ...)
+are left out. Like `gpu.blas` / `gpu.solver` it is the "rand.h shape": the
+surface lives in the shared fragment `detail/sparse_names.h`, bound straight to
+the vendor header's `::cusparse*` / `::hipsparse*` declarations (from
+`sparse.h`, which also pulls in `<cstddef>` for the shims' `std::size_t*`) with
+the `_RAW` macros and imported by no raw vendor module, so the one list serves
+both `sparse.cppm` and the non-module `#include` path `wwr/sparse.h` (which, like
+`wwr/blas.h`, also pulls in `complex.h` for the complex-typed shims). The raw
+module `wwr.cuda.cusparse` / `wwr.hip.hipsparse` stays for the modern generic API
+and the single-vendor extras, off this path. One wrinkle the lighter `blas` /
+`solver` headers do not have: `hipsparse.h` drags in `hipsparse-bfloat16.h`,
+hence `<ostream>`, textually into the module's global module fragment, and a
+textual std stream header in a GMF breaks a consumer's `std::format` / `println`
+unless the module that pulled it also `import std`s — so `sparse.cppm` keeps
+`import std` (the raw module does the same), where `blas.cppm` / `solver.cppm`
+need none.
 
 `gpu.fft` covers the base (single-GPU) cuFFT / hipFFT API: the plan
 lifecycle, one-shot and two-step plan creation, work-size estimation and query,

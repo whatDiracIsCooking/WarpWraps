@@ -2,13 +2,14 @@
 //
 // Types, constants, and the handle/stream/pointer-mode/error-string and
 // matrix-descriptor functions are each checked against the backend's own entity
-// (see gpu_check_macros.h). The one place src/sparse.cppm does more than
+// (see gpu_check_macros.h). The one place the sparse surface does more than
 // rename -- the std::size_t* buffer-size signature of gebsr2gebsc_bufferSize /
 // csr2gebsr_bufferSize, forwarded through an int on CUDA -- is checked too.
 //
 // The typed S/D/C/Z entry points (wwrsparseSbsrmv, ...) are not repeated here:
-// sparse.cppm writes each one out in full (WWR_FUNCTION(wwrsparseSbsrmv,
-// cusparseSbsrmv, hipsparseSbsrmv)), so a line here would restate that line. A
+// src/detail/sparse_names.h writes each one out in full
+// (WWR_FUNCTION_RAW(wwrsparseSbsrmv, cusparseSbsrmv, hipsparseSbsrmv)), so a
+// line here would restate that line. A
 // misspelled backend name does not compile (the raw module exports only the
 // real spellings), and a wrong-but-existing one is a signature mismatch at the
 // instantiation in src/wrappers/sparse/instantiations.cpp or a dispatch
