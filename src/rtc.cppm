@@ -23,6 +23,16 @@
  * (NVRTC_ERROR_CANCELLED, the PCH/time-trace codes, ...) or an hipRTC-only one
  * (HIPRTC_ERROR_LINKING) is reached through the raw module.
  *
+ * The wwrrtc* surface itself is NOT restated here: it is the one fragment the
+ * two host paths share, detail/rtc_names.h, pasted below inside the exported
+ * `namespace wwr` exactly as wwr/rtc.h (the non-module #include path) pastes it.
+ * Add a name there, once, and both paths gain it. The vendor header is drawn
+ * from rtc.h, the single vendor-include point (the "rand.h shape"): this module
+ * binds wwr* references straight to the `::nvrtc*` / `::hiprtc*` declarations
+ * with the _RAW macros and imports no raw vendor module -- the runtime-compilation
+ * API is a real external-linkage library, so a reference needs only the
+ * declaration.
+ *
  * Usage:
  *   import wwr.rtc;
  *
@@ -34,89 +44,22 @@ module;
 
 #include "backend.h"
 
-export module wwr.rtc;
+// The single vendor-include point for the rtc layer: nvrtc.h / hip/hiprtc.h,
+// whose `::nvrtc*` / `::hiprtc*` declarations the _RAW bindings in
+// detail/rtc_names.h resolve against. No raw vendor module is imported -- the
+// runtime-compilation API is external-linkage, so a reference or type alias
+// needs only these declarations. See rtc.h and backend.h.
+#include "rtc.h"
 
-#if defined(WWR_GPU_BACKEND_CUDA)
-import wwr.cuda.nvrtc;
-#else
-import wwr.hip.hiprtc;
-#endif
+export module wwr.rtc;
 
 export namespace wwr {
 
-// ========================================================================
-// Types
-// ========================================================================
-
-WWR_TYPE(wwrrtcProgram, nvrtcProgram, hiprtcProgram)
-WWR_TYPE(wwrrtcResult, nvrtcResult, hiprtcResult)
-
-// ========================================================================
-// Result codes -- the 12 shared by both enums. NVRTC-only codes (CANCELLED,
-// the PCH and time-trace codes) and the hipRTC-only LINKING code are reached
-// through the raw module.
-// ========================================================================
-
-WWR_VALUE(WWRRTC_SUCCESS, NVRTC_SUCCESS, HIPRTC_SUCCESS)
-WWR_VALUE(WWRRTC_ERROR_OUT_OF_MEMORY, NVRTC_ERROR_OUT_OF_MEMORY, HIPRTC_ERROR_OUT_OF_MEMORY)
-WWR_VALUE(WWRRTC_ERROR_PROGRAM_CREATION_FAILURE, NVRTC_ERROR_PROGRAM_CREATION_FAILURE,
-          HIPRTC_ERROR_PROGRAM_CREATION_FAILURE)
-WWR_VALUE(WWRRTC_ERROR_INVALID_INPUT, NVRTC_ERROR_INVALID_INPUT, HIPRTC_ERROR_INVALID_INPUT)
-WWR_VALUE(WWRRTC_ERROR_INVALID_PROGRAM, NVRTC_ERROR_INVALID_PROGRAM, HIPRTC_ERROR_INVALID_PROGRAM)
-WWR_VALUE(WWRRTC_ERROR_INVALID_OPTION, NVRTC_ERROR_INVALID_OPTION, HIPRTC_ERROR_INVALID_OPTION)
-WWR_VALUE(WWRRTC_ERROR_COMPILATION, NVRTC_ERROR_COMPILATION, HIPRTC_ERROR_COMPILATION)
-WWR_VALUE(WWRRTC_ERROR_BUILTIN_OPERATION_FAILURE, NVRTC_ERROR_BUILTIN_OPERATION_FAILURE,
-          HIPRTC_ERROR_BUILTIN_OPERATION_FAILURE)
-WWR_VALUE(WWRRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION,
-          NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION,
-          HIPRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION)
-WWR_VALUE(WWRRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION,
-          NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION,
-          HIPRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION)
-WWR_VALUE(WWRRTC_ERROR_NAME_EXPRESSION_NOT_VALID, NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID,
-          HIPRTC_ERROR_NAME_EXPRESSION_NOT_VALID)
-WWR_VALUE(WWRRTC_ERROR_INTERNAL_ERROR, NVRTC_ERROR_INTERNAL_ERROR, HIPRTC_ERROR_INTERNAL_ERROR)
-
-// ========================================================================
-// Version / error string
-// ========================================================================
-
-WWR_FUNCTION(wwrrtcVersion, nvrtcVersion, hiprtcVersion)
-WWR_FUNCTION(wwrrtcGetErrorString, nvrtcGetErrorString, hiprtcGetErrorString)
-
-// ========================================================================
-// Program lifecycle
-// ========================================================================
-
-WWR_FUNCTION(wwrrtcCreateProgram, nvrtcCreateProgram, hiprtcCreateProgram)
-WWR_FUNCTION(wwrrtcDestroyProgram, nvrtcDestroyProgram, hiprtcDestroyProgram)
-
-// ========================================================================
-// Compilation
-// ========================================================================
-
-WWR_FUNCTION(wwrrtcCompileProgram, nvrtcCompileProgram, hiprtcCompileProgram)
-
-// ========================================================================
-// Compiled-output retrieval -- NVRTC emits PTX, hipRTC a code object; one
-// neutral spelling maps to each backend's own getter (see file header).
-// ========================================================================
-
-WWR_FUNCTION(wwrrtcGetCode, nvrtcGetPTX, hiprtcGetCode)
-WWR_FUNCTION(wwrrtcGetCodeSize, nvrtcGetPTXSize, hiprtcGetCodeSize)
-
-// ========================================================================
-// Compilation log retrieval
-// ========================================================================
-
-WWR_FUNCTION(wwrrtcGetProgramLog, nvrtcGetProgramLog, hiprtcGetProgramLog)
-WWR_FUNCTION(wwrrtcGetProgramLogSize, nvrtcGetProgramLogSize, hiprtcGetProgramLogSize)
-
-// ========================================================================
-// Name expression (symbol mangling)
-// ========================================================================
-
-WWR_FUNCTION(wwrrtcAddNameExpression, nvrtcAddNameExpression, hiprtcAddNameExpression)
-WWR_FUNCTION(wwrrtcGetLoweredName, nvrtcGetLoweredName, hiprtcGetLoweredName)
+// The whole neutral runtime-compilation surface -- the two types, the 12 shared
+// result codes and the functions -- lives in detail/rtc_names.h, the one list
+// both host paths share: this module and wwr/rtc.h (the non-module #include
+// path). The WWR_*_RAW macros from backend.h and the vendor header from rtc.h's
+// #include are exactly what that fragment's header documents it needs in scope.
+#include "detail/rtc_names.h"
 
 } // namespace wwr
