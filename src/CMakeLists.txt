@@ -144,7 +144,15 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   set(_backend_fft CUDA::cufft)
   set(_raw_tx wwr::cuda::nvToolsExt)
   set(_raw_ccl wwr::cuda::nccl)
-  set(_raw_tensor wwr::cuda::cutensor)
+  # tensor is the "rand.h shape" too (see _backend_blas): it binds the vendor
+  # library's declarations directly (tensor.h + _RAW), importing no raw module
+  # -- so it links the vendor cuTENSOR library wwr::cuda_cutensor (the
+  # by-hand imported target, since cuTENSOR ships no config package; see
+  # src/cuda/CMakeLists.txt), not the raw module wwr::cuda::cutensor (which
+  # stays for the per-backend extras). CUDA::cudart carries the toolkit include
+  # cutensor.h needs for <cuda_runtime.h> / <library_types.h>. Only defined
+  # under WWR_WITH_TENSOR, like the targets that use it.
+  set(_backend_tensor wwr::cuda_cutensor CUDA::cudart)
   set(_raw_comp wwr::cuda::nvcomp)
   # rtc is the "rand.h shape" too (see _backend_blas / _backend_solver): it
   # binds the vendor library's declarations directly (rtc.h + _RAW), importing
@@ -172,7 +180,12 @@ else()
   set(_backend_fft hip::hipfft)
   set(_raw_tx wwr::hip::roctx)
   set(_raw_ccl wwr::hip::rccl)
-  set(_raw_tensor wwr::hip::hiptensor)
+  # See the CUDA branch: tensor links the vendor hipTensor library directly.
+  # wwr::hip_hiptensor is the by-hand imported target (hipTensor's own
+  # hiptensor::hiptensor pulls in hip::device -- see src/hip/CMakeLists.txt),
+  # and hip::host carries the HIP host include path. Only defined under
+  # WWR_WITH_TENSOR, like the targets that use it.
+  set(_backend_tensor wwr::hip_hiptensor hip::host)
   set(_raw_comp wwr::hip::hipcomp)
   # See the CUDA branch: rtc links the vendor hipRTC library directly. ROCm
   # ships it from its own `hiprtc` find_package config (hiprtc::hiprtc), the
@@ -544,10 +557,13 @@ if(WWR_WITH_CCL)
 endif()
 
 # wwr.tensor / wwr.comp are gated on WWR_WITH_TENSOR / WWR_WITH_COMP, each of
-# which also drops the backend module it links (${_raw_tensor} / ${_raw_comp})
-# and the matching wwr.extension.* layer -- the whole chain drops together so no
+# which also drops the backend it links (${_backend_tensor} / ${_raw_comp}) and
+# the matching wwr.extension.* layer -- the whole chain drops together so no
 # surviving exported target links a target the export set no longer contains.
-# Same shape as wwr.ccl above.
+# Same shape as wwr.ccl above. tensor is the "rand.h shape" (see _backend_blas):
+# it links the vendor cuTENSOR / hipTensor library (${_backend_tensor}), not the
+# raw module wwr.cuda.cutensor / wwr.hip.hiptensor (which stays for the
+# per-backend extras).
 if(WWR_WITH_TENSOR)
   wwr_add_cxx_module_library(
     NAME
@@ -555,11 +571,26 @@ if(WWR_WITH_TENSOR)
     PRIMARY_INTERFACE
     tensor.cppm
     LINK_PUBLIC
-    ${_raw_tensor}
+    ${_backend_tensor}
     LINK_PRIVATE
     wwr::backend
     IMPORT_STD
   )
+
+  # The non-module HOST consumption path for the tensor surface -- `#include
+  # "wwr/tensor.h"` instead of import. Header-only counterpart to wwr.tensor's
+  # usage requirements: wwr::backend for the WWR_GPU_BACKEND_* define and the
+  # src/ include root (tensor.h / detail/tensor_names.h resolve root-relative),
+  # and ${_backend_tensor} for the vendor header and library plus the toolkit /
+  # HIP host include the vendor header needs. Compiles no module unit; it joins
+  # the export set like wwr.solver.host, and src/wwr/ installs under
+  # include/wwr/. Inside the WWR_WITH_TENSOR gate, like wwr.tensor itself.
+  add_library(wwr.tensor.host INTERFACE)
+  target_link_libraries(
+    wwr.tensor.host INTERFACE wwr::backend ${_backend_tensor}
+  )
+  # In-tree :: alias; exported as wwr::tensor::host by _wwr_export_name's rule.
+  add_library(wwr::tensor::host ALIAS wwr.tensor.host)
 endif()
 
 if(WWR_WITH_COMP)
