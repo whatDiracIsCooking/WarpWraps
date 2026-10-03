@@ -47,7 +47,16 @@
 // carries. docs/architecture.md, section 9.
 #include <array>
 
+// hiptensor 2.2.0 (ROCm 7.2) ships hiptensor.h, which pulls its own version and
+// type headers; 2.1.0 (the ROCm floor) ships only hiptensor.hpp, which -- unlike
+// the .h -- does not pull its own version header, so hiptensor-version.hpp is
+// included alongside it. __has_include picks between them, exactly as
+// src/hip/hiptensor.cppm's global module fragment does. docs/architecture.md §21.
+#if __has_include(<hiptensor/hiptensor.h>)
 #include <hiptensor/hiptensor.h>
-#include <hiptensor/hiptensor_types.h>
+#else
+#include <hiptensor/hiptensor-version.hpp>
+#include <hiptensor/hiptensor.hpp>
+#endif
 
 #endif
