@@ -125,7 +125,12 @@ if(WWR_GPU_BACKEND STREQUAL "CUDA")
   # carries the toolkit include (library_types.h too).
   set(_backend_solver CUDA::cusolver)
   set(_raw_sparse wwr::cuda::cusparse)
-  set(_raw_fft wwr::cuda::cufft)
+  # fft is the "rand.h shape" too (see _backend_blas): it binds the vendor
+  # library's declarations directly (fft.h + _RAW), importing no raw module --
+  # so it links the vendor cuFFT library, not wwr::cuda::cufft (which stays for
+  # the base-API extras off this path, and wwr::cuda::cufftXt for the multi-GPU
+  # surface). CUDA::cufft also carries the toolkit include.
+  set(_backend_fft CUDA::cufft)
   set(_raw_tx wwr::cuda::nvToolsExt)
   set(_raw_ccl wwr::cuda::nccl)
   set(_raw_tensor wwr::cuda::cutensor)
@@ -141,7 +146,10 @@ else()
   # See the CUDA branch: solver links the vendor hipSOLVER library directly.
   set(_backend_solver roc::hipsolver)
   set(_raw_sparse wwr::hip::hipsparse)
-  set(_raw_fft wwr::hip::hipfft)
+  # See the CUDA branch: fft links the vendor hipFFT library directly.
+  # hipFFT's config exports the imported target as hip::hipfft (not roc::),
+  # unlike hipBLAS/hipSOLVER -- same target the raw wwr.hip.hipfft module links.
+  set(_backend_fft hip::hipfft)
   set(_raw_tx wwr::hip::roctx)
   set(_raw_ccl wwr::hip::rccl)
   set(_raw_tensor wwr::hip::hiptensor)
@@ -400,11 +408,24 @@ wwr_add_cxx_module_library(
   PRIMARY_INTERFACE
   fft.cppm
   LINK_PUBLIC
-  ${_raw_fft}
+  ${_backend_fft}
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
 )
+
+# The non-module HOST consumption path for the fft surface -- `#include
+# "wwr/fft.h"` instead of import. Header-only counterpart to wwr.fft's usage
+# requirements: wwr::backend for the WWR_GPU_BACKEND_* define and the src/
+# include root (fft.h / detail/fft_names.h resolve root-relative), and
+# ${_backend_fft} for the vendor header and library plus the toolkit include.
+# Like wwr.solver.host this path names no complex type, so it needs nothing
+# beyond those two. Compiles no module unit; it joins the export set like
+# wwr.runtime_api.host, and src/wwr/ installs under include/wwr/.
+add_library(wwr.fft.host INTERFACE)
+target_link_libraries(wwr.fft.host INTERFACE wwr::backend ${_backend_fft})
+# In-tree :: alias; exported as wwr::fft::host by _wwr_export_name's rule.
+add_library(wwr::fft::host ALIAS wwr.fft.host)
 
 # wwr.rand wraps the vendor RNG *library* directly, not a raw vendor module: its
 # GMF #includes rand.h, which pulls in curand.h/curand_kernel.h (or the hipRAND
