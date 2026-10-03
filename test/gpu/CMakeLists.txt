@@ -244,6 +244,21 @@ add_dependencies(compile_time_tests wwr.test.gpu.solver_host)
 
 wwr_add_test_executable(
   NAME
+  wwr.test.gpu.blaslt_host
+  MAIN
+  blaslt_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::blaslt::host
+)
+target_include_directories(
+  wwr.test.gpu.blaslt_host PRIVATE ${PROJECT_SOURCE_DIR}
+)
+add_dependencies(compile_time_tests wwr.test.gpu.blaslt_host)
+
+wwr_add_test_executable(
+  NAME
   wwr.test.gpu.rtc_host
   MAIN
   rtc_host.cpp

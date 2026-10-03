@@ -1,15 +1,16 @@
 // host_headers_check.cpp -- consuming the fp16 / bf16 / rand / blas / solver /
-// rtc surfaces the non-module way, by #include rather than import.
+// blaslt / rtc surfaces the non-module way, by #include rather than import.
 //
 // The runtime_host_check.cpp twin for the modules rolled onto the
 // header-consumption path after runtime_api. main.cpp reaches these surfaces by
 // `import wwr.fp16;` etc. (indirectly, through the layers it uses); this TU
 // reaches the SAME surfaces the other way a consumer can -- #include "wwr/fp16.h",
-// "wwr/bf16.h", "wwr/rand.h", "wwr/blas.h", "wwr/solver.h", "wwr/rtc.h", no
-// import at all. It is the install-check for those paths: that the wwr/*.h
-// headers, the detail/*_names.h fragments they pull in, and the wwr::fp16::host /
-// wwr::bf16::host / wwr::rand::host / wwr::blas::host / wwr::solver::host /
-// wwr::rtc::host targets all travel in the package and re-attach in a
+// "wwr/bf16.h", "wwr/rand.h", "wwr/blas.h", "wwr/solver.h", "wwr/blaslt.h",
+// "wwr/rtc.h", no import at all. It is the install-check for those paths: that
+// the wwr/*.h headers, the detail/*_names.h fragments they pull in, and the
+// wwr::fp16::host / wwr::bf16::host / wwr::rand::host / wwr::blas::host /
+// wwr::solver::host / wwr::blaslt::host / wwr::rtc::host targets all travel in
+// the package and re-attach in a
 // find_package consumer.
 //
 // A SEPARATE translation unit on purpose, for the reason runtime_host_check.cpp
@@ -17,6 +18,7 @@
 // declare the same wwr* names twice. Across TUs linked together it is fine.
 #include "wwr/bf16.h"
 #include "wwr/blas.h"
+#include "wwr/blaslt.h"
 #include "wwr/fp16.h"
 #include "wwr/rand.h"
 #include "wwr/rtc.h"
@@ -37,9 +39,11 @@ bool host_headers_check() {
 
   wwr::wwrsolverStatus_t (*solver_create)(wwr::wwrsolverDnHandle_t *) = &wwr::wwrsolverDnCreate;
 
+  wwr::wwrblasLtStatus_t (*blaslt_create)(wwr::wwrblasLtHandle_t *) = &wwr::wwrblasLtCreate;
+
   wwr::wwrrtcResult (*rtc_version)(int *, int *) = &wwr::wwrrtcVersion;
 
   return wwr::wwrHalf2Float(half) == 1.5f && wwr::wwrBfloat162Float(bf) == 1.5f &&
          create != nullptr && blas_create != nullptr && solver_create != nullptr &&
-         rtc_version != nullptr;
+         blaslt_create != nullptr && rtc_version != nullptr;
 }
