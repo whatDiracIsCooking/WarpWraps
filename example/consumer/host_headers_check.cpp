@@ -11,6 +11,12 @@
 // wwr::bf16::host / wwr::rand::host / wwr::blas::host / wwr::solver::host targets
 // all travel in the package and re-attach in a find_package consumer.
 //
+// wwr/tensor.h (wwr::tensor::host) rides the same path but is OPTIONAL in the
+// package: tensor ships only from a build configured with -DWWR_WITH_TENSOR=ON,
+// so it is reached under WWR_CONSUMER_HAS_TENSOR, which the consumer's
+// CMakeLists sets from WWR_HAS_TENSOR -- the same optional-component shape the
+// wrappers / extension layers use.
+//
 // A SEPARATE translation unit on purpose, for the reason runtime_host_check.cpp
 // documents: a TU that both imports a module and #includes its header twin would
 // declare the same wwr* names twice. Across TUs linked together it is fine.
@@ -19,6 +25,9 @@
 #include "wwr/fp16.h"
 #include "wwr/rand.h"
 #include "wwr/solver.h"
+#if defined(WWR_CONSUMER_HAS_TENSOR)
+#include "wwr/tensor.h"
+#endif
 
 // Proof is COMPILE + LINK, no device needed. Compile: the wwr* names exist from a
 // pure #include. Link: calling the conversion forwarders and taking the address
@@ -35,6 +44,13 @@ bool host_headers_check() {
 
   wwr::wwrsolverStatus_t (*solver_create)(wwr::wwrsolverDnHandle_t *) = &wwr::wwrsolverDnCreate;
 
-  return wwr::wwrHalf2Float(half) == 1.5f && wwr::wwrBfloat162Float(bf) == 1.5f &&
-         create != nullptr && blas_create != nullptr && solver_create != nullptr;
+  bool ok = wwr::wwrHalf2Float(half) == 1.5f && wwr::wwrBfloat162Float(bf) == 1.5f &&
+            create != nullptr && blas_create != nullptr && solver_create != nullptr;
+
+#if defined(WWR_CONSUMER_HAS_TENSOR)
+  wwr::wwrtensorStatus_t (*tensor_create)(wwr::wwrtensorHandle_t *) = &wwr::wwrtensorCreate;
+  ok = ok && tensor_create != nullptr;
+#endif
+
+  return ok;
 }

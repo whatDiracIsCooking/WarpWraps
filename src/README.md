@@ -35,7 +35,7 @@ against `wwr*` names and builds unchanged for either backend.
 | `wwr.fft` | `wwr.cuda.cufft` | `wwr.hip.hipfft` |
 | `wwr.rand` | `curand.h` / `curand_kernel.h` via `rand.h` (no import) | `hiprand.h` / `hiprand_kernel.h` via `rand.h` (no import) |
 | `wwr.ccl` | `wwr.cuda.nccl` | `wwr.hip.rccl` |
-| `wwr.tensor` | `wwr.cuda.cutensor` | `wwr.hip.hiptensor` |
+| `wwr.tensor` | `cutensor.h` via `tensor.h` (no import) | `hiptensor/hiptensor.h` via `tensor.h` (no import) |
 | `wwr.comp` | `wwr.cuda.nvcomp` | `wwr.hip.hipcomp` |
 | `wwr.rtc` | `wwr.cuda.nvrtc` | `wwr.hip.hiprtc` |
 
@@ -240,7 +240,13 @@ them plus 18 shared types and 93 value-agreeing constants (28 data types —
 hipTensor numbers `HIPTENSOR_R_*` to match `cudaDataType_t` — 29 operators, 11
 status codes, and the workspace/attribute/mode enums). The measurement made it a
 clear yes, opposite to the cuDNN/MIOpen verdict (`docs/architecture.md` §19).
-Three things to watch:
+Like `gpu.blas` / `gpu.solver` it is the **"rand.h shape"**: the surface lives in
+the shared fragment `detail/tensor_names.h`, bound straight to the vendor
+header's `::cutensor*` / `::hiptensor*` declarations (from `tensor.h`, the single
+vendor-include point) with the `_RAW` macros and imported by no raw vendor
+module, so the one list serves both `tensor.cppm` and the non-module `#include`
+path `wwr/tensor.h`. The raw module `wwr.cuda.cutensor` / `wwr.hip.hiptensor`
+stays for the per-backend extras, off this path. Three things to watch:
 
 - **Two divergences need more than an alias** (`docs/architecture.md` §4, §5).
   The compute descriptors (`WWRTENSOR_COMPUTE_DESC_16F/16BF/32F/64F`) are

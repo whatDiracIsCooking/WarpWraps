@@ -289,6 +289,27 @@ if(WWR_WITH_TENSOR)
     NO_RUN
   )
   add_dependencies(compile_time_tests gpu_compile_tests_tensor)
+
+  # The non-module HOST #include path for the tensor surface, the counterpart to
+  # blas_host / solver_host (and runtime_api_host). Links wwr::tensor::host, not
+  # the module. NO_RUN -- built and linked but never launched, the same reason
+  # gpu_compile_tests_tensor is NO_RUN: linking libhiptensor pulls in a global
+  # constructor that aborts at process startup on a GPU-less host (see the
+  # module test block above). The link IS the assertion; a run adds nothing the
+  # module test's static_asserts do not already prove.
+  wwr_add_test_executable(
+    NAME
+    wwr.test.gpu.tensor_host
+    MAIN
+    tensor_host.cpp
+    LINK_PRIVATE
+    wwr::tensor::host
+    NO_RUN
+  )
+  target_include_directories(
+    wwr.test.gpu.tensor_host PRIVATE ${PROJECT_SOURCE_DIR}
+  )
+  add_dependencies(compile_time_tests wwr.test.gpu.tensor_host)
 endif()
 set_tests_properties(gpu_compile_tests PROPERTIES LABELS compile_time)
 
