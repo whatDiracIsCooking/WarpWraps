@@ -196,12 +196,21 @@ array.
 `rand.h` — `curand.h` + `curand_kernel.h` on CUDA, `hiprand.h` +
 `hiprand_kernel.h` on HIP (cuRAND packages host and device together, hipRAND
 keeps them apart) — and binds its `wwr*` names straight to the `::curand*` /
-`::hiprand*` declarations with `backend.h`'s `_RAW` macros. This is safe here and
-nowhere else in the layer: the cuRAND / hipRAND host API is a real
-external-linkage library, so a reference or type alias needs only the
-declaration. A module wrapping static-inline vendor math (`complex`, `fp16`,
-`bf16`) cannot do this and keeps its `import` (see "How a name is mapped" below
-and `docs/architecture.md` §12). The single-vendor raw modules
+`::hiprand*` declarations with `backend.h`'s `_RAW` macros. This is safe wherever
+the vendor host API is a real external-linkage library — a reference or type
+alias then needs only the declaration — so the other `.h` + `detail/*_names.h`
+host-API modules above (`blas`, `blaslt`, `solver`, `sparse`, `fft`, `tensor`,
+`rtc`, and the forwarding-based `fp16` / `bf16`) bind the same way and import no
+raw module. `complex` is the lone counter-example: `cuComplex.h` /
+`amd_hip_complex.h` are **static-inline** — *every* function
+(`docs/architecture.md` §12) — so no `_RAW` line and no `detail/complex_names.h`
+can name them. `complex.cppm` alone keeps its `import`, routing its host
+forwarders through the raw module's external-linkage wrappers; a non-module
+`wwr/complex.h` for the functions is impossible (a plain `.cpp` can neither
+`import` that module nor name the static-inline originals), and none is needed —
+`complex.h` already shares the one thing a non-module TU wants, the types, so
+that header already is complex's fragment (see "How a name is mapped" below). The
+single-vendor raw modules
 (`wwr.cuda.curand`, `wwr.hip.hiprand`, `wwr.hip.hiprand_kernel`) remain
 installable, off this path. Names that only one backend has are left out; the
 file header lists them. Three things to watch:
