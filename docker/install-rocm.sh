@@ -26,6 +26,23 @@ case "$ROCM_VERSION" in
   *)     ROCM_APT_DIR="$ROCM_VERSION" ;;
 esac
 
+# THE CEILING ON ROCM_VERSION IS 7.2.4, AND THE REPOSITORY SETS IT, NOT THIS
+# SCRIPT. repo.radeon.com/rocm/apt/ ends at 7.2.4 and its `latest/` IS 7.2.4
+# (Release file, 2026-05-26); 7.11 and 7.14 404 there. ROCm 7.14.0 moved
+# distribution to TheRock, which publishes to a different host, suite and
+# package namespace altogether -- stable.repo.amd.com/rocm/core/packages/
+# ubuntu2404, suite `stable`, where the whole surface below is instead a handful
+# of `amdrocm-*` meta-packages, GPU kernels are split into per-arch packages
+# (amdrocm-blas10.0-gfx1200 and friends), the prefix is /opt/rocm/core-<ver>
+# with no /opt/rocm/lib and no version symlink for `test -L` to find, and
+# rocm-smi ships inside amdrocm-base rather than as its own package.
+#
+# So raising ROCM_VERSION past 7.2.4 is a PORT OF THIS FILE, not a bump of this
+# variable: the package names, the prune list below, the ld.so.conf path and the
+# /opt/rocm assumptions in cmake/ and devtools/ all move with it. Issue #153 has
+# the measurements, and docs/architecture.md section 23 has what that ROCm does
+# to the two SMI libraries. docker/README.md's variable table repeats the ceiling.
+
 # A signed-by keyring, not `apt-key add`: apt-key is deprecated in 24.04 and
 # removed in 25.04.
 #
@@ -64,8 +81,12 @@ printf 'Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600\n' \
 #                   calls enable_language(HIP). The floor image is 7.1, so this
 #                   is load-bearing, not belt-and-braces -- and the tree needs
 #                   hipcc regardless of what a meta-package decides to carry.
-#   amd-smi-lib     the modern half of the nvml analogue (rocm-smi-lib, the
-#                   older half, DOES come with the SDK via rocm-hip-libraries)
+#   amd-smi-lib     the nvml analogue this tree wraps, as wwr.hip.amd_smi.
+#                   ROCm's older rocm-smi-lib is deliberately NOT wrapped (see
+#                   src/hip/README.md, "nvml's HIP counterpart") but stays
+#                   installed regardless, and nothing about the package set
+#                   turns on that choice: rocm-hip-libraries pulls it in with
+#                   the SDK, and librccl links it at this ROCm.
 #   roctracer-dev   the cupti analogue
 #   rocprofiler-sdk rocprofv3, its successor
 #   rocm-gdb        parity with cuda-gdb
