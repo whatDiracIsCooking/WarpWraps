@@ -793,3 +793,87 @@ the device code that actually instantiates Thrust. `src/extension/parallel_for`
 reached the same device-only conclusion from the other side: it once *was*
 Thrust-backed and dropped that backend for a hand-written `.cuh` (memory
 `project-thrust-algorithms-break-under-rdc`).
+
+## 23. The two SMI libraries, measured again at ROCm 10.0.0
+
+**Toolchain for this section only:** ROCm 10.0.0 from AMD's TheRock `stable`
+channel (`amd-smi` 27.0.0, RCCL 2.30.4), compared against the images' pinned
+ROCm 7.2.4 (`amd-smi` 26.2.2, RCCL 2.27.7); clang 20, `gfx1200`, on a live
+Radeon RX 9060 XT. Dated 2026-10-03.
+
+`src/hip/README.md` ("nvml's HIP counterpart") states the rule: of ROCm's two
+nvml analogues only `amd_smi` is wrapped, because at the pinned ROCm the two
+cannot coexist in one process. #142 and #144 measured that at 7.2.4 —
+`libamd_smi` embedded its own build of the whole `amd::smi::` implementation and
+re-exported it with default visibility, so one set of C++ globals had two owners
+and static teardown double-freed (`malloc_consolidate(): invalid chunk size`);
+and `librccl.so` carried a hard `DT_NEEDED` on `librocm_smi64.so.1`, which put
+the legacy library into every collectives process whether wwr named it or not, so
+`wwr.hip.amd_smi` with `wwr.ccl` SIGSEGV'd before `main`, in both link orders,
+3/3. #153 re-measured the same things three-plus minor releases up.
+
+Both halves changed, and the headline is that **the crash is gone**:
+
+| | ROCm 7.2.4 | ROCm 10.0.0 |
+|---|---|---|
+| `librccl.so.1`'s SMI `DT_NEEDED` | `librocm_smi64.so.1` | `libamd_smi.so.27` |
+| `amd::smi::` defined in `librocm_smi64` | 598 | 586 |
+| `amd::smi::` defined in `libamd_smi` | 765 | **0** |
+| `rsmi_*` defined in `librocm_smi64` | 116 | 116 |
+| `rsmi_*` defined in `libamd_smi` | 147 | **2** |
+
+`libamd_smi` no longer exports a second copy of `amd::smi::`, so the
+duplicate-ownership condition that double-freed does not exist. Nine link
+combinations of `-lrccl`, `-lamd_smi` and `-lrocm_smi64` — each alone, each pair
+in both orders, all three together — link, run and exit 0, 3/3 runs each, under
+plain execution, `MALLOC_CHECK_=3` and valgrind (0 errors, 0 contexts). A binary
+that calls `amdsmi_init`, enumerates sockets, calls `ncclGetVersion` and calls
+`amdsmi_shut_down` is clean 3/3. So the constraint has lifted rather than moved,
+and the mechanism is the symbol change in `libamd_smi`, not the `dlopen` scoping
+that RCCL's "lazy loading" comment suggested would decide it — RCCL does not
+reach `amd_smi` lazily in the shipped binary, the `DT_NEEDED` is hard.
+
+**That probe linked the vendor `.so`s directly, not the wwr modules**, because
+building this tree against ROCm 10.0.0 needs the port `install-rocm.sh` describes.
+The conclusion carries to `wwr.hip.amd_smi` with `wwr.ccl` only so far as those
+modules are re-exports over these same libraries and add no symbols of their own
+— which is what they are, but it is an inference here rather than a measurement,
+and the module pairing is unverified until an image exists to verify it on.
+
+**The two libraries still cannot usefully coexist, for a quieter reason.** Both
+export `rsmi_init`, so ELF interposition gives the process exactly one of them,
+and the loser's internal state is never initialised: it then answers queries with
+zero devices and fails its shutdown, with no error at init and no crash.
+
+| link order | `rsmi_num_monitor_devices` | `amdsmi_get_socket_handles` |
+|---|---|---|
+| `-lrocm_smi64 -lamd_smi` | 1 device | **0 sockets**, `amdsmi_shut_down` = 32 |
+| `-lamd_smi -lrocm_smi64` | **0 devices**, `rsmi_shut_down` = 8 | 1 socket |
+
+`LD_DEBUG=bindings` shows the mechanism rather than inferring it: in the first
+order `libamd_smi` itself binds `rsmi_init` to `librocm_smi64`; in the second
+every reference binds to `libamd_smi`'s. The failure mode therefore degraded from
+a SIGSEGV to a silent wrong answer, which is the worse of the two to ship, and
+ROCm/ROCm#5473 ("because the two libraries share external symbols, we don't
+support linking both libraries") still describes the situation. Wrapping exactly
+one SMI library stays correct, so #144's deletion holds at both ends of the range.
+
+**`librocm_smi64` still ships at 10.0.0.** `amdrocm-base` carries the `.so`,
+`rocm_smi/rocm_smi.h` and a `lib/cmake/rocm_smi` config, so the removal
+`rocm-smi-lib`'s README announces for ROCm 10.1 has not landed yet — the library
+being absent is not what makes the deletion right; the `rsmi_init` collision
+above is. Its public header is no longer self-contained, though:
+`rocm_smi/kfd_ioctl.h` includes `<libdrm/drm.h>`, which no `amdrocm-*` package
+provides, so a translation unit including `rocm_smi.h` needs a distro
+`libdrm-dev` on top of ROCm.
+
+Two further facts fell out of the same measurement, both bearing on §21's floors
+rather than on SMI. `hip_VERSION` is **7.15.26333** at ROCm 10.0.0 while
+`.info/version` reads `10.0.0`, so `CMakeLists.txt`'s fallback claim that the
+`hip` package's major.minor "does track the ROCm release" is false on the TheRock
+track; the primary path is unaffected, because `.info/version` is still present at
+the root `hip_DIR/../../..` resolves to. And `amd-smi` moves 26.2.2 → 27.0.0
+across this step — the fast mover §21 names, now a major bump, so the 28
+`WWR_AMDSMI_SINCE_26_2` guards would need re-deriving before the images move.
+Why they have not moved is `docker/install-rocm.sh`: ROCm ≥ 7.11 is not published
+on the apt repository this tree installs from at all.

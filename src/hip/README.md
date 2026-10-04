@@ -116,9 +116,10 @@ one meant to supersede it, `libamd_smi`) as separate CMake packages with
 separate headers and overlapping but not identical surfaces. Only `amd_smi` is
 wrapped, as `wwr.hip.amd_smi` below.
 
-**The two libraries cannot coexist in one process.** `libamd_smi` statically
-embeds its own build of the entire `amd::smi::` implementation and re-exports it
-with default visibility under the same mangled names `librocm_smi64` exports, so
+**The two libraries cannot coexist in one process**, and at the pinned ROCm the
+reason is a double-free. `libamd_smi` statically embeds its own build of the
+entire `amd::smi::` implementation and re-exports it with default visibility
+under the same mangled names `librocm_smi64` exports, so
 ELF interposition gives one set of C++ globals two owners -- both libraries'
 initializers construct and both libraries' finalizers destroy the same objects,
 which double-frees at static teardown (`malloc_consolidate(): invalid chunk
@@ -134,18 +135,26 @@ TheRock builds as of ROCm 10.1, and RCCL itself moved: its CMakeLists checks for
 fallback commented out.
 
 **Which SMI library a collectives process can hold depends on the ROCm version,
-and it is `librccl` that decides.** Below ROCm 7.11, `librccl.so` carries a hard
-`DT_NEEDED` on `librocm_smi64.so.1`, so collectives put the legacy library in the
-process whether wwr names it or not; `libamd_smi` -- a *direct* `DT_NEEDED`
-either way, so always earlier in the lookup scope -- wins the interposition, and
-the result is a SIGSEGV during library init, before `main`. So on ROCm 7.0-7.10
-`wwr.hip.amd_smi` cannot be used with `wwr.hip.rccl` or `wwr.ccl`. From 7.11
-RCCL resolves `amd_smi` itself, lazily via `dlopen`, and the constraint reverses:
-`amd_smi` is then the SMI library collectives already use, and `librocm_smi64` is
-the one that would collide. That upper regime is **untested here** -- the
-container is ROCm 7.2.4, and `dlopen` scoping (`RTLD_GLOBAL` vs `RTLD_LOCAL`)
-decides whether the collision happens at all, so it wants measuring on a newer
-image rather than predicting.
+and it is `librccl` that decides.** At the pinned ROCm 7.2.4 -- and, by RCCL's
+own `>= 7.11.0` guard above, anywhere below that line -- `librccl.so` carries a
+hard `DT_NEEDED` on `librocm_smi64.so.1`, so collectives put the legacy library
+in the process whether wwr names it or not; `libamd_smi` -- a *direct*
+`DT_NEEDED` either way, so always earlier in the lookup scope -- wins the
+interposition, and the result is a SIGSEGV during library init, before `main`.
+So on every image this tree builds, `wwr.hip.amd_smi` cannot be used with
+`wwr.hip.rccl` or `wwr.ccl`.
+
+**At ROCm 10.0.0 that constraint has lifted, measured rather than predicted.**
+`librccl.so.1`'s SMI `DT_NEEDED` is `libamd_smi.so.27`; `libamd_smi` no longer
+exports its own copy of the `amd::smi::` implementation at all, so the
+double-free above has no duplicate owner to arise from; and a binary linking
+`libamd_smi` beside `librccl` initialises both and exits clean under valgrind.
+What replaces the crash is a quieter hazard rather than nothing: both libraries
+still export `rsmi_init`, so a process linking both gets one of them by
+interposition and the other silently reports zero devices. Wrapping exactly one
+stays correct at both ends of the range. `docs/architecture.md` §23 has the
+measurements; `docker/install-rocm.sh` has why the images cannot reach 10.0.0 by
+a version bump.
 
 ### `wwr.hip.amd_smi`
 
@@ -734,9 +743,10 @@ list used to drop rccl ("nothing here wraps them"); now that this module links
 `roc::rccl` it is a link-time dependency and is retained.
 
 **`librccl` brings an SMI library with it, so this module constrains which SMI
-module can share its process.** Below ROCm 7.11 that is `librocm_smi64.so.1`, a
-hard `DT_NEEDED` of `librccl.so`, which rules out `wwr.hip.amd_smi` in the same
-binary; from 7.11 RCCL resolves `amd_smi` itself and the pairing reverses. See
+module can share its process.** At the pinned ROCm that is `librocm_smi64.so.1`,
+a hard `DT_NEEDED` of `librccl.so`, which rules out `wwr.hip.amd_smi` in the same
+binary; at ROCm 10.0.0 the `DT_NEEDED` is `libamd_smi.so.27` instead and this
+module pairs with `wwr.hip.amd_smi` rather than excluding it. See
 "nvml's HIP counterpart" above -- that section is the authority, this is the
 pointer to it, because the constraint is invisible from this end otherwise.
 

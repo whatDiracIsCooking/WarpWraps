@@ -111,6 +111,14 @@ reports the installed SDK against these pins and warns when they have drifted.
 The Dockerfile `ARG` defaults still exist as a fallback for a raw
 `docker build` by hand, so they must not drift from `config.sh` — bump both.
 
+**`ROCM_VERSION` has a ceiling of 7.2.4**, and it is that repository that sets
+it: `repo.radeon.com/rocm/apt/` ends there, `latest/` included, so a higher
+value 404s on the `Release` file. ROCm ≥ 7.11 is published only through
+TheRock, on another host with another package namespace and install prefix —
+reaching it is a port of `install-rocm.sh` rather than a new value here. That
+script's comment has the detail; issue #153 and `docs/architecture.md` §23 have
+the measurements taken at ROCm 10.0.0.
+
 ### The vendor libraries, and where each one comes from
 
 Four install scripts, because the libraries this project wraps arrive by four

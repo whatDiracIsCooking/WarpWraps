@@ -323,8 +323,11 @@ else()
     message(STATUS "ROCm version: ${_wwr_rocm_version}")
   else()
     # No .info/version to read (a non-standard layout): fall back to the hip
-    # package's major.minor, which does track the ROCm release, and warn that
-    # the floor could not be checked precisely.
+    # package's major.minor and warn that the floor could not be checked
+    # precisely. That major.minor tracks the ROCm release on the apt releases
+    # this tree builds against, but NOT on TheRock track, where hip_VERSION is
+    # 7.15.26333 at ROCm 10.0.0 (docs/architecture.md section 23) -- so this
+    # branch can only ever be a warning, never the authority.
     if(hip_VERSION VERSION_LESS 7.1)
       message(
         FATAL_ERROR
