@@ -335,6 +335,23 @@ wwr_add_cxx_module_library(
   IMPORT_STD
 )
 
+# The non-module HOST consumption path for the vector_types surface -- `#include
+# "wwr/vector_types.h"` instead of import. The fp16.host twin: same deps for the
+# same reasons (the WWR_GPU_BACKEND_* define and src/ include root via
+# wwr::backend, and the backend runtime host lib carrying the vendor vector-type
+# header's include path). Its make_* name no vendor symbol, so unlike fp16.host
+# nothing binds a vendor entry point -- the backend_rt_host dep is only for the
+# vendor header the type aliases pull in. See wwr.fp16.host above.
+add_library(wwr.vector_types.host INTERFACE)
+target_link_libraries(
+  wwr.vector_types.host
+  INTERFACE
+  wwr::backend
+  ${_backend_rt_host}
+)
+# In-tree :: alias; exported as wwr::vector_types::host by _wwr_export_name.
+add_library(wwr::vector_types::host ALIAS wwr.vector_types.host)
+
 # wwr.atomic exports only the two portable enums (wwrMemoryOrder /
 # wwrThreadScope) -- the scoped atomic *operations* are __device__-only and stay
 # in atomic.h's device section, reached by a device .cu through wwr.device, so

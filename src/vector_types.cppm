@@ -26,13 +26,13 @@
  * ... could not be re-exported by a module regardless -- docs/architecture.md
  * §12). The types come from vector_types.h, in the GMF.
  *
- * The constructors duplicate vector_types.h's device section on purpose, the
- * same way fp16.cppm duplicates fp16.h's: a host TU reaches them by importing
- * this module, a device TU reaches them by including vector_types.h, and neither
- * can use the other's (a module cannot be #included into a kernel, and the
- * header's wrappers are gated to a device pass). The two copies are the same
- * brace over the same vendor types, so a host-built value and a kernel-built one
- * agree.
+ * The constructors are not restated here: they are the one fragment every path
+ * shares, detail/vector_types_names.h, pasted into this module's purview with the
+ * host `inline` qualifier exactly as fp16.cppm pastes detail/fp16_names.h. A host
+ * TU reaches them by importing this module, a device TU by including
+ * vector_types.h (which pastes the same list with __device__ __forceinline__),
+ * and a non-module host TU through wwr/vector_types.h -- one brace over the same
+ * vendor types in every case, so a host-built value and a kernel-built one agree.
  */
 
 module;
@@ -110,74 +110,15 @@ using wwr::double3;
 // Constructors
 //
 // One brace construction apiece, T{...} -- the host counterpart to
-// vector_types.h's device section (see this file's header for the deliberate
-// duplication). The local macros expand to one constructor each and are
-// #undef'd below; E matches the vendor's own make_* parameter type so no brace
-// narrows.
+// vector_types.h's device section. The list itself is NOT restated here: it is
+// the one fragment every path shares, detail/vector_types_names.h, pasted below
+// with the host `inline` qualifier (vector_types.h's device section pastes the
+// same list with __device__ __forceinline__; wwr/vector_types.h is the
+// non-module host twin). Add a constructor there, once, and every path gains it.
 // ========================================================================
 
-#define WWR_VT_MAKE1(T, E)                                                                         \
-  inline T make_##T(const E x) { return T{x}; }
-#define WWR_VT_MAKE2(T, E)                                                                         \
-  inline T make_##T(const E x, const E y) { return T{x, y}; }
-#define WWR_VT_MAKE3(T, E)                                                                         \
-  inline T make_##T(const E x, const E y, const E z) { return T{x, y, z}; }
-#define WWR_VT_MAKE4(T, E)                                                                         \
-  inline T make_##T(const E x, const E y, const E z, const E w) { return T{x, y, z, w}; }
-
-WWR_VT_MAKE1(char1, signed char)
-WWR_VT_MAKE2(char2, signed char)
-WWR_VT_MAKE3(char3, signed char)
-WWR_VT_MAKE4(char4, signed char)
-WWR_VT_MAKE1(uchar1, unsigned char)
-WWR_VT_MAKE2(uchar2, unsigned char)
-WWR_VT_MAKE3(uchar3, unsigned char)
-WWR_VT_MAKE4(uchar4, unsigned char)
-
-WWR_VT_MAKE1(short1, short)
-WWR_VT_MAKE2(short2, short)
-WWR_VT_MAKE3(short3, short)
-WWR_VT_MAKE4(short4, short)
-WWR_VT_MAKE1(ushort1, unsigned short)
-WWR_VT_MAKE2(ushort2, unsigned short)
-WWR_VT_MAKE3(ushort3, unsigned short)
-WWR_VT_MAKE4(ushort4, unsigned short)
-
-WWR_VT_MAKE1(int1, int)
-WWR_VT_MAKE2(int2, int)
-WWR_VT_MAKE3(int3, int)
-WWR_VT_MAKE4(int4, int)
-WWR_VT_MAKE1(uint1, unsigned int)
-WWR_VT_MAKE2(uint2, unsigned int)
-WWR_VT_MAKE3(uint3, unsigned int)
-WWR_VT_MAKE4(uint4, unsigned int)
-
-WWR_VT_MAKE1(long1, long int)
-WWR_VT_MAKE2(long2, long int)
-WWR_VT_MAKE3(long3, long int)
-WWR_VT_MAKE1(ulong1, unsigned long int)
-WWR_VT_MAKE2(ulong2, unsigned long int)
-WWR_VT_MAKE3(ulong3, unsigned long int)
-
-WWR_VT_MAKE1(longlong1, long long int)
-WWR_VT_MAKE2(longlong2, long long int)
-WWR_VT_MAKE3(longlong3, long long int)
-WWR_VT_MAKE1(ulonglong1, unsigned long long int)
-WWR_VT_MAKE2(ulonglong2, unsigned long long int)
-WWR_VT_MAKE3(ulonglong3, unsigned long long int)
-
-WWR_VT_MAKE1(float1, float)
-WWR_VT_MAKE2(float2, float)
-WWR_VT_MAKE3(float3, float)
-WWR_VT_MAKE4(float4, float)
-
-WWR_VT_MAKE1(double1, double)
-WWR_VT_MAKE2(double2, double)
-WWR_VT_MAKE3(double3, double)
-
-#undef WWR_VT_MAKE1
-#undef WWR_VT_MAKE2
-#undef WWR_VT_MAKE3
-#undef WWR_VT_MAKE4
+#define WWR_VT_FN inline
+#include "detail/vector_types_names.h"
+#undef WWR_VT_FN
 
 } // namespace wwr

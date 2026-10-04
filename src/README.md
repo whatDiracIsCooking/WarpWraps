@@ -76,9 +76,14 @@ bases CUDA 13 does not deprecate (`char`/`uchar`/`short`/`ushort`/`int`/`uint`/
 spelling of a 64-bit 4-vector is portable. Construction is a portable brace
 (`float2{x, y}` — a CUDA aggregate, a HIP `HIP_vector_type` constructor), which
 is why this module — unlike `complex` — imports no raw module and the host
-`make_*` call no vendor function. `dim3` is not here: it is launch geometry, not
-a data vector, and only the HIP raw module exposes it today. See the file
-header.
+`make_*` call no vendor function. Like `fp16` / `bf16` it is the "rand.h shape":
+the `make_*` list lives once in the shared fragment `detail/vector_types_names.h`,
+pasted with the device qualifier by `vector_types.h`'s device section and with
+`inline` by both `vector_types.cppm` and the non-module `#include` path
+`wwr/vector_types.h` — the one difference from `blas`/`fp16` being that the brace
+binds no vendor symbol, so the fragment carries no `_RAW` macro. `dim3` is not
+here: it is launch geometry, not a data vector, and only the HIP raw module
+exposes it today. See the file header.
 
 `gpu.blas` names follow cuBLAS's typed names without the `_v2` suffix:
 `wwrblasSgemm` is `cublasSgemm_v2` or `hipblasSgemm`, and `wwrblasSgemm_64` is

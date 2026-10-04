@@ -10,7 +10,9 @@
  *     global module fragment and any TU naming the type includes;
  *   - the make_* constructors as __device__ __forceinline__, in a section gated
  *     behind the device-pass macros -- the device half, so a device .cu includes
- *     this one neutral header. Link wwr.device.
+ *     this one neutral header. Link wwr.device. The constructor list itself lives
+ *     once in the shared fragment detail/vector_types_names.h, pasted here with
+ *     the device qualifier and by the two host paths with `inline`.
  *
  * No wwr* prefix, and that is the point. Every other module here invents a
  * neutral name (wwrFloatComplex, wwrHalf) because the backends spell the vendor
@@ -39,7 +41,8 @@
  * could not be re-exported by a module anyway (docs/architecture.md §12, the
  * rule that forces complex through its raw module); brace construction sidesteps
  * that entirely. So vector_types.cppm imports nothing -- it re-exports these
- * aliases and defines the host make_* as the same brace. (A device TU that
+ * aliases and pastes the shared fragment's make_* as the same brace, with the
+ * host `inline` qualifier. (A device TU that
  * includes this header sees both wwr::make_float2 here and the vendor's global
  * ::make_float2; they never clash, because unqualified lookup inside namespace
  * wwr stops at wwr and the scalar arguments carry no ADL.)
@@ -60,8 +63,13 @@
  * wrapper, not this value layer.
  *
  * This is the `.h` + `.cppm` shape for a vendor header with both host and device
- * symbols, the same as fp16.h / complex.h. See docs/architecture.md, section 3,
- * and src/README.md.
+ * symbols, the same as fp16.h -- the constructor list is the shared fragment
+ * detail/vector_types_names.h (pasted by this header's device section, by
+ * vector_types.cppm and by the non-module host path wwr/vector_types.h), the
+ * "rand.h shape" minus the _RAW vendor binding (there is no vendor symbol; the
+ * braces name none). complex.h cannot share this way -- its host wrappers are
+ * vendor static-inline, so it keeps importing its raw module. See
+ * docs/architecture.md, section 3, and src/README.md.
  */
 
 #pragma once
@@ -179,82 +187,25 @@ using double3 = ::double3;
 // gated out, which is also what keeps these from colliding with the module's own
 // host definitions. Link wwr.device.
 //
-// Each is one brace construction, T{...}, the portable spelling on both backends
-// (a CUDA aggregate, a HIP HIP_vector_type constructor) -- see this file's
-// header for why no vendor make_* is called. The local macros expand to one
-// constructor apiece and are #undef'd at the end of the section; the element
-// type E matches the vendor's own make_* parameter type, so no brace narrows.
+// The constructor list itself is NOT restated here: it is the one fragment every
+// path shares, detail/vector_types_names.h, pasted below inside `namespace wwr`
+// with WWR_VT_FN set to the device qualifier (vector_types.cppm and
+// wwr/vector_types.h paste the same list with `inline`). Each is one brace
+// construction, T{...}, the portable spelling on both backends -- see this file's
+// header for why no vendor make_* is called. Add a constructor there, once, and
+// every path gains it.
 // ========================================================================
 
 #if defined(__CUDACC__) || defined(__HIP__) || defined(__HIPCC__)
 
 namespace wwr {
 
-#define WWR_VT_MAKE1(T, E)                                                                         \
-  __device__ __forceinline__ T make_##T(const E x) { return T{x}; }
-#define WWR_VT_MAKE2(T, E)                                                                         \
-  __device__ __forceinline__ T make_##T(const E x, const E y) { return T{x, y}; }
-#define WWR_VT_MAKE3(T, E)                                                                         \
-  __device__ __forceinline__ T make_##T(const E x, const E y, const E z) { return T{x, y, z}; }
-#define WWR_VT_MAKE4(T, E)                                                                         \
-  __device__ __forceinline__ T make_##T(const E x, const E y, const E z, const E w) {              \
-    return T{x, y, z, w};                                                                          \
-  }
-
-WWR_VT_MAKE1(char1, signed char)
-WWR_VT_MAKE2(char2, signed char)
-WWR_VT_MAKE3(char3, signed char)
-WWR_VT_MAKE4(char4, signed char)
-WWR_VT_MAKE1(uchar1, unsigned char)
-WWR_VT_MAKE2(uchar2, unsigned char)
-WWR_VT_MAKE3(uchar3, unsigned char)
-WWR_VT_MAKE4(uchar4, unsigned char)
-
-WWR_VT_MAKE1(short1, short)
-WWR_VT_MAKE2(short2, short)
-WWR_VT_MAKE3(short3, short)
-WWR_VT_MAKE4(short4, short)
-WWR_VT_MAKE1(ushort1, unsigned short)
-WWR_VT_MAKE2(ushort2, unsigned short)
-WWR_VT_MAKE3(ushort3, unsigned short)
-WWR_VT_MAKE4(ushort4, unsigned short)
-
-WWR_VT_MAKE1(int1, int)
-WWR_VT_MAKE2(int2, int)
-WWR_VT_MAKE3(int3, int)
-WWR_VT_MAKE4(int4, int)
-WWR_VT_MAKE1(uint1, unsigned int)
-WWR_VT_MAKE2(uint2, unsigned int)
-WWR_VT_MAKE3(uint3, unsigned int)
-WWR_VT_MAKE4(uint4, unsigned int)
-
-WWR_VT_MAKE1(long1, long int)
-WWR_VT_MAKE2(long2, long int)
-WWR_VT_MAKE3(long3, long int)
-WWR_VT_MAKE1(ulong1, unsigned long int)
-WWR_VT_MAKE2(ulong2, unsigned long int)
-WWR_VT_MAKE3(ulong3, unsigned long int)
-
-WWR_VT_MAKE1(longlong1, long long int)
-WWR_VT_MAKE2(longlong2, long long int)
-WWR_VT_MAKE3(longlong3, long long int)
-WWR_VT_MAKE1(ulonglong1, unsigned long long int)
-WWR_VT_MAKE2(ulonglong2, unsigned long long int)
-WWR_VT_MAKE3(ulonglong3, unsigned long long int)
-
-WWR_VT_MAKE1(float1, float)
-WWR_VT_MAKE2(float2, float)
-WWR_VT_MAKE3(float3, float)
-WWR_VT_MAKE4(float4, float)
-
-WWR_VT_MAKE1(double1, double)
-WWR_VT_MAKE2(double2, double)
-WWR_VT_MAKE3(double3, double)
-
-#undef WWR_VT_MAKE1
-#undef WWR_VT_MAKE2
-#undef WWR_VT_MAKE3
-#undef WWR_VT_MAKE4
+// The make_* constructors, from the one fragment every path shares -- here with
+// the device qualifier (vector_types.cppm and wwr/vector_types.h paste the same
+// list with `inline`). See detail/vector_types_names.h.
+#define WWR_VT_FN __device__ __forceinline__
+#include "detail/vector_types_names.h"
+#undef WWR_VT_FN
 
 } // namespace wwr
 
