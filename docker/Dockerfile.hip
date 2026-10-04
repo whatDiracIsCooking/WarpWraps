@@ -44,23 +44,28 @@ USER root
 ARG PROJECT_NAME
 LABEL devcontainer.project="${PROJECT_NAME}"
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=bind,source=docker/install-rocm.sh,target=/tmp/install-rocm.sh \
-    ROCM_VERSION="${ROCM_VERSION}" ROCM_PRUNE="${ROCM_PRUNE}" \
-    bash /tmp/install-rocm.sh
-
 # The LLVM target for the AMD card this image is built for. Exported as
 # GPU_TARGETS / AMDGPU_TARGETS so a HIP CMake build has a default to read.
 # gfx1200 is RDNA4 (Radeon RX 9060 XT); override for another card:
 #   --build-arg GPU_TARGETS=gfx1100
 #
-# It is declared BEFORE the ROCm-DS layer below because that layer compiles
-# kernels and has to be told what for -- and because hipCOMP takes ONE
-# wave-size flag for the whole library, this single value is load-bearing there
-# in a way it is not for the rest of the image. install-rocm-ds.sh has the
-# detail, including why a multi-target list is rejected outright.
+# It is declared BEFORE THE ROCm LAYER, not just before the ROCm-DS layer: on
+# the TheRock channel (ROCm >= 7.9) GPU kernels ship as per-arch packages whose
+# names carry the arch, so install-rocm.sh cannot write its package set without
+# this -- it fails loudly if GPU_TARGETS is unset. The ROCm-DS layer below needs
+# it too, and because hipCOMP takes ONE wave-size flag for the whole library,
+# this single value is load-bearing there in a way it is not for the rest of the
+# image. install-rocm-ds.sh has the detail, including why a multi-target list is
+# rejected outright.
 ARG GPU_TARGETS=gfx1200
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=type=bind,source=docker/install-rocm.sh,target=/tmp/install-rocm.sh \
+    ROCM_VERSION="${ROCM_VERSION}" ROCM_PRUNE="${ROCM_PRUNE}" \
+    GPU_TARGETS="${GPU_TARGETS}" \
+    bash /tmp/install-rocm.sh
+
 ENV GPU_TARGETS=${GPU_TARGETS} \
     AMDGPU_TARGETS=${GPU_TARGETS} \
     ROCM_PATH=/opt/rocm \
