@@ -298,6 +298,28 @@ target_include_directories(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.sparse_host)
 
+# comp's non-module #include path. Inside the WWR_WITH_COMP gate, like
+# wwr.comp.host / wwr.test.gpu.comp (the module test) themselves. Unlike
+# tensor_host it RUNs: the shared gpu_compile_tests runner already links the raw
+# comp module (nvcomp::nvcomp / hipcomp::hipcomp) into a runnable binary, so no
+# device-probe-at-startup issue forces NO_RUN here.
+if(WWR_WITH_COMP)
+  wwr_add_test_executable(
+    NAME
+    wwr.test.gpu.comp_host
+    MAIN
+    comp_host.cpp
+    TIMEOUT
+    30
+    LINK_PRIVATE
+    wwr::comp::host
+  )
+  target_include_directories(
+    wwr.test.gpu.comp_host PRIVATE ${PROJECT_SOURCE_DIR}
+  )
+  add_dependencies(compile_time_tests wwr.test.gpu.comp_host)
+endif()
+
 # tensor is the one wwr* compile-time test kept OUT of the shared, RUN
 # gpu_compile_tests binary above: on HIP, libhiptensor.so runs a device probe in
 # a global constructor that aborts at process startup on any host without a

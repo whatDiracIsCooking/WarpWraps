@@ -14,11 +14,12 @@
 // package and re-attach in a
 // find_package consumer.
 //
-// wwr/tensor.h (wwr::tensor::host) rides the same path but is OPTIONAL in the
-// package: tensor ships only from a build configured with -DWWR_WITH_TENSOR=ON,
-// so it is reached under WWR_CONSUMER_HAS_TENSOR, which the consumer's
-// CMakeLists sets from WWR_HAS_TENSOR -- the same optional-component shape the
-// wrappers / extension layers use.
+// wwr/tensor.h (wwr::tensor::host) and wwr/comp.h (wwr::comp::host) ride the same
+// path but are OPTIONAL in the package: tensor / comp ship only from a build
+// configured with -DWWR_WITH_TENSOR=ON / -DWWR_WITH_COMP=ON, so they are reached
+// under WWR_CONSUMER_HAS_TENSOR / WWR_CONSUMER_HAS_COMP, which the consumer's
+// CMakeLists sets from WWR_HAS_TENSOR / WWR_HAS_COMP -- the same optional-component
+// shape the wrappers / extension layers use.
 //
 // A SEPARATE translation unit on purpose, for the reason runtime_host_check.cpp
 // documents: a TU that both imports a module and #includes its header twin would
@@ -34,6 +35,9 @@
 #include "wwr/sparse.h"
 #if defined(WWR_CONSUMER_HAS_TENSOR)
 #include "wwr/tensor.h"
+#endif
+#if defined(WWR_CONSUMER_HAS_COMP)
+#include "wwr/comp.h"
 #endif
 
 // Proof is COMPILE + LINK, no device needed. Compile: the wwr* names exist from a
@@ -67,6 +71,14 @@ bool host_headers_check() {
 #if defined(WWR_CONSUMER_HAS_TENSOR)
   wwr::wwrtensorStatus_t (*tensor_create)(wwr::wwrtensorHandle_t *) = &wwr::wwrtensorCreate;
   ok = ok && tensor_create != nullptr;
+#endif
+
+#if defined(WWR_CONSUMER_HAS_COMP)
+  // comp's surface is hand-written shims, not aliases -- take the address of one
+  // forwarder (a function, not a pointer-to-vendor-entry reference) to prove the
+  // #include path binds it and the vendor library resolves.
+  auto *const comp_compress = &wwr::wwrcompBatchedLZ4CompressAsync;
+  ok = ok && comp_compress != nullptr;
 #endif
 
   return ok;
