@@ -169,8 +169,9 @@ target_include_directories(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.runtime_api_host)
 
-# The non-module HOST #include paths for the fp16 / bf16 / rand surfaces -- the
-# same shape as wwr.test.gpu.runtime_api_host above, one per rolled-out module:
+# The non-module HOST #include paths for the fp16 / bf16 / vector_types / rand
+# surfaces -- the same shape as wwr.test.gpu.runtime_api_host above, one per
+# rolled-out module:
 # a plain .cpp that `#include`s "wwr/<x>.h" and links the header-only
 # wwr::<x>::host target. All host-only (no device function, no kernel), so no
 # gpu label and they run in CI. PROJECT_SOURCE_DIR on the include path is for
@@ -200,6 +201,21 @@ wwr_add_test_executable(
 )
 target_include_directories(wwr.test.gpu.bf16_host PRIVATE ${PROJECT_SOURCE_DIR})
 add_dependencies(compile_time_tests wwr.test.gpu.bf16_host)
+
+wwr_add_test_executable(
+  NAME
+  wwr.test.gpu.vector_types_host
+  MAIN
+  vector_types_host.cpp
+  TIMEOUT
+  30
+  LINK_PRIVATE
+  wwr::vector_types::host
+)
+target_include_directories(
+  wwr.test.gpu.vector_types_host PRIVATE ${PROJECT_SOURCE_DIR}
+)
+add_dependencies(compile_time_tests wwr.test.gpu.vector_types_host)
 
 wwr_add_test_executable(
   NAME
