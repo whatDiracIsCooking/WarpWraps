@@ -111,13 +111,29 @@ reports the installed SDK against these pins and warns when they have drifted.
 The Dockerfile `ARG` defaults still exist as a fallback for a raw
 `docker build` by hand, so they must not drift from `config.sh` — bump both.
 
-**`ROCM_VERSION` has a ceiling of 7.2.4**, and it is that repository that sets
-it: `repo.radeon.com/rocm/apt/` ends there, `latest/` included, so a higher
-value 404s on the `Release` file. ROCm ≥ 7.11 is published only through
-TheRock, on another host with another package namespace and install prefix —
-reaching it is a port of `install-rocm.sh` rather than a new value here. That
-script's comment has the detail; issue #153 and `docs/architecture.md` §23 have
-the measurements taken at ROCm 10.0.0.
+**`ROCM_VERSION` selects one of two apt channels, and `install-rocm.sh` decides
+which from the value itself.** Up to 7.2.4 it installs from
+`repo.radeon.com/rocm/apt/` (suite `noble`, `rocm-hip-sdk` and friends); from
+7.9.0 up it installs from TheRock —
+`stable.repo.amd.com/rocm/core/packages/<distro>`, suite `stable`, the
+`amdrocm-*` namespace, and an `/opt/rocm/core-<major.minor>` prefix reached
+through alternatives links. The legacy repository genuinely ends at 7.2.4
+(`latest/` included, and 7.11/7.14 404 there), which is why the split exists
+rather than one URL with a version in it.
+
+**Both channels have to keep working**, and not for symmetry: the ROCm floor is
+7.1.0 (`CMakeLists.txt`, `docs/architecture.md` §21) and is installable *only*
+on the legacy channel, so the `cpp-floor (hip-floor)` CI leg rides the legacy
+branch. Raising the floor onto TheRock would mean giving up the full-minor gap
+below the pin that makes that leg catch anything.
+
+On TheRock, **`GPU_TARGETS` is required and controls image size**: GPU kernels
+ship as per-arch packages, so the package set cannot be written without it, and
+naming one arch rather than the unversioned `amdrocm-core-dev` meta (which
+hard-depends on all 25) is the difference between an 11.3GB image and a 27.9GB
+one. It also makes `ROCM_PRUNE` nearly vestigial there — the arch choice
+already takes off more than the old prune list did. `install-rocm.sh` has the
+measurements; issue #305 has the full port record.
 
 ### The vendor libraries, and where each one comes from
 

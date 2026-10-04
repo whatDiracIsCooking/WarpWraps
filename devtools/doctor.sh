@@ -411,13 +411,20 @@ else
 fi
 
 # ROCm's own version file is the exact triple; hipconfig only proves the SDK is
-# here. /opt/rocm is the version-agnostic symlink the install maintains.
-if find_tool hipconfig >/dev/null 2>&1; then
+# here. ASK hipconfig WHERE ROCm IS rather than assuming /opt/rocm holds the
+# version file: that is true on the legacy channel (<= 7.2.4), where /opt/rocm
+# is a symlink to /opt/rocm-<version>, but NOT on TheRock (>= 7.9), where
+# /opt/rocm is a real directory of alternatives links and the version file lives
+# at /opt/rocm/core-<major.minor>/.info/version. `hipconfig --rocmpath` returns
+# the right prefix on both (/opt/rocm and /opt/rocm/core-10.0 respectively), so
+# this needs no channel branch. See issue #305.
+if hipconfig=$(find_tool hipconfig); then
   rocm_installed=""
-  [ -r /opt/rocm/.info/version ] &&
-    rocm_installed=$(head -1 /opt/rocm/.info/version 2>/dev/null | cut -d- -f1)
+  rocm_root=$("$hipconfig" --rocmpath 2>/dev/null || true)
+  [ -n "$rocm_root" ] && [ -r "$rocm_root/.info/version" ] &&
+    rocm_installed=$(head -1 "$rocm_root/.info/version" 2>/dev/null | cut -d- -f1)
   if [ -z "$rocm_installed" ]; then
-    note "hipconfig present but /opt/rocm/.info/version is unreadable -- skipping the ROCm pin check"
+    note "hipconfig present but \$(hipconfig --rocmpath)/.info/version is unreadable -- skipping the ROCm pin check"
   elif [ "$rocm_installed" = "$ROCM_VERSION" ]; then
     ok "ROCm $rocm_installed matches the pin ($ROCM_VERSION)"
   else

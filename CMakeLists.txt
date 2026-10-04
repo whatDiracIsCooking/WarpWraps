@@ -305,10 +305,20 @@ else()
   # `hip` package's own version is NOT the ROCm release number: hip_VERSION is
   # 7.2.53211 on ROCm 7.2.4 (its patch is the HIP SDK build, unrelated to ROCm's
   # .4), so a floor check against it would compare the wrong patch field. The
-  # honest source is /opt/rocm/.info/version (`7.2.4`). Locate it from where
+  # honest source is <rocm>/.info/version (`7.2.4`). Locate it from where
   # find_package(hip) resolved -- hip_DIR is <rocm>/lib/cmake/hip -- rather than
   # a hardcoded /opt/rocm, and fail here, naming the floor, if it is too old.
-  get_filename_component(_wwr_rocm_root "${hip_DIR}/../../.." ABSOLUTE)
+  #
+  # REALPATH FIRST, AND IT IS LOAD-BEARING ON ROCm >= 7.9. There /opt/rocm is a
+  # real directory whose `lib` is a Debian-alternatives symlink into
+  # /opt/rocm/core-<major.minor>/lib, so hip_DIR comes back as the SYMLINKED
+  # /opt/rocm/lib/cmake/hip and climbing three levels lands on /opt/rocm, which
+  # has no .info/ -- the check would silently stop enforcing the floor.
+  # Resolving the link first lands on the versioned prefix that does carry it.
+  # Verified on both channels: ROCm 10.0.0 -> /opt/rocm/core-10.0, ROCm 7.2.4 ->
+  # /opt/rocm-7.2.4. See issue #305.
+  get_filename_component(_wwr_hip_real "${hip_DIR}" REALPATH)
+  get_filename_component(_wwr_rocm_root "${_wwr_hip_real}/../../.." ABSOLUTE)
   if(EXISTS "${_wwr_rocm_root}/.info/version")
     file(READ "${_wwr_rocm_root}/.info/version" _wwr_rocm_version)
     string(STRIP "${_wwr_rocm_version}" _wwr_rocm_version)
