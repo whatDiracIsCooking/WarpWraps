@@ -44,6 +44,23 @@
 # against the pinned ROCm is not ready to be one. Issue #126 holds the evidence
 # and the cuGraph/hipGRAPH API measurements for when ROCm-DS supports ROCm 7 on
 # RDNA.
+#
+# VERIFIED AGAINST ROCm 10.0.0 (TheRock), 2026-10-04, issue #305 step 5: this
+# file needs NO changes there. hipCOMP v2.2.0 builds clean with the same two
+# C++17 patches below (ROCm 10's rocPRIM still requires C++17, not C++20),
+# 28/28 objects in ~2.5min, 41MB installed; the fatbin carries exactly one
+# device entry (hipv4-amdgcn-amd-amdhsa--gfx1200), so CMAKE_HIP_ARCHITECTURES
+# is still the knob that takes effect and the wave-size derivation below is
+# still correct. wwr.hip.hipcomp compiles against it too. v2.2.0 remains
+# upstream's only tag, so there is nothing to bump even if there were a reason.
+#
+# hipCOMP is therefore NOT what blocks ROCm 10. That is the host toolchain, and
+# it is tracked as issue #307: ROCm 10 ships AMD clang 23 and its device bitcode
+# is LLVM-23-produced, which clang-20 cannot read ("Unknown attribute kind (106)
+# ... Reader: LLVM 20.1.8"), so every `.cu` device TU fails. #307 has the
+# measurement, including why stubbing clang-20's four missing oclc_* files does
+# not get around it and why ROCm's own clang cannot be used for just the `.cu`
+# files (module PCMs are not portable across compiler versions).
 set -euo pipefail
 
 HIPCOMP_VERSION="${HIPCOMP_VERSION:?HIPCOMP_VERSION must be set, e.g. v2.2.0}"
