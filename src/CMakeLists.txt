@@ -48,12 +48,15 @@ add_library(wwr::backend ALIAS wwr_backend)
 # per-kernel target that does.
 #
 # WWR_WARP_SIZE is a configure-time constant, not a backend switch.
-# cooperative_groups.h and wmma.h need no target of their own:
+# cooperative_groups.h, wmma.h and cub.h need no target of their own:
 # both vendors ship them header-only on the include path CUDA::cudart /
-# hip::host already bring (docs/architecture.md §2, §16 -- and do NOT add
-# find_package(rocwmma), which drags in hip::device; see §17). The common
-# atomics need no header either -- the vendor runtime runtime.h's device
-# section pulls in declares them (§15, test/gpu/atomics.cu).
+# hip::host already bring (docs/architecture.md §2, §16, §22 -- and do NOT add
+# find_package(rocwmma), which drags in hip::device; see §17). cub.h rides the
+# same path: CUB sits in the toolkit's cccl include dir CUDA::cudart carries
+# (the same one <cuda/atomic> needs), and hipCUB + its rocPRIM backend sit under
+# the ROCm include root hip::host brings -- so, like rocWMMA, no find_package.
+# The common atomics need no header either -- the vendor runtime runtime.h's
+# device section pulls in declares them (§15, test/gpu/atomics.cu).
 add_library(wwr.device INTERFACE)
 target_include_directories(
   wwr.device

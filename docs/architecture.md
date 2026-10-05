@@ -766,8 +766,9 @@ device code that needs it. The device-instantiated template therefore can live
 neither in a module nor be delivered through one; the most a module could ever
 offer is a host-callable *facade* whose definition is a separately compiled `.cu`
 bound at link time. This is not a Thrust quirk — it holds for any
-device-instantiated template library (CUB, a project's own `__device__`
-templates). So this layer is headers a `.cu` (or `-x hip`) TU `#include`s; a host
+device-instantiated template library (CUB — now `src/cub.h`, §24 — or a
+project's own `__device__` templates). So this layer is headers a `.cu` (or `-x
+hip`) TU `#include`s; a host
 TU that wants these algorithms must itself go through the device pass. (Only
 Thrust's *host* execution policies — `thrust::host`/`seq`, pure CPU code — could
 live in a module, and that is not GPU work.)
@@ -886,3 +887,82 @@ across this step — the fast mover §21 names, now a major bump, so the 28
 `WWR_AMDSMI_SINCE_26_2` guards would need re-deriving before the images move.
 Why they have not moved is `docker/install-rocm.sh`: ROCm ≥ 7.11 is not published
 on the apt repository this tree installs from at all.
+
+## 24. CUB / hipCUB: the block/warp/device primitive layer
+
+`src/cub.h` exposes CUB (CUDA/CCCL) and hipCUB (ROCm) under one backend-neutral
+name, `wwr::wwrcub`. It is the primitives companion to `src/thrust` (§22): where
+Thrust is the algorithm altitude (`sort`, `reduce`, `scan` over whole ranges),
+CUB is the block/warp/device-level machinery a kernel reaches for next —
+`DeviceReduce`, `DeviceScan`, `DeviceRadixSort`, `DeviceSelect`, `BlockReduce`,
+`BlockScan`, `WarpReduce`, with the `TempStorage` / two-call-with-`d_temp_storage`
+protocol. rocThrust is itself built over rocPRIM/hipCUB, so the dependency is
+already linked into every HIP build that uses `src/thrust`.
+
+**Device-only, for §22's reason exactly — not repeated here.** A module interface
+unit cannot instantiate a device template and a device TU cannot `import` (§8),
+so `wwr::wwrcub` is headers a `.cu` / `-x hip` TU `#include`s, full stop. Like
+`src/thrust` it is header-only with no `.so`, so there is no `vendor/` manifest
+and no `coverage_decisions.json` entry (that governs the machine-harvestable
+vendor modules). And like `cooperative_groups.h` / `wmma.h` it needs no CMake
+target of its own and no `find_package`: CUB rides the toolkit's `cccl` include
+dir `CUDA::cudart` already carries, hipCUB and its rocPRIM backend ride the ROCm
+include root `hip::host` brings, so it links `wwr.device` and nothing more. Zero
+docker work — both libraries are already installed (CUB in the CUDA toolkit,
+hipCUB as `amdrocm-ccl-dev` / `rocm-hip-sdk`).
+
+**Why `wmma.h`'s shape, not `src/thrust`'s.** `src/thrust` is per-header leaves
+of `using ::thrust::<name>` because both backends spell the namespace `thrust::`
+— no `#if` for a name. CUB does not: it is `cub::` on CUDA and `hipcub::` on HIP.
+The leaf shape would put that backend `#if` in every one of ~20 headers; one
+namespace alias puts it once and carries every member name across untouched —
+the cost `wmma.h` (§16) exists to pay a single time. `src/cub.h` is therefore
+`wmma.h`'s twin: the include switch (`<cub/cub.cuh>` vs `<hipcub/hipcub.hpp>`)
+plus exactly one name, behind the device-pass gate. It is one notch lighter than
+`wmma.h` — it reaches `selected_backend.h` directly rather than `runtime.h`,
+because CUB needs only *which backend*, not `WWR_WARP_SIZE`.
+
+**Why the name is `wwrcub`, not `wwr::cub`.** The two precedents disagree —
+`wmma` coined `wwrwmma`, `thrust` kept `wwr::thrust` — so this is chosen, not
+inherited. The rule that resolves it: **coin a `wwr`-prefixed namespace when the
+vendors' own names diverge, keep the vendor name when they agree.** `wwr::thrust`
+keeps `thrust` only because `thrust` is already identical on both backends;
+`wwrwmma` was coined because `nvcuda::wmma` ≠ `rocwmma`. CUB is the second case
+(`cub` ≠ `hipcub`), so it follows `wmma`: `wwr::wwrcub`.
+
+**The measured surface.** hipCUB is a *port* of CUB over rocPRIM, not a clone, so
+the intersection was measured, not assumed — CUB from CCCL (CUDA 13.0) against
+hipCUB (ROCm 7.2.4), `gfx1200`, both compiled. The device/block/warp
+**primitives agree by name 1:1** and are in scope: device-wide `DeviceReduce`,
+`DeviceScan`, `DeviceRadixSort`, `DeviceSegmentedRadixSort`, `DeviceSelect`,
+`DevicePartition`, `DeviceRunLengthEncode`, `DeviceHistogram`, `DeviceMergeSort`,
+`DeviceSegmentedReduce`, `DeviceAdjacentDifference`, `DeviceFor`, `DeviceCopy`,
+`DeviceMemcpy`, `DeviceMerge`, `DeviceTransform`; block-level `BlockReduce`,
+`BlockScan`, `BlockRadixSort`, `BlockLoad`, `BlockStore`, `BlockDiscontinuity`,
+`BlockExchange`, `BlockHistogram`, `BlockMergeSort`; warp-level `WarpReduce`,
+`WarpScan`, `WarpExchange`, `WarpLoad`, `WarpStore`, `WarpMergeSort` — with their
+algorithm-selector enums (`BLOCK_REDUCE_RAKING`, `BLOCK_SCAN_WARP_SCANS`,
+`BLOCK_LOAD_DIRECT`, `WARP_LOAD_DIRECT`, …), the cache load/store modifiers, and
+the `ArgIndexInputIterator` / `CacheModifiedInputIterator` iterators.
+
+**What does not agree, and so is out of scope** (reachable only by naming the
+vendor namespace directly, which forfeits portability):
+
+- **Warp size.** CUB's `WARP_THREADS` is a compile-time 32; a HIP build's warp is
+  the device's (32 on RDNA, 64 on CDNA). A kernel that hard-codes 32 lanes is
+  silently wrong on wave64 — the `fragment::num_elements` class of trap (§16).
+  `WARP_THREADS` itself is CUDA-only; hipCUB exposes no such constant.
+- **util_ptx intrinsics.** `hipcub::LaneId()` / `WarpId()` exist; CUB 13 moved its
+  equivalents out of `::cub`. Lane/warp identity goes through the vendor runtime,
+  not `wwrcub`.
+- **One-sided classes.** `hipcub::BlockShuffle`, `hipcub::TransformInputIterator`
+  and `hipcub::DeviceSpmv` are HIP-only; CUB's `RADIX_RANK_BASIC` radix-rank enum
+  value is CUDA-only.
+- **Comparators.** Neither carries a ready-made `Less` / `Greater`; a merge-sort
+  caller brings its own functor (which is the real usage anyway).
+
+The acceptance is the compile-time device TU `test/gpu/cub.cu` (beside
+`test/gpu/thrust.cu`), which names every in-scope entity so each is checked
+against the selected backend — building it on both is the whole test, no ctest
+entry and no launch. That test is how the two divergences above that a header
+grep missed (`BlockShuffle`, the absent `Less`) were caught.

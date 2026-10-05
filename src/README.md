@@ -421,7 +421,7 @@ see its section above and `docs/architecture.md` §12.
 
 A `.cppm` here is a module, and code that imports one is host code. A kernel
 translation unit — a `.cu` under CUDA, a `-x hip` compiled source under HIP —
-imports no modules at all, so none of the modules above can serve it. Three
+imports no modules at all, so none of the modules above can serve it. Several
 device headers are the counterpart for that case: same `wwr*` names, reached by
 `#include`, with the backend resolved through `selected_backend.h` (which reads
 the compiler's own device-compile macro before `backend.h`'s CMake define)
@@ -429,12 +429,12 @@ rather than by an `import`. Under `src/extension`, `parallel_for.cuh` is a `.cuh
 and `#error`s if included outside a
 device-compile pass, a *separate* check on `__CUDACC__` / `__HIP__` /
 `__HIPCC__`, because `selected_backend.h` would otherwise resolve a backend in a
-host compile too, and what it carries is device-only. `cooperative_groups.h` and
-`wmma.h` are `.h`: just as device-only, but instead of the `#error` their *whole*
-body sits behind that same `__CUDACC__` / `__HIP__` / `__HIPCC__` check, so a
-host TU that includes one gets an empty header rather than an error. They are
-host-*safe* without being host-*usable* — no `wwr*` name reaches a host consumer
-— which is what makes them `.h`, not `.cuh`.
+host compile too, and what it carries is device-only. `cooperative_groups.h`,
+`wmma.h` and `cub.h` are `.h`: just as device-only, but instead of the `#error`
+their *whole* body sits behind that same `__CUDACC__` / `__HIP__` / `__HIPCC__`
+check, so a host TU that includes one gets an empty header rather than an error.
+They are host-*safe* without being host-*usable* — no `wwr*` name reaches a host
+consumer — which is what makes them `.h`, not `.cuh`.
 
 (`runtime`, `rand`, `complex`, `fp16`, `bf16`, `fp8`, `vector_types` and `atomic`
 are the *shared-type* headers these build on, not device-only ones: their device
@@ -458,7 +458,10 @@ intrinsics need. `cooperative_groups.h` and `wmma.h` need no `#error`: they
 `#include` `runtime.h` from inside their own device gate, which gives them the
 backend selection and `WWR_WARP_SIZE` in a device pass and nothing at all in a
 host compile (`runtime.h` is host-safe and reaches `selected_backend.h` directly,
-not `device_guard.h`). The guard cannot move into `selected_backend.h` itself,
+not `device_guard.h`). `cub.h` is the same but lighter — CUB needs only *which
+backend*, not `WWR_WARP_SIZE` (each vendor's primitives size their own warp), so
+it reaches `selected_backend.h` directly from inside its gate rather than
+`runtime.h`. The guard cannot move into `selected_backend.h` itself,
 which is "for anything" and must not `#error` in the host compiles the bridges
 do; `device_guard.h` is the device-only layer above it that can. It carries no
 vendor header and no target-specific content, so the `.cuh` that need it share it
@@ -469,6 +472,7 @@ regardless of which target they are in.
 | `runtime.h` | `wwrStream_t` (always); `WWR_GRID_CONSTANT`, `WWR_WARP_SIZE` and the full vendor runtime header (device-pass-gated section) | `wwr.device` |
 | `cooperative_groups.h` | nothing of its own — the vendor's `namespace cooperative_groups`, reached through the one `#include` that differs | `wwr.device` |
 | `wmma.h` | `wwrwmma`, aliasing the vendor's `nvcuda::wmma` / `rocwmma` — the namespace is the only name here, the spellings inside it agree | `wwr.device` |
+| `cub.h` | `wwrcub`, aliasing CUB's `::cub` / hipCUB's `::hipcub` — the namespace is the only name here, the device/block/warp primitive spellings inside it agree (docs/architecture.md §24) | `wwr.device` |
 | `atomic.h` | `wwrMemoryOrder`, `wwrThreadScope` (always — also re-exported by `wwr.atomic`); the `wwrAtomic*` forwarders — `Load`/`Store`/`Exchange`, `CompareExchange{Strong,Weak}`, `Fetch{Add,Sub,And,Or,Xor,Min,Max}`, each carrying an explicit order and scope (device-pass-gated section) | `wwr.device` |
 
 The `rand`, `complex`, `fp16`, `bf16`, `fp8` and `vector_types` device wrappers
@@ -479,15 +483,16 @@ alongside that module's types, reached by `#include "<name>.h"`. `rand`'s
 `bf16`'s `wwrFloat2Bfloat16`/`wwrBfloat162Float`, `fp8`'s
 `wwrFloat2Fp8`/`wwrDouble2Fp8`, `vector_types`'s `make_*`) ride `wwr.device`.
 
-`cooperative_groups.h` and `wmma.h` are the two with no `.cppm` counterpart:
+`cooperative_groups.h`, `wmma.h` and `cub.h` are the three with no `.cppm`
+counterpart:
 every entity they hand a kernel is `__device__`-only, structurally, so there is
-nothing a module could export to host code. `atomic` was a third until its enums
+nothing a module could export to host code. `atomic` was once among them until its enums
 were split out — its scoped-atomic *operations* are `__device__ __forceinline__`
 and stay device-only (a host-side `cuda::atomic` operations module was weighed
 and declined; docs/architecture.md §20), but the two enums they take are plain
 data that crosses the boundary, so `wwr.atomic` exports those and `atomic.h`
 became a shared-type `.h` — which is why it sits with `runtime.h` in the table
-above, not here. All three device sections reach the vendor runtime header and
+above, not here. `cooperative_groups.h`, `wmma.h` and `atomic.h`'s device sections reach the vendor runtime header and
 the backend switch through `runtime.h`, now that the former `runtime.cuh` is
 folded into it, taking that `#include` from inside their device gate — so they
 pull it only in a device pass and need no `#error` of their own.
@@ -495,7 +500,10 @@ pull it only in a device pass and need no `#error` of their own.
 tile size is built from for one and a wave index for the other, both APIs being
 whole-warp collectives; `atomic.h`'s device section wants it for the runtime
 header that on HIP declares the `__HIP_MEMORY_SCOPE_*` constants its builtins
-take.
+take. `cub.h` is the exception that reaches `selected_backend.h` directly, not
+`runtime.h`: it needs only the backend switch (CUB brings its own runtime header
+and sizes its own warp), so it pulls neither `WWR_WARP_SIZE` nor the vendor
+runtime header this layer otherwise shares.
 
 `cooperative_groups.h` is also the only one here that defines **no `wwr*`
 names at all**. Both
@@ -516,6 +524,19 @@ name, `wwrwmma`, and nothing else; the divergences it cannot absorb — 16x16x16
 being the only portable shape, `wwrBfloat16` not being a usable element type
 under HIP, and `fragment::num_elements` changing between HIP's two compile
 passes — are documented rather than wrapped.
+
+`cub.h` is `wmma.h`'s twin, one library over: CUB (CCCL) and hipCUB are
+separately written implementations that agree on the device/block/warp primitive
+spellings (`DeviceReduce`, `BlockScan`, `WarpReduce`, …) but not on the namespace
+(`::cub` against `::hipcub`), so it too is the `#include` switch plus exactly one
+coined name, `wwrcub`. It chose the alias shape over `src/thrust`'s per-header
+`using` leaves precisely because of that namespace divergence — one alias carries
+the `#if` once where ~20 leaves would each repeat it — and the coined `wwrcub`
+spelling (over `wwr::cub`) because, like `wmma`, the vendors' own names differ;
+the full reasoning, the measured portable surface and the divergences it
+documents rather than wraps (warp-size dependence, the one-sided
+`hipcub::BlockShuffle` / CUDA-only `RADIX_RANK_BASIC`, the absent `Less`) are in
+docs/architecture.md §24. Its acceptance is `test/gpu/cub.cu`.
 
 `atomic.h` genuinely wraps, where `cooperative_groups.h` renames nothing and
 `wmma.h` renames one namespace. Its device section forwards a real divergence:
@@ -656,7 +677,7 @@ does not fully separate them:
 | shared-type | ✅ | ✅ | `*.h` — `runtime.h`, `complex.h`, `rand.h`, `fp16.h`, `bf16.h`, `fp8.h`, `vector_types.h`, `atomic.h` |
 | **bridge** | ✅ | ✅ | `*_bridge.h` |
 | device-only | ❌ | ✅ | `*.cuh` — `parallel_for.cuh`, `math.cuh` |
-| device-only, gated | ✅ (empty) | ✅ | `*.h` — `cooperative_groups.h`, `wmma.h` |
+| device-only, gated | ✅ (empty) | ✅ | `*.h` — `cooperative_groups.h`, `wmma.h`, `cub.h` |
 
 `runtime.h`, `rand.h`, `complex.h`, `fp16.h`, `bf16.h`, `fp8.h`,
 `vector_types.h` and `atomic.h` are the shared-type row's hybrids: each carries
@@ -675,7 +696,7 @@ is irregular — `runtime_api.cppm` binds the runtime surface through its own
 `runtime_api.h` and does not include `runtime.h`, see its own note above.)
 
 A wrapper with *no* host half can still be a `.h` — the device-only-gated row:
-`cooperative_groups.h` and `wmma.h` put their *entire* body behind the device-pass
+`cooperative_groups.h`, `wmma.h` and `cub.h` put their *entire* body behind the device-pass
 macros, so they compile to nothing in a host TU, host-*safe* without being
 host-*usable*. What forces a `.cuh` instead is the hard `#error`:
 `parallel_for.cuh` and `math.cuh` refuse a host compile outright rather than
@@ -684,7 +705,7 @@ gating to empty.
 So `.h` on its own does *not* mean "safe from a `.cu`" (`backend.h` is `.h` and
 host-only), and several `.h`s deliberately compile in both modes — the
 shared-type `complex.h`, `runtime.h`, `rand.h`, `atomic.h`, and the device-only-gated
-`cooperative_groups.h` / `wmma.h`. What separates the *shared-type* headers from a
+`cooperative_groups.h` / `wmma.h` / `cub.h`. What separates the *shared-type* headers from a
 `_bridge.h` is **what crosses**: a shared-type header names a *type* that
 device code and a host TU (a module GMF, a plain `.cu`) both `#include` so they
 agree with the type the module exports (`wwrFloatComplex` via `complex.h`,
