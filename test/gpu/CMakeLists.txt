@@ -602,6 +602,27 @@ wwr_add_gpu_device_library(
 )
 add_dependencies(compile_time_tests wwr.test.gpu.thrust.device)
 
+# cub.cu is wmma.cu's shape: src/cub.h defines a single name, the wwr::wwrcub
+# alias over CUB (::cub) / hipCUB (::hipcub), and every entity is device-only
+# so a host-compiled .cppm test cannot reach it. And like wmma, the two
+# backends are separate implementations of a shared spelling (hipCUB is a PORT
+# of CUB over rocPRIM), so the claim that the device/block/warp primitives stay
+# interchangeable is worth compiling on both backends, not assuming. Building
+# it is the assertion; no ctest entry, no launch. Reached through wwr.device,
+# which carries cub.h and the backend's include path for the vendor headers --
+# CUB from the toolkit's cccl dir (CUDA::cudart), hipCUB + rocPRIM from the ROCm
+# include root (hip::host) -- so no find_package of its own, the same
+# header-only footing as cooperative_groups.h / wmma.h.
+wwr_add_gpu_device_library(
+  NAME
+  wwr.test.gpu.cub.device
+  SOURCES
+  cub.cu
+  LINK_PRIVATE
+  wwr::device
+)
+add_dependencies(compile_time_tests wwr.test.gpu.cub.device)
+
 # Guard: every wwr* function alias in the wwr* layer is independently verified
 # by a WWR_SAME_FUNCTION restatement in the matching test/gpu module, or by a
 # dispatch-table entry that test/shared/dispatch.py checks against the objects.
