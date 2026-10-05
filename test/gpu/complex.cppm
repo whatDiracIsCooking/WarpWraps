@@ -41,10 +41,21 @@ WWR_SAME_TYPE(wwrComplex, hipComplex)
 // Backend-independent: wwrComplex is the single-precision complex type.
 static_assert(std::is_same_v<wwrComplex, wwrFloatComplex>);
 
-// The host construction and arithmetic wrappers are forwarding functions, not
-// WWR_FUNCTION reference bindings, so &gpu != &backend and WWR_SAME_FUNCTION cannot
-// apply. A bare WWR_LINK_CHECK from this importing TU is the build-time claim: each
-// exported inline wrapper is reachable by name across the import and links. The
+// Construction and the real/imag accessors are usable in a constant expression
+// on both backends (brace-init + `.x`/`.y` reads; see docs/architecture.md §3).
+constexpr wwrFloatComplex kFloat = make_wwrFloatComplex(1.0f, 2.0f);
+static_assert(wwrCrealf(kFloat) == 1.0f && wwrCimagf(kFloat) == 2.0f);
+
+constexpr wwrDoubleComplex kDouble = make_wwrDoubleComplex(3.0, 4.0);
+static_assert(wwrCreal(kDouble) == 3.0 && wwrCimag(kDouble) == 4.0);
+
+constexpr wwrComplex kComplex = make_wwrComplex(5.0f, 6.0f);
+static_assert(wwrCrealf(kComplex) == 5.0f && wwrCimagf(kComplex) == 6.0f);
+
+// The host arithmetic wrappers are forwarding functions, not WWR_FUNCTION
+// reference bindings, so &gpu != &backend and WWR_SAME_FUNCTION cannot apply. A
+// bare WWR_LINK_CHECK from this importing TU is the build-time claim: each
+// exported wrapper is reachable by name across the import and links. The
 // device-side counterparts in complex.h's device section are proved separately by complex.cu.
 WWR_LINK_CHECK(make_wwrFloatComplex)
 WWR_LINK_CHECK(make_wwrDoubleComplex)

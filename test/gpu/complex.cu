@@ -73,8 +73,10 @@ static_assert(!std::is_aggregate_v<wwrFloatComplex>,
 // only portable spelling because cuFloatComplex has no operator* (see the
 // static_assert above).
 __global__ void wwr_fp_complex_float(float *out) {
-  const wwrFloatComplex a = make_wwrFloatComplex(1.0f, 2.0f);
-  const wwrFloatComplex b = make_wwrFloatComplex(3.0f, -1.0f);
+  // constexpr, not const: device-side construction is a constant expression on
+  // both backends (§3), and spelling it so traps a regression at compile time.
+  constexpr wwrFloatComplex a = make_wwrFloatComplex(1.0f, 2.0f);
+  constexpr wwrFloatComplex b = make_wwrFloatComplex(3.0f, -1.0f);
 
   const wwrFloatComplex sum = wwrCaddf(a, b);
   const wwrFloatComplex dif = wwrCsubf(a, b);
@@ -91,8 +93,8 @@ __global__ void wwr_fp_complex_float(float *out) {
 
 // Double-precision complex: the same surface over wwrDoubleComplex.
 __global__ void wwr_fp_complex_double(double *out) {
-  const wwrDoubleComplex a = make_wwrDoubleComplex(1.0, 2.0);
-  const wwrDoubleComplex b = make_wwrDoubleComplex(3.0, -1.0);
+  constexpr wwrDoubleComplex a = make_wwrDoubleComplex(1.0, 2.0);
+  constexpr wwrDoubleComplex b = make_wwrDoubleComplex(3.0, -1.0);
 
   const wwrDoubleComplex sum = wwrCadd(a, b);
   const wwrDoubleComplex dif = wwrCsub(a, b);
@@ -112,7 +114,7 @@ __global__ void wwr_fp_complex_double(double *out) {
 // token. FloatToDouble widens, DoubleToFloat narrows; the round trip exercises
 // both, fed by the alias constructor.
 __global__ void wwr_fp_complex_convert(double *out) {
-  const wwrComplex c = make_wwrComplex(1.5f, -2.5f);
+  constexpr wwrComplex c = make_wwrComplex(1.5f, -2.5f);
   const wwrDoubleComplex wide = wwrComplexFloatToDouble(c);
   const wwrFloatComplex narrow = wwrComplexDoubleToFloat(wide);
 

@@ -9,17 +9,21 @@
  *   - the type aliases (always), which complex.cppm re-exports from its global
  *     module fragment and any TU naming the type includes;
  *   - the make_wwr* / wwrC* / wwrComplex*To* wrappers as __device__
- *     __forceinline__, in a section gated behind the device-pass macros -- the
- *     device half that once lived in the separate complex.cuh, so a device .cu
- *     includes this one neutral header.
+ *     __forceinline__ (construction and the real/imag accessors also constexpr),
+ *     in a section gated behind the device-pass macros -- the device half that
+ *     once lived in the separate complex.cuh, so a device .cu includes this one
+ *     neutral header.
  *
- * The HOST wrappers are NOT here and cannot be: the vendors' own make_* / cuC*
- * functions are static inline, and an exported inline in complex.cppm cannot
- * expose a TU-local static-inline function, so complex.cppm forwards to the raw
- * cuComplex / hip_complex module's external-linkage host wrappers via its import.
- * That is why complex, unlike rand, keeps importing its raw module. This is the
- * `.h` + `.cppm` shape for a vendor header with both host and device symbols; a
- * purely device-only wrapper stays a `.cuh`. See docs/architecture.md, section 3.
+ * Construction and the real/imag accessors build and read the value directly
+ * (`wwrFloatComplex{re, im}`, `z.x`, `z.y`), needing no vendor function, so
+ * complex.cppm spells them the same way. The HOST arithmetic wrappers, by
+ * contrast, are NOT here and cannot be: the vendors' own cuC* functions are
+ * static inline, and an exported inline in complex.cppm cannot expose a TU-local
+ * static-inline function, so complex.cppm forwards to the raw cuComplex /
+ * hip_complex module's external-linkage host wrappers via its import. That is why
+ * complex, unlike rand, keeps importing its raw module. This is the `.h` + `.cppm`
+ * shape for a vendor header with both host and device symbols; a purely
+ * device-only wrapper stays a `.cuh`. See docs/architecture.md, section 3.
  */
 
 #pragma once
@@ -75,19 +79,22 @@ using wwrComplex = ::hipComplex;
 // device-pass macros so the rest of this header still compiles in a host TU
 // (where __device__ is not a keyword, so these must be ABSENT rather than
 // #error). A .cu that #includes complex.h gets them; complex.cppm, compiled as
-// host C++, does not -- it uses only the types above and reaches the same
-// construction and arithmetic through the raw module's external-linkage host
-// wrappers, because the vendors' own functions are static inline and an exported
-// inline cannot expose them. This is the device half that once lived in the
-// separate complex.cuh, folded in so a device consumer includes one neutral
-// header. Link wwr.device.
+// host C++, does not -- it uses only the types above, builds and reads values the
+// same direct way, and reaches the arithmetic through the raw module's
+// external-linkage host wrappers, because the vendors' own arithmetic functions
+// are static inline and an exported inline cannot expose them. This is the device
+// half that once lived in the separate complex.cuh, folded in so a device
+// consumer includes one neutral header. Link wwr.device.
 //
-// Construction and arithmetic go through wwr* functions rather than operators
-// because cuComplex is an operator-less float2 aggregate where hipComplex is a
-// class -- so `a * b` and brace-initialisation are not portable, and the
-// vendors' C-style functions are the only spelling that exists on both. Half and
-// bfloat16 diverge the other way and live in fp16 / bf16. See
-// docs/architecture.md, section 3.
+// Construction and the real/imag accessors build and read the value directly
+// (`wwrFloatComplex{re, im}`, `z.x`, `z.y`) and are constexpr: brace-init is a
+// different operation on each backend (aggregate init of CUDA's plain-struct
+// float2, a constexpr ctor call on HIP's HIP_vector_type class) but valid and
+// constant-evaluable on both. The arithmetic goes through wwr* functions rather
+// than operators because cuComplex defines none where hipComplex's are class
+// members -- so `a * b` is not portable, and the vendors' C-style functions are
+// the only spelling on both. Half and bfloat16 diverge the other way and live in
+// fp16 / bf16. See docs/architecture.md, section 3.
 // ========================================================================
 
 #if defined(__CUDACC__) || defined(__HIP__) || defined(__HIPCC__)
@@ -99,32 +106,21 @@ namespace wwr {
 // ------------------------------------------------------------------------
 
 /// @brief Build a single-precision complex value from its two components
-__device__ __forceinline__ wwrFloatComplex make_wwrFloatComplex(const float re, const float im) {
-#if defined(WWR_SELECTED_CUDA)
-  return ::make_cuFloatComplex(re, im);
-#else
-  return ::make_hipFloatComplex(re, im);
-#endif
+__device__ __forceinline__ constexpr wwrFloatComplex make_wwrFloatComplex(const float re,
+                                                                          const float im) {
+  return wwrFloatComplex{re, im};
 }
 
 /// @brief Build a double-precision complex value from its two components
-__device__ __forceinline__ wwrDoubleComplex make_wwrDoubleComplex(const double re,
-                                                                  const double im) {
-#if defined(WWR_SELECTED_CUDA)
-  return ::make_cuDoubleComplex(re, im);
-#else
-  return ::make_hipDoubleComplex(re, im);
-#endif
+__device__ __forceinline__ constexpr wwrDoubleComplex make_wwrDoubleComplex(const double re,
+                                                                            const double im) {
+  return wwrDoubleComplex{re, im};
 }
 
 /// @brief Build a single-precision complex value (the vendors' make_*Complex
 ///        alias for make_wwrFloatComplex -- wwrComplex is wwrFloatComplex)
-__device__ __forceinline__ wwrComplex make_wwrComplex(const float re, const float im) {
-#if defined(WWR_SELECTED_CUDA)
-  return ::make_cuComplex(re, im);
-#else
-  return ::make_hipComplex(re, im);
-#endif
+__device__ __forceinline__ constexpr wwrComplex make_wwrComplex(const float re, const float im) {
+  return wwrComplex{re, im};
 }
 
 // ------------------------------------------------------------------------
@@ -133,39 +129,23 @@ __device__ __forceinline__ wwrComplex make_wwrComplex(const float re, const floa
 // ------------------------------------------------------------------------
 
 /// @brief Real part of a single-precision complex value
-__device__ __forceinline__ float wwrCrealf(const wwrFloatComplex z) {
-#if defined(WWR_SELECTED_CUDA)
-  return ::cuCrealf(z);
-#else
-  return ::hipCrealf(z);
-#endif
+__device__ __forceinline__ constexpr float wwrCrealf(const wwrFloatComplex z) {
+  return z.x;
 }
 
 /// @brief Imaginary part of a single-precision complex value
-__device__ __forceinline__ float wwrCimagf(const wwrFloatComplex z) {
-#if defined(WWR_SELECTED_CUDA)
-  return ::cuCimagf(z);
-#else
-  return ::hipCimagf(z);
-#endif
+__device__ __forceinline__ constexpr float wwrCimagf(const wwrFloatComplex z) {
+  return z.y;
 }
 
 /// @brief Real part of a double-precision complex value
-__device__ __forceinline__ double wwrCreal(const wwrDoubleComplex z) {
-#if defined(WWR_SELECTED_CUDA)
-  return ::cuCreal(z);
-#else
-  return ::hipCreal(z);
-#endif
+__device__ __forceinline__ constexpr double wwrCreal(const wwrDoubleComplex z) {
+  return z.x;
 }
 
 /// @brief Imaginary part of a double-precision complex value
-__device__ __forceinline__ double wwrCimag(const wwrDoubleComplex z) {
-#if defined(WWR_SELECTED_CUDA)
-  return ::cuCimag(z);
-#else
-  return ::hipCimag(z);
-#endif
+__device__ __forceinline__ constexpr double wwrCimag(const wwrDoubleComplex z) {
+  return z.y;
 }
 
 /// @brief Magnitude (absolute value) of a single-precision complex value

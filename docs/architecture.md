@@ -83,12 +83,21 @@ group type on CUDA but not on HIP; tiles are bounded by `WWR_WARP_SIZE`;
 HIP counterpart; and `thread_block::group_dim()` is static on CUDA but a
 non-const member on HIP.
 
-## 3. Complex construction goes through `make_wwr*Complex`
+## 3. Complex construction is brace-init; arithmetic goes through `wwrC*`
 
 `cuFloatComplex` is `float2`, a plain aggregate; `hipFloatComplex` is a
 `HIP_vector_type<float, 2>` class. Brace-initialising `wwrFloatComplex{re, im}`
-is therefore not the same operation on both backends, and the vendor
-make-functions are the portable way to build one.
+is therefore not the *same* operation on both backends -- aggregate init on
+CUDA, a `constexpr` constructor call on HIP -- but it is valid and
+constant-evaluable on both. So `make_wwr*Complex` builds the value that way and
+is `constexpr`; the real/imag accessors read `.x`/`.y` and are likewise. Neither
+needs a vendor function.
+
+Arithmetic is different: cuComplex defines no operators where hipComplex's are
+members of its class type, so `a * b` is not portable and the vendors' C-style
+`cuC*`/`hipC*` functions are the only spelling on both. Those stay forwarding
+wrappers -- and the vendor math, e.g. cuCdiv's overflow-avoiding scaling, is not
+worth re-deriving just to make it constexpr.
 
 The float-to-half conversions need no such treatment: `__float2half` and
 `__float2bfloat16` are spelled identically by both vendors. They are re-exposed

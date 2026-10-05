@@ -22,19 +22,24 @@
  * copies name the SAME vendor types, so a host-allocated buffer and a kernel
  * parameter agree.
  *
- * Construction and arithmetic go through wwr* functions rather than operators
- * because cuComplex is an operator-less float2 aggregate where hipComplex is a
- * class -- so `a * b` and brace-initialisation are not portable, and the
- * vendors' C-style functions are the only spelling that exists on both. Half
- * and bfloat16 diverge the other way and live in fp16.cppm / bf16.cppm. See
- * docs/architecture.md, section 3.
+ * Construction and the real/imag accessors build and read the value directly --
+ * `wwrFloatComplex{re, im}`, `z.x`, `z.y` -- so they are `constexpr`. Brace-init
+ * is a different operation on each backend (aggregate init of CUDA's plain-struct
+ * float2, a constexpr ctor call on HIP's HIP_vector_type class) but is valid and
+ * constant-evaluable on both, so it needs no vendor function and no forwarding.
+ *
+ * Arithmetic, conjugate, magnitude and the precision conversions still go through
+ * the vendors' C-style functions rather than operators: cuComplex defines no
+ * operators (hipComplex's are members of its class type), so `a * b` is not
+ * portable, and the vendor math -- notably cuCdiv's overflow-avoiding scaling --
+ * is not worth re-deriving. Half and bfloat16 diverge the other way and live in
+ * fp16.cppm / bf16.cppm. See docs/architecture.md, section 3.
  *
  * The GMF #includes complex.h for the types (the one definition it shares with a
  * device .cu that includes complex.h) and re-exports the three names below. The
- * functions are not shared: the vendor's own make_* and cuC* functions are
- * static inline and an
- * exported inline cannot expose them, so the forwarders route through the raw
- * cuComplex / hip_complex module's external-linkage host wrappers (their
+ * forwarding functions are not shared: the vendor's own cuC* functions are
+ * static inline and an exported inline cannot expose them, so they route through
+ * the raw cuComplex / hip_complex module's external-linkage host wrappers (their
  * static-inline originals wrapped there, section 12) via WWR_SELECT -- reached
  * through the import, not the GMF header.
  */
@@ -70,59 +75,60 @@ using wwr::wwrComplex;
 // ========================================================================
 // Construction
 //
-// Forwarding functions, not WWR_FUNCTION reference bindings: the host wrappers
-// duplicate complex.h's device section (see the file header) and route through the
-// raw module's own host wrappers, which WWR_SELECT names.
+// Direct brace-init, not a forward: constexpr, and the same spelling the device
+// section in complex.h uses (see the file header). No vendor function, so no
+// WWR_SELECT and no raw-module host wrapper.
 // ========================================================================
 
 /// @brief Build a single-precision complex value from its two components
-inline wwrFloatComplex make_wwrFloatComplex(const float re, const float im) {
-  return WWR_SELECT(make_cuFloatComplex, make_hipFloatComplex)(re, im);
+constexpr wwrFloatComplex make_wwrFloatComplex(const float re, const float im) {
+  return wwrFloatComplex{re, im};
 }
 
 /// @brief Build a double-precision complex value from its two components
-inline wwrDoubleComplex make_wwrDoubleComplex(const double re, const double im) {
-  return WWR_SELECT(make_cuDoubleComplex, make_hipDoubleComplex)(re, im);
+constexpr wwrDoubleComplex make_wwrDoubleComplex(const double re, const double im) {
+  return wwrDoubleComplex{re, im};
 }
 
 /// @brief Build a single-precision complex value (the vendors' make_*Complex
 ///        alias for make_wwrFloatComplex -- wwrComplex is wwrFloatComplex)
-inline wwrComplex make_wwrComplex(const float re, const float im) {
-  return WWR_SELECT(make_cuComplex, make_hipComplex)(re, im);
+constexpr wwrComplex make_wwrComplex(const float re, const float im) {
+  return wwrComplex{re, im};
 }
 
 // ========================================================================
 // Arithmetic and accessors
 //
-// Through wwr* functions rather than operators, for the same reason
-// construction is (docs/architecture.md §3): cuFloatComplex is a plain float2
-// with no arithmetic operators, so `a * b` compiles under HIP -- whose
-// hipComplex is a class that defines them -- and fails under CUDA with no
-// operator match. The vendors' C-style functions exist on both and are the
-// portable spelling; the wwr* names carry the divergent cu*/hip* spellings.
+// The real/imag accessors read `.x`/`.y` directly and are constexpr. The rest
+// forward through wwr* functions rather than operators (docs/architecture.md
+// §3): cuFloatComplex is a plain float2 with no arithmetic operators, so `a * b`
+// compiles under HIP -- whose hipComplex is a class that defines them -- and
+// fails under CUDA with no operator match. The vendors' C-style functions exist
+// on both and are the portable spelling; the wwr* names carry the divergent
+// cu*/hip* spellings.
 //
 // The arguments are taken by value, as the vendors declare them --
 // wwrFloatComplex is 8 bytes, wwrDoubleComplex 16.
 // ========================================================================
 
 /// @brief Real part of a single-precision complex value
-inline float wwrCrealf(const wwrFloatComplex z) {
-  return WWR_SELECT(cuCrealf, hipCrealf)(z);
+constexpr float wwrCrealf(const wwrFloatComplex z) {
+  return z.x;
 }
 
 /// @brief Imaginary part of a single-precision complex value
-inline float wwrCimagf(const wwrFloatComplex z) {
-  return WWR_SELECT(cuCimagf, hipCimagf)(z);
+constexpr float wwrCimagf(const wwrFloatComplex z) {
+  return z.y;
 }
 
 /// @brief Real part of a double-precision complex value
-inline double wwrCreal(const wwrDoubleComplex z) {
-  return WWR_SELECT(cuCreal, hipCreal)(z);
+constexpr double wwrCreal(const wwrDoubleComplex z) {
+  return z.x;
 }
 
 /// @brief Imaginary part of a double-precision complex value
-inline double wwrCimag(const wwrDoubleComplex z) {
-  return WWR_SELECT(cuCimag, hipCimag)(z);
+constexpr double wwrCimag(const wwrDoubleComplex z) {
+  return z.y;
 }
 
 /// @brief Magnitude (absolute value) of a single-precision complex value
