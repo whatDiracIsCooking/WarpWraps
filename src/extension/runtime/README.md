@@ -53,8 +53,10 @@ class EventWrapper;
 ```
 
 Constructors:
-- Default — creates an event with `wwrEventCreate`
-- `(unsigned int flags)` — creates with `wwrEventCreateWithFlags`
+- Default — creates a timing-disabled event (`wwrEventCreateWithFlags` with
+  `wwrEventDisableTiming`)
+- `(int dev_idx, unsigned int flags)` — creates with `wwrEventCreateWithFlags`
+  and the given flags (pass `0` for a timing-capable event)
 
 Destruction calls `wwrEventDestroy`.
 
