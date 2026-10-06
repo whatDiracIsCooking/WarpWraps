@@ -27,7 +27,9 @@ using EventView = DeviceBoundHandleView<wwrEvent_t>;
  * @brief RAII wrapper for GPU event
  *
  * Automatically creates a GPU event on construction and destroys it on destruction.
- * Supports move semantics for transferring ownership.
+ * Supports move semantics for transferring ownership. Default construction creates
+ * the event with timing disabled (wwrEventDisableTiming); use the (dev_idx, flags)
+ * constructor to choose the flags, including flags = 0 for a timing-capable event.
  *
  * @tparam P_create Error policy type for creation
  * @tparam P_destroy Error policy type for destruction
@@ -64,11 +66,16 @@ public:
     this->record_device();
   }
 
-  /// @brief Create a GPU event
+  /// @brief Create a GPU event with timing disabled
   /// @param handle Output parameter for the created event
   /// @param location Source location where creation was requested
+  /// @note This is the default-construction path. It passes wwrEventDisableTiming,
+  ///       so a default-built EventWrapper is a sync-only event -- the common case,
+  ///       and the cheaper one. Construct with the (dev_idx, flags) ctor above and
+  ///       omit the flag (flags = 0) to opt into a timing-capable event.
   void create(wwrEvent_t *handle, std::source_location location) {
-    gpu_check(wwrEventCreate(handle), this->policy_create_, location);
+    gpu_check(wwrEventCreateWithFlags(handle, wwrEventDisableTiming), this->policy_create_,
+              location);
   }
 
   /// @brief Destroy a GPU event
