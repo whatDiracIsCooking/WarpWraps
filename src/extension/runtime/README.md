@@ -69,9 +69,9 @@ class MemPoolWrapper;
 ```
 
 Constructors:
-- `(int dev_idx = 0)` — default; creates a pool with pinned allocation on `dev_idx`; sets `wwrMemPoolAttrReleaseThreshold` to 1 GB
-- `(int dev_idx, unsigned int release_threshold)` — default properties on `dev_idx` with a caller-supplied threshold
-- `(const wwrMemPoolProps& props, unsigned int release_threshold = 1GB)` — creates with caller-supplied properties (`props.location.id` names the device)
+- `(int dev_idx = 0)` — default; creates a pool with pinned allocation on `dev_idx`; sets `wwrMemPoolAttrReleaseThreshold` to 1 MiB
+- `(int dev_idx, std::uint64_t release_threshold)` — default properties on `dev_idx` with a caller-supplied threshold
+- `(const wwrMemPoolProps& props, std::uint64_t release_threshold = 1 MiB)` — creates with caller-supplied properties (`props.location.id` names the device)
 
 Destruction calls `wwrMemPoolDestroy`.
 
