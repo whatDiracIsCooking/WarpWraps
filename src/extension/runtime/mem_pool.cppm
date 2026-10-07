@@ -38,8 +38,13 @@ private:
                                  MemPoolWrapper<P_create, P_destroy, P_device_access>, P_create,
                                  P_destroy, P_device_access>;
 
-  /// @note Use 1MB as default release threshold
-  static constexpr unsigned int default_threshold = 1024u * 1024u; // 1MB in bytes
+  /// @note Use 1 MiB as default release threshold
+  /// @note std::uint64_t, not unsigned int: wwrMemPoolAttrReleaseThreshold is a
+  ///       64-bit attribute on both backends (cuuint64_t / uint64_t), and
+  ///       wwrMemPoolSetAttribute reads 8 bytes through the void* it is given --
+  ///       a 4-byte variable there is an out-of-bounds read whose upper half is
+  ///       whatever sits next to it on the stack, and caps the threshold at 4 GiB.
+  static constexpr std::uint64_t default_threshold = std::uint64_t{1024} * 1024; // 1 MiB
 
   static wwrMemPoolProps make_default_props(int dev_idx) {
     wwrMemPoolProps props = {};
@@ -62,13 +67,13 @@ public:
   /// @param dev_idx Device to create the pool on
   /// @param release_threshold Maximum bytes to hold in pool before returning memory to the OS
   /// @param location Source location where creation was requested
-  MemPoolWrapper(const int dev_idx, const unsigned int release_threshold,
+  MemPoolWrapper(const int dev_idx, const std::uint64_t release_threshold,
                     std::source_location location = std::source_location::current())
       : Base(typename Base::skip_default_create_t{}) {
     Base::select_device(dev_idx, location);
     const auto props = make_default_props(dev_idx);
     gpu_check(wwrMemPoolCreate(&this->handle_, &props), this->policy_create_, location);
-    unsigned int threshold = release_threshold;
+    std::uint64_t threshold =release_threshold;
     gpu_check(wwrMemPoolSetAttribute(this->handle_, wwrMemPoolAttrReleaseThreshold, &threshold),
               this->policy_create_, location);
     this->record_device();
@@ -79,14 +84,14 @@ public:
   /// @param release_threshold Maximum bytes to hold in pool before returning memory to the OS
   /// @param location Source location where creation was requested
   MemPoolWrapper(const wwrMemPoolProps &props,
-                    const unsigned int release_threshold = default_threshold,
+                    const std::uint64_t release_threshold = default_threshold,
                     std::source_location location = std::source_location::current())
       : Base(typename Base::skip_default_create_t{}) {
     // Select the device the props name before creating, so the pool's device
     // and the current device stay consistent -- as the other constructors do.
     Base::select_device(props.location.id, location);
     gpu_check(wwrMemPoolCreate(&this->handle_, &props), this->policy_create_, location);
-    unsigned int threshold = release_threshold;
+    std::uint64_t threshold =release_threshold;
     gpu_check(wwrMemPoolSetAttribute(this->handle_, wwrMemPoolAttrReleaseThreshold, &threshold),
               this->policy_create_, location);
     this->record_device();
@@ -102,7 +107,7 @@ public:
     wwrGetDevice(&dev_idx);
     auto props = make_default_props(dev_idx);
     gpu_check(wwrMemPoolCreate(handle, &props), this->policy_create_, location);
-    unsigned int threshold = default_threshold;
+    std::uint64_t threshold =default_threshold;
     gpu_check(wwrMemPoolSetAttribute(*handle, wwrMemPoolAttrReleaseThreshold, &threshold),
               this->policy_create_, location);
   }

@@ -390,6 +390,32 @@ TEST(GpuMemPoolTests, ConstructWithReleaseThreshold) {
   EXPECT_EQ(pool.dev_idx(), 0);
 }
 
+// The release threshold is a 64-bit attribute: read it back as one. While the
+// wrapper stored it as unsigned int, the driver's 8-byte read took its upper half
+// from adjacent stack bytes, and a threshold past 4 GiB could not be spelled.
+static std::uint64_t release_threshold_of(const wwrMemPool_t pool) {
+  std::uint64_t value = 0;
+  EXPECT_EQ(wwrMemPoolGetAttribute(pool, wwrMemPoolAttrReleaseThreshold, &value), wwrSuccess);
+  return value;
+}
+
+TEST(GpuMemPoolTests, DefaultReleaseThresholdReadsBack) {
+  MemPoolWrapper<Abort, Abort, Abort> pool;
+  EXPECT_EQ(release_threshold_of(pool.get()), std::uint64_t{1024} * 1024);
+}
+
+TEST(GpuMemPoolTests, ReleaseThresholdAbove4GiBReadsBack) {
+  constexpr std::uint64_t threshold = std::uint64_t{6} << 30; // 6 GiB: not representable in 32 bits
+  MemPoolWrapper<Abort, Abort, Abort> pool(0, threshold);
+  EXPECT_EQ(release_threshold_of(pool.get()), threshold);
+}
+
+TEST(GpuMemPoolTests, MaxReleaseThresholdReadsBack) {
+  constexpr auto threshold = std::numeric_limits<std::uint64_t>::max(); // "never release"
+  MemPoolWrapper<Abort, Abort, Abort> pool(0, threshold);
+  EXPECT_EQ(release_threshold_of(pool.get()), threshold);
+}
+
 TEST(GpuMemPoolTests, ConstructFromProps) {
   wwrMemPoolProps props = {};
   props.allocType = wwrMemAllocationTypePinned;
