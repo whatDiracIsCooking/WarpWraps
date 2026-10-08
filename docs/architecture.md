@@ -99,6 +99,13 @@ members of its class type, so `a * b` is not portable and the vendors' C-style
 wrappers -- and the vendor math, e.g. cuCdiv's overflow-avoiding scaling, is not
 worth re-deriving just to make it constexpr.
 
+The one exception is HIP's magnitude and quotient. ROCm's `hipCabs*` and
+`hipCdiv*` square their operand unscaled, so they overflow past about
+sqrt(max) and lose range below sqrt(min), where cuComplex scales. On HIP,
+`wwrCabs*` is `hypot` and `wwrCdiv*` is cuCdiv's own scaled algorithm, in both
+complex.h (device) and complex.cppm (host), so the two backends cover the same
+exponent range.
+
 The float-to-half conversions need no such treatment: `__float2half` and
 `__float2bfloat16` are spelled identically by both vendors. They are re-exposed
 under `wwr*` names anyway, for the layering reason in §5.

@@ -32,7 +32,10 @@
  * the vendors' C-style functions rather than operators: cuComplex defines no
  * operators (hipComplex's are members of its class type), so `a * b` is not
  * portable, and the vendor math -- notably cuCdiv's overflow-avoiding scaling --
- * is not worth re-deriving. Half and bfloat16 diverge the other way and live in
+ * is not worth re-deriving. The exception is HIP's magnitude and quotient: ROCm's
+ * hipCabs* / hipCdiv* square unscaled and overflow past ~sqrt(max), so those two
+ * HIP branches are scaled here (std::hypot, and cuCdiv's own algorithm), as in
+ * complex.h's device section. Half and bfloat16 diverge the other way and live in
  * fp16.cppm / bf16.cppm. See docs/architecture.md, section 3.
  *
  * The GMF #includes complex.h for the types (the one definition it shares with a
@@ -60,6 +63,8 @@ import wwr.cuda.cuComplex;
 #else
 import wwr.hip.hip_complex;
 #endif
+
+import std;
 
 export namespace wwr {
 
@@ -133,12 +138,20 @@ constexpr double wwrCimag(const wwrDoubleComplex z) {
 
 /// @brief Magnitude (absolute value) of a single-precision complex value
 inline float wwrCabsf(const wwrFloatComplex z) {
-  return WWR_SELECT(cuCabsf, hipCabsf)(z);
+#if defined(WWR_GPU_BACKEND_CUDA)
+  return ::wwr::cuda::cuCabsf(z);
+#else
+  return std::hypot(z.x, z.y);
+#endif
 }
 
 /// @brief Magnitude (absolute value) of a double-precision complex value
 inline double wwrCabs(const wwrDoubleComplex z) {
-  return WWR_SELECT(cuCabs, hipCabs)(z);
+#if defined(WWR_GPU_BACKEND_CUDA)
+  return ::wwr::cuda::cuCabs(z);
+#else
+  return std::hypot(z.x, z.y);
+#endif
 }
 
 /// @brief Complex conjugate of a single-precision complex value
@@ -168,7 +181,17 @@ inline wwrFloatComplex wwrCmulf(const wwrFloatComplex a, const wwrFloatComplex b
 
 /// @brief Quotient of two single-precision complex values
 inline wwrFloatComplex wwrCdivf(const wwrFloatComplex a, const wwrFloatComplex b) {
-  return WWR_SELECT(cuCdivf, hipCdivf)(a, b);
+#if defined(WWR_GPU_BACKEND_CUDA)
+  return ::wwr::cuda::cuCdivf(a, b);
+#else
+  const float oos = 1.0f / (std::fabs(b.x) + std::fabs(b.y));
+  const float ars = a.x * oos;
+  const float ais = a.y * oos;
+  const float brs = b.x * oos;
+  const float bis = b.y * oos;
+  const float oon = 1.0f / ((brs * brs) + (bis * bis));
+  return wwrFloatComplex{((ars * brs) + (ais * bis)) * oon, ((ais * brs) - (ars * bis)) * oon};
+#endif
 }
 
 /// @brief Sum of two double-precision complex values
@@ -188,7 +211,17 @@ inline wwrDoubleComplex wwrCmul(const wwrDoubleComplex a, const wwrDoubleComplex
 
 /// @brief Quotient of two double-precision complex values
 inline wwrDoubleComplex wwrCdiv(const wwrDoubleComplex a, const wwrDoubleComplex b) {
-  return WWR_SELECT(cuCdiv, hipCdiv)(a, b);
+#if defined(WWR_GPU_BACKEND_CUDA)
+  return ::wwr::cuda::cuCdiv(a, b);
+#else
+  const double oos = 1.0 / (std::fabs(b.x) + std::fabs(b.y));
+  const double ars = a.x * oos;
+  const double ais = a.y * oos;
+  const double brs = b.x * oos;
+  const double bis = b.y * oos;
+  const double oon = 1.0 / ((brs * brs) + (bis * bis));
+  return wwrDoubleComplex{((ars * brs) + (ais * bis)) * oon, ((ais * brs) - (ars * bis)) * oon};
+#endif
 }
 
 // ========================================================================

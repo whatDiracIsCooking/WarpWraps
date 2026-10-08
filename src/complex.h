@@ -148,12 +148,17 @@ __device__ __forceinline__ constexpr double wwrCimag(const wwrDoubleComplex z) {
   return z.y;
 }
 
+// ROCm's hipCabs* and hipCdiv* square their argument unscaled, so they overflow
+// (to inf/NaN) for |z| beyond ~sqrt(max) and lose range below ~sqrt(min), where
+// cuComplex.h scales. The HIP branches below are scaled instead, so both
+// backends cover the full exponent range.
+
 /// @brief Magnitude (absolute value) of a single-precision complex value
 __device__ __forceinline__ float wwrCabsf(const wwrFloatComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCabsf(z);
 #else
-  return ::hipCabsf(z);
+  return ::hypotf(z.x, z.y);
 #endif
 }
 
@@ -162,7 +167,7 @@ __device__ __forceinline__ double wwrCabs(const wwrDoubleComplex z) {
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCabs(z);
 #else
-  return ::hipCabs(z);
+  return ::hypot(z.x, z.y);
 #endif
 }
 
@@ -220,7 +225,15 @@ __device__ __forceinline__ wwrFloatComplex wwrCdivf(const wwrFloatComplex a,
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCdivf(a, b);
 #else
-  return ::hipCdivf(a, b);
+  // cuCdivf's algorithm: scale both operands by 1 / (|re b| + |im b|).
+  const float oos = 1.0f / (::fabsf(b.x) + ::fabsf(b.y));
+  const float ars = a.x * oos;
+  const float ais = a.y * oos;
+  const float brs = b.x * oos;
+  const float bis = b.y * oos;
+  const float oon = 1.0f / ((brs * brs) + (bis * bis));
+  return wwrFloatComplex{((ars * brs) + (ais * bis)) * oon,
+                         ((ais * brs) - (ars * bis)) * oon};
 #endif
 }
 
@@ -260,7 +273,15 @@ __device__ __forceinline__ wwrDoubleComplex wwrCdiv(const wwrDoubleComplex a,
 #if defined(WWR_SELECTED_CUDA)
   return ::cuCdiv(a, b);
 #else
-  return ::hipCdiv(a, b);
+  // cuCdiv's algorithm: scale both operands by 1 / (|re b| + |im b|).
+  const double oos = 1.0 / (::fabs(b.x) + ::fabs(b.y));
+  const double ars = a.x * oos;
+  const double ais = a.y * oos;
+  const double brs = b.x * oos;
+  const double bis = b.y * oos;
+  const double oon = 1.0 / ((brs * brs) + (bis * bis));
+  return wwrDoubleComplex{((ars * brs) + (ais * bis)) * oon,
+                          ((ais * brs) - (ars * bis)) * oon};
 #endif
 }
 
