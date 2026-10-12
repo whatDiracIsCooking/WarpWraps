@@ -182,6 +182,10 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+          # Pinned like the test job's matrix. Unpinned, uv takes the newest
+          # interpreter on the runner, and cmakelang crashes on import under
+          # 3.15 ("Cannot use capturing groups in re.Scanner").
+          python-version: "3.13"
       # --frozen: install the lock as committed, and fail rather than
       # re-resolve. A CI that silently re-resolves is not testing what you ship.
       - run: uv sync --frozen
