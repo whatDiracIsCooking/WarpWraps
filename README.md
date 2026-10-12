@@ -128,7 +128,10 @@ To use both, build and install wwr twice, to two prefixes.
 `add_subdirectory` and `FetchContent` also work, and link the targets directly
 with no install step. `WWR_INSTALL` defaults to `OFF` in that case, so
 wwr's headers and module sources do not follow your project into *its*
-install tree.
+install tree. `WWR_BUILD_TESTS` and `WWR_BUILD_EXAMPLES` default to `OFF` the
+same way, so wwr's suites stay out of your `ctest` run and its examples out of
+your `all` target. GoogleTest is still fetched (unless
+`WWR_COMPILE_TIME_ONLY` is on), so your own tests can link `GTest::*`.
 
 ## Requirements
 

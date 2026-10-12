@@ -519,6 +519,22 @@ option(WWR_INSTALL "Generate install rules and the CMake package"
        ${PROJECT_IS_TOP_LEVEL}
 )
 
+# Whether wwr's own test suites (test/) and examples (example/) are added. Same
+# default as WWR_INSTALL, for the same reason: a consumer embedding wwr with
+# add_subdirectory or FetchContent wants its libraries, not ~80 extra ctest
+# entries mixed into its own run, nor wwr's examples in its `all` target. OFF
+# also skips enable_testing() here, so wwr adds nothing to the outer ctest.
+#
+# GoogleTest (deps/) is NOT gated by these: it stays governed by
+# WWR_COMPILE_TIME_ONLY alone, so an embedding project can keep linking the
+# GTest::* targets wwr provides for its own tests.
+option(WWR_BUILD_TESTS "Add wwr's test suites (test/) and enable testing"
+       ${PROJECT_IS_TOP_LEVEL}
+)
+option(WWR_BUILD_EXAMPLES "Add wwr's in-tree examples (example/)"
+       ${PROJECT_IS_TOP_LEVEL}
+)
+
 # Whether the wrappers layer (src/wrappers) is part of the installed package.
 # The wrappers are always BUILT in-tree (the examples and test/wrappers link
 # them); this only decides whether wwr_install_package() also ships them. OFF by
@@ -580,13 +596,23 @@ option(
 )
 
 # Umbrella target. Each compile-time test directory add_dependencies()'s its own
-# targets onto it, so it is defined before those directories are added.
-add_custom_target(compile_time_tests COMMENT "Building the compile-time tests")
+# targets onto it, so it is defined before those directories are added -- and
+# only when they are, so an embedding project's target namespace does not get
+# an empty one.
+if(WWR_BUILD_TESTS)
+  add_custom_target(
+    compile_time_tests COMMENT "Building the compile-time tests"
+  )
+endif()
 
 # ========================================================================
 # Enable testing
 # ========================================================================
-enable_testing()
+# Skipped with WWR_BUILD_TESTS OFF: an embedding project's own enable_testing()
+# decides whether its tree has tests, and wwr should not turn that on for it.
+if(WWR_BUILD_TESTS)
+  enable_testing()
+endif()
 
 # ========================================================================
 # Subdirectories
@@ -603,10 +629,13 @@ add_subdirectory(src)
 
 # The in-tree examples, written against the wwr* and extension layers the same
 # way a consumer would write them. Added after src/ so the targets they link
-# exist, and unconditionally -- WWR_COMPILE_TIME_ONLY included -- so
-# devtools/cross-backend-check.sh compiles them for the other backend. See
+# exist, and regardless of WWR_COMPILE_TIME_ONLY, so
+# devtools/cross-backend-check.sh compiles them for the other backend. Gated
+# only by WWR_BUILD_EXAMPLES, which is ON for every top-level build. See
 # example/README.md; example/consumer is NOT part of this build.
-add_subdirectory(example)
+if(WWR_BUILD_EXAMPLES)
+  add_subdirectory(example)
+endif()
 
 # GoogleTest, which the runtime tests are written in. Added before the test
 # directories so the GTest::* targets exist when they are linked. Not needed by
@@ -615,21 +644,24 @@ if(NOT WWR_COMPILE_TIME_ONLY)
   add_subdirectory(deps)
 endif()
 
-if(WWR_GPU_BACKEND STREQUAL "CUDA")
-  add_subdirectory(test/cuda)
-else()
-  add_subdirectory(test/hip)
+if(WWR_BUILD_TESTS)
+  if(WWR_GPU_BACKEND STREQUAL "CUDA")
+    add_subdirectory(test/cuda)
+  else()
+    add_subdirectory(test/hip)
+  endif()
+  # the wwr* layer's compile-time tests: every wwr* name is the backend's own.
+  add_subdirectory(test/gpu)
+  add_subdirectory(test/wrappers)
+  # Shared test-support modules (e.g. the DeviceHandle the extension suites
+  # allocate against). Added before test/extension -- and regardless of
+  # WWR_COMPILE_TIME_ONLY, since its build-time half needs DeviceHandle then
+  # too.
+  add_subdirectory(test/shared)
+  # the extension layer's tests: build-time static_asserts plus GoogleTest
+  # runtime suites (runtime/memory_buffer/rand need a device).
+  add_subdirectory(test/extension)
 endif()
-# the wwr* layer's compile-time tests: every wwr* name is the backend's own.
-add_subdirectory(test/gpu)
-add_subdirectory(test/wrappers)
-# Shared test-support modules (e.g. the DeviceHandle the extension suites
-# allocate against). Added before test/extension -- and unconditionally, since
-# its build-time half needs DeviceHandle under WWR_COMPILE_TIME_ONLY too.
-add_subdirectory(test/shared)
-# the extension layer's tests: build-time static_asserts plus GoogleTest runtime
-# suites (runtime/memory_buffer/rand need a device).
-add_subdirectory(test/extension)
 
 # ========================================================================
 # Install rules and the CMake package
