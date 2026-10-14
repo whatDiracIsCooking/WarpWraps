@@ -32,6 +32,26 @@ FROM ${PARENT_IMAGE}
 
 ARG CUDA_VERSION=13-0
 ARG TARGETARCH
+
+# nvCOMP is PINNED, unlike the toolkit's own libraries and cuTENSOR, which
+# float to whatever matches CUDA_VERSION. It has to be: the apt meta
+# `nvcomp-cuda-13` tracks the newest nvCOMP for that toolkit generation, and
+# nvCOMP majors are source-breaking. 6.0 removed the whole
+# `nvcompBatched*{Compress,Decompress}GetTempSizeAsync` family -- all nine
+# algorithms, both directions -- and reshaped
+# `nvcompBatchedCascadedCompressOpts_t` (no more type / num_RLEs / num_deltas /
+# use_bp / internal_chunk_bytes). src/cuda/nvcomp.cppm re-exports the former and
+# src/detail/comp_names.h forwards onto both, so an unpinned meta turned a
+# working image into 29 compile errors behind WWR_WITH_COMP.
+#
+# Bumping this is therefore a SOURCE change, not a version bump: port
+# src/cuda/nvcomp.cppm and src/detail/comp_names.h onto the Sync queries (whose
+# signatures differ -- no stream parameter) and re-derive wwr.comp's documented
+# intersection with hipCOMP, which is a hipify of nvCOMP 2.2. See
+# docker/install-cuda.sh for how the paths are discovered, which is deliberately
+# layout-agnostic so the discovery survives the move when it happens.
+ARG NVCOMP_VERSION=5.3.0.16-1
+
 USER root
 
 # Re-stamped rather than merely inherited from the parent, so that the
@@ -43,7 +63,8 @@ LABEL devcontainer.project="${PROJECT_NAME}"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,source=docker/install-cuda.sh,target=/tmp/install-cuda.sh \
-    CUDA_VERSION="${CUDA_VERSION}" TARGETARCH="${TARGETARCH}" bash /tmp/install-cuda.sh
+    CUDA_VERSION="${CUDA_VERSION}" TARGETARCH="${TARGETARCH}" \
+    NVCOMP_VERSION="${NVCOMP_VERSION}" bash /tmp/install-cuda.sh
 
 # Set by the nvidia/cuda base images, and required by the NVIDIA container
 # runtime to inject the driver under `--gpus all`. Building on plain Ubuntu
