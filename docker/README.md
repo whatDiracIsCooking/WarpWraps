@@ -207,7 +207,28 @@ enforced on the wwr side.
 |---|---|---|
 | `CUGRAPH_VERSION` | `26.8.0` | `Dockerfile.cuda` |
 | `CUVS_VERSION` | `26.8.1` | `Dockerfile.cuda` (separate — RAPIDS releases cuVS on its own cadence) |
+| `NVCOMP_VERSION` | `5.3.0.16-1` | `Dockerfile.cuda` (an apt version string, Debian revision included) |
 | `HIPCOMP_VERSION` | `v2.2.0` | `Dockerfile.hip` **and** `Dockerfile.combined` |
+
+**`NVCOMP_VERSION` is a pin that holds back a source break, not a preference.**
+Every other apt library here floats to whatever matches `CUDA_VERSION`; nvCOMP
+cannot, because the `nvcomp-cuda-<major>` meta tracks the newest nvCOMP for the
+toolkit generation and nvCOMP majors break source. 6.0 deleted the whole
+`nvcompBatched*{Compress,Decompress}GetTempSizeAsync` family — nine algorithms,
+both directions — and reshaped `nvcompBatchedCascadedCompressOpts_t`, which is
+29 compile errors across `src/cuda/nvcomp.cppm` and `src/detail/comp_names.h`
+behind `WWR_WITH_COMP`. So **bumping it is a source change**, and the pin is
+held with `apt-mark hold` over the resolved set rather than the meta alone,
+since the meta's dependency on `libnvcomp<N>-dev-cuda-<major>` is unversioned.
+`install-cuda.sh` discovers the library's paths by the FILES it ships rather
+than by its package-named directories, so discovery already survives the 6.x
+layout and will not be what blocks the bump. It is in `build.sh`'s
+env-overridable list for the `cuda` step, so the port can be tried without
+editing the Dockerfile:
+
+```bash
+NVCOMP_VERSION=6.0.0.12-1 docker/build.sh cuda
+```
 
 `HIPCOMP_VERSION` joins `ROCM_VERSION` and `GPU_TARGETS` on the list of args
 declared in two files that must be bumped together, for the same reason:
