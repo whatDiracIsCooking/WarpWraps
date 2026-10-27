@@ -7,15 +7,16 @@
  * this one header gets the same wwrblas* / WWRBLAS_* surface the module exports --
  * the handle/status/op types, the status / op / fill / diag / side / pointer-mode
  * constants, the level 1/2/3 and extension functions, and the const-correct
- * getrs/getri batched forwarders -- bound to the selected backend's ::cublas*_v2 /
- * ::hipblas* entry points.
+ * getrs/getri batched forwarders, and the half-precision Hgemm / GemmEx entry
+ * points -- bound to the selected backend's ::cublas*_v2 / ::hipblas* entry points.
  *
  * The wwrblas* name list is NOT restated here: it is the one fragment the host
  * paths share, detail/blas_names.h, pasted below inside `namespace wwr` exactly as
  * blas.cppm's purview pastes it. Add a name there, once, and this path gains it.
  * What this file supplies before that #include is what the fragment documents it
  * needs: the vendor header (via blas.h, the layer's one vendor-include point), the
- * complex types the getri/getrs forwarders name (via complex.h), and the
+ * complex types the getri/getrs forwarders name (via complex.h), the wwrHalf the
+ * Hgemm forwarders name (via fp16.h), and the
  * reference-alias binding macros (the module gets those from backend.h; here they
  * are defined locally and #undef'd at the end so none leaks into the including TU).
  *
@@ -47,6 +48,11 @@
 // self-collision (there is no src/wwr/complex.h).
 #include "complex.h"
 
+// wwrHalf, which the Hgemm forwarders name on HIP. Angle brackets for the reason
+// <blas.h> has them: src/wwr/fp16.h exists, so a quoted "fp16.h" would resolve to
+// it rather than to src/fp16.h, which carries just the type in a host compile.
+#include <fp16.h>
+
 // ---------------------------------------------------------------------------
 // Binding macros, reference-alias form -- the same shape backend.h gives the
 // module, defined locally here because a non-module TU imports nothing. Keyed on
@@ -67,8 +73,8 @@
 
 // ---------------------------------------------------------------------------
 // The wwrblas* surface, pasted from the one fragment the host paths share. The
-// macros above plus the vendor header, wwrFloatComplex / wwrDoubleComplex and
-// WWR_SELECTED_* are exactly what detail/blas_names.h documents it needs in scope.
+// macros above plus the vendor header, wwrFloatComplex / wwrDoubleComplex, wwrHalf
+// and WWR_SELECTED_* are exactly what detail/blas_names.h documents it needs in scope.
 // ---------------------------------------------------------------------------
 namespace wwr {
 #include "detail/blas_names.h"

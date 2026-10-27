@@ -106,6 +106,11 @@ using ::CUBLAS_TF32_TENSOR_OP_MATH;
 
 using ::cublasComputeType_t;
 using ::cublasDataType_t;
+// cudaDataType, the type cublasDataType_t aliases and GemmEx takes, and the
+// enumerators a half-precision GemmEx names (library_types.h, via cublas_api.h)
+using ::cudaDataType;
+using ::CUDA_R_16F;
+using ::CUDA_R_32F;
 // cublasComputeType_t enum values
 using ::CUBLAS_COMPUTE_16F;
 using ::CUBLAS_COMPUTE_32F;
@@ -607,6 +612,59 @@ using ::cublasSgemmStridedBatched;
 using ::cublasSgemmStridedBatched_64;
 using ::cublasZgemmStridedBatched;
 using ::cublasZgemmStridedBatched_64;
+
+// Half-precision GEMM
+using ::cublasHgemm;
+using ::cublasHgemm_64;
+using ::cublasHgemmBatched;
+using ::cublasHgemmBatched_64;
+using ::cublasHgemmStridedBatched;
+using ::cublasHgemmStridedBatched_64;
+
+// Mixed-precision GEMM. The 32-bit-index three are overloaded with a static
+// inline taking a cudaDataType compute type (for pre-CUDA 11 callers), so, as
+// with the emulation-strategy pair, `using ::name;` would export an
+// internal-linkage entity; these forwarding wrappers keep the
+// cublasComputeType_t signature. The _64 variants have no such overload.
+cublasStatus_t cublasGemmEx(cublasHandle_t handle, cublasOperation_t transa,
+                            cublasOperation_t transb, int m, int n, int k, const void *alpha,
+                            const void *A, cudaDataType Atype, int lda, const void *B,
+                            cudaDataType Btype, int ldb, const void *beta, void *C,
+                            cudaDataType Ctype, int ldc, cublasComputeType_t computeType,
+                            cublasGemmAlgo_t algo) {
+  return ::cublasGemmEx(handle, transa, transb, m, n, k, alpha, A, Atype, lda, B, Btype, ldb, beta,
+                        C, Ctype, ldc, computeType, algo);
+}
+
+cublasStatus_t cublasGemmBatchedEx(cublasHandle_t handle, cublasOperation_t transa,
+                                   cublasOperation_t transb, int m, int n, int k,
+                                   const void *alpha, const void *const Aarray[],
+                                   cudaDataType Atype, int lda, const void *const Barray[],
+                                   cudaDataType Btype, int ldb, const void *beta,
+                                   void *const Carray[], cudaDataType Ctype, int ldc,
+                                   int batchCount, cublasComputeType_t computeType,
+                                   cublasGemmAlgo_t algo) {
+  return ::cublasGemmBatchedEx(handle, transa, transb, m, n, k, alpha, Aarray, Atype, lda, Barray,
+                               Btype, ldb, beta, Carray, Ctype, ldc, batchCount, computeType,
+                               algo);
+}
+
+cublasStatus_t cublasGemmStridedBatchedEx(cublasHandle_t handle, cublasOperation_t transa,
+                                          cublasOperation_t transb, int m, int n, int k,
+                                          const void *alpha, const void *A, cudaDataType Atype,
+                                          int lda, long long int strideA, const void *B,
+                                          cudaDataType Btype, int ldb, long long int strideB,
+                                          const void *beta, void *C, cudaDataType Ctype, int ldc,
+                                          long long int strideC, int batchCount,
+                                          cublasComputeType_t computeType, cublasGemmAlgo_t algo) {
+  return ::cublasGemmStridedBatchedEx(handle, transa, transb, m, n, k, alpha, A, Atype, lda,
+                                      strideA, B, Btype, ldb, strideB, beta, C, Ctype, ldc,
+                                      strideC, batchCount, computeType, algo);
+}
+
+using ::cublasGemmBatchedEx_64;
+using ::cublasGemmEx_64;
+using ::cublasGemmStridedBatchedEx_64;
 
 // Grouped batched GEMM (real types only in CUDA 13.0)
 using ::cublasDgemmGroupedBatched;

@@ -399,6 +399,7 @@ wwr_add_cxx_module_library(
   LINK_PUBLIC
   ${_backend_blas}
   wwr::complex
+  wwr::fp16
   LINK_PRIVATE
   wwr::backend
   IMPORT_STD
@@ -410,13 +411,16 @@ wwr_add_cxx_module_library(
 # include root (blas.h / detail/blas_names.h / complex.h all resolve
 # root-relative), and ${_backend_blas} for the vendor header and library plus
 # the toolkit include that carries cuComplex.h / hip_complex.h (which complex.h
-# pulls in for the getri/getrs forwarders' types). NOT wwr::complex: this path
-# #includes complex.h, the header, not the module -- linking the module would
-# drag module machinery into a header-only consumer. Compiles no module unit; it
-# joins the export set like wwr.runtime_api.host, and src/wwr/ installs under
-# include/wwr/.
+# pulls in for the getri/getrs forwarders' types), plus ${_backend_rt_host} for
+# the vendor fp16 header fp16.h pulls in for the Hgemm forwarders' wwrHalf. NOT
+# wwr::complex / wwr::fp16: this path #includes complex.h / fp16.h, the headers,
+# not the modules -- linking a module would drag module machinery into a
+# header-only consumer. Compiles no module unit; it joins the export set like
+# wwr.runtime_api.host, and src/wwr/ installs under include/wwr/.
 add_library(wwr.blas.host INTERFACE)
-target_link_libraries(wwr.blas.host INTERFACE wwr::backend ${_backend_blas})
+target_link_libraries(
+  wwr.blas.host INTERFACE wwr::backend ${_backend_blas} ${_backend_rt_host}
+)
 # In-tree :: alias; exported as wwr::blas::host by _wwr_export_name's rule.
 add_library(wwr::blas::host ALIAS wwr.blas.host)
 

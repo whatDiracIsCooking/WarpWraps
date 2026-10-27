@@ -2,8 +2,9 @@
 //
 // Types, constants, and the handle/stream/status functions are each checked
 // against the backend's own entity (see gpu_check_macros.h). The two places
-// where src/blas.cppm does more than rename -- the status strings on HIP
-// and the const-correct getrsBatched/getriBatched -- are checked too.
+// where src/blas.cppm does more than rename -- the status strings on HIP,
+// the const-correct getrsBatched/getriBatched, and the half-precision Hgemm /
+// GemmEx entry points -- are checked too.
 //
 // The typed BLAS entry points (wwrblasSgemm, ...) are not repeated here:
 // blas.cppm writes each one out in full (WWR_FUNCTION(wwrblasSgemm,
@@ -25,6 +26,7 @@ export module wwr.test.gpu.blas;
 import std;
 import wwr.blas;
 import wwr.complex;
+import wwr.fp16;
 #if defined(WWR_GPU_BACKEND_CUDA)
 import wwr.cuda.cublas_v2;
 #else
@@ -50,6 +52,9 @@ WWR_SAME_TYPE(wwrblasFillMode_t, cublasFillMode_t)
 WWR_SAME_TYPE(wwrblasDiagType_t, cublasDiagType_t)
 WWR_SAME_TYPE(wwrblasSideMode_t, cublasSideMode_t)
 WWR_SAME_TYPE(wwrblasPointerMode_t, cublasPointerMode_t)
+WWR_SAME_TYPE(wwrblasDataType_t, cudaDataType)
+WWR_SAME_TYPE(wwrblasComputeType_t, cublasComputeType_t)
+WWR_SAME_TYPE(wwrblasGemmAlgo_t, cublasGemmAlgo_t)
 
 WWR_SAME_VALUE(WWRBLAS_STATUS_SUCCESS, CUBLAS_STATUS_SUCCESS)
 WWR_SAME_VALUE(WWRBLAS_STATUS_NOT_INITIALIZED, CUBLAS_STATUS_NOT_INITIALIZED)
@@ -71,6 +76,11 @@ WWR_SAME_VALUE(WWRBLAS_SIDE_LEFT, CUBLAS_SIDE_LEFT)
 WWR_SAME_VALUE(WWRBLAS_SIDE_RIGHT, CUBLAS_SIDE_RIGHT)
 WWR_SAME_VALUE(WWRBLAS_POINTER_MODE_HOST, CUBLAS_POINTER_MODE_HOST)
 WWR_SAME_VALUE(WWRBLAS_POINTER_MODE_DEVICE, CUBLAS_POINTER_MODE_DEVICE)
+WWR_SAME_VALUE(WWRBLAS_R_16F, CUDA_R_16F)
+WWR_SAME_VALUE(WWRBLAS_R_32F, CUDA_R_32F)
+WWR_SAME_VALUE(WWRBLAS_COMPUTE_16F, CUBLAS_COMPUTE_16F)
+WWR_SAME_VALUE(WWRBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F)
+WWR_SAME_VALUE(WWRBLAS_GEMM_DEFAULT, CUBLAS_GEMM_DEFAULT)
 
 WWR_SAME_FUNCTION(wwrblasCreate, cublasCreate_v2)
 WWR_SAME_FUNCTION(wwrblasDestroy, cublasDestroy_v2)
@@ -90,6 +100,19 @@ WWR_SAME_FUNCTION(wwrblasDgetriBatched, cublasDgetriBatched)
 WWR_SAME_FUNCTION(wwrblasCgetriBatched, cublasCgetriBatched)
 WWR_SAME_FUNCTION(wwrblasZgetriBatched, cublasZgetriBatched)
 
+WWR_SAME_FUNCTION(wwrblasHgemm, cublasHgemm)
+WWR_SAME_FUNCTION(wwrblasHgemm_64, cublasHgemm_64)
+WWR_SAME_FUNCTION(wwrblasHgemmBatched, cublasHgemmBatched)
+WWR_SAME_FUNCTION(wwrblasHgemmBatched_64, cublasHgemmBatched_64)
+WWR_SAME_FUNCTION(wwrblasHgemmStridedBatched, cublasHgemmStridedBatched)
+WWR_SAME_FUNCTION(wwrblasHgemmStridedBatched_64, cublasHgemmStridedBatched_64)
+WWR_SAME_FUNCTION(wwrblasGemmEx_64, cublasGemmEx_64)
+WWR_SAME_FUNCTION(wwrblasGemmStridedBatchedEx_64, cublasGemmStridedBatchedEx_64)
+// wwrblasGemmEx / wwrblasGemmStridedBatchedEx are typed references to the
+// vendor's cublasComputeType_t overload, while wwr.cuda.cublas_v2 exports
+// forwarding wrappers for the same names, so there is no common address to
+// compare; their signatures are checked below for both backends.
+
 #else
 
 // ────────────────────────────────────────────────────────────────────────
@@ -105,6 +128,9 @@ WWR_SAME_TYPE(wwrblasFillMode_t, hipblasFillMode_t)
 WWR_SAME_TYPE(wwrblasDiagType_t, hipblasDiagType_t)
 WWR_SAME_TYPE(wwrblasSideMode_t, hipblasSideMode_t)
 WWR_SAME_TYPE(wwrblasPointerMode_t, hipblasPointerMode_t)
+WWR_SAME_TYPE(wwrblasDataType_t, hipDataType)
+WWR_SAME_TYPE(wwrblasComputeType_t, hipblasComputeType_t)
+WWR_SAME_TYPE(wwrblasGemmAlgo_t, hipblasGemmAlgo_t)
 
 WWR_SAME_VALUE(WWRBLAS_STATUS_SUCCESS, HIPBLAS_STATUS_SUCCESS)
 WWR_SAME_VALUE(WWRBLAS_STATUS_NOT_INITIALIZED, HIPBLAS_STATUS_NOT_INITIALIZED)
@@ -126,6 +152,11 @@ WWR_SAME_VALUE(WWRBLAS_SIDE_LEFT, HIPBLAS_SIDE_LEFT)
 WWR_SAME_VALUE(WWRBLAS_SIDE_RIGHT, HIPBLAS_SIDE_RIGHT)
 WWR_SAME_VALUE(WWRBLAS_POINTER_MODE_HOST, HIPBLAS_POINTER_MODE_HOST)
 WWR_SAME_VALUE(WWRBLAS_POINTER_MODE_DEVICE, HIPBLAS_POINTER_MODE_DEVICE)
+WWR_SAME_VALUE(WWRBLAS_R_16F, HIP_R_16F)
+WWR_SAME_VALUE(WWRBLAS_R_32F, HIP_R_32F)
+WWR_SAME_VALUE(WWRBLAS_COMPUTE_16F, HIPBLAS_COMPUTE_16F)
+WWR_SAME_VALUE(WWRBLAS_COMPUTE_32F, HIPBLAS_COMPUTE_32F)
+WWR_SAME_VALUE(WWRBLAS_GEMM_DEFAULT, HIPBLAS_GEMM_DEFAULT)
 
 WWR_SAME_FUNCTION(wwrblasCreate, hipblasCreate)
 WWR_SAME_FUNCTION(wwrblasDestroy, hipblasDestroy)
@@ -139,6 +170,14 @@ WWR_SAME_FUNCTION(wwrblasGetStatusString, hipblasStatusToString)
 // getrsBatched/getriBatched are forwarding functions on HIP (hipBLAS declares
 // the input arrays non-const); what matters is the signature, checked below
 // for both backends. That they forward correctly is test/wrappers/blas's job.
+
+WWR_SAME_FUNCTION(wwrblasGemmEx, hipblasGemmEx)
+WWR_SAME_FUNCTION(wwrblasGemmEx_64, hipblasGemmEx_64)
+WWR_SAME_FUNCTION(wwrblasGemmStridedBatchedEx, hipblasGemmStridedBatchedEx)
+WWR_SAME_FUNCTION(wwrblasGemmStridedBatchedEx_64, hipblasGemmStridedBatchedEx_64)
+// The Hgemm family forwards on HIP (hipblasHalf is uint16_t); its wwrHalf
+// signature is checked below for both backends, and its numerics by
+// test/extension/blas/half_gemm_tests.cpp.
 
 #endif
 
@@ -166,5 +205,25 @@ WWR_SAME_TYPE(std::remove_cvref_t<decltype(wwrblasCgetriBatched)>,
                  GetriBatchedFn<wwrFloatComplex>)
 WWR_SAME_TYPE(std::remove_cvref_t<decltype(wwrblasZgetriBatched)>,
                  GetriBatchedFn<wwrDoubleComplex>)
+
+// ────────────────────────────────────────────────────────────────────────
+// Both backends: Hgemm takes wwrHalf, and GemmEx the neutral data/compute types
+// ────────────────────────────────────────────────────────────────────────
+
+using HgemmFn = wwrblasStatus_t(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int,
+                                int, const wwrHalf *, const wwrHalf *, int, const wwrHalf *, int,
+                                const wwrHalf *, wwrHalf *, int);
+using HgemmBatchedFn = wwrblasStatus_t(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t,
+                                       int, int, int, const wwrHalf *, const wwrHalf *const *,
+                                       int, const wwrHalf *const *, int, const wwrHalf *,
+                                       wwrHalf *const *, int, int);
+using GemmExFn = wwrblasStatus_t(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int,
+                                 int, const void *, const void *, wwrblasDataType_t, int,
+                                 const void *, wwrblasDataType_t, int, const void *, void *,
+                                 wwrblasDataType_t, int, wwrblasComputeType_t, wwrblasGemmAlgo_t);
+
+WWR_SAME_TYPE(std::remove_cvref_t<decltype(wwrblasHgemm)>, HgemmFn)
+WWR_SAME_TYPE(std::remove_cvref_t<decltype(wwrblasHgemmBatched)>, HgemmBatchedFn)
+WWR_SAME_TYPE(std::remove_cvref_t<decltype(wwrblasGemmEx)>, GemmExFn)
 
 } // namespace wwr::test

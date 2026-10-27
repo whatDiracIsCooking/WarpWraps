@@ -7,6 +7,10 @@
 # BlasHandleWrapper's RAII contract; scoped_pointer_mode_tests.cpp pins the
 # ScopedPointerMode guard's runtime set/restore behaviour (its types are covered
 # build-time, under test/extension/build_time/scoped_pointer_mode.cppm).
+# half_gemm_tests.cpp is not an extension test but wwr.blas's own: it runs
+# wwrblasHgemm / wwrblasGemmEx against a double reference, the one check that
+# their HIP forwarders and CUDA overload pick are bound right. It lives here
+# because this is where a live cuBLAS/hipBLAS handle is already a test input.
 
 wwr_add_gtest_executable(
   NAME
@@ -14,8 +18,11 @@ wwr_add_gtest_executable(
   SOURCES
   handle_tests.cpp
   scoped_pointer_mode_tests.cpp
+  half_gemm_tests.cpp
   LINK
   wwr::runtime_api
+  wwr::blas
+  wwr::fp16
   wwr::extension::blas
   wwr::extension::handle
   wwr::extension::runtime
@@ -31,6 +38,7 @@ wwr_add_gtest_suite_tests(
   SUITES
   BlasHandleTests
   ScopedPointerModeTests
+  HalfGemmTests
   TIMEOUT
   30
   REQUIRES_GPU

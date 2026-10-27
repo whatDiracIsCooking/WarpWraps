@@ -125,6 +125,9 @@ name an overload set**, which rules it out in three places:
 - **`wwrMalloc`.** `hipMalloc` has a `template<class T>` overload, so the
   reference is given an explicit type to select one:
   `inline constexpr wwrError_t (&wwrMalloc)(void**, std::size_t) = ...;`
+- **`wwrblasGemmEx` / `wwrblasGemmStridedBatchedEx` on CUDA.** cuBLAS overloads
+  both with a `static inline` taking a `cudaDataType` compute type, so the
+  reference is typed the same way, selecting the `cublasComputeType_t` one.
 - **Signature divergences** (§8) — a hand-written forwarding function.
 
 ## 5. const-correctness divergences between the vendors
@@ -136,6 +139,7 @@ function with a `const_cast` into an API that only reads those arguments.
 | Neutral name | Divergence |
 |---|---|
 | `wwrblas*getrsBatched`, `wwrblas*getriBatched` | hipBLAS declares the input arrays (and `getriBatched`'s pivots) non-const where cuBLAS declares them const. The `wwrblas*` signature keeps cuBLAS's; HIP forwards with a `const_cast`. |
+| `wwrblasHgemm*` | hipBLAS spells the element type `hipblasHalf`, which is `uint16_t` unless the caller defines `HIPBLAS_USE_HIP_HALF`. The `wwrblas*` signature keeps cuBLAS's `__half` (`wwrHalf`); HIP forwards with a `reinterpret_cast` -- a type divergence rather than a const one, but resolved the same way. The numerics still differ: cuBLAS accumulates in fp16, hipBLAS in fp32, so `wwrblasGemmEx` with `WWRBLAS_COMPUTE_32F` is the portable choice when accuracy matters. |
 | `wwrrandGetScrambleConstants32`/`64` | The neutral signature takes hipRAND's const-correct `const unsigned int**` / `const unsigned long long**`; on CUDA these are forwarding functions around cuRAND's non-const signature. |
 
 Also name-level, not signature-level: hipBLAS has a single status-to-string
