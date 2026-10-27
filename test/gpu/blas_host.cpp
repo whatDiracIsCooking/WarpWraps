@@ -58,8 +58,23 @@ WWR_SAME_TYPE(std::remove_cvref_t<decltype(wwrblasSgetrsBatched)>,
               wwrblasStatus_t(wwrblasHandle_t, wwrblasOperation_t, int, int, const float *const[],
                               int, const int *, float *const[], int, int *, int))
 
+// Hgemm is a reference on CUDA and a hipblasHalf-casting forwarder on HIP;
+// GemmEx a typed reference to one overload on CUDA and a plain one on HIP. Their
+// neutral signatures pin the #include path's fp16.h and data/compute types.
+WWR_SAME_TYPE(std::remove_cvref_t<decltype(wwrblasHgemm)>,
+              wwrblasStatus_t(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int,
+                              int, const wwrHalf *, const wwrHalf *, int, const wwrHalf *, int,
+                              const wwrHalf *, wwrHalf *, int))
+WWR_SAME_TYPE(std::remove_cvref_t<decltype(wwrblasGemmEx)>,
+              wwrblasStatus_t(wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int,
+                              int, const void *, const void *, wwrblasDataType_t, int,
+                              const void *, wwrblasDataType_t, int, const void *, void *,
+                              wwrblasDataType_t, int, wwrblasComputeType_t, wwrblasGemmAlgo_t))
+
 namespace {
 [[maybe_unused]] auto *const getrs = &wwr::wwrblasSgetrsBatched;
+[[maybe_unused]] auto *const hgemm = &wwr::wwrblasHgemm;
+[[maybe_unused]] auto *const gemm_ex = &wwr::wwrblasGemmEx;
 } // namespace
 
 int main() { return 0; }

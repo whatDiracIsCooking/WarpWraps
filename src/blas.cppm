@@ -12,10 +12,14 @@
  * gemmGroupedBatched, matinvBatched, tpttr, trttp) are absent; reach those
  * through wwr.cuda.cublas_v2.
  *
- * Two backend differences are resolved here, not above: hipBLAS's one
+ * Three backend differences are resolved here, not above: hipBLAS's one
  * status-to-string function backs both wwrblasGetStatusName and
- * wwrblasGetStatusString, and getrsBatched / getriBatched keep cuBLAS's
- * const-correct signature, forwarding with a const_cast on HIP.
+ * wwrblasGetStatusString, getrsBatched / getriBatched keep cuBLAS's
+ * const-correct signature, forwarding with a const_cast on HIP, and the Hgemm
+ * family keeps cuBLAS's __half signature, forwarding to hipBLAS's uint16_t
+ * hipblasHalf with a reinterpret_cast. One difference is NOT resolved, because
+ * it cannot be: cuBLAS's Hgemm accumulates in fp16 and hipBLAS's in fp32, so
+ * GemmEx with WWRBLAS_COMPUTE_32F is the portable half-precision GEMM.
  * See docs/architecture.md, section 5.
  *
  * The wwrblas* surface itself is NOT restated here: it is the one fragment the
@@ -26,7 +30,8 @@
  * wwr* references straight to the `::cublas*_v2` / `::hipblas*` declarations with
  * the _RAW macros and imports no raw vendor module -- the host API is a real
  * external-linkage library, so a reference needs only the declaration. import
- * wwr.complex stays, for the complex types the getri/getrs forwarders name.
+ * wwr.complex stays, for the complex types the getri/getrs forwarders name, and
+ * import wwr.fp16, for the wwrHalf the Hgemm forwarders name.
  *
  * Usage:
  *   import wwr.blas;
@@ -52,6 +57,9 @@ export module wwr.blas;
 // Not a vendor-include dependency -- the cuBLAS/hipBLAS declarations come from
 // blas.h above; this is only wwrFloatComplex / wwrDoubleComplex.
 import wwr.complex;
+// wwrHalf, which the Hgemm forwarders name on HIP (on CUDA the Hgemm references
+// bind to cuBLAS's own __half signature, the same type).
+import wwr.fp16;
 
 export namespace wwr {
 

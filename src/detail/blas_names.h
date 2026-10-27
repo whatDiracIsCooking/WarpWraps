@@ -4,7 +4,8 @@
  *        fragment shared by the module and the non-module #include path
  *
  * NOT a standalone header: it is the list of wwrblas* / WWRBLAS_* names (types,
- * constants, functions and the const-correct getrs/getri batched forwarders) with
+ * constants, functions, the const-correct getrs/getri batched forwarders and the
+ * half-precision Hgemm / GemmEx entry points) with
  * NO namespace of its own and NO vendor #include. The includer supplies all of
  * that and pastes this inside its own `namespace wwr` -- so one list binds both
  * ways the surface is consumed: wwr.blas (the module, `export namespace wwr`) and
@@ -23,11 +24,13 @@
  *   - wwrFloatComplex / wwrDoubleComplex in `namespace wwr` (the getri/getrs HIP
  *     forwarders name them) -- from import wwr.complex in the module, or
  *     #include "complex.h" in the #include path;
+ *   - wwrHalf in `namespace wwr` (the Hgemm HIP forwarders name it) -- from
+ *     import wwr.fp16 in the module, or #include <fp16.h> in the #include path;
  *   - WWR_SELECT_RAW(cuda, hip) plus WWR_TYPE_RAW / WWR_VALUE_RAW /
  *     WWR_FUNCTION_RAW on top of it -- keyed on WWR_GPU_BACKEND_* in the module
  *     (backend.h) or WWR_SELECTED_* in the #include path (wwr/blas.h);
  *   - WWR_SELECTED_CUDA / WWR_SELECTED_HIP (selected_backend.h, via blas.h) for
- *     the getrs/getri forwarders' one backend conditional.
+ *     the getrs/getri and Hgemm/GemmEx backend conditionals.
  *
  * See src/blas.cppm, src/blas.h, src/wwr/blas.h and docs/architecture.md
  * section 5.
@@ -37,7 +40,7 @@
 
 #ifndef WWR_FUNCTION_RAW
 #error                                                                                             \
-    "detail/blas_names.h is an include fragment, not a standalone header: define WWR_TYPE_RAW/VALUE_RAW/FUNCTION_RAW and WWR_SELECT_RAW, ensure the vendor header (via blas.h), wwrFloatComplex and WWR_SELECTED_* are in scope, and #include it inside namespace wwr. See src/blas.h, src/blas.cppm and src/wwr/blas.h."
+    "detail/blas_names.h is an include fragment, not a standalone header: define WWR_TYPE_RAW/VALUE_RAW/FUNCTION_RAW and WWR_SELECT_RAW, ensure the vendor header (via blas.h), wwrFloatComplex, wwrHalf and WWR_SELECTED_* are in scope, and #include it inside namespace wwr. See src/blas.h, src/blas.cppm and src/wwr/blas.h."
 #endif
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables): each wwrblas*
@@ -57,6 +60,13 @@ WWR_TYPE_RAW(wwrblasFillMode_t, cublasFillMode_t, hipblasFillMode_t)
 WWR_TYPE_RAW(wwrblasDiagType_t, cublasDiagType_t, hipblasDiagType_t)
 WWR_TYPE_RAW(wwrblasSideMode_t, cublasSideMode_t, hipblasSideMode_t)
 WWR_TYPE_RAW(wwrblasPointerMode_t, cublasPointerMode_t, hipblasPointerMode_t)
+
+// GemmEx's element-type tag, compute type and algorithm selector. The data type
+// is the vendors' library-wide enum (cudaDataType / hipDataType), renamed under
+// this layer's prefix as detail/solver_names.h does for wwrsolverDataType_t.
+WWR_TYPE_RAW(wwrblasDataType_t, cudaDataType, hipDataType)
+WWR_TYPE_RAW(wwrblasComputeType_t, cublasComputeType_t, hipblasComputeType_t)
+WWR_TYPE_RAW(wwrblasGemmAlgo_t, cublasGemmAlgo_t, hipblasGemmAlgo_t)
 
 // ========================================================================
 // Constants
@@ -95,6 +105,14 @@ WWR_VALUE_RAW(WWRBLAS_SIDE_RIGHT, CUBLAS_SIDE_RIGHT, HIPBLAS_SIDE_RIGHT)
 
 WWR_VALUE_RAW(WWRBLAS_POINTER_MODE_HOST, CUBLAS_POINTER_MODE_HOST, HIPBLAS_POINTER_MODE_HOST)
 WWR_VALUE_RAW(WWRBLAS_POINTER_MODE_DEVICE, CUBLAS_POINTER_MODE_DEVICE, HIPBLAS_POINTER_MODE_DEVICE)
+
+WWR_VALUE_RAW(WWRBLAS_R_16F, CUDA_R_16F, HIP_R_16F)
+WWR_VALUE_RAW(WWRBLAS_R_32F, CUDA_R_32F, HIP_R_32F)
+
+WWR_VALUE_RAW(WWRBLAS_COMPUTE_16F, CUBLAS_COMPUTE_16F, HIPBLAS_COMPUTE_16F)
+WWR_VALUE_RAW(WWRBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F, HIPBLAS_COMPUTE_32F)
+
+WWR_VALUE_RAW(WWRBLAS_GEMM_DEFAULT, CUBLAS_GEMM_DEFAULT, HIPBLAS_GEMM_DEFAULT)
 
 // ========================================================================
 // Handle, stream, pointer mode, status strings
@@ -658,6 +676,135 @@ inline wwrblasStatus_t wwrblasZgetriBatched(wwrblasHandle_t handle, int n,
                                             int *info, int batchSize) {
   return ::hipblasZgetriBatched(handle, n, const_cast<wwrDoubleComplex *const *>(A), lda,
                                    const_cast<int *>(P), C, ldc, info, batchSize);
+}
+
+#endif
+
+// ────────────────────────────────────────────────────────────────────────
+// Half- and mixed-precision GEMM: Hgemm, GemmEx
+// ────────────────────────────────────────────────────────────────────────
+//
+// Same name, different numerics: cuBLAS's Hgemm accumulates in fp16, while
+// hipBLAS's (measured on gfx1200) accumulates in fp32 and matches GemmEx with
+// WWRBLAS_COMPUTE_32F bit for bit. When accuracy matters, the portable choice is
+// GemmEx with WWRBLAS_R_16F inputs and WWRBLAS_COMPUTE_32F, whose alpha/beta are
+// float. Hgemm's alpha/beta are wwrHalf.
+
+WWR_FUNCTION_RAW(wwrblasGemmEx_64, cublasGemmEx_64, hipblasGemmEx_64)
+WWR_FUNCTION_RAW(wwrblasGemmStridedBatchedEx_64, cublasGemmStridedBatchedEx_64,
+                hipblasGemmStridedBatchedEx_64)
+
+#if defined(WWR_SELECTED_CUDA)
+
+WWR_FUNCTION_RAW(wwrblasHgemm, cublasHgemm, hipblasHgemm)
+WWR_FUNCTION_RAW(wwrblasHgemm_64, cublasHgemm_64, hipblasHgemm_64)
+WWR_FUNCTION_RAW(wwrblasHgemmBatched, cublasHgemmBatched, hipblasHgemmBatched)
+WWR_FUNCTION_RAW(wwrblasHgemmBatched_64, cublasHgemmBatched_64, hipblasHgemmBatched_64)
+WWR_FUNCTION_RAW(wwrblasHgemmStridedBatched, cublasHgemmStridedBatched, hipblasHgemmStridedBatched)
+WWR_FUNCTION_RAW(wwrblasHgemmStridedBatched_64, cublasHgemmStridedBatched_64,
+                hipblasHgemmStridedBatched_64)
+
+// cuBLAS overloads these two with a static inline taking a cudaDataType compute
+// type (for pre-CUDA 11 callers), so a deduced reference cannot name either; the
+// explicit type selects the cublasComputeType_t one, as wwrMalloc does.
+inline constexpr wwrblasStatus_t (&wwrblasGemmEx)(
+    wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int, int, const void *,
+    const void *, wwrblasDataType_t, int, const void *, wwrblasDataType_t, int, const void *,
+    void *, wwrblasDataType_t, int, wwrblasComputeType_t, wwrblasGemmAlgo_t) = ::cublasGemmEx;
+inline constexpr wwrblasStatus_t (&wwrblasGemmStridedBatchedEx)(
+    wwrblasHandle_t, wwrblasOperation_t, wwrblasOperation_t, int, int, int, const void *,
+    const void *, wwrblasDataType_t, int, long long int, const void *, wwrblasDataType_t, int,
+    long long int, const void *, void *, wwrblasDataType_t, int, long long int, int,
+    wwrblasComputeType_t, wwrblasGemmAlgo_t) = ::cublasGemmStridedBatchedEx;
+
+#else
+
+WWR_FUNCTION_RAW(wwrblasGemmEx, cublasGemmEx, hipblasGemmEx)
+WWR_FUNCTION_RAW(wwrblasGemmStridedBatchedEx, cublasGemmStridedBatchedEx,
+                hipblasGemmStridedBatchedEx)
+
+// hipBLAS spells Hgemm's element type hipblasHalf, which is uint16_t unless the
+// caller defines HIPBLAS_USE_HIP_HALF, so its signature does not take a __half.
+// These keep cuBLAS's wwrHalf signature and reinterpret the pointers, which name
+// the same 16-bit storage either way.
+
+inline wwrblasStatus_t wwrblasHgemm(wwrblasHandle_t handle, wwrblasOperation_t transa,
+                                    wwrblasOperation_t transb, int m, int n, int k,
+                                    const wwrHalf *alpha, const wwrHalf *A, int lda,
+                                    const wwrHalf *B, int ldb, const wwrHalf *beta, wwrHalf *C,
+                                    int ldc) {
+  return ::hipblasHgemm(handle, transa, transb, m, n, k,
+                        reinterpret_cast<const hipblasHalf *>(alpha),
+                        reinterpret_cast<const hipblasHalf *>(A), lda,
+                        reinterpret_cast<const hipblasHalf *>(B), ldb,
+                        reinterpret_cast<const hipblasHalf *>(beta),
+                        reinterpret_cast<hipblasHalf *>(C), ldc);
+}
+inline wwrblasStatus_t wwrblasHgemm_64(wwrblasHandle_t handle, wwrblasOperation_t transa,
+                                       wwrblasOperation_t transb, int64_t m, int64_t n,
+                                       int64_t k, const wwrHalf *alpha, const wwrHalf *A,
+                                       int64_t lda, const wwrHalf *B, int64_t ldb,
+                                       const wwrHalf *beta, wwrHalf *C, int64_t ldc) {
+  return ::hipblasHgemm_64(handle, transa, transb, m, n, k,
+                           reinterpret_cast<const hipblasHalf *>(alpha),
+                           reinterpret_cast<const hipblasHalf *>(A), lda,
+                           reinterpret_cast<const hipblasHalf *>(B), ldb,
+                           reinterpret_cast<const hipblasHalf *>(beta),
+                           reinterpret_cast<hipblasHalf *>(C), ldc);
+}
+inline wwrblasStatus_t wwrblasHgemmBatched(wwrblasHandle_t handle, wwrblasOperation_t transa,
+                                           wwrblasOperation_t transb, int m, int n, int k,
+                                           const wwrHalf *alpha, const wwrHalf *const Aarray[],
+                                           int lda, const wwrHalf *const Barray[], int ldb,
+                                           const wwrHalf *beta, wwrHalf *const Carray[], int ldc,
+                                           int batchCount) {
+  return ::hipblasHgemmBatched(handle, transa, transb, m, n, k,
+                               reinterpret_cast<const hipblasHalf *>(alpha),
+                               reinterpret_cast<const hipblasHalf *const *>(Aarray), lda,
+                               reinterpret_cast<const hipblasHalf *const *>(Barray), ldb,
+                               reinterpret_cast<const hipblasHalf *>(beta),
+                               reinterpret_cast<hipblasHalf *const *>(Carray), ldc, batchCount);
+}
+inline wwrblasStatus_t wwrblasHgemmBatched_64(wwrblasHandle_t handle, wwrblasOperation_t transa,
+                                              wwrblasOperation_t transb, int64_t m,
+                                              int64_t n, int64_t k, const wwrHalf *alpha,
+                                              const wwrHalf *const Aarray[], int64_t lda,
+                                              const wwrHalf *const Barray[], int64_t ldb,
+                                              const wwrHalf *beta, wwrHalf *const Carray[],
+                                              int64_t ldc, int64_t batchCount) {
+  return ::hipblasHgemmBatched_64(handle, transa, transb, m, n, k,
+                                  reinterpret_cast<const hipblasHalf *>(alpha),
+                                  reinterpret_cast<const hipblasHalf *const *>(Aarray), lda,
+                                  reinterpret_cast<const hipblasHalf *const *>(Barray), ldb,
+                                  reinterpret_cast<const hipblasHalf *>(beta),
+                                  reinterpret_cast<hipblasHalf *const *>(Carray), ldc, batchCount);
+}
+inline wwrblasStatus_t wwrblasHgemmStridedBatched(
+    wwrblasHandle_t handle, wwrblasOperation_t transa, wwrblasOperation_t transb, int m, int n,
+    int k, const wwrHalf *alpha, const wwrHalf *A, int lda, long long int strideA,
+    const wwrHalf *B, int ldb, long long int strideB, const wwrHalf *beta, wwrHalf *C, int ldc,
+    long long int strideC, int batchCount) {
+  return ::hipblasHgemmStridedBatched(handle, transa, transb, m, n, k,
+                                      reinterpret_cast<const hipblasHalf *>(alpha),
+                                      reinterpret_cast<const hipblasHalf *>(A), lda, strideA,
+                                      reinterpret_cast<const hipblasHalf *>(B), ldb, strideB,
+                                      reinterpret_cast<const hipblasHalf *>(beta),
+                                      reinterpret_cast<hipblasHalf *>(C), ldc, strideC,
+                                      batchCount);
+}
+inline wwrblasStatus_t wwrblasHgemmStridedBatched_64(
+    wwrblasHandle_t handle, wwrblasOperation_t transa, wwrblasOperation_t transb, int64_t m,
+    int64_t n, int64_t k, const wwrHalf *alpha, const wwrHalf *A, int64_t lda,
+    long long int strideA, const wwrHalf *B, int64_t ldb, long long int strideB,
+    const wwrHalf *beta, wwrHalf *C, int64_t ldc, long long int strideC,
+    int64_t batchCount) {
+  return ::hipblasHgemmStridedBatched_64(handle, transa, transb, m, n, k,
+                                         reinterpret_cast<const hipblasHalf *>(alpha),
+                                         reinterpret_cast<const hipblasHalf *>(A), lda, strideA,
+                                         reinterpret_cast<const hipblasHalf *>(B), ldb, strideB,
+                                         reinterpret_cast<const hipblasHalf *>(beta),
+                                         reinterpret_cast<hipblasHalf *>(C), ldc, strideC,
+                                         batchCount);
 }
 
 #endif

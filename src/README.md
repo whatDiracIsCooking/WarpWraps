@@ -95,8 +95,11 @@ bound straight to the vendor header's `::cublas*_v2` / `::hipblas*` declarations
 (from `blas.h`) with the `_RAW` macros and imported by no raw vendor module, so
 the one list serves both `blas.cppm` and the non-module `#include` path
 `wwr/blas.h`. The raw module `wwr.cuda.cublas_v2` / `wwr.hip.hipblas` stays for
-the cuBLAS-only extras, off this path. See the file header for the two places it
-does more than rename.
+the cuBLAS-only extras, off this path. Half precision is `wwrblasHgemm*` (taking
+`wwrHalf`) and `wwrblasGemmEx` / `wwrblasGemmStridedBatchedEx` (+ `_64`) with
+`wwrblasDataType_t` / `wwrblasComputeType_t`; the two backends' `Hgemm` do not
+accumulate in the same precision, so `GemmEx` with `WWRBLAS_COMPUTE_32F` is the
+portable one. See the file header for the three places it does more than rename.
 
 `gpu.blaslt` covers the modern "Lt" GEMM surface (`cublasLt` / `hipblaslt`) --
 the handle, the matmul / matrix-layout / preference / matrix-transform
