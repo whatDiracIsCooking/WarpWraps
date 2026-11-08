@@ -3,11 +3,13 @@
  * @brief Disambiguation tag for the reinterpreting (cross-type) view constructor
  *
  * The tag is exported from this partition so the other partitions can name it,
- * but the primary interface unit imports it WITHOUT re-exporting (plain `import
- * :reinterpret_tag`, not `export import`). Consumers of the module therefore
- * cannot spell reinterpret_view: the reinterpreting view is reached only through
- * reinterpret_buffer_view(), while direct BufferViewWrapper(reinterpret_view,
- * src) construction stays an in-module implementation detail.
+ * and the primary interface unit re-exports the partition because [module.unit]
+ * requires every interface partition to be exported by it. So consumers CAN
+ * spell reinterpret_view. They should not: reinterpret_buffer_view() is the
+ * intended entry point, and direct BufferViewWrapper(reinterpret_view, src)
+ * construction is an implementation detail by convention. See interface.cppm for
+ * why hiding it is not achievable - the factory is a template, so the tag's
+ * definition has to be reachable where it instantiates.
  */
 
 export module wwr.extension.memory_buffer:reinterpret_tag;

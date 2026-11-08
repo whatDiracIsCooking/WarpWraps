@@ -219,9 +219,12 @@ auto bytes = reinterpret_buffer_view<std::byte>(buf); // HostBufferView<std::byt
 auto ints  = reinterpret_buffer_view<int>(buf);       // HostBufferView<int>, 16 elements
 ```
 
-The factory is the only public door. A `reinterpret_view` tag constructor backs
-it, but that tag lives in an in-module partition (`:reinterpret_tag`) that the
-module does not re-export, so it cannot be named from outside.
+The factory is the intended door. A `reinterpret_view` tag constructor backs it,
+and the tag *is* nameable from outside: its partition (`:reinterpret_tag`) is an
+interface partition, which [module.unit] requires the primary interface unit to
+re-export. Hiding it is not achievable — the factory is a template, so the tag's
+definition has to be reachable wherever it instantiates. Use the factory by
+convention, not because the tag is unreachable.
 
 The byte span is preserved: `num_elements()` becomes `src.size_bytes() / sizeof(T2)`, and the
 source's memory kind and error policies are carried onto the view. Reinterpretation is reported
