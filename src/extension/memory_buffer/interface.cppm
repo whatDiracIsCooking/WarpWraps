@@ -41,6 +41,7 @@ import std;
 // name a buffer or view with a non-default error policy, and copy() returns
 // stdHostMemoryError_t - so consumers must be able to name them.
 export import :memory_kind;
+export import :reinterpret_tag;
 export import :base_buffer;
 export import :host_memory;
 

@@ -27,11 +27,41 @@ else()
   )
 endif()
 
-# Configure libc++ BEFORE project() so compiler detection uses it.
-# CMAKE_CXX_STANDARD_LIBRARY must be set explicitly so CMake looks for
-# libc++.modules.json (not libstdc++.modules.json) when resolving import std.
-set(CMAKE_CXX_STANDARD_LIBRARY "libc++")
-set(CMAKE_CXX_FLAGS_INIT "-stdlib=libc++")
+# ========================================================================
+# Host compiler family
+# ========================================================================
+# A build uses exactly one host C++ compiler family. Decided HERE, before
+# project(), because it selects the standard library, the module scanner and the
+# `import std` manifest -- all of which project() consumes.
+#
+#   Clang -> libc++, clang-scan-deps, libc++.modules.json
+#   GNU   -> libstdc++, the compiler's own p1689 scan, libstdc++.modules.json
+#
+# Clang is the default and the only family CI builds. GNU needs GCC >= 16 (the
+# floor is enforced after project(), once the version is known): it is the first
+# release whose modules implementation compiles this tree, measured against
+# 16.2.0. Neither family's BMIs are readable by the other, which is why this is
+# a whole-build decision and not a per-target one.
+set(WWR_HOST_COMPILER
+    "Clang"
+    CACHE STRING "Host C++ compiler family: Clang or GNU"
+)
+set_property(CACHE WWR_HOST_COMPILER PROPERTY STRINGS Clang GNU)
+if(NOT WWR_HOST_COMPILER MATCHES "^(Clang|GNU)$")
+  message(FATAL_ERROR "WWR_HOST_COMPILER must be Clang or GNU, got "
+                      "'${WWR_HOST_COMPILER}'"
+  )
+endif()
+
+# Configure the standard library BEFORE project() so compiler detection uses it.
+# CMAKE_CXX_STANDARD_LIBRARY must be set explicitly so CMake resolves import std
+# against the matching manifest rather than guessing.
+if(WWR_HOST_COMPILER STREQUAL "Clang")
+  set(CMAKE_CXX_STANDARD_LIBRARY "libc++")
+  set(CMAKE_CXX_FLAGS_INIT "-stdlib=libc++")
+else()
+  set(CMAKE_CXX_STANDARD_LIBRARY "libstdc++")
+endif()
 
 # Set C++ compiler to Clang BEFORE project(). Resolve to a full path: a bare
 # name survives only the first project() in a build (which runs full compiler
@@ -39,8 +69,19 @@ set(CMAKE_CXX_FLAGS_INIT "-stdlib=libc++")
 # project() already cached CMAKE_CXX_COMPILER_WORKS, the second project() skips
 # re-resolution and rejects a bare name as "not a full path and not found in the
 # PATH". A full path is validated identically either way.
-find_program(_wwr_cxx_compiler NAMES clang++ REQUIRED)
+if(WWR_HOST_COMPILER STREQUAL "Clang")
+  set(_wwr_cxx_names clang++)
+else()
+  # Versioned name first: the floor is GCC 16 and a distro's bare `g++` is
+  # usually older. A compiler the caller named still wins over both.
+  set(_wwr_cxx_names g++-16 g++)
+endif()
+if(CMAKE_CXX_COMPILER)
+  list(PREPEND _wwr_cxx_names "${CMAKE_CXX_COMPILER}")
+endif()
+find_program(_wwr_cxx_compiler NAMES ${_wwr_cxx_names} REQUIRED)
 set(CMAKE_CXX_COMPILER "${_wwr_cxx_compiler}")
+unset(_wwr_cxx_names)
 
 # ========================================================================
 # Toolchain discovery (must run before project())
@@ -70,7 +111,11 @@ foreach(_root IN LISTS _llvm_roots)
   list(APPEND _llvm_lib_hints "${_root}/lib")
 endforeach()
 
-if(NOT CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS)
+# Only Clang needs a separate scanner binary; GCC emits p1689 dependency info
+# from the compiler itself, so CMake drives it with no external tool.
+if(WWR_HOST_COMPILER STREQUAL "Clang"
+   AND NOT CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS
+)
   find_program(
     CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS
     NAMES clang-scan-deps
@@ -87,25 +132,49 @@ if(NOT CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS)
 endif()
 
 if(NOT CMAKE_CXX_STDLIB_MODULES_JSON)
-  find_file(
-    CMAKE_CXX_STDLIB_MODULES_JSON
-    NAMES libc++.modules.json
-    HINTS ${_llvm_lib_hints}
-    PATHS /usr/lib /usr/local/lib
-  )
+  if(WWR_HOST_COMPILER STREQUAL "Clang")
+    find_file(
+      CMAKE_CXX_STDLIB_MODULES_JSON
+      NAMES libc++.modules.json
+      HINTS ${_llvm_lib_hints}
+      PATHS /usr/lib /usr/local/lib
+    )
+  else()
+    # GCC knows where its own manifest lives, so ask it rather than glob for a
+    # versioned libdir. -print-file-name echoes the bare name back when the
+    # install ships no manifest, which EXISTS then rejects.
+    execute_process(
+      COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++.modules.json
+      OUTPUT_VARIABLE _wwr_gnu_manifest
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+    if(EXISTS "${_wwr_gnu_manifest}")
+      set(CMAKE_CXX_STDLIB_MODULES_JSON
+          "${_wwr_gnu_manifest}"
+          CACHE FILEPATH "Standard library modules manifest"
+      )
+    endif()
+    unset(_wwr_gnu_manifest)
+  endif()
   if(NOT CMAKE_CXX_STDLIB_MODULES_JSON)
     message(
       FATAL_ERROR
-        "libc++.modules.json not found (required for `import std`). "
-        "Install libc++-dev built with module support, or pass "
-        "-DCMAKE_CXX_STDLIB_MODULES_JSON=<path>."
+        "No standard library modules manifest found (required for `import "
+        "std`). Install a libc++ / libstdc++ built with module support, or "
+        "pass -DCMAKE_CXX_STDLIB_MODULES_JSON=<path>."
     )
   endif()
 endif()
 
-message(STATUS "Using clang-scan-deps: ${CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS}")
+message(STATUS "Host compiler family: ${WWR_HOST_COMPILER}")
+if(WWR_HOST_COMPILER STREQUAL "Clang")
+  message(
+    STATUS "Using clang-scan-deps: ${CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS}"
+  )
+endif()
 message(
-  STATUS "Using libc++ modules manifest: ${CMAKE_CXX_STDLIB_MODULES_JSON}"
+  STATUS "Using std modules manifest: ${CMAKE_CXX_STDLIB_MODULES_JSON}"
 )
 
 # ========================================================================
@@ -189,16 +258,35 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # default (ON) to match libc++ std module compilation
 set(CMAKE_CXX_EXTENSIONS ON)
 
-# Require Clang with libc++
-if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+# Require the family WWR_HOST_COMPILER selected. The compiler was pinned before
+# project(), so a mismatch here means a stale cache or a toolchain file fighting
+# that choice, not a user error in -DCMAKE_CXX_COMPILER.
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL WWR_HOST_COMPILER)
   message(
-    FATAL_ERROR "This project requires Clang compiler for C++23 module support"
+    FATAL_ERROR
+      "WWR_HOST_COMPILER=${WWR_HOST_COMPILER} but the detected compiler is "
+      "${CMAKE_CXX_COMPILER_ID} (${CMAKE_CXX_COMPILER}). This project needs "
+      "Clang or GCC >= 16 for C++23 module support."
   )
 endif()
 
-# Add libc++ linker flags for CXX targets
-add_link_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
-add_link_options($<$<COMPILE_LANGUAGE:CXX>:-lc++abi>)
+# GCC's floor is 16: earlier releases cannot compile this tree's module
+# interface units (and 15 and below ship no usable `import std` for it).
+if(WWR_HOST_COMPILER STREQUAL "GNU"
+   AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 16
+)
+  message(
+    FATAL_ERROR
+      "GCC ${CMAKE_CXX_COMPILER_VERSION} is below this project's GCC 16 floor "
+      "(measured against 16.2.0)."
+  )
+endif()
+
+# libc++ is a Clang-only pairing; GNU already links its own libstdc++.
+if(WWR_HOST_COMPILER STREQUAL "Clang")
+  add_link_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++>)
+  add_link_options($<$<COMPILE_LANGUAGE:CXX>:-lc++abi>)
+endif()
 
 # ========================================================================
 # Optional vendor-library wrappers
@@ -405,18 +493,21 @@ endif()
 # nvcc (and hipcc) link against libstdc++ internally. When the host linker is
 # clang with -stdlib=libc++, the GCC library directory is not in the default
 # search path and -lstdc++ fails to resolve. Expose it via link_directories and
-# rpath rather than hardcoding a distro-specific .so path.
-execute_process(
-  COMMAND gcc --print-file-name=libstdc++.so
-  OUTPUT_VARIABLE STDCXX_LIBRARY
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  RESULT_VARIABLE _gcc_result
-)
-if(_gcc_result EQUAL 0 AND NOT STDCXX_LIBRARY STREQUAL "libstdc++.so")
-  get_filename_component(STDCXX_DIR "${STDCXX_LIBRARY}" DIRECTORY)
-  add_link_options("-L${STDCXX_DIR}")
-  list(APPEND CMAKE_BUILD_RPATH "${STDCXX_DIR}")
-  message(STATUS "Found libstdc++ directory: ${STDCXX_DIR}")
+# rpath rather than hardcoding a distro-specific .so path. Skipped under
+# WWR_HOST_COMPILER=GNU, where the host linker already resolves libstdc++.
+if(WWR_HOST_COMPILER STREQUAL "Clang")
+  execute_process(
+    COMMAND gcc --print-file-name=libstdc++.so
+    OUTPUT_VARIABLE STDCXX_LIBRARY
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE _gcc_result
+  )
+  if(_gcc_result EQUAL 0 AND NOT STDCXX_LIBRARY STREQUAL "libstdc++.so")
+    get_filename_component(STDCXX_DIR "${STDCXX_LIBRARY}" DIRECTORY)
+    add_link_options("-L${STDCXX_DIR}")
+    list(APPEND CMAKE_BUILD_RPATH "${STDCXX_DIR}")
+    message(STATUS "Found libstdc++ directory: ${STDCXX_DIR}")
+  endif()
 endif()
 
 # ========================================================================
@@ -494,6 +585,16 @@ option(WWR_COVERAGE
        "Enable clang source-based coverage instrumentation for host (CXX) code"
        OFF
 )
+if(WWR_COVERAGE AND NOT WWR_HOST_COMPILER STREQUAL "Clang")
+  # devtools/coverage.sh post-processes with llvm-profdata/llvm-cov, which read
+  # clang .profraw and not gcov data. Refuse rather than emit a report the
+  # driver cannot consume.
+  message(
+    FATAL_ERROR
+      "WWR_COVERAGE requires WWR_HOST_COMPILER=Clang (the instrumentation and "
+      "devtools/coverage.sh are clang source-based)."
+  )
+endif()
 if(WWR_COVERAGE)
   message(
     STATUS "Coverage instrumentation enabled (clang source-based, host CXX)"

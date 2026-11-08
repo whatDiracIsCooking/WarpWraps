@@ -1,0 +1,23 @@
+# Spike-only test bed for WWR_HOST_COMPILER=GNU: the official GCC 16.2.0 image
+# plus the same CMake/Ninja the project pins. Not part of the image diamond --
+# build it with spike/build-gccspike.sh. The CUDA toolkit is mounted at run
+# time (-v /usr/local/cuda-13.0:/usr/local/cuda:ro), not installed here.
+FROM gcc:16
+
+ARG CMAKE_VERSION=4.2.3
+ARG NINJA_VERSION=1.13.1
+
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends wget unzip ca-certificates g++-14; \
+    wget -q -O /tmp/cmake.sh \
+      "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.sh"; \
+    chmod +x /tmp/cmake.sh; \
+    /tmp/cmake.sh --skip-license --prefix=/usr/local; \
+    wget -q -O /tmp/ninja.zip \
+      "https://github.com/ninja-build/ninja/releases/download/v${NINJA_VERSION}/ninja-linux.zip"; \
+    unzip -q -o /tmp/ninja.zip -d /usr/local/bin; \
+    chmod +x /usr/local/bin/ninja; \
+    rm -f /tmp/cmake.sh /tmp/ninja.zip; \
+    rm -rf /var/lib/apt/lists/*; \
+    cmake --version | head -1; ninja --version; g++ --version | head -1; g++-14 --version | head -1

@@ -164,8 +164,9 @@ endif()
 # ---------------------------------------------------------------------------
 # The consumer compiles this package's module interface units with the
 # consumer's own compiler. Module interface sources are not portable across
-# implementations, and this project's units are clang + libc++ specific (they
-# `import std`, which needs libc++'s module manifest). A mismatch here surfaces
+# implementations, and this project's units need the family they were built with
+# (they `import std`, which needs that toolchain's own module manifest -- libc++
+# for Clang, libstdc++ for GNU). A mismatch here surfaces
 # as a wall of errors inside wwr's own sources, which reads as wwr being
 # broken rather than as the build using the wrong compiler -- hence a warning
 # that names the cause.
@@ -180,15 +181,16 @@ if(NOT WWR_SKIP_TOOLCHAIN_CHECK)
       WARNING
         "wwr was built with ${WWR_BUILT_WITH_CXX_COMPILER_ID}, this "
         "project uses ${CMAKE_CXX_COMPILER_ID}. Consumers COMPILE wwr's "
-        "module interface units, and this project's units require Clang -- "
-        "expect errors inside wwr's own sources."
+        "module interface units, and this project's units require "
+        "${WWR_BUILT_WITH_CXX_COMPILER_ID} -- expect errors inside wwr's own "
+        "sources."
     )
   elseif(NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL
          WWR_BUILT_WITH_CXX_COMPILER_VERSION
   )
     message(
       STATUS
-        "wwr was built with Clang "
+        "wwr was built with ${WWR_BUILT_WITH_CXX_COMPILER_ID} "
         "${WWR_BUILT_WITH_CXX_COMPILER_VERSION}, this project uses "
         "${CMAKE_CXX_COMPILER_VERSION}. Module sources are recompiled by the "
         "consumer, so this is usually fine."

@@ -76,6 +76,18 @@
       }
     },
     {
+      "name": "gcc",
+      "displayName": "GCC Config",
+      "description": "Release CUDA build with the GNU host compiler family (GCC >= 16) instead of clang + libc++. Separate build dir: BMIs are not portable between families, so the two cannot share one.",
+      "inherits": "base",
+      "binaryDir": "${sourceDir}/build-gcc",
+      "cacheVariables": {
+        "WWR_HOST_COMPILER": "GNU",
+        "CMAKE_CXX_COMPILER": "g++-16",
+        "CMAKE_C_COMPILER": "gcc-16"
+      }
+    },
+    {
       "name": "hip",
       "binaryDir": "${sourceDir}/build-hip",
       "displayName": "HIP backend",
