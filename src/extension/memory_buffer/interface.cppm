@@ -41,14 +41,22 @@ import std;
 // name a buffer or view with a non-default error policy, and copy() returns
 // stdHostMemoryError_t - so consumers must be able to name them.
 export import :memory_kind;
+export import :reinterpret_tag;
 export import :base_buffer;
 export import :host_memory;
 
-// :reinterpret_tag is intentionally NOT re-exported. base_buffer imports it
-// with a plain `import` so the reinterpreting view constructor and
-// reinterpret_buffer_view() can name the tag, but keeping it off the public
-// interface means consumers reach the reinterpreting view only through the
-// factory - naming reinterpret_view directly is an in-module detail.
+// :reinterpret_tag is re-exported because [module.unit] requires it: every
+// interface partition of a module shall be exported, directly or indirectly, by
+// the primary module interface unit. It was once deliberately left off to keep
+// reinterpret_view unnameable by consumers, but that is not a conforming way to
+// express an internal partition, and the encapsulation it bought is not
+// achievable at all here - base_buffer's exported reinterpret_buffer_view() is a
+// template whose body names the tag, so the tag's DEFINITION must be reachable
+// in the consumer's TU at instantiation, and a reachable definition is a
+// nameable one. Demoting it to an implementation partition satisfies the rule
+// and then breaks that instantiation. clang does not diagnose the original
+// spelling; gcc does. reinterpret_buffer_view() remains the intended spelling -
+// that is now convention, not enforcement.
 
 export import :device_buffer;
 export import :pinned_buffer;

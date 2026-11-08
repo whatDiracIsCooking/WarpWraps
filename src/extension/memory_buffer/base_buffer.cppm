@@ -15,10 +15,10 @@ export module wwr.extension.memory_buffer:base_buffer;
 import std;
 import wwr.extension.common;
 import :memory_kind;
-// Plain import, not export import: the tag is nameable here (the reinterpreting
-// constructor and reinterpret_buffer_view() below both name it) but the primary
-// interface unit does not re-export this partition, so it stays out of the
-// module's public API. See reinterpret_tag.cppm.
+// Plain import, not export import: this partition does not re-export the tag,
+// the primary interface unit does (as [module.unit] requires). The
+// reinterpreting constructor and reinterpret_buffer_view() below both name it.
+// See reinterpret_tag.cppm.
 import :reinterpret_tag;
 
 export namespace wwr::extension {
