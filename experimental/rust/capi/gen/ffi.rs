@@ -16,6 +16,19 @@ pub struct wwr_complex128 {
     pub im: f64,
 }
 
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_status {
+    WWR_STATUS_SUCCESS = 0,
+    WWR_STATUS_INVALID_VALUE = 1,
+    WWR_STATUS_INVALID_DEVICE = 2,
+    WWR_STATUS_NO_DEVICE = 3,
+    WWR_STATUS_NOT_READY = 4,
+    WWR_STATUS_MEMORY_ALLOCATION = 5,
+    WWR_STATUS_NOT_SUPPORTED = 6,
+    WWR_STATUS_UNKNOWN = 7,
+}
+
 #[link(name = "wwr.capi")]
 extern "C" {
     pub fn wwr_cadd64(a: wwr_complex64, b: wwr_complex64) -> wwr_complex64;
@@ -26,4 +39,7 @@ extern "C" {
     pub fn wwr_cmul128(a: wwr_complex128, b: wwr_complex128) -> wwr_complex128;
     pub fn wwr_cabs128(z: wwr_complex128) -> f64;
     pub fn wwr_cdiv128(a: wwr_complex128, b: wwr_complex128) -> wwr_complex128;
+    pub fn wwr_runtime_get_version(version: *mut i32) -> wwr_status;
+    pub fn wwr_get_device_count(count: *mut i32) -> wwr_status;
+    pub fn wwr_set_device(device: i32) -> wwr_status;
 }
