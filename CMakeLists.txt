@@ -534,6 +534,13 @@ option(WWR_BUILD_TESTS "Add wwr's test suites (test/) and enable testing"
 option(WWR_BUILD_EXAMPLES "Add wwr's in-tree examples (example/)"
        ${PROJECT_IS_TOP_LEVEL}
 )
+# Whether the experimental surfaces (experimental/) are added. ON for a
+# top-level build, like WWR_BUILD_EXAMPLES, so CI builds and runs the
+# experimental C ABI (wwr.capi) on both backends; OFF for an embedding consumer,
+# which wants none of it. Not installed -- the install sweep covers src/ only.
+option(WWR_BUILD_EXPERIMENTAL "Add wwr's experimental surfaces (experimental/)"
+       ${PROJECT_IS_TOP_LEVEL}
+)
 
 # Whether the wrappers layer (src/wrappers) is part of the installed package.
 # The wrappers are always BUILT in-tree (the examples and test/wrappers link
@@ -635,6 +642,14 @@ add_subdirectory(src)
 # example/README.md; example/consumer is NOT part of this build.
 if(WWR_BUILD_EXAMPLES)
   add_subdirectory(example)
+endif()
+
+# The experimental C ABI over wwr (wwr.capi), for Rust FFI. Added after src/ so
+# wwr::complex exists, and gated like the examples -- ON for a top-level build
+# so CI builds it on both backends and runs its host-only driver ctest. See
+# experimental/rust/README.md and docs/architecture.md §25.
+if(WWR_BUILD_EXPERIMENTAL)
+  add_subdirectory(experimental/rust/capi)
 endif()
 
 # GoogleTest, which the runtime tests are written in. Added before the test

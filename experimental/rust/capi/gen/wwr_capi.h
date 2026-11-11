@@ -20,6 +20,10 @@ wwr_complex64 wwr_cadd64(wwr_complex64 a, wwr_complex64 b);
 wwr_complex64 wwr_cmul64(wwr_complex64 a, wwr_complex64 b);
 float wwr_cabs64(wwr_complex64 z);
 wwr_complex64 wwr_cdiv64(wwr_complex64 a, wwr_complex64 b);
+wwr_complex128 wwr_cadd128(wwr_complex128 a, wwr_complex128 b);
+wwr_complex128 wwr_cmul128(wwr_complex128 a, wwr_complex128 b);
+double wwr_cabs128(wwr_complex128 z);
+wwr_complex128 wwr_cdiv128(wwr_complex128 a, wwr_complex128 b);
 
 #ifdef __cplusplus
 }
