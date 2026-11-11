@@ -57,6 +57,14 @@
 #                   drives that automatically) -- its gemm runs on the raw wwr*
 #                   layer. The default ships the wrappers and the consumer links
 #                   them, which is what proves the wrapper install rules.
+#   --capi          configure wwr with -DWWR_INSTALL_CAPI=ON so the package also
+#                   ships the C ABI (src/capi, the prebuilt libwwr_capi.so + the
+#                   plain-C wwr_capi.h), then build+run example/capi-consumer --
+#                   a PURE-C project that find_package()s wwr, links wwr::capi and
+#                   calls the C functions against the INSTALLED .so + header. This
+#                   is the only gate that proves the capi install rules (the .so
+#                   landed, the header travelled, wwr::capi exports, no C++ leak),
+#                   the same way the C++ consumer above proves the module layers.
 #
 # Exit status is the first failing step's.
 #: -- help stops here --
@@ -71,6 +79,7 @@ keep=0
 run=1
 extension=0
 wrappers=1
+capi=0
 
 while [ $# -gt 0 ]; do
   case $1 in
@@ -80,6 +89,7 @@ while [ $# -gt 0 ]; do
     --no-run) run=0; shift ;;
     --extension) extension=1; shift ;;
     --no-wrappers) wrappers=0; shift ;;
+    --capi) capi=1; shift ;;
     -h | --help)
       sed -n '2,/^#: -- help stops here --$/p' "${BASH_SOURCE[0]}" |
         sed 's/^# \{0,1\}//; $d'
@@ -95,6 +105,7 @@ done
 # binaryDir.
 build_dir=$REPO_ROOT/build-install-check
 consumer_build=$REPO_ROOT/build-install-check-consumer
+capi_consumer_build=$REPO_ROOT/build-install-check-capi-consumer
 
 if [ -z "$prefix" ]; then
   prefix=$(mktemp -d -t wwr-install-XXXXXX)
@@ -110,10 +121,11 @@ cleanup() {
     echo
     echo "kept: install prefix   $prefix"
     echo "kept: consumer build   $consumer_build"
+    [ "$capi" -eq 1 ] && echo "kept: capi consumer    $capi_consumer_build"
     return
   fi
   [ "$created_prefix" -eq 1 ] && rm -rf "$prefix"
-  rm -rf "$consumer_build"
+  rm -rf "$consumer_build" "$capi_consumer_build"
 }
 trap cleanup EXIT
 
@@ -124,10 +136,11 @@ step "1/4  configure wwr (preset: $preset)"
 # ---------------------------------------------------------------------------
 # -B overrides the preset's own binaryDir so this tier keeps its cache separate
 # from cpp-tier.sh's, per the comment above.
-# Pass WWR_INSTALL_EXTENSION and WWR_INSTALL_WRAPPERS explicitly BOTH ways, never
-# just when flipped: this tier reuses $build_dir across runs, and a cached value
-# from an earlier --extension / --no-wrappers run would otherwise persist into a
-# plain run and quietly install a different layer set than the caller asked for.
+# Pass WWR_INSTALL_EXTENSION, WWR_INSTALL_WRAPPERS and WWR_INSTALL_CAPI
+# explicitly BOTH ways, never just when flipped: this tier reuses $build_dir
+# across runs, and a cached value from an earlier --extension / --no-wrappers /
+# --capi run would otherwise persist into a plain run and quietly install a
+# different layer set than the caller asked for.
 install_args=(-DWWR_INSTALL=ON)
 if [ "$extension" -eq 1 ]; then
   install_args+=(-DWWR_INSTALL_EXTENSION=ON)
@@ -138,6 +151,11 @@ if [ "$wrappers" -eq 1 ]; then
   install_args+=(-DWWR_INSTALL_WRAPPERS=ON)
 else
   install_args+=(-DWWR_INSTALL_WRAPPERS=OFF)
+fi
+if [ "$capi" -eq 1 ]; then
+  install_args+=(-DWWR_INSTALL_CAPI=ON)
+else
+  install_args+=(-DWWR_INSTALL_CAPI=OFF)
 fi
 cmake --preset "$preset" -B "$build_dir" "${install_args[@]}"
 
@@ -214,6 +232,22 @@ else
   echo "  wrappers layer omitted (core-only install)"
 fi
 
+# The C ABI ships only with --capi. Prove its two distinctive artifacts landed
+# before the C consumer (the extra step below) is asked to link them -- the
+# prebuilt shared library (matched by name, LIBDIR is lib or lib64) and the
+# plain-C header in the wwr include root. A missing one gives a clearer message
+# here than a link or #include error in the consumer.
+capi_header="include/wwr/wwr_capi.h"
+if [ "$capi" -eq 1 ]; then
+  capi_missing=0
+  find "$prefix" -name 'libwwr_capi.so*' | grep -q . ||
+    { echo "install-check.sh: FAIL -- capi shared library not installed" >&2; capi_missing=1; }
+  [ -f "$prefix/$capi_header" ] ||
+    { echo "install-check.sh: FAIL -- capi header not installed: $capi_header" >&2; capi_missing=1; }
+  [ "$capi_missing" -eq 0 ] || exit 1
+  echo "  C ABI installed (libwwr_capi.so, wwr_capi.h)"
+fi
+
 # ---------------------------------------------------------------------------
 step "3/4  configure and build example/consumer against the install"
 # ---------------------------------------------------------------------------
@@ -251,6 +285,48 @@ if [ ! -x "$consumer_build/consumer" ]; then
 fi
 
 # ---------------------------------------------------------------------------
+# With --capi, the SAME proof for the C ABI: configure example/capi-consumer --
+# a standalone PURE-C project -- against the install prefix alone and build it.
+# It find_package(wwr COMPONENTS capi), links wwr::capi and #includes the
+# installed <wwr/wwr_capi.h>, so a successful build here means the prebuilt
+# libwwr_capi.so, its header and its export entry all re-attach through
+# find_package with no C++ toolchain in sight. Same prefix_path as the C++
+# consumer, so it keeps finding any image-provided prefixes too.
+if [ "$capi" -eq 1 ]; then
+  step "3b/4  configure and build example/capi-consumer against the install"
+  rm -rf "$capi_consumer_build"
+  cmake -S "$REPO_ROOT/example/capi-consumer" -B "$capi_consumer_build" \
+    -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_PREFIX_PATH="$prefix_path"
+  cmake --build "$capi_consumer_build" "${build_args[@]}"
+  if [ ! -x "$capi_consumer_build/capi_consumer" ]; then
+    echo
+    echo "install-check.sh: FAIL -- capi consumer build succeeded but produced" >&2
+    echo "  no '$capi_consumer_build/capi_consumer' binary." >&2
+    exit 1
+  fi
+  # Prove the consumer links the INSTALLED libwwr_capi.so, not some in-tree
+  # build: its sole wwr dependency must resolve inside the throwaway prefix.
+  # ldd reads the dynamic deps; a resolution pointing anywhere but $prefix means
+  # the consumer is not actually exercising the install, which is the one thing
+  # this tier exists to prove.
+  capi_so=$(ldd "$capi_consumer_build/capi_consumer" 2>/dev/null |
+    awk '/libwwr_capi\.so/ { print $3 }')
+  case "${capi_so:-}" in
+    "$prefix"/*) linked_install=1 ;;
+    *) linked_install=0 ;;
+  esac
+  if [ "$linked_install" -eq 0 ]; then
+    echo
+    echo "install-check.sh: FAIL -- capi consumer does not link the INSTALLED" >&2
+    echo "  libwwr_capi.so (resolved to '${capi_so:-<none>}', not under $prefix)." >&2
+    exit 1
+  fi
+  echo "  capi consumer links the installed lib: $capi_so"
+fi
+
+# ---------------------------------------------------------------------------
 if [ "$run" -eq 0 ]; then
   step "4/4  skipped (--no-run)"
   echo
@@ -258,23 +334,31 @@ if [ "$run" -eq 0 ]; then
   exit 0
 fi
 
-step "4/4  run the consumer"
+step "4/4  run the consumer(s)"
 # ---------------------------------------------------------------------------
-set +e
-"$consumer_build/consumer"
-status=$?
-set -e
+# A consumer exiting 77 means "built and linked, but no reachable GPU" -- a
+# skip, not a failure (see example/README.md). Run each consumer that was built,
+# treat 77 as a pass, and fail on any other non-zero.
+run_consumer() {
+  local bin=$1 name=$2
+  set +e
+  "$bin"
+  local status=$?
+  set -e
+  if [ "$status" -eq 77 ]; then
+    echo
+    echo "install-check.sh: $name built and linked; not run -- no GPU"
+    return 0
+  fi
+  if [ "$status" -ne 0 ]; then
+    echo
+    echo "install-check.sh: FAIL -- $name exited $status" >&2
+    exit "$status"
+  fi
+}
 
-if [ "$status" -eq 77 ]; then
-  echo
-  echo "install-check.sh: PASS (consumer built and linked; not run -- no GPU)"
-  exit 0
-fi
-if [ "$status" -ne 0 ]; then
-  echo
-  echo "install-check.sh: FAIL -- consumer exited $status" >&2
-  exit "$status"
-fi
+run_consumer "$consumer_build/consumer" "consumer"
+[ "$capi" -eq 1 ] && run_consumer "$capi_consumer_build/capi_consumer" "capi consumer"
 
 echo
 echo "install-check.sh: PASS"

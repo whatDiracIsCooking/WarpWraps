@@ -35,6 +35,12 @@ set(WWR_HAS_COMP @WWR_PACKAGE_HAS_COMP@)
 # wwr.extension.tensor), built with -DWWR_WITH_TENSOR=ON (OFF by default). See
 # section 1f and section 3.
 set(WWR_HAS_TENSOR @WWR_PACKAGE_HAS_TENSOR@)
+# Whether this installation shipped the C ABI (src/capi -> wwr::capi,
+# libwwr_capi.so), built with -DWWR_INSTALL_CAPI=ON (OFF by default). Unlike the
+# module layers above the capi ships as a prebuilt binary + a plain-C header,
+# for a non-C++ FFI consumer. A bare boolean -- tested directly below. See
+# section 1g; example/capi-consumer is the consumer that exercises it.
+set(WWR_HAS_CAPI @WWR_PACKAGE_HAS_CAPI@)
 set(WWR_BUILT_WITH_CXX_COMPILER_ID "@WWR_PACKAGE_CXX_COMPILER_ID@")
 set(WWR_BUILT_WITH_CXX_COMPILER_VERSION
     "@WWR_PACKAGE_CXX_COMPILER_VERSION@"
@@ -155,6 +161,26 @@ if(wwr_FIND_REQUIRED_tensor AND NOT WWR_HAS_TENSOR)
   set(wwr_FOUND FALSE)
   set(wwr_NOT_FOUND_MESSAGE
       "This wwr installation was built without the tensor-contraction wrapper, but the 'tensor' component was requested. Reinstall the package with -DWWR_WITH_TENSOR=ON."
+  )
+  return()
+endif()
+
+# ---------------------------------------------------------------------------
+# 1g. C ABI component
+# ---------------------------------------------------------------------------
+# The C ABI (wwr::capi, libwwr_capi.so) ships only from a build configured with
+# -DWWR_INSTALL_CAPI=ON (OFF by default). Exposed as the `capi` component so
+# `find_package(wwr COMPONENTS capi)` is refused here, naming the cause, rather
+# than later when linking wwr::capi fails to resolve against an install that did
+# not ship it. wwr_capi_FOUND is set either way, so the
+# check_required_components() at the end of this file agrees with this verdict.
+set(wwr_capi_FOUND ${WWR_HAS_CAPI})
+if(wwr_FIND_REQUIRED_capi AND NOT WWR_HAS_CAPI)
+  set(wwr_FOUND FALSE)
+  # One string argument, not several: set() with multiple quoted arguments builds
+  # a list and find_package prints the ';' separators between them.
+  set(wwr_NOT_FOUND_MESSAGE
+      "This wwr installation was built without the C ABI, but the 'capi' component was requested. Reinstall the package with -DWWR_INSTALL_CAPI=ON."
   )
   return()
 endif()

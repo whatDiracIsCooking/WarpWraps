@@ -466,6 +466,23 @@ jobs:
         run: |
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
           devtools/install-check.sh --preset ci-cuda --no-run --extension
+      # Same shape as the extension run: ship the C ABI too (-DWWR_INSTALL_CAPI=ON)
+      # and build example/capi-consumer -- a pure-C project that find_package()s
+      # wwr, links wwr::capi and #includes the installed wwr_capi.h -- which is
+      # the only thing that proves the capi's install rules (the prebuilt
+      # libwwr_capi.so, the header into the include root, wwr::capi's export +
+      # include dir, no C++ leak) re-attach in a stranger's build. --no-run builds
+      # the consumer and runs the linked-the-INSTALLED-lib check (both GPU-free);
+      # only running it needs a device, which this runner lacks. A separate step
+      # so a capi-only install regression reads as its own red mark; reuses the
+      # build dir and ccache, so the wwr rebuild is incremental (the capi .so is
+      # built in-tree either way).
+      - name: package tier (with capi)
+        env:
+          BUILD_JOBS: '4'
+        run: |
+          export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
+          devtools/install-check.sh --preset ci-cuda --no-run --capi
 
   # THE HONESTY MECHANISM for the committed vendor manifests. vendor/*/*.json is
   # machine output -- devtools/vendor_manifests.sh harvesting the pinned SDK
