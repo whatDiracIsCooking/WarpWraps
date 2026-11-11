@@ -70,6 +70,7 @@ import captypes  # noqa: E402
 import ccl as ccl_spec  # noqa: E402
 import comp as comp_spec  # noqa: E402
 import complex as complex_spec  # noqa: E402
+import extension_random_normal as ext_random_normal_spec  # noqa: E402
 import fft as fft_spec  # noqa: E402
 import fp8 as fp8_spec  # noqa: E402
 import fp16 as fp16_spec  # noqa: E402
@@ -637,8 +638,10 @@ def gen_umbrella_h() -> str:
          '#include "runtime_api/wwr_capi_runtime_api.h"']
     for spec in LIBRARY_SPECS:
         L.append(f'#include "{spec.name}/wwr_capi_{spec.name}.h"')
-    # The hand-written surfaces (not LibrarySpecs): comp, tx and the numeric types.
-    for unit in ("comp", "tx", "fp16", "bf16", "vector_types", "fp8"):
+    # The hand-written surfaces (not LibrarySpecs): comp, tx, the numeric types,
+    # and the device surface (extension_random_normal).
+    for unit in ("comp", "tx", "fp16", "bf16", "vector_types", "fp8",
+                 "extension_random_normal"):
         L.append(f'#include "{unit}/wwr_capi_{unit}.h"')
     L += ["", f"#endif  // {guard}", ""]
     return "\n".join(L)
@@ -680,6 +683,114 @@ def gen_complex_cpp() -> str:
         else:
             L.append(f"  return {f['wwr']}({call_args});")
         L += ["}", ""]
+    L += ["}  // extern \"C\"", ""]
+    return "\n".join(L)
+
+
+# ---------------------------------------------------------------------------
+# The extension_random_normal DEVICE surface (issue #347, hand-written). Each
+# random_normal INSTANTIATION becomes one monomorphised extern "C" entry; the
+# single init_state function is one more. The suffixes and type map are sourced
+# from spec/extension_random_normal.py (itself 1:1 with instantiations.cpp).
+# ---------------------------------------------------------------------------
+_ERN = ext_random_normal_spec
+
+
+def _ern_random_normal_name(inst: dict) -> str:
+    return f"wwr_extension_random_normal_{inst['suffix']}"
+
+
+def gen_extension_random_normal_h() -> str:
+    """extension_random_normal/wwr_capi_extension_random_normal.h — one
+    monomorphised random_normal prototype per instantiated type plus the single
+    init_state prototype. The stream / state handles are void*, the data pointer
+    and by-value scale are the SHARED complex / half / bf16 PODs (or a plain
+    float / double), so this header declares none of its own and #includes
+    common.h for them; <stddef.h> is for size_t."""
+    guard = "WWR_CAPI_EXTENSION_RANDOM_NORMAL_H"
+    L = [f"{_GEN_NOTE} Sources: src/capi/spec/extension_random_normal.py "
+         "(hand-written, device surface).",
+         f"#ifndef {guard}", f"#define {guard}", "",
+         "#include <stddef.h>", "",
+         '#include "common.h"', ""]
+    L += _c_extern_open()
+    for inst in _ERN.INSTANTIATIONS:
+        name = _ern_random_normal_name(inst)
+        pod = inst["pod"]
+        L.append(f"void {name}(void *stream, size_t count, void *states, "
+                 f"{pod} *values, {pod} scale);")
+    args = ", ".join(_c_param_plain(c, n) for c, n in _ERN.INIT_STATE["args"])
+    L.append(f"void {_ERN.INIT_STATE['capi']}({args});")
+    L += _c_extern_close(guard)
+    return "\n".join(L)
+
+
+def _c_param_plain(c: str, name: str) -> str:
+    """A hand-written capi (C type, name) pair as a C parameter -- the pointer
+    `*` already carries its own spacing. _c_param takes a Classified; this is the
+    plain-string twin the hand-written device surface uses."""
+    sep = "" if c.endswith("*") else " "
+    return f"{c}{sep}{name}"
+
+
+def gen_extension_random_normal_cpp() -> str:
+    """extension_random_normal/wwr_capi_extension_random_normal.cpp — the device
+    thunks. Imports the two wwr.extension modules it forwards into, plus the
+    runtime_api / rand / complex / fp16 / bf16 modules that NAME the backend
+    handle and neutral scalar types (the extension modules import, but do not
+    re-export, them). Each random_normal thunk casts the void* stream / state
+    handles to wwrStream_t / wwrrandState*, reinterprets the data POD pointer to
+    the neutral output type (layout-identical, §3/§12), carries the by-value scale
+    across per its kind, and calls the explicit instantiation
+    wwr::extension::random_normal<T>. init_state forwards straight through."""
+    L = [_GEN_NOTE,
+         '#include "extension_random_normal/wwr_capi_extension_random_normal.h"',
+         "",
+         "#include <cstring>", "",
+         "import wwr.extension.random_normal;",
+         "import wwr.extension.init_state;",
+         "import wwr.runtime_api;",
+         "import wwr.rand;",
+         "import wwr.complex;",
+         "import wwr.fp16;",
+         "import wwr.bf16;", "",
+         'extern "C" {', ""]
+    for inst in _ERN.INSTANTIATIONS:
+        name = _ern_random_normal_name(inst)
+        pod = inst["pod"]
+        wwr = inst["wwr"]
+        kind = inst["kind"]
+        L.append(f"void {name}(void *stream, size_t count, void *states, "
+                 f"{pod} *values, {pod} scale) {{")
+        # The data pointer: a plain scalar POD (float / double) is already the
+        # output type; a complex / half / bf16 POD is layout-identical to the
+        # neutral vendor type and reinterpret_cast across (§3/§12).
+        if kind == "scalar":
+            out_expr = "values"
+        else:
+            out_expr = f"reinterpret_cast<{wwr} *>(values)"
+        # The by-value scale, carried across per kind.
+        if kind == "scalar":
+            L.append(f"  const {wwr} _scale = scale;")
+        elif kind == "complex":
+            L.append(f"  const {wwr} _scale{{scale.re, scale.im}};")
+        else:  # bits: memcpy the 16 opaque bits into the vendor half / bfloat16
+            L.append(f"  {wwr} _scale;")
+            L.append("  std::memcpy(&_scale, &scale, sizeof(_scale));")
+        L.append(f"  wwr::extension::random_normal<{wwr}>("
+                 "reinterpret_cast<wwr::wwrStream_t>(stream), count, "
+                 "reinterpret_cast<wwr::wwrrandState *>(states), "
+                 f"{out_expr}, _scale);")
+        L += ["}", ""]
+    # init_state: a single non-template forward. The void* handles cast to the
+    # backend types; the three ull arguments pass straight through.
+    init = _ERN.INIT_STATE
+    args = ", ".join(_c_param_plain(c, n) for c, n in init["args"])
+    L.append(f"void {init['capi']}({args}) {{")
+    L.append(f"  {init['wwr']}(reinterpret_cast<wwr::wwrStream_t>(stream), count, "
+             "reinterpret_cast<wwr::wwrrandState *>(states), seed, "
+             "sequence_offset, offset);")
+    L += ["}", ""]
     L += ["}  // extern \"C\"", ""]
     return "\n".join(L)
 
@@ -1087,6 +1198,26 @@ def _rust_complex_fns(enum: captypes.EnumMap) -> list[str]:
     return L
 
 
+def _rust_extension_random_normal_fns() -> list[str]:
+    """The extern "C" lines for the device surface: one monomorphised
+    random_normal per instantiated type plus the single init_state. The void*
+    handles are *mut c_void, the data pointer / by-value scale are the shared
+    complex / half / bf16 PODs (or f32 / f64), the ull arguments c_ulonglong --
+    all spelled by _rust_c_type, none declared here (they live in crate::common /
+    at the top of ffi.rs)."""
+    L = []
+    for inst in _ERN.INSTANTIATIONS:
+        name = _ern_random_normal_name(inst)
+        pod = _rust_c_type(inst["pod"])
+        L.append(f"    pub fn {name}(stream: *mut core::ffi::c_void, count: usize, "
+                 f"states: *mut core::ffi::c_void, values: *mut {pod}, "
+                 f"scale: {pod});")
+    init = _ERN.INIT_STATE
+    args = ", ".join(f"{n}: {_rust_c_type(c)}" for c, n in init["args"])
+    L.append(f"    pub fn {init['capi']}({args});")
+    return L
+
+
 def _rust_status_fns(status_fns: list[ResolvedFunction],
                      enum: captypes.EnumMap) -> list[str]:
     # The runtime return is the status enum (-> the capi enum name) or a plain C
@@ -1173,6 +1304,19 @@ def gen_rust_complex(enum: captypes.EnumMap) -> str:
          "#[allow(unused_imports)]", "use crate::common::*;", "",
          _RUST_FMT_SKIP, 'extern "C" {']
     L += _rust_complex_fns(enum)
+    L += ["}", ""]
+    return "\n".join(L)
+
+
+def gen_rust_extension_random_normal() -> str:
+    """extension_random_normal/extension_random_normal.rs — the device surface's
+    extern "C" block. All its PODs are the shared complex / half / bf16 ones, so
+    it declares none and `use`s common. No #[link]: build.rs links
+    libwwr_capi_extension_random_normal.so when the feature is on."""
+    L = [_RUST_NOTE, _RUST_BACKEND_NOTE, "",
+         "#[allow(unused_imports)]", "use crate::common::*;", "",
+         _RUST_FMT_SKIP, 'extern "C" {']
+    L += _rust_extension_random_normal_fns()
     L += ["}", ""]
     return "\n".join(L)
 
@@ -1653,6 +1797,7 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
     L += _rust_bf16_fns()
     L += _rust_vector_types_fns()
     L += _rust_fp8_fns()
+    L += _rust_extension_random_normal_fns()  # the device surface (#347)
     L += ["}", ""]
     return "\n".join(L)
 
@@ -1690,6 +1835,10 @@ def main() -> None:
         "bf16": (gen_bf16_h(), gen_bf16_cpp()),
         "vector_types": (gen_vector_types_h(), gen_vector_types_cpp()),
         "fp8": (gen_fp8_h(), gen_fp8_cpp()),
+        # The first DEVICE surface (issue #347): monomorphised random_normal +
+        # the single init_state, hand-written like comp / the numeric types.
+        "extension_random_normal": (gen_extension_random_normal_h(),
+                                    gen_extension_random_normal_cpp()),
     }
     rust_units = {
         "complex": gen_rust_complex(enum),
@@ -1700,6 +1849,7 @@ def main() -> None:
         "bf16": gen_rust_bf16(),
         "vector_types": gen_rust_vector_types(),
         "fp8": gen_rust_fp8(),
+        "extension_random_normal": gen_rust_extension_random_normal(),
     }
     for lib in libs:
         units[lib.spec.name] = (gen_library_h(lib), gen_library_cpp(lib))
@@ -1742,6 +1892,10 @@ def main() -> None:
           f"{len(fp8_spec.SKIPS)} skipped")
     for what, reason in fp8_spec.SKIPS:
         print(f"  SKIP {what}: {reason}")
+    print(f"extension_random_normal: wrapped "
+          f"{len(ext_random_normal_spec.INSTANTIATIONS)} monomorphised "
+          "random_normal entries + 1 init_state, 0 skipped "
+          "(DEVICE surface, hand-written; #347)")
     # The wwr-sys crate ships the binding self-contained (it is installed and
     # path/git-depended on away from this tree, so a sibling `../gen/*.rs`
     # include! would dangle). Keep each generated module the SINGLE SOURCE by

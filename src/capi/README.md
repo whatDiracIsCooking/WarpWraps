@@ -17,7 +17,7 @@ cuBLAS / hipBLAS), mirroring the project's own per-`.cppm` dependency isolation 
 plus an **umbrella `libwwr_capi.so`** that contains every unit's symbols, so an
 existing `-lwwr_capi` consumer is unchanged (see "The per-unit split", below).
 
-It covers seventeen surfaces: `complex`, the whole host-callable `runtime_api`
+It covers eighteen surfaces: `complex`, the whole host-callable `runtime_api`
 (memory / stream / event / graph / device management — the status slice it
 started as is now a subset), `tx` (NVTX / rocTX profiler annotations), the full
 curated vendor libraries — `blas` (cuBLAS / hipBLAS), `blaslt` (cuBLASLt /
@@ -27,12 +27,16 @@ hipTENSOR), `fft` (cuFFT / hipFFT), `comp` (nvCOMP / hipCOMP) and `ccl` (NCCL /
 RCCL collectives) — and the **numeric TYPE** surfaces: `fp16` and `bf16` (the
 half / bfloat16 PODs + host float conversions), `vector_types` (the float2 /
 int4 / … PODs + host `make_*` constructors) and `fp8` (the 8-bit float storage
-POD, its saturation / interpretation enums + host narrowing conversions).
+POD, its saturation / interpretation enums + host narrowing conversions). The
+eighteenth is the first **DEVICE** surface: `extension_random_normal` (the #347
+proof-of-concept) — six monomorphised `wwr::extension::random_normal<T>` entries
+(one per explicitly-instantiated element type) plus the single `init_state` that
+seeds them.
 `complex`, `tx`, `rtc` and all four numeric surfaces are **host**-side (and so is
-the host-safe slice of `runtime_api`); the vendor-library rest execute on the
-**device** or across the fabric at call time (a handle binds a device, a kernel
-launches, a collective spans ranks), so their thunks are link-checked on no-GPU
-CI and run-checked on a GPU box. The fragment-sourced library surfaces (`blas` /
+the host-safe slice of `runtime_api`); the vendor-library rest, and
+`extension_random_normal`, execute on the **device** or across the fabric at call
+time (a handle binds a device, a kernel launches, a collective spans ranks), so
+their thunks are link-checked on no-GPU CI and run-checked on a GPU box. The fragment-sourced library surfaces (`blas` /
 `blaslt` / `solver` / `rand` / `rtc` / `sparse` / `tensor` / `fft` / `ccl`) share
 ONE path (`spec/library.py`'s `LibrarySpec` + the generic emitters in
 `generate.py`); each `spec/<x>.py` is a declaration. `runtime_api` is
@@ -459,11 +463,21 @@ never for an additive change. See architecture.md §21.
 
 ## What this does NOT cover (yet)
 
-- **Host surface only.** The high-value `wwr` code — `src/extension`'s device
+- **The DEVICE surface is one unit so far** (`extension_random_normal`, the
+  #347 proof-of-concept): the high-value `wwr` code — `src/extension`'s device
   kernels, `parallel_for`, the sdcz dispatch in `src/wrappers` — is device C++
-  *templates*. Each needs a monomorphised C entry per instantiation; a later
-  milestone (architecture.md §25).
-- **`complex`, `comp`, `tx` and the numeric types are hand-written**, and
+  *templates*, and a C ABI cannot export a template, so each needs a
+  **monomorphised** C entry per instantiation. `extension_random_normal`
+  establishes the pattern over one explicitly-instantiated launcher
+  (`wwr::extension::random_normal<T>` for `float / double / wwrFloatComplex /
+  wwrDoubleComplex / wwrHalf / wwrBfloat16`, one `extern "C"` entry each) plus
+  the single `init_state` it pairs with. The rest of `src/extension` —
+  `parallel_for` (template over a user device functor, not expressible in C),
+  the RAII/handle wrappers (`blas`/`fft`/`tensor`/… — redundant with the raw
+  capi units, need C++ objects), and the support modules — is classified in
+  #347 for a follow-up milestone; see architecture.md §25.
+- **`complex`, `comp`, `tx`, the numeric types and `extension_random_normal`
+  are hand-written**, and
   deliberately so (they forward into wwr-authored wrappers — or, for `tx`,
   external forwarders over static-inline NVTX — absent from any vendor manifest).
   Every other surface is fragment-sourced; see "How the surface is sourced"

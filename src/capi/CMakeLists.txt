@@ -145,6 +145,32 @@ _wwr_add_capi_unit(bf16 wwr::bf16)
 _wwr_add_capi_unit(vector_types wwr::vector_types)
 _wwr_add_capi_unit(fp8 wwr::fp8)
 
+# The first DEVICE surface (issue #347): the monomorphised random_normal
+# entries + the single init_state. UNCONDITIONAL, like blas -- both
+# wwr.extension modules build in every configuration (no WWR_WITH_* gate). Its
+# thunk imports the two wwr.extension modules it forwards into AND the
+# runtime_api / rand / complex / fp16 / bf16 modules whose handle and neutral
+# scalar types it NAMES (the extension modules import, but do not re-export,
+# them), so each is a link dep so its BMI resolves. Linking
+# wwr::extension::random_normal / ::init_state also
+# drags in their WHOLE_ARCHIVE device-kernel libraries (the .cu archives) plus
+# the rand/runtime DEVICE libraries transitively -- so the unit .so carries the
+# kernels. A plain .cu kernel archive does NOT probe for a GPU on load (unlike
+# hiptensor), so loading this unit .so is safe on a no-GPU box; the host-only
+# driver / driver_rs link only complex + runtime_api and are unaffected. These
+# EXECUTE on the device, so CI compile+link-checks them and a GPU box exercises
+# them (a GPU-gated consumer is future #347 work, per the PR).
+_wwr_add_capi_unit(
+  extension_random_normal
+  wwr::extension::random_normal
+  wwr::extension::init_state
+  wwr::runtime_api
+  wwr::rand
+  wwr::complex
+  wwr::fp16
+  wwr::bf16
+)
+
 # The umbrella libwwr_capi.so CONTAINS every unit's object symbols, so an
 # existing -lwwr_capi consumer resolves the whole ABI from one .so. The OUTPUT
 # file name is wwr_capi (-> libwwr_capi.so), NOT the dotted target name: rustc's
@@ -190,6 +216,7 @@ add_library(
   $<TARGET_OBJECTS:wwr.capi.bf16.obj>
   $<TARGET_OBJECTS:wwr.capi.vector_types.obj>
   $<TARGET_OBJECTS:wwr.capi.fp8.obj>
+  $<TARGET_OBJECTS:wwr.capi.extension_random_normal.obj>
   ${_capi_gated_objs}
 )
 add_library(wwr::capi ALIAS wwr.capi)
@@ -201,6 +228,7 @@ target_link_libraries(
           wwr.capi.tx.obj
           wwr.capi.fp16.obj wwr.capi.bf16.obj wwr.capi.vector_types.obj
           wwr.capi.fp8.obj
+          wwr.capi.extension_random_normal.obj
           ${_capi_gated_obj_targets}
 )
 set_target_properties(

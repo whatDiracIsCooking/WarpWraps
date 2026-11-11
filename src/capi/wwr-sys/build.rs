@@ -41,6 +41,10 @@ const UNITS: &[(&str, &str)] = &[
     ("fp8", "wwr_capi_fp8"),
     ("tx", "wwr_capi_tx"),
     ("ccl", "wwr_capi_ccl"),
+    (
+        "extension_random_normal",
+        "wwr_capi_extension_random_normal",
+    ),
 ];
 
 fn main() {

@@ -2126,4 +2126,11 @@ extern "C" {
     pub fn wwr_make_double3(x: f64, y: f64, z: f64) -> wwr_double3;
     pub fn wwr_float2fp8(value: f32, saturate: wwr_fp8_saturation, interpretation: wwr_fp8_interpretation) -> wwr_fp8_storage;
     pub fn wwr_double2fp8(value: f64, saturate: wwr_fp8_saturation, interpretation: wwr_fp8_interpretation) -> wwr_fp8_storage;
+    pub fn wwr_extension_random_normal_f32(stream: *mut core::ffi::c_void, count: usize, states: *mut core::ffi::c_void, values: *mut f32, scale: f32);
+    pub fn wwr_extension_random_normal_f64(stream: *mut core::ffi::c_void, count: usize, states: *mut core::ffi::c_void, values: *mut f64, scale: f64);
+    pub fn wwr_extension_random_normal_c64(stream: *mut core::ffi::c_void, count: usize, states: *mut core::ffi::c_void, values: *mut wwr_complex64, scale: wwr_complex64);
+    pub fn wwr_extension_random_normal_c128(stream: *mut core::ffi::c_void, count: usize, states: *mut core::ffi::c_void, values: *mut wwr_complex128, scale: wwr_complex128);
+    pub fn wwr_extension_random_normal_f16(stream: *mut core::ffi::c_void, count: usize, states: *mut core::ffi::c_void, values: *mut wwr_half, scale: wwr_half);
+    pub fn wwr_extension_random_normal_bf16(stream: *mut core::ffi::c_void, count: usize, states: *mut core::ffi::c_void, values: *mut wwr_bf16, scale: wwr_bf16);
+    pub fn wwr_extension_init_state(stream: *mut core::ffi::c_void, count: usize, states: *mut core::ffi::c_void, seed: core::ffi::c_ulonglong, sequence_offset: core::ffi::c_ulonglong, offset: core::ffi::c_ulonglong);
 }
