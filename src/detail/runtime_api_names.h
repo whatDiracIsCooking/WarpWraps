@@ -87,6 +87,9 @@ WWR_RT_TYPE(EventRecordNodeParams)
 WWR_RT_TYPE(EventWaitNodeParams)
 WWR_RT_TYPE(FuncAttribute)
 WWR_RT_TYPE(FuncAttributes)
+// hip version-tags the cache-config enum (hipFuncCache_t); CUDA spells it
+// cudaFuncCache with no _t, so bind the neutral name to each backend's spelling.
+WWR_TYPE_RAW(wwrFuncCache, cudaFuncCache, hipFuncCache_t)
 WWR_RT_TYPE(Function_t)
 WWR_RT_TYPE(Kernel_t)
 WWR_RT_TYPE(KernelNodeParams)
@@ -156,6 +159,9 @@ WWR_RT_TYPE(ComputeMode)
 WWR_RT_TYPE(FlushGPUDirectRDMAWritesOptions)
 WWR_RT_TYPE(GPUDirectRDMAWritesOrdering)
 WWR_RT_TYPE(JitOption)
+// hip version-tags the device-limit enum (hipLimit_t); CUDA spells it cudaLimit
+// with no _t, so bind the neutral name to each backend's spelling.
+WWR_TYPE_RAW(wwrLimit, cudaLimit, hipLimit_t)
 WWR_RT_TYPE(Library_t)
 WWR_RT_TYPE(LibraryOption)
 WWR_RT_TYPE(Offset3D)

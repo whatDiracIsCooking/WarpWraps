@@ -243,8 +243,14 @@ _SCALARS = {
 
 
 def _base(ty: str) -> str:
-    """Strip cv-qualifiers and pointer stars to the underlying type name."""
+    """Strip cv-qualifiers, pointer stars and a leading elaborated-type-specifier
+    keyword (`enum` / `struct` / `union`) to the underlying type name. clang
+    records a by-value enum / struct parameter with the keyword
+    (`enum cudaMemcpyKind`, `struct cudaExtent`); the registry keys on the bare
+    type name (`cudaMemcpyKind`), so the keyword must not survive into the base
+    or a registered enum/struct would never match."""
     t = ty.replace("*", " ").replace("const", " ").replace("volatile", " ")
+    t = re.sub(r"\b(?:enum|struct|union)\b", " ", t)
     return _normalise(t)
 
 

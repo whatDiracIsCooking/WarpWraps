@@ -198,6 +198,7 @@ def _resolve_runtime_status() -> tuple[list[ResolvedFunction], captypes.EnumMap]
     hip = manifest.Manifest(_HIP_MANIFEST)
 
     reg = captypes.Registry(enums=[runtime_status.STATUS],
+                            value_enums=list(runtime_status.VALUE_ENUMS),
                             handles=list(runtime_status.HANDLES))
 
     skips: list[tuple[str, str]] = []
@@ -253,8 +254,27 @@ def _resolve_runtime_status() -> tuple[list[ResolvedFunction], captypes.EnumMap]
     # on SUCCESS == 0 (the frozen anchor, §6). The _map stays constant-based
     # (backend-neutral); this only PROVES the manifest backs the mapping.
     _check_status_enum(runtime_status.STATUS, frag, cuda, hip)
+    # The by-value value enums (#373): prove every neutral constant each maps is a
+    # fragment entry backed by both manifests, the way the library surfaces do.
+    _check_runtime_value_enums(runtime_status.VALUE_ENUMS, frag, cuda, hip)
     SKIPPED["runtime_api"] = skips
-    return resolved, runtime_status.STATUS
+    return resolved, runtime_status.STATUS, list(runtime_status.VALUE_ENUMS)
+
+
+def _check_runtime_value_enums(enums: list, frag: dict, cuda: manifest.Manifest,
+                               hip: manifest.Manifest) -> None:
+    """Prove each runtime value enum's neutral constants are backed by both
+    manifests (the frozen §6 anchor cannot silently rot). Mirrors
+    _check_library_enums; the runtime surface has no out-of-manifest constants, so
+    every mapped constant must resolve in both."""
+    for enum in enums:
+        for _enumerator, wwr_const in enum.entries:
+            e = frag.get(wwr_const)
+            if e is None:
+                raise KeyError(f"{wwr_const!r} (mapped by {enum.capi_type}) is "
+                               f"not a runtime_api fragment entry.")
+            cuda.get(e.cuda)
+            hip.get(e.hip)
 
 
 def _check_status_enum(enum: captypes.EnumMap, frag: dict, cuda: manifest.Manifest,
@@ -560,11 +580,13 @@ def gen_complex_h() -> str:
 
 
 def gen_runtime_api_h(status_fns: list[ResolvedFunction],
-                      enum: captypes.EnumMap) -> str:
+                      enum: captypes.EnumMap,
+                      value_enums: list[captypes.ValueEnum]) -> str:
     """runtime_api/wwr_capi_runtime_api.h — the stable wwr_status enum (used by
-    this unit only), the surface's own opaque handles (-> void*), and the runtime
-    prototypes. #includes common.h for the SHARED wwr_stream handle it names, and
-    <stddef.h>/<stdint.h> for size_t / fixed-width parameters."""
+    this unit only), the by-value value enums (#373: wwr_memcpy_kind et al.), the
+    surface's own opaque handles (-> void*), and the runtime prototypes. #includes
+    common.h for the SHARED wwr_stream handle it names, and <stddef.h>/<stdint.h>
+    for size_t / fixed-width parameters."""
     guard = "WWR_CAPI_RUNTIME_API_H"
     L = [f"{_GEN_NOTE} Sources: src/detail/runtime_api_names.h + vendor/*/*.json.",
          f"#ifndef {guard}", f"#define {guard}", "",
@@ -578,6 +600,16 @@ def gen_runtime_api_h(status_fns: list[ResolvedFunction],
         L.append(f"  {name} = {val},")
     L.append(f"}} {enum.capi_type};")
     L.append("")
+    # The by-value value enums (#373): each a stable §6 enum with fixed ascending
+    # values the thunk maps capi<->neutral. wwr_memcpy_kind is the one memcpy and
+    # the symbol-copy family take; the rest are the device / func / pool / range
+    # attribute selectors.
+    for ve in value_enums:
+        L.append(f"typedef enum {ve.capi_type} {{")
+        for name, val in library_enumerators(ve):
+            L.append(f"  {name} = {val},")
+        L.append(f"}} {ve.capi_type};")
+        L.append("")
     # The surface's OWN opaque handles (-> void*); the SHARED wwr_stream handle
     # lives in common.h (included above), not here.
     for h in runtime_status.HANDLES:
@@ -1202,15 +1234,18 @@ def gen_rust_wrapper(w: ResolvedWrapper) -> str:
 
 
 def gen_runtime_api_cpp(status_fns: list[ResolvedFunction],
-                        enum: captypes.EnumMap) -> str:
+                        enum: captypes.EnumMap,
+                        value_enums: list[captypes.ValueEnum]) -> str:
     """runtime_api/wwr_capi_runtime_api.cpp — the runtime thunks. `import
     wwr.runtime_api;` only (the runtime library, no vendor math/BLAS). Each thunk
-    forwards every argument through the `_coerce`/`_fwd` core (so a void* handle /
-    POD pointer is cast to the exact vendor type the wwr function expects, deduced
-    from the function reference -- no vendor type named), and maps a cudaError_t
-    return to the stable wwr_status (§6). A non-status return (const char * from
-    GetErrorName / GetErrorString, the int from a few queries) passes straight
-    through."""
+    maps any by-value value-enum PARAMETER to its neutral type (_to_<e>, #373 --
+    the memcpy-kind / attribute selectors), forwards every remaining argument
+    through the `_coerce`/`_fwd` core (so a void* handle / POD pointer is cast to
+    the exact vendor type the wwr function expects, deduced from the function
+    reference -- no vendor type named), and maps a cudaError_t return to the stable
+    wwr_status (§6). A non-status return (const char * from GetErrorName /
+    GetErrorString, the int from a few queries) passes straight through."""
+    prefix = runtime_status.CAPI_PREFIX
     L = [_GEN_NOTE,
          '#include "runtime_api/wwr_capi_runtime_api.h"', "",
          "#include <type_traits>", "",
@@ -1239,20 +1274,45 @@ def gen_runtime_api_cpp(status_fns: list[ResolvedFunction],
     for enumerator, wwr_const in enum.entries:
         L.append(f"  if (e == wwr::{wwr_const}) return {enumerator};")
     L += [f"  return {enum.unknown};",
-          "}",
-          "}  // namespace",
+          "}"]
+
+    # The by-value value enums' capi -> neutral maps (#373). `_to_<slug>` compares
+    # and produces only the NEUTRAL wwr:: constants (§6), so the one source
+    # compiles on both backends though the raw values differ (DeviceP2PAttr is
+    # 1/2/3 on CUDA, 0/1/2 on HIP). Only _to_ is emitted: the runtime surface takes
+    # these enums as PARAMETERS and never returns one (the status is the one return
+    # the EnumMap handles), so no _from_ reverse map is needed.
+    for ve in value_enums:
+        slug = ve.capi_type[len(prefix):]
+        default_const = _fallback_wwr_const(ve)
+        L.append(f"wwr::{ve.wwr_type} _to_{slug}({ve.capi_type} x) {{")
+        L.append("  switch (x) {")
+        for enumerator, wwr_const in ve.entries:
+            L.append(f"    case {enumerator}: return wwr::{wwr_const};")
+        L.append(f"    default: return wwr::{default_const};")
+        L.append("  }")
+        L.append("}")
+    L += ["}  // namespace",
           "",
           'extern "C" {',
           ""]
 
-    # The fragment-sourced runtime thunks. Each forwards through _fwd (which casts
-    # the handle / pointer arguments to the wwr function's parameter types) and
-    # maps a cudaError_t return to the stable wwr_status. A non-status return
-    # passes straight through.
+    # The fragment-sourced runtime thunks. Each maps a value-enum parameter to its
+    # neutral type (_to_<e>), forwards the rest through _fwd (which casts the
+    # handle / pointer arguments to the wwr function's parameter types), and maps a
+    # cudaError_t return to the stable wwr_status. A non-status return passes
+    # straight through.
     for f in status_fns:
         args = ", ".join(_c_param(c, n) for c, n in f.params) or "void"
-        call = ", ".join(n for _c, n in f.params)
-        callexpr = f"_fwd({f.wwr}, {call})" if f.params else f"{f.wwr}()"
+        call_terms: list[str] = []
+        for c, n in f.params:
+            if c.repr == "value_enum":
+                slug = c.capi_c[len(prefix):]
+                call_terms.append(f"_to_{slug}({n})")
+            else:
+                call_terms.append(n)
+        callexpr = f"_fwd({f.wwr}, {', '.join(call_terms)})" if f.params \
+            else f"{f.wwr}()"
         L.append(f"{f.ret.capi_c} {f.capi}({args}) {{")
         if f.ret.repr == "enum":
             L.append(f"  return _map({callexpr});")
@@ -1727,15 +1787,30 @@ def gen_rust_extension_random_normal() -> str:
     return "\n".join(L)
 
 
+def _rust_value_enum_lines(value_enums: list[captypes.ValueEnum]) -> list[str]:
+    # The by-value value enums as Rust #[repr(i32)] enums, fixed §6 values that
+    # match the C enum exactly (the memcpy-kind / attribute selectors, #373).
+    L: list[str] = []
+    for ve in value_enums:
+        L += ["#[repr(i32)]", "#[derive(Copy, Clone, Debug, PartialEq, Eq)]",
+              f"pub enum {ve.capi_type} {{"]
+        for name, val in library_enumerators(ve):
+            L.append(f"    {name} = {val},")
+        L += ["}", ""]
+    return L
+
+
 def gen_rust_runtime_api(status_fns: list[ResolvedFunction],
-                         enum: captypes.EnumMap) -> str:
+                         enum: captypes.EnumMap,
+                         value_enums: list[captypes.ValueEnum]) -> str:
     """runtime_api/runtime_api.rs — the stable wwr_status enum (this surface
-    only), the surface's own opaque handles (-> *mut c_void), and the runtime
-    extern "C" block. `use`s common for the SHARED wwr_stream handle its stream
-    parameters name."""
+    only), the by-value value enums (#373), the surface's own opaque handles
+    (-> *mut c_void), and the runtime extern "C" block. `use`s common for the
+    SHARED wwr_stream handle its stream parameters name."""
     L = [_RUST_NOTE, _RUST_BACKEND_NOTE, "",
          "#[allow(unused_imports)]", "use crate::common::*;", ""]
     L += _rust_status_enum_lines(enum)
+    L += _rust_value_enum_lines(value_enums)
     L += _rust_runtime_handle_lines()
     L += [_RUST_FMT_SKIP, 'extern "C" {']
     L += _rust_status_fns(status_fns, enum)
@@ -2154,6 +2229,7 @@ def gen_rust_fp8() -> str:
 
 
 def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap,
+                      value_enums: list[captypes.ValueEnum],
                       libs: list[ResolvedLibrary],
                       wraps: list[ResolvedWrapper]) -> str:
     """gen/ffi.rs — the COMBINED binding the in-tree driver.rs include!s: every
@@ -2187,6 +2263,7 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
     for w in wraps:
         L += _rust_wrapper_types_lines(w)
     L += _rust_status_enum_lines(enum)
+    L += _rust_value_enum_lines(value_enums)  # the by-value value enums (#373)
     L += _rust_runtime_handle_lines()  # the runtime surface's own handles
     # NO `#[link(name = ...)]` on the extern block: the in-tree driver.rs (the one
     # consumer that include!s this file) gets its `-l` flags from capi's
@@ -2223,7 +2300,7 @@ def _rust_ty(name: str, enum: captypes.EnumMap) -> str:
 
 
 def main() -> None:
-    status_fns, enum = _resolve_runtime_status()
+    status_fns, enum, runtime_value_enums = _resolve_runtime_status()
     libs = [_resolve_library(spec) for spec in LIBRARY_SPECS]
     wraps = [_resolve_wrapper(spec) for spec in wrappers_spec.SPECS]
 
@@ -2239,8 +2316,10 @@ def main() -> None:
     # the one generic library path.
     units = {
         "complex": (gen_complex_h(), gen_complex_cpp()),
-        "runtime_api": (gen_runtime_api_h(status_fns, enum),
-                        gen_runtime_api_cpp(status_fns, enum)),
+        "runtime_api": (gen_runtime_api_h(status_fns, enum,
+                                          runtime_value_enums),
+                        gen_runtime_api_cpp(status_fns, enum,
+                                            runtime_value_enums)),
         "comp": (gen_comp_h(), gen_comp_cpp()),
         "tx": (gen_tx_h(), gen_tx_cpp()),
         # The milestone-#6 numeric TYPE surfaces (hand-written, like comp).
@@ -2255,7 +2334,8 @@ def main() -> None:
     }
     rust_units = {
         "complex": gen_rust_complex(enum),
-        "runtime_api": gen_rust_runtime_api(status_fns, enum),
+        "runtime_api": gen_rust_runtime_api(status_fns, enum,
+                                            runtime_value_enums),
         "comp": gen_rust_comp(),
         "tx": gen_rust_tx(),
         "fp16": gen_rust_fp16(),
@@ -2282,7 +2362,8 @@ def main() -> None:
     # driver.rs include!s (over the umbrella .so).
     rust_common = gen_rust_common()
     (out / "common.rs").write_text(rust_common)
-    combined = gen_rust_combined(status_fns, enum, libs, wraps)
+    combined = gen_rust_combined(status_fns, enum, runtime_value_enums, libs,
+                                 wraps)
     (out / "ffi.rs").write_text(combined)
     rt_skips = SKIPPED.get("runtime_api", [])
     print(f"runtime_api: wrapped {len(status_fns)} functions, "

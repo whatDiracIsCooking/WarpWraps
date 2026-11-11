@@ -22,6 +22,67 @@ typedef enum wwr_status {
   WWR_STATUS_UNKNOWN = 7,
 } wwr_status;
 
+typedef enum wwr_memcpy_kind {
+  WWR_MEMCPY_HOST_TO_HOST = 0,
+  WWR_MEMCPY_HOST_TO_DEVICE = 1,
+  WWR_MEMCPY_DEVICE_TO_HOST = 2,
+  WWR_MEMCPY_DEVICE_TO_DEVICE = 3,
+  WWR_MEMCPY_DEFAULT = 4,
+} wwr_memcpy_kind;
+
+typedef enum wwr_limit {
+  WWR_LIMIT_STACK_SIZE = 0,
+  WWR_LIMIT_PRINTF_FIFO_SIZE = 1,
+  WWR_LIMIT_MALLOC_HEAP_SIZE = 2,
+} wwr_limit;
+
+typedef enum wwr_func_cache {
+  WWR_FUNC_CACHE_PREFER_NONE = 0,
+  WWR_FUNC_CACHE_PREFER_SHARED = 1,
+  WWR_FUNC_CACHE_PREFER_L1 = 2,
+  WWR_FUNC_CACHE_PREFER_EQUAL = 3,
+} wwr_func_cache;
+
+typedef enum wwr_func_attribute {
+  WWR_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_MEMORY_SIZE = 0,
+  WWR_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT = 1,
+  WWR_FUNC_ATTRIBUTE_MAX = 2,
+} wwr_func_attribute;
+
+typedef enum wwr_mem_pool_attr {
+  WWR_MEM_POOL_ATTR_RELEASE_THRESHOLD = 0,
+  WWR_MEM_POOL_ATTR_RESERVED_MEM_CURRENT = 1,
+  WWR_MEM_POOL_ATTR_RESERVED_MEM_HIGH = 2,
+  WWR_MEM_POOL_ATTR_USED_MEM_CURRENT = 3,
+  WWR_MEM_POOL_ATTR_USED_MEM_HIGH = 4,
+} wwr_mem_pool_attr;
+
+typedef enum wwr_mem_range_attribute {
+  WWR_MEM_RANGE_ATTRIBUTE_READ_MOSTLY = 0,
+  WWR_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION = 1,
+  WWR_MEM_RANGE_ATTRIBUTE_ACCESSED_BY = 2,
+  WWR_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION = 3,
+} wwr_mem_range_attribute;
+
+typedef enum wwr_mem_allocation_handle_type {
+  WWR_MEM_HANDLE_TYPE_NONE = 0,
+  WWR_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR = 1,
+  WWR_MEM_HANDLE_TYPE_WIN32 = 2,
+  WWR_MEM_HANDLE_TYPE_WIN32_KMT = 3,
+} wwr_mem_allocation_handle_type;
+
+typedef enum wwr_stream_capture_mode {
+  WWR_STREAM_CAPTURE_MODE_GLOBAL = 0,
+  WWR_STREAM_CAPTURE_MODE_THREAD_LOCAL = 1,
+  WWR_STREAM_CAPTURE_MODE_RELAXED = 2,
+} wwr_stream_capture_mode;
+
+typedef enum wwr_device_p2p_attr {
+  WWR_DEV_P2P_ATTR_PERFORMANCE_RANK = 0,
+  WWR_DEV_P2P_ATTR_ACCESS_SUPPORTED = 1,
+  WWR_DEV_P2P_ATTR_NATIVE_ATOMIC_SUPPORTED = 2,
+} wwr_device_p2p_attr;
+
 typedef void *wwr_event;
 typedef void *wwr_mem_pool;
 typedef void *wwr_graph;
@@ -40,13 +101,17 @@ wwr_status wwr_device_can_access_peer(int *canAccessPeer, int device, int peerDe
 wwr_status wwr_device_disable_peer_access(int peerDevice);
 wwr_status wwr_device_enable_peer_access(int peerDevice, unsigned int flags);
 wwr_status wwr_device_get_by_pci_bus_id(int *device, const char *pciBusId);
-wwr_status wwr_device_get_cache_config(void *pCacheConfig);
+wwr_status wwr_device_get_cache_config(wwr_func_cache *pCacheConfig);
 wwr_status wwr_device_get_default_mem_pool(wwr_mem_pool *memPool, int device);
+wwr_status wwr_device_get_limit(size_t *pValue, wwr_limit limit);
 wwr_status wwr_device_get_mem_pool(wwr_mem_pool *memPool, int device);
+wwr_status wwr_device_get_p2_p_attribute(int *value, wwr_device_p2p_attr attr, int srcDevice, int dstDevice);
 wwr_status wwr_device_get_pci_bus_id(char *pciBusId, int len, int device);
 wwr_status wwr_device_get_stream_priority_range(int *leastPriority, int *greatestPriority);
 wwr_status wwr_device_get_texture1_d_linear_max_width(size_t *maxWidthInElements, const void *fmtDesc, int device);
 wwr_status wwr_device_reset(void);
+wwr_status wwr_device_set_cache_config(wwr_func_cache cacheConfig);
+wwr_status wwr_device_set_limit(wwr_limit limit, size_t value);
 wwr_status wwr_device_set_mem_pool(int device, wwr_mem_pool memPool);
 wwr_status wwr_device_synchronize(void);
 wwr_status wwr_driver_get_version(int *driverVersion);
@@ -64,6 +129,8 @@ wwr_status wwr_free_async(void *devPtr, wwr_stream hStream);
 wwr_status wwr_free_host(void *ptr);
 wwr_status wwr_free_mipmapped_array(wwr_mipmapped_array mipmappedArray);
 wwr_status wwr_func_get_attributes(void *attr, const void *func);
+wwr_status wwr_func_set_attribute(const void *func, wwr_func_attribute attr, int value);
+wwr_status wwr_func_set_cache_config(const void *func, wwr_func_cache cacheConfig);
 wwr_status wwr_get_device(int *device);
 wwr_status wwr_get_device_count(int *count);
 wwr_status wwr_get_device_flags(unsigned int *flags);
@@ -102,17 +169,32 @@ wwr_status wwr_mem_get_info(size_t *free, size_t *total);
 wwr_status wwr_mem_pool_create(wwr_mem_pool *memPool, const void *poolProps);
 wwr_status wwr_mem_pool_destroy(wwr_mem_pool memPool);
 wwr_status wwr_mem_pool_export_pointer(void *exportData, void *ptr);
+wwr_status wwr_mem_pool_export_to_shareable_handle(void *shareableHandle, wwr_mem_pool memPool, wwr_mem_allocation_handle_type handleType, unsigned int flags);
 wwr_status wwr_mem_pool_get_access(void *flags, wwr_mem_pool memPool, void *location);
+wwr_status wwr_mem_pool_get_attribute(wwr_mem_pool memPool, wwr_mem_pool_attr attr, void *value);
+wwr_status wwr_mem_pool_import_from_shareable_handle(wwr_mem_pool *memPool, void *shareableHandle, wwr_mem_allocation_handle_type handleType, unsigned int flags);
 wwr_status wwr_mem_pool_import_pointer(void **ptr, wwr_mem_pool memPool, void *exportData);
 wwr_status wwr_mem_pool_set_access(wwr_mem_pool memPool, const void *descList, size_t count);
+wwr_status wwr_mem_pool_set_attribute(wwr_mem_pool memPool, wwr_mem_pool_attr attr, void *value);
 wwr_status wwr_mem_pool_trim_to(wwr_mem_pool memPool, size_t minBytesToKeep);
-wwr_status wwr_mem_range_get_attributes(void **data, size_t *dataSizes, void *attributes, size_t numAttributes, const void *devPtr, size_t count);
+wwr_status wwr_mem_range_get_attribute(void *data, size_t dataSize, wwr_mem_range_attribute attribute, const void *devPtr, size_t count);
+wwr_status wwr_mem_range_get_attributes(void **data, size_t *dataSizes, wwr_mem_range_attribute *attributes, size_t numAttributes, const void *devPtr, size_t count);
+wwr_status wwr_memcpy(void *dst, const void *src, size_t count, wwr_memcpy_kind kind);
+wwr_status wwr_memcpy2_d(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, wwr_memcpy_kind kind);
+wwr_status wwr_memcpy2_d_async(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, wwr_memcpy_kind kind, wwr_stream stream);
+wwr_status wwr_memcpy2_d_to_array(wwr_array dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, wwr_memcpy_kind kind);
+wwr_status wwr_memcpy2_d_to_array_async(wwr_array dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, wwr_memcpy_kind kind, wwr_stream stream);
 wwr_status wwr_memcpy3_d(const void *p);
 wwr_status wwr_memcpy3_d_async(const void *p, wwr_stream stream);
 wwr_status wwr_memcpy3_d_peer(const void *p);
 wwr_status wwr_memcpy3_d_peer_async(const void *p, wwr_stream stream);
+wwr_status wwr_memcpy_async(void *dst, const void *src, size_t count, wwr_memcpy_kind kind, wwr_stream stream);
+wwr_status wwr_memcpy_from_symbol(void *dst, const void *symbol, size_t count, size_t offset, wwr_memcpy_kind kind);
+wwr_status wwr_memcpy_from_symbol_async(void *dst, const void *symbol, size_t count, size_t offset, wwr_memcpy_kind kind, wwr_stream stream);
 wwr_status wwr_memcpy_peer(void *dst, int dstDevice, const void *src, int srcDevice, size_t count);
 wwr_status wwr_memcpy_peer_async(void *dst, int dstDevice, const void *src, int srcDevice, size_t count, wwr_stream stream);
+wwr_status wwr_memcpy_to_symbol(const void *symbol, const void *src, size_t count, size_t offset, wwr_memcpy_kind kind);
+wwr_status wwr_memcpy_to_symbol_async(const void *symbol, const void *src, size_t count, size_t offset, wwr_memcpy_kind kind, wwr_stream stream);
 wwr_status wwr_memset(void *devPtr, int value, size_t count);
 wwr_status wwr_memset2_d(void *devPtr, size_t pitch, int value, size_t width, size_t height);
 wwr_status wwr_memset2_d_async(void *devPtr, size_t pitch, int value, size_t width, size_t height, wwr_stream stream);
@@ -126,6 +208,7 @@ wwr_status wwr_set_device(int device);
 wwr_status wwr_set_device_flags(unsigned int flags);
 wwr_status wwr_set_valid_devices(int *device_arr, int len);
 wwr_status wwr_stream_attach_mem_async(wwr_stream stream, void *devPtr, size_t length, unsigned int flags);
+wwr_status wwr_stream_begin_capture(wwr_stream stream, wwr_stream_capture_mode mode);
 wwr_status wwr_stream_create(wwr_stream *pStream);
 wwr_status wwr_stream_create_with_flags(wwr_stream *pStream, unsigned int flags);
 wwr_status wwr_stream_create_with_priority(wwr_stream *pStream, unsigned int flags, int priority);
@@ -139,7 +222,7 @@ wwr_status wwr_stream_is_capturing(wwr_stream stream, void *pCaptureStatus);
 wwr_status wwr_stream_query(wwr_stream stream);
 wwr_status wwr_stream_synchronize(wwr_stream stream);
 wwr_status wwr_stream_wait_event(wwr_stream stream, wwr_event event, unsigned int flags);
-wwr_status wwr_thread_exchange_stream_capture_mode(void *mode);
+wwr_status wwr_thread_exchange_stream_capture_mode(wwr_stream_capture_mode *mode);
 wwr_status wwr_user_object_release(wwr_user_object object, unsigned int count);
 wwr_status wwr_user_object_retain(wwr_user_object object, unsigned int count);
 

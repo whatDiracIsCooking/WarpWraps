@@ -18,6 +18,85 @@ pub enum wwr_status {
     WWR_STATUS_UNKNOWN = 7,
 }
 
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_memcpy_kind {
+    WWR_MEMCPY_HOST_TO_HOST = 0,
+    WWR_MEMCPY_HOST_TO_DEVICE = 1,
+    WWR_MEMCPY_DEVICE_TO_HOST = 2,
+    WWR_MEMCPY_DEVICE_TO_DEVICE = 3,
+    WWR_MEMCPY_DEFAULT = 4,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_limit {
+    WWR_LIMIT_STACK_SIZE = 0,
+    WWR_LIMIT_PRINTF_FIFO_SIZE = 1,
+    WWR_LIMIT_MALLOC_HEAP_SIZE = 2,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_func_cache {
+    WWR_FUNC_CACHE_PREFER_NONE = 0,
+    WWR_FUNC_CACHE_PREFER_SHARED = 1,
+    WWR_FUNC_CACHE_PREFER_L1 = 2,
+    WWR_FUNC_CACHE_PREFER_EQUAL = 3,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_func_attribute {
+    WWR_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_MEMORY_SIZE = 0,
+    WWR_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT = 1,
+    WWR_FUNC_ATTRIBUTE_MAX = 2,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_mem_pool_attr {
+    WWR_MEM_POOL_ATTR_RELEASE_THRESHOLD = 0,
+    WWR_MEM_POOL_ATTR_RESERVED_MEM_CURRENT = 1,
+    WWR_MEM_POOL_ATTR_RESERVED_MEM_HIGH = 2,
+    WWR_MEM_POOL_ATTR_USED_MEM_CURRENT = 3,
+    WWR_MEM_POOL_ATTR_USED_MEM_HIGH = 4,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_mem_range_attribute {
+    WWR_MEM_RANGE_ATTRIBUTE_READ_MOSTLY = 0,
+    WWR_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION = 1,
+    WWR_MEM_RANGE_ATTRIBUTE_ACCESSED_BY = 2,
+    WWR_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION = 3,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_mem_allocation_handle_type {
+    WWR_MEM_HANDLE_TYPE_NONE = 0,
+    WWR_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR = 1,
+    WWR_MEM_HANDLE_TYPE_WIN32 = 2,
+    WWR_MEM_HANDLE_TYPE_WIN32_KMT = 3,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_stream_capture_mode {
+    WWR_STREAM_CAPTURE_MODE_GLOBAL = 0,
+    WWR_STREAM_CAPTURE_MODE_THREAD_LOCAL = 1,
+    WWR_STREAM_CAPTURE_MODE_RELAXED = 2,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_device_p2p_attr {
+    WWR_DEV_P2P_ATTR_PERFORMANCE_RANK = 0,
+    WWR_DEV_P2P_ATTR_ACCESS_SUPPORTED = 1,
+    WWR_DEV_P2P_ATTR_NATIVE_ATOMIC_SUPPORTED = 2,
+}
+
 pub type wwr_event = *mut core::ffi::c_void;
 pub type wwr_mem_pool = *mut core::ffi::c_void;
 pub type wwr_graph = *mut core::ffi::c_void;
@@ -38,13 +117,17 @@ extern "C" {
     pub fn wwr_device_disable_peer_access(peerDevice: i32) -> wwr_status;
     pub fn wwr_device_enable_peer_access(peerDevice: i32, flags: u32) -> wwr_status;
     pub fn wwr_device_get_by_pci_bus_id(device: *mut i32, pciBusId: *const core::ffi::c_char) -> wwr_status;
-    pub fn wwr_device_get_cache_config(pCacheConfig: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_device_get_cache_config(pCacheConfig: *mut wwr_func_cache) -> wwr_status;
     pub fn wwr_device_get_default_mem_pool(memPool: *mut wwr_mem_pool, device: i32) -> wwr_status;
+    pub fn wwr_device_get_limit(pValue: *mut usize, limit: wwr_limit) -> wwr_status;
     pub fn wwr_device_get_mem_pool(memPool: *mut wwr_mem_pool, device: i32) -> wwr_status;
+    pub fn wwr_device_get_p2_p_attribute(value: *mut i32, attr: wwr_device_p2p_attr, srcDevice: i32, dstDevice: i32) -> wwr_status;
     pub fn wwr_device_get_pci_bus_id(pciBusId: *mut core::ffi::c_char, len: i32, device: i32) -> wwr_status;
     pub fn wwr_device_get_stream_priority_range(leastPriority: *mut i32, greatestPriority: *mut i32) -> wwr_status;
     pub fn wwr_device_get_texture1_d_linear_max_width(maxWidthInElements: *mut usize, fmtDesc: *const core::ffi::c_void, device: i32) -> wwr_status;
     pub fn wwr_device_reset() -> wwr_status;
+    pub fn wwr_device_set_cache_config(cacheConfig: wwr_func_cache) -> wwr_status;
+    pub fn wwr_device_set_limit(limit: wwr_limit, value: usize) -> wwr_status;
     pub fn wwr_device_set_mem_pool(device: i32, memPool: wwr_mem_pool) -> wwr_status;
     pub fn wwr_device_synchronize() -> wwr_status;
     pub fn wwr_driver_get_version(driverVersion: *mut i32) -> wwr_status;
@@ -62,6 +145,8 @@ extern "C" {
     pub fn wwr_free_host(ptr: *mut core::ffi::c_void) -> wwr_status;
     pub fn wwr_free_mipmapped_array(mipmappedArray: wwr_mipmapped_array) -> wwr_status;
     pub fn wwr_func_get_attributes(attr: *mut core::ffi::c_void, func: *const core::ffi::c_void) -> wwr_status;
+    pub fn wwr_func_set_attribute(func: *const core::ffi::c_void, attr: wwr_func_attribute, value: i32) -> wwr_status;
+    pub fn wwr_func_set_cache_config(func: *const core::ffi::c_void, cacheConfig: wwr_func_cache) -> wwr_status;
     pub fn wwr_get_device(device: *mut i32) -> wwr_status;
     pub fn wwr_get_device_count(count: *mut i32) -> wwr_status;
     pub fn wwr_get_device_flags(flags: *mut u32) -> wwr_status;
@@ -100,17 +185,32 @@ extern "C" {
     pub fn wwr_mem_pool_create(memPool: *mut wwr_mem_pool, poolProps: *const core::ffi::c_void) -> wwr_status;
     pub fn wwr_mem_pool_destroy(memPool: wwr_mem_pool) -> wwr_status;
     pub fn wwr_mem_pool_export_pointer(exportData: *mut core::ffi::c_void, ptr: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_mem_pool_export_to_shareable_handle(shareableHandle: *mut core::ffi::c_void, memPool: wwr_mem_pool, handleType: wwr_mem_allocation_handle_type, flags: u32) -> wwr_status;
     pub fn wwr_mem_pool_get_access(flags: *mut core::ffi::c_void, memPool: wwr_mem_pool, location: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_mem_pool_get_attribute(memPool: wwr_mem_pool, attr: wwr_mem_pool_attr, value: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_mem_pool_import_from_shareable_handle(memPool: *mut wwr_mem_pool, shareableHandle: *mut core::ffi::c_void, handleType: wwr_mem_allocation_handle_type, flags: u32) -> wwr_status;
     pub fn wwr_mem_pool_import_pointer(ptr: *mut *mut core::ffi::c_void, memPool: wwr_mem_pool, exportData: *mut core::ffi::c_void) -> wwr_status;
     pub fn wwr_mem_pool_set_access(memPool: wwr_mem_pool, descList: *const core::ffi::c_void, count: usize) -> wwr_status;
+    pub fn wwr_mem_pool_set_attribute(memPool: wwr_mem_pool, attr: wwr_mem_pool_attr, value: *mut core::ffi::c_void) -> wwr_status;
     pub fn wwr_mem_pool_trim_to(memPool: wwr_mem_pool, minBytesToKeep: usize) -> wwr_status;
-    pub fn wwr_mem_range_get_attributes(data: *mut *mut core::ffi::c_void, dataSizes: *mut usize, attributes: *mut core::ffi::c_void, numAttributes: usize, devPtr: *const core::ffi::c_void, count: usize) -> wwr_status;
+    pub fn wwr_mem_range_get_attribute(data: *mut core::ffi::c_void, dataSize: usize, attribute: wwr_mem_range_attribute, devPtr: *const core::ffi::c_void, count: usize) -> wwr_status;
+    pub fn wwr_mem_range_get_attributes(data: *mut *mut core::ffi::c_void, dataSizes: *mut usize, attributes: *mut wwr_mem_range_attribute, numAttributes: usize, devPtr: *const core::ffi::c_void, count: usize) -> wwr_status;
+    pub fn wwr_memcpy(dst: *mut core::ffi::c_void, src: *const core::ffi::c_void, count: usize, kind: wwr_memcpy_kind) -> wwr_status;
+    pub fn wwr_memcpy2_d(dst: *mut core::ffi::c_void, dpitch: usize, src: *const core::ffi::c_void, spitch: usize, width: usize, height: usize, kind: wwr_memcpy_kind) -> wwr_status;
+    pub fn wwr_memcpy2_d_async(dst: *mut core::ffi::c_void, dpitch: usize, src: *const core::ffi::c_void, spitch: usize, width: usize, height: usize, kind: wwr_memcpy_kind, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_memcpy2_d_to_array(dst: wwr_array, wOffset: usize, hOffset: usize, src: *const core::ffi::c_void, spitch: usize, width: usize, height: usize, kind: wwr_memcpy_kind) -> wwr_status;
+    pub fn wwr_memcpy2_d_to_array_async(dst: wwr_array, wOffset: usize, hOffset: usize, src: *const core::ffi::c_void, spitch: usize, width: usize, height: usize, kind: wwr_memcpy_kind, stream: wwr_stream) -> wwr_status;
     pub fn wwr_memcpy3_d(p: *const core::ffi::c_void) -> wwr_status;
     pub fn wwr_memcpy3_d_async(p: *const core::ffi::c_void, stream: wwr_stream) -> wwr_status;
     pub fn wwr_memcpy3_d_peer(p: *const core::ffi::c_void) -> wwr_status;
     pub fn wwr_memcpy3_d_peer_async(p: *const core::ffi::c_void, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_memcpy_async(dst: *mut core::ffi::c_void, src: *const core::ffi::c_void, count: usize, kind: wwr_memcpy_kind, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_memcpy_from_symbol(dst: *mut core::ffi::c_void, symbol: *const core::ffi::c_void, count: usize, offset: usize, kind: wwr_memcpy_kind) -> wwr_status;
+    pub fn wwr_memcpy_from_symbol_async(dst: *mut core::ffi::c_void, symbol: *const core::ffi::c_void, count: usize, offset: usize, kind: wwr_memcpy_kind, stream: wwr_stream) -> wwr_status;
     pub fn wwr_memcpy_peer(dst: *mut core::ffi::c_void, dstDevice: i32, src: *const core::ffi::c_void, srcDevice: i32, count: usize) -> wwr_status;
     pub fn wwr_memcpy_peer_async(dst: *mut core::ffi::c_void, dstDevice: i32, src: *const core::ffi::c_void, srcDevice: i32, count: usize, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_memcpy_to_symbol(symbol: *const core::ffi::c_void, src: *const core::ffi::c_void, count: usize, offset: usize, kind: wwr_memcpy_kind) -> wwr_status;
+    pub fn wwr_memcpy_to_symbol_async(symbol: *const core::ffi::c_void, src: *const core::ffi::c_void, count: usize, offset: usize, kind: wwr_memcpy_kind, stream: wwr_stream) -> wwr_status;
     pub fn wwr_memset(devPtr: *mut core::ffi::c_void, value: i32, count: usize) -> wwr_status;
     pub fn wwr_memset2_d(devPtr: *mut core::ffi::c_void, pitch: usize, value: i32, width: usize, height: usize) -> wwr_status;
     pub fn wwr_memset2_d_async(devPtr: *mut core::ffi::c_void, pitch: usize, value: i32, width: usize, height: usize, stream: wwr_stream) -> wwr_status;
@@ -124,6 +224,7 @@ extern "C" {
     pub fn wwr_set_device_flags(flags: u32) -> wwr_status;
     pub fn wwr_set_valid_devices(device_arr: *mut i32, len: i32) -> wwr_status;
     pub fn wwr_stream_attach_mem_async(stream: wwr_stream, devPtr: *mut core::ffi::c_void, length: usize, flags: u32) -> wwr_status;
+    pub fn wwr_stream_begin_capture(stream: wwr_stream, mode: wwr_stream_capture_mode) -> wwr_status;
     pub fn wwr_stream_create(pStream: *mut wwr_stream) -> wwr_status;
     pub fn wwr_stream_create_with_flags(pStream: *mut wwr_stream, flags: u32) -> wwr_status;
     pub fn wwr_stream_create_with_priority(pStream: *mut wwr_stream, flags: u32, priority: i32) -> wwr_status;
@@ -137,7 +238,7 @@ extern "C" {
     pub fn wwr_stream_query(stream: wwr_stream) -> wwr_status;
     pub fn wwr_stream_synchronize(stream: wwr_stream) -> wwr_status;
     pub fn wwr_stream_wait_event(stream: wwr_stream, event: wwr_event, flags: u32) -> wwr_status;
-    pub fn wwr_thread_exchange_stream_capture_mode(mode: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_thread_exchange_stream_capture_mode(mode: *mut wwr_stream_capture_mode) -> wwr_status;
     pub fn wwr_user_object_release(object: wwr_user_object, count: u32) -> wwr_status;
     pub fn wwr_user_object_retain(object: wwr_user_object, count: u32) -> wwr_status;
 }
