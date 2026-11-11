@@ -1,21 +1,36 @@
-# wwr.capi — the extern "C" ABI over wwr, for Rust FFI
+# wwr.capi — the extern "C" ABI over wwr, for Rust FFI, split PER UNIT
 #
-# A shared library of the generated extern "C" thunks (gen/wwr_capi.cpp), which
-# `import wwr.complex;` / `import wwr.runtime_api;` and forward into the
-# wwr::wwrC* and wwr::wwr* runtime functions -- so the backend is chosen only by
-# which wwr library this links, not by anything in the source. The status
-# surface maps the neutral wwr status onto a stable wwr_status C enum below the
-# extern "C" line (architecture.md section 6). driver.c is a pure-C consumer run
-# as a ctest: it checks the symbols link, the complex numbers are right, and the
+# The generated extern "C" thunks (gen/<unit>/wwr_capi_<unit>.cpp) each `import`
+# only the wwr module(s) their surface needs and forward into the wwr::wwrC* /
+# wwr::wwr* / wwr::wwrblas* functions -- so the backend is chosen only by which
+# wwr library a unit links, not by anything in the source. The status surface
+# maps the neutral wwr status onto a stable wwr_status C enum below the extern
+# "C" line (architecture.md section 6). driver.c is a pure-C consumer run as a
+# ctest: it checks the symbols link, the complex numbers are right, and the
 # status surface returns the stable enum (host-only, no GPU). See the directory
-# README and docs/architecture.md sections 6/25 for why the thunk calls into wwr
-# and maps the status.
+# README and docs/architecture.md sections 6/25 for why the thunk calls wwr.
+#
+# WHY PER UNIT. One libwwr_capi.so that linked every surface's wwr target also
+# NEEDed every surface's vendor library -- so a consumer of the pure-host
+# `complex` surface still dragged in libcublas via the `blas` surface. That
+# collapses the project's own per-target dependency isolation (wwr.complex links
+# nothing extra; wwr.blas links cuBLAS). So each surface gets its OWN shared
+# object linking only its surface's vendor dep, and an UMBRELLA libwwr_capi.so
+# that contains all unit symbols keeps every existing -lwwr_capi consumer (the
+# drivers, the wwr-sys crate, example/capi-consumer) unchanged. Proof: `readelf
+# -d libwwr_capi_complex.so` shows NO cublas; `libwwr_capi_blas.so` DOES.
+#
+# Each unit's thunk compiles ONCE into an OBJECT library (wwr.capi.<unit>.obj)
+# linked into both its own per-unit .so AND the umbrella .so -- so the umbrella
+# carries every unit's symbols without recompiling. The object library carries
+# the module-scan properties and its wwr deps PUBLIC, so both consumers inherit
+# the right link line (and thus the right NEEDED set).
 #
 # Unlike the rest of wwr (which ships as module SOURCE a consumer compiles -- a
-# BMI is not portable), the capi is a prebuilt libwwr_capi.so a non-C++ consumer
-# links. It therefore does NOT ride the src/-sweep in wwr_install.cmake; it is
+# BMI is not portable), the capi ships as prebuilt shared objects a non-C++
+# consumer links. They do NOT ride the src/-sweep in wwr_install.cmake; they are
 # installed explicitly there under WWR_INSTALL_CAPI (the sweep's non-recursive
-# src/ collection never reaches this subdirectory). The target builds
+# src/ collection never reaches this subdirectory). The targets build
 # UNCONDITIONALLY with the rest of src/ -- only the install is gated.
 #
 # VERSION / SOVERSION below are the first declared contract version (1.0.0 /
@@ -23,45 +38,78 @@
 # only on an ABI break. See the directory README's "Stability policy" and
 # architecture.md section 21.
 
-# The thunk is a plain shared library, not a module (it exports no module, it
-# imports one). CXX_MODULE_STD / CXX_SCAN_FOR_MODULES let a non-module TU use
-# the wwr.complex / wwr.runtime_api modules, which `import std;`; the real
-# dotted name on the add_library, the :: alias by hand.
-add_library(wwr.capi SHARED gen/wwr_capi.cpp)
-add_library(wwr::capi ALIAS wwr.capi)
+# One per-unit shared library over an object library compiled once. `unit` is
+# the surface (complex / runtime_api / blas); the object library
+# (wwr.capi.<unit>.obj) compiles gen/<unit>/wwr_capi_<unit>.cpp and carries its
+# wwr deps PUBLIC, so both the unit .so here and the umbrella below inherit them
+# (and so the right NEEDED set). The .so file is wwr_capi_<unit> (->
+# libwwr_capi_<unit>.so), while the target keeps the convention's dotted
+# wwr.capi.<unit> + wwr::capi::<unit> alias. A thunk is a plain TU, not a module
+# (it exports none, it imports one), so CXX_MODULE_STD / CXX_SCAN_FOR_MODULES
+# let it use the wwr modules, which import std.
+function(_wwr_add_capi_unit unit)
+  set(_obj wwr.capi.${unit}.obj)
+  set(_lib wwr.capi.${unit})
 
-# The OUTPUT file name is wwr_capi (-> libwwr_capi.so), NOT the dotted target
-# name: the target keeps the convention's dotted wwr.capi + wwr::capi alias, but
-# rustc's `-l wwr_capi` / ffi.rs's `#[link(name = "wwr_capi")]` do a literal
-# libwwr_capi.so lookup (and underscore matches the C ABI's wwr_ symbol prefix).
-# driver.c links via the target so it never saw the file name; the Rust driver
-# does. generate.py emits the matching link name -- keep the two in step.
-set_target_properties(wwr.capi PROPERTIES OUTPUT_NAME wwr_capi)
+  add_library(${_obj} OBJECT gen/${unit}/wwr_capi_${unit}.cpp)
+  target_link_libraries(${_obj} PUBLIC ${ARGN})
+  target_include_directories(${_obj} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/gen)
+  set_target_properties(
+    ${_obj}
+    PROPERTIES CXX_MODULE_STD 1
+               CXX_SCAN_FOR_MODULES ON
+               CUDA_SEPARABLE_COMPILATION OFF
+               CUDA_RESOLVE_DEVICE_SYMBOLS OFF
+               POSITION_INDEPENDENT_CODE ON
+  )
 
-# wwr::complex for the POD-complex thunks; wwr::runtime_api for the status
-# surface (its module BMI for the import) AND wwr::runtime_api::host for the
-# runtime host library (CUDA::cudart / hip::host) that resolves the
-# wwrRuntimeGetVersion / wwrGetDeviceCount / wwrSetDevice symbols at link.
-# wwr::blas / wwr::fp16 for the blas surface: each is the module BMI for its
-# import AND carries the vendor library (CUDA::cublas / roc::hipblas)
-# transitively (LINK_PUBLIC on wwr.blas), which resolves the cublas* / hipblas*
-# symbols at link. The blas thunks run on the DEVICE at call time; CI
+  add_library(${_lib} SHARED $<TARGET_OBJECTS:${_obj}>)
+  add_library(wwr::capi::${unit} ALIAS ${_lib})
+  target_link_libraries(${_lib} PRIVATE ${_obj})
+  set_target_properties(
+    ${_lib}
+    PROPERTIES OUTPUT_NAME wwr_capi_${unit}
+               VERSION 1.0.0
+               SOVERSION 1
+  )
+endfunction()
+
+# complex -> no vendor math lib (wwr::complex links nothing extra); runtime_api
+# -> the runtime host library (CUDA::cudart / hip::host) resolving the wwr*
+# symbols via wwr::runtime_api::host; blas -> cuBLAS / hipBLAS, carried
+# transitively by wwr::blas (LINK_PUBLIC on wwr.blas) with wwr::fp16 for the
+# half forwarders. THIS is where the isolation lives: the blas unit alone NEEDs
+# the vendor BLAS. The blas thunks run on the DEVICE at call time; CI
 # link-checks them (no GPU), a GPU box exercises them (README, architecture.md).
+_wwr_add_capi_unit(complex wwr::complex)
+_wwr_add_capi_unit(runtime_api wwr::runtime_api wwr::runtime_api::host)
+_wwr_add_capi_unit(blas wwr::blas wwr::fp16)
+
+# The umbrella libwwr_capi.so CONTAINS every unit's object symbols, so an
+# existing -lwwr_capi consumer resolves the whole ABI from one .so. The OUTPUT
+# file name is wwr_capi (-> libwwr_capi.so), NOT the dotted target name: rustc's
+# `-l wwr_capi` / ffi.rs's `#[link(name = "wwr_capi")]` do a literal
+# libwwr_capi.so lookup (and the underscore matches the C ABI's wwr_ symbol
+# prefix). driver.c links via the wwr::capi target so it never saw the file
+# name; the Rust driver does. generate.py emits the matching link name -- keep
+# them in step. Linking the object libraries (not the per-unit .so's) gives the
+# umbrella every unit's symbols AND, since each object library carries its wwr
+# deps PUBLIC, the union of the unit NEEDED sets -- so the umbrella stays a
+# drop-in for the old single .so.
+add_library(
+  wwr.capi SHARED
+  $<TARGET_OBJECTS:wwr.capi.complex.obj>
+  $<TARGET_OBJECTS:wwr.capi.runtime_api.obj>
+  $<TARGET_OBJECTS:wwr.capi.blas.obj>
+)
+add_library(wwr::capi ALIAS wwr.capi)
 target_link_libraries(
   wwr.capi
-  PRIVATE wwr::complex
-          wwr::runtime_api
-          wwr::runtime_api::host
-          wwr::blas
-          wwr::fp16
+  PRIVATE wwr.capi.complex.obj wwr.capi.runtime_api.obj wwr.capi.blas.obj
 )
-target_include_directories(wwr.capi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/gen)
 set_target_properties(
   wwr.capi
-  PROPERTIES CXX_MODULE_STD 1
-             CXX_SCAN_FOR_MODULES ON
-             CUDA_SEPARABLE_COMPILATION OFF
-             CUDA_RESOLVE_DEVICE_SYMBOLS OFF
+  PROPERTIES OUTPUT_NAME wwr_capi
              VERSION 1.0.0
              SOVERSION 1
 )

@@ -193,51 +193,83 @@ function(_wwr_install_target target)
   endif()
 endfunction()
 
-# Install the C ABI (src/capi -> wwr.capi) as a prebuilt binary.
+# Install the C ABI (src/capi) as prebuilt binaries: the per-unit shared objects
+# and the umbrella.
 #
-# The capi is the one wwr library that ships as a PREBUILT shared object
-# (libwwr_capi.so) rather than as module source -- a non-C++ consumer links it,
-# it imports the wwr modules but exports none. So it is NOT part of the
-# src/-sweep (whose non-recursive src/ collection never reaches a target defined
-# in src/capi, like src/thrust); it is installed here explicitly, gated on
-# WWR_INSTALL_CAPI (effect only when WWR_INSTALL is ON, mirroring
-# WWR_INSTALL_EXTENSION). The target itself builds unconditionally with the rest
-# of src/; only this install is gated.
+# The capi is the one wwr layer that ships as PREBUILT shared objects
+# (libwwr_capi.so + the per-unit libwwr_capi_<unit>.so) rather than as module
+# source -- a non-C++ consumer links them, they import the wwr modules but
+# export none. So they are NOT part of the src/-sweep (whose non-recursive src/
+# collection never reaches a target defined in src/capi, like src/thrust); they
+# are installed here explicitly, gated on WWR_INSTALL_CAPI (effect only when
+# WWR_INSTALL is ON, mirroring WWR_INSTALL_EXTENSION). The targets themselves
+# build unconditionally with the rest of src/; only this install is gated.
 #
-# install(TARGETS ... EXPORT wwr-targets) puts libwwr_capi.so (+ soname) in the
-# lib dir and adds wwr::capi to the export set, so a consumer's
-# find_package(wwr) + target_link_libraries(... wwr::capi) resolves. The
-# vendor-free C header (gen/wwr_capi.h) installs into the wwr include root for
-# the #include / bindgen consumer. EXPORT_NAME is set the same way the sweep
-# sets it, so wwr.capi exports as wwr::capi (the in-tree alias), one spelling
-# everywhere. The capi's wwr deps are PRIVATE on a shared lib, so none leak into
-# its INTERFACE_LINK_LIBRARIES -- the consumer just links the .so. The real
-# Rust-crate consumer check is #339.
+# Each install(TARGETS ... EXPORT wwr-targets) puts a .so (+ soname) in the lib
+# dir and adds its wwr::capi[::<unit>] alias to the export set, so a consumer's
+# find_package(wwr) + target_link_libraries(... wwr::capi) (the umbrella, the
+# drop-in for the old single .so) OR ... wwr::capi::blas (one unit, the isolated
+# dep) resolves. EXPORT_NAME is set the same way the sweep sets it, so each
+# exports under its in-tree alias, one spelling everywhere. The capi's wwr deps
+# are PRIVATE on each shared lib, so none leak into its INTERFACE_LINK_LIBRARIES
+# -- the consumer just links the .so.
 #
-# Called from wwr_install_package() BEFORE its install(EXPORT), which this
+# Every capi target carries the INCLUDES DESTINATION so wwr::capi (the umbrella)
+# and wwr::capi::<unit> each resolve <wwr/wwr_capi.h> and the per-unit headers
+# from the install's include roots. The headers install below, mirroring the
+# gen/ tree flat under include/wwr/, so the umbrella's own #include "common.h" /
+# "complex/wwr_capi_complex.h" spellings (root-relative to its own dir) resolve
+# unchanged -- the historical <wwr/wwr_capi.h> keeps working AND still reaches
+# its siblings, with no forwarder.
+#
+# TWO include roots are exported: include/ for the <wwr/...> spellings, AND
+# include/wwr/ so a UNIT header's bare #include "common.h" resolves -- a unit
+# header lives one dir down (include/wwr/complex/), so common.h is not its
+# sibling and the quote-include falls through to the -I roots, exactly as
+# in-tree against the gen/ root. Without the second root, <wwr/wwr_capi.h> ->
+# complex/... -> common.h fails in the installed consumer (install-check catches
+# this precisely).
+#
+# Called from wwr_install_package() BEFORE its install(EXPORT), which these
 # install(TARGETS ... EXPORT) must precede.
 function(_wwr_install_capi)
   if(NOT WWR_INSTALL_CAPI)
     return()
   endif()
-  _wwr_export_name(wwr.capi _capi_export_name)
-  set_target_properties(wwr.capi PROPERTIES EXPORT_NAME "${_capi_export_name}")
-  # INCLUDES DESTINATION puts ${CMAKE_INSTALL_INCLUDEDIR} (the include root,
-  # e.g. include/) on wwr::capi's exported INTERFACE_INCLUDE_DIRECTORIES, so a
-  # find_package consumer that links the target resolves <wwr/wwr_capi.h> -- the
-  # header installs one level down at include/wwr/wwr_capi.h (under
-  # WWR_INSTALL_INCLUDEDIR), and the <wwr/...> spelling resolves from the root
-  # above it. Without this the .so links but the header is off the consumer's
-  # path (example/capi-consumer catches exactly that).
-  install(
-    TARGETS wwr.capi
-    EXPORT wwr-targets
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+  # The umbrella + every per-unit target. EXPORT_NAME per target gives the
+  # in-tree alias (wwr::capi, wwr::capi::complex, ...). INCLUDES DESTINATION
+  # adds the include root (include/, for <wwr/...>) and the wwr/ subdir (for a
+  # unit header's bare common.h include) to each INTERFACE_INCLUDE_DIRECTORIES.
+  set(_capi_targets
+      wwr.capi wwr.capi.complex wwr.capi.runtime_api wwr.capi.blas
   )
-  install(FILES "${PROJECT_SOURCE_DIR}/src/capi/gen/wwr_capi.h"
-          DESTINATION "${WWR_INSTALL_INCLUDEDIR}"
+  foreach(_capi_target IN LISTS _capi_targets)
+    _wwr_export_name(${_capi_target} _capi_export_name)
+    set_target_properties(
+      ${_capi_target} PROPERTIES EXPORT_NAME "${_capi_export_name}"
+    )
+    install(
+      TARGETS ${_capi_target}
+      EXPORT wwr-targets
+      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+      INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+                           "${WWR_INSTALL_INCLUDEDIR}"
+    )
+  endforeach()
+  # The vendor-free C headers: the whole gen/ header tree mirrored FLAT under
+  # include/wwr/ (common.h -> include/wwr/common.h, the umbrella ->
+  # include/wwr/wwr_capi.h, each unit -> include/wwr/<unit>/wwr_capi_<unit>.h).
+  # So <wwr/wwr_capi.h> resolves exactly as before AND its root-relative
+  # #includes of common.h / complex/... resolve against include/wwr/ -- the
+  # whole ABI from one umbrella #include, same as the old single header.
+  # install(DIRECTORY) with a .h filter is safe here: the set is an input only
+  # to an install rule.
+  install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/src/capi/gen/"
+    DESTINATION "${WWR_INSTALL_INCLUDEDIR}"
+    FILES_MATCHING
+    PATTERN "*.h"
   )
   # The wwr-sys Rust crate skeleton, so a Rust user can path/git-depend on the
   # installed tree (#340). It is SOURCE, not a built artifact -- cargo cannot

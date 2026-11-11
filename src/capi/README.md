@@ -7,9 +7,15 @@ consumer) links one surface and carries *zero* CUDA-vs-HIP knowledge — no
 inside the `wwr` functions the thunk calls.
 
 Unlike the rest of `wwr` (which ships as module *source* a consumer compiles —
-BMIs are not portable), the capi is a **prebuilt `libwwr_capi.so`** a non-C++
+BMIs are not portable), the capi is a **prebuilt shared object** a non-C++
 consumer links. It is installed as part of the `find_package(wwr)` package under
 `-DWWR_INSTALL_CAPI=ON` (see "Install", below).
+
+**It is split per surface** so each surface's `.so` links only *its* vendor dep
+(`libwwr_capi_complex.so` NEEDs no math library; `libwwr_capi_blas.so` NEEDs
+cuBLAS / hipBLAS), mirroring the project's own per-`.cppm` dependency isolation —
+plus an **umbrella `libwwr_capi.so`** that contains every unit's symbols, so an
+existing `-lwwr_capi` consumer is unchanged (see "The per-unit split", below).
 
 It covers three surfaces: `complex`, a thin status-returning slice of
 `runtime_api`, and the full curated `blas` library (cuBLAS / hipBLAS). `complex`
@@ -100,7 +106,7 @@ policy", below, and architecture.md §21).
 The thunk does not re-derive the backend divergence; it calls the host-callable
 `wwr` functions that already resolve it once — `wwr::wwrCaddf` / `wwrCmulf` /
 `wwrCabsf` / `wwrCdivf` and the `double` set, exported from the `wwr.complex`
-module (architecture.md §3, §12, §25). So the generated `wwr_capi.cpp`:
+module (architecture.md §3, §12, §25). So the generated `complex` thunk TU:
 
 - `import wwr.complex;` — it names **no vendor header** and has **no CUDA-vs-HIP
   `#ifdef`**. It is one shape over both backends.
@@ -152,16 +158,28 @@ spec/complex.py    the ONE hand-written surface: PODs (capi_name, wwr_name, layo
                    + the complex functions. Hand-written because its thunks forward
                    into wwr-authored inline wrappers, absent from any vendor manifest
                    (see above and architecture.md §25).
-generate.py        fragment + manifest -> three artefacts. Sourced, so nothing drifts.
-gen/wwr_capi.h     vendor-free C header for bindgen / a C consumer (PODs, the
-                   wwr_status enum, prototypes). Installed under WWR_INSTALL_CAPI.
-gen/wwr_capi.cpp   the backend-neutral extern "C" thunks (import wwr.complex /
-                   wwr.runtime_api / wwr.blas / wwr.fp16; the _map status helper,
-                   the _fwd forwarder, the per-enum capi<->neutral maps).
+generate.py        fragment + manifest -> the per-unit artefacts. Sourced, so
+                   nothing drifts.
+gen/common.h       the PODs MORE THAN ONE unit uses (wwr_complex64 / wwr_complex128:
+                   complex declares them, blas takes them by pointer). A one-unit
+                   POD stays in its unit header (wwr_half -> blas; wwr_status ->
+                   runtime_api).
+gen/<unit>/wwr_capi_<unit>.h   one vendor-free C header per unit (complex /
+                   runtime_api / blas) -- its own PODs/enums/handles + prototypes,
+                   #include "common.h" for the shared PODs it names.
+gen/<unit>/wwr_capi_<unit>.cpp the backend-neutral extern "C" thunk TU per unit,
+                   importing ONLY the wwr module(s) its surface needs (complex:
+                   wwr.complex; runtime_api: wwr.runtime_api; blas: wwr.blas +
+                   wwr.fp16) -- the _map status helper / the _fwd forwarder / the
+                   per-enum capi<->neutral maps live in the unit that uses them.
+gen/wwr_capi.h     the UMBRELLA header: #include "common.h" + every unit header, so
+                   <wwr/wwr_capi.h> still declares the whole ABI. Installed under
+                   WWR_INSTALL_CAPI.
 gen/ffi.rs         the Rust side: one extern "C" block, #[repr(C)] PODs, the
-                   #[repr(i32)] wwr_status enum, NO cfg.
-CMakeLists.txt     the wwr.capi shared-library target, the install rules, and the
-                   driver ctests.
+                   #[repr(i32)] wwr_status enum, NO cfg. Still COMBINED (links the
+                   umbrella; a later PR splits the Rust crate per surface).
+CMakeLists.txt     the per-unit object libraries, the per-unit + umbrella shared
+                   libraries, the install rules, and the driver ctests.
 driver.c           a pure-C consumer (stands in for Rust's FFI) that links the
                    symbols and checks the numbers; run as the wwr.capi.driver ctest.
 driver.rs          the real Rust consumer: include!s gen/ffi.rs and links
@@ -174,43 +192,72 @@ wwr-sys/           the idiomatic Rust -sys crate (Cargo.toml + build.rs + src/):
 
 `gen/` is a committed snapshot so the PR is reviewable without running anything;
 regenerate it with `python3 src/capi/generate.py` (no backend argument — the
-`.cpp` is backend-neutral, and the generator reads both backend manifests to
-cross-check that the surface resolves identically on each).
+`.cpp`s are backend-neutral, and the generator reads both backend manifests to
+cross-check that the surface resolves identically on each). It writes `common.h`,
+the umbrella `wwr_capi.h`, `ffi.rs`, and the per-unit `<unit>/wwr_capi_<unit>.{h,cpp}`.
+
+## The per-unit split
+
+One `libwwr_capi.so` that linked every surface's `wwr` target also **NEEDed**
+every surface's vendor library — so a consumer of the pure-host `complex` surface
+still dragged in `libcublas` through the `blas` surface. That collapses the
+project's own per-target dependency isolation (`wwr.complex` links nothing extra;
+`wwr.blas` links cuBLAS). So the capi is split: **one shared object per surface**
+(`libwwr_capi_complex.so`, `libwwr_capi_runtime_api.so`, `libwwr_capi_blas.so`),
+each linking only *its* surface's vendor dep, plus an **umbrella**
+`libwwr_capi.so` that contains every unit's symbols so an existing `-lwwr_capi`
+consumer resolves the whole ABI from one `.so`. The proof is on the link line:
+
+```
+$ readelf -d libwwr_capi_complex.so | grep NEEDED   # no cublas
+$ readelf -d libwwr_capi_blas.so    | grep NEEDED   # libcublas.so.13 (CUDA)
+                                                     # libhipblas.so.3 (HIP)
+```
+
+Each unit's thunk is compiled **once** into an object library
+(`wwr.capi.<unit>.obj`), linked into both its own per-unit `.so` and the umbrella
+(so the umbrella carries all symbols without recompiling). Target names keep the
+dotted convention: `wwr.capi` / `wwr::capi` (umbrella) and `wwr.capi.<unit>` /
+`wwr::capi::<unit>` (each unit). The `ffi.rs` / `wwr-sys` Rust side stays combined
+and links the umbrella — a later PR splits the Rust crate per surface.
 
 ## Build & run
 
 "Call into `wwr`" means the capi builds against the module graph, so it builds as
 a CMake target like any other. It builds **unconditionally** with the rest of
-`src/` (it depends only on `wwr::complex` / `wwr::runtime_api`, which always
-build); the install is the only thing gated (see below).
+`src/` (each unit depends only on its surface's `wwr` module, which always
+builds); the install is the only thing gated (see below).
 
 ```bash
 cmake --preset default            # CUDA (or --preset hip, inside the wwr:hip image)
-cmake --build build --target wwr.capi wwr.capi.driver
+cmake --build build --target wwr.capi wwr.capi.driver   # umbrella + the C driver
 ctest --test-dir build -R wwr.capi   # runs driver.c (+ driver_rs if rustc is found)
 ```
 
-`wwr.capi` (real dotted name, aliased `wwr::capi`) is a shared library. Its
-output file is `libwwr_capi.so` (an `OUTPUT_NAME` override, matching `ffi.rs`'s
-`wwr_capi` link name and the C ABI's `wwr_` symbol prefix) while the target keeps
-the dotted name. The `wwr.capi.driver` ctest is gated by `WWR_BUILD_TESTS` and is
-host-only, so it runs on no-GPU CI.
+The umbrella `wwr.capi` (real dotted name, aliased `wwr::capi`) is a shared
+library. Its output file is `libwwr_capi.so` (an `OUTPUT_NAME` override, matching
+`ffi.rs`'s `wwr_capi` link name and the C ABI's `wwr_` symbol prefix) while the
+target keeps the dotted name; each unit `wwr.capi.<unit>` outputs
+`libwwr_capi_<unit>.so` the same way. The `wwr.capi.driver` ctest is gated by
+`WWR_BUILD_TESTS`, links the umbrella, and is host-only, so it runs on no-GPU CI.
 
 ## Install
 
-The capi is a prebuilt binary, not module source, so it does not ride the
-`src/`-sweep that packages every other `wwr` library. `wwr_install_package()`
-excludes `wwr.capi` from the sweep (the sweep's non-recursive `src/` collection
-never reaches a target defined in this subdirectory, like `src/thrust`) and
-installs it **explicitly**, gated on `-DWWR_INSTALL_CAPI=ON` (mirroring
+The capi is a set of prebuilt binaries, not module source, so it does not ride
+the `src/`-sweep that packages every other `wwr` library. `wwr_install_package()`
+excludes the capi targets from the sweep (the sweep's non-recursive `src/`
+collection never reaches a target defined in this subdirectory, like `src/thrust`)
+and installs them **explicitly**, gated on `-DWWR_INSTALL_CAPI=ON` (mirroring
 `WWR_INSTALL_EXTENSION`; effect only when `WWR_INSTALL` is ON). Under the gate:
 
-- `install(TARGETS wwr.capi EXPORT wwr-targets ...)` puts `libwwr_capi.so` (+ its
-  soname) in the lib dir and adds `wwr::capi` to the exported target set, so a
-  consumer's `find_package(wwr)` + `target_link_libraries(... wwr::capi)`
-  resolves;
-- `install(FILES gen/wwr_capi.h ...)` puts the vendor-free C header in the `wwr`
-  include dir.
+- `install(TARGETS ... EXPORT wwr-targets ...)` puts the umbrella `libwwr_capi.so`
+  AND each `libwwr_capi_<unit>.so` (+ sonames) in the lib dir and adds `wwr::capi`
+  plus every `wwr::capi::<unit>` to the exported target set, so a consumer's
+  `find_package(wwr)` + `target_link_libraries(... wwr::capi)` (the umbrella) or
+  `... wwr::capi::blas` (one isolated surface) resolves;
+- the vendor-free C headers install mirroring the `gen/` tree under the `wwr`
+  include dir, so `<wwr/wwr_capi.h>` (the umbrella) and its root-relative
+  `common.h` / `complex/...` includes all resolve unchanged.
 
 A consumer that links `wwr::capi` compiles no module unit — it links the prebuilt
 `.so` and `#include`s `wwr_capi.h` (or generates bindings from it). The `wwr-sys`
