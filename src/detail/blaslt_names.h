@@ -62,6 +62,47 @@ WWR_TYPE_RAW(wwrblasLtComputeType_t, cublasComputeType_t, hipblasComputeType_t)
 
 WWR_TYPE_RAW(wwrblasLtHandle_t, cublasLtHandle_t, hipblasLtHandle_t)
 
+// ========================================================================
+// Constants: cublasLtComputeType_t (wwrblasLtComputeType_t). The three the two
+// backends spell the same and both support; the raw backend values DIVERGE
+// (CUBLAS_COMPUTE_32F == 68, HIPBLAS_COMPUTE_32F == 2), so a consumer that passes
+// a compute type must name these neutral constants, never a raw vendor value.
+// Resolve against the vendor header blaslt.h pulls in (cublasLt.h brings in
+// cublas_api.h; hipblaslt.h brings in hipblas-common.h).
+// ========================================================================
+
+WWR_VALUE_RAW(WWRBLASLT_COMPUTE_16F, CUBLAS_COMPUTE_16F, HIPBLAS_COMPUTE_16F)
+WWR_VALUE_RAW(WWRBLASLT_COMPUTE_32F, CUBLAS_COMPUTE_32F, HIPBLAS_COMPUTE_32F)
+WWR_VALUE_RAW(WWRBLASLT_COMPUTE_64F, CUBLAS_COMPUTE_64F, HIPBLAS_COMPUTE_64F)
+
+// ========================================================================
+// Constants: wwrblasLtStatus_t (cublasStatus_t / hipblasStatus_t). cuBLASLt has
+// no Lt status type of its own -- these are the classic-BLAS status constants the
+// vendor header carries (cublasLt.h brings in cublas_api.h; hipblaslt.h brings in
+// hipblas-common.h). The curated set both backends spell the same, the subset the
+// classic wwr.blas status surface also maps (its raw values diverge --
+// CUBLAS_STATUS_NOT_SUPPORTED == 15, HIPBLAS_STATUS_NOT_SUPPORTED == 7 -- so a
+// consumer must name the neutral constant).
+// ========================================================================
+
+WWR_VALUE_RAW(WWRBLASLT_STATUS_SUCCESS, CUBLAS_STATUS_SUCCESS, HIPBLAS_STATUS_SUCCESS)
+WWR_VALUE_RAW(WWRBLASLT_STATUS_NOT_INITIALIZED, CUBLAS_STATUS_NOT_INITIALIZED,
+             HIPBLAS_STATUS_NOT_INITIALIZED)
+WWR_VALUE_RAW(WWRBLASLT_STATUS_ALLOC_FAILED, CUBLAS_STATUS_ALLOC_FAILED,
+             HIPBLAS_STATUS_ALLOC_FAILED)
+WWR_VALUE_RAW(WWRBLASLT_STATUS_ARCH_MISMATCH, CUBLAS_STATUS_ARCH_MISMATCH,
+             HIPBLAS_STATUS_ARCH_MISMATCH)
+WWR_VALUE_RAW(WWRBLASLT_STATUS_EXECUTION_FAILED, CUBLAS_STATUS_EXECUTION_FAILED,
+             HIPBLAS_STATUS_EXECUTION_FAILED)
+WWR_VALUE_RAW(WWRBLASLT_STATUS_INTERNAL_ERROR, CUBLAS_STATUS_INTERNAL_ERROR,
+             HIPBLAS_STATUS_INTERNAL_ERROR)
+WWR_VALUE_RAW(WWRBLASLT_STATUS_INVALID_VALUE, CUBLAS_STATUS_INVALID_VALUE,
+             HIPBLAS_STATUS_INVALID_VALUE)
+WWR_VALUE_RAW(WWRBLASLT_STATUS_MAPPING_ERROR, CUBLAS_STATUS_MAPPING_ERROR,
+             HIPBLAS_STATUS_MAPPING_ERROR)
+WWR_VALUE_RAW(WWRBLASLT_STATUS_NOT_SUPPORTED, CUBLAS_STATUS_NOT_SUPPORTED,
+             HIPBLAS_STATUS_NOT_SUPPORTED)
+
 WWR_TYPE_RAW(wwrblasLtMatmulDesc_t, cublasLtMatmulDesc_t, hipblasLtMatmulDesc_t)
 WWR_TYPE_RAW(wwrblasLtMatmulDescOpaque_t, cublasLtMatmulDescOpaque_t, hipblasLtMatmulDescOpaque_t)
 WWR_TYPE_RAW(wwrblasLtMatmulDescAttributes_t, cublasLtMatmulDescAttributes_t,

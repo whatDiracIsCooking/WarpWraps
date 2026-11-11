@@ -27,6 +27,10 @@ const UNITS: &[(&str, &str)] = &[
     ("complex", "wwr_capi_complex"),
     ("runtime_api", "wwr_capi_runtime_api"),
     ("blas", "wwr_capi_blas"),
+    ("blaslt", "wwr_capi_blaslt"),
+    ("solver", "wwr_capi_solver"),
+    ("rand", "wwr_capi_rand"),
+    ("rtc", "wwr_capi_rtc"),
 ];
 
 fn main() {

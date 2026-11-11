@@ -2,6 +2,7 @@
 #ifndef WWR_CAPI_BLAS_H
 #define WWR_CAPI_BLAS_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "common.h"
@@ -15,7 +16,6 @@ typedef struct wwr_half {
 } wwr_half;
 
 typedef void *wwr_blas_handle;
-typedef void *wwr_stream;
 
 typedef enum wwr_blas_status {
   WWR_BLAS_STATUS_SUCCESS = 0,

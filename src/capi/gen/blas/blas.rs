@@ -12,7 +12,6 @@ pub struct wwr_half {
 }
 
 pub type wwr_blas_handle = *mut core::ffi::c_void;
-pub type wwr_stream = *mut core::ffi::c_void;
 
 #[repr(i32)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]

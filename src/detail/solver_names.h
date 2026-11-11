@@ -62,6 +62,16 @@ WWR_TYPE_RAW(wwrsolverSyevjInfo_t, syevjInfo_t, hipsolverSyevjInfo_t)
 WWR_TYPE_RAW(wwrsolverGesvdjInfo_t, gesvdjInfo_t, hipsolverGesvdjInfo_t)
 WWR_TYPE_RAW(wwrsolverDataType_t, cudaDataType, hipDataType)
 
+// The classic-BLAS fill-mode / side-mode / operation enum TYPES cuSOLVER /
+// hipSOLVER inherit for their uplo / side / trans parameters, renamed under this
+// layer's prefix (as wwrsolverDataType_t renames cudaDataType). They resolve
+// against the BLAS header the solver vendor header pulls in (cublas_api.h via
+// cusolverDn.h; hipblas-common.h via hipsolver.h), the same way the data-type
+// type does from library_types.h. Their constants are below.
+WWR_TYPE_RAW(wwrsolverFillMode_t, cublasFillMode_t, hipblasFillMode_t)
+WWR_TYPE_RAW(wwrsolverSideMode_t, cublasSideMode_t, hipblasSideMode_t)
+WWR_TYPE_RAW(wwrsolverOperation_t, cublasOperation_t, hipblasOperation_t)
+
 // ========================================================================
 // Constants
 // ========================================================================
@@ -87,6 +97,22 @@ WWR_VALUE_RAW(WWRSOLVER_R_32F, CUDA_R_32F, HIP_R_32F)
 WWR_VALUE_RAW(WWRSOLVER_R_64F, CUDA_R_64F, HIP_R_64F)
 WWR_VALUE_RAW(WWRSOLVER_C_32F, CUDA_C_32F, HIP_C_32F)
 WWR_VALUE_RAW(WWRSOLVER_C_64F, CUDA_C_64F, HIP_C_64F)
+
+// The classic-BLAS fill-mode / side-mode / operation enumerators cuSOLVER /
+// hipSOLVER inherit for their uplo / side / trans parameters (cublasFillMode_t /
+// cublasSideMode_t / cublasOperation_t -- the same vendor enums wwr.blas wraps).
+// The raw backend values DIVERGE (CUBLAS_OP_N == 0, HIPBLAS_OP_N == 111), so a
+// consumer that passes one must name these neutral constants, never a raw vendor
+// value. They come from the BLAS header the solver vendor header pulls in
+// (cublas_api.h via cusolverDn.h; hipblas-common.h via hipsolver.h), the same
+// way the data-type enumerators above come from library_types.h.
+WWR_VALUE_RAW(WWRSOLVER_FILL_MODE_LOWER, CUBLAS_FILL_MODE_LOWER, HIPBLAS_FILL_MODE_LOWER)
+WWR_VALUE_RAW(WWRSOLVER_FILL_MODE_UPPER, CUBLAS_FILL_MODE_UPPER, HIPBLAS_FILL_MODE_UPPER)
+WWR_VALUE_RAW(WWRSOLVER_SIDE_LEFT, CUBLAS_SIDE_LEFT, HIPBLAS_SIDE_LEFT)
+WWR_VALUE_RAW(WWRSOLVER_SIDE_RIGHT, CUBLAS_SIDE_RIGHT, HIPBLAS_SIDE_RIGHT)
+WWR_VALUE_RAW(WWRSOLVER_OP_N, CUBLAS_OP_N, HIPBLAS_OP_N)
+WWR_VALUE_RAW(WWRSOLVER_OP_T, CUBLAS_OP_T, HIPBLAS_OP_T)
+WWR_VALUE_RAW(WWRSOLVER_OP_C, CUBLAS_OP_C, HIPBLAS_OP_C)
 
 // ========================================================================
 // Status strings: neither backend has an official status-to-string

@@ -16,6 +16,8 @@ pub struct wwr_complex128 {
     pub im: f64,
 }
 
+pub type wwr_stream = *mut core::ffi::c_void;
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct wwr_half {
@@ -23,7 +25,6 @@ pub struct wwr_half {
 }
 
 pub type wwr_blas_handle = *mut core::ffi::c_void;
-pub type wwr_stream = *mut core::ffi::c_void;
 
 #[repr(i32)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -96,6 +97,266 @@ pub enum wwr_blas_compute_type {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum wwr_blas_gemm_algo {
     WWR_BLAS_GEMM_DEFAULT = 0,
+}
+
+pub type wwr_blaslt_handle = *mut core::ffi::c_void;
+pub type wwr_blaslt_matmul_desc = *mut core::ffi::c_void;
+pub type wwr_blaslt_matrix_layout = *mut core::ffi::c_void;
+pub type wwr_blaslt_matmul_preference = *mut core::ffi::c_void;
+pub type wwr_blaslt_matrix_transform_desc = *mut core::ffi::c_void;
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_blaslt_status {
+    WWR_BLASLT_STATUS_SUCCESS = 0,
+    WWR_BLASLT_STATUS_NOT_INITIALIZED = 1,
+    WWR_BLASLT_STATUS_ALLOC_FAILED = 2,
+    WWR_BLASLT_STATUS_ARCH_MISMATCH = 3,
+    WWR_BLASLT_STATUS_EXECUTION_FAILED = 4,
+    WWR_BLASLT_STATUS_INTERNAL_ERROR = 5,
+    WWR_BLASLT_STATUS_INVALID_VALUE = 6,
+    WWR_BLASLT_STATUS_MAPPING_ERROR = 7,
+    WWR_BLASLT_STATUS_NOT_SUPPORTED = 8,
+    WWR_BLASLT_STATUS_UNKNOWN = 9,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_blaslt_compute_type {
+    WWR_BLASLT_COMPUTE_16F = 0,
+    WWR_BLASLT_COMPUTE_32F = 1,
+    WWR_BLASLT_COMPUTE_64F = 2,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_blaslt_epilogue {
+    WWR_BLASLT_EPILOGUE_DEFAULT = 0,
+    WWR_BLASLT_EPILOGUE_RELU = 1,
+    WWR_BLASLT_EPILOGUE_RELU_AUX = 2,
+    WWR_BLASLT_EPILOGUE_BIAS = 3,
+    WWR_BLASLT_EPILOGUE_RELU_BIAS = 4,
+    WWR_BLASLT_EPILOGUE_RELU_AUX_BIAS = 5,
+    WWR_BLASLT_EPILOGUE_DGELU = 6,
+    WWR_BLASLT_EPILOGUE_DGELU_BGRAD = 7,
+    WWR_BLASLT_EPILOGUE_GELU = 8,
+    WWR_BLASLT_EPILOGUE_GELU_AUX = 9,
+    WWR_BLASLT_EPILOGUE_GELU_BIAS = 10,
+    WWR_BLASLT_EPILOGUE_GELU_AUX_BIAS = 11,
+    WWR_BLASLT_EPILOGUE_BGRADA = 12,
+    WWR_BLASLT_EPILOGUE_BGRADB = 13,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_blaslt_matmul_desc_attributes {
+    WWR_BLASLT_MATMUL_DESC_TRANSA = 0,
+    WWR_BLASLT_MATMUL_DESC_TRANSB = 1,
+    WWR_BLASLT_MATMUL_DESC_EPILOGUE = 2,
+    WWR_BLASLT_MATMUL_DESC_BIAS_POINTER = 3,
+    WWR_BLASLT_MATMUL_DESC_BIAS_DATA_TYPE = 4,
+    WWR_BLASLT_MATMUL_DESC_A_SCALE_POINTER = 5,
+    WWR_BLASLT_MATMUL_DESC_B_SCALE_POINTER = 6,
+    WWR_BLASLT_MATMUL_DESC_C_SCALE_POINTER = 7,
+    WWR_BLASLT_MATMUL_DESC_D_SCALE_POINTER = 8,
+    WWR_BLASLT_MATMUL_DESC_A_SCALE_MODE = 9,
+    WWR_BLASLT_MATMUL_DESC_B_SCALE_MODE = 10,
+    WWR_BLASLT_MATMUL_DESC_AMAX_D_POINTER = 11,
+    WWR_BLASLT_MATMUL_DESC_POINTER_MODE = 12,
+    WWR_BLASLT_MATMUL_DESC_EPILOGUE_AUX_POINTER = 13,
+    WWR_BLASLT_MATMUL_DESC_EPILOGUE_AUX_LD = 14,
+    WWR_BLASLT_MATMUL_DESC_EPILOGUE_AUX_BATCH_STRIDE = 15,
+    WWR_BLASLT_MATMUL_DESC_EPILOGUE_AUX_DATA_TYPE = 16,
+    WWR_BLASLT_MATMUL_DESC_EPILOGUE_AUX_SCALE_POINTER = 17,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_blaslt_matmul_matrix_scale {
+    WWR_BLASLT_MATMUL_MATRIX_SCALE_SCALAR_32F = 0,
+    WWR_BLASLT_MATMUL_MATRIX_SCALE_VEC16_UE4M3 = 1,
+    WWR_BLASLT_MATMUL_MATRIX_SCALE_VEC32_UE8M0 = 2,
+    WWR_BLASLT_MATMUL_MATRIX_SCALE_VEC128_32F = 3,
+    WWR_BLASLT_MATMUL_MATRIX_SCALE_BLK128X128_32F = 4,
+    WWR_BLASLT_MATMUL_MATRIX_SCALE_OUTER_VEC_32F = 5,
+    WWR_BLASLT_MATMUL_MATRIX_SCALE_END = 6,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_blaslt_matmul_preference_attributes {
+    WWR_BLASLT_MATMUL_PREF_SEARCH_MODE = 0,
+    WWR_BLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_blaslt_matrix_layout_attribute {
+    WWR_BLASLT_MATRIX_LAYOUT_TYPE = 0,
+    WWR_BLASLT_MATRIX_LAYOUT_ORDER = 1,
+    WWR_BLASLT_MATRIX_LAYOUT_ROWS = 2,
+    WWR_BLASLT_MATRIX_LAYOUT_COLS = 3,
+    WWR_BLASLT_MATRIX_LAYOUT_LD = 4,
+    WWR_BLASLT_MATRIX_LAYOUT_BATCH_COUNT = 5,
+    WWR_BLASLT_MATRIX_LAYOUT_STRIDED_BATCH_OFFSET = 6,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_blaslt_matrix_transform_desc_attributes {
+    WWR_BLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE = 0,
+    WWR_BLASLT_MATRIX_TRANSFORM_DESC_POINTER_MODE = 1,
+    WWR_BLASLT_MATRIX_TRANSFORM_DESC_TRANSA = 2,
+    WWR_BLASLT_MATRIX_TRANSFORM_DESC_TRANSB = 3,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_blaslt_order {
+    WWR_BLASLT_ORDER_COL = 0,
+    WWR_BLASLT_ORDER_ROW = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_blaslt_pointer_mode {
+    WWR_BLASLT_POINTER_MODE_HOST = 0,
+    WWR_BLASLT_POINTER_MODE_DEVICE = 1,
+    WWR_BLASLT_POINTER_MODE_ALPHA_DEVICE_VECTOR_BETA_HOST = 2,
+}
+
+pub type wwr_solver_handle = *mut core::ffi::c_void;
+pub type wwr_solver_params = *mut core::ffi::c_void;
+pub type wwr_solver_syevj_info = *mut core::ffi::c_void;
+pub type wwr_solver_gesvdj_info = *mut core::ffi::c_void;
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_solver_status {
+    WWR_SOLVER_STATUS_SUCCESS = 0,
+    WWR_SOLVER_STATUS_UNKNOWN = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_solver_eig_mode {
+    WWR_SOLVER_EIG_MODE_NOVECTOR = 0,
+    WWR_SOLVER_EIG_MODE_VECTOR = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_solver_eig_type {
+    WWR_SOLVER_EIG_TYPE_1 = 0,
+    WWR_SOLVER_EIG_TYPE_2 = 1,
+    WWR_SOLVER_EIG_TYPE_3 = 2,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_solver_eig_range {
+    WWR_SOLVER_EIG_RANGE_ALL = 0,
+    WWR_SOLVER_EIG_RANGE_V = 1,
+    WWR_SOLVER_EIG_RANGE_I = 2,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_solver_fill_mode {
+    WWR_SOLVER_FILL_MODE_LOWER = 0,
+    WWR_SOLVER_FILL_MODE_UPPER = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_solver_side_mode {
+    WWR_SOLVER_SIDE_LEFT = 0,
+    WWR_SOLVER_SIDE_RIGHT = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_solver_operation {
+    WWR_SOLVER_OP_N = 0,
+    WWR_SOLVER_OP_T = 1,
+    WWR_SOLVER_OP_C = 2,
+}
+
+pub type wwr_rand_generator = *mut core::ffi::c_void;
+pub type wwr_rand_discrete_distribution = *mut core::ffi::c_void;
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_rand_status {
+    WWR_RAND_STATUS_SUCCESS = 0,
+    WWR_RAND_STATUS_VERSION_MISMATCH = 1,
+    WWR_RAND_STATUS_NOT_INITIALIZED = 2,
+    WWR_RAND_STATUS_ALLOCATION_FAILED = 3,
+    WWR_RAND_STATUS_TYPE_ERROR = 4,
+    WWR_RAND_STATUS_OUT_OF_RANGE = 5,
+    WWR_RAND_STATUS_LENGTH_NOT_MULTIPLE = 6,
+    WWR_RAND_STATUS_DOUBLE_PRECISION_REQUIRED = 7,
+    WWR_RAND_STATUS_LAUNCH_FAILURE = 8,
+    WWR_RAND_STATUS_PREEXISTING_FAILURE = 9,
+    WWR_RAND_STATUS_INITIALIZATION_FAILED = 10,
+    WWR_RAND_STATUS_ARCH_MISMATCH = 11,
+    WWR_RAND_STATUS_INTERNAL_ERROR = 12,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_rand_rng_type {
+    WWR_RAND_RNG_TEST = 0,
+    WWR_RAND_RNG_PSEUDO_DEFAULT = 1,
+    WWR_RAND_RNG_PSEUDO_XORWOW = 2,
+    WWR_RAND_RNG_PSEUDO_MRG32K3A = 3,
+    WWR_RAND_RNG_PSEUDO_MTGP32 = 4,
+    WWR_RAND_RNG_PSEUDO_MT19937 = 5,
+    WWR_RAND_RNG_PSEUDO_PHILOX4_32_10 = 6,
+    WWR_RAND_RNG_QUASI_DEFAULT = 7,
+    WWR_RAND_RNG_QUASI_SOBOL32 = 8,
+    WWR_RAND_RNG_QUASI_SCRAMBLED_SOBOL32 = 9,
+    WWR_RAND_RNG_QUASI_SOBOL64 = 10,
+    WWR_RAND_RNG_QUASI_SCRAMBLED_SOBOL64 = 11,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_rand_ordering {
+    WWR_RAND_ORDERING_PSEUDO_BEST = 0,
+    WWR_RAND_ORDERING_PSEUDO_DEFAULT = 1,
+    WWR_RAND_ORDERING_PSEUDO_SEEDED = 2,
+    WWR_RAND_ORDERING_PSEUDO_LEGACY = 3,
+    WWR_RAND_ORDERING_PSEUDO_DYNAMIC = 4,
+    WWR_RAND_ORDERING_QUASI_DEFAULT = 5,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_rand_direction_vector_set {
+    WWR_RAND_DIRECTION_VECTORS_32_JOEKUO6 = 0,
+    WWR_RAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6 = 1,
+    WWR_RAND_DIRECTION_VECTORS_64_JOEKUO6 = 2,
+    WWR_RAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6 = 3,
+}
+
+pub type wwr_rtc_program = *mut core::ffi::c_void;
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_rtc_result {
+    WWR_RTC_RESULT_SUCCESS = 0,
+    WWR_RTC_RESULT_OUT_OF_MEMORY = 1,
+    WWR_RTC_RESULT_PROGRAM_CREATION_FAILURE = 2,
+    WWR_RTC_RESULT_INVALID_INPUT = 3,
+    WWR_RTC_RESULT_INVALID_PROGRAM = 4,
+    WWR_RTC_RESULT_INVALID_OPTION = 5,
+    WWR_RTC_RESULT_COMPILATION = 6,
+    WWR_RTC_RESULT_BUILTIN_OPERATION_FAILURE = 7,
+    WWR_RTC_RESULT_NO_NAME_EXPRESSIONS_AFTER_COMPILATION = 8,
+    WWR_RTC_RESULT_NO_LOWERED_NAMES_BEFORE_COMPILATION = 9,
+    WWR_RTC_RESULT_NAME_EXPRESSION_NOT_VALID = 10,
+    WWR_RTC_RESULT_INTERNAL_ERROR = 11,
 }
 
 #[repr(i32)]
@@ -525,4 +786,295 @@ extern "C" {
     pub fn wwr_blas_ztrsm_64(handle: wwr_blas_handle, side: wwr_blas_side_mode, uplo: wwr_blas_fill_mode, trans: wwr_blas_operation, diag: wwr_blas_diag_type, m: i64, n: i64, alpha: *const wwr_complex128, A: *const wwr_complex128, lda: i64, B: *mut wwr_complex128, ldb: i64) -> wwr_blas_status;
     pub fn wwr_blas_ztrsv(handle: wwr_blas_handle, uplo: wwr_blas_fill_mode, trans: wwr_blas_operation, diag: wwr_blas_diag_type, n: i32, A: *const wwr_complex128, lda: i32, x: *mut wwr_complex128, incx: i32) -> wwr_blas_status;
     pub fn wwr_blas_ztrsv_64(handle: wwr_blas_handle, uplo: wwr_blas_fill_mode, trans: wwr_blas_operation, diag: wwr_blas_diag_type, n: i64, A: *const wwr_complex128, lda: i64, x: *mut wwr_complex128, incx: i64) -> wwr_blas_status;
+    pub fn wwr_blaslt_create(lightHandle: *mut wwr_blaslt_handle) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_destroy(lightHandle: wwr_blaslt_handle) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matmul(lightHandle: wwr_blaslt_handle, computeDesc: wwr_blaslt_matmul_desc, alpha: *const core::ffi::c_void, A: *const core::ffi::c_void, Adesc: wwr_blaslt_matrix_layout, B: *const core::ffi::c_void, Bdesc: wwr_blaslt_matrix_layout, beta: *const core::ffi::c_void, C: *const core::ffi::c_void, Cdesc: wwr_blaslt_matrix_layout, D: *mut core::ffi::c_void, Ddesc: wwr_blaslt_matrix_layout, algo: *const core::ffi::c_void, workspace: *mut core::ffi::c_void, workspaceSizeInBytes: usize, stream: wwr_stream) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matmul_algo_get_heuristic(lightHandle: wwr_blaslt_handle, operationDesc: wwr_blaslt_matmul_desc, Adesc: wwr_blaslt_matrix_layout, Bdesc: wwr_blaslt_matrix_layout, Cdesc: wwr_blaslt_matrix_layout, Ddesc: wwr_blaslt_matrix_layout, preference: wwr_blaslt_matmul_preference, requestedAlgoCount: i32, heuristicResultsArray: *mut core::ffi::c_void, returnAlgoCount: *mut i32) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matmul_desc_create(matmulDesc: *mut wwr_blaslt_matmul_desc, computeType: wwr_blaslt_compute_type, scaleType: i32) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matmul_desc_destroy(matmulDesc: wwr_blaslt_matmul_desc) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matmul_desc_get_attribute(matmulDesc: wwr_blaslt_matmul_desc, attr: wwr_blaslt_matmul_desc_attributes, buf: *mut core::ffi::c_void, sizeInBytes: usize, sizeWritten: *mut usize) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matmul_desc_set_attribute(matmulDesc: wwr_blaslt_matmul_desc, attr: wwr_blaslt_matmul_desc_attributes, buf: *const core::ffi::c_void, sizeInBytes: usize) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matmul_preference_create(pref: *mut wwr_blaslt_matmul_preference) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matmul_preference_destroy(pref: wwr_blaslt_matmul_preference) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matmul_preference_get_attribute(pref: wwr_blaslt_matmul_preference, attr: wwr_blaslt_matmul_preference_attributes, buf: *mut core::ffi::c_void, sizeInBytes: usize, sizeWritten: *mut usize) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matmul_preference_set_attribute(pref: wwr_blaslt_matmul_preference, attr: wwr_blaslt_matmul_preference_attributes, buf: *const core::ffi::c_void, sizeInBytes: usize) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matrix_layout_create(matLayout: *mut wwr_blaslt_matrix_layout, r#type: i32, rows: u64, cols: u64, ld: i64) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matrix_layout_destroy(matLayout: wwr_blaslt_matrix_layout) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matrix_layout_get_attribute(matLayout: wwr_blaslt_matrix_layout, attr: wwr_blaslt_matrix_layout_attribute, buf: *mut core::ffi::c_void, sizeInBytes: usize, sizeWritten: *mut usize) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matrix_layout_set_attribute(matLayout: wwr_blaslt_matrix_layout, attr: wwr_blaslt_matrix_layout_attribute, buf: *const core::ffi::c_void, sizeInBytes: usize) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matrix_transform(lightHandle: wwr_blaslt_handle, transformDesc: wwr_blaslt_matrix_transform_desc, alpha: *const core::ffi::c_void, A: *const core::ffi::c_void, Adesc: wwr_blaslt_matrix_layout, beta: *const core::ffi::c_void, B: *const core::ffi::c_void, Bdesc: wwr_blaslt_matrix_layout, C: *mut core::ffi::c_void, Cdesc: wwr_blaslt_matrix_layout, stream: wwr_stream) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matrix_transform_desc_create(transformDesc: *mut wwr_blaslt_matrix_transform_desc, scaleType: i32) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matrix_transform_desc_destroy(transformDesc: wwr_blaslt_matrix_transform_desc) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matrix_transform_desc_get_attribute(transformDesc: wwr_blaslt_matrix_transform_desc, attr: wwr_blaslt_matrix_transform_desc_attributes, buf: *mut core::ffi::c_void, sizeInBytes: usize, sizeWritten: *mut usize) -> wwr_blaslt_status;
+    pub fn wwr_blaslt_matrix_transform_desc_set_attribute(transformDesc: wwr_blaslt_matrix_transform_desc, attr: wwr_blaslt_matrix_transform_desc_attributes, buf: *const core::ffi::c_void, sizeInBytes: usize) -> wwr_blaslt_status;
+    pub fn wwr_solver_dn_c_cgels(handle: wwr_solver_handle, m: i32, n: i32, nrhs: i32, dA: *mut wwr_complex64, ldda: i32, dB: *mut wwr_complex64, lddb: i32, dX: *mut wwr_complex64, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: usize, iter: *mut i32, d_info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_c_cgels_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, nrhs: i32, dA: *mut wwr_complex64, ldda: i32, dB: *mut wwr_complex64, lddb: i32, dX: *mut wwr_complex64, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_c_cgesv(handle: wwr_solver_handle, n: i32, nrhs: i32, dA: *mut wwr_complex64, ldda: i32, dipiv: *mut i32, dB: *mut wwr_complex64, lddb: i32, dX: *mut wwr_complex64, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: usize, iter: *mut i32, d_info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_c_cgesv_buffer_size(handle: wwr_solver_handle, n: i32, nrhs: i32, dA: *mut wwr_complex64, ldda: i32, dipiv: *mut i32, dB: *mut wwr_complex64, lddb: i32, dX: *mut wwr_complex64, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgebrd(handle: wwr_solver_handle, m: i32, n: i32, A: *mut wwr_complex64, lda: i32, D: *mut f32, E: *mut f32, TAUQ: *mut wwr_complex64, TAUP: *mut wwr_complex64, Work: *mut wwr_complex64, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgebrd_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgeqrf(handle: wwr_solver_handle, m: i32, n: i32, A: *mut wwr_complex64, lda: i32, TAU: *mut wwr_complex64, Workspace: *mut wwr_complex64, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgeqrf_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, A: *mut wwr_complex64, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgesvd(handle: wwr_solver_handle, jobu: i8, jobvt: i8, m: i32, n: i32, A: *mut wwr_complex64, lda: i32, S: *mut f32, U: *mut wwr_complex64, ldu: i32, VT: *mut wwr_complex64, ldvt: i32, work: *mut wwr_complex64, lwork: i32, rwork: *mut f32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgesvd_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgesvda_strided_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, rank: i32, m: i32, n: i32, d_A: *const wwr_complex64, lda: i32, strideA: core::ffi::c_longlong, d_S: *mut f32, strideS: core::ffi::c_longlong, d_U: *mut wwr_complex64, ldu: i32, strideU: core::ffi::c_longlong, d_V: *mut wwr_complex64, ldv: i32, strideV: core::ffi::c_longlong, d_work: *mut wwr_complex64, lwork: i32, d_info: *mut i32, h_R_nrmF: *mut f64, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgesvda_strided_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, rank: i32, m: i32, n: i32, d_A: *const wwr_complex64, lda: i32, strideA: core::ffi::c_longlong, d_S: *const f32, strideS: core::ffi::c_longlong, d_U: *const wwr_complex64, ldu: i32, strideU: core::ffi::c_longlong, d_V: *const wwr_complex64, ldv: i32, strideV: core::ffi::c_longlong, lwork: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgesvdj(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, econ: i32, m: i32, n: i32, A: *mut wwr_complex64, lda: i32, S: *mut f32, U: *mut wwr_complex64, ldu: i32, V: *mut wwr_complex64, ldv: i32, work: *mut wwr_complex64, lwork: i32, info: *mut i32, params: wwr_solver_gesvdj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgesvdj_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, m: i32, n: i32, A: *mut wwr_complex64, lda: i32, S: *mut f32, U: *mut wwr_complex64, ldu: i32, V: *mut wwr_complex64, ldv: i32, work: *mut wwr_complex64, lwork: i32, info: *mut i32, params: wwr_solver_gesvdj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgesvdj_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, m: i32, n: i32, A: *const wwr_complex64, lda: i32, S: *const f32, U: *const wwr_complex64, ldu: i32, V: *const wwr_complex64, ldv: i32, lwork: *mut i32, params: wwr_solver_gesvdj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgesvdj_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, econ: i32, m: i32, n: i32, A: *const wwr_complex64, lda: i32, S: *const f32, U: *const wwr_complex64, ldu: i32, V: *const wwr_complex64, ldv: i32, lwork: *mut i32, params: wwr_solver_gesvdj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgetrf(handle: wwr_solver_handle, m: i32, n: i32, A: *mut wwr_complex64, lda: i32, Workspace: *mut wwr_complex64, devIpiv: *mut i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgetrf_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, A: *mut wwr_complex64, lda: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cgetrs(handle: wwr_solver_handle, trans: wwr_solver_operation, n: i32, nrhs: i32, A: *const wwr_complex64, lda: i32, devIpiv: *const i32, B: *mut wwr_complex64, ldb: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cheevd(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, W: *mut f32, work: *mut wwr_complex64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cheevd_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex64, lda: i32, W: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cheevdx(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, vl: f32, vu: f32, il: i32, iu: i32, meig: *mut i32, W: *mut f32, work: *mut wwr_complex64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cheevdx_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex64, lda: i32, vl: f32, vu: f32, il: i32, iu: i32, meig: *mut i32, W: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cheevj(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, W: *mut f32, work: *mut wwr_complex64, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cheevj_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, W: *mut f32, work: *mut wwr_complex64, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cheevj_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex64, lda: i32, W: *const f32, lwork: *mut i32, params: wwr_solver_syevj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cheevj_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex64, lda: i32, W: *const f32, lwork: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_chegvd(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, B: *mut wwr_complex64, ldb: i32, W: *mut f32, work: *mut wwr_complex64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_chegvd_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex64, lda: i32, B: *const wwr_complex64, ldb: i32, W: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_chegvdx(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, B: *mut wwr_complex64, ldb: i32, vl: f32, vu: f32, il: i32, iu: i32, meig: *mut i32, W: *mut f32, work: *mut wwr_complex64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_chegvdx_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex64, lda: i32, B: *const wwr_complex64, ldb: i32, vl: f32, vu: f32, il: i32, iu: i32, meig: *mut i32, W: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_chegvj(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, B: *mut wwr_complex64, ldb: i32, W: *mut f32, work: *mut wwr_complex64, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_chegvj_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex64, lda: i32, B: *const wwr_complex64, ldb: i32, W: *const f32, lwork: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_chetrd(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, d: *mut f32, e: *mut f32, tau: *mut wwr_complex64, work: *mut wwr_complex64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_chetrd_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex64, lda: i32, d: *const f32, e: *const f32, tau: *const wwr_complex64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cpotrf(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, Workspace: *mut wwr_complex64, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cpotrf_batched(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, Aarray: *mut *mut wwr_complex64, lda: i32, infoArray: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cpotrf_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cpotri(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, work: *mut wwr_complex64, lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cpotri_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cpotrs(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, nrhs: i32, A: *const wwr_complex64, lda: i32, B: *mut wwr_complex64, ldb: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cpotrs_batched(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, nrhs: i32, A: *mut *mut wwr_complex64, lda: i32, B: *mut *mut wwr_complex64, ldb: i32, d_info: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_create(handle: *mut wwr_solver_handle) -> wwr_solver_status;
+    pub fn wwr_solver_dn_create_gesvdj_info(info: *mut wwr_solver_gesvdj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_create_params(params: *mut wwr_solver_params) -> wwr_solver_status;
+    pub fn wwr_solver_dn_create_syevj_info(info: *mut wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_csytrf(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, ipiv: *mut i32, work: *mut wwr_complex64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_csytrf_buffer_size(handle: wwr_solver_handle, n: i32, A: *mut wwr_complex64, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cungbr(handle: wwr_solver_handle, side: wwr_solver_side_mode, m: i32, n: i32, k: i32, A: *mut wwr_complex64, lda: i32, tau: *const wwr_complex64, work: *mut wwr_complex64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cungbr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, m: i32, n: i32, k: i32, A: *const wwr_complex64, lda: i32, tau: *const wwr_complex64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cungqr(handle: wwr_solver_handle, m: i32, n: i32, k: i32, A: *mut wwr_complex64, lda: i32, tau: *const wwr_complex64, work: *mut wwr_complex64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cungqr_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, k: i32, A: *const wwr_complex64, lda: i32, tau: *const wwr_complex64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cungtr(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex64, lda: i32, tau: *const wwr_complex64, work: *mut wwr_complex64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cungtr_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex64, lda: i32, tau: *const wwr_complex64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cunmqr(handle: wwr_solver_handle, side: wwr_solver_side_mode, trans: wwr_solver_operation, m: i32, n: i32, k: i32, A: *const wwr_complex64, lda: i32, tau: *const wwr_complex64, C: *mut wwr_complex64, ldc: i32, work: *mut wwr_complex64, lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cunmqr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, trans: wwr_solver_operation, m: i32, n: i32, k: i32, A: *const wwr_complex64, lda: i32, tau: *const wwr_complex64, C: *const wwr_complex64, ldc: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cunmtr(handle: wwr_solver_handle, side: wwr_solver_side_mode, uplo: wwr_solver_fill_mode, trans: wwr_solver_operation, m: i32, n: i32, A: *mut wwr_complex64, lda: i32, tau: *mut wwr_complex64, C: *mut wwr_complex64, ldc: i32, work: *mut wwr_complex64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_cunmtr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, uplo: wwr_solver_fill_mode, trans: wwr_solver_operation, m: i32, n: i32, A: *const wwr_complex64, lda: i32, tau: *const wwr_complex64, C: *const wwr_complex64, ldc: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_d_dgels(handle: wwr_solver_handle, m: i32, n: i32, nrhs: i32, dA: *mut f64, ldda: i32, dB: *mut f64, lddb: i32, dX: *mut f64, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: usize, iter: *mut i32, d_info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_d_dgels_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, nrhs: i32, dA: *mut f64, ldda: i32, dB: *mut f64, lddb: i32, dX: *mut f64, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_d_dgesv(handle: wwr_solver_handle, n: i32, nrhs: i32, dA: *mut f64, ldda: i32, dipiv: *mut i32, dB: *mut f64, lddb: i32, dX: *mut f64, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: usize, iter: *mut i32, d_info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_d_dgesv_buffer_size(handle: wwr_solver_handle, n: i32, nrhs: i32, dA: *mut f64, ldda: i32, dipiv: *mut i32, dB: *mut f64, lddb: i32, dX: *mut f64, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_destroy(handle: wwr_solver_handle) -> wwr_solver_status;
+    pub fn wwr_solver_dn_destroy_gesvdj_info(info: wwr_solver_gesvdj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_destroy_params(params: wwr_solver_params) -> wwr_solver_status;
+    pub fn wwr_solver_dn_destroy_syevj_info(info: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgebrd(handle: wwr_solver_handle, m: i32, n: i32, A: *mut f64, lda: i32, D: *mut f64, E: *mut f64, TAUQ: *mut f64, TAUP: *mut f64, Work: *mut f64, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgebrd_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgeqrf(handle: wwr_solver_handle, m: i32, n: i32, A: *mut f64, lda: i32, TAU: *mut f64, Workspace: *mut f64, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgeqrf_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, A: *mut f64, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgesvd(handle: wwr_solver_handle, jobu: i8, jobvt: i8, m: i32, n: i32, A: *mut f64, lda: i32, S: *mut f64, U: *mut f64, ldu: i32, VT: *mut f64, ldvt: i32, work: *mut f64, lwork: i32, rwork: *mut f64, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgesvd_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgesvda_strided_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, rank: i32, m: i32, n: i32, d_A: *const f64, lda: i32, strideA: core::ffi::c_longlong, d_S: *mut f64, strideS: core::ffi::c_longlong, d_U: *mut f64, ldu: i32, strideU: core::ffi::c_longlong, d_V: *mut f64, ldv: i32, strideV: core::ffi::c_longlong, d_work: *mut f64, lwork: i32, d_info: *mut i32, h_R_nrmF: *mut f64, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgesvda_strided_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, rank: i32, m: i32, n: i32, d_A: *const f64, lda: i32, strideA: core::ffi::c_longlong, d_S: *const f64, strideS: core::ffi::c_longlong, d_U: *const f64, ldu: i32, strideU: core::ffi::c_longlong, d_V: *const f64, ldv: i32, strideV: core::ffi::c_longlong, lwork: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgesvdj(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, econ: i32, m: i32, n: i32, A: *mut f64, lda: i32, S: *mut f64, U: *mut f64, ldu: i32, V: *mut f64, ldv: i32, work: *mut f64, lwork: i32, info: *mut i32, params: wwr_solver_gesvdj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgesvdj_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, m: i32, n: i32, A: *mut f64, lda: i32, S: *mut f64, U: *mut f64, ldu: i32, V: *mut f64, ldv: i32, work: *mut f64, lwork: i32, info: *mut i32, params: wwr_solver_gesvdj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgesvdj_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, m: i32, n: i32, A: *const f64, lda: i32, S: *const f64, U: *const f64, ldu: i32, V: *const f64, ldv: i32, lwork: *mut i32, params: wwr_solver_gesvdj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgesvdj_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, econ: i32, m: i32, n: i32, A: *const f64, lda: i32, S: *const f64, U: *const f64, ldu: i32, V: *const f64, ldv: i32, lwork: *mut i32, params: wwr_solver_gesvdj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgetrf(handle: wwr_solver_handle, m: i32, n: i32, A: *mut f64, lda: i32, Workspace: *mut f64, devIpiv: *mut i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgetrf_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, A: *mut f64, lda: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dgetrs(handle: wwr_solver_handle, trans: wwr_solver_operation, n: i32, nrhs: i32, A: *const f64, lda: i32, devIpiv: *const i32, B: *mut f64, ldb: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dorgbr(handle: wwr_solver_handle, side: wwr_solver_side_mode, m: i32, n: i32, k: i32, A: *mut f64, lda: i32, tau: *const f64, work: *mut f64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dorgbr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, m: i32, n: i32, k: i32, A: *const f64, lda: i32, tau: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dorgqr(handle: wwr_solver_handle, m: i32, n: i32, k: i32, A: *mut f64, lda: i32, tau: *const f64, work: *mut f64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dorgqr_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, k: i32, A: *const f64, lda: i32, tau: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dorgtr(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, tau: *const f64, work: *mut f64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dorgtr_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *const f64, lda: i32, tau: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dormqr(handle: wwr_solver_handle, side: wwr_solver_side_mode, trans: wwr_solver_operation, m: i32, n: i32, k: i32, A: *const f64, lda: i32, tau: *const f64, C: *mut f64, ldc: i32, work: *mut f64, lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dormqr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, trans: wwr_solver_operation, m: i32, n: i32, k: i32, A: *const f64, lda: i32, tau: *const f64, C: *const f64, ldc: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dormtr(handle: wwr_solver_handle, side: wwr_solver_side_mode, uplo: wwr_solver_fill_mode, trans: wwr_solver_operation, m: i32, n: i32, A: *mut f64, lda: i32, tau: *mut f64, C: *mut f64, ldc: i32, work: *mut f64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dormtr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, uplo: wwr_solver_fill_mode, trans: wwr_solver_operation, m: i32, n: i32, A: *const f64, lda: i32, tau: *const f64, C: *const f64, ldc: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dpotrf(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, Workspace: *mut f64, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dpotrf_batched(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, Aarray: *mut *mut f64, lda: i32, infoArray: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dpotrf_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dpotri(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, work: *mut f64, lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dpotri_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dpotrs(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, nrhs: i32, A: *const f64, lda: i32, B: *mut f64, ldb: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dpotrs_batched(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, nrhs: i32, A: *mut *mut f64, lda: i32, B: *mut *mut f64, ldb: i32, d_info: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsyevd(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, W: *mut f64, work: *mut f64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsyevd_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const f64, lda: i32, W: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsyevdx(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, vl: f64, vu: f64, il: i32, iu: i32, meig: *mut i32, W: *mut f64, work: *mut f64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsyevdx_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *const f64, lda: i32, vl: f64, vu: f64, il: i32, iu: i32, meig: *mut i32, W: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsyevj(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, W: *mut f64, work: *mut f64, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsyevj_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, W: *mut f64, work: *mut f64, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsyevj_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const f64, lda: i32, W: *const f64, lwork: *mut i32, params: wwr_solver_syevj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsyevj_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const f64, lda: i32, W: *const f64, lwork: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsygvd(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, B: *mut f64, ldb: i32, W: *mut f64, work: *mut f64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsygvd_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const f64, lda: i32, B: *const f64, ldb: i32, W: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsygvdx(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, B: *mut f64, ldb: i32, vl: f64, vu: f64, il: i32, iu: i32, meig: *mut i32, W: *mut f64, work: *mut f64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsygvdx_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *const f64, lda: i32, B: *const f64, ldb: i32, vl: f64, vu: f64, il: i32, iu: i32, meig: *mut i32, W: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsygvj(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, B: *mut f64, ldb: i32, W: *mut f64, work: *mut f64, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsygvj_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const f64, lda: i32, B: *const f64, ldb: i32, W: *const f64, lwork: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsytrd(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, d: *mut f64, e: *mut f64, tau: *mut f64, work: *mut f64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsytrd_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *const f64, lda: i32, d: *const f64, e: *const f64, tau: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsytrf(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f64, lda: i32, ipiv: *mut i32, work: *mut f64, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_dsytrf_buffer_size(handle: wwr_solver_handle, n: i32, A: *mut f64, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_get_stream(handle: wwr_solver_handle, streamId: *mut wwr_stream) -> wwr_solver_status;
+    pub fn wwr_solver_dn_s_sgels(handle: wwr_solver_handle, m: i32, n: i32, nrhs: i32, dA: *mut f32, ldda: i32, dB: *mut f32, lddb: i32, dX: *mut f32, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: usize, iter: *mut i32, d_info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_s_sgels_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, nrhs: i32, dA: *mut f32, ldda: i32, dB: *mut f32, lddb: i32, dX: *mut f32, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_s_sgesv(handle: wwr_solver_handle, n: i32, nrhs: i32, dA: *mut f32, ldda: i32, dipiv: *mut i32, dB: *mut f32, lddb: i32, dX: *mut f32, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: usize, iter: *mut i32, d_info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_s_sgesv_buffer_size(handle: wwr_solver_handle, n: i32, nrhs: i32, dA: *mut f32, ldda: i32, dipiv: *mut i32, dB: *mut f32, lddb: i32, dX: *mut f32, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_set_stream(handle: wwr_solver_handle, streamId: wwr_stream) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgebrd(handle: wwr_solver_handle, m: i32, n: i32, A: *mut f32, lda: i32, D: *mut f32, E: *mut f32, TAUQ: *mut f32, TAUP: *mut f32, Work: *mut f32, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgebrd_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgeqrf(handle: wwr_solver_handle, m: i32, n: i32, A: *mut f32, lda: i32, TAU: *mut f32, Workspace: *mut f32, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgeqrf_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, A: *mut f32, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgesvd(handle: wwr_solver_handle, jobu: i8, jobvt: i8, m: i32, n: i32, A: *mut f32, lda: i32, S: *mut f32, U: *mut f32, ldu: i32, VT: *mut f32, ldvt: i32, work: *mut f32, lwork: i32, rwork: *mut f32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgesvd_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgesvda_strided_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, rank: i32, m: i32, n: i32, d_A: *const f32, lda: i32, strideA: core::ffi::c_longlong, d_S: *mut f32, strideS: core::ffi::c_longlong, d_U: *mut f32, ldu: i32, strideU: core::ffi::c_longlong, d_V: *mut f32, ldv: i32, strideV: core::ffi::c_longlong, d_work: *mut f32, lwork: i32, d_info: *mut i32, h_R_nrmF: *mut f64, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgesvda_strided_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, rank: i32, m: i32, n: i32, d_A: *const f32, lda: i32, strideA: core::ffi::c_longlong, d_S: *const f32, strideS: core::ffi::c_longlong, d_U: *const f32, ldu: i32, strideU: core::ffi::c_longlong, d_V: *const f32, ldv: i32, strideV: core::ffi::c_longlong, lwork: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgesvdj(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, econ: i32, m: i32, n: i32, A: *mut f32, lda: i32, S: *mut f32, U: *mut f32, ldu: i32, V: *mut f32, ldv: i32, work: *mut f32, lwork: i32, info: *mut i32, params: wwr_solver_gesvdj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgesvdj_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, m: i32, n: i32, A: *mut f32, lda: i32, S: *mut f32, U: *mut f32, ldu: i32, V: *mut f32, ldv: i32, work: *mut f32, lwork: i32, info: *mut i32, params: wwr_solver_gesvdj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgesvdj_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, m: i32, n: i32, A: *const f32, lda: i32, S: *const f32, U: *const f32, ldu: i32, V: *const f32, ldv: i32, lwork: *mut i32, params: wwr_solver_gesvdj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgesvdj_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, econ: i32, m: i32, n: i32, A: *const f32, lda: i32, S: *const f32, U: *const f32, ldu: i32, V: *const f32, ldv: i32, lwork: *mut i32, params: wwr_solver_gesvdj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgetrf(handle: wwr_solver_handle, m: i32, n: i32, A: *mut f32, lda: i32, Workspace: *mut f32, devIpiv: *mut i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgetrf_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, A: *mut f32, lda: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sgetrs(handle: wwr_solver_handle, trans: wwr_solver_operation, n: i32, nrhs: i32, A: *const f32, lda: i32, devIpiv: *const i32, B: *mut f32, ldb: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sorgbr(handle: wwr_solver_handle, side: wwr_solver_side_mode, m: i32, n: i32, k: i32, A: *mut f32, lda: i32, tau: *const f32, work: *mut f32, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sorgbr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, m: i32, n: i32, k: i32, A: *const f32, lda: i32, tau: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sorgqr(handle: wwr_solver_handle, m: i32, n: i32, k: i32, A: *mut f32, lda: i32, tau: *const f32, work: *mut f32, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sorgqr_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, k: i32, A: *const f32, lda: i32, tau: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sorgtr(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, tau: *const f32, work: *mut f32, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sorgtr_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *const f32, lda: i32, tau: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sormqr(handle: wwr_solver_handle, side: wwr_solver_side_mode, trans: wwr_solver_operation, m: i32, n: i32, k: i32, A: *const f32, lda: i32, tau: *const f32, C: *mut f32, ldc: i32, work: *mut f32, lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sormqr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, trans: wwr_solver_operation, m: i32, n: i32, k: i32, A: *const f32, lda: i32, tau: *const f32, C: *const f32, ldc: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sormtr(handle: wwr_solver_handle, side: wwr_solver_side_mode, uplo: wwr_solver_fill_mode, trans: wwr_solver_operation, m: i32, n: i32, A: *mut f32, lda: i32, tau: *mut f32, C: *mut f32, ldc: i32, work: *mut f32, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_sormtr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, uplo: wwr_solver_fill_mode, trans: wwr_solver_operation, m: i32, n: i32, A: *const f32, lda: i32, tau: *const f32, C: *const f32, ldc: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_spotrf(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, Workspace: *mut f32, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_spotrf_batched(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, Aarray: *mut *mut f32, lda: i32, infoArray: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_spotrf_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_spotri(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, work: *mut f32, lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_spotri_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_spotrs(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, nrhs: i32, A: *const f32, lda: i32, B: *mut f32, ldb: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_spotrs_batched(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, nrhs: i32, A: *mut *mut f32, lda: i32, B: *mut *mut f32, ldb: i32, d_info: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssyevd(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, W: *mut f32, work: *mut f32, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssyevd_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const f32, lda: i32, W: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssyevdx(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, vl: f32, vu: f32, il: i32, iu: i32, meig: *mut i32, W: *mut f32, work: *mut f32, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssyevdx_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *const f32, lda: i32, vl: f32, vu: f32, il: i32, iu: i32, meig: *mut i32, W: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssyevj(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, W: *mut f32, work: *mut f32, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssyevj_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, W: *mut f32, work: *mut f32, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssyevj_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const f32, lda: i32, W: *const f32, lwork: *mut i32, params: wwr_solver_syevj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssyevj_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const f32, lda: i32, W: *const f32, lwork: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssygvd(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, B: *mut f32, ldb: i32, W: *mut f32, work: *mut f32, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssygvd_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const f32, lda: i32, B: *const f32, ldb: i32, W: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssygvdx(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, B: *mut f32, ldb: i32, vl: f32, vu: f32, il: i32, iu: i32, meig: *mut i32, W: *mut f32, work: *mut f32, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssygvdx_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *const f32, lda: i32, B: *const f32, ldb: i32, vl: f32, vu: f32, il: i32, iu: i32, meig: *mut i32, W: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssygvj(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, B: *mut f32, ldb: i32, W: *mut f32, work: *mut f32, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssygvj_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const f32, lda: i32, B: *const f32, ldb: i32, W: *const f32, lwork: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssytrd(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, d: *mut f32, e: *mut f32, tau: *mut f32, work: *mut f32, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssytrd_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *const f32, lda: i32, d: *const f32, e: *const f32, tau: *const f32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssytrf(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut f32, lda: i32, ipiv: *mut i32, work: *mut f32, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_ssytrf_buffer_size(handle: wwr_solver_handle, n: i32, A: *mut f32, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_xgeqrf(handle: wwr_solver_handle, params: wwr_solver_params, m: i64, n: i64, dataTypeA: i32, A: *mut core::ffi::c_void, lda: i64, dataTypeTau: i32, tau: *mut core::ffi::c_void, computeType: i32, bufferOnDevice: *mut core::ffi::c_void, workspaceInBytesOnDevice: usize, bufferOnHost: *mut core::ffi::c_void, workspaceInBytesOnHost: usize, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_xgeqrf_buffer_size(handle: wwr_solver_handle, params: wwr_solver_params, m: i64, n: i64, dataTypeA: i32, A: *const core::ffi::c_void, lda: i64, dataTypeTau: i32, tau: *const core::ffi::c_void, computeType: i32, workspaceInBytesOnDevice: *mut usize, workspaceInBytesOnHost: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_xgetrf(handle: wwr_solver_handle, params: wwr_solver_params, m: i64, n: i64, dataTypeA: i32, A: *mut core::ffi::c_void, lda: i64, ipiv: *mut i64, computeType: i32, bufferOnDevice: *mut core::ffi::c_void, workspaceInBytesOnDevice: usize, bufferOnHost: *mut core::ffi::c_void, workspaceInBytesOnHost: usize, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_xgetrf_buffer_size(handle: wwr_solver_handle, params: wwr_solver_params, m: i64, n: i64, dataTypeA: i32, A: *const core::ffi::c_void, lda: i64, computeType: i32, workspaceInBytesOnDevice: *mut usize, workspaceInBytesOnHost: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_xgetrs(handle: wwr_solver_handle, params: wwr_solver_params, trans: wwr_solver_operation, n: i64, nrhs: i64, dataTypeA: i32, A: *const core::ffi::c_void, lda: i64, ipiv: *const i64, dataTypeB: i32, B: *mut core::ffi::c_void, ldb: i64, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_xpotrf(handle: wwr_solver_handle, params: wwr_solver_params, uplo: wwr_solver_fill_mode, n: i64, dataTypeA: i32, A: *mut core::ffi::c_void, lda: i64, computeType: i32, bufferOnDevice: *mut core::ffi::c_void, workspaceInBytesOnDevice: usize, bufferOnHost: *mut core::ffi::c_void, workspaceInBytesOnHost: usize, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_xpotrf_buffer_size(handle: wwr_solver_handle, params: wwr_solver_params, uplo: wwr_solver_fill_mode, n: i64, dataTypeA: i32, A: *const core::ffi::c_void, lda: i64, computeType: i32, workspaceInBytesOnDevice: *mut usize, workspaceInBytesOnHost: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_xpotrs(handle: wwr_solver_handle, params: wwr_solver_params, uplo: wwr_solver_fill_mode, n: i64, nrhs: i64, dataTypeA: i32, A: *const core::ffi::c_void, lda: i64, dataTypeB: i32, B: *mut core::ffi::c_void, ldb: i64, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_z_zgels(handle: wwr_solver_handle, m: i32, n: i32, nrhs: i32, dA: *mut wwr_complex128, ldda: i32, dB: *mut wwr_complex128, lddb: i32, dX: *mut wwr_complex128, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: usize, iter: *mut i32, d_info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_z_zgels_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, nrhs: i32, dA: *mut wwr_complex128, ldda: i32, dB: *mut wwr_complex128, lddb: i32, dX: *mut wwr_complex128, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_z_zgesv(handle: wwr_solver_handle, n: i32, nrhs: i32, dA: *mut wwr_complex128, ldda: i32, dipiv: *mut i32, dB: *mut wwr_complex128, lddb: i32, dX: *mut wwr_complex128, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: usize, iter: *mut i32, d_info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_z_zgesv_buffer_size(handle: wwr_solver_handle, n: i32, nrhs: i32, dA: *mut wwr_complex128, ldda: i32, dipiv: *mut i32, dB: *mut wwr_complex128, lddb: i32, dX: *mut wwr_complex128, lddx: i32, dWorkspace: *mut core::ffi::c_void, lwork_bytes: *mut usize) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgebrd(handle: wwr_solver_handle, m: i32, n: i32, A: *mut wwr_complex128, lda: i32, D: *mut f64, E: *mut f64, TAUQ: *mut wwr_complex128, TAUP: *mut wwr_complex128, Work: *mut wwr_complex128, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgebrd_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgeqrf(handle: wwr_solver_handle, m: i32, n: i32, A: *mut wwr_complex128, lda: i32, TAU: *mut wwr_complex128, Workspace: *mut wwr_complex128, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgeqrf_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, A: *mut wwr_complex128, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgesvd(handle: wwr_solver_handle, jobu: i8, jobvt: i8, m: i32, n: i32, A: *mut wwr_complex128, lda: i32, S: *mut f64, U: *mut wwr_complex128, ldu: i32, VT: *mut wwr_complex128, ldvt: i32, work: *mut wwr_complex128, lwork: i32, rwork: *mut f64, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgesvd_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgesvda_strided_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, rank: i32, m: i32, n: i32, d_A: *const wwr_complex128, lda: i32, strideA: core::ffi::c_longlong, d_S: *mut f64, strideS: core::ffi::c_longlong, d_U: *mut wwr_complex128, ldu: i32, strideU: core::ffi::c_longlong, d_V: *mut wwr_complex128, ldv: i32, strideV: core::ffi::c_longlong, d_work: *mut wwr_complex128, lwork: i32, d_info: *mut i32, h_R_nrmF: *mut f64, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgesvda_strided_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, rank: i32, m: i32, n: i32, d_A: *const wwr_complex128, lda: i32, strideA: core::ffi::c_longlong, d_S: *const f64, strideS: core::ffi::c_longlong, d_U: *const wwr_complex128, ldu: i32, strideU: core::ffi::c_longlong, d_V: *const wwr_complex128, ldv: i32, strideV: core::ffi::c_longlong, lwork: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgesvdj(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, econ: i32, m: i32, n: i32, A: *mut wwr_complex128, lda: i32, S: *mut f64, U: *mut wwr_complex128, ldu: i32, V: *mut wwr_complex128, ldv: i32, work: *mut wwr_complex128, lwork: i32, info: *mut i32, params: wwr_solver_gesvdj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgesvdj_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, m: i32, n: i32, A: *mut wwr_complex128, lda: i32, S: *mut f64, U: *mut wwr_complex128, ldu: i32, V: *mut wwr_complex128, ldv: i32, work: *mut wwr_complex128, lwork: i32, info: *mut i32, params: wwr_solver_gesvdj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgesvdj_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, m: i32, n: i32, A: *const wwr_complex128, lda: i32, S: *const f64, U: *const wwr_complex128, ldu: i32, V: *const wwr_complex128, ldv: i32, lwork: *mut i32, params: wwr_solver_gesvdj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgesvdj_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, econ: i32, m: i32, n: i32, A: *const wwr_complex128, lda: i32, S: *const f64, U: *const wwr_complex128, ldu: i32, V: *const wwr_complex128, ldv: i32, lwork: *mut i32, params: wwr_solver_gesvdj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgetrf(handle: wwr_solver_handle, m: i32, n: i32, A: *mut wwr_complex128, lda: i32, Workspace: *mut wwr_complex128, devIpiv: *mut i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgetrf_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, A: *mut wwr_complex128, lda: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zgetrs(handle: wwr_solver_handle, trans: wwr_solver_operation, n: i32, nrhs: i32, A: *const wwr_complex128, lda: i32, devIpiv: *const i32, B: *mut wwr_complex128, ldb: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zheevd(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, W: *mut f64, work: *mut wwr_complex128, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zheevd_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex128, lda: i32, W: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zheevdx(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, vl: f64, vu: f64, il: i32, iu: i32, meig: *mut i32, W: *mut f64, work: *mut wwr_complex128, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zheevdx_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex128, lda: i32, vl: f64, vu: f64, il: i32, iu: i32, meig: *mut i32, W: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zheevj(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, W: *mut f64, work: *mut wwr_complex128, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zheevj_batched(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, W: *mut f64, work: *mut wwr_complex128, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zheevj_batched_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex128, lda: i32, W: *const f64, lwork: *mut i32, params: wwr_solver_syevj_info, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zheevj_buffer_size(handle: wwr_solver_handle, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex128, lda: i32, W: *const f64, lwork: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zhegvd(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, B: *mut wwr_complex128, ldb: i32, W: *mut f64, work: *mut wwr_complex128, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zhegvd_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex128, lda: i32, B: *const wwr_complex128, ldb: i32, W: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zhegvdx(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, B: *mut wwr_complex128, ldb: i32, vl: f64, vu: f64, il: i32, iu: i32, meig: *mut i32, W: *mut f64, work: *mut wwr_complex128, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zhegvdx_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, range: wwr_solver_eig_range, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex128, lda: i32, B: *const wwr_complex128, ldb: i32, vl: f64, vu: f64, il: i32, iu: i32, meig: *mut i32, W: *const f64, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zhegvj(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, B: *mut wwr_complex128, ldb: i32, W: *mut f64, work: *mut wwr_complex128, lwork: i32, info: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zhegvj_buffer_size(handle: wwr_solver_handle, itype: wwr_solver_eig_type, jobz: wwr_solver_eig_mode, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex128, lda: i32, B: *const wwr_complex128, ldb: i32, W: *const f64, lwork: *mut i32, params: wwr_solver_syevj_info) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zhetrd(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, d: *mut f64, e: *mut f64, tau: *mut wwr_complex128, work: *mut wwr_complex128, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zhetrd_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex128, lda: i32, d: *const f64, e: *const f64, tau: *const wwr_complex128, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zpotrf(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, Workspace: *mut wwr_complex128, Lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zpotrf_batched(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, Aarray: *mut *mut wwr_complex128, lda: i32, infoArray: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zpotrf_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, Lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zpotri(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, work: *mut wwr_complex128, lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zpotri_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zpotrs(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, nrhs: i32, A: *const wwr_complex128, lda: i32, B: *mut wwr_complex128, ldb: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zpotrs_batched(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, nrhs: i32, A: *mut *mut wwr_complex128, lda: i32, B: *mut *mut wwr_complex128, ldb: i32, d_info: *mut i32, batchSize: i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zsytrf(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, ipiv: *mut i32, work: *mut wwr_complex128, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zsytrf_buffer_size(handle: wwr_solver_handle, n: i32, A: *mut wwr_complex128, lda: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zungbr(handle: wwr_solver_handle, side: wwr_solver_side_mode, m: i32, n: i32, k: i32, A: *mut wwr_complex128, lda: i32, tau: *const wwr_complex128, work: *mut wwr_complex128, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zungbr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, m: i32, n: i32, k: i32, A: *const wwr_complex128, lda: i32, tau: *const wwr_complex128, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zungqr(handle: wwr_solver_handle, m: i32, n: i32, k: i32, A: *mut wwr_complex128, lda: i32, tau: *const wwr_complex128, work: *mut wwr_complex128, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zungqr_buffer_size(handle: wwr_solver_handle, m: i32, n: i32, k: i32, A: *const wwr_complex128, lda: i32, tau: *const wwr_complex128, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zungtr(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *mut wwr_complex128, lda: i32, tau: *const wwr_complex128, work: *mut wwr_complex128, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zungtr_buffer_size(handle: wwr_solver_handle, uplo: wwr_solver_fill_mode, n: i32, A: *const wwr_complex128, lda: i32, tau: *const wwr_complex128, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zunmqr(handle: wwr_solver_handle, side: wwr_solver_side_mode, trans: wwr_solver_operation, m: i32, n: i32, k: i32, A: *const wwr_complex128, lda: i32, tau: *const wwr_complex128, C: *mut wwr_complex128, ldc: i32, work: *mut wwr_complex128, lwork: i32, devInfo: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zunmqr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, trans: wwr_solver_operation, m: i32, n: i32, k: i32, A: *const wwr_complex128, lda: i32, tau: *const wwr_complex128, C: *const wwr_complex128, ldc: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zunmtr(handle: wwr_solver_handle, side: wwr_solver_side_mode, uplo: wwr_solver_fill_mode, trans: wwr_solver_operation, m: i32, n: i32, A: *mut wwr_complex128, lda: i32, tau: *mut wwr_complex128, C: *mut wwr_complex128, ldc: i32, work: *mut wwr_complex128, lwork: i32, info: *mut i32) -> wwr_solver_status;
+    pub fn wwr_solver_dn_zunmtr_buffer_size(handle: wwr_solver_handle, side: wwr_solver_side_mode, uplo: wwr_solver_fill_mode, trans: wwr_solver_operation, m: i32, n: i32, A: *const wwr_complex128, lda: i32, tau: *const wwr_complex128, C: *const wwr_complex128, ldc: i32, lwork: *mut i32) -> wwr_solver_status;
+    pub fn wwr_rand_create_generator(generator: *mut wwr_rand_generator, rng_type: wwr_rand_rng_type) -> wwr_rand_status;
+    pub fn wwr_rand_create_generator_host(generator: *mut wwr_rand_generator, rng_type: wwr_rand_rng_type) -> wwr_rand_status;
+    pub fn wwr_rand_create_poisson_distribution(lambda: f64, discrete_distribution: *mut wwr_rand_discrete_distribution) -> wwr_rand_status;
+    pub fn wwr_rand_destroy_distribution(discrete_distribution: wwr_rand_discrete_distribution) -> wwr_rand_status;
+    pub fn wwr_rand_destroy_generator(generator: wwr_rand_generator) -> wwr_rand_status;
+    pub fn wwr_rand_generate(generator: wwr_rand_generator, outputPtr: *mut u32, num: usize) -> wwr_rand_status;
+    pub fn wwr_rand_generate_log_normal(generator: wwr_rand_generator, outputPtr: *mut f32, n: usize, mean: f32, stddev: f32) -> wwr_rand_status;
+    pub fn wwr_rand_generate_log_normal_double(generator: wwr_rand_generator, outputPtr: *mut f64, n: usize, mean: f64, stddev: f64) -> wwr_rand_status;
+    pub fn wwr_rand_generate_long_long(generator: wwr_rand_generator, outputPtr: *mut core::ffi::c_ulonglong, num: usize) -> wwr_rand_status;
+    pub fn wwr_rand_generate_normal(generator: wwr_rand_generator, outputPtr: *mut f32, n: usize, mean: f32, stddev: f32) -> wwr_rand_status;
+    pub fn wwr_rand_generate_normal_double(generator: wwr_rand_generator, outputPtr: *mut f64, n: usize, mean: f64, stddev: f64) -> wwr_rand_status;
+    pub fn wwr_rand_generate_poisson(generator: wwr_rand_generator, outputPtr: *mut u32, n: usize, lambda: f64) -> wwr_rand_status;
+    pub fn wwr_rand_generate_seeds(generator: wwr_rand_generator) -> wwr_rand_status;
+    pub fn wwr_rand_generate_uniform(generator: wwr_rand_generator, outputPtr: *mut f32, num: usize) -> wwr_rand_status;
+    pub fn wwr_rand_generate_uniform_double(generator: wwr_rand_generator, outputPtr: *mut f64, num: usize) -> wwr_rand_status;
+    pub fn wwr_rand_get_direction_vectors32(vectors: *mut core::ffi::c_void, set: wwr_rand_direction_vector_set) -> wwr_rand_status;
+    pub fn wwr_rand_get_direction_vectors64(vectors: *mut core::ffi::c_void, set: wwr_rand_direction_vector_set) -> wwr_rand_status;
+    pub fn wwr_rand_get_scramble_constants32(constants: *mut *mut u32) -> wwr_rand_status;
+    pub fn wwr_rand_get_scramble_constants64(constants: *mut *mut core::ffi::c_ulonglong) -> wwr_rand_status;
+    pub fn wwr_rand_get_version(version: *mut i32) -> wwr_rand_status;
+    pub fn wwr_rand_set_generator_offset(generator: wwr_rand_generator, offset: core::ffi::c_ulonglong) -> wwr_rand_status;
+    pub fn wwr_rand_set_generator_ordering(generator: wwr_rand_generator, order: wwr_rand_ordering) -> wwr_rand_status;
+    pub fn wwr_rand_set_pseudo_random_generator_seed(generator: wwr_rand_generator, seed: core::ffi::c_ulonglong) -> wwr_rand_status;
+    pub fn wwr_rand_set_quasi_random_generator_dimensions(generator: wwr_rand_generator, num_dimensions: u32) -> wwr_rand_status;
+    pub fn wwr_rand_set_stream(generator: wwr_rand_generator, stream: wwr_stream) -> wwr_rand_status;
+    pub fn wwr_rtc_add_name_expression(prog: wwr_rtc_program, name_expression: *const core::ffi::c_char) -> wwr_rtc_result;
+    pub fn wwr_rtc_compile_program(prog: wwr_rtc_program, numOptions: i32, options: *const *const core::ffi::c_char) -> wwr_rtc_result;
+    pub fn wwr_rtc_create_program(prog: *mut wwr_rtc_program, src: *const core::ffi::c_char, name: *const core::ffi::c_char, numHeaders: i32, headers: *const *const core::ffi::c_char, includeNames: *const *const core::ffi::c_char) -> wwr_rtc_result;
+    pub fn wwr_rtc_destroy_program(prog: *mut wwr_rtc_program) -> wwr_rtc_result;
+    pub fn wwr_rtc_get_code(prog: wwr_rtc_program, ptx: *mut core::ffi::c_char) -> wwr_rtc_result;
+    pub fn wwr_rtc_get_code_size(prog: wwr_rtc_program, ptxSizeRet: *mut usize) -> wwr_rtc_result;
+    pub fn wwr_rtc_get_error_string(result: wwr_rtc_result) -> *const core::ffi::c_char;
+    pub fn wwr_rtc_get_lowered_name(prog: wwr_rtc_program, name_expression: *const core::ffi::c_char, lowered_name: *mut *const core::ffi::c_char) -> wwr_rtc_result;
+    pub fn wwr_rtc_get_program_log(prog: wwr_rtc_program, log: *mut core::ffi::c_char) -> wwr_rtc_result;
+    pub fn wwr_rtc_get_program_log_size(prog: wwr_rtc_program, logSizeRet: *mut usize) -> wwr_rtc_result;
+    pub fn wwr_rtc_version(major: *mut i32, minor: *mut i32) -> wwr_rtc_result;
 }

@@ -86,6 +86,17 @@ endfunction()
 _wwr_add_capi_unit(complex wwr::complex)
 _wwr_add_capi_unit(runtime_api wwr::runtime_api wwr::runtime_api::host)
 _wwr_add_capi_unit(blas wwr::blas wwr::fp16)
+# The milestone-#6 library surfaces. Each imports ONLY its own wwr::<x> module,
+# which carries its vendor library PUBLIC (cuBLASLt / cuSOLVER / cuRAND / nvRTC
+# and the HIP equivalents) -- so each unit's .so NEEDs only that one vendor lib,
+# and none of the others (verify: `readelf -d libwwr_capi_solver.so | grep
+# NEEDED` shows cusolver, not cublasLt / curand / nvrtc). rtc is host-only (no
+# device at call time); the other three execute on the device, so CI link-checks
+# them and a GPU box exercises them, exactly as blas.
+_wwr_add_capi_unit(blaslt wwr::blaslt)
+_wwr_add_capi_unit(solver wwr::solver)
+_wwr_add_capi_unit(rand wwr::rand)
+_wwr_add_capi_unit(rtc wwr::rtc)
 
 # The umbrella libwwr_capi.so CONTAINS every unit's object symbols, so an
 # existing -lwwr_capi consumer resolves the whole ABI from one .so. The OUTPUT
@@ -103,11 +114,17 @@ add_library(
   $<TARGET_OBJECTS:wwr.capi.complex.obj>
   $<TARGET_OBJECTS:wwr.capi.runtime_api.obj>
   $<TARGET_OBJECTS:wwr.capi.blas.obj>
+  $<TARGET_OBJECTS:wwr.capi.blaslt.obj>
+  $<TARGET_OBJECTS:wwr.capi.solver.obj>
+  $<TARGET_OBJECTS:wwr.capi.rand.obj>
+  $<TARGET_OBJECTS:wwr.capi.rtc.obj>
 )
 add_library(wwr::capi ALIAS wwr.capi)
 target_link_libraries(
   wwr.capi
   PRIVATE wwr.capi.complex.obj wwr.capi.runtime_api.obj wwr.capi.blas.obj
+          wwr.capi.blaslt.obj wwr.capi.solver.obj wwr.capi.rand.obj
+          wwr.capi.rtc.obj
 )
 set_target_properties(
   wwr.capi

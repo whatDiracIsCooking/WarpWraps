@@ -6,5 +6,9 @@
 #include "complex/wwr_capi_complex.h"
 #include "runtime_api/wwr_capi_runtime_api.h"
 #include "blas/wwr_capi_blas.h"
+#include "blaslt/wwr_capi_blaslt.h"
+#include "solver/wwr_capi_solver.h"
+#include "rand/wwr_capi_rand.h"
+#include "rtc/wwr_capi_rtc.h"
 
 #endif  // WWR_CAPI_H

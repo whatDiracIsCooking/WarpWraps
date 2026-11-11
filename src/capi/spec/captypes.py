@@ -208,6 +208,13 @@ class Registry:
     pointee_pods: list[PointeePOD] = field(default_factory=list)
     handles: list[Handle] = field(default_factory=list)
     structs: list[Struct] = field(default_factory=list)
+    # A vendor scalar TYPEDEF folded to a plain C scalar BEFORE classification,
+    # so no vendor name leaks into the ABI (cuSOLVER's `cusolver_int_t` ->
+    # `int`): keyed on the stripped base spelling, value is the C scalar it IS.
+    # Applied by classify(), preserving pointer/const (`cusolver_int_t *` ->
+    # `int *`). Only for a typedef that is genuinely one C scalar; a struct /
+    # handle / enum stays a Handle / Struct / ValueEnum registration.
+    scalar_aliases: dict[str, str] = field(default_factory=dict)
 
     def _find(self, items, vendor_base: str):
         for it in items:
@@ -251,8 +258,14 @@ def classify(ty: str, reg: Registry) -> Classified:
     vendor pointee erased to `void*`; a registered enum/handle/struct maps to its
     capi form; a bare scalar passes through unchanged."""
     ty = _normalise(ty)
-    is_ptr = "*" in ty
     base = _base(ty)
+    # Fold a registered vendor scalar typedef (`cusolver_int_t` -> `int`) in
+    # place, preserving pointer depth / const, so the rest of the classifier
+    # (and the ABI) sees only the plain C scalar, never the vendor name.
+    if base in reg.scalar_aliases:
+        ty = _normalise(re.sub(rf"\b{re.escape(base)}\b", reg.scalar_aliases[base], ty))
+        base = _base(ty)
+    is_ptr = "*" in ty
     # A CONST POINTEE is a `const` before the first `*` (`const T *`); a `const`
     # AFTER a `*` is a const-qualified POINTER level (`T *const *`), not a const
     # pointee, and must not be folded into the base spelling.
