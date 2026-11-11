@@ -359,6 +359,296 @@ pub enum wwr_rtc_result {
     WWR_RTC_RESULT_INTERNAL_ERROR = 11,
 }
 
+pub type wwr_sparse_handle = *mut core::ffi::c_void;
+pub type wwr_sparse_mat_descr = *mut core::ffi::c_void;
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_sparse_status {
+    WWR_SPARSE_STATUS_SUCCESS = 0,
+    WWR_SPARSE_STATUS_UNKNOWN = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_sparse_operation {
+    WWR_SPARSE_OPERATION_NON_TRANSPOSE = 0,
+    WWR_SPARSE_OPERATION_TRANSPOSE = 1,
+    WWR_SPARSE_OPERATION_CONJUGATE_TRANSPOSE = 2,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_sparse_direction {
+    WWR_SPARSE_DIRECTION_ROW = 0,
+    WWR_SPARSE_DIRECTION_COLUMN = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_sparse_action {
+    WWR_SPARSE_ACTION_SYMBOLIC = 0,
+    WWR_SPARSE_ACTION_NUMERIC = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_sparse_index_base {
+    WWR_SPARSE_INDEX_BASE_ZERO = 0,
+    WWR_SPARSE_INDEX_BASE_ONE = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_sparse_matrix_type {
+    WWR_SPARSE_MATRIX_TYPE_GENERAL = 0,
+    WWR_SPARSE_MATRIX_TYPE_SYMMETRIC = 1,
+    WWR_SPARSE_MATRIX_TYPE_HERMITIAN = 2,
+    WWR_SPARSE_MATRIX_TYPE_TRIANGULAR = 3,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_sparse_fill_mode {
+    WWR_SPARSE_FILL_MODE_LOWER = 0,
+    WWR_SPARSE_FILL_MODE_UPPER = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_sparse_diag_type {
+    WWR_SPARSE_DIAG_TYPE_NON_UNIT = 0,
+    WWR_SPARSE_DIAG_TYPE_UNIT = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_sparse_pointer_mode {
+    WWR_SPARSE_POINTER_MODE_HOST = 0,
+    WWR_SPARSE_POINTER_MODE_DEVICE = 1,
+}
+
+pub type wwr_tensor_handle = *mut core::ffi::c_void;
+pub type wwr_tensor_tensor_descriptor = *mut core::ffi::c_void;
+pub type wwr_tensor_operation_descriptor = *mut core::ffi::c_void;
+pub type wwr_tensor_plan = *mut core::ffi::c_void;
+pub type wwr_tensor_plan_preference = *mut core::ffi::c_void;
+pub type wwr_tensor_logger_callback = *mut core::ffi::c_void;
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_tensor_status {
+    WWR_TENSOR_STATUS_SUCCESS = 0,
+    WWR_TENSOR_STATUS_NOT_INITIALIZED = 1,
+    WWR_TENSOR_STATUS_ALLOC_FAILED = 2,
+    WWR_TENSOR_STATUS_INVALID_VALUE = 3,
+    WWR_TENSOR_STATUS_ARCH_MISMATCH = 4,
+    WWR_TENSOR_STATUS_EXECUTION_FAILED = 5,
+    WWR_TENSOR_STATUS_INTERNAL_ERROR = 6,
+    WWR_TENSOR_STATUS_NOT_SUPPORTED = 7,
+    WWR_TENSOR_STATUS_INSUFFICIENT_WORKSPACE = 8,
+    WWR_TENSOR_STATUS_INSUFFICIENT_DRIVER = 9,
+    WWR_TENSOR_STATUS_IO_ERROR = 10,
+    WWR_TENSOR_STATUS_UNKNOWN = 11,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_tensor_operator {
+    WWR_TENSOR_OP_IDENTITY = 0,
+    WWR_TENSOR_OP_SQRT = 1,
+    WWR_TENSOR_OP_RELU = 2,
+    WWR_TENSOR_OP_CONJ = 3,
+    WWR_TENSOR_OP_RCP = 4,
+    WWR_TENSOR_OP_SIGMOID = 5,
+    WWR_TENSOR_OP_TANH = 6,
+    WWR_TENSOR_OP_EXP = 7,
+    WWR_TENSOR_OP_LOG = 8,
+    WWR_TENSOR_OP_ABS = 9,
+    WWR_TENSOR_OP_NEG = 10,
+    WWR_TENSOR_OP_SIN = 11,
+    WWR_TENSOR_OP_COS = 12,
+    WWR_TENSOR_OP_TAN = 13,
+    WWR_TENSOR_OP_SINH = 14,
+    WWR_TENSOR_OP_COSH = 15,
+    WWR_TENSOR_OP_ASIN = 16,
+    WWR_TENSOR_OP_ACOS = 17,
+    WWR_TENSOR_OP_ATAN = 18,
+    WWR_TENSOR_OP_ASINH = 19,
+    WWR_TENSOR_OP_ACOSH = 20,
+    WWR_TENSOR_OP_ATANH = 21,
+    WWR_TENSOR_OP_CEIL = 22,
+    WWR_TENSOR_OP_FLOOR = 23,
+    WWR_TENSOR_OP_ADD = 24,
+    WWR_TENSOR_OP_MUL = 25,
+    WWR_TENSOR_OP_MAX = 26,
+    WWR_TENSOR_OP_MIN = 27,
+    WWR_TENSOR_OP_UNKNOWN = 28,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_tensor_algo {
+    WWR_TENSOR_ALGO_DEFAULT = 0,
+    WWR_TENSOR_ALGO_DEFAULT_PATIENT = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_tensor_jit_mode {
+    WWR_TENSOR_JIT_MODE_NONE = 0,
+    WWR_TENSOR_JIT_MODE_DEFAULT = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_tensor_worksize_preference {
+    WWR_TENSOR_WORKSPACE_MIN = 0,
+    WWR_TENSOR_WORKSPACE_DEFAULT = 1,
+    WWR_TENSOR_WORKSPACE_MAX = 2,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_tensor_operation_descriptor_attribute {
+    WWR_TENSOR_OPERATION_DESCRIPTOR_TAG = 0,
+    WWR_TENSOR_OPERATION_DESCRIPTOR_SCALAR_TYPE = 1,
+    WWR_TENSOR_OPERATION_DESCRIPTOR_FLOPS = 2,
+    WWR_TENSOR_OPERATION_DESCRIPTOR_MOVED_BYTES = 3,
+    WWR_TENSOR_OPERATION_DESCRIPTOR_PADDING_LEFT = 4,
+    WWR_TENSOR_OPERATION_DESCRIPTOR_PADDING_RIGHT = 5,
+    WWR_TENSOR_OPERATION_DESCRIPTOR_PADDING_VALUE = 6,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_tensor_plan_preference_attribute {
+    WWR_TENSOR_PLAN_PREFERENCE_AUTOTUNE_MODE = 0,
+    WWR_TENSOR_PLAN_PREFERENCE_CACHE_MODE = 1,
+    WWR_TENSOR_PLAN_PREFERENCE_INCREMENTAL_COUNT = 2,
+    WWR_TENSOR_PLAN_PREFERENCE_ALGO = 3,
+    WWR_TENSOR_PLAN_PREFERENCE_KERNEL_RANK = 4,
+    WWR_TENSOR_PLAN_PREFERENCE_JIT = 5,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_tensor_plan_attribute {
+    WWR_TENSOR_PLAN_REQUIRED_WORKSPACE = 0,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_tensor_data_type {
+    WWR_TENSOR_R_16F = 0,
+    WWR_TENSOR_C_16F = 1,
+    WWR_TENSOR_R_16BF = 2,
+    WWR_TENSOR_C_16BF = 3,
+    WWR_TENSOR_R_32F = 4,
+    WWR_TENSOR_C_32F = 5,
+    WWR_TENSOR_R_64F = 6,
+    WWR_TENSOR_C_64F = 7,
+    WWR_TENSOR_R_4I = 8,
+    WWR_TENSOR_C_4I = 9,
+    WWR_TENSOR_R_4U = 10,
+    WWR_TENSOR_C_4U = 11,
+    WWR_TENSOR_R_8I = 12,
+    WWR_TENSOR_C_8I = 13,
+    WWR_TENSOR_R_8U = 14,
+    WWR_TENSOR_C_8U = 15,
+    WWR_TENSOR_R_16I = 16,
+    WWR_TENSOR_C_16I = 17,
+    WWR_TENSOR_R_16U = 18,
+    WWR_TENSOR_C_16U = 19,
+    WWR_TENSOR_R_32I = 20,
+    WWR_TENSOR_C_32I = 21,
+    WWR_TENSOR_R_32U = 22,
+    WWR_TENSOR_C_32U = 23,
+    WWR_TENSOR_R_64I = 24,
+    WWR_TENSOR_C_64I = 25,
+    WWR_TENSOR_R_64U = 26,
+    WWR_TENSOR_C_64U = 27,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_fft_result {
+    WWR_FFT_SUCCESS = 0,
+    WWR_FFT_INVALID_PLAN = 1,
+    WWR_FFT_ALLOC_FAILED = 2,
+    WWR_FFT_INVALID_TYPE = 3,
+    WWR_FFT_INVALID_VALUE = 4,
+    WWR_FFT_INTERNAL_ERROR = 5,
+    WWR_FFT_EXEC_FAILED = 6,
+    WWR_FFT_SETUP_FAILED = 7,
+    WWR_FFT_INVALID_SIZE = 8,
+    WWR_FFT_UNALIGNED_DATA = 9,
+    WWR_FFT_INVALID_DEVICE = 10,
+    WWR_FFT_NO_WORKSPACE = 11,
+    WWR_FFT_NOT_IMPLEMENTED = 12,
+    WWR_FFT_NOT_SUPPORTED = 13,
+    WWR_FFT_RESULT_UNKNOWN = 14,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_fft_type {
+    WWR_FFT_R2C = 0,
+    WWR_FFT_C2R = 1,
+    WWR_FFT_C2C = 2,
+    WWR_FFT_D2Z = 3,
+    WWR_FFT_Z2D = 4,
+    WWR_FFT_Z2Z = 5,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_comp_status {
+    WWR_COMP_SUCCESS = 0,
+    WWR_COMP_ERROR_INVALID_VALUE = 1,
+    WWR_COMP_ERROR_NOT_SUPPORTED = 2,
+    WWR_COMP_ERROR_CANNOT_DECOMPRESS = 3,
+    WWR_COMP_ERROR_CUDA_ERROR = 4,
+    WWR_COMP_ERROR_INTERNAL = 5,
+    WWR_COMP_STATUS_UNKNOWN = 6,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_comp_type {
+    WWR_COMP_TYPE_CHAR = 0,
+    WWR_COMP_TYPE_UCHAR = 1,
+    WWR_COMP_TYPE_SHORT = 2,
+    WWR_COMP_TYPE_USHORT = 3,
+    WWR_COMP_TYPE_INT = 4,
+    WWR_COMP_TYPE_UINT = 5,
+    WWR_COMP_TYPE_LONGLONG = 6,
+    WWR_COMP_TYPE_ULONGLONG = 7,
+    WWR_COMP_TYPE_BITS = 8,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_comp_lz4_opts {
+    pub data_type: wwr_comp_type,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_comp_snappy_opts {
+    pub reserved: u8,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_comp_cascaded_opts {
+    pub chunk_size: usize,
+    pub r#type: wwr_comp_type,
+    pub num_RLEs: i32,
+    pub num_deltas: i32,
+    pub use_bp: i32,
+}
+
 #[repr(i32)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum wwr_status {
@@ -373,7 +663,6 @@ pub enum wwr_status {
 }
 
 #[rustfmt::skip]
-#[link(name = "wwr_capi")]
 extern "C" {
     pub fn wwr_cadd64(a: wwr_complex64, b: wwr_complex64) -> wwr_complex64;
     pub fn wwr_cmul64(a: wwr_complex64, b: wwr_complex64) -> wwr_complex64;
@@ -1077,4 +1366,179 @@ extern "C" {
     pub fn wwr_rtc_get_program_log(prog: wwr_rtc_program, log: *mut core::ffi::c_char) -> wwr_rtc_result;
     pub fn wwr_rtc_get_program_log_size(prog: wwr_rtc_program, logSizeRet: *mut usize) -> wwr_rtc_result;
     pub fn wwr_rtc_version(major: *mut i32, minor: *mut i32) -> wwr_rtc_result;
+    pub fn wwr_sparse_cbsrmv(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, transA: wwr_sparse_operation, mb: i32, nb: i32, nnzb: i32, alpha: *const wwr_complex64, descrA: wwr_sparse_mat_descr, bsrSortedValA: *const wwr_complex64, bsrSortedRowPtrA: *const i32, bsrSortedColIndA: *const i32, blockDim: i32, x: *const wwr_complex64, beta: *const wwr_complex64, y: *mut wwr_complex64) -> wwr_sparse_status;
+    pub fn wwr_sparse_ccsr2gebsr(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, csrSortedValA: *const wwr_complex64, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, descrC: wwr_sparse_mat_descr, bsrSortedValC: *mut wwr_complex64, bsrSortedRowPtrC: *mut i32, bsrSortedColIndC: *mut i32, rowBlockDim: i32, colBlockDim: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_ccsr2gebsr_buffer_size(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, csrSortedValA: *const wwr_complex64, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, rowBlockDim: i32, colBlockDim: i32, pBufferSizeInBytes: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_ccsrgeam2(handle: wwr_sparse_handle, m: i32, n: i32, alpha: *const wwr_complex64, descrA: wwr_sparse_mat_descr, nnzA: i32, csrSortedValA: *const wwr_complex64, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, beta: *const wwr_complex64, descrB: wwr_sparse_mat_descr, nnzB: i32, csrSortedValB: *const wwr_complex64, csrSortedRowPtrB: *const i32, csrSortedColIndB: *const i32, descrC: wwr_sparse_mat_descr, csrSortedValC: *mut wwr_complex64, csrSortedRowPtrC: *mut i32, csrSortedColIndC: *mut i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_ccsrgeam2_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, alpha: *const wwr_complex64, descrA: wwr_sparse_mat_descr, nnzA: i32, csrSortedValA: *const wwr_complex64, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, beta: *const wwr_complex64, descrB: wwr_sparse_mat_descr, nnzB: i32, csrSortedValB: *const wwr_complex64, csrSortedRowPtrB: *const i32, csrSortedColIndB: *const i32, descrC: wwr_sparse_mat_descr, csrSortedValC: *const wwr_complex64, csrSortedRowPtrC: *const i32, csrSortedColIndC: *const i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgebsr2gebsc(handle: wwr_sparse_handle, mb: i32, nb: i32, nnzb: i32, bsrSortedVal: *const wwr_complex64, bsrSortedRowPtr: *const i32, bsrSortedColInd: *const i32, rowBlockDim: i32, colBlockDim: i32, bscVal: *mut wwr_complex64, bscRowInd: *mut i32, bscColPtr: *mut i32, copyValues: wwr_sparse_action, idxBase: wwr_sparse_index_base, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgebsr2gebsc_buffer_size(handle: wwr_sparse_handle, mb: i32, nb: i32, nnzb: i32, bsrSortedVal: *const wwr_complex64, bsrSortedRowPtr: *const i32, bsrSortedColInd: *const i32, rowBlockDim: i32, colBlockDim: i32, pBufferSizeInBytes: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgpsv_interleaved_batch(handle: wwr_sparse_handle, algo: i32, m: i32, ds: *mut wwr_complex64, dl: *mut wwr_complex64, d: *mut wwr_complex64, du: *mut wwr_complex64, dw: *mut wwr_complex64, x: *mut wwr_complex64, batchCount: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgpsv_interleaved_batch_buffer_size_ext(handle: wwr_sparse_handle, algo: i32, m: i32, ds: *const wwr_complex64, dl: *const wwr_complex64, d: *const wwr_complex64, du: *const wwr_complex64, dw: *const wwr_complex64, x: *const wwr_complex64, batchCount: i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgtsv2(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const wwr_complex64, d: *const wwr_complex64, du: *const wwr_complex64, B: *mut wwr_complex64, ldb: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgtsv2_strided_batch(handle: wwr_sparse_handle, m: i32, dl: *const wwr_complex64, d: *const wwr_complex64, du: *const wwr_complex64, x: *mut wwr_complex64, batchCount: i32, batchStride: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgtsv2_strided_batch_buffer_size_ext(handle: wwr_sparse_handle, m: i32, dl: *const wwr_complex64, d: *const wwr_complex64, du: *const wwr_complex64, x: *const wwr_complex64, batchCount: i32, batchStride: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgtsv2_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const wwr_complex64, d: *const wwr_complex64, du: *const wwr_complex64, B: *const wwr_complex64, ldb: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgtsv2_nopivot(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const wwr_complex64, d: *const wwr_complex64, du: *const wwr_complex64, B: *mut wwr_complex64, ldb: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgtsv2_nopivot_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const wwr_complex64, d: *const wwr_complex64, du: *const wwr_complex64, B: *const wwr_complex64, ldb: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgtsv_interleaved_batch(handle: wwr_sparse_handle, algo: i32, m: i32, dl: *mut wwr_complex64, d: *mut wwr_complex64, du: *mut wwr_complex64, x: *mut wwr_complex64, batchCount: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_cgtsv_interleaved_batch_buffer_size_ext(handle: wwr_sparse_handle, algo: i32, m: i32, dl: *const wwr_complex64, d: *const wwr_complex64, du: *const wwr_complex64, x: *const wwr_complex64, batchCount: i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_cnnz(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, A: *const wwr_complex64, lda: i32, nnzPerRowCol: *mut i32, nnzTotalDevHostPtr: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_create(handle: *mut wwr_sparse_handle) -> wwr_sparse_status;
+    pub fn wwr_sparse_create_mat_descr(descrA: *mut wwr_sparse_mat_descr) -> wwr_sparse_status;
+    pub fn wwr_sparse_dbsrmv(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, transA: wwr_sparse_operation, mb: i32, nb: i32, nnzb: i32, alpha: *const f64, descrA: wwr_sparse_mat_descr, bsrSortedValA: *const f64, bsrSortedRowPtrA: *const i32, bsrSortedColIndA: *const i32, blockDim: i32, x: *const f64, beta: *const f64, y: *mut f64) -> wwr_sparse_status;
+    pub fn wwr_sparse_dcsr2gebsr(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, csrSortedValA: *const f64, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, descrC: wwr_sparse_mat_descr, bsrSortedValC: *mut f64, bsrSortedRowPtrC: *mut i32, bsrSortedColIndC: *mut i32, rowBlockDim: i32, colBlockDim: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_dcsr2gebsr_buffer_size(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, csrSortedValA: *const f64, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, rowBlockDim: i32, colBlockDim: i32, pBufferSizeInBytes: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_dcsrgeam2(handle: wwr_sparse_handle, m: i32, n: i32, alpha: *const f64, descrA: wwr_sparse_mat_descr, nnzA: i32, csrSortedValA: *const f64, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, beta: *const f64, descrB: wwr_sparse_mat_descr, nnzB: i32, csrSortedValB: *const f64, csrSortedRowPtrB: *const i32, csrSortedColIndB: *const i32, descrC: wwr_sparse_mat_descr, csrSortedValC: *mut f64, csrSortedRowPtrC: *mut i32, csrSortedColIndC: *mut i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_dcsrgeam2_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, alpha: *const f64, descrA: wwr_sparse_mat_descr, nnzA: i32, csrSortedValA: *const f64, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, beta: *const f64, descrB: wwr_sparse_mat_descr, nnzB: i32, csrSortedValB: *const f64, csrSortedRowPtrB: *const i32, csrSortedColIndB: *const i32, descrC: wwr_sparse_mat_descr, csrSortedValC: *const f64, csrSortedRowPtrC: *const i32, csrSortedColIndC: *const i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_destroy(handle: wwr_sparse_handle) -> wwr_sparse_status;
+    pub fn wwr_sparse_destroy_mat_descr(descrA: wwr_sparse_mat_descr) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgebsr2gebsc(handle: wwr_sparse_handle, mb: i32, nb: i32, nnzb: i32, bsrSortedVal: *const f64, bsrSortedRowPtr: *const i32, bsrSortedColInd: *const i32, rowBlockDim: i32, colBlockDim: i32, bscVal: *mut f64, bscRowInd: *mut i32, bscColPtr: *mut i32, copyValues: wwr_sparse_action, idxBase: wwr_sparse_index_base, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgebsr2gebsc_buffer_size(handle: wwr_sparse_handle, mb: i32, nb: i32, nnzb: i32, bsrSortedVal: *const f64, bsrSortedRowPtr: *const i32, bsrSortedColInd: *const i32, rowBlockDim: i32, colBlockDim: i32, pBufferSizeInBytes: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgpsv_interleaved_batch(handle: wwr_sparse_handle, algo: i32, m: i32, ds: *mut f64, dl: *mut f64, d: *mut f64, du: *mut f64, dw: *mut f64, x: *mut f64, batchCount: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgpsv_interleaved_batch_buffer_size_ext(handle: wwr_sparse_handle, algo: i32, m: i32, ds: *const f64, dl: *const f64, d: *const f64, du: *const f64, dw: *const f64, x: *const f64, batchCount: i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgtsv2(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const f64, d: *const f64, du: *const f64, B: *mut f64, ldb: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgtsv2_strided_batch(handle: wwr_sparse_handle, m: i32, dl: *const f64, d: *const f64, du: *const f64, x: *mut f64, batchCount: i32, batchStride: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgtsv2_strided_batch_buffer_size_ext(handle: wwr_sparse_handle, m: i32, dl: *const f64, d: *const f64, du: *const f64, x: *const f64, batchCount: i32, batchStride: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgtsv2_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const f64, d: *const f64, du: *const f64, B: *const f64, ldb: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgtsv2_nopivot(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const f64, d: *const f64, du: *const f64, B: *mut f64, ldb: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgtsv2_nopivot_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const f64, d: *const f64, du: *const f64, B: *const f64, ldb: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgtsv_interleaved_batch(handle: wwr_sparse_handle, algo: i32, m: i32, dl: *mut f64, d: *mut f64, du: *mut f64, x: *mut f64, batchCount: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_dgtsv_interleaved_batch_buffer_size_ext(handle: wwr_sparse_handle, algo: i32, m: i32, dl: *const f64, d: *const f64, du: *const f64, x: *const f64, batchCount: i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_dnnz(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, A: *const f64, lda: i32, nnzPerRowCol: *mut i32, nnzTotalDevHostPtr: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_get_error_name(status: wwr_sparse_status) -> *const core::ffi::c_char;
+    pub fn wwr_sparse_get_error_string(status: wwr_sparse_status) -> *const core::ffi::c_char;
+    pub fn wwr_sparse_get_mat_diag_type(descrA: wwr_sparse_mat_descr) -> wwr_sparse_diag_type;
+    pub fn wwr_sparse_get_mat_fill_mode(descrA: wwr_sparse_mat_descr) -> wwr_sparse_fill_mode;
+    pub fn wwr_sparse_get_mat_index_base(descrA: wwr_sparse_mat_descr) -> wwr_sparse_index_base;
+    pub fn wwr_sparse_get_mat_type(descrA: wwr_sparse_mat_descr) -> wwr_sparse_matrix_type;
+    pub fn wwr_sparse_get_pointer_mode(handle: wwr_sparse_handle, mode: *mut wwr_sparse_pointer_mode) -> wwr_sparse_status;
+    pub fn wwr_sparse_get_stream(handle: wwr_sparse_handle, streamId: *mut wwr_stream) -> wwr_sparse_status;
+    pub fn wwr_sparse_sbsrmv(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, transA: wwr_sparse_operation, mb: i32, nb: i32, nnzb: i32, alpha: *const f32, descrA: wwr_sparse_mat_descr, bsrSortedValA: *const f32, bsrSortedRowPtrA: *const i32, bsrSortedColIndA: *const i32, blockDim: i32, x: *const f32, beta: *const f32, y: *mut f32) -> wwr_sparse_status;
+    pub fn wwr_sparse_scsr2gebsr(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, csrSortedValA: *const f32, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, descrC: wwr_sparse_mat_descr, bsrSortedValC: *mut f32, bsrSortedRowPtrC: *mut i32, bsrSortedColIndC: *mut i32, rowBlockDim: i32, colBlockDim: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_scsr2gebsr_buffer_size(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, csrSortedValA: *const f32, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, rowBlockDim: i32, colBlockDim: i32, pBufferSizeInBytes: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_scsrgeam2(handle: wwr_sparse_handle, m: i32, n: i32, alpha: *const f32, descrA: wwr_sparse_mat_descr, nnzA: i32, csrSortedValA: *const f32, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, beta: *const f32, descrB: wwr_sparse_mat_descr, nnzB: i32, csrSortedValB: *const f32, csrSortedRowPtrB: *const i32, csrSortedColIndB: *const i32, descrC: wwr_sparse_mat_descr, csrSortedValC: *mut f32, csrSortedRowPtrC: *mut i32, csrSortedColIndC: *mut i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_scsrgeam2_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, alpha: *const f32, descrA: wwr_sparse_mat_descr, nnzA: i32, csrSortedValA: *const f32, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, beta: *const f32, descrB: wwr_sparse_mat_descr, nnzB: i32, csrSortedValB: *const f32, csrSortedRowPtrB: *const i32, csrSortedColIndB: *const i32, descrC: wwr_sparse_mat_descr, csrSortedValC: *const f32, csrSortedRowPtrC: *const i32, csrSortedColIndC: *const i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_set_mat_diag_type(descrA: wwr_sparse_mat_descr, diagType: wwr_sparse_diag_type) -> wwr_sparse_status;
+    pub fn wwr_sparse_set_mat_fill_mode(descrA: wwr_sparse_mat_descr, fillMode: wwr_sparse_fill_mode) -> wwr_sparse_status;
+    pub fn wwr_sparse_set_mat_index_base(descrA: wwr_sparse_mat_descr, base: wwr_sparse_index_base) -> wwr_sparse_status;
+    pub fn wwr_sparse_set_mat_type(descrA: wwr_sparse_mat_descr, r#type: wwr_sparse_matrix_type) -> wwr_sparse_status;
+    pub fn wwr_sparse_set_pointer_mode(handle: wwr_sparse_handle, mode: wwr_sparse_pointer_mode) -> wwr_sparse_status;
+    pub fn wwr_sparse_set_stream(handle: wwr_sparse_handle, streamId: wwr_stream) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgebsr2gebsc(handle: wwr_sparse_handle, mb: i32, nb: i32, nnzb: i32, bsrSortedVal: *const f32, bsrSortedRowPtr: *const i32, bsrSortedColInd: *const i32, rowBlockDim: i32, colBlockDim: i32, bscVal: *mut f32, bscRowInd: *mut i32, bscColPtr: *mut i32, copyValues: wwr_sparse_action, idxBase: wwr_sparse_index_base, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgebsr2gebsc_buffer_size(handle: wwr_sparse_handle, mb: i32, nb: i32, nnzb: i32, bsrSortedVal: *const f32, bsrSortedRowPtr: *const i32, bsrSortedColInd: *const i32, rowBlockDim: i32, colBlockDim: i32, pBufferSizeInBytes: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgpsv_interleaved_batch(handle: wwr_sparse_handle, algo: i32, m: i32, ds: *mut f32, dl: *mut f32, d: *mut f32, du: *mut f32, dw: *mut f32, x: *mut f32, batchCount: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgpsv_interleaved_batch_buffer_size_ext(handle: wwr_sparse_handle, algo: i32, m: i32, ds: *const f32, dl: *const f32, d: *const f32, du: *const f32, dw: *const f32, x: *const f32, batchCount: i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgtsv2(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const f32, d: *const f32, du: *const f32, B: *mut f32, ldb: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgtsv2_strided_batch(handle: wwr_sparse_handle, m: i32, dl: *const f32, d: *const f32, du: *const f32, x: *mut f32, batchCount: i32, batchStride: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgtsv2_strided_batch_buffer_size_ext(handle: wwr_sparse_handle, m: i32, dl: *const f32, d: *const f32, du: *const f32, x: *const f32, batchCount: i32, batchStride: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgtsv2_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const f32, d: *const f32, du: *const f32, B: *const f32, ldb: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgtsv2_nopivot(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const f32, d: *const f32, du: *const f32, B: *mut f32, ldb: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgtsv2_nopivot_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const f32, d: *const f32, du: *const f32, B: *const f32, ldb: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgtsv_interleaved_batch(handle: wwr_sparse_handle, algo: i32, m: i32, dl: *mut f32, d: *mut f32, du: *mut f32, x: *mut f32, batchCount: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_sgtsv_interleaved_batch_buffer_size_ext(handle: wwr_sparse_handle, algo: i32, m: i32, dl: *const f32, d: *const f32, du: *const f32, x: *const f32, batchCount: i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_snnz(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, A: *const f32, lda: i32, nnzPerRowCol: *mut i32, nnzTotalDevHostPtr: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_zbsrmv(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, transA: wwr_sparse_operation, mb: i32, nb: i32, nnzb: i32, alpha: *const wwr_complex128, descrA: wwr_sparse_mat_descr, bsrSortedValA: *const wwr_complex128, bsrSortedRowPtrA: *const i32, bsrSortedColIndA: *const i32, blockDim: i32, x: *const wwr_complex128, beta: *const wwr_complex128, y: *mut wwr_complex128) -> wwr_sparse_status;
+    pub fn wwr_sparse_zcsr2gebsr(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, csrSortedValA: *const wwr_complex128, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, descrC: wwr_sparse_mat_descr, bsrSortedValC: *mut wwr_complex128, bsrSortedRowPtrC: *mut i32, bsrSortedColIndC: *mut i32, rowBlockDim: i32, colBlockDim: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_zcsr2gebsr_buffer_size(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, csrSortedValA: *const wwr_complex128, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, rowBlockDim: i32, colBlockDim: i32, pBufferSizeInBytes: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_zcsrgeam2(handle: wwr_sparse_handle, m: i32, n: i32, alpha: *const wwr_complex128, descrA: wwr_sparse_mat_descr, nnzA: i32, csrSortedValA: *const wwr_complex128, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, beta: *const wwr_complex128, descrB: wwr_sparse_mat_descr, nnzB: i32, csrSortedValB: *const wwr_complex128, csrSortedRowPtrB: *const i32, csrSortedColIndB: *const i32, descrC: wwr_sparse_mat_descr, csrSortedValC: *mut wwr_complex128, csrSortedRowPtrC: *mut i32, csrSortedColIndC: *mut i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_zcsrgeam2_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, alpha: *const wwr_complex128, descrA: wwr_sparse_mat_descr, nnzA: i32, csrSortedValA: *const wwr_complex128, csrSortedRowPtrA: *const i32, csrSortedColIndA: *const i32, beta: *const wwr_complex128, descrB: wwr_sparse_mat_descr, nnzB: i32, csrSortedValB: *const wwr_complex128, csrSortedRowPtrB: *const i32, csrSortedColIndB: *const i32, descrC: wwr_sparse_mat_descr, csrSortedValC: *const wwr_complex128, csrSortedRowPtrC: *const i32, csrSortedColIndC: *const i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgebsr2gebsc(handle: wwr_sparse_handle, mb: i32, nb: i32, nnzb: i32, bsrSortedVal: *const wwr_complex128, bsrSortedRowPtr: *const i32, bsrSortedColInd: *const i32, rowBlockDim: i32, colBlockDim: i32, bscVal: *mut wwr_complex128, bscRowInd: *mut i32, bscColPtr: *mut i32, copyValues: wwr_sparse_action, idxBase: wwr_sparse_index_base, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgebsr2gebsc_buffer_size(handle: wwr_sparse_handle, mb: i32, nb: i32, nnzb: i32, bsrSortedVal: *const wwr_complex128, bsrSortedRowPtr: *const i32, bsrSortedColInd: *const i32, rowBlockDim: i32, colBlockDim: i32, pBufferSizeInBytes: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgpsv_interleaved_batch(handle: wwr_sparse_handle, algo: i32, m: i32, ds: *mut wwr_complex128, dl: *mut wwr_complex128, d: *mut wwr_complex128, du: *mut wwr_complex128, dw: *mut wwr_complex128, x: *mut wwr_complex128, batchCount: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgpsv_interleaved_batch_buffer_size_ext(handle: wwr_sparse_handle, algo: i32, m: i32, ds: *const wwr_complex128, dl: *const wwr_complex128, d: *const wwr_complex128, du: *const wwr_complex128, dw: *const wwr_complex128, x: *const wwr_complex128, batchCount: i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgtsv2(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const wwr_complex128, d: *const wwr_complex128, du: *const wwr_complex128, B: *mut wwr_complex128, ldb: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgtsv2_strided_batch(handle: wwr_sparse_handle, m: i32, dl: *const wwr_complex128, d: *const wwr_complex128, du: *const wwr_complex128, x: *mut wwr_complex128, batchCount: i32, batchStride: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgtsv2_strided_batch_buffer_size_ext(handle: wwr_sparse_handle, m: i32, dl: *const wwr_complex128, d: *const wwr_complex128, du: *const wwr_complex128, x: *const wwr_complex128, batchCount: i32, batchStride: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgtsv2_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const wwr_complex128, d: *const wwr_complex128, du: *const wwr_complex128, B: *const wwr_complex128, ldb: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgtsv2_nopivot(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const wwr_complex128, d: *const wwr_complex128, du: *const wwr_complex128, B: *mut wwr_complex128, ldb: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgtsv2_nopivot_buffer_size_ext(handle: wwr_sparse_handle, m: i32, n: i32, dl: *const wwr_complex128, d: *const wwr_complex128, du: *const wwr_complex128, B: *const wwr_complex128, ldb: i32, bufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgtsv_interleaved_batch(handle: wwr_sparse_handle, algo: i32, m: i32, dl: *mut wwr_complex128, d: *mut wwr_complex128, du: *mut wwr_complex128, x: *mut wwr_complex128, batchCount: i32, pBuffer: *mut core::ffi::c_void) -> wwr_sparse_status;
+    pub fn wwr_sparse_zgtsv_interleaved_batch_buffer_size_ext(handle: wwr_sparse_handle, algo: i32, m: i32, dl: *const wwr_complex128, d: *const wwr_complex128, du: *const wwr_complex128, x: *const wwr_complex128, batchCount: i32, pBufferSizeInBytes: *mut usize) -> wwr_sparse_status;
+    pub fn wwr_sparse_znnz(handle: wwr_sparse_handle, dirA: wwr_sparse_direction, m: i32, n: i32, descrA: wwr_sparse_mat_descr, A: *const wwr_complex128, lda: i32, nnzPerRowCol: *mut i32, nnzTotalDevHostPtr: *mut i32) -> wwr_sparse_status;
+    pub fn wwr_tensor_contract(handle: wwr_tensor_handle, plan: wwr_tensor_plan, alpha: *const core::ffi::c_void, A: *const core::ffi::c_void, B: *const core::ffi::c_void, beta: *const core::ffi::c_void, C: *const core::ffi::c_void, D: *mut core::ffi::c_void, workspace: *mut core::ffi::c_void, workspaceSize: u64, stream: wwr_stream) -> wwr_tensor_status;
+    pub fn wwr_tensor_create(handle: *mut wwr_tensor_handle) -> wwr_tensor_status;
+    pub fn wwr_tensor_create_contraction(handle: wwr_tensor_handle, desc: *mut wwr_tensor_operation_descriptor, descA: wwr_tensor_tensor_descriptor, modeA: *const i32, opA: wwr_tensor_operator, descB: wwr_tensor_tensor_descriptor, modeB: *const i32, opB: wwr_tensor_operator, descC: wwr_tensor_tensor_descriptor, modeC: *const i32, opC: wwr_tensor_operator, descD: wwr_tensor_tensor_descriptor, modeD: *const i32, descCompute: u64) -> wwr_tensor_status;
+    pub fn wwr_tensor_create_elementwise_binary(handle: wwr_tensor_handle, desc: *mut wwr_tensor_operation_descriptor, descA: wwr_tensor_tensor_descriptor, modeA: *const i32, opA: wwr_tensor_operator, descC: wwr_tensor_tensor_descriptor, modeC: *const i32, opC: wwr_tensor_operator, descD: wwr_tensor_tensor_descriptor, modeD: *const i32, opAC: wwr_tensor_operator, descCompute: u64) -> wwr_tensor_status;
+    pub fn wwr_tensor_create_elementwise_trinary(handle: wwr_tensor_handle, desc: *mut wwr_tensor_operation_descriptor, descA: wwr_tensor_tensor_descriptor, modeA: *const i32, opA: wwr_tensor_operator, descB: wwr_tensor_tensor_descriptor, modeB: *const i32, opB: wwr_tensor_operator, descC: wwr_tensor_tensor_descriptor, modeC: *const i32, opC: wwr_tensor_operator, descD: wwr_tensor_tensor_descriptor, modeD: *const i32, opAB: wwr_tensor_operator, opABC: wwr_tensor_operator, descCompute: u64) -> wwr_tensor_status;
+    pub fn wwr_tensor_create_permutation(handle: wwr_tensor_handle, desc: *mut wwr_tensor_operation_descriptor, descA: wwr_tensor_tensor_descriptor, modeA: *const i32, opA: wwr_tensor_operator, descB: wwr_tensor_tensor_descriptor, modeB: *const i32, descCompute: u64) -> wwr_tensor_status;
+    pub fn wwr_tensor_create_plan(handle: wwr_tensor_handle, plan: *mut wwr_tensor_plan, desc: wwr_tensor_operation_descriptor, pref: wwr_tensor_plan_preference, workspaceSizeLimit: u64) -> wwr_tensor_status;
+    pub fn wwr_tensor_create_plan_preference(handle: wwr_tensor_handle, pref: *mut wwr_tensor_plan_preference, algo: wwr_tensor_algo, jitMode: wwr_tensor_jit_mode) -> wwr_tensor_status;
+    pub fn wwr_tensor_create_reduction(handle: wwr_tensor_handle, desc: *mut wwr_tensor_operation_descriptor, descA: wwr_tensor_tensor_descriptor, modeA: *const i32, opA: wwr_tensor_operator, descC: wwr_tensor_tensor_descriptor, modeC: *const i32, opC: wwr_tensor_operator, descD: wwr_tensor_tensor_descriptor, modeD: *const i32, opReduce: wwr_tensor_operator, descCompute: u64) -> wwr_tensor_status;
+    pub fn wwr_tensor_create_tensor_descriptor(handle: wwr_tensor_handle, desc: *mut wwr_tensor_tensor_descriptor, numModes: u32, extent: *const i64, stride: *const i64, dataType: wwr_tensor_data_type, alignmentRequirement: u32) -> wwr_tensor_status;
+    pub fn wwr_tensor_destroy(handle: wwr_tensor_handle) -> wwr_tensor_status;
+    pub fn wwr_tensor_destroy_operation_descriptor(desc: wwr_tensor_operation_descriptor) -> wwr_tensor_status;
+    pub fn wwr_tensor_destroy_plan(plan: wwr_tensor_plan) -> wwr_tensor_status;
+    pub fn wwr_tensor_destroy_plan_preference(pref: wwr_tensor_plan_preference) -> wwr_tensor_status;
+    pub fn wwr_tensor_destroy_tensor_descriptor(desc: wwr_tensor_tensor_descriptor) -> wwr_tensor_status;
+    pub fn wwr_tensor_elementwise_binary_execute(handle: wwr_tensor_handle, plan: wwr_tensor_plan, alpha: *const core::ffi::c_void, A: *const core::ffi::c_void, gamma: *const core::ffi::c_void, C: *const core::ffi::c_void, D: *mut core::ffi::c_void, stream: wwr_stream) -> wwr_tensor_status;
+    pub fn wwr_tensor_elementwise_trinary_execute(handle: wwr_tensor_handle, plan: wwr_tensor_plan, alpha: *const core::ffi::c_void, A: *const core::ffi::c_void, beta: *const core::ffi::c_void, B: *const core::ffi::c_void, gamma: *const core::ffi::c_void, C: *const core::ffi::c_void, D: *mut core::ffi::c_void, stream: wwr_stream) -> wwr_tensor_status;
+    pub fn wwr_tensor_estimate_workspace_size(handle: wwr_tensor_handle, desc: wwr_tensor_operation_descriptor, planPref: wwr_tensor_plan_preference, workspacePref: wwr_tensor_worksize_preference, workspaceSizeEstimate: *mut u64) -> wwr_tensor_status;
+    pub fn wwr_tensor_get_error_string(error: wwr_tensor_status) -> *const core::ffi::c_char;
+    pub fn wwr_tensor_get_version() -> usize;
+    pub fn wwr_tensor_handle_read_plan_cache_from_file(handle: wwr_tensor_handle, filename: *const core::ffi::c_char, numCachelinesRead: *mut u32) -> wwr_tensor_status;
+    pub fn wwr_tensor_handle_resize_plan_cache(handle: wwr_tensor_handle, numEntries: u32) -> wwr_tensor_status;
+    pub fn wwr_tensor_handle_write_plan_cache_to_file(handle: wwr_tensor_handle, filename: *const core::ffi::c_char) -> wwr_tensor_status;
+    pub fn wwr_tensor_logger_force_disable() -> wwr_tensor_status;
+    pub fn wwr_tensor_logger_open_file(logFile: *const core::ffi::c_char) -> wwr_tensor_status;
+    pub fn wwr_tensor_logger_set_callback(callback: wwr_tensor_logger_callback) -> wwr_tensor_status;
+    pub fn wwr_tensor_logger_set_file(file: *mut core::ffi::c_void) -> wwr_tensor_status;
+    pub fn wwr_tensor_logger_set_mask(mask: i32) -> wwr_tensor_status;
+    pub fn wwr_tensor_operation_descriptor_get_attribute(handle: wwr_tensor_handle, desc: wwr_tensor_operation_descriptor, attr: wwr_tensor_operation_descriptor_attribute, buf: *mut core::ffi::c_void, sizeInBytes: usize) -> wwr_tensor_status;
+    pub fn wwr_tensor_operation_descriptor_set_attribute(handle: wwr_tensor_handle, desc: wwr_tensor_operation_descriptor, attr: wwr_tensor_operation_descriptor_attribute, buf: *const core::ffi::c_void, sizeInBytes: usize) -> wwr_tensor_status;
+    pub fn wwr_tensor_permute(handle: wwr_tensor_handle, plan: wwr_tensor_plan, alpha: *const core::ffi::c_void, A: *const core::ffi::c_void, B: *mut core::ffi::c_void, stream: wwr_stream) -> wwr_tensor_status;
+    pub fn wwr_tensor_plan_get_attribute(handle: wwr_tensor_handle, plan: wwr_tensor_plan, attr: wwr_tensor_plan_attribute, buf: *mut core::ffi::c_void, sizeInBytes: usize) -> wwr_tensor_status;
+    pub fn wwr_tensor_plan_preference_set_attribute(handle: wwr_tensor_handle, pref: wwr_tensor_plan_preference, attr: wwr_tensor_plan_preference_attribute, buf: *const core::ffi::c_void, sizeInBytes: usize) -> wwr_tensor_status;
+    pub fn wwr_tensor_read_kernel_cache_from_file(handle: wwr_tensor_handle, filename: *const core::ffi::c_char) -> wwr_tensor_status;
+    pub fn wwr_tensor_reduce(handle: wwr_tensor_handle, plan: wwr_tensor_plan, alpha: *const core::ffi::c_void, A: *const core::ffi::c_void, beta: *const core::ffi::c_void, C: *const core::ffi::c_void, D: *mut core::ffi::c_void, workspace: *mut core::ffi::c_void, workspaceSize: u64, stream: wwr_stream) -> wwr_tensor_status;
+    pub fn wwr_tensor_write_kernel_cache_to_file(handle: wwr_tensor_handle, filename: *const core::ffi::c_char) -> wwr_tensor_status;
+    pub fn wwr_fft_create(handle: *mut i32) -> wwr_fft_result;
+    pub fn wwr_fft_destroy(plan: i32) -> wwr_fft_result;
+    pub fn wwr_fft_estimate1d(nx: i32, r#type: wwr_fft_type, batch: i32, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_estimate2d(nx: i32, ny: i32, r#type: wwr_fft_type, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_estimate3d(nx: i32, ny: i32, nz: i32, r#type: wwr_fft_type, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_estimate_many(rank: i32, n: *mut i32, inembed: *mut i32, istride: i32, idist: i32, onembed: *mut i32, ostride: i32, odist: i32, r#type: wwr_fft_type, batch: i32, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_exec_c2_c(plan: i32, idata: *mut wwr_complex64, odata: *mut wwr_complex64, direction: i32) -> wwr_fft_result;
+    pub fn wwr_fft_exec_c2_r(plan: i32, idata: *mut wwr_complex64, odata: *mut f32) -> wwr_fft_result;
+    pub fn wwr_fft_exec_d2_z(plan: i32, idata: *mut f64, odata: *mut wwr_complex128) -> wwr_fft_result;
+    pub fn wwr_fft_exec_r2_c(plan: i32, idata: *mut f32, odata: *mut wwr_complex64) -> wwr_fft_result;
+    pub fn wwr_fft_exec_z2_d(plan: i32, idata: *mut wwr_complex128, odata: *mut f64) -> wwr_fft_result;
+    pub fn wwr_fft_exec_z2_z(plan: i32, idata: *mut wwr_complex128, odata: *mut wwr_complex128, direction: i32) -> wwr_fft_result;
+    pub fn wwr_fft_get_size(handle: i32, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_get_size1d(handle: i32, nx: i32, r#type: wwr_fft_type, batch: i32, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_get_size2d(handle: i32, nx: i32, ny: i32, r#type: wwr_fft_type, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_get_size3d(handle: i32, nx: i32, ny: i32, nz: i32, r#type: wwr_fft_type, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_get_size_many(handle: i32, rank: i32, n: *mut i32, inembed: *mut i32, istride: i32, idist: i32, onembed: *mut i32, ostride: i32, odist: i32, r#type: wwr_fft_type, batch: i32, workArea: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_get_size_many64(plan: i32, rank: i32, n: *mut core::ffi::c_longlong, inembed: *mut core::ffi::c_longlong, istride: core::ffi::c_longlong, idist: core::ffi::c_longlong, onembed: *mut core::ffi::c_longlong, ostride: core::ffi::c_longlong, odist: core::ffi::c_longlong, r#type: wwr_fft_type, batch: core::ffi::c_longlong, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_get_version(version: *mut i32) -> wwr_fft_result;
+    pub fn wwr_fft_make_plan1d(plan: i32, nx: i32, r#type: wwr_fft_type, batch: i32, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_make_plan2d(plan: i32, nx: i32, ny: i32, r#type: wwr_fft_type, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_make_plan3d(plan: i32, nx: i32, ny: i32, nz: i32, r#type: wwr_fft_type, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_make_plan_many(plan: i32, rank: i32, n: *mut i32, inembed: *mut i32, istride: i32, idist: i32, onembed: *mut i32, ostride: i32, odist: i32, r#type: wwr_fft_type, batch: i32, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_make_plan_many64(plan: i32, rank: i32, n: *mut core::ffi::c_longlong, inembed: *mut core::ffi::c_longlong, istride: core::ffi::c_longlong, idist: core::ffi::c_longlong, onembed: *mut core::ffi::c_longlong, ostride: core::ffi::c_longlong, odist: core::ffi::c_longlong, r#type: wwr_fft_type, batch: core::ffi::c_longlong, workSize: *mut usize) -> wwr_fft_result;
+    pub fn wwr_fft_plan1d(plan: *mut i32, nx: i32, r#type: wwr_fft_type, batch: i32) -> wwr_fft_result;
+    pub fn wwr_fft_plan2d(plan: *mut i32, nx: i32, ny: i32, r#type: wwr_fft_type) -> wwr_fft_result;
+    pub fn wwr_fft_plan3d(plan: *mut i32, nx: i32, ny: i32, nz: i32, r#type: wwr_fft_type) -> wwr_fft_result;
+    pub fn wwr_fft_plan_many(plan: *mut i32, rank: i32, n: *mut i32, inembed: *mut i32, istride: i32, idist: i32, onembed: *mut i32, ostride: i32, odist: i32, r#type: wwr_fft_type, batch: i32) -> wwr_fft_result;
+    pub fn wwr_fft_set_auto_allocation(plan: i32, autoAllocate: i32) -> wwr_fft_result;
+    pub fn wwr_fft_set_stream(plan: i32, stream: wwr_stream) -> wwr_fft_result;
+    pub fn wwr_fft_set_work_area(plan: i32, workArea: *mut core::ffi::c_void) -> wwr_fft_result;
+    pub fn wwr_comp_batched_lz4_compress_get_temp_size(batch_size: usize, max_uncompressed_chunk_bytes: usize, opts: wwr_comp_lz4_opts, temp_bytes: *mut usize) -> wwr_comp_status;
+    pub fn wwr_comp_batched_lz4_compress_get_max_output_chunk_size(max_uncompressed_chunk_bytes: usize, opts: wwr_comp_lz4_opts, max_compressed_chunk_bytes: *mut usize) -> wwr_comp_status;
+    pub fn wwr_comp_batched_lz4_compress_async(device_uncompressed_chunk_ptrs: *const *const core::ffi::c_void, device_uncompressed_chunk_bytes: *const usize, max_uncompressed_chunk_bytes: usize, batch_size: usize, device_temp_ptr: *mut core::ffi::c_void, temp_bytes: usize, device_compressed_chunk_ptrs: *const *mut core::ffi::c_void, device_compressed_chunk_bytes: *mut usize, opts: wwr_comp_lz4_opts, stream: wwr_stream) -> wwr_comp_status;
+    pub fn wwr_comp_batched_lz4_decompress_get_temp_size(num_chunks: usize, max_uncompressed_chunk_bytes: usize, temp_bytes: *mut usize) -> wwr_comp_status;
+    pub fn wwr_comp_batched_lz4_get_decompress_size_async(device_compressed_chunk_ptrs: *const *const core::ffi::c_void, device_compressed_chunk_bytes: *const usize, device_uncompressed_chunk_bytes: *mut usize, batch_size: usize, stream: wwr_stream) -> wwr_comp_status;
+    pub fn wwr_comp_batched_lz4_decompress_async(device_compressed_chunk_ptrs: *const *const core::ffi::c_void, device_compressed_chunk_bytes: *const usize, device_uncompressed_buffer_bytes: *const usize, device_uncompressed_chunk_bytes: *mut usize, num_chunks: usize, device_temp_ptr: *mut core::ffi::c_void, temp_bytes: usize, device_uncompressed_chunk_ptrs: *const *mut core::ffi::c_void, device_statuses: *mut core::ffi::c_void, stream: wwr_stream) -> wwr_comp_status;
+    pub fn wwr_comp_batched_snappy_compress_get_temp_size(batch_size: usize, max_uncompressed_chunk_bytes: usize, opts: wwr_comp_snappy_opts, temp_bytes: *mut usize) -> wwr_comp_status;
+    pub fn wwr_comp_batched_snappy_compress_get_max_output_chunk_size(max_uncompressed_chunk_bytes: usize, opts: wwr_comp_snappy_opts, max_compressed_chunk_bytes: *mut usize) -> wwr_comp_status;
+    pub fn wwr_comp_batched_snappy_compress_async(device_uncompressed_chunk_ptrs: *const *const core::ffi::c_void, device_uncompressed_chunk_bytes: *const usize, max_uncompressed_chunk_bytes: usize, batch_size: usize, device_temp_ptr: *mut core::ffi::c_void, temp_bytes: usize, device_compressed_chunk_ptrs: *const *mut core::ffi::c_void, device_compressed_chunk_bytes: *mut usize, opts: wwr_comp_snappy_opts, stream: wwr_stream) -> wwr_comp_status;
+    pub fn wwr_comp_batched_snappy_decompress_get_temp_size(num_chunks: usize, max_uncompressed_chunk_bytes: usize, temp_bytes: *mut usize) -> wwr_comp_status;
+    pub fn wwr_comp_batched_snappy_get_decompress_size_async(device_compressed_chunk_ptrs: *const *const core::ffi::c_void, device_compressed_chunk_bytes: *const usize, device_uncompressed_chunk_bytes: *mut usize, batch_size: usize, stream: wwr_stream) -> wwr_comp_status;
+    pub fn wwr_comp_batched_snappy_decompress_async(device_compressed_chunk_ptrs: *const *const core::ffi::c_void, device_compressed_chunk_bytes: *const usize, device_uncompressed_buffer_bytes: *const usize, device_uncompressed_chunk_bytes: *mut usize, num_chunks: usize, device_temp_ptr: *mut core::ffi::c_void, temp_bytes: usize, device_uncompressed_chunk_ptrs: *const *mut core::ffi::c_void, device_statuses: *mut core::ffi::c_void, stream: wwr_stream) -> wwr_comp_status;
+    pub fn wwr_comp_batched_cascaded_compress_get_temp_size(batch_size: usize, max_uncompressed_chunk_bytes: usize, opts: wwr_comp_cascaded_opts, temp_bytes: *mut usize) -> wwr_comp_status;
+    pub fn wwr_comp_batched_cascaded_compress_get_max_output_chunk_size(max_uncompressed_chunk_bytes: usize, opts: wwr_comp_cascaded_opts, max_compressed_chunk_bytes: *mut usize) -> wwr_comp_status;
+    pub fn wwr_comp_batched_cascaded_compress_async(device_uncompressed_chunk_ptrs: *const *const core::ffi::c_void, device_uncompressed_chunk_bytes: *const usize, max_uncompressed_chunk_bytes: usize, batch_size: usize, device_temp_ptr: *mut core::ffi::c_void, temp_bytes: usize, device_compressed_chunk_ptrs: *const *mut core::ffi::c_void, device_compressed_chunk_bytes: *mut usize, opts: wwr_comp_cascaded_opts, stream: wwr_stream) -> wwr_comp_status;
+    pub fn wwr_comp_batched_cascaded_decompress_get_temp_size(num_chunks: usize, max_uncompressed_chunk_bytes: usize, temp_bytes: *mut usize) -> wwr_comp_status;
+    pub fn wwr_comp_batched_cascaded_get_decompress_size_async(device_compressed_chunk_ptrs: *const *const core::ffi::c_void, device_compressed_chunk_bytes: *const usize, device_uncompressed_chunk_bytes: *mut usize, batch_size: usize, stream: wwr_stream) -> wwr_comp_status;
+    pub fn wwr_comp_batched_cascaded_decompress_async(device_compressed_chunk_ptrs: *const *const core::ffi::c_void, device_compressed_chunk_bytes: *const usize, device_uncompressed_buffer_bytes: *const usize, device_uncompressed_chunk_bytes: *mut usize, num_chunks: usize, device_temp_ptr: *mut core::ffi::c_void, temp_bytes: usize, device_uncompressed_chunk_ptrs: *const *mut core::ffi::c_void, device_statuses: *mut core::ffi::c_void, stream: wwr_stream) -> wwr_comp_status;
 }

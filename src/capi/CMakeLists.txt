@@ -97,6 +97,22 @@ _wwr_add_capi_unit(blaslt wwr::blaslt)
 _wwr_add_capi_unit(solver wwr::solver)
 _wwr_add_capi_unit(rand wwr::rand)
 _wwr_add_capi_unit(rtc wwr::rtc)
+# The other milestone-#6 half (this PR): sparse / fft build unconditionally like
+# blas (they import wwr.sparse + wwr.complex / wwr.fft + wwr.complex, each
+# carrying only its own vendor lib -- cuSPARSE / cuFFT -- PUBLIC). tensor / comp
+# are GATED on WWR_WITH_TENSOR / WWR_WITH_COMP, matching their wwr.tensor /
+# wwr.comp modules in src/CMakeLists.txt (which exist only under those gates),
+# so their unit .so and their umbrella object below are conditional. comp is the
+# one hand-written library surface (its functions are wwr-authored shims, like
+# complex); the rest are fragment-sourced.
+_wwr_add_capi_unit(sparse wwr::sparse wwr::complex)
+_wwr_add_capi_unit(fft wwr::fft wwr::complex)
+if(WWR_WITH_TENSOR)
+  _wwr_add_capi_unit(tensor wwr::tensor)
+endif()
+if(WWR_WITH_COMP)
+  _wwr_add_capi_unit(comp wwr::comp)
+endif()
 
 # The umbrella libwwr_capi.so CONTAINS every unit's object symbols, so an
 # existing -lwwr_capi consumer resolves the whole ABI from one .so. The OUTPUT
@@ -109,6 +125,20 @@ _wwr_add_capi_unit(rtc wwr::rtc)
 # umbrella every unit's symbols AND, since each object library carries its wwr
 # deps PUBLIC, the union of the unit NEEDED sets -- so the umbrella stays a
 # drop-in for the old single .so.
+# The gated units (tensor / comp) are appended only when built, so the umbrella
+# aggregates exactly the units that exist. The unconditional ones are listed
+# literally; _capi_gated_objs / _capi_gated_obj_targets carry the gated extras.
+set(_capi_gated_objs "")
+set(_capi_gated_obj_targets "")
+if(WWR_WITH_TENSOR)
+  list(APPEND _capi_gated_objs $<TARGET_OBJECTS:wwr.capi.tensor.obj>)
+  list(APPEND _capi_gated_obj_targets wwr.capi.tensor.obj)
+endif()
+if(WWR_WITH_COMP)
+  list(APPEND _capi_gated_objs $<TARGET_OBJECTS:wwr.capi.comp.obj>)
+  list(APPEND _capi_gated_obj_targets wwr.capi.comp.obj)
+endif()
+
 add_library(
   wwr.capi SHARED
   $<TARGET_OBJECTS:wwr.capi.complex.obj>
@@ -118,13 +148,17 @@ add_library(
   $<TARGET_OBJECTS:wwr.capi.solver.obj>
   $<TARGET_OBJECTS:wwr.capi.rand.obj>
   $<TARGET_OBJECTS:wwr.capi.rtc.obj>
+  $<TARGET_OBJECTS:wwr.capi.sparse.obj>
+  $<TARGET_OBJECTS:wwr.capi.fft.obj>
+  ${_capi_gated_objs}
 )
 add_library(wwr::capi ALIAS wwr.capi)
 target_link_libraries(
   wwr.capi
   PRIVATE wwr.capi.complex.obj wwr.capi.runtime_api.obj wwr.capi.blas.obj
           wwr.capi.blaslt.obj wwr.capi.solver.obj wwr.capi.rand.obj
-          wwr.capi.rtc.obj
+          wwr.capi.rtc.obj wwr.capi.sparse.obj wwr.capi.fft.obj
+          ${_capi_gated_obj_targets}
 )
 set_target_properties(
   wwr.capi
@@ -142,8 +176,18 @@ if(WWR_BUILD_TESTS)
   # A pure-C consumer that links the symbols and verifies the arithmetic. Not a
   # module TU and not C++, so it uses add_executable directly rather than a
   # wwr_* test macro. Host-only: NOT REQUIRES_GPU, so it runs on no-GPU CI.
+  #
+  # It links ONLY the two units it exercises -- complex (host math) and
+  # runtime_api (host status) -- NOT the umbrella wwr::capi. The umbrella NEEDs
+  # every unit's vendor lib, including hiptensor, whose on-load library init
+  # PROBES for a GPU and aborts on a GPU-less HIP runner ("no ROCm-capable
+  # device is detected"). So merely RUNNING an umbrella-linked binary fails on
+  # no-GPU HIP CI (cuTENSOR does not probe on load, so CUDA was unaffected).
+  # This driver calls no device-library symbol, so the two host units suffice.
   add_executable(wwr.capi.driver driver.c)
-  target_link_libraries(wwr.capi.driver PRIVATE wwr::capi)
+  target_link_libraries(
+    wwr.capi.driver PRIVATE wwr::capi::complex wwr::capi::runtime_api
+  )
   target_include_directories(
     wwr.capi.driver PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/gen
   )
@@ -171,19 +215,24 @@ if(WWR_BUILD_TESTS)
     set(_rs_bin ${CMAKE_CURRENT_BINARY_DIR}/driver_rs)
     set(_rs_src ${CMAKE_CURRENT_SOURCE_DIR}/driver.rs)
     set(_rs_gen ${CMAKE_CURRENT_SOURCE_DIR}/gen)
-    # Link against the built library: -L its output dir, -l wwr_capi (its
-    # OUTPUT_NAME), and an rpath to that dir so the binary finds libwwr_capi.so
-    # at run time without an LD_LIBRARY_PATH on the ctest. WWR_CAPI_FFI points
-    # driver.rs's include!(concat!(env!(...))) at the committed gen/ dir.
+    # Link ONLY the two units driver.rs actually CALLS -- complex + runtime_api
+    # -- NOT the umbrella wwr_capi, for the same reason the C driver does (the
+    # umbrella NEEDs hiptensor, which probes a GPU on load and aborts on no-GPU
+    # HIP CI). The combined gen/ffi.rs still DECLARES every surface's externs,
+    # but an unreferenced extern needs no `.so` at link time, so the two host
+    # units suffice. -L the units' output dir (every per-unit .so lands there),
+    # -l each by its OUTPUT_NAME, and an rpath so the ctest finds them without
+    # LD_LIBRARY_PATH. WWR_CAPI_FFI points driver.rs's include! at the gen/ dir.
     add_custom_command(
       OUTPUT ${_rs_bin}
       COMMAND ${CMAKE_COMMAND} -E env WWR_CAPI_FFI=${_rs_gen}
               ${RUSTC} --edition 2021 -O
-              -L $<TARGET_FILE_DIR:wwr.capi>
-              -l wwr_capi
-              -C link-arg=-Wl,-rpath,$<TARGET_FILE_DIR:wwr.capi>
+              -L $<TARGET_FILE_DIR:wwr.capi.complex>
+              -l wwr_capi_complex
+              -l wwr_capi_runtime_api
+              -C link-arg=-Wl,-rpath,$<TARGET_FILE_DIR:wwr.capi.complex>
               -o ${_rs_bin} ${_rs_src}
-      DEPENDS ${_rs_src} ${_rs_gen}/ffi.rs wwr.capi
+      DEPENDS ${_rs_src} ${_rs_gen}/ffi.rs wwr.capi.complex wwr.capi.runtime_api
       COMMENT "Compiling wwr.capi.driver_rs (rustc)"
       VERBATIM
     )

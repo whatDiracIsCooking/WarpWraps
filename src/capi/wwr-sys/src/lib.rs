@@ -14,6 +14,10 @@
 //! | `solver`      | [`solver`]            | `libwwr_capi_solver.so` -> cuSOLVER / hipSOLVER |
 //! | `rand`        | [`rand`]              | `libwwr_capi_rand.so` -> cuRAND / hipRAND |
 //! | `rtc`         | [`rtc`]               | `libwwr_capi_rtc.so` -> nvRTC / hipRTC |
+//! | `sparse`      | [`sparse`]            | `libwwr_capi_sparse.so` -> cuSPARSE / hipSPARSE |
+//! | `tensor`      | [`tensor`]            | `libwwr_capi_tensor.so` -> cuTENSOR / hipTENSOR |
+//! | `fft`         | [`fft`]               | `libwwr_capi_fft.so` -> cuFFT / hipFFT |
+//! | `comp`        | [`comp`]              | `libwwr_capi_comp.so` -> nvCOMP / hipCOMP |
 //!
 //! ALL are default features, so an existing user who wants the whole ABI
 //! is unchanged -- they just transparently link the per-unit `.so`s instead of
@@ -77,6 +81,26 @@ pub use rand::*;
 pub mod rtc;
 #[cfg(feature = "rtc")]
 pub use rtc::*;
+
+#[cfg(feature = "sparse")]
+pub mod sparse;
+#[cfg(feature = "sparse")]
+pub use sparse::*;
+
+#[cfg(feature = "tensor")]
+pub mod tensor;
+#[cfg(feature = "tensor")]
+pub use tensor::*;
+
+#[cfg(feature = "fft")]
+pub mod fft;
+#[cfg(feature = "fft")]
+pub use fft::*;
+
+#[cfg(feature = "comp")]
+pub mod comp;
+#[cfg(feature = "comp")]
+pub use comp::*;
 
 #[cfg(test)]
 mod tests {
