@@ -240,9 +240,26 @@ function(_wwr_install_capi)
   # in-tree alias (wwr::capi, wwr::capi::complex, ...). INCLUDES DESTINATION
   # adds the include root (include/, for <wwr/...>) and the wwr/ subdir (for a
   # unit header's bare common.h include) to each INTERFACE_INCLUDE_DIRECTORIES.
+  # sparse / fft build unconditionally like blas; tensor / comp only under their
+  # WWR_WITH_* gates (the wwr.tensor / wwr.comp modules they import exist only
+  # then), so install them only when built -- the same gating the module targets
+  # carry in src/CMakeLists.txt.
+  # The umbrella plus every per-unit target. sparse / fft build unconditionally
+  # like blas / blaslt / solver / rand / rtc; tensor / comp only under their
+  # WWR_WITH_* gates (the wwr.tensor / wwr.comp modules they import exist only
+  # then), so install them only when built -- the same gating src/CMakeLists.txt
+  # carries on the module targets.
   set(_capi_targets
       wwr.capi wwr.capi.complex wwr.capi.runtime_api wwr.capi.blas
+      wwr.capi.blaslt wwr.capi.solver wwr.capi.rand wwr.capi.rtc
+      wwr.capi.sparse wwr.capi.fft
   )
+  if(WWR_WITH_TENSOR)
+    list(APPEND _capi_targets wwr.capi.tensor)
+  endif()
+  if(WWR_WITH_COMP)
+    list(APPEND _capi_targets wwr.capi.comp)
+  endif()
   foreach(_capi_target IN LISTS _capi_targets)
     _wwr_export_name(${_capi_target} _capi_export_name)
     set_target_properties(

@@ -17,16 +17,20 @@ cuBLAS / hipBLAS), mirroring the project's own per-`.cppm` dependency isolation 
 plus an **umbrella `libwwr_capi.so`** that contains every unit's symbols, so an
 existing `-lwwr_capi` consumer is unchanged (see "The per-unit split", below).
 
-It covers seven surfaces: `complex`, a thin status-returning slice of
-`runtime_api`, and five full curated vendor libraries — `blas` (cuBLAS /
+It covers eleven surfaces: `complex`, a thin status-returning slice of
+`runtime_api`, and the full curated vendor libraries — `blas` (cuBLAS /
 hipBLAS), `blaslt` (cuBLASLt / hipBLASLt), `solver` (cuSOLVER Dn / hipSOLVER),
-`rand` (cuRAND / hipRAND) and `rtc` (nvRTC / hipRTC). `complex`, `runtime_api`
-and `rtc` are **host**-side; `blas` / `blaslt` / `solver` / `rand` execute on the
-**device** at call time (a handle binds a device, a GEMM launches), so their
-thunks are link-checked on no-GPU CI and run-checked on a GPU box. The five
-library surfaces share ONE fragment-sourced path (`spec/library.py`'s
+`rand` (cuRAND / hipRAND), `rtc` (nvRTC / hipRTC), `sparse` (cuSPARSE /
+hipSPARSE), `tensor` (cuTENSOR / hipTENSOR), `fft` (cuFFT / hipFFT) and `comp`
+(nvCOMP / hipCOMP). `complex`, `runtime_api` and `rtc` are **host**-side; the
+rest execute on the **device** at call time (a handle binds a device, a kernel
+launches), so their thunks are link-checked on no-GPU CI and run-checked on a GPU
+box. The fragment-sourced library surfaces (`blas` / `blaslt` / `solver` /
+`rand` / `rtc` / `sparse` / `tensor` / `fft`) share ONE path (`spec/library.py`'s
 `LibrarySpec` + the generic emitters in `generate.py`); each `spec/<x>.py` is a
-declaration. See "What this does not cover" before extending it.
+declaration. `comp` is hand-written like `complex` (its functions are
+wwr-authored shims with no vendor `decl` to source). See "What this does not
+cover" before extending it.
 
 ## How the surface is sourced (and the one surface that is not)
 
@@ -60,6 +64,7 @@ reuses as-is:
 | pointer (`T*` / `const T*`) | passed through; a vendor pointee is erased to `void*` |
 | vendor enum (`cudaError_t`/`hipError_t`) | a **stable** capi enum with fixed values + a `_map` at the boundary (§6) |
 | opaque handle (`cublasHandle_t`, `cudaStream_t`) | `typedef void* wwr_<x>_handle;` |
+| scalar typedef (`cufftHandle` = `int`, `cufftReal` = `float`, `cusolver_int_t` = `int`) | folded to the **underlying scalar** (`Registry.scalar_aliases`), by value and as a pointer (`cufftHandle *` → `int *`); no vendor name leaks |
 | by-value struct | a capi POD whose **layout** is carried in a sidecar (`captypes.Struct`), the one datum a name/`decl` must not pin for ABI (§4/§12) |
 
 A surface declares what it needs in a tiny spec: `spec/runtime_status.py` names
@@ -307,17 +312,25 @@ family (#340). A Rust user adds one dependency, links the `.so`(s), and carries
 `.so` was built, exactly the ABI's thesis.
 
 **The crate is split per surface, mirroring the C-side per-unit split.** One
-always-compiled `common` module holds the PODs more than one surface uses
-(`wwr_complex64` / `wwr_complex128`), and each surface is its own module behind a
-Cargo **feature**:
+always-compiled `common` module holds the types more than one surface uses
+(`wwr_complex64` / `wwr_complex128` and the `wwr_stream` handle), and each surface
+is its own module behind a Cargo **feature**:
 
 | feature       | module          | links (`build.rs`)                        |
 |---------------|-----------------|-------------------------------------------|
 | `complex`     | `complex`       | `libwwr_capi_complex.so` (no vendor math lib) |
 | `runtime_api` | `runtime_api`   | `libwwr_capi_runtime_api.so`              |
 | `blas`        | `blas`          | `libwwr_capi_blas.so` → cuBLAS / hipBLAS  |
+| `blaslt`      | `blaslt`        | `libwwr_capi_blaslt.so` → cuBLASLt / hipBLASLt |
+| `solver`      | `solver`        | `libwwr_capi_solver.so` → cuSOLVER / hipSOLVER |
+| `rand`        | `rand`          | `libwwr_capi_rand.so` → cuRAND / hipRAND  |
+| `rtc`         | `rtc`           | `libwwr_capi_rtc.so` → nvRTC / hipRTC     |
+| `sparse`      | `sparse`        | `libwwr_capi_sparse.so` → cuSPARSE / hipSPARSE |
+| `tensor`      | `tensor`        | `libwwr_capi_tensor.so` → cuTENSOR / hipTENSOR |
+| `fft`         | `fft`           | `libwwr_capi_fft.so` → cuFFT / hipFFT     |
+| `comp`        | `comp`          | `libwwr_capi_comp.so` → nvCOMP / hipCOMP  |
 
-**Default = all three surfaces**, so an existing user who wants the whole ABI is
+**Default = all surfaces**, so an existing user who wants the whole ABI is
 unchanged — they just transparently link the per-unit `.so`s instead of the old
 umbrella. A user who needs one surface opts **down**:
 

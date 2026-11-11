@@ -66,21 +66,29 @@ sys.path.insert(0, str(_SPEC))
 import blas as blas_spec  # noqa: E402
 import blaslt as blaslt_spec  # noqa: E402
 import captypes  # noqa: E402
+import comp as comp_spec  # noqa: E402
 import complex as complex_spec  # noqa: E402
+import fft as fft_spec  # noqa: E402
 import fragments  # noqa: E402
 import manifest  # noqa: E402
 import rand as rand_spec  # noqa: E402
 import rtc as rtc_spec  # noqa: E402
 import runtime_status  # noqa: E402
 import solver as solver_spec  # noqa: E402
+import sparse as sparse_spec  # noqa: E402
+import tensor as tensor_spec  # noqa: E402
 
 # Every fragment-sourced vendor-library surface, in emit order. blas was the
-# first (spec/blas.py); blaslt / solver / rand / rtc (milestone #6) are four more
-# of the SAME shape, each a LibrarySpec (spec/library.py) the one generic library
-# path below resolves and emits. Append a surface here and it joins the gen/ tree,
-# the umbrella, the combined ffi.rs and the crate automatically.
+# first (spec/blas.py); blaslt / solver / rand / rtc and sparse / tensor / fft
+# (milestone #6) are seven more of the SAME shape, each a LibrarySpec
+# (spec/library.py) the one generic library path below resolves and emits. Append
+# a surface here and it joins the gen/ tree, the umbrella, the combined ffi.rs and
+# the crate automatically. (comp is the one hand-written library surface -- its
+# functions are wwr-authored shims with no vendor decl to source, like complex --
+# so it is NOT here; it has bespoke emitters wired into main() below.)
 LIBRARY_SPECS = [blas_spec.SPEC, blaslt_spec.SPEC, solver_spec.SPEC,
-                 rand_spec.SPEC, rtc_spec.SPEC]
+                 rand_spec.SPEC, rtc_spec.SPEC, sparse_spec.SPEC,
+                 tensor_spec.SPEC, fft_spec.SPEC]
 
 # Opaque handle typedefs MORE THAN ONE surface names -> declared ONCE in the
 # shared common.h / common.rs (the way the complex PODs are), so the umbrella
@@ -343,7 +351,11 @@ def _rust_base(base_c: str) -> str:
     """The Rust spelling of a BARE (pointer-stripped) capi C base type. A C scalar
     maps through _RUST_BASE; a capi struct/enum/handle (wwr_*) keeps its name;
     anything else is an unmapped C spelling and a hard error (it would otherwise
-    leak into ffi.rs -- the uint16_t class of bug, #364 CI)."""
+    leak into ffi.rs -- the uint16_t class of bug, #364 CI). A leading `const` on
+    a BY-VALUE scalar (tensor's `const uint32_t numModes`, the compute descriptor
+    folded to `const uint64_t`) is meaningless to the ABI and dropped -- Rust has
+    no const-value parameter."""
+    base_c = re.sub(r"^\s*const\b\s*", "", base_c)
     if base_c in _RUST_BASE:
         return _RUST_BASE[base_c]
     if _CAPI_BASE.match(base_c):
@@ -549,6 +561,7 @@ def gen_umbrella_h() -> str:
          '#include "runtime_api/wwr_capi_runtime_api.h"']
     for spec in LIBRARY_SPECS:
         L.append(f'#include "{spec.name}/wwr_capi_{spec.name}.h"')
+    L.append('#include "comp/wwr_capi_comp.h"')  # hand-written, not a LibrarySpec
     L += ["", f"#endif  // {guard}", ""]
     return "\n".join(L)
 
@@ -734,6 +747,122 @@ def gen_library_cpp(lib: ResolvedLibrary) -> str:
 
 
 # ---------------------------------------------------------------------------
+# The comp surface: HAND-WRITTEN (spec/comp.py), like complex -- its functions
+# are wwr-authored shims with no manifest `decl`. So it has bespoke emitters (not
+# the fragment-sourced library path): by-value option PODs, a status/data-type
+# value-enum pair, and thunks that BUILD the neutral wwr opts from the capi POD.
+# ---------------------------------------------------------------------------
+def _c_param_raw(ctype: str, name: str) -> str:
+    sep = "" if ctype.endswith("*") else " "
+    return f"{ctype}{sep}{name}"
+
+
+def _comp_enum_c_lines() -> list[str]:
+    L: list[str] = []
+    for ve in comp_spec.VALUE_ENUMS:
+        L.append(f"typedef enum {ve.capi_type} {{")
+        for name, val in library_enumerators(ve):
+            L.append(f"  {name} = {val},")
+        L.append(f"}} {ve.capi_type};")
+        L.append("")
+    return L
+
+
+def gen_comp_h() -> str:
+    """comp/wwr_capi_comp.h — the comp status / data-type value enums, the three
+    by-value option PODs, plus the 18 batched prototypes. #includes common.h for
+    the shared wwr_stream handle the async / stream-taking calls name."""
+    guard = "WWR_CAPI_COMP_H"
+    L = [f"{_GEN_NOTE} Sources: src/detail/comp_names.h (hand-written spec).",
+         f"#ifndef {guard}", f"#define {guard}", "",
+         "#include <stddef.h>", "#include <stdint.h>", "",
+         '#include "common.h"', ""]
+    L += _c_extern_open()
+    for h in comp_spec.HANDLES:
+        if h.capi_type not in SHARED_HANDLES:
+            L.append(f"typedef void *{h.capi_type};")
+    L.append("")
+    L += _comp_enum_c_lines()
+    for o in comp_spec.OPTS:
+        L.append(f"typedef struct {o['capi']} {{")
+        for cty, fn, _how in o["fields"]:
+            L.append(f"  {cty} {fn};")
+        L.append(f"}} {o['capi']};")
+        L.append("")
+    for f in comp_spec.functions():
+        args = ", ".join(_c_param_raw(ct, n) for _r, ct, n in f["params"])
+        L.append(f"wwr_comp_status {f['capi']}({args});")
+    L += _c_extern_close(guard)
+    return "\n".join(L)
+
+
+def gen_comp_cpp() -> str:
+    """comp/wwr_capi_comp.cpp — the comp thunks. `import wwr.comp;` only -> this
+    unit's .so NEEDs the vendor compression library and no other. Each thunk maps
+    the data-type enum fields, BUILDS the neutral wwr opts from the capi POD,
+    reinterpret_casts the pointer / stream arguments to the wwr parameter types,
+    and maps the status return to the stable enum (§6)."""
+    L = [_GEN_NOTE,
+         '#include "comp/wwr_capi_comp.h"', "",
+         "#include <type_traits>", "",
+         "import wwr.comp;", "",
+         "namespace {"]
+    L += ["template <class P, class A> P _coerce(A a) {",
+          "  if constexpr (std::is_pointer_v<P>) "
+          "return reinterpret_cast<P>(a);",
+          "  else return static_cast<P>(a);",
+          "}",
+          "template <class R, class... P, class... A>",
+          "R _fwd(R (&f)(P...), A... a) { return f(_coerce<P>(a)...); }",
+          ""]
+    # The status and data-type maps (§6), capi <-> neutral, constant-based so the
+    # one source compiles on both backends.
+    for ve in comp_spec.VALUE_ENUMS:
+        slug = ve.capi_type[len("wwr_comp_"):]
+        default_const = _fallback_wwr_const(ve)
+        L.append(f"wwr::{ve.wwr_type} _to_{slug}({ve.capi_type} x) {{")
+        L.append("  switch (x) {")
+        for enumerator, wwr_const in ve.entries:
+            L.append(f"    case {enumerator}: return wwr::{wwr_const};")
+        L.append(f"    default: return wwr::{default_const};")
+        L.append("  }")
+        L.append("}")
+        L.append(f"{ve.capi_type} _from_{slug}(wwr::{ve.wwr_type} v) {{")
+        for enumerator, wwr_const in ve.entries:
+            L.append(f"  if (v == wwr::{wwr_const}) return {enumerator};")
+        L.append(f"  return {ve.fallback};")
+        L.append("}")
+    L += ["}  // namespace", "", 'extern "C" {', ""]
+
+    for f in comp_spec.functions():
+        args = ", ".join(_c_param_raw(ct, n) for _r, ct, n in f["params"])
+        L.append(f"wwr_comp_status {f['capi']}({args}) {{")
+        call_terms: list[str] = []
+        for repr_, _ct, n in f["params"]:
+            if repr_ == "opts":
+                opts = f["opts"]
+                # Build the neutral wwr opts local from the capi POD's fields: an
+                # enum field maps through _to_type, a scalar passes, a reserved
+                # byte (Snappy) is ignored -- {} builds the empty wwr opts.
+                inits = []
+                for _cty, fn, how in opts["fields"]:
+                    if how == "enum":
+                        inits.append(f"_to_type({n}.{fn})")
+                    elif how == "scalar":
+                        inits.append(f"{n}.{fn}")
+                    # "ignore": contributes nothing
+                L.append(f"  wwr::{opts['wwr']} _o_{n}{{{', '.join(inits)}}};")
+                call_terms.append(f"_o_{n}")
+            else:
+                call_terms.append(n)
+        callexpr = f"_fwd({f['wwr']}, {', '.join(call_terms)})"
+        L.append(f"  return _from_status({callexpr});")
+        L += ["}", ""]
+    L += ["}  // extern \"C\"", ""]
+    return "\n".join(L)
+
+
+# ---------------------------------------------------------------------------
 # The Rust side. PR #366 mirrors the C-side per-unit split (PR #365) into the
 # crate: the shared PODs live in an always-compiled `common` module, and each
 # surface is its own module behind a Cargo feature (src/capi/README.md). So the
@@ -910,6 +1039,54 @@ def gen_rust_library(lib: ResolvedLibrary) -> str:
     return "\n".join(L)
 
 
+def _rust_comp_types_lines() -> list[str]:
+    # The comp status / data-type value enums and the three option PODs
+    # (#[repr(C)]). The shared wwr_stream handle lives in crate::common, so it is
+    # skipped here and named via the `use`.
+    L: list[str] = []
+    own_handles = [h for h in comp_spec.HANDLES
+                   if h.capi_type not in SHARED_HANDLES]
+    for h in own_handles:
+        L.append(f"pub type {h.capi_type} = *mut core::ffi::c_void;")
+    if own_handles:
+        L.append("")
+    for ve in comp_spec.VALUE_ENUMS:
+        L += ["#[repr(i32)]", "#[derive(Copy, Clone, Debug, PartialEq, Eq)]",
+              f"pub enum {ve.capi_type} {{"]
+        for name, val in library_enumerators(ve):
+            L.append(f"    {name} = {val},")
+        L += ["}", ""]
+    for o in comp_spec.OPTS:
+        L += ["#[repr(C)]", "#[derive(Copy, Clone, Debug)]",
+              f"pub struct {o['capi']} {{"]
+        for cty, fn, _how in o["fields"]:
+            L.append(f"    pub {_rust_ident(fn)}: {_rust_c_type(cty)},")
+        L += ["}", ""]
+    return L
+
+
+def _rust_comp_fns() -> list[str]:
+    L = []
+    for f in comp_spec.functions():
+        args = ", ".join(f"{_rust_ident(n)}: {_rust_c_type(ct)}"
+                         for _r, ct, n in f["params"])
+        L.append(f"    pub fn {f['capi']}({args}) -> wwr_comp_status;")
+    return L
+
+
+def gen_rust_comp() -> str:
+    """comp/comp.rs — the comp types and extern "C" block. `use`s common for the
+    shared wwr_stream handle. No #[link]: build.rs links libwwr_capi_comp.so under
+    the feature."""
+    L = [_RUST_NOTE, _RUST_BACKEND_NOTE, "",
+         "#[allow(unused_imports)]", "use crate::common::*;", ""]
+    L += _rust_comp_types_lines()
+    L += [_RUST_FMT_SKIP, 'extern "C" {']
+    L += _rust_comp_fns()
+    L += ["}", ""]
+    return "\n".join(L)
+
+
 def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap,
                       libs: list[ResolvedLibrary]) -> str:
     """gen/ffi.rs — the COMBINED binding the in-tree driver.rs include!s: every
@@ -928,17 +1105,22 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
         L.append("")
     for lib in libs:
         L += _rust_library_types_lines(lib)
+    L += _rust_comp_types_lines()  # the hand-written comp surface's types
     L += _rust_status_enum_lines(enum)
-    # The link name is the OUTPUT file name of the UMBRELLA shared library, NOT
-    # the CMake target name: rustc's -l does a literal libwwr_capi.so lookup, so
-    # this must match the `OUTPUT_NAME wwr_capi` set on the wwr.capi target in
-    # capi/CMakeLists.txt (which also matches the C ABI's wwr_ symbol prefix).
-    # Change one and you must change the other, or the Rust driver fails to link.
-    L += [_RUST_FMT_SKIP, '#[link(name = "wwr_capi")]', 'extern "C" {']
+    # NO `#[link(name = ...)]` on the extern block: the in-tree driver.rs (the one
+    # consumer that include!s this file) gets its `-l` flags from capi's
+    # CMakeLists, which links ONLY the units driver.rs actually CALLS (complex +
+    # runtime_api), NOT the umbrella. A `#[link(name = "wwr_capi")]` here would
+    # FORCE the umbrella in regardless of those flags -- and the umbrella NEEDs
+    # hiptensor, which probes a GPU on load and aborts on no-GPU HIP CI. An
+    # UNREFERENCED extern (the device-library surfaces driver.rs declares but
+    # never calls) needs no `.so` at link time, so the two host units suffice.
+    L += [_RUST_FMT_SKIP, 'extern "C" {']
     L += _rust_complex_fns(enum)
     L += _rust_status_fns(status_fns, enum)
     for lib in libs:
         L += _rust_library_fns(lib.functions)
+    L += _rust_comp_fns()
     L += ["}", ""]
     return "\n".join(L)
 
@@ -975,10 +1157,12 @@ def main() -> None:
         "complex": (gen_complex_h(), gen_complex_cpp()),
         "runtime_api": (gen_runtime_api_h(status_fns, enum),
                         gen_runtime_api_cpp(status_fns, enum)),
+        "comp": (gen_comp_h(), gen_comp_cpp()),
     }
     rust_units = {
         "complex": gen_rust_complex(enum),
         "runtime_api": gen_rust_runtime_api(status_fns, enum),
+        "comp": gen_rust_comp(),
     }
     for lib in libs:
         units[lib.spec.name] = (gen_library_h(lib), gen_library_cpp(lib))
@@ -1001,6 +1185,7 @@ def main() -> None:
               f"skipped {len(skips)}")
         for name, reason in skips:
             print(f"  SKIP {name}: {reason}")
+    print(f"comp: wrapped {len(comp_spec.functions())} functions (hand-written)")
     # The wwr-sys crate ships the binding self-contained (it is installed and
     # path/git-depended on away from this tree, so a sibling `../gen/*.rs`
     # include! would dangle). Keep each generated module the SINGLE SOURCE by

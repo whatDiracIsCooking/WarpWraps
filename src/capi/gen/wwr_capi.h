@@ -10,5 +10,9 @@
 #include "solver/wwr_capi_solver.h"
 #include "rand/wwr_capi_rand.h"
 #include "rtc/wwr_capi_rtc.h"
+#include "sparse/wwr_capi_sparse.h"
+#include "tensor/wwr_capi_tensor.h"
+#include "fft/wwr_capi_fft.h"
+#include "comp/wwr_capi_comp.h"
 
 #endif  // WWR_CAPI_H

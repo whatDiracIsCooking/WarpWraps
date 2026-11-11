@@ -31,6 +31,10 @@ const UNITS: &[(&str, &str)] = &[
     ("solver", "wwr_capi_solver"),
     ("rand", "wwr_capi_rand"),
     ("rtc", "wwr_capi_rtc"),
+    ("sparse", "wwr_capi_sparse"),
+    ("tensor", "wwr_capi_tensor"),
+    ("fft", "wwr_capi_fft"),
+    ("comp", "wwr_capi_comp"),
 ];
 
 fn main() {
