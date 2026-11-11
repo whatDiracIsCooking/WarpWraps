@@ -1102,17 +1102,28 @@ cuComplex-vs-hipComplex divergence (§3) is resolved inside the `wwr::wwrC*`
 function the thunk calls, not above it, so the thunk is one shape over both
 backends and the fragment's names suffice for everything but the layout.
 
-This points to a mechanism — for #329 to realize concretely, not mandated in
-detail here. The thunks become a macro-expansion consumption path: a `.cpp`/`.h`
-that `#include`s the fragment with capi-emitting `WWR_*` macros, exactly as the
-module, the device section and the `#include` path already do, with the Rust side
-produced by `bindgen` over the generated C header and the POD layouts carried in a
-small sidecar. Consequently the hand-written Python spec in `src/capi/spec/` is
-**provisional scaffolding**: it restates the tuples only until a fragment-sourced
-path replaces it, and is **not** a sanctioned second encoding of the surface. The
-generator's own header already flags this (its "a real `wwr.capi` target would
-generate this spec FROM the headers rather than restate it"); #328 records the
-verdict so the next reader finds the decision made.
+This consumption path is now **realized** (#346). The generator does not
+`#include` the fragment through capi-emitting macros as first sketched — it parses
+it as text (`src/capi/spec/fragments.py`, the way `devtools/header_intersection.py`
+reads the manifests: stdlib `re`, SDK-free, so it runs on a bare CI runner),
+reproducing the preprocessor exactly: `WWR_RT_<KIND>(Stem)` is the stem with each
+backend's prefix, `WWR_<KIND>_RAW(wwrX, cudaX, hipX)` is literal. That gives the
+authoritative **set** of names; the **signatures and enum values** come from the
+committed `vendor/<pin>/*.json` manifests (`vendor_harvest.py`'s `decl` / folded
+`value`), looked up by the fragment's selected-backend vendor name. A type
+classifier (`src/capi/spec/captypes.py`) turns each vendor `decl` into the ABI's
+vendor-free form — scalars and pointers pass through, a vendor pointee erases to
+`void*`, a vendor enum maps to a stable capi enum (§6), and the handle / by-value
+struct arms are wired with the layout **sidecar** so a widening surface (#349) is
+a thin registration rather than new machinery. The Rust side is still emitted by
+the generator (not `bindgen`, which stays optional — the venv carries no
+`clang.cindex`). The one surface NOT sourced this way is `complex`: its thunks
+forward into wwr-*authored* inline wrappers (`wwr::wwrCaddf`), which are not vendor
+functions and so appear in no manifest — there is no `decl` to read, so it remains
+a small, documented hand-written special case (`src/capi/spec/complex.py`). The
+drift this layout forecloses is now foreclosed in code: delete a name from the
+fragment and it leaves the generated header, thunk and `ffi.rs` (and a surface that
+still requests it fails the build, rather than inventing it).
 
 The capi is now a first-class installed artifact (#338, milestone #5). Unlike
 every other `wwr` library — which ships as module *source* a consumer compiles,
