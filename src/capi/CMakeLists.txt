@@ -114,6 +114,22 @@ if(WWR_WITH_COMP)
   _wwr_add_capi_unit(comp wwr::comp)
 endif()
 
+# The milestone-#6 numeric TYPE surfaces (#360 fp16+bf16, #361 vector_types,
+# #362 fp8). Each imports ONLY its own wwr::<x> module, which carries just the
+# vendor's HEADER (the half / bfloat16 / vector-type / fp8 headers are
+# header-only -- no vendor math library), so each unit's .so NEEDs no extra
+# vendor lib beyond the backend runtime (verify: `readelf -d
+# libwwr_capi_fp16.so | grep NEEDED` shows no cublas / cufft / etc.). All four
+# are HOST surfaces (type conversions / constructors), so they run on no-GPU CI.
+# fp4 / fp6 are intentionally ABSENT: their wwr.fp4 / wwr.fp6 modules are
+# BLOCKED on HIP and unregistered in src/CMakeLists.txt, so a unit importing
+# them would fail the HIP compile gate -- they flip on the day those modules do
+# (generate.py reports them as explicit skips). See src/capi/spec/fp8.py.
+_wwr_add_capi_unit(fp16 wwr::fp16)
+_wwr_add_capi_unit(bf16 wwr::bf16)
+_wwr_add_capi_unit(vector_types wwr::vector_types)
+_wwr_add_capi_unit(fp8 wwr::fp8)
+
 # The umbrella libwwr_capi.so CONTAINS every unit's object symbols, so an
 # existing -lwwr_capi consumer resolves the whole ABI from one .so. The OUTPUT
 # file name is wwr_capi (-> libwwr_capi.so), NOT the dotted target name: rustc's
@@ -150,6 +166,10 @@ add_library(
   $<TARGET_OBJECTS:wwr.capi.rtc.obj>
   $<TARGET_OBJECTS:wwr.capi.sparse.obj>
   $<TARGET_OBJECTS:wwr.capi.fft.obj>
+  $<TARGET_OBJECTS:wwr.capi.fp16.obj>
+  $<TARGET_OBJECTS:wwr.capi.bf16.obj>
+  $<TARGET_OBJECTS:wwr.capi.vector_types.obj>
+  $<TARGET_OBJECTS:wwr.capi.fp8.obj>
   ${_capi_gated_objs}
 )
 add_library(wwr::capi ALIAS wwr.capi)
@@ -158,6 +178,8 @@ target_link_libraries(
   PRIVATE wwr.capi.complex.obj wwr.capi.runtime_api.obj wwr.capi.blas.obj
           wwr.capi.blaslt.obj wwr.capi.solver.obj wwr.capi.rand.obj
           wwr.capi.rtc.obj wwr.capi.sparse.obj wwr.capi.fft.obj
+          wwr.capi.fp16.obj wwr.capi.bf16.obj wwr.capi.vector_types.obj
+          wwr.capi.fp8.obj
           ${_capi_gated_obj_targets}
 )
 set_target_properties(

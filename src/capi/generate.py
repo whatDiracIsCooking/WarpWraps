@@ -63,12 +63,15 @@ from pathlib import Path
 _SPEC = Path(__file__).parent / "spec"
 sys.path.insert(0, str(_SPEC))
 
+import bf16 as bf16_spec  # noqa: E402
 import blas as blas_spec  # noqa: E402
 import blaslt as blaslt_spec  # noqa: E402
 import captypes  # noqa: E402
 import comp as comp_spec  # noqa: E402
 import complex as complex_spec  # noqa: E402
 import fft as fft_spec  # noqa: E402
+import fp8 as fp8_spec  # noqa: E402
+import fp16 as fp16_spec  # noqa: E402
 import fragments  # noqa: E402
 import manifest  # noqa: E402
 import rand as rand_spec  # noqa: E402
@@ -77,6 +80,7 @@ import runtime_status  # noqa: E402
 import solver as solver_spec  # noqa: E402
 import sparse as sparse_spec  # noqa: E402
 import tensor as tensor_spec  # noqa: E402
+import vector_types as vector_types_spec  # noqa: E402
 
 # Every fragment-sourced vendor-library surface, in emit order. blas was the
 # first (spec/blas.py); blaslt / solver / rand / rtc and sparse / tensor / fft
@@ -98,6 +102,22 @@ LIBRARY_SPECS = [blas_spec.SPEC, blaslt_spec.SPEC, solver_spec.SPEC,
 # tolerates an identical typedef repeat; Rust does not -- a duplicate `pub type`
 # in one scope is an error -- so consolidating is required, not merely tidy.)
 SHARED_HANDLES = {"wwr_stream": "typedef void *wwr_stream;"}
+
+# The SHARED NUMERIC PODs: the 16-bit scalar types that live in gen/common.h as
+# the shared numeric vocabulary alongside the complex PODs (the milestone-#6
+# numeric-types decision). wwr_half is declared here (not blas's own header)
+# because MORE THAN ONE unit names it -- blas takes __half by pointer, and the
+# fp16 unit declares the type itself -- so the shared header carries it once (the
+# same consolidation reason as the complex PODs). wwr_bf16 is the bfloat16 twin.
+# Each is opaque bits the thunk reinterpret_casts to the neutral vendor type
+# (§3/§12); a one-value `bits` field pins the layout for C and Rust. `c_field` is
+# the C field type, `rust_field` its Rust spelling. A blas pointee POD or an fp16
+# / bf16 unit that names one of these #includes common.h and does NOT redeclare
+# it (a duplicate `pub type` / struct is a Rust error, not merely untidy).
+SHARED_NUMERIC_PODS = {
+    "wwr_half": {"c_field": "uint16_t", "rust_field": "u16"},
+    "wwr_bf16": {"c_field": "uint16_t", "rust_field": "u16"},
+}
 
 _SRC = Path(__file__).resolve().parents[1]  # src/
 _VENDOR = _SRC.parent / "vendor"
@@ -431,13 +451,22 @@ def gen_common_h() -> str:
     pointer); a one-unit POD (wwr_half, wwr_status) stays in that unit's header.
     No extern "C" block: it declares types only, no prototypes."""
     guard = "WWR_CAPI_COMMON_H"
-    L = [f"{_GEN_NOTE} Shared PODs (src/capi/spec/complex.py) + shared handles.",
-         f"#ifndef {guard}", f"#define {guard}", ""]
+    L = [f"{_GEN_NOTE} Shared PODs (complex.py + the numeric types) + shared handles.",
+         f"#ifndef {guard}", f"#define {guard}", "",
+         "#include <stdint.h>", ""]  # for the numeric PODs' uint16_t field
     for t in complex_spec.TYPES:
         L.append(f"typedef struct {t['capi']} {{")
         for cty, fn in t["fields"]:
             L.append(f"  {C_FLOAT[cty]} {fn};")
         L.append(f"}} {t['capi']};")
+        L.append("")
+    # The shared NUMERIC PODs (wwr_half / wwr_bf16): opaque bits the thunks
+    # reinterpret_cast to the neutral vendor half / bfloat16 (§3/§12). Here, not a
+    # unit header, because more than one unit names them (SHARED_NUMERIC_PODS).
+    for capi, pod in SHARED_NUMERIC_PODS.items():
+        L.append(f"typedef struct {capi} {{")
+        L.append(f"  {pod['c_field']} bits;")
+        L.append(f"}} {capi};")
         L.append("")
     # The opaque handle typedefs more than one unit names (wwr_stream), declared
     # here once so the umbrella does not see a duplicate.
@@ -495,11 +524,20 @@ def _spec_shared_handles(spec) -> list:
 
 def _needs_common(spec) -> bool:
     """Whether a surface names anything that lives in the shared common.h -- a
-    complex POD by pointer, or a shared handle (wwr_stream) -- so its header must
-    #include "common.h"."""
-    shared_pods = {t["capi"] for t in complex_spec.TYPES}
+    complex POD by pointer, a SHARED NUMERIC POD (wwr_half) by value or pointer,
+    or a shared handle (wwr_stream) -- so its header must #include "common.h"."""
+    shared_pods = {t["capi"] for t in complex_spec.TYPES} | set(SHARED_NUMERIC_PODS)
     return (any(p.capi_pod in shared_pods for p in spec.pointee_pods)
+            or any(t["capi"] in SHARED_NUMERIC_PODS for t in spec.pods)
             or bool(_spec_shared_handles(spec)))
+
+
+def _own_pods(spec) -> list:
+    """A spec's OWN by-value PODs -- those NOT in the shared common.h. A POD the
+    shared numeric vocabulary carries (blas's wwr_half) is declared once in
+    common.h, so the unit header / Rust module must NOT redeclare it (a duplicate
+    struct is a Rust error). The rest stay in the unit's own header."""
+    return [t for t in spec.pods if t["capi"] not in SHARED_NUMERIC_PODS]
 
 
 def gen_library_h(lib: ResolvedLibrary) -> str:
@@ -520,10 +558,10 @@ def gen_library_h(lib: ResolvedLibrary) -> str:
     if _needs_common(spec):
         L += ['#include "common.h"', ""]
     L += _c_extern_open()
-    # The surface's own by-value PODs (blas's wwr_half: 16 opaque bits,
-    # layout-matched to the vendor __half the thunk reinterpret_casts to, §3/§12).
-    # A POD used by ONE unit lives in that unit's header, not common.h.
-    for t in spec.pods:
+    # The surface's own by-value PODs. A POD the shared numeric vocabulary carries
+    # (blas's wwr_half) lives in common.h (included above when _needs_common), so
+    # _own_pods filters it out here; the rest are this unit's own.
+    for t in _own_pods(spec):
         L.append(f"typedef struct {t['capi']} {{")
         for cty, fn in t["fields"]:
             L.append(f"  {cty} {fn};")
@@ -561,7 +599,9 @@ def gen_umbrella_h() -> str:
          '#include "runtime_api/wwr_capi_runtime_api.h"']
     for spec in LIBRARY_SPECS:
         L.append(f'#include "{spec.name}/wwr_capi_{spec.name}.h"')
-    L.append('#include "comp/wwr_capi_comp.h"')  # hand-written, not a LibrarySpec
+    # The hand-written surfaces (not LibrarySpecs): comp and the numeric types.
+    for unit in ("comp", "fp16", "bf16", "vector_types", "fp8"):
+        L.append(f'#include "{unit}/wwr_capi_{unit}.h"')
     L += ["", f"#endif  // {guard}", ""]
     return "\n".join(L)
 
@@ -915,7 +955,7 @@ def _rust_library_types_lines(lib: ResolvedLibrary) -> list[str]:
     # bits), opaque handles (-> void*) and stable value enums (#[repr(i32)], fixed
     # §6 values) -- all surface-only. A surface with no POD / handle emits none.
     L: list[str] = []
-    for t in lib.spec.pods:
+    for t in _own_pods(lib.spec):
         L += ["#[repr(C)]", "#[derive(Copy, Clone, Debug)]",
               f"pub struct {t['capi']} {{"]
         for cty, fn in t["fields"]:
@@ -990,10 +1030,14 @@ def gen_rust_common() -> str:
     gen/common.h. Always compiled (not feature-gated), so any enabled surface can
     name them via `use crate::common::*;`."""
     L = [_RUST_NOTE,
-         "// Shared PODs (src/capi/spec/complex.py) + shared handles, used by > 1 "
-         "surface.", ""]
+         "// Shared PODs (complex.py + the numeric types) + shared handles, used "
+         "by > 1 surface.", ""]
     for t in complex_spec.TYPES:
         L += _rust_pod_lines(t)
+    for capi, pod in SHARED_NUMERIC_PODS.items():
+        L += ["#[repr(C)]", "#[derive(Copy, Clone, Debug)]",
+              f"pub struct {capi} {{",
+              f"    pub bits: {pod['rust_field']},", "}", ""]
     for capi_type in SHARED_HANDLES:
         L.append(f"pub type {capi_type} = *mut core::ffi::c_void;")
     if SHARED_HANDLES:
@@ -1087,6 +1131,333 @@ def gen_rust_comp() -> str:
     return "\n".join(L)
 
 
+# ---------------------------------------------------------------------------
+# The numeric TYPE surfaces: fp16 / bf16 / vector_types / fp8, HAND-WRITTEN
+# (spec/{fp16,bf16,vector_types,fp8}.py), the complex / comp shape -- their
+# functions are wwr-authored type conversions / constructors with no vendor decl
+# to source. Each is its own unit .so importing only its wwr::<x> module, so it
+# links only that module's (header-only) vendor dep. The POD types wwr_half /
+# wwr_bf16 live in the shared common.h; a vector_types POD and the fp8 storage /
+# enums are each unit's own. See the milestone-#6 numeric-types decision.
+# ---------------------------------------------------------------------------
+def gen_fp16_h() -> str:
+    """fp16/wwr_capi_fp16.h — the two host float<->half conversions. Its POD is the
+    shared wwr_half, so it declares none and #includes common.h for it."""
+    guard = "WWR_CAPI_FP16_H"
+    L = [f"{_GEN_NOTE} Sources: src/capi/spec/fp16.py (hand-written).",
+         f"#ifndef {guard}", f"#define {guard}", "",
+         '#include "common.h"', ""]
+    L += _c_extern_open()
+    for f in fp16_spec.FUNCTIONS:
+        args = ", ".join(f"{a[0]} {a[1]}" for a in f["args"])
+        L.append(f"{f['ret']} {f['capi']}({args});")
+    L += _c_extern_close(guard)
+    return "\n".join(L)
+
+
+def gen_bf16_h() -> str:
+    """bf16/wwr_capi_bf16.h — the two host float<->bfloat16 conversions. Its POD is
+    the shared wwr_bf16, so it #includes common.h and declares none."""
+    guard = "WWR_CAPI_BF16_H"
+    L = [f"{_GEN_NOTE} Sources: src/capi/spec/bf16.py (hand-written).",
+         f"#ifndef {guard}", f"#define {guard}", "",
+         '#include "common.h"', ""]
+    L += _c_extern_open()
+    for f in bf16_spec.FUNCTIONS:
+        args = ", ".join(f"{a[0]} {a[1]}" for a in f["args"])
+        L.append(f"{f['ret']} {f['capi']}({args});")
+    L += _c_extern_close(guard)
+    return "\n".join(L)
+
+
+def _gen_fp16_like_cpp(unit: str, module: str, spec, pod_capi: str) -> str:
+    """The fp16 / bf16 thunk TU (identical shape): `import wwr.<unit>;` only, so the
+    .so links only that module's (header-only) half/bf16 vendor dep. Each thunk
+    forwards into the wwr conversion; the half/bf16 POD crosses by VALUE, so the
+    thunk memcpy's between the capi POD and the neutral wwr:: type on the argument
+    (POD -> neutral) and the return (neutral -> POD), both layout-identical opaque
+    bits (§3/§12) -- a vendor-type-free cast that never names __half /
+    __nv_bfloat16. A plain float argument / return passes straight through."""
+    L = [_GEN_NOTE,
+         f'#include "{unit}/wwr_capi_{unit}.h"', "",
+         "#include <cstring>", "",
+         f"import {module};", "",
+         'extern "C" {', ""]
+    for f in spec.FUNCTIONS:
+        ret = f["ret"]
+        args = ", ".join(f"{a[0]} {a[1]}" for a in f["args"])
+        neutral = _neutral_type(f["wwr"])
+        L.append(f"{ret} {f['capi']}({args}) {{")
+        call_terms = []
+        for aty, an in f["args"]:
+            if aty == pod_capi:
+                # capi POD (opaque bits) -> neutral wwr half/bf16, layout-matched.
+                L.append(f"  wwr::{neutral} _a_{an};")
+                L.append(f"  std::memcpy(&_a_{an}, &{an}, sizeof(_a_{an}));")
+                call_terms.append(f"_a_{an}")
+            else:
+                call_terms.append(an)
+        call = ", ".join(call_terms)
+        if ret == pod_capi:
+            L.append(f"  const auto _r = {f['wwr']}({call});")
+            L.append(f"  {ret} _o;")
+            L.append("  std::memcpy(&_o, &_r, sizeof(_o));")
+            L.append("  return _o;")
+        else:
+            L.append(f"  return {f['wwr']}({call});")
+        L += ["}", ""]
+    L += ["}  // extern \"C\"", ""]
+    return "\n".join(L)
+
+
+def _neutral_type(wwr_fn: str) -> str:
+    """The neutral wwr type name a half / bf16 conversion's POD maps to, inferred
+    from the forwarded function name: the fp16 pair uses wwrHalf, the bf16 pair
+    wwrBfloat16. A tiny table keeps the thunk from naming a vendor type."""
+    return "wwrBfloat16" if "Bfloat16" in wwr_fn or "bfloat16" in wwr_fn else "wwrHalf"
+
+
+def gen_fp16_cpp() -> str:
+    """fp16/wwr_capi_fp16.cpp — `import wwr.fp16;` only (header-only half dep)."""
+    return _gen_fp16_like_cpp("fp16", "wwr.fp16", fp16_spec, "wwr_half")
+
+
+def gen_bf16_cpp() -> str:
+    """bf16/wwr_capi_bf16.cpp — `import wwr.bf16;` only (header-only bf16 dep)."""
+    return _gen_fp16_like_cpp("bf16", "wwr.bf16", bf16_spec, "wwr_bf16")
+
+
+def _rust_fp16_like_fns(spec) -> list[str]:
+    L = []
+    for f in spec.FUNCTIONS:
+        args = ", ".join(f"{a[1]}: {_rust_c_type(a[0])}" for a in f["args"])
+        L.append(f"    pub fn {f['capi']}({args}) -> {_rust_c_type(f['ret'])};")
+    return L
+
+
+def _rust_fp16_fns() -> list[str]:
+    return _rust_fp16_like_fns(fp16_spec)
+
+
+def _rust_bf16_fns() -> list[str]:
+    return _rust_fp16_like_fns(bf16_spec)
+
+
+def gen_rust_fp16() -> str:
+    """fp16/fp16.rs — the two conversions; `use`s common for the shared wwr_half."""
+    L = [_RUST_NOTE, _RUST_BACKEND_NOTE, "",
+         "#[allow(unused_imports)]", "use crate::common::*;", "",
+         _RUST_FMT_SKIP, 'extern "C" {']
+    L += _rust_fp16_fns()
+    L += ["}", ""]
+    return "\n".join(L)
+
+
+def gen_rust_bf16() -> str:
+    """bf16/bf16.rs — the two conversions; `use`s common for the shared wwr_bf16."""
+    L = [_RUST_NOTE, _RUST_BACKEND_NOTE, "",
+         "#[allow(unused_imports)]", "use crate::common::*;", "",
+         _RUST_FMT_SKIP, 'extern "C" {']
+    L += _rust_bf16_fns()
+    L += ["}", ""]
+    return "\n".join(L)
+
+
+# --- vector_types ----------------------------------------------------------
+def _vector_types_pod_c_lines() -> list[str]:
+    L: list[str] = []
+    for t in vector_types_spec.types():
+        L.append(f"typedef struct {t['capi']} {{")
+        L.append(f"  {t['c_elem']} {', '.join(t['fields'])};")
+        L.append(f"}} {t['capi']};")
+        L.append("")
+    return L
+
+
+def gen_vector_types_h() -> str:
+    """vector_types/wwr_capi_vector_types.h — one POD per vector type (its N scalar
+    components) and the make_* constructor prototypes. The PODs are this unit's
+    OWN (no common.h): no other surface names a float2 by value."""
+    guard = "WWR_CAPI_VECTOR_TYPES_H"
+    L = [f"{_GEN_NOTE} Sources: src/capi/spec/vector_types.py (hand-written).",
+         f"#ifndef {guard}", f"#define {guard}", ""]
+    L += _c_extern_open()
+    L += _vector_types_pod_c_lines()
+    for f in vector_types_spec.functions():
+        t = f["pod"]
+        args = ", ".join(f"{t['c_elem']} {fn}" for fn in t["fields"])
+        L.append(f"{t['capi']} {f['capi']}({args});")
+    L += _c_extern_close(guard)
+    return "\n".join(L)
+
+
+def gen_vector_types_cpp() -> str:
+    """vector_types/wwr_capi_vector_types.cpp — `import wwr.vector_types;` only.
+    Each make_* thunk forwards into the wwr brace constructor and memcpy's the
+    returned neutral vector value into the capi POD (layout-identical, §3/§12), so
+    no vendor type (float2 as a HIP class) is named at the ABI boundary."""
+    L = [_GEN_NOTE,
+         '#include "vector_types/wwr_capi_vector_types.h"', "",
+         "#include <cstring>", "",
+         "import wwr.vector_types;", "",
+         'extern "C" {', ""]
+    for f in vector_types_spec.functions():
+        t = f["pod"]
+        args = ", ".join(f"{t['c_elem']} {fn}" for fn in t["fields"])
+        call = ", ".join(t["fields"])
+        L.append(f"{t['capi']} {f['capi']}({args}) {{")
+        L.append(f"  const auto _r = {f['wwr']}({call});")
+        L.append(f"  {t['capi']} _o;")
+        L.append("  std::memcpy(&_o, &_r, sizeof(_o));")
+        L.append("  return _o;")
+        L += ["}", ""]
+    L += ["}  // extern \"C\"", ""]
+    return "\n".join(L)
+
+
+def _rust_vector_types_types_lines() -> list[str]:
+    L: list[str] = []
+    for t in vector_types_spec.types():
+        L += ["#[repr(C)]", "#[derive(Copy, Clone, Debug)]",
+              f"pub struct {t['capi']} {{"]
+        for fn in t["fields"]:
+            L.append(f"    pub {fn}: {t['rust_elem']},")
+        L += ["}", ""]
+    return L
+
+
+def _rust_vector_types_fns() -> list[str]:
+    L = []
+    for f in vector_types_spec.functions():
+        t = f["pod"]
+        args = ", ".join(f"{fn}: {t['rust_elem']}" for fn in t["fields"])
+        L.append(f"    pub fn {f['capi']}({args}) -> {t['capi']};")
+    return L
+
+
+def gen_rust_vector_types() -> str:
+    """vector_types/vector_types.rs — the vector PODs + make_* externs. No shared
+    POD, so no `use common` (the #[allow] keeps it uniform if one is added)."""
+    L = [_RUST_NOTE, _RUST_BACKEND_NOTE, ""]
+    L += _rust_vector_types_types_lines()
+    L += [_RUST_FMT_SKIP, 'extern "C" {']
+    L += _rust_vector_types_fns()
+    L += ["}", ""]
+    return "\n".join(L)
+
+
+# --- fp8 -------------------------------------------------------------------
+def _fp8_enum_c_lines() -> list[str]:
+    L: list[str] = []
+    for ve in fp8_spec.VALUE_ENUMS:
+        L.append(f"typedef enum {ve.capi_type} {{")
+        for name, val in library_enumerators(ve):
+            L.append(f"  {name} = {val},")
+        L.append(f"}} {ve.capi_type};")
+        L.append("")
+    return L
+
+
+def gen_fp8_h() -> str:
+    """fp8/wwr_capi_fp8.h — the storage POD, the saturation / interpretation value
+    enums, and the two host narrowing conversions. Its POD / enums are this unit's
+    OWN, so no common.h."""
+    guard = "WWR_CAPI_FP8_H"
+    L = [f"{_GEN_NOTE} Sources: src/capi/spec/fp8.py (hand-written).",
+         f"#ifndef {guard}", f"#define {guard}", "",
+         "#include <stdint.h>", ""]
+    L += _c_extern_open()
+    t = fp8_spec.STORAGE_POD
+    L.append(f"typedef struct {t['capi']} {{")
+    for cty, fn in t["fields"]:
+        L.append(f"  {cty} {fn};")
+    L.append(f"}} {t['capi']};")
+    L.append("")
+    L += _fp8_enum_c_lines()
+    for f in fp8_spec.FUNCTIONS:
+        args = ", ".join(_c_param_raw(ct, n) for _r, ct, n in f["params"])
+        L.append(f"{fp8_spec.STORAGE_POD['capi']} {f['capi']}({args});")
+    L += _c_extern_close(guard)
+    return "\n".join(L)
+
+
+def gen_fp8_cpp() -> str:
+    """fp8/wwr_capi_fp8.cpp — `import wwr.fp8;` only (header-only fp8 raw dep). Each
+    thunk maps the saturation / interpretation value enums capi -> neutral (the
+    comp map shape), forwards into the wwr narrowing conversion, and returns the
+    storage POD -- the wwr conversion yields the vendor storage (an unsigned char),
+    which IS the POD's one byte, so it is wrapped in the POD directly."""
+    L = [_GEN_NOTE,
+         '#include "fp8/wwr_capi_fp8.h"', "",
+         "import wwr.fp8;", "",
+         "namespace {"]
+    # The capi -> neutral enum maps (§6), constant-based so one source compiles on
+    # both backends. Only the _to_ direction is needed (the enums are parameters).
+    for ve in fp8_spec.VALUE_ENUMS:
+        slug = ve.capi_type[len("wwr_fp8_"):]
+        default_const = _fallback_wwr_const(ve)
+        L.append(f"wwr::{ve.wwr_type} _to_{slug}({ve.capi_type} x) {{")
+        L.append("  switch (x) {")
+        for enumerator, wwr_const in ve.entries:
+            L.append(f"    case {enumerator}: return wwr::{wwr_const};")
+        L.append(f"    default: return wwr::{default_const};")
+        L.append("  }")
+        L.append("}")
+    L += ["}  // namespace", "", 'extern "C" {', ""]
+    for f in fp8_spec.FUNCTIONS:
+        args = ", ".join(_c_param_raw(ct, n) for _r, ct, n in f["params"])
+        L.append(f"{fp8_spec.STORAGE_POD['capi']} {f['capi']}({args}) {{")
+        call_terms = []
+        for repr_, _ct, n in f["params"]:
+            if repr_ in ("saturation", "interpretation"):
+                call_terms.append(f"_to_{repr_}({n})")
+            else:
+                call_terms.append(n)
+        call = ", ".join(call_terms)
+        L.append(f"  return {fp8_spec.STORAGE_POD['capi']}{{{f['wwr']}({call})}};")
+        L += ["}", ""]
+    L += ["}  // extern \"C\"", ""]
+    return "\n".join(L)
+
+
+def _rust_fp8_types_lines() -> list[str]:
+    L: list[str] = []
+    t = fp8_spec.STORAGE_POD
+    L += ["#[repr(C)]", "#[derive(Copy, Clone, Debug)]",
+          f"pub struct {t['capi']} {{"]
+    for cty, fn in t["fields"]:
+        L.append(f"    pub {fn}: {_rust_c_type(cty)},")
+    L += ["}", ""]
+    for ve in fp8_spec.VALUE_ENUMS:
+        L += ["#[repr(i32)]", "#[derive(Copy, Clone, Debug, PartialEq, Eq)]",
+              f"pub enum {ve.capi_type} {{"]
+        for name, val in library_enumerators(ve):
+            L.append(f"    {name} = {val},")
+        L += ["}", ""]
+    return L
+
+
+def _rust_fp8_fns() -> list[str]:
+    L = []
+    for f in fp8_spec.FUNCTIONS:
+        args = ", ".join(f"{_rust_ident(n)}: {_rust_c_type(ct)}"
+                         for _r, ct, n in f["params"])
+        L.append(f"    pub fn {f['capi']}({args}) "
+                 f"-> {fp8_spec.STORAGE_POD['capi']};")
+    return L
+
+
+def gen_rust_fp8() -> str:
+    """fp8/fp8.rs — the storage POD, value enums and the two conversion externs.
+    No shared POD, so no `use common`."""
+    L = [_RUST_NOTE, _RUST_BACKEND_NOTE, ""]
+    L += _rust_fp8_types_lines()
+    L += [_RUST_FMT_SKIP, 'extern "C" {']
+    L += _rust_fp8_fns()
+    L += ["}", ""]
+    return "\n".join(L)
+
+
 def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap,
                       libs: list[ResolvedLibrary]) -> str:
     """gen/ffi.rs — the COMBINED binding the in-tree driver.rs include!s: every
@@ -1098,6 +1469,12 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
     L = [_RUST_NOTE, _RUST_BACKEND_NOTE, ""]
     for t in complex_spec.TYPES:
         L += _rust_pod_lines(t)
+    # The shared NUMERIC PODs ONCE (wwr_half / wwr_bf16); each lib's / fp16's /
+    # bf16's types skip them, as they live in common on the crate side.
+    for capi, pod in SHARED_NUMERIC_PODS.items():
+        L += ["#[repr(C)]", "#[derive(Copy, Clone, Debug)]",
+              f"pub struct {capi} {{",
+              f"    pub bits: {pod['rust_field']},", "}", ""]
     # The shared handles ONCE (each lib's types skip them -- they live in common).
     for capi_type in SHARED_HANDLES:
         L.append(f"pub type {capi_type} = *mut core::ffi::c_void;")
@@ -1106,6 +1483,10 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
     for lib in libs:
         L += _rust_library_types_lines(lib)
     L += _rust_comp_types_lines()  # the hand-written comp surface's types
+    # The numeric type surfaces' OWN types (their PODs / value enums; the shared
+    # wwr_half / wwr_bf16 are emitted once above). fp16 / bf16 declare no own type.
+    L += _rust_vector_types_types_lines()
+    L += _rust_fp8_types_lines()
     L += _rust_status_enum_lines(enum)
     # NO `#[link(name = ...)]` on the extern block: the in-tree driver.rs (the one
     # consumer that include!s this file) gets its `-l` flags from capi's
@@ -1121,6 +1502,10 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
     for lib in libs:
         L += _rust_library_fns(lib.functions)
     L += _rust_comp_fns()
+    L += _rust_fp16_fns()
+    L += _rust_bf16_fns()
+    L += _rust_vector_types_fns()
+    L += _rust_fp8_fns()
     L += ["}", ""]
     return "\n".join(L)
 
@@ -1158,11 +1543,20 @@ def main() -> None:
         "runtime_api": (gen_runtime_api_h(status_fns, enum),
                         gen_runtime_api_cpp(status_fns, enum)),
         "comp": (gen_comp_h(), gen_comp_cpp()),
+        # The milestone-#6 numeric TYPE surfaces (hand-written, like comp).
+        "fp16": (gen_fp16_h(), gen_fp16_cpp()),
+        "bf16": (gen_bf16_h(), gen_bf16_cpp()),
+        "vector_types": (gen_vector_types_h(), gen_vector_types_cpp()),
+        "fp8": (gen_fp8_h(), gen_fp8_cpp()),
     }
     rust_units = {
         "complex": gen_rust_complex(enum),
         "runtime_api": gen_rust_runtime_api(status_fns, enum),
         "comp": gen_rust_comp(),
+        "fp16": gen_rust_fp16(),
+        "bf16": gen_rust_bf16(),
+        "vector_types": gen_rust_vector_types(),
+        "fp8": gen_rust_fp8(),
     }
     for lib in libs:
         units[lib.spec.name] = (gen_library_h(lib), gen_library_cpp(lib))
@@ -1186,6 +1580,19 @@ def main() -> None:
         for name, reason in skips:
             print(f"  SKIP {name}: {reason}")
     print(f"comp: wrapped {len(comp_spec.functions())} functions (hand-written)")
+    # The numeric TYPE surfaces (hand-written). Report wrapped counts and, for fp8,
+    # the explicit out-of-scope skips (fp4 / fp6 BLOCKED on HIP, device-only widening)
+    # so a partial surface is loud, never silent (NO SILENT DROPS).
+    print(f"fp16: wrapped {len(fp16_spec.FUNCTIONS)} functions, 0 skipped "
+          f"(host conversions; device section out of scope)")
+    print(f"bf16: wrapped {len(bf16_spec.FUNCTIONS)} functions, 0 skipped "
+          f"(host conversions; device section out of scope)")
+    print(f"vector_types: wrapped {len(vector_types_spec.functions())} make_* "
+          f"constructors over {len(vector_types_spec.types())} types, 0 skipped")
+    print(f"fp8: wrapped {len(fp8_spec.FUNCTIONS)} functions, "
+          f"{len(fp8_spec.SKIPS)} skipped")
+    for what, reason in fp8_spec.SKIPS:
+        print(f"  SKIP {what}: {reason}")
     # The wwr-sys crate ships the binding self-contained (it is installed and
     # path/git-depended on away from this tree, so a sibling `../gen/*.rs`
     # include! would dangle). Keep each generated module the SINGLE SOURCE by

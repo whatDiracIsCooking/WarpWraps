@@ -30,7 +30,8 @@ links = "wwr_capi"
 # cuBLAS). `common` (the shared PODs) is always compiled, so it is NOT a feature.
 [features]
 default = ["complex", "runtime_api", "blas", "blaslt", "solver", "rand", "rtc",
-           "sparse", "tensor", "fft", "comp"]
+           "sparse", "tensor", "fft", "comp", "fp16", "bf16", "vector_types",
+           "fp8"]
 complex = []
 runtime_api = []
 blas = []
@@ -42,5 +43,9 @@ sparse = []
 tensor = []
 fft = []
 comp = []
+fp16 = []
+bf16 = []
+vector_types = []
+fp8 = []
 
 [dependencies]

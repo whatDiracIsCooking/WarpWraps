@@ -5,12 +5,6 @@
 #[allow(unused_imports)]
 use crate::common::*;
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct wwr_half {
-    pub bits: u16,
-}
-
 pub type wwr_blas_handle = *mut core::ffi::c_void;
 
 #[repr(i32)]

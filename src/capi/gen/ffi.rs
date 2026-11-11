@@ -16,13 +16,19 @@ pub struct wwr_complex128 {
     pub im: f64,
 }
 
-pub type wwr_stream = *mut core::ffi::c_void;
-
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct wwr_half {
     pub bits: u16,
 }
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_bf16 {
+    pub bits: u16,
+}
+
+pub type wwr_stream = *mut core::ffi::c_void;
 
 pub type wwr_blas_handle = *mut core::ffi::c_void;
 
@@ -647,6 +653,341 @@ pub struct wwr_comp_cascaded_opts {
     pub num_RLEs: i32,
     pub num_deltas: i32,
     pub use_bp: i32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_char1 {
+    pub x: i8,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_char2 {
+    pub x: i8,
+    pub y: i8,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_char3 {
+    pub x: i8,
+    pub y: i8,
+    pub z: i8,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_char4 {
+    pub x: i8,
+    pub y: i8,
+    pub z: i8,
+    pub w: i8,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_uchar1 {
+    pub x: u8,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_uchar2 {
+    pub x: u8,
+    pub y: u8,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_uchar3 {
+    pub x: u8,
+    pub y: u8,
+    pub z: u8,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_uchar4 {
+    pub x: u8,
+    pub y: u8,
+    pub z: u8,
+    pub w: u8,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_short1 {
+    pub x: i16,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_short2 {
+    pub x: i16,
+    pub y: i16,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_short3 {
+    pub x: i16,
+    pub y: i16,
+    pub z: i16,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_short4 {
+    pub x: i16,
+    pub y: i16,
+    pub z: i16,
+    pub w: i16,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_ushort1 {
+    pub x: u16,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_ushort2 {
+    pub x: u16,
+    pub y: u16,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_ushort3 {
+    pub x: u16,
+    pub y: u16,
+    pub z: u16,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_ushort4 {
+    pub x: u16,
+    pub y: u16,
+    pub z: u16,
+    pub w: u16,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_int1 {
+    pub x: i32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_int2 {
+    pub x: i32,
+    pub y: i32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_int3 {
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_int4 {
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+    pub w: i32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_uint1 {
+    pub x: u32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_uint2 {
+    pub x: u32,
+    pub y: u32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_uint3 {
+    pub x: u32,
+    pub y: u32,
+    pub z: u32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_uint4 {
+    pub x: u32,
+    pub y: u32,
+    pub z: u32,
+    pub w: u32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_long1 {
+    pub x: core::ffi::c_long,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_long2 {
+    pub x: core::ffi::c_long,
+    pub y: core::ffi::c_long,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_long3 {
+    pub x: core::ffi::c_long,
+    pub y: core::ffi::c_long,
+    pub z: core::ffi::c_long,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_ulong1 {
+    pub x: core::ffi::c_ulong,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_ulong2 {
+    pub x: core::ffi::c_ulong,
+    pub y: core::ffi::c_ulong,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_ulong3 {
+    pub x: core::ffi::c_ulong,
+    pub y: core::ffi::c_ulong,
+    pub z: core::ffi::c_ulong,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_longlong1 {
+    pub x: core::ffi::c_longlong,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_longlong2 {
+    pub x: core::ffi::c_longlong,
+    pub y: core::ffi::c_longlong,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_longlong3 {
+    pub x: core::ffi::c_longlong,
+    pub y: core::ffi::c_longlong,
+    pub z: core::ffi::c_longlong,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_ulonglong1 {
+    pub x: core::ffi::c_ulonglong,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_ulonglong2 {
+    pub x: core::ffi::c_ulonglong,
+    pub y: core::ffi::c_ulonglong,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_ulonglong3 {
+    pub x: core::ffi::c_ulonglong,
+    pub y: core::ffi::c_ulonglong,
+    pub z: core::ffi::c_ulonglong,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_float1 {
+    pub x: f32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_float2 {
+    pub x: f32,
+    pub y: f32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_float3 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_float4 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_double1 {
+    pub x: f64,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_double2 {
+    pub x: f64,
+    pub y: f64,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_double3 {
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct wwr_fp8_storage {
+    pub bits: u8,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_fp8_saturation {
+    WWR_FP8_NOSAT = 0,
+    WWR_FP8_SATFINITE = 1,
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum wwr_fp8_interpretation {
+    WWR_FP8_E4M3 = 0,
+    WWR_FP8_E5M2 = 1,
 }
 
 #[repr(i32)]
@@ -1541,4 +1882,53 @@ extern "C" {
     pub fn wwr_comp_batched_cascaded_decompress_get_temp_size(num_chunks: usize, max_uncompressed_chunk_bytes: usize, temp_bytes: *mut usize) -> wwr_comp_status;
     pub fn wwr_comp_batched_cascaded_get_decompress_size_async(device_compressed_chunk_ptrs: *const *const core::ffi::c_void, device_compressed_chunk_bytes: *const usize, device_uncompressed_chunk_bytes: *mut usize, batch_size: usize, stream: wwr_stream) -> wwr_comp_status;
     pub fn wwr_comp_batched_cascaded_decompress_async(device_compressed_chunk_ptrs: *const *const core::ffi::c_void, device_compressed_chunk_bytes: *const usize, device_uncompressed_buffer_bytes: *const usize, device_uncompressed_chunk_bytes: *mut usize, num_chunks: usize, device_temp_ptr: *mut core::ffi::c_void, temp_bytes: usize, device_uncompressed_chunk_ptrs: *const *mut core::ffi::c_void, device_statuses: *mut core::ffi::c_void, stream: wwr_stream) -> wwr_comp_status;
+    pub fn wwr_float2half(value: f32) -> wwr_half;
+    pub fn wwr_half2float(value: wwr_half) -> f32;
+    pub fn wwr_float2bfloat16(value: f32) -> wwr_bf16;
+    pub fn wwr_bfloat162float(value: wwr_bf16) -> f32;
+    pub fn wwr_make_char1(x: i8) -> wwr_char1;
+    pub fn wwr_make_char2(x: i8, y: i8) -> wwr_char2;
+    pub fn wwr_make_char3(x: i8, y: i8, z: i8) -> wwr_char3;
+    pub fn wwr_make_char4(x: i8, y: i8, z: i8, w: i8) -> wwr_char4;
+    pub fn wwr_make_uchar1(x: u8) -> wwr_uchar1;
+    pub fn wwr_make_uchar2(x: u8, y: u8) -> wwr_uchar2;
+    pub fn wwr_make_uchar3(x: u8, y: u8, z: u8) -> wwr_uchar3;
+    pub fn wwr_make_uchar4(x: u8, y: u8, z: u8, w: u8) -> wwr_uchar4;
+    pub fn wwr_make_short1(x: i16) -> wwr_short1;
+    pub fn wwr_make_short2(x: i16, y: i16) -> wwr_short2;
+    pub fn wwr_make_short3(x: i16, y: i16, z: i16) -> wwr_short3;
+    pub fn wwr_make_short4(x: i16, y: i16, z: i16, w: i16) -> wwr_short4;
+    pub fn wwr_make_ushort1(x: u16) -> wwr_ushort1;
+    pub fn wwr_make_ushort2(x: u16, y: u16) -> wwr_ushort2;
+    pub fn wwr_make_ushort3(x: u16, y: u16, z: u16) -> wwr_ushort3;
+    pub fn wwr_make_ushort4(x: u16, y: u16, z: u16, w: u16) -> wwr_ushort4;
+    pub fn wwr_make_int1(x: i32) -> wwr_int1;
+    pub fn wwr_make_int2(x: i32, y: i32) -> wwr_int2;
+    pub fn wwr_make_int3(x: i32, y: i32, z: i32) -> wwr_int3;
+    pub fn wwr_make_int4(x: i32, y: i32, z: i32, w: i32) -> wwr_int4;
+    pub fn wwr_make_uint1(x: u32) -> wwr_uint1;
+    pub fn wwr_make_uint2(x: u32, y: u32) -> wwr_uint2;
+    pub fn wwr_make_uint3(x: u32, y: u32, z: u32) -> wwr_uint3;
+    pub fn wwr_make_uint4(x: u32, y: u32, z: u32, w: u32) -> wwr_uint4;
+    pub fn wwr_make_long1(x: core::ffi::c_long) -> wwr_long1;
+    pub fn wwr_make_long2(x: core::ffi::c_long, y: core::ffi::c_long) -> wwr_long2;
+    pub fn wwr_make_long3(x: core::ffi::c_long, y: core::ffi::c_long, z: core::ffi::c_long) -> wwr_long3;
+    pub fn wwr_make_ulong1(x: core::ffi::c_ulong) -> wwr_ulong1;
+    pub fn wwr_make_ulong2(x: core::ffi::c_ulong, y: core::ffi::c_ulong) -> wwr_ulong2;
+    pub fn wwr_make_ulong3(x: core::ffi::c_ulong, y: core::ffi::c_ulong, z: core::ffi::c_ulong) -> wwr_ulong3;
+    pub fn wwr_make_longlong1(x: core::ffi::c_longlong) -> wwr_longlong1;
+    pub fn wwr_make_longlong2(x: core::ffi::c_longlong, y: core::ffi::c_longlong) -> wwr_longlong2;
+    pub fn wwr_make_longlong3(x: core::ffi::c_longlong, y: core::ffi::c_longlong, z: core::ffi::c_longlong) -> wwr_longlong3;
+    pub fn wwr_make_ulonglong1(x: core::ffi::c_ulonglong) -> wwr_ulonglong1;
+    pub fn wwr_make_ulonglong2(x: core::ffi::c_ulonglong, y: core::ffi::c_ulonglong) -> wwr_ulonglong2;
+    pub fn wwr_make_ulonglong3(x: core::ffi::c_ulonglong, y: core::ffi::c_ulonglong, z: core::ffi::c_ulonglong) -> wwr_ulonglong3;
+    pub fn wwr_make_float1(x: f32) -> wwr_float1;
+    pub fn wwr_make_float2(x: f32, y: f32) -> wwr_float2;
+    pub fn wwr_make_float3(x: f32, y: f32, z: f32) -> wwr_float3;
+    pub fn wwr_make_float4(x: f32, y: f32, z: f32, w: f32) -> wwr_float4;
+    pub fn wwr_make_double1(x: f64) -> wwr_double1;
+    pub fn wwr_make_double2(x: f64, y: f64) -> wwr_double2;
+    pub fn wwr_make_double3(x: f64, y: f64, z: f64) -> wwr_double3;
+    pub fn wwr_float2fp8(value: f32, saturate: wwr_fp8_saturation, interpretation: wwr_fp8_interpretation) -> wwr_fp8_storage;
+    pub fn wwr_double2fp8(value: f64, saturate: wwr_fp8_saturation, interpretation: wwr_fp8_interpretation) -> wwr_fp8_storage;
 }
