@@ -1,0 +1,23 @@
+# A standalone Rust project consuming an INSTALLED wwr through the wwr-sys crate.
+#
+# This is the end-to-end, depend-on-the-installed-crate proof (#341): the Rust
+# analogue of example/capi-consumer/ (the pure-C find_package consumer). It does
+# NOT live in this source tree's build -- like consumer/ and capi-consumer/, it
+# knows nothing of the tree and reaches wwr only through the installed artifacts:
+# a path dependency on the installed wwr-sys crate, which links the installed
+# libwwr_capi.so.
+#
+# The dependency path is a PLACEHOLDER, filled in by devtools/install-check.sh
+# with <prefix>/share/wwr/rust/wwr-sys (where -DWWR_INSTALL_CAPI=ON installs the
+# crate). That substitution -- plus WWR_CAPI_LIB_DIR=<prefix>/lib for wwr-sys's
+# build.rs -- is the whole "add wwr-sys as a dependency and link the installed
+# lib" path a real user walks. The committed placeholder keeps the file inert
+# until the script points it at an actual install prefix.
+[package]
+name = "wwr-capi-consumer-rs"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+wwr-sys = { path = "__WWR_SYS_PATH__" }

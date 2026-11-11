@@ -215,8 +215,12 @@ then build with the lib dir pointed at the install:
 WWR_CAPI_LIB_DIR=<prefix>/lib cargo build
 ```
 
-The end-to-end consume-from-the-installed-prefix check is #341; here the crate is
-proven against the freshly built `.so`.
+That exact path is exercised end to end by `example/capi-consumer-rs` (#341): a
+standalone crate that path-depends on the installed `wwr-sys`, links the
+installed `libwwr_capi.so` and asserts `wwr_cadd64` / `wwr_runtime_get_version`.
+`devtools/install-check.sh --capi` builds and runs it against a throwaway install
+prefix (with an `ldd` check that it links the *installed* `.so`), gated on rustc
+so the pre-rust-image CI path stays green.
 
 ## Stability policy
 
@@ -235,7 +239,3 @@ never for an additive change. See architecture.md §21.
   milestone (architecture.md §25).
 - **The spec is hand-written here**, provisional until sourced from the canonical
   name surface (architecture.md §25, #328).
-- **The end-to-end installed-prefix consumer check.** The `wwr-sys` crate (above)
-  is proven here against the freshly built `.so`; the full consume-from-the-
-  installed-prefix run (`cargo build` from `<prefix>/share/wwr/rust/wwr-sys`
-  against `<prefix>/lib`) lands in #341.

@@ -1,0 +1,5 @@
+# cargo build artifacts. install-check.sh copies this crate to a throwaway
+# build dir, substitutes the real wwr-sys path, and builds there -- so nothing
+# is produced in-tree -- but ignore these in case of an ad-hoc local build.
+/target
+Cargo.lock
