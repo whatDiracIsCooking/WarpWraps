@@ -2,10 +2,10 @@
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
     "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
-    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hip/hip_runtime_api.h",
+    "command": "/usr/bin/clang -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hip/hip_runtime_api.h",
     "config": {
       "backend": "HIP",
-      "sdk_version": "ROCm 7.2.4",
+      "sdk_version": "ROCm 10.0.0",
       "arch": "gfx942",
       "defines": [
         "__HIP_PLATFORM_AMD__"
@@ -15,16 +15,16 @@
         "/opt/rocm-ds/include"
       ]
     },
-    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "clang": "Ubuntu clang version 23.1.6 (++20261108033755+c47d7823685a-1~exp1~20261108153854.96)",
     "header": "/opt/rocm/include/hip/hip_runtime_api.h",
     "prefix": "hip",
-    "symbol_count": 1438
+    "symbol_count": 1552
   },
   "linkable": {
     "lib": "libamdhip64.so.7",
     "soname": "libamdhip64.so.7",
     "available": true,
-    "linkable_count": 508,
+    "linkable_count": 549,
     "linkable": [
       "hipApiName",
       "hipArray3DCreate",
@@ -64,6 +64,9 @@
       "hipDestroyExternalSemaphore",
       "hipDestroySurfaceObject",
       "hipDestroyTextureObject",
+      "hipDevResourceGenerateDesc",
+      "hipDevSmResourceSplit",
+      "hipDevSmResourceSplitByCount",
       "hipDeviceCanAccessPeer",
       "hipDeviceComputeCapability",
       "hipDeviceDisablePeerAccess",
@@ -73,6 +76,8 @@
       "hipDeviceGetByPCIBusId",
       "hipDeviceGetCacheConfig",
       "hipDeviceGetDefaultMemPool",
+      "hipDeviceGetDevResource",
+      "hipDeviceGetExecutionCtx",
       "hipDeviceGetGraphMemAttribute",
       "hipDeviceGetLimit",
       "hipDeviceGetMemPool",
@@ -108,6 +113,8 @@
       "hipDrvGraphMemcpyNodeGetParams",
       "hipDrvGraphMemcpyNodeSetParams",
       "hipDrvLaunchKernelEx",
+      "hipDrvMemDiscardAndPrefetchBatchAsync",
+      "hipDrvMemDiscardBatchAsync",
       "hipDrvMemcpy2DUnaligned",
       "hipDrvMemcpy3D",
       "hipDrvMemcpy3DAsync",
@@ -121,15 +128,27 @@
       "hipEventRecordWithFlags",
       "hipEventRecord_spt",
       "hipEventSynchronize",
+      "hipExecutionCtxDestroy",
+      "hipExecutionCtxGetDevResource",
+      "hipExecutionCtxGetDevice",
+      "hipExecutionCtxGetId",
+      "hipExecutionCtxRecordEvent",
+      "hipExecutionCtxStreamCreate",
+      "hipExecutionCtxSynchronize",
+      "hipExecutionCtxWaitEvent",
+      "hipExtDisableLogging",
+      "hipExtEnableLogging",
       "hipExtGetLastError",
       "hipExtGetLinkTypeAndHopCount",
       "hipExtLaunchKernel",
       "hipExtLaunchMultiKernelMultiDevice",
       "hipExtMallocWithFlags",
       "hipExtModuleLaunchKernel",
+      "hipExtSetLoggingParams",
       "hipExtStreamCreateWithCUMask",
       "hipExtStreamGetCUMask",
       "hipExternalMemoryGetMappedBuffer",
+      "hipExternalMemoryGetMappedMipmappedArray",
       "hipFree",
       "hipFreeArray",
       "hipFreeAsync",
@@ -157,6 +176,7 @@
       "hipGetLastError",
       "hipGetMipmappedArrayLevel",
       "hipGetProcAddress",
+      "hipGetProcAddress_spt",
       "hipGetStreamDeviceId",
       "hipGetSymbolAddress",
       "hipGetSymbolSize",
@@ -258,6 +278,7 @@
       "hipGraphicsSubResourceGetMappedArray",
       "hipGraphicsUnmapResources",
       "hipGraphicsUnregisterResource",
+      "hipGreenCtxCreate",
       "hipHccModuleLaunchKernel",
       "hipHostAlloc",
       "hipHostFree",
@@ -274,10 +295,14 @@
       "hipIpcGetMemHandle",
       "hipIpcOpenEventHandle",
       "hipIpcOpenMemHandle",
+      "hipKernelGetAttribute",
+      "hipKernelGetFunction",
       "hipKernelGetLibrary",
       "hipKernelGetName",
+      "hipKernelGetParamInfo",
       "hipKernelNameRef",
       "hipKernelNameRefByPtr",
+      "hipKernelSetAttribute",
       "hipLaunchByPtr",
       "hipLaunchCooperativeKernel",
       "hipLaunchCooperativeKernelMultiDevice",
@@ -288,8 +313,10 @@
       "hipLaunchKernelExC",
       "hipLaunchKernel_spt",
       "hipLibraryEnumerateKernels",
+      "hipLibraryGetGlobal",
       "hipLibraryGetKernel",
       "hipLibraryGetKernelCount",
+      "hipLibraryGetManaged",
       "hipLibraryLoadData",
       "hipLibraryLoadFromFile",
       "hipLibraryUnload",
@@ -315,13 +342,17 @@
       "hipMemAllocHost",
       "hipMemAllocPitch",
       "hipMemCreate",
+      "hipMemDiscardAndPrefetchBatchAsync",
+      "hipMemDiscardBatchAsync",
       "hipMemExportToShareableHandle",
       "hipMemGetAccess",
       "hipMemGetAddressRange",
       "hipMemGetAllocationGranularity",
       "hipMemGetAllocationPropertiesFromHandle",
+      "hipMemGetDefaultMemPool",
       "hipMemGetHandleForAddressRange",
       "hipMemGetInfo",
+      "hipMemGetMemPool",
       "hipMemImportFromShareableHandle",
       "hipMemMap",
       "hipMemMapArrayAsync",
@@ -338,12 +369,14 @@
       "hipMemPoolTrimTo",
       "hipMemPrefetchAsync",
       "hipMemPrefetchAsync_v2",
+      "hipMemPrefetchBatchAsync",
       "hipMemPtrGetInfo",
       "hipMemRangeGetAttribute",
       "hipMemRangeGetAttributes",
       "hipMemRelease",
       "hipMemRetainAllocationHandle",
       "hipMemSetAccess",
+      "hipMemSetMemPool",
       "hipMemUnmap",
       "hipMemcpy",
       "hipMemcpy2D",
@@ -426,6 +459,7 @@
       "hipMipmappedArrayCreate",
       "hipMipmappedArrayDestroy",
       "hipMipmappedArrayGetLevel",
+      "hipMipmappedArrayGetMemoryRequirements",
       "hipModuleGetFunction",
       "hipModuleGetFunctionCount",
       "hipModuleGetGlobal",
@@ -445,11 +479,17 @@
       "hipOccupancyAvailableDynamicSMemPerBlock",
       "hipOccupancyMaxActiveBlocksPerMultiprocessor",
       "hipOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+      "hipOccupancyMaxActiveClusters",
       "hipOccupancyMaxPotentialBlockSize",
+      "hipOccupancyMaxPotentialClusterSize",
       "hipPeekAtLastError",
       "hipPointerGetAttribute",
       "hipPointerGetAttributes",
       "hipPointerSetAttribute",
+      "hipProfilerDisableExt",
+      "hipProfilerEnableExt",
+      "hipProfilerGetRecordsExt",
+      "hipProfilerRegisterChunkCallbackExt",
       "hipProfilerStart",
       "hipProfilerStop",
       "hipRegisterTracerCallback",
@@ -478,6 +518,7 @@
       "hipStreamGetCaptureInfo_spt",
       "hipStreamGetCaptureInfo_v2",
       "hipStreamGetCaptureInfo_v2_spt",
+      "hipStreamGetDevResource",
       "hipStreamGetDevice",
       "hipStreamGetFlags",
       "hipStreamGetFlags_spt",
@@ -542,7 +583,6 @@
       "hipCreateChannelDescHalf1",
       "hipCreateChannelDescHalf2",
       "hipCreateChannelDescHalf4",
-      "hipExternalMemoryGetMappedMipmappedArray",
       "hipLaunchKernelEx",
       "hipOccupancyMaxPotentialBlockSizeVariableSMem",
       "hipOccupancyMaxPotentialBlockSizeVariableSMemWithFlags",
@@ -638,6 +678,14 @@
       "exported": true
     },
     {
+      "name": "hipArrayMemoryRequirements",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "struct hipArrayMemoryRequirements",
+      "decl_hash": "9e28dc14f200ae15",
+      "exported": true
+    },
+    {
       "name": "hipBatchMemOpNodeParams",
       "kind": "CXXRecordDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -661,6 +709,46 @@
       "exported": true
     },
     {
+      "name": "hipDevResource_st",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "struct hipDevResource_st",
+      "decl_hash": "5128bcf9bb733b2d",
+      "exported": true
+    },
+    {
+      "name": "hipDevSmResource",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "struct hipDevSmResource",
+      "decl_hash": "ac1f00f6bfd0fd90",
+      "exported": true
+    },
+    {
+      "name": "hipDevSmResourceGroupParams_st",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "struct hipDevSmResourceGroupParams_st",
+      "decl_hash": "37403e74b4d62636",
+      "exported": true
+    },
+    {
+      "name": "hipDevWorkqueueConfigResource",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "struct hipDevWorkqueueConfigResource",
+      "decl_hash": "c9bd4afed89118ff",
+      "exported": true
+    },
+    {
+      "name": "hipDevWorkqueueResource",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "struct hipDevWorkqueueResource",
+      "decl_hash": "27bba00c60cf0114",
+      "exported": true
+    },
+    {
       "name": "hipDeviceProp_tR0600",
       "kind": "CXXRecordDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -681,6 +769,22 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "struct hipEventWaitNodeParams",
       "decl_hash": "82acd31872ac7415",
+      "exported": true
+    },
+    {
+      "name": "hipExtDynDataPrefetchConfig",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "struct hipExtDynDataPrefetchConfig",
+      "decl_hash": "9c0b5094a710773c",
+      "exported": true
+    },
+    {
+      "name": "hipExtDynDataPrefetchRegion",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "struct hipExtDynDataPrefetchRegion",
+      "decl_hash": "3132375a019687fe",
       "exported": true
     },
     {
@@ -904,6 +1008,14 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "struct hipMemAllocationProp",
       "decl_hash": "393f883f1b0dc3f6",
+      "exported": true
+    },
+    {
+      "name": "hipMemFabricHandle_st",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "struct hipMemFabricHandle_st",
+      "decl_hash": "ab8b0fa620d96b6e",
       "exported": true
     },
     {
@@ -1224,6 +1336,24 @@
       "decl_hash": "fb18eee52d7cb65c"
     },
     {
+      "name": "HIP_FUNC_ATTRIBUTE_CLUSTER_DIM_MUST_BE_SET",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/driver_types.h",
+      "decl": "HIP_FUNC_ATTRIBUTE_CLUSTER_DIM_MUST_BE_SET = None",
+      "value": 10,
+      "value_explicit": false,
+      "decl_hash": "bfd920ea4d54cdea"
+    },
+    {
+      "name": "HIP_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/driver_types.h",
+      "decl": "HIP_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE = None",
+      "value": 15,
+      "value_explicit": false,
+      "decl_hash": "a4160c34c2189833"
+    },
+    {
       "name": "HIP_FUNC_ATTRIBUTE_CONST_SIZE_BYTES",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/driver_types.h",
@@ -1246,7 +1376,7 @@
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/driver_types.h",
       "decl": "HIP_FUNC_ATTRIBUTE_MAX = None",
-      "value": 10,
+      "value": 16,
       "value_explicit": false,
       "decl_hash": "b382d4be3a958cff"
     },
@@ -1267,6 +1397,15 @@
       "value": 0,
       "value_explicit": false,
       "decl_hash": "f2ccfe9eb1b75eeb"
+    },
+    {
+      "name": "HIP_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/driver_types.h",
+      "decl": "HIP_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED = None",
+      "value": 14,
+      "value_explicit": false,
+      "decl_hash": "a09eb841f458d711"
     },
     {
       "name": "HIP_FUNC_ATTRIBUTE_NUM_REGS",
@@ -1294,6 +1433,33 @@
       "value": 5,
       "value_explicit": false,
       "decl_hash": "b0a0808c026073a8"
+    },
+    {
+      "name": "HIP_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/driver_types.h",
+      "decl": "HIP_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH = None",
+      "value": 13,
+      "value_explicit": false,
+      "decl_hash": "83c06235dd52e0f8"
+    },
+    {
+      "name": "HIP_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/driver_types.h",
+      "decl": "HIP_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT = None",
+      "value": 12,
+      "value_explicit": false,
+      "decl_hash": "ea7f203b5fcd1416"
+    },
+    {
+      "name": "HIP_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/driver_types.h",
+      "decl": "HIP_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH = None",
+      "value": 11,
+      "value_explicit": false,
+      "decl_hash": "a3f1545b0eaeaab9"
     },
     {
       "name": "HIP_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES",
@@ -2043,6 +2209,33 @@
       "decl_hash": "6cddb0536b02fcb4"
     },
     {
+      "name": "hipClusterSchedulingPolicyDefault",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipClusterSchedulingPolicyDefault = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "ff01afd4b7c3aea7"
+    },
+    {
+      "name": "hipClusterSchedulingPolicyLoadBalancing",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipClusterSchedulingPolicyLoadBalancing = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "58177ce92a05af45"
+    },
+    {
+      "name": "hipClusterSchedulingPolicySpread",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipClusterSchedulingPolicySpread = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "d125feb401bf8945"
+    },
+    {
       "name": "hipComputeModeDefault",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -2113,6 +2306,96 @@
       "value": 0,
       "value_explicit": true,
       "decl_hash": "2f90275a422bfdc5"
+    },
+    {
+      "name": "hipDevResourceTypeInvalid",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDevResourceTypeInvalid = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "ec5aee8d241f209a"
+    },
+    {
+      "name": "hipDevResourceTypeSm",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDevResourceTypeSm = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "9e4bcf294def4450"
+    },
+    {
+      "name": "hipDevResourceTypeWorkqueue",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDevResourceTypeWorkqueue = 10000",
+      "value": 10000,
+      "value_explicit": true,
+      "decl_hash": "a8d6579273a61e5d"
+    },
+    {
+      "name": "hipDevResourceTypeWorkqueueConfig",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDevResourceTypeWorkqueueConfig = 1000",
+      "value": 1000,
+      "value_explicit": true,
+      "decl_hash": "4c4468474fecd4ba"
+    },
+    {
+      "name": "hipDevSmResourceGroupBackfill",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDevSmResourceGroupBackfill = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "99b9560e7ba810c2"
+    },
+    {
+      "name": "hipDevSmResourceGroupDefault",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDevSmResourceGroupDefault = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "87d462b49f7cf309"
+    },
+    {
+      "name": "hipDevSmResourceSplitIgnoreSmCoscheduling",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDevSmResourceSplitIgnoreSmCoscheduling = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "21ee4adbd0b13983"
+    },
+    {
+      "name": "hipDevSmResourceSplitMaxPotentialClusterSize",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDevSmResourceSplitMaxPotentialClusterSize = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "aab196a58aeee476"
+    },
+    {
+      "name": "hipDevWorkqueueConfigScopeDeviceCtx",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDevWorkqueueConfigScopeDeviceCtx = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "99c659201ccc2a62"
+    },
+    {
+      "name": "hipDevWorkqueueConfigScopeGreenCtxBalanced",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDevWorkqueueConfigScopeGreenCtxBalanced = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "2267b22087268689"
     },
     {
       "name": "hipDeviceAttributeAccessPolicyMaxWindowSize",
@@ -2349,6 +2632,15 @@
       "decl_hash": "9f93db5e0b750ab8"
     },
     {
+      "name": "hipDeviceAttributeDmaBufSupported",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDeviceAttributeDmaBufSupported = None",
+      "value": 93,
+      "value_explicit": false,
+      "decl_hash": "a24f284f8c65dfef"
+    },
+    {
       "name": "hipDeviceAttributeEccEnabled",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -2356,6 +2648,15 @@
       "value": 0,
       "value_explicit": true,
       "decl_hash": "4646bf3c39c7a10f"
+    },
+    {
+      "name": "hipDeviceAttributeExpertSchedMode",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDeviceAttributeExpertSchedMode = None",
+      "value": 10021,
+      "value_explicit": false,
+      "decl_hash": "385a2fb4fb702ca9"
     },
     {
       "name": "hipDeviceAttributeFineGrainSupport",
@@ -2367,6 +2668,15 @@
       "decl_hash": "d1dc01ede471f71c"
     },
     {
+      "name": "hipDeviceAttributeGPUDirectRDMAWithHipVMMSupported",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDeviceAttributeGPUDirectRDMAWithHipVMMSupported = None",
+      "value": 94,
+      "value_explicit": false,
+      "decl_hash": "6266746cc71cdb6a"
+    },
+    {
       "name": "hipDeviceAttributeGlobalL1CacheSupported",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -2374,6 +2684,15 @@
       "value": 14,
       "value_explicit": false,
       "decl_hash": "1907bac82f5315b5"
+    },
+    {
+      "name": "hipDeviceAttributeHandleTypeFabricSupported",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDeviceAttributeHandleTypeFabricSupported = None",
+      "value": 95,
+      "value_explicit": false,
+      "decl_hash": "3446e278865da3ec"
     },
     {
       "name": "hipDeviceAttributeHdpMemFlushCntl",
@@ -2554,6 +2873,15 @@
       "value": 25,
       "value_explicit": false,
       "decl_hash": "2f8f26225c7cdbf6"
+    },
+    {
+      "name": "hipDeviceAttributeMaxDynDataPrefetchRegions",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipDeviceAttributeMaxDynDataPrefetchRegions = None",
+      "value": 10022,
+      "value_explicit": false,
+      "decl_hash": "6733f2a7649b0357"
     },
     {
       "name": "hipDeviceAttributeMaxGridDimX",
@@ -3402,6 +3730,15 @@
       "decl_hash": "8bcbe29be656622c"
     },
     {
+      "name": "hipErrorInvalidClusterSize",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipErrorInvalidClusterSize = 1054",
+      "value": 1054,
+      "value_explicit": true,
+      "decl_hash": "63ea6ecadce72944"
+    },
+    {
       "name": "hipErrorInvalidConfiguration",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -3501,6 +3838,15 @@
       "decl_hash": "762d33b973809640"
     },
     {
+      "name": "hipErrorInvalidResourceConfiguration",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipErrorInvalidResourceConfiguration = 915",
+      "value": 915,
+      "value_explicit": true,
+      "decl_hash": "5dcb6270bd921b74"
+    },
+    {
       "name": "hipErrorInvalidResourceHandle",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -3508,6 +3854,15 @@
       "value": 400,
       "value_explicit": true,
       "decl_hash": "f4a628d980977ea6"
+    },
+    {
+      "name": "hipErrorInvalidResourceType",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipErrorInvalidResourceType = 914",
+      "value": 914,
+      "value_explicit": true,
+      "decl_hash": "bd3f8fec41e7711a"
     },
     {
       "name": "hipErrorInvalidSource",
@@ -3897,11 +4252,20 @@
       "decl_hash": "8d356981e0acdfc3"
     },
     {
+      "name": "hipErrorStreamDetached",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipErrorStreamDetached = 916",
+      "value": 916,
+      "value_explicit": true,
+      "decl_hash": "565efde23aa4a3d1"
+    },
+    {
       "name": "hipErrorTbd",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "hipErrorTbd = None",
-      "value": 1054,
+      "value": 1055,
       "value_explicit": false,
       "decl_hash": "10c66e5f353952f5"
     },
@@ -3931,6 +4295,24 @@
       "value": 215,
       "value_explicit": true,
       "decl_hash": "a41e672bf5c86882"
+    },
+    {
+      "name": "hipExtDynDataPrefetchTemporalHigh",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipExtDynDataPrefetchTemporalHigh = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "918d1add83ff1279"
+    },
+    {
+      "name": "hipExtDynDataPrefetchTemporalRegular",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipExtDynDataPrefetchTemporalRegular = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "be1e714e0b44460c"
     },
     {
       "name": "hipExtLimitScratchCurrent",
@@ -4158,11 +4540,29 @@
       "decl_hash": "545f52b338b6dc5a"
     },
     {
+      "name": "hipFuncAttributeClusterDimMustBeSet",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipFuncAttributeClusterDimMustBeSet = 10",
+      "value": 10,
+      "value_explicit": true,
+      "decl_hash": "d1377c9f6ccb094e"
+    },
+    {
+      "name": "hipFuncAttributeClusterSchedulingPolicyPreference",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipFuncAttributeClusterSchedulingPolicyPreference = 15",
+      "value": 15,
+      "value_explicit": true,
+      "decl_hash": "ed83ef09a02703e1"
+    },
+    {
       "name": "hipFuncAttributeMax",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "hipFuncAttributeMax = None",
-      "value": 10,
+      "value": 16,
       "value_explicit": false,
       "decl_hash": "44e1a9cd8f2a7a5a"
     },
@@ -4176,6 +4576,15 @@
       "decl_hash": "9b689d6c24837cde"
     },
     {
+      "name": "hipFuncAttributeNonPortableClusterSizeAllowed",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipFuncAttributeNonPortableClusterSizeAllowed = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "4bab5817e67a44af"
+    },
+    {
       "name": "hipFuncAttributePreferredSharedMemoryCarveout",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -4183,6 +4592,33 @@
       "value": 9,
       "value_explicit": true,
       "decl_hash": "0b8cffe64712e4dc"
+    },
+    {
+      "name": "hipFuncAttributeRequiredClusterDepth",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipFuncAttributeRequiredClusterDepth = 13",
+      "value": 13,
+      "value_explicit": true,
+      "decl_hash": "ffd46b0bdd907c8b"
+    },
+    {
+      "name": "hipFuncAttributeRequiredClusterHeight",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipFuncAttributeRequiredClusterHeight = 12",
+      "value": 12,
+      "value_explicit": true,
+      "decl_hash": "670e44fa441c2d75"
+    },
+    {
+      "name": "hipFuncAttributeRequiredClusterWidth",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipFuncAttributeRequiredClusterWidth = 11",
+      "value": 11,
+      "value_explicit": true,
+      "decl_hash": "dc74e38d5d583eb8"
     },
     {
       "name": "hipFuncCachePreferEqual",
@@ -5193,6 +5629,24 @@
       "decl_hash": "452833a6c9a4790d"
     },
     {
+      "name": "hipLaunchAttributeClusterDimension",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipLaunchAttributeClusterDimension = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "5007914d71cd1a47"
+    },
+    {
+      "name": "hipLaunchAttributeClusterSchedulingPolicyPreference",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipLaunchAttributeClusterSchedulingPolicyPreference = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "9a45d5ef4687e2db"
+    },
+    {
       "name": "hipLaunchAttributeCooperative",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -5202,11 +5656,29 @@
       "decl_hash": "080642e2f609cd69"
     },
     {
+      "name": "hipLaunchAttributeExtDynDataPrefetch",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipLaunchAttributeExtDynDataPrefetch = 1024",
+      "value": 1024,
+      "value_explicit": true,
+      "decl_hash": "353b043878d682c3"
+    },
+    {
+      "name": "hipLaunchAttributeIgnore",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipLaunchAttributeIgnore = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "a15cc4543decc1d8"
+    },
+    {
       "name": "hipLaunchAttributeMax",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "hipLaunchAttributeMax = None",
-      "value": 11,
+      "value": 1025,
       "value_explicit": false,
       "decl_hash": "dcc3bade98d36134"
     },
@@ -5445,6 +5917,15 @@
       "decl_hash": "cfd33b55095a577b"
     },
     {
+      "name": "hipMemAllocationTypeManaged",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipMemAllocationTypeManaged = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "fc8518c0f7820380"
+    },
+    {
       "name": "hipMemAllocationTypeMax",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -5470,6 +5951,15 @@
       "value": 1073741824,
       "value_explicit": true,
       "decl_hash": "0776d323f4a3b1e4"
+    },
+    {
+      "name": "hipMemHandleTypeFabric",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipMemHandleTypeFabric = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "bf9efcea37f65d09"
     },
     {
       "name": "hipMemHandleTypeGeneric",
@@ -5812,6 +6302,42 @@
       "value": 0,
       "value_explicit": true,
       "decl_hash": "128201c560384034"
+    },
+    {
+      "name": "hipMemcpyFlagExtOpIndirectDst",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/driver_types.h",
+      "decl": "hipMemcpyFlagExtOpIndirectDst = 2048",
+      "value": 2048,
+      "value_explicit": true,
+      "decl_hash": "256e8a6a239b7867"
+    },
+    {
+      "name": "hipMemcpyFlagExtOpIndirectSrc",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/driver_types.h",
+      "decl": "hipMemcpyFlagExtOpIndirectSrc = 1024",
+      "value": 1024,
+      "value_explicit": true,
+      "decl_hash": "a3fe7f3583aa79f3"
+    },
+    {
+      "name": "hipMemcpyFlagExtOpSwap",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/driver_types.h",
+      "decl": "hipMemcpyFlagExtOpSwap = 512",
+      "value": 512,
+      "value_explicit": true,
+      "decl_hash": "93417bc05f89c5da"
+    },
+    {
+      "name": "hipMemcpyFlagExtPreferCE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hip/driver_types.h",
+      "decl": "hipMemcpyFlagExtPreferCE = 256",
+      "value": 256,
+      "value_explicit": true,
+      "decl_hash": "cf2a342e3a3b5def"
     },
     {
       "name": "hipMemcpyFlagPreferOverlapWithCompute",
@@ -6601,11 +7127,51 @@
       "decl_hash": "71fa6bcfdff208f0"
     },
     {
+      "name": "hipClusterSchedulingPolicy",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "enum hipClusterSchedulingPolicy",
+      "decl_hash": "4113737288d6d27d",
+      "exported": true
+    },
+    {
       "name": "hipComputeMode",
       "kind": "EnumDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "enum hipComputeMode",
       "decl_hash": "94d64377c16f3fd2"
+    },
+    {
+      "name": "hipDevResourceType",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "enum hipDevResourceType",
+      "decl_hash": "7d786ae26f5d52dc",
+      "exported": true
+    },
+    {
+      "name": "hipDevSmResourceGroup_flags",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "enum hipDevSmResourceGroup_flags",
+      "decl_hash": "f70b5c1f65bd30b8",
+      "exported": true
+    },
+    {
+      "name": "hipDevSmResourceSplitByCount_flags",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "enum hipDevSmResourceSplitByCount_flags",
+      "decl_hash": "3c51b8dec9778b06",
+      "exported": true
+    },
+    {
+      "name": "hipDevWorkqueueConfigScope",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "enum hipDevWorkqueueConfigScope",
+      "decl_hash": "06a49c5534940662",
+      "exported": true
     },
     {
       "name": "hipDeviceAttribute_t",
@@ -6643,6 +7209,14 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "enum hipError_t",
       "decl_hash": "5d9b34303905cf59"
+    },
+    {
+      "name": "hipExtDynDataPrefetchTemporal",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "enum hipExtDynDataPrefetchTemporal",
+      "decl_hash": "046cb5cbcd5728ec",
+      "exported": true
     },
     {
       "name": "hipExternalMemoryHandleType_enum",
@@ -7404,6 +7978,30 @@
       "exported": true
     },
     {
+      "name": "hipDevResourceGenerateDesc",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipDevResourceGenerateDesc(hipDevResourceDesc_t * phDesc, hipDevResource * resources, unsigned int nbResources)",
+      "decl_hash": "40b219d26c3167d1",
+      "exported": true
+    },
+    {
+      "name": "hipDevSmResourceSplit",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipDevSmResourceSplit(hipDevResource * result, unsigned int nbGroups, const hipDevResource * input, hipDevResource * remainder, unsigned int flags, hipDevSmResourceGroupParams * groupParams)",
+      "decl_hash": "6f941e82c3f4f378",
+      "exported": true
+    },
+    {
+      "name": "hipDevSmResourceSplitByCount",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipDevSmResourceSplitByCount(hipDevResource * result, unsigned int * nbGroups, const hipDevResource * input, hipDevResource * remainder, unsigned int flags, unsigned int minCount)",
+      "decl_hash": "8b583baf9de18ce7",
+      "exported": true
+    },
+    {
       "name": "hipDeviceCanAccessPeer",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -7473,6 +8071,22 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "hipError_t hipDeviceGetDefaultMemPool(hipMemPool_t * mem_pool, int device)",
       "decl_hash": "4ae45e4aff2d4bb8",
+      "exported": true
+    },
+    {
+      "name": "hipDeviceGetDevResource",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipDeviceGetDevResource(hipDevice_t device, hipDevResource * resource, hipDevResourceType type)",
+      "decl_hash": "61c55b79a9d6b11a",
+      "exported": true
+    },
+    {
+      "name": "hipDeviceGetExecutionCtx",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipDeviceGetExecutionCtx(hipExecutionCtx_t * ctx, int device)",
+      "decl_hash": "3196eebab9046967",
       "exported": true
     },
     {
@@ -7761,6 +8375,22 @@
       "exported": true
     },
     {
+      "name": "hipDrvMemDiscardAndPrefetchBatchAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipDrvMemDiscardAndPrefetchBatchAsync(hipDeviceptr_t * dptrs, size_t * sizes, size_t count, hipMemLocation * prefetchLocs, size_t * prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, hipStream_t stream)",
+      "decl_hash": "537e1b6583e80b7e",
+      "exported": true
+    },
+    {
+      "name": "hipDrvMemDiscardBatchAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipDrvMemDiscardBatchAsync(hipDeviceptr_t * dptrs, size_t * sizes, size_t count, unsigned long long flags, hipStream_t stream)",
+      "decl_hash": "9afc90f310b0d28f",
+      "exported": true
+    },
+    {
       "name": "hipDrvMemcpy2DUnaligned",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -7864,6 +8494,86 @@
       "exported": true
     },
     {
+      "name": "hipExecutionCtxDestroy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExecutionCtxDestroy(hipExecutionCtx_t ctx)",
+      "decl_hash": "561d3b9600dc6e6a",
+      "exported": true
+    },
+    {
+      "name": "hipExecutionCtxGetDevResource",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExecutionCtxGetDevResource(hipExecutionCtx_t ctx, hipDevResource * resource, hipDevResourceType type)",
+      "decl_hash": "9fe9ed129d0a9cf8",
+      "exported": true
+    },
+    {
+      "name": "hipExecutionCtxGetDevice",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExecutionCtxGetDevice(int * device, hipExecutionCtx_t ctx)",
+      "decl_hash": "dea32259519a3e33",
+      "exported": true
+    },
+    {
+      "name": "hipExecutionCtxGetId",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExecutionCtxGetId(hipExecutionCtx_t ctx, unsigned long long * ctxId)",
+      "decl_hash": "796ca2eec388594f",
+      "exported": true
+    },
+    {
+      "name": "hipExecutionCtxRecordEvent",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExecutionCtxRecordEvent(hipExecutionCtx_t ctx, hipEvent_t event)",
+      "decl_hash": "81c97c7bdc7a3ece",
+      "exported": true
+    },
+    {
+      "name": "hipExecutionCtxStreamCreate",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExecutionCtxStreamCreate(hipStream_t * stream, hipExecutionCtx_t greenctx, unsigned int flags, int priority)",
+      "decl_hash": "33d0daee519f22c5",
+      "exported": true
+    },
+    {
+      "name": "hipExecutionCtxSynchronize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExecutionCtxSynchronize(hipExecutionCtx_t ctx)",
+      "decl_hash": "dd303c84fc88b253",
+      "exported": true
+    },
+    {
+      "name": "hipExecutionCtxWaitEvent",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExecutionCtxWaitEvent(hipExecutionCtx_t ctx, hipEvent_t event)",
+      "decl_hash": "7d00e156aa192b48",
+      "exported": true
+    },
+    {
+      "name": "hipExtDisableLogging",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExtDisableLogging()",
+      "decl_hash": "fa63707d9bd68d0a",
+      "exported": true
+    },
+    {
+      "name": "hipExtEnableLogging",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExtEnableLogging()",
+      "decl_hash": "047a4f774554b246",
+      "exported": true
+    },
+    {
       "name": "hipExtGetLastError",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -7901,6 +8611,14 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "hipError_t hipExtMallocWithFlags(void ** ptr, size_t sizeBytes, unsigned int flags)",
       "decl_hash": "f9138aba3ea622ae",
+      "exported": true
+    },
+    {
+      "name": "hipExtSetLoggingParams",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipExtSetLoggingParams(size_t log_level, size_t log_size, size_t log_mask)",
+      "decl_hash": "2d8957b17dad4019",
       "exported": true
     },
     {
@@ -8117,6 +8835,13 @@
       "decl": "hipError_t hipGetProcAddress(const char * symbol, void ** pfn, int hipVersion, uint64_t flags, hipDriverProcAddressQueryResult * symbolStatus)",
       "decl_hash": "e991d1a5c351f1d2",
       "exported": true
+    },
+    {
+      "name": "hipGetProcAddress_spt",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/amd_detail/amd_hip_runtime_pt_api.h",
+      "decl": "hipError_t hipGetProcAddress_spt(const char * symbol, void ** pfn, int hipVersion, uint64_t flags, hipDriverProcAddressQueryResult * symbolStatus)",
+      "decl_hash": "475fc5468be708ef"
     },
     {
       "name": "hipGetStreamDeviceId",
@@ -8912,6 +9637,14 @@
       "exported": true
     },
     {
+      "name": "hipGreenCtxCreate",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipGreenCtxCreate(hipExecutionCtx_t * ctx, hipDevResourceDesc_t desc, int device, unsigned int flags)",
+      "decl_hash": "4c7efc47cc94d033",
+      "exported": true
+    },
+    {
       "name": "hipHostAlloc",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -9032,6 +9765,22 @@
       "exported": true
     },
     {
+      "name": "hipKernelGetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipKernelGetAttribute(int * pi, hipFunction_attribute attrib, hipKernel_t kernel, hipDevice_t dev)",
+      "decl_hash": "6a5c055fcf561d08",
+      "exported": true
+    },
+    {
+      "name": "hipKernelGetFunction",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipKernelGetFunction(hipFunction_t * pFunc, hipKernel_t kernel)",
+      "decl_hash": "068ab09054638b6f",
+      "exported": true
+    },
+    {
       "name": "hipKernelGetLibrary",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -9048,6 +9797,14 @@
       "exported": true
     },
     {
+      "name": "hipKernelGetParamInfo",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipKernelGetParamInfo(hipKernel_t kernel, size_t paramIndex, size_t * paramOffset, size_t * paramSize)",
+      "decl_hash": "ef66ae946bc8f23d",
+      "exported": true
+    },
+    {
       "name": "hipKernelNameRef",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -9061,6 +9818,14 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "const char * hipKernelNameRefByPtr(const void * hostFunction, hipStream_t stream)",
       "decl_hash": "f0b7b423c24de43e",
+      "exported": true
+    },
+    {
+      "name": "hipKernelSetAttribute",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipKernelSetAttribute(hipFunction_attribute attrib, int value, hipKernel_t kernel, hipDevice_t dev)",
+      "decl_hash": "7d296fc4b6a61275",
       "exported": true
     },
     {
@@ -9148,6 +9913,14 @@
       "exported": true
     },
     {
+      "name": "hipLibraryGetGlobal",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipLibraryGetGlobal(void ** dptr, size_t * bytes, hipLibrary_t library, const char * name)",
+      "decl_hash": "f3f11f251b85e82c",
+      "exported": true
+    },
+    {
       "name": "hipLibraryGetKernel",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -9161,6 +9934,14 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "hipError_t hipLibraryGetKernelCount(unsigned int * count, hipLibrary_t library)",
       "decl_hash": "7639d306db0049ba",
+      "exported": true
+    },
+    {
+      "name": "hipLibraryGetManaged",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipLibraryGetManaged(void ** dptr, size_t * bytes, hipLibrary_t library, const char * name)",
+      "decl_hash": "4037983d07db841e",
       "exported": true
     },
     {
@@ -9365,6 +10146,22 @@
       "exported": true
     },
     {
+      "name": "hipMemDiscardAndPrefetchBatchAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipMemDiscardAndPrefetchBatchAsync(void ** dptrs, size_t * sizes, size_t count, hipMemLocation * prefetchLocs, size_t * prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, hipStream_t stream)",
+      "decl_hash": "715428a2f7d3743f",
+      "exported": true
+    },
+    {
+      "name": "hipMemDiscardBatchAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipMemDiscardBatchAsync(void ** dev_ptrs, size_t * sizes, size_t count, unsigned long long flags, hipStream_t stream)",
+      "decl_hash": "87742203186cfbb1",
+      "exported": true
+    },
+    {
       "name": "hipMemExportToShareableHandle",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -9405,6 +10202,14 @@
       "exported": true
     },
     {
+      "name": "hipMemGetDefaultMemPool",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipMemGetDefaultMemPool(hipMemPool_t * memPool, hipMemLocation * location, hipMemAllocationType type)",
+      "decl_hash": "ff3867eb96b35a34",
+      "exported": true
+    },
+    {
       "name": "hipMemGetHandleForAddressRange",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -9418,6 +10223,14 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "hipError_t hipMemGetInfo(size_t * free, size_t * total)",
       "decl_hash": "39085835befd4d51",
+      "exported": true
+    },
+    {
+      "name": "hipMemGetMemPool",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipMemGetMemPool(hipMemPool_t * pool, hipMemLocation * location, hipMemAllocationType type)",
+      "decl_hash": "80166aac8b756d36",
       "exported": true
     },
     {
@@ -9549,6 +10362,14 @@
       "exported": true
     },
     {
+      "name": "hipMemPrefetchBatchAsync",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipMemPrefetchBatchAsync(void ** dev_ptrs, size_t * sizes, size_t count, hipMemLocation * prefetch_locs, size_t * prefetch_loc_idxs, size_t num_prefetch_locs, unsigned long long flags, hipStream_t stream)",
+      "decl_hash": "83b9458d9a22826b",
+      "exported": true
+    },
+    {
       "name": "hipMemPtrGetInfo",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -9594,6 +10415,14 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "hipError_t hipMemSetAccess(void * ptr, size_t size, const hipMemAccessDesc * desc, size_t count)",
       "decl_hash": "b816d44652e76750",
+      "exported": true
+    },
+    {
+      "name": "hipMemSetMemPool",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipMemSetMemPool(hipMemLocation * location, hipMemAllocationType type, hipMemPool_t pool)",
+      "decl_hash": "6dbc479623d7fd1b",
       "exported": true
     },
     {
@@ -10234,6 +11063,14 @@
       "exported": true
     },
     {
+      "name": "hipMipmappedArrayGetMemoryRequirements",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipMipmappedArrayGetMemoryRequirements(hipArrayMemoryRequirements * memoryRequirements, hipMipmappedArray_t mipmap, hipDevice_t device)",
+      "decl_hash": "86f94854ad6025fd",
+      "exported": true
+    },
+    {
       "name": "hipModuleGetFunction",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -10386,6 +11223,14 @@
       "exported": true
     },
     {
+      "name": "hipOccupancyMaxActiveClusters",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipOccupancyMaxActiveClusters(int * numClusters, const void * f, const hipLaunchConfig_t * config)",
+      "decl_hash": "fb6a957fcee09240",
+      "exported": true
+    },
+    {
       "name": "hipOccupancyMaxPotentialBlockSize",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -10406,6 +11251,14 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "hipError_t hipOccupancyMaxPotentialBlockSizeVariableSMemWithFlags(int * min_grid_size, int * block_size, T func, UnaryFunction block_size_to_dynamic_smem_size, int block_size_limit, unsigned int flags)",
       "decl_hash": "7ccf43598c1e7880"
+    },
+    {
+      "name": "hipOccupancyMaxPotentialClusterSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipOccupancyMaxPotentialClusterSize(int * clusterSize, const void * f, const hipLaunchConfig_t * config)",
+      "decl_hash": "dfd1cba793709c94",
+      "exported": true
     },
     {
       "name": "hipPeekAtLastError",
@@ -10651,6 +11504,14 @@
       "header": "/opt/rocm/include/hip/amd_detail/amd_hip_runtime_pt_api.h",
       "decl": "hipError_t hipStreamGetCaptureInfo_v2_spt(hipStream_t stream, hipStreamCaptureStatus * captureStatus_out, unsigned long long * id_out, hipGraph_t * graph_out, const hipGraphNode_t ** dependencies_out, size_t * numDependencies_out)",
       "decl_hash": "67e25ddb9675a49f"
+    },
+    {
+      "name": "hipStreamGetDevResource",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "hipError_t hipStreamGetDevResource(hipStream_t hStream, hipDevResource * resource, hipDevResourceType type)",
+      "decl_hash": "14addc088185e596",
+      "exported": true
     },
     {
       "name": "hipStreamGetDevice",
@@ -11444,6 +12305,13 @@
       "decl_hash": "f629bd6993994841"
     },
     {
+      "name": "hipArrayMemoryRequirements",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct hipArrayMemoryRequirements hipArrayMemoryRequirements",
+      "decl_hash": "d777c6af9e8e7501"
+    },
+    {
       "name": "hipArraySparseSubresourceType",
       "kind": "TypedefDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
@@ -11500,11 +12368,88 @@
       "decl_hash": "b69ec6050000d804"
     },
     {
+      "name": "hipClusterSchedulingPolicy",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef enum hipClusterSchedulingPolicy hipClusterSchedulingPolicy",
+      "decl_hash": "af5b260f74e938b6"
+    },
+    {
       "name": "hipCtx_t",
       "kind": "TypedefDecl",
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "typedef struct ihipCtx_t * hipCtx_t",
       "decl_hash": "4880a4cc7e5f02e9"
+    },
+    {
+      "name": "hipDevResource",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct hipDevResource_st hipDevResource",
+      "decl_hash": "0bdac01e7ed1e866"
+    },
+    {
+      "name": "hipDevResourceDesc_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct ihipDevResourceDesc_t * hipDevResourceDesc_t",
+      "decl_hash": "4a1f2bba2c1a5d38"
+    },
+    {
+      "name": "hipDevResourceType",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef enum hipDevResourceType hipDevResourceType",
+      "decl_hash": "1aca72766d2970c3"
+    },
+    {
+      "name": "hipDevSmResource",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct hipDevSmResource hipDevSmResource",
+      "decl_hash": "337cce5f9df57655"
+    },
+    {
+      "name": "hipDevSmResourceGroupParams",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct hipDevSmResourceGroupParams_st hipDevSmResourceGroupParams",
+      "decl_hash": "9aada8f92bef3266"
+    },
+    {
+      "name": "hipDevSmResourceGroup_flags",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef enum hipDevSmResourceGroup_flags hipDevSmResourceGroup_flags",
+      "decl_hash": "2a83b8c87b43eeed"
+    },
+    {
+      "name": "hipDevSmResourceSplitByCount_flags",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef enum hipDevSmResourceSplitByCount_flags hipDevSmResourceSplitByCount_flags",
+      "decl_hash": "3b461235d0bd5555"
+    },
+    {
+      "name": "hipDevWorkqueueConfigResource",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct hipDevWorkqueueConfigResource hipDevWorkqueueConfigResource",
+      "decl_hash": "57a61456068f0359"
+    },
+    {
+      "name": "hipDevWorkqueueConfigScope",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef enum hipDevWorkqueueConfigScope hipDevWorkqueueConfigScope",
+      "decl_hash": "90a56cfa8353115d"
+    },
+    {
+      "name": "hipDevWorkqueueResource",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct hipDevWorkqueueResource hipDevWorkqueueResource",
+      "decl_hash": "a5e1af1512a141ca"
     },
     {
       "name": "hipDeviceArch_t",
@@ -11589,6 +12534,34 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "typedef struct ihipEvent_t * hipEvent_t",
       "decl_hash": "8addfd5dc276b27d"
+    },
+    {
+      "name": "hipExecutionCtx_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct ihipExecutionCtx_t * hipExecutionCtx_t",
+      "decl_hash": "8971b1c4fc3d06b4"
+    },
+    {
+      "name": "hipExtDynDataPrefetchConfig",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct hipExtDynDataPrefetchConfig hipExtDynDataPrefetchConfig",
+      "decl_hash": "4740c5ea1e673263"
+    },
+    {
+      "name": "hipExtDynDataPrefetchRegion",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct hipExtDynDataPrefetchRegion hipExtDynDataPrefetchRegion",
+      "decl_hash": "f97051bed977174c"
+    },
+    {
+      "name": "hipExtDynDataPrefetchTemporal",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef enum hipExtDynDataPrefetchTemporal hipExtDynDataPrefetchTemporal",
+      "decl_hash": "0f2853081b94b689"
     },
     {
       "name": "hipExtent",
@@ -12016,6 +12989,13 @@
       "header": "/opt/rocm/include/hip/hip_runtime_api.h",
       "decl": "typedef enum hipMemAllocationType hipMemAllocationType",
       "decl_hash": "772b896ef992005f"
+    },
+    {
+      "name": "hipMemFabricHandle_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hip/hip_runtime_api.h",
+      "decl": "typedef struct hipMemFabricHandle_st hipMemFabricHandle_t",
+      "decl_hash": "095853180aa7e65b"
     },
     {
       "name": "hipMemFreeNodeParams",

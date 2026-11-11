@@ -21,7 +21,7 @@ pre-commit install                # commit-time lint + the pre-push gate
 devtools/devcontainer.sh rebuild  # the C++ toolchain lives in the container
 ```
 
-`uv` is the only assumed host tool. The C++ toolchain — clang-20 with libc++'s
+`uv` is the only assumed host tool. The C++ toolchain — clang-23 with libc++'s
 module manifest, CMake 4.2, and a vendor SDK — is not on your host and is not
 meant to be; `docker/` builds it.
 

@@ -2,10 +2,10 @@
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
     "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
-    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hipblas/hipblas.h",
+    "command": "/usr/bin/clang -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hipblas/hipblas.h",
     "config": {
       "backend": "HIP",
-      "sdk_version": "ROCm 7.2.4",
+      "sdk_version": "ROCm 10.0.0",
       "arch": "gfx942",
       "defines": [
         "__HIP_PLATFORM_AMD__"
@@ -15,16 +15,16 @@
         "/opt/rocm-ds/include"
       ]
     },
-    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "clang": "Ubuntu clang version 23.1.6 (++20261108033755+c47d7823685a-1~exp1~20261108153854.96)",
     "header": "/opt/rocm/include/hipblas/hipblas.h",
     "prefix": "hipblas",
-    "symbol_count": 1262
+    "symbol_count": 1274
   },
   "linkable": {
     "lib": "libhipblas.so.3",
     "soname": "libhipblas.so.3",
     "available": true,
-    "linkable_count": 1191,
+    "linkable_count": 1199,
     "linkable": [
       "hipblasAxpyBatchedEx",
       "hipblasAxpyBatchedEx_64",
@@ -589,13 +589,17 @@
       "hipblasGemmStridedBatchedExWithFlags_64",
       "hipblasGemmStridedBatchedEx_64",
       "hipblasGetAtomicsMode",
+      "hipblasGetBatchAlphaStride",
+      "hipblasGetBatchBetaStride",
       "hipblasGetMathMode",
       "hipblasGetMatrix",
       "hipblasGetMatrixAsync",
       "hipblasGetPointerMode",
+      "hipblasGetProperty",
       "hipblasGetStream",
       "hipblasGetVector",
       "hipblasGetVectorAsync",
+      "hipblasGetVersion",
       "hipblasHaxpy",
       "hipblasHaxpyBatched",
       "hipblasHaxpyBatched_64",
@@ -608,6 +612,7 @@
       "hipblasHdotStridedBatched",
       "hipblasHdotStridedBatched_64",
       "hipblasHdot_64",
+      "hipblasHerkEx",
       "hipblasHgemm",
       "hipblasHgemmBatched",
       "hipblasHgemmBatched_64",
@@ -723,6 +728,8 @@
       "hipblasSdotStridedBatched_64",
       "hipblasSdot_64",
       "hipblasSetAtomicsMode",
+      "hipblasSetBatchAlphaStride",
+      "hipblasSetBatchBetaStride",
       "hipblasSetMathMode",
       "hipblasSetMatrix",
       "hipblasSetMatrixAsync",
@@ -934,6 +941,7 @@
       "hipblasStrtri",
       "hipblasStrtriBatched",
       "hipblasStrtriStridedBatched",
+      "hipblasSyrkEx",
       "hipblasTrsmBatchedEx",
       "hipblasTrsmEx",
       "hipblasTrsmStridedBatchedEx",
@@ -1490,6 +1498,15 @@
       "decl_hash": "687490cc6930a3b9"
     },
     {
+      "name": "HIPBLAS_MAJOR_VERSION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "HIPBLAS_MAJOR_VERSION = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "b5f75f2fae532a0d"
+    },
+    {
       "name": "HIPBLAS_MATH_DISALLOW_REDUCED_PRECISION_REDUCTION",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hipblas/hipblas.h",
@@ -1497,6 +1514,15 @@
       "value": 4,
       "value_explicit": false,
       "decl_hash": "c0f8d02ab14da9b7"
+    },
+    {
+      "name": "HIPBLAS_MINOR_VERSION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "HIPBLAS_MINOR_VERSION = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "7754d9d042b66dfd"
     },
     {
       "name": "HIPBLAS_OP_C",
@@ -1524,6 +1550,15 @@
       "value": 112,
       "value_explicit": true,
       "decl_hash": "0642a9f909c9a662"
+    },
+    {
+      "name": "HIPBLAS_PATCH_LEVEL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "HIPBLAS_PATCH_LEVEL = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "fcb1626f2bacc6b7"
     },
     {
       "name": "HIPBLAS_PEDANTIC_MATH",
@@ -6219,6 +6254,22 @@
       "exported": true
     },
     {
+      "name": "hipblasGetBatchAlphaStride",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "hipblasStatus_t hipblasGetBatchAlphaStride(hipblasHandle_t handle, hipblasStride * alpha_stride)",
+      "decl_hash": "2f81464f269f7007",
+      "exported": true
+    },
+    {
+      "name": "hipblasGetBatchBetaStride",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "hipblasStatus_t hipblasGetBatchBetaStride(hipblasHandle_t handle, hipblasStride * beta_stride)",
+      "decl_hash": "b3ada92312c36632",
+      "exported": true
+    },
+    {
       "name": "hipblasGetMathMode",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hipblas/hipblas.h",
@@ -6251,6 +6302,14 @@
       "exported": true
     },
     {
+      "name": "hipblasGetProperty",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "hipblasStatus_t hipblasGetProperty(hipblasLibraryProperty_t type, int * value)",
+      "decl_hash": "409ab6f1a50c483c",
+      "exported": true
+    },
+    {
       "name": "hipblasGetStream",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hipblas/hipblas.h",
@@ -6272,6 +6331,14 @@
       "header": "/opt/rocm/include/hipblas/hipblas.h",
       "decl": "hipblasStatus_t hipblasGetVectorAsync(int n, int elemSize, const void * x, int incx, void * y, int incy, hipStream_t stream)",
       "decl_hash": "bdeb9893da007ee3",
+      "exported": true
+    },
+    {
+      "name": "hipblasGetVersion",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "hipblasStatus_t hipblasGetVersion(hipblasHandle_t handle, int * version)",
+      "decl_hash": "7967466b8677dd7e",
       "exported": true
     },
     {
@@ -6368,6 +6435,14 @@
       "header": "/opt/rocm/include/hipblas/hipblas.h",
       "decl": "hipblasStatus_t hipblasHdot_64(hipblasHandle_t handle, int64_t n, const hipblasHalf * x, int64_t incx, const hipblasHalf * y, int64_t incy, hipblasHalf * result)",
       "decl_hash": "8ad486fe0ea51857",
+      "exported": true
+    },
+    {
+      "name": "hipblasHerkEx",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "hipblasStatus_t hipblasHerkEx(hipblasHandle_t handle, hipblasFillMode_t uplo, hipblasOperation_t transA, int n, int k, const void * alpha, const void * A, hipDataType aType, int lda, const void * beta, void * C, hipDataType cType, int ldc, hipDataType computeType)",
+      "decl_hash": "ef490dcd1b0a260f",
       "exported": true
     },
     {
@@ -7288,6 +7363,22 @@
       "header": "/opt/rocm/include/hipblas/hipblas.h",
       "decl": "hipblasStatus_t hipblasSetAtomicsMode(hipblasHandle_t handle, hipblasAtomicsMode_t atomics_mode)",
       "decl_hash": "19b452387f0e31f6",
+      "exported": true
+    },
+    {
+      "name": "hipblasSetBatchAlphaStride",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "hipblasStatus_t hipblasSetBatchAlphaStride(hipblasHandle_t handle, hipblasStride alpha_stride)",
+      "decl_hash": "06fa019cb3c34039",
+      "exported": true
+    },
+    {
+      "name": "hipblasSetBatchBetaStride",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "hipblasStatus_t hipblasSetBatchBetaStride(hipblasHandle_t handle, hipblasStride beta_stride)",
+      "decl_hash": "a0b8f760f540ef71",
       "exported": true
     },
     {
@@ -8976,6 +9067,14 @@
       "header": "/opt/rocm/include/hipblas/hipblas.h",
       "decl": "hipblasStatus_t hipblasStrtriStridedBatched(hipblasHandle_t handle, hipblasFillMode_t uplo, hipblasDiagType_t diag, int n, const float * AP, int lda, hipblasStride strideA, float * invA, int ldinvA, hipblasStride stride_invA, int batchCount)",
       "decl_hash": "a7a12a18775cf1a2",
+      "exported": true
+    },
+    {
+      "name": "hipblasSyrkEx",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "hipblasStatus_t hipblasSyrkEx(hipblasHandle_t handle, hipblasFillMode_t uplo, hipblasOperation_t transA, int n, int k, const void * alpha, const void * A, hipDataType aType, int lda, const void * beta, void * C, hipDataType cType, int ldc, hipDataType computeType)",
+      "decl_hash": "5bdf21db27f68f3d",
       "exported": true
     },
     {
@@ -11311,6 +11410,13 @@
       "header": "/opt/rocm/include/hipblas/hipblas.h",
       "decl": "typedef int8_t hipblasInt8",
       "decl_hash": "483f9d5cbdfd0a1a"
+    },
+    {
+      "name": "hipblasLibraryProperty_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipblas/hipblas.h",
+      "decl": "typedef enum hipblasLibraryProperty_t hipblasLibraryProperty_t",
+      "decl_hash": "051084a0e29e85ad"
     },
     {
       "name": "hipblasMath_t",

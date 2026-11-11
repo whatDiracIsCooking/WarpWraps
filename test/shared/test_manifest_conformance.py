@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT / "test" / "shared"))
 import manifest_conformance as mc  # noqa: E402
 
 # The real pin/floor name sets for one library with a genuine floor delta.
-_PIN = ROOT / "vendor" / "rocm-7.2.4" / "hip_runtime_api.json"
+_PIN = ROOT / "vendor" / "rocm-10.0.0" / "hip_runtime_api.json"
 _FLOOR = ROOT / "vendor" / "rocm-7.1.0" / "hip_runtime_api.json"
 ACCEPTED, PIN = mc.load_manifest(_PIN)
 _, FLOOR = mc.load_manifest(_FLOOR)
@@ -33,13 +33,18 @@ PIN_ONLY = "hipKernelGetName"
 AT_BOTH = "hipMalloc"
 
 # The real linkable data of the same library, for assertion 3. hipMalloc the .so
-# exports; hipExternalMemoryGetMappedMipmappedArray it declares but does not
-# export (the module's one live WWR_DECLARED_CHECK site).
+# exports; hipCreateChannelDescHalf it declares and does not export.
+#
+# That second one was hipExternalMemoryGetMappedMipmappedArray until ROCm 10.0.0
+# started exporting it -- exactly the flip assertion 3 exists to notice (#307,
+# docs/architecture.md section 21). hipCreateChannelDescHalf is declared-only at
+# the floor and at the pin, being an inline the header defines rather than a
+# symbol the library ships.
 _LINK = json.loads(_PIN.read_text())["linkable"]
 LINKABLE = set(_LINK["linkable"])
 DECLARED_ONLY = set(_LINK["declared_not_linkable"])
 EXPORTED = "hipMalloc"
-DECLARED_NOT_LINKABLE = "hipExternalMemoryGetMappedMipmappedArray"
+DECLARED_NOT_LINKABLE = "hipCreateChannelDescHalf"
 
 
 def check(src: str):

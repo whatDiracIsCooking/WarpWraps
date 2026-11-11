@@ -388,7 +388,7 @@ Four files under `docker/`, in a diamond:
 
 | File | What it adds |
 |---|---|
-| `Dockerfile.base` | The vendor-neutral C++23 toolchain: clang-20 + libc++, CMake, Ninja, ccache, uv/Python. No GPU SDK. |
+| `Dockerfile.base` | The vendor-neutral C++23 toolchain: clang-23 + libc++, CMake, Ninja, ccache, uv/Python. No GPU SDK. |
 | `Dockerfile.cuda` | `base` + the CUDA toolkit. The default, and what the devcontainer and compose build. |
 | `Dockerfile.hip` | `base` + ROCm/HIP. No CUDA at all. |
 | `Dockerfile.combined` | `cuda` + ROCm, for switching backends without switching containers (~40GB). |

@@ -415,16 +415,24 @@ fi
 # version file: that is true on the legacy channel (<= 7.2.4), where /opt/rocm
 # is a symlink to /opt/rocm-<version>, but NOT on TheRock (>= 7.9), where
 # /opt/rocm is a real directory of alternatives links and the version file lives
-# at /opt/rocm/core-<major.minor>/.info/version. `hipconfig --rocmpath` returns
-# the right prefix on both (/opt/rocm and /opt/rocm/core-10.0 respectively), so
-# this needs no channel branch. See issue #305.
+# at /opt/rocm/core-<major.minor>/.info/version.
+#
+# AND hipconfig DOES NOT ALWAYS NAME THAT SUBDIRECTORY. It returned
+# /opt/rocm/core-10.0 on the first TheRock image built (#305) and plain
+# /opt/rocm on the 10.0.0 pin image, where the version file is one level down --
+# so the fallback resolves $rocm_root/lib through realpath, which lands on the
+# versioned prefix on both channels. Same REALPATH trick as CMakeLists.txt's
+# floor check and devtools/vendor_manifests.sh. See issues #305 and #307.
 if hipconfig=$(find_tool hipconfig); then
   rocm_installed=""
   rocm_root=$("$hipconfig" --rocmpath 2>/dev/null || true)
+  if [ -n "$rocm_root" ] && [ ! -r "$rocm_root/.info/version" ]; then
+    rocm_root=$(dirname "$(realpath "$rocm_root/lib" 2>/dev/null)" 2>/dev/null || true)
+  fi
   [ -n "$rocm_root" ] && [ -r "$rocm_root/.info/version" ] &&
     rocm_installed=$(head -1 "$rocm_root/.info/version" 2>/dev/null | cut -d- -f1)
   if [ -z "$rocm_installed" ]; then
-    note "hipconfig present but \$(hipconfig --rocmpath)/.info/version is unreadable -- skipping the ROCm pin check"
+    note "hipconfig present but no readable .info/version under its prefix or that prefix's lib/ realpath -- skipping the ROCm pin check"
   elif [ "$rocm_installed" = "$ROCM_VERSION" ]; then
     ok "ROCm $rocm_installed matches the pin ($ROCM_VERSION)"
   else

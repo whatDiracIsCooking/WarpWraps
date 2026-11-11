@@ -35,7 +35,7 @@ ARG PROJECT_NAME=wwr
 ARG PARENT_IMAGE=${PROJECT_NAME}:cuda
 FROM ${PARENT_IMAGE}
 
-ARG ROCM_VERSION=7.2.4
+ARG ROCM_VERSION=10.0.0
 USER root
 
 # Re-stamped rather than merely inherited from the parent, so that the

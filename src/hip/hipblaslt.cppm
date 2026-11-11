@@ -45,6 +45,17 @@ module;
 #define WWR_HIPBLASLT_SINCE_1_2                                                                    \
   (HIPBLASLT_VERSION_MAJOR > 1 || (HIPBLASLT_VERSION_MAJOR == 1 && HIPBLASLT_VERSION_MINOR >= 2))
 
+// ...and 1.4.1 (ROCm 10.0.0) took them away again: HIPBLASLT_EPILOGUE_SIGMOID_EXT
+// is spelled HIPBLASLT_EPILOGUE_SIGMOID there -- a RENUMBERING as well as a
+// rename, 262144 -> 1024 -- and HIPBLASLT_EPILOGUE_SIGMOID_BIAS_EXT is gone with
+// no replacement. So the pair needs an upper bound as well as a lower one; it is
+// live only across 1.2 .. 1.3. The 1.4 spellings (plus the DRELU pair it adds)
+// are deliberately NOT wrapped here: their values have to be re-derived into the
+// vendor manifests and test/hip/hipblaslt.cppm's value assertions at whatever
+// ROCm version becomes the pin, which is #305's job, not this file's.
+#define WWR_HIPBLASLT_BEFORE_1_4                                                                   \
+  (HIPBLASLT_VERSION_MAJOR < 1 || (HIPBLASLT_VERSION_MAJOR == 1 && HIPBLASLT_VERSION_MINOR < 4))
+
 export module wwr.hip.hipblaslt;
 
 import std;
@@ -72,7 +83,7 @@ using ::HIPBLASLT_EPILOGUE_RELU;
 using ::HIPBLASLT_EPILOGUE_RELU_AUX;
 using ::HIPBLASLT_EPILOGUE_RELU_AUX_BIAS;
 using ::HIPBLASLT_EPILOGUE_RELU_BIAS;
-#if WWR_HIPBLASLT_SINCE_1_2
+#if WWR_HIPBLASLT_SINCE_1_2 && WWR_HIPBLASLT_BEFORE_1_4
 using ::HIPBLASLT_EPILOGUE_SIGMOID_BIAS_EXT;
 using ::HIPBLASLT_EPILOGUE_SIGMOID_EXT;
 #endif

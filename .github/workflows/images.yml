@@ -159,11 +159,24 @@ jobs:
           # THE ROCm FLOOR IMAGE. ci.yml's cpp-floor leg pulls `:hip-7.1.0-ci`;
           # this is what builds and publishes it. Same Dockerfile.hip, only
           # ROCM_VERSION overridden to the 7.1.0 floor (CMakeLists.txt enforces,
-          # #111/#149) -- config.sh reads `${ROCM_VERSION:-7.2.4}`, so this env
+          # #111/#149) -- config.sh reads `${ROCM_VERSION:-10.0.0}`, so this env
           # wins and build.sh tags the version-carrying `wwr:hip-7.1.0-ci`. It
           # also tags `:hip-ci` (build.sh always tags the alias too), so this leg
           # must push ONLY the version tag -- see `push_only` above -- or it
-          # clobbers the pinned 7.2.4 image the `cpp (hip)` leg pulls.
+          # clobbers the pinned 10.0.0 image the `cpp (hip)` leg pulls.
+          #
+          # AND IT IS THE ONE LEG THAT STAYS ON LLVM 20, which is not an
+          # oversight but the floor's price. clang 23 (#307) dropped 89
+          # `__ocml_*` declarations from __clang_hip_libdevice_declares.h that
+          # ROCm <= 7.2.4's hip/amd_detail/amd_hip_fp16.h still calls from
+          # unconditional inline __device__ functions, so no HIP device TU
+          # compiles at the floor under the toolchain the rest of this matrix
+          # ships. Keeping the declared floor at 7.1.0 therefore means building
+          # ITS image with the compiler that floor supports: clang <= 22 goes
+          # with ROCm <= 7.2.4, clang 23 with ROCm >= 7.9. build.sh forwards
+          # LLVM_VERSION to Dockerfile.base, so this one env var is the whole
+          # mechanism, and the leg keeps proving what it always proved -- that
+          # the oldest supported ROCm still compiles.
           #
           # ROCm 7.1 is the one release in the 7.x line whose `rocm-hip-sdk`
           # meta-package does not pull `rocm-hip-runtime-dev` (hipcc and
@@ -176,7 +189,7 @@ jobs:
           # the CUDA pin ever rises above the declared floor.
           - variant: hip-floor
             image: hip
-            build_env: 'ROCM_PRUNE=1 ROCM_VERSION=7.1.0'
+            build_env: 'ROCM_PRUNE=1 ROCM_VERSION=7.1.0 LLVM_VERSION=20'
             push_only: 'hip-7.1.0-ci'
             experimental: false
     steps:

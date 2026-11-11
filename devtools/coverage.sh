@@ -24,15 +24,16 @@
 # grade, since a header template line only shows covered once some suite
 # instantiates and runs it.
 #
-# THE TOOLCHAIN IS NOT ON YOUR HOST, same as cpp-tier.sh: clang-20 with libc++
-# and the matching llvm-cov/llvm-profdata live in the container, so the normal
-# way to call this is from inside it:
+# THE TOOLCHAIN IS NOT ON YOUR HOST, same as cpp-tier.sh: clang with libc++ and
+# the matching llvm-cov/llvm-profdata live in the container, so the normal way
+# to call this is from inside it:
 #
 #   devtools/devcontainer.sh shell -c devtools/coverage.sh
 #
 # The llvm tools MUST match the clang that built the tree -- a .profraw carries a
 # format version, and a mismatched llvm-profdata rejects it. This resolves the
-# versioned names (llvm-cov-20) first for that reason.
+# versioned name (llvm-cov-<N>) first for that reason, taking <N> from
+# `clang --version` rather than hardcoding it.
 #
 # Flags:
 #   --preset NAME   configure/build/test preset (default: COVERAGE_PRESET from
@@ -81,11 +82,21 @@ for tool in cmake ninja; do
 done
 
 # The llvm pair, version-matched to the clang that built the tree. The bare
-# names are off PATH in this image (they live in /usr/lib/llvm-20/bin), so try
+# names are off PATH in this image (they live in /usr/lib/llvm-<N>/bin), so try
 # the versioned name and that directory before giving up.
+#
+# THE VERSION IS ASKED OF clang, NOT WRITTEN DOWN HERE. A hardcoded major (this
+# was `${base}-20`) does not fail when the image's clang moves -- it silently
+# falls through to whatever bare or globbed name exists, which is the one
+# mismatch this function is here to prevent. `clang --version` is the same
+# compiler CMake resolves (both take /usr/bin/clang++, the update-alternatives
+# link), so its major is the right one by construction.
+llvm_major=$(clang --version 2>/dev/null |
+  sed -n '1s/.*version \([0-9][0-9]*\).*/\1/p')
+
 pick_llvm() {
   local base=$1 n
-  for n in "${base}-20" "$base"; do
+  for n in ${llvm_major:+"${base}-${llvm_major}"} "$base"; do
     command -v "$n" >/dev/null 2>&1 && { echo "$n"; return 0; }
   done
   for n in /usr/lib/llvm-*/bin/"$base"; do
@@ -94,11 +105,11 @@ pick_llvm() {
   return 1
 }
 llvm_cov=$(pick_llvm llvm-cov) || {
-  echo "coverage: llvm-cov not found (need the one matching clang-20)." >&2
+  echo "coverage: llvm-cov not found (need the one matching clang ${llvm_major:-?})." >&2
   exit 1
 }
 llvm_profdata=$(pick_llvm llvm-profdata) || {
-  echo "coverage: llvm-profdata not found (need the one matching clang-20)." >&2
+  echo "coverage: llvm-profdata not found (need the one matching clang ${llvm_major:-?})." >&2
   exit 1
 }
 

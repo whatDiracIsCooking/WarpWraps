@@ -135,14 +135,19 @@ TheRock builds as of ROCm 10.1, and RCCL itself moved: its CMakeLists checks for
 fallback commented out.
 
 **Which SMI library a collectives process can hold depends on the ROCm version,
-and it is `librccl` that decides.** At the pinned ROCm 7.2.4 -- and, by RCCL's
-own `>= 7.11.0` guard above, anywhere below that line -- `librccl.so` carries a
+and it is `librccl` that decides.** Below RCCL's own `>= 7.11.0` guard above --
+where the 7.1.0 floor and the old 7.2.4 pin both sit -- `librccl.so` carries a
 hard `DT_NEEDED` on `librocm_smi64.so.1`, so collectives put the legacy library
 in the process whether wwr names it or not; `libamd_smi` -- a *direct*
 `DT_NEEDED` either way, so always earlier in the lookup scope -- wins the
 interposition, and the result is a SIGSEGV during library init, before `main`.
-So on every image this tree builds, `wwr.hip.amd_smi` cannot be used with
-`wwr.hip.rccl` or `wwr.ccl`.
+So at the floor, `wwr.hip.amd_smi` cannot be used with `wwr.hip.rccl` or
+`wwr.ccl`. **At the 10.0.0 pin that crash is gone**: RCCL's `DT_NEEDED` is on
+`libamd_smi.so.27`, `libamd_smi` exports no second copy of `amd::smi::`, and the
+pinned image's `CclCommTests` runs a real communicator with `libamd_smi` loaded.
+`docs/architecture.md` section 23 has both measurements; "wrap exactly one" still
+holds either way, now for the quieter `rsmi_init` interposition reason rather
+than a crash.
 
 **At ROCm 10.0.0 that constraint has lifted, measured rather than predicted.**
 `librccl.so.1`'s SMI `DT_NEEDED` is `libamd_smi.so.27`; `libamd_smi` no longer
@@ -167,13 +172,20 @@ type, enumerator, and function via `using`.
 
 **28 of those names are version-guarded**, the largest such set in this tree.
 amd-smi moves faster than anything else in `src/hip` -- 26.1.0 at the ROCm 7.1
-floor, 26.2.2 at the 7.2.4 pin -- and 26.2 added the node handle, the DDR5 and
-LPDDR VRAM types, the power-cap type, NPM, the Peak Tops Limiter, and partition
-metrics. They sit behind `WWR_AMDSMI_SINCE_26_2`, which reads amd-smi's own
-`AMDSMI_LIB_VERSION_*` rather than `HIP_VERSION` (the two do not track each
-other). `test/hip/amd_smi.cppm` mirrors every guard, and additionally asserts
-`AMDSMI_VRAM_TYPE__MAX` both ways -- it aliases the last enumerator, so its
-value moves from 23 to 31 across that step.
+floor, 26.2.2 at the old 7.2.4 pin, **27.0.0 at the 10.0.0 pin** -- and 26.2
+added the node handle, the DDR5 and LPDDR VRAM types, the power-cap type, NPM,
+the Peak Tops Limiter, and partition metrics. They sit behind
+`WWR_AMDSMI_SINCE_26_2`, which reads amd-smi's own `AMDSMI_LIB_VERSION_*` rather
+than `HIP_VERSION` (the two do not track each other). `test/hip/amd_smi.cppm`
+mirrors every guard, and additionally asserts `AMDSMI_VRAM_TYPE__MAX` both ways
+-- it aliases the last enumerator, so its value moves from 23 to 31 across that
+step.
+
+**Two names go the other way**, the only upper-bounded guard here: 27.0 removed
+`amdsmi_set_gpu_clk_range` (superseded by `amdsmi_set_gpu_clk_limit`, which this
+module already wraps) and `amdsmi_gpu_driver_reload` (no replacement), so both
+sit behind `WWR_AMDSMI_BEFORE_27` and are present only up to the floor side of
+the pin move. See `docs/architecture.md` section 21.
 
 `amdsmi.h` guards a CPU/ESMI (E-SMS, AMD EPYC System Management Interface)
 extension surface -- RAPL MSR energy counters, HSMP system statistics,

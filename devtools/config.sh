@@ -96,7 +96,7 @@ DEVCONTAINER_CONFIG=${DEVCONTAINER_CONFIG:-.devcontainer/cuda/devcontainer.json}
 #                 release under `X.Y`, so install-rocm.sh strips a trailing
 #                 `.0` for the URL only -- keep the semver here.
 CUDA_VERSION=${CUDA_VERSION:-13-0}
-ROCM_VERSION=${ROCM_VERSION:-7.2.4}
+ROCM_VERSION=${ROCM_VERSION:-10.0.0}
 
 # --- C++ build (CMake) ------------------------------------------------------
 

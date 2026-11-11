@@ -2,10 +2,10 @@
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
     "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
-    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/amd_smi/amdsmi.h",
+    "command": "/usr/bin/clang -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/amd_smi/amdsmi.h",
     "config": {
       "backend": "HIP",
-      "sdk_version": "ROCm 7.2.4",
+      "sdk_version": "ROCm 10.0.0",
       "arch": "gfx942",
       "defines": [
         "__HIP_PLATFORM_AMD__"
@@ -15,46 +15,63 @@
         "/opt/rocm-ds/include"
       ]
     },
-    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "clang": "Ubuntu clang version 23.1.6 (++20261108033755+c47d7823685a-1~exp1~20261108153854.96)",
     "header": "/opt/rocm/include/amd_smi/amdsmi.h",
     "prefix": "amdsmi",
-    "symbol_count": 718
+    "symbol_count": 852
   },
   "linkable": {
-    "lib": "libamd_smi.so.26",
-    "soname": "libamd_smi.so.26",
+    "lib": "libamd_smi.so.27",
+    "soname": "libamd_smi.so.27",
     "available": true,
-    "linkable_count": 192,
+    "linkable_count": 246,
     "linkable": [
+      "amdsmi_alloc_fabric_telemetry",
       "amdsmi_clean_gpu_local_data",
       "amdsmi_cpu_apb_disable",
       "amdsmi_cpu_apb_enable",
+      "amdsmi_fabric_telem_id_to_string",
       "amdsmi_first_online_core_on_cpu_socket",
+      "amdsmi_free_fabric_telemetry",
       "amdsmi_free_name_value_pairs",
       "amdsmi_get_afids_from_cper",
       "amdsmi_get_clk_freq",
       "amdsmi_get_clock_info",
       "amdsmi_get_cpu_affinity_with_scope",
+      "amdsmi_get_cpu_cc6_enable",
       "amdsmi_get_cpu_cclk_limit",
       "amdsmi_get_cpu_core_boostlimit",
+      "amdsmi_get_cpu_core_ccd_power",
       "amdsmi_get_cpu_core_current_freq_limit",
+      "amdsmi_get_cpu_core_eff_floor_freq_limit",
       "amdsmi_get_cpu_core_energy",
+      "amdsmi_get_cpu_core_floor_freq_limit",
       "amdsmi_get_cpu_cores_per_socket",
       "amdsmi_get_cpu_current_io_bandwidth",
       "amdsmi_get_cpu_current_xgmi_bw",
       "amdsmi_get_cpu_ddr_bw",
+      "amdsmi_get_cpu_dfc_ctrl",
       "amdsmi_get_cpu_dimm_power_consumption",
+      "amdsmi_get_cpu_dimm_sb_reg",
       "amdsmi_get_cpu_dimm_temp_range_and_refresh_rate",
       "amdsmi_get_cpu_dimm_thermal_sensor",
+      "amdsmi_get_cpu_eff_floor_freq_limit",
+      "amdsmi_get_cpu_enabled_commands",
       "amdsmi_get_cpu_family",
       "amdsmi_get_cpu_fclk_mclk",
+      "amdsmi_get_cpu_floor_freq_limit",
+      "amdsmi_get_cpu_freq_range",
       "amdsmi_get_cpu_handles",
       "amdsmi_get_cpu_hsmp_driver_version",
       "amdsmi_get_cpu_hsmp_proto_ver",
       "amdsmi_get_cpu_model",
       "amdsmi_get_cpu_model_name",
+      "amdsmi_get_cpu_pc6_enable",
       "amdsmi_get_cpu_prochot_status",
+      "amdsmi_get_cpu_pwr_efficiency_mode",
       "amdsmi_get_cpu_pwr_svi_telemetry_all_rails",
+      "amdsmi_get_cpu_rail_isofreq_policy",
+      "amdsmi_get_cpu_sdps_limit",
       "amdsmi_get_cpu_smu_fw_version",
       "amdsmi_get_cpu_socket_c0_residency",
       "amdsmi_get_cpu_socket_count",
@@ -66,10 +83,15 @@
       "amdsmi_get_cpu_socket_power_cap",
       "amdsmi_get_cpu_socket_power_cap_max",
       "amdsmi_get_cpu_socket_temperature",
+      "amdsmi_get_cpu_svi3_vr_controller_temp",
+      "amdsmi_get_cpu_tdelta",
+      "amdsmi_get_cpu_xgmi_pstate_range",
       "amdsmi_get_cpucore_handles",
       "amdsmi_get_energy_count",
       "amdsmi_get_esmi_err_msg",
+      "amdsmi_get_fabric_telemetry_data",
       "amdsmi_get_fw_info",
+      "amdsmi_get_gpu_accelerator_partition_mem_alloc_mode",
       "amdsmi_get_gpu_accelerator_partition_profile",
       "amdsmi_get_gpu_accelerator_partition_profile_config",
       "amdsmi_get_gpu_activity",
@@ -82,6 +104,7 @@
       "amdsmi_get_gpu_busy_percent",
       "amdsmi_get_gpu_cache_info",
       "amdsmi_get_gpu_compute_partition",
+      "amdsmi_get_gpu_compute_partition_mem_alloc_mode",
       "amdsmi_get_gpu_compute_process_gpus",
       "amdsmi_get_gpu_compute_process_info",
       "amdsmi_get_gpu_compute_process_info_by_pid",
@@ -94,6 +117,7 @@
       "amdsmi_get_gpu_ecc_status",
       "amdsmi_get_gpu_enumeration_info",
       "amdsmi_get_gpu_event_notification",
+      "amdsmi_get_gpu_fabric_info",
       "amdsmi_get_gpu_fan_rpms",
       "amdsmi_get_gpu_fan_speed",
       "amdsmi_get_gpu_fan_speed_max",
@@ -119,6 +143,7 @@
       "amdsmi_get_gpu_power_profile_presets",
       "amdsmi_get_gpu_process_isolation",
       "amdsmi_get_gpu_process_list",
+      "amdsmi_get_gpu_process_list_by_pid",
       "amdsmi_get_gpu_ptl_formats",
       "amdsmi_get_gpu_ptl_state",
       "amdsmi_get_gpu_ras_block_features_enabled",
@@ -129,6 +154,7 @@
       "amdsmi_get_gpu_subsystem_name",
       "amdsmi_get_gpu_topo_numa_affinity",
       "amdsmi_get_gpu_total_ecc_count",
+      "amdsmi_get_gpu_uma_carveout_info",
       "amdsmi_get_gpu_vbios_info",
       "amdsmi_get_gpu_vendor_name",
       "amdsmi_get_gpu_virtualization_mode",
@@ -144,6 +170,18 @@
       "amdsmi_get_link_metrics",
       "amdsmi_get_link_topology_nearest",
       "amdsmi_get_minmax_bandwidth_between_processors",
+      "amdsmi_get_nic_asic_info",
+      "amdsmi_get_nic_bus_info",
+      "amdsmi_get_nic_device_bdf",
+      "amdsmi_get_nic_driver_info",
+      "amdsmi_get_nic_fw_info",
+      "amdsmi_get_nic_numa_info",
+      "amdsmi_get_nic_port_info",
+      "amdsmi_get_nic_port_statistics",
+      "amdsmi_get_nic_processor_handles",
+      "amdsmi_get_nic_rdma_dev_info",
+      "amdsmi_get_nic_rdma_port_statistics",
+      "amdsmi_get_nic_vendor_statistics",
       "amdsmi_get_node_handle",
       "amdsmi_get_npm_info",
       "amdsmi_get_pcie_info",
@@ -161,7 +199,9 @@
       "amdsmi_get_supported_power_cap",
       "amdsmi_get_temp_metric",
       "amdsmi_get_threads_per_core",
+      "amdsmi_get_ttm_info",
       "amdsmi_get_utilization_count",
+      "amdsmi_get_vcn_busy_percent",
       "amdsmi_get_violation_status",
       "amdsmi_get_xgmi_info",
       "amdsmi_get_xgmi_plpd",
@@ -169,7 +209,6 @@
       "amdsmi_gpu_counter_group_supported",
       "amdsmi_gpu_create_counter",
       "amdsmi_gpu_destroy_counter",
-      "amdsmi_gpu_driver_reload",
       "amdsmi_gpu_read_counter",
       "amdsmi_gpu_validate_ras_eeprom",
       "amdsmi_gpu_xgmi_error_status",
@@ -180,20 +219,33 @@
       "amdsmi_reset_gpu",
       "amdsmi_reset_gpu_fan",
       "amdsmi_reset_gpu_xgmi_error",
+      "amdsmi_reset_ttm_pages_limit",
       "amdsmi_set_clk_freq",
+      "amdsmi_set_cpu_cc6_enable",
       "amdsmi_set_cpu_core_boostlimit",
+      "amdsmi_set_cpu_core_floor_freq_limit",
+      "amdsmi_set_cpu_core_msr_floor_freq_limit",
       "amdsmi_set_cpu_df_pstate_range",
+      "amdsmi_set_cpu_dfc_ctrl",
+      "amdsmi_set_cpu_dimm_sb_reg",
+      "amdsmi_set_cpu_floor_freq_limit",
       "amdsmi_set_cpu_gmi3_link_width_range",
+      "amdsmi_set_cpu_msr_floor_freq_limit",
+      "amdsmi_set_cpu_pc6_enable",
       "amdsmi_set_cpu_pcie_link_rate",
       "amdsmi_set_cpu_pwr_efficiency_mode",
+      "amdsmi_set_cpu_rail_isofreq_policy",
+      "amdsmi_set_cpu_sdps_limit",
       "amdsmi_set_cpu_socket_boostlimit",
       "amdsmi_set_cpu_socket_lclk_dpm_level",
       "amdsmi_set_cpu_socket_power_cap",
+      "amdsmi_set_cpu_xgmi_pstate_range",
       "amdsmi_set_cpu_xgmi_width",
+      "amdsmi_set_gpu_accelerator_partition_mem_alloc_mode",
       "amdsmi_set_gpu_accelerator_partition_profile",
       "amdsmi_set_gpu_clk_limit",
-      "amdsmi_set_gpu_clk_range",
       "amdsmi_set_gpu_compute_partition",
+      "amdsmi_set_gpu_compute_partition_mem_alloc_mode",
       "amdsmi_set_gpu_event_notification_mask",
       "amdsmi_set_gpu_fan_speed",
       "amdsmi_set_gpu_memory_partition",
@@ -208,8 +260,10 @@
       "amdsmi_set_gpu_process_isolation",
       "amdsmi_set_gpu_ptl_formats",
       "amdsmi_set_gpu_ptl_state",
+      "amdsmi_set_gpu_uma_carveout",
       "amdsmi_set_power_cap",
       "amdsmi_set_soc_pstate",
+      "amdsmi_set_ttm_pages_limit",
       "amdsmi_set_xgmi_plpd",
       "amdsmi_shut_down",
       "amdsmi_status_code_to_string",
@@ -302,6 +356,33 @@
       "value": 6,
       "value_explicit": false,
       "decl_hash": "8f0f3d959ebedd91"
+    },
+    {
+      "name": "AMDSMI_ACCELERATOR_PARTITION_MEM_ALLOC_ALL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_ACCELERATOR_PARTITION_MEM_ALLOC_ALL = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "73e48d9aa241b2a3"
+    },
+    {
+      "name": "AMDSMI_ACCELERATOR_PARTITION_MEM_ALLOC_CAPPING",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_ACCELERATOR_PARTITION_MEM_ALLOC_CAPPING = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "236fd532f79f522e"
+    },
+    {
+      "name": "AMDSMI_ACCELERATOR_PARTITION_MEM_ALLOC_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_ACCELERATOR_PARTITION_MEM_ALLOC_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "60f143fae1618224"
     },
     {
       "name": "AMDSMI_ACCELERATOR_PARTITION_QPX",
@@ -437,6 +518,24 @@
       "value": 3,
       "value_explicit": false,
       "decl_hash": "d25ce0455c73becb"
+    },
+    {
+      "name": "AMDSMI_CLK_LIMIT_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_CLK_LIMIT_MAX = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "159960a8d3642de3"
+    },
+    {
+      "name": "AMDSMI_CLK_LIMIT_MIN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_CLK_LIMIT_MIN = None",
+      "value": 0,
+      "value_explicit": false,
+      "decl_hash": "d18513b1394239b8"
     },
     {
       "name": "AMDSMI_CLK_TYPE_DCEF",
@@ -626,6 +725,33 @@
       "value": 0,
       "value_explicit": true,
       "decl_hash": "a06d886280b20369"
+    },
+    {
+      "name": "AMDSMI_COMPUTE_PARTITION_MEM_ALLOC_ALL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_COMPUTE_PARTITION_MEM_ALLOC_ALL = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "5373009cbd97d166"
+    },
+    {
+      "name": "AMDSMI_COMPUTE_PARTITION_MEM_ALLOC_CAPPING",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_COMPUTE_PARTITION_MEM_ALLOC_CAPPING = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "3683295878acc504"
+    },
+    {
+      "name": "AMDSMI_COMPUTE_PARTITION_MEM_ALLOC_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_COMPUTE_PARTITION_MEM_ALLOC_INVALID = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "95ed3828270e2b13"
     },
     {
       "name": "AMDSMI_COMPUTE_PARTITION_QPX",
@@ -1283,6 +1409,303 @@
       "value": 1,
       "value_explicit": true,
       "decl_hash": "bd9bf1736d552074"
+    },
+    {
+      "name": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_ACTIVE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_ACTIVE = None",
+      "value": 3,
+      "value_explicit": false,
+      "decl_hash": "31ae629b4a192414"
+    },
+    {
+      "name": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_CONFIGURED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_CONFIGURED = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "18c216994b9fe4ce"
+    },
+    {
+      "name": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_ERROR = None",
+      "value": 4,
+      "value_explicit": false,
+      "decl_hash": "f9a9e77a0f6b90dc"
+    },
+    {
+      "name": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_READY",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_READY = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "54e3bdd0689a766d"
+    },
+    {
+      "name": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_UNCONFIGURED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_UNCONFIGURED = None",
+      "value": 0,
+      "value_explicit": false,
+      "decl_hash": "895e67b650e18d04"
+    },
+    {
+      "name": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_ACCELERATOR_VPOD_STATE_UNKNOWN = None",
+      "value": 5,
+      "value_explicit": false,
+      "decl_hash": "704f444efa1f60e5"
+    },
+    {
+      "name": "AMDSMI_FABRIC_ACTIVE_ACCELERATORS_BITMAP_SIZE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_ACTIVE_ACCELERATORS_BITMAP_SIZE = 32",
+      "value": 32,
+      "value_explicit": true,
+      "decl_hash": "b987dc83a8753e4b"
+    },
+    {
+      "name": "AMDSMI_FABRIC_MAX_LOCAL_GPUS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_MAX_LOCAL_GPUS = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "4a0dd51a51e40954"
+    },
+    {
+      "name": "AMDSMI_FABRIC_NPA_ADDRESS_MODE_SOURCE_ALIASING",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_NPA_ADDRESS_MODE_SOURCE_ALIASING = None",
+      "value": 0,
+      "value_explicit": false,
+      "decl_hash": "bc63946b94120a1a"
+    },
+    {
+      "name": "AMDSMI_FABRIC_NPA_ADDRESS_MODE_SOURCE_IDENTIFICATION",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_NPA_ADDRESS_MODE_SOURCE_IDENTIFICATION = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "addae1505c57b08d"
+    },
+    {
+      "name": "AMDSMI_FABRIC_NPA_ADDRESS_MODE_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_NPA_ADDRESS_MODE_UNKNOWN = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "265b35bf95018744"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_CRYPTO",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_CRYPTO = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "ca20731063660029"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_DERIVED_NETPORT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_DERIVED_NETPORT = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "f834477c25786e0a"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_DERIVED_UALOE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_DERIVED_UALOE = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "b77ce56d4f9ba2f2"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_INVALID",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_INVALID = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "05109d2019e37d19"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_ALL_KNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_ALL_KNOWN = 127",
+      "value": 127,
+      "value_explicit": true,
+      "decl_hash": "2783c73518be7cb8"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_CRYPTO",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_CRYPTO = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "83b8249c92a7f7dc"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_DERIVED_NETPORT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_DERIVED_NETPORT = 64",
+      "value": 64,
+      "value_explicit": true,
+      "decl_hash": "1ff4b50dde0ffed2"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_DERIVED_UALOE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_DERIVED_UALOE = 32",
+      "value": 32,
+      "value_explicit": true,
+      "decl_hash": "ea83d3c5f5dca3d8"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_NETPORT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_NETPORT = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "74571854e4f2d861"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_PFC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_PFC = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "253eebbe1a176fe6"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_SWITCH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_SWITCH = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "b2a1060544d48594"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_UALOE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MASK_UALOE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "929c2dfbcfbfca65"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MAX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_MAX = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "4b172e6f78b02683"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_NETPORT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_NETPORT = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "4dab6246ce73dbc2"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_PFC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_PFC = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "fe3e7646242c3821"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_SWITCH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_SWITCH = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "7b6116c7805ccda3"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_UALOE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_UALOE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "6c28f00de806ea7e"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TELEMETRY_CATEGORY_UNKNOWN = 4294967295",
+      "value": 4294967295,
+      "value_explicit": true,
+      "decl_hash": "bfe176c0c6e64543"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TYPE_UALINK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TYPE_UALINK = None",
+      "value": 1,
+      "value_explicit": false,
+      "decl_hash": "9ce3a963cd03f629"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TYPE_UALLINK",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TYPE_UALLINK = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "0e4413d6f5bb92db"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TYPE_UALOE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TYPE_UALOE = None",
+      "value": 0,
+      "value_explicit": false,
+      "decl_hash": "847ff8038bfbe1c3"
+    },
+    {
+      "name": "AMDSMI_FABRIC_TYPE_UNKNOWN",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_FABRIC_TYPE_UNKNOWN = None",
+      "value": 2,
+      "value_explicit": false,
+      "decl_hash": "a5e4c27ff7f4ca6a"
     },
     {
       "name": "AMDSMI_FINE_DECODER_ACTIVITY",
@@ -2311,6 +2734,15 @@
       "decl_hash": "daae13bd70021196"
     },
     {
+      "name": "AMDSMI_INIT_AMD_NICS",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_INIT_AMD_NICS = 16",
+      "value": 16,
+      "value_explicit": true,
+      "decl_hash": "0dd6fa5bf4ddd38a"
+    },
+    {
       "name": "AMDSMI_INIT_NON_AMD_CPUS",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -2329,6 +2761,42 @@
       "decl_hash": "742ca95b960efc72"
     },
     {
+      "name": "AMDSMI_LINK_STATUS_DISABLED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_LINK_STATUS_DISABLED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "2e963d92570c56b4"
+    },
+    {
+      "name": "AMDSMI_LINK_STATUS_ENABLED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_LINK_STATUS_ENABLED = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "979cc4ebddc8e739"
+    },
+    {
+      "name": "AMDSMI_LINK_STATUS_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_LINK_STATUS_ERROR = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "2b84be88eef5928a"
+    },
+    {
+      "name": "AMDSMI_LINK_STATUS_INACTIVE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_LINK_STATUS_INACTIVE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "c26c379696d7a749"
+    },
+    {
       "name": "AMDSMI_LINK_TYPE_INTERNAL",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -2345,6 +2813,15 @@
       "value": 3,
       "value_explicit": true,
       "decl_hash": "f463c1302f2ccc30"
+    },
+    {
+      "name": "AMDSMI_LINK_TYPE_NUMA",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_LINK_TYPE_NUMA = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "e6e3db7aaedfb84d"
     },
     {
       "name": "AMDSMI_LINK_TYPE_PCIE",
@@ -2372,6 +2849,15 @@
       "value": 2,
       "value_explicit": true,
       "decl_hash": "b5a4edf7a886d008"
+    },
+    {
+      "name": "AMDSMI_LINK_TYPE_XNUMA",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_LINK_TYPE_XNUMA = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "3079682567eeab43"
     },
     {
       "name": "AMDSMI_MEMORY_PARTITION_NPS1",
@@ -2597,6 +3083,33 @@
       "value": 1,
       "value_explicit": false,
       "decl_hash": "0ec4f9ed022e38a9"
+    },
+    {
+      "name": "AMDSMI_PROCESSOR_TYPE_AMD_NIC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_PROCESSOR_TYPE_AMD_NIC = None",
+      "value": 7,
+      "value_explicit": false,
+      "decl_hash": "d284a5781db14204"
+    },
+    {
+      "name": "AMDSMI_PROCESSOR_TYPE_BRCM_NIC",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_PROCESSOR_TYPE_BRCM_NIC = None",
+      "value": 8,
+      "value_explicit": false,
+      "decl_hash": "72c3a3bae86e0ce3"
+    },
+    {
+      "name": "AMDSMI_PROCESSOR_TYPE_BRCM_SWITCH",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_PROCESSOR_TYPE_BRCM_SWITCH = None",
+      "value": 9,
+      "value_explicit": false,
+      "decl_hash": "d44c2a3a3801635d"
     },
     {
       "name": "AMDSMI_PROCESSOR_TYPE_NON_AMD_CPU",
@@ -3094,6 +3607,15 @@
       "decl_hash": "fa26c5285394c2d0"
     },
     {
+      "name": "AMDSMI_STATUS_IPC_ERROR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_STATUS_IPC_ERROR = 21",
+      "value": 21,
+      "value_explicit": true,
+      "decl_hash": "1ae652176e822fc7"
+    },
+    {
       "name": "AMDSMI_STATUS_MAP_ERROR",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -3562,6 +4084,15 @@
       "decl_hash": "1ed9dd5cd5923735"
     },
     {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_LAST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_LAST = 175",
+      "value": 175,
+      "value_explicit": true,
+      "decl_hash": "b4ed9a86c7135f42"
+    },
+    {
       "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_NODE_FIRST",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -3632,6 +4163,60 @@
       "value": 100,
       "value_explicit": true,
       "decl_hash": "15ae6060f150cefd"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDAN_075",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDAN_075 = None",
+      "value": 175,
+      "value_explicit": false,
+      "decl_hash": "a9e425693f73c6b7"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDAN_075_GTA_A",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDAN_075_GTA_A = None",
+      "value": 169,
+      "value_explicit": false,
+      "decl_hash": "1ff08ff7ea7f6811"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDAN_075_GTA_C",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDAN_075_GTA_C = None",
+      "value": 170,
+      "value_explicit": false,
+      "decl_hash": "ff9b6fcade42093e"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDCR_075_HBM_B",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDCR_075_HBM_B = None",
+      "value": 165,
+      "value_explicit": false,
+      "decl_hash": "6dd1f60e079cdcaa"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDCR_075_HBM_D",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDCR_075_HBM_D = None",
+      "value": 166,
+      "value_explicit": false,
+      "decl_hash": "0be457cb30edb9c1"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDCR_075_UCIE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDCR_075_UCIE = None",
+      "value": 171,
+      "value_explicit": false,
+      "decl_hash": "e2384a3cfb48cebf"
     },
     {
       "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDCR_11_HBM_B",
@@ -3724,6 +4309,51 @@
       "decl_hash": "287a00ac698134f4"
     },
     {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_04_HBM_B",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_04_HBM_B = None",
+      "value": 163,
+      "value_explicit": false,
+      "decl_hash": "28daa03906e76f0c"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_04_HBM_D",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_04_HBM_D = None",
+      "value": 164,
+      "value_explicit": false,
+      "decl_hash": "0c64c6dcd1984ef9"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_065_UCIEAA",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_065_UCIEAA = None",
+      "value": 172,
+      "value_explicit": false,
+      "decl_hash": "45bcc389c919ccb2"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_065_UCIEAM_A",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_065_UCIEAM_A = None",
+      "value": 173,
+      "value_explicit": false,
+      "decl_hash": "2b9bc30da6a43642"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_065_UCIEAM_C",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_065_UCIEAM_C = None",
+      "value": 174,
+      "value_explicit": false,
+      "decl_hash": "d2e57692685a1dc8"
+    },
+    {
       "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_11_E32",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -3731,6 +4361,24 @@
       "value": 162,
       "value_explicit": false,
       "decl_hash": "37aac0346c953613"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_11_GTA_A",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_11_GTA_A = None",
+      "value": 167,
+      "value_explicit": false,
+      "decl_hash": "d4b908cf24cbd2d3"
+    },
+    {
+      "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_11_GTA_C",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDDIO_11_GTA_C = None",
+      "value": 168,
+      "value_explicit": false,
+      "decl_hash": "165ad1acdd128923"
     },
     {
       "name": "AMDSMI_TEMPERATURE_TYPE_GPUBOARD_VDD_085_HBM",
@@ -4435,11 +5083,32 @@
       "decl_hash": "e23f86ea90d90de5"
     },
     {
+      "name": "amdsmi_alloc_fabric_telemetry",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_alloc_fabric_telemetry(amdsmi_processor_handle processor_handle, uint32_t category_mask, amdsmi_fabric_telemetry_t ** telemetry)",
+      "decl_hash": "d6ece1bcf63e81c0"
+    },
+    {
       "name": "amdsmi_clean_gpu_local_data",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "amdsmi_status_t amdsmi_clean_gpu_local_data(amdsmi_processor_handle processor_handle)",
       "decl_hash": "243ae5cc556567ae"
+    },
+    {
+      "name": "amdsmi_fabric_telem_id_to_string",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_fabric_telem_id_to_string(uint64_t telem_id, const char ** telem_name)",
+      "decl_hash": "746d6b3b070c9476"
+    },
+    {
+      "name": "amdsmi_free_fabric_telemetry",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_free_fabric_telemetry(amdsmi_processor_handle processor_handle, amdsmi_fabric_telemetry_t * telemetry)",
+      "decl_hash": "22ad4df64c48fbb8"
     },
     {
       "name": "amdsmi_get_afids_from_cper",
@@ -4468,6 +5137,20 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "amdsmi_status_t amdsmi_get_cpu_affinity_with_scope(amdsmi_processor_handle processor_handle, uint32_t cpu_set_size, uint64_t * cpu_set, amdsmi_affinity_scope_t scope)",
       "decl_hash": "c59f3fc0bd5fa90f"
+    },
+    {
+      "name": "amdsmi_get_cpu_core_ccd_power",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_cpu_core_ccd_power(amdsmi_processor_handle processor_handle, uint32_t * power)",
+      "decl_hash": "88285266fe8a2a06"
+    },
+    {
+      "name": "amdsmi_get_cpu_pwr_efficiency_mode",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_cpu_pwr_efficiency_mode(amdsmi_processor_handle processor_handle, uint32_t * power_efficiency_mode, uint32_t * utilization, uint32_t * ppt_limit)",
+      "decl_hash": "77e5ce4bef049db5"
     },
     {
       "name": "amdsmi_get_cpu_pwr_svi_telemetry_all_rails",
@@ -4505,11 +5188,25 @@
       "decl_hash": "e2d8baf8f167d018"
     },
     {
+      "name": "amdsmi_get_fabric_telemetry_data",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_fabric_telemetry_data(amdsmi_processor_handle processor_handle, amdsmi_fabric_telemetry_t * telemetry)",
+      "decl_hash": "0c32ec6d1df63e60"
+    },
+    {
       "name": "amdsmi_get_fw_info",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "amdsmi_status_t amdsmi_get_fw_info(amdsmi_processor_handle processor_handle, amdsmi_fw_info_t * info)",
       "decl_hash": "eaef68c18686013a"
+    },
+    {
+      "name": "amdsmi_get_gpu_accelerator_partition_mem_alloc_mode",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_gpu_accelerator_partition_mem_alloc_mode(amdsmi_processor_handle processor_handle, amdsmi_accelerator_partition_mem_alloc_mode_t * mode)",
+      "decl_hash": "d0022e5371cab944"
     },
     {
       "name": "amdsmi_get_gpu_accelerator_partition_profile",
@@ -4596,6 +5293,13 @@
       "decl_hash": "3ba027a86a18c5d4"
     },
     {
+      "name": "amdsmi_get_gpu_compute_partition_mem_alloc_mode",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_gpu_compute_partition_mem_alloc_mode(amdsmi_processor_handle processor_handle, amdsmi_compute_partition_mem_alloc_mode_t * mode)",
+      "decl_hash": "98af4076a0cb1063"
+    },
+    {
       "name": "amdsmi_get_gpu_compute_process_gpus",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -4678,6 +5382,13 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "amdsmi_status_t amdsmi_get_gpu_event_notification(int timeout_ms, uint32_t * num_elem, amdsmi_evt_notification_data_t * data)",
       "decl_hash": "4864b3002504f5b2"
+    },
+    {
+      "name": "amdsmi_get_gpu_fabric_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_gpu_fabric_info(amdsmi_processor_handle processor_handle, amdsmi_fabric_info_t * info)",
+      "decl_hash": "8c0967dba3f68d22"
     },
     {
       "name": "amdsmi_get_gpu_fan_rpms",
@@ -4855,6 +5566,13 @@
       "decl_hash": "9e2e08740b6e1836"
     },
     {
+      "name": "amdsmi_get_gpu_process_list_by_pid",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_gpu_process_list_by_pid(amdsmi_processor_handle * processor_handles, uint32_t num_processors, amdsmi_proc_info_by_pid_t * procs, uint32_t * max_processes)",
+      "decl_hash": "145f3c9a5b01f5f7"
+    },
+    {
       "name": "amdsmi_get_gpu_ptl_formats",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -4923,6 +5641,13 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "amdsmi_status_t amdsmi_get_gpu_total_ecc_count(amdsmi_processor_handle processor_handle, amdsmi_error_count_t * ec)",
       "decl_hash": "93b31442cc07d1a3"
+    },
+    {
+      "name": "amdsmi_get_gpu_uma_carveout_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_gpu_uma_carveout_info(amdsmi_processor_handle processor_handle, amdsmi_uma_carveout_info_t * info)",
+      "decl_hash": "3c1f49e7984a6524"
     },
     {
       "name": "amdsmi_get_gpu_vbios_info",
@@ -5016,6 +5741,90 @@
       "decl_hash": "018604b6b601fe16"
     },
     {
+      "name": "amdsmi_get_nic_asic_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_asic_info(amdsmi_processor_handle processor_handle, amdsmi_nic_asic_info_t * info)",
+      "decl_hash": "20eaacd8d61c93b6"
+    },
+    {
+      "name": "amdsmi_get_nic_bus_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_bus_info(amdsmi_processor_handle processor_handle, amdsmi_nic_bus_info_t * info)",
+      "decl_hash": "3a3821a6dcebe013"
+    },
+    {
+      "name": "amdsmi_get_nic_device_bdf",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_device_bdf(amdsmi_processor_handle processor_handle, amdsmi_bdf_t * bdf)",
+      "decl_hash": "921935ac8e31c5a0"
+    },
+    {
+      "name": "amdsmi_get_nic_driver_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_driver_info(amdsmi_processor_handle processor_handle, amdsmi_nic_driver_info_t * info)",
+      "decl_hash": "54cd50bef80449f0"
+    },
+    {
+      "name": "amdsmi_get_nic_fw_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_fw_info(amdsmi_processor_handle processor_handle, amdsmi_nic_fw_info_t * info)",
+      "decl_hash": "fffcc9ac32396f2b"
+    },
+    {
+      "name": "amdsmi_get_nic_numa_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_numa_info(amdsmi_processor_handle processor_handle, amdsmi_nic_numa_info_t * info)",
+      "decl_hash": "2c25e276ab8f7c03"
+    },
+    {
+      "name": "amdsmi_get_nic_port_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_port_info(amdsmi_processor_handle processor_handle, amdsmi_nic_port_info_t * info)",
+      "decl_hash": "b1924df1e2afd1c5"
+    },
+    {
+      "name": "amdsmi_get_nic_port_statistics",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_port_statistics(amdsmi_processor_handle processor_handle, uint32_t port_index, uint32_t * num_stats, amdsmi_nic_stat_t * stats)",
+      "decl_hash": "8743ec09892098c4"
+    },
+    {
+      "name": "amdsmi_get_nic_processor_handles",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_processor_handles(amdsmi_socket_handle socket_handle, uint32_t * processor_count, amdsmi_processor_handle * processor_handles)",
+      "decl_hash": "f723d384d73bc597"
+    },
+    {
+      "name": "amdsmi_get_nic_rdma_dev_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_rdma_dev_info(amdsmi_processor_handle processor_handle, amdsmi_nic_rdma_devices_info_t * info)",
+      "decl_hash": "47ff221843ce8704"
+    },
+    {
+      "name": "amdsmi_get_nic_rdma_port_statistics",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_rdma_port_statistics(amdsmi_processor_handle processor_handle, uint32_t rdma_port_index, uint32_t * num_stats, amdsmi_nic_stat_t * stats)",
+      "decl_hash": "e503f775727f8d0c"
+    },
+    {
+      "name": "amdsmi_get_nic_vendor_statistics",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_nic_vendor_statistics(amdsmi_processor_handle processor_handle, uint32_t port_index, uint32_t * num_stats, amdsmi_nic_stat_t * stats)",
+      "decl_hash": "d7be56c5b4228030"
+    },
+    {
       "name": "amdsmi_get_node_handle",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -5051,6 +5860,13 @@
       "decl_hash": "91bf4c467a3960a4"
     },
     {
+      "name": "amdsmi_get_processor_count_from_handles",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_processor_count_from_handles(amdsmi_processor_handle * processor_handles, uint32_t * processor_count, uint32_t * nr_cpusockets, uint32_t * nr_cpucores, uint32_t * nr_gpus)",
+      "decl_hash": "7c22635a428b968f"
+    },
+    {
       "name": "amdsmi_get_processor_handle_from_bdf",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -5065,11 +5881,25 @@
       "decl_hash": "c5acb4393b3939fe"
     },
     {
+      "name": "amdsmi_get_processor_handles_by_type",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_processor_handles_by_type(amdsmi_socket_handle socket_handle, amdsmi_processor_type_t processor_type, amdsmi_processor_handle * processor_handles, uint32_t * processor_count)",
+      "decl_hash": "e1ddf49a3c85aeff"
+    },
+    {
+      "name": "amdsmi_get_processor_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_processor_info(amdsmi_processor_handle processor_handle, size_t len, char * name)",
+      "decl_hash": "111fe179f7f84bdd"
+    },
+    {
       "name": "amdsmi_get_processor_type",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
-      "decl": "amdsmi_status_t amdsmi_get_processor_type(amdsmi_processor_handle processor_handle, processor_type_t * processor_type)",
-      "decl_hash": "1d01031d0a66c002"
+      "decl": "amdsmi_status_t amdsmi_get_processor_type(amdsmi_processor_handle processor_handle, amdsmi_processor_type_t * processor_type)",
+      "decl_hash": "0d364cc6cfd61209"
     },
     {
       "name": "amdsmi_get_soc_pstate",
@@ -5107,11 +5937,25 @@
       "decl_hash": "a976bceed523fd67"
     },
     {
+      "name": "amdsmi_get_ttm_info",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_ttm_info(amdsmi_ttm_info_t * info)",
+      "decl_hash": "872e40071961928a"
+    },
+    {
       "name": "amdsmi_get_utilization_count",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "amdsmi_status_t amdsmi_get_utilization_count(amdsmi_processor_handle processor_handle, amdsmi_utilization_counter_t * utilization_counters, uint32_t count, uint64_t * timestamp)",
       "decl_hash": "6b5065109755fa69"
+    },
+    {
+      "name": "amdsmi_get_vcn_busy_percent",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_get_vcn_busy_percent(amdsmi_processor_handle processor_handle, uint32_t * vcn_busy_percent)",
+      "decl_hash": "d080e58cb11790c4"
     },
     {
       "name": "amdsmi_get_violation_status",
@@ -5161,13 +6005,6 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "amdsmi_status_t amdsmi_gpu_destroy_counter(amdsmi_event_handle_t evnt_handle)",
       "decl_hash": "48bb428975c1da1b"
-    },
-    {
-      "name": "amdsmi_gpu_driver_reload",
-      "kind": "FunctionDecl",
-      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
-      "decl": "amdsmi_status_t amdsmi_gpu_driver_reload()",
-      "decl_hash": "40becd8d9a6ac212"
     },
     {
       "name": "amdsmi_gpu_read_counter",
@@ -5240,6 +6077,13 @@
       "decl_hash": "94d23d1e6aac5e35"
     },
     {
+      "name": "amdsmi_reset_ttm_pages_limit",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_reset_ttm_pages_limit()",
+      "decl_hash": "753e46c46b016c84"
+    },
+    {
       "name": "amdsmi_set_clk_freq",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -5250,8 +6094,8 @@
       "name": "amdsmi_set_cpu_pwr_efficiency_mode",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
-      "decl": "amdsmi_status_t amdsmi_set_cpu_pwr_efficiency_mode(amdsmi_processor_handle processor_handle, uint8_t mode)",
-      "decl_hash": "b41603f7b792ada9"
+      "decl": "amdsmi_status_t amdsmi_set_cpu_pwr_efficiency_mode(amdsmi_processor_handle processor_handle, uint8_t power_efficiency_mode, uint32_t * utilization, uint32_t * ppt_limit)",
+      "decl_hash": "a65628e2b319d73d"
     },
     {
       "name": "amdsmi_set_cpu_socket_power_cap",
@@ -5259,6 +6103,13 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "amdsmi_status_t amdsmi_set_cpu_socket_power_cap(amdsmi_processor_handle processor_handle, uint32_t pcap)",
       "decl_hash": "97eb35a8ac475096"
+    },
+    {
+      "name": "amdsmi_set_gpu_accelerator_partition_mem_alloc_mode",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_set_gpu_accelerator_partition_mem_alloc_mode(amdsmi_processor_handle processor_handle, amdsmi_accelerator_partition_mem_alloc_mode_t mode)",
+      "decl_hash": "9342a0b661d32b4d"
     },
     {
       "name": "amdsmi_set_gpu_accelerator_partition_profile",
@@ -5275,18 +6126,18 @@
       "decl_hash": "e0f39ba62f6dc920"
     },
     {
-      "name": "amdsmi_set_gpu_clk_range",
-      "kind": "FunctionDecl",
-      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
-      "decl": "amdsmi_status_t amdsmi_set_gpu_clk_range(amdsmi_processor_handle processor_handle, uint64_t minclkvalue, uint64_t maxclkvalue, amdsmi_clk_type_t clkType)",
-      "decl_hash": "361ff3eff95d4573"
-    },
-    {
       "name": "amdsmi_set_gpu_compute_partition",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "amdsmi_status_t amdsmi_set_gpu_compute_partition(amdsmi_processor_handle processor_handle, amdsmi_compute_partition_type_t compute_partition)",
       "decl_hash": "14693a2ec0bb80a0"
+    },
+    {
+      "name": "amdsmi_set_gpu_compute_partition_mem_alloc_mode",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_set_gpu_compute_partition_mem_alloc_mode(amdsmi_processor_handle processor_handle, amdsmi_compute_partition_mem_alloc_mode_t mode)",
+      "decl_hash": "f937ea5189ce77ca"
     },
     {
       "name": "amdsmi_set_gpu_event_notification_mask",
@@ -5387,6 +6238,13 @@
       "decl_hash": "f8c7a422f0782b01"
     },
     {
+      "name": "amdsmi_set_gpu_uma_carveout",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_set_gpu_uma_carveout(amdsmi_processor_handle processor_handle, uint32_t option_index)",
+      "decl_hash": "d26011db6578f893"
+    },
+    {
       "name": "amdsmi_set_power_cap",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -5399,6 +6257,13 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "amdsmi_status_t amdsmi_set_soc_pstate(amdsmi_processor_handle processor_handle, uint32_t policy_id)",
       "decl_hash": "688957be490dda4b"
+    },
+    {
+      "name": "amdsmi_set_ttm_pages_limit",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "amdsmi_status_t amdsmi_set_ttm_pages_limit(uint64_t pages)",
+      "decl_hash": "59e1bfa47e4de561"
     },
     {
       "name": "amdsmi_set_xgmi_plpd",
@@ -5457,6 +6322,13 @@
       "decl_hash": "3651be8dc1d906f9"
     },
     {
+      "name": "amdsmi_accelerator_partition_mem_alloc_mode_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef enum amdsmi_accelerator_partition_mem_alloc_mode_t amdsmi_accelerator_partition_mem_alloc_mode_t",
+      "decl_hash": "814d9cef8339e8e8"
+    },
+    {
       "name": "amdsmi_accelerator_partition_profile_config_t",
       "kind": "TypedefDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -5497,6 +6369,13 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "typedef enum amdsmi_affinity_scope_t amdsmi_affinity_scope_t",
       "decl_hash": "1418a739878c8b87"
+    },
+    {
+      "name": "amdsmi_apu_metrics_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_apu_metrics_t amdsmi_apu_metrics_t",
+      "decl_hash": "5270a79635610d76"
     },
     {
       "name": "amdsmi_asic_info_t",
@@ -5560,6 +6439,13 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "typedef enum amdsmi_clk_type_t amdsmi_clk_type_t",
       "decl_hash": "d7962c36a5fbf5e9"
+    },
+    {
+      "name": "amdsmi_compute_partition_mem_alloc_mode_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef enum amdsmi_compute_partition_mem_alloc_mode_t amdsmi_compute_partition_mem_alloc_mode_t",
+      "decl_hash": "82a0cd2f6bae9313"
     },
     {
       "name": "amdsmi_compute_partition_type_t",
@@ -5723,6 +6609,97 @@
       "decl_hash": "636ff835328e393c"
     },
     {
+      "name": "amdsmi_fabric_accelerator_vpod_state_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef enum amdsmi_fabric_accelerator_vpod_state_t amdsmi_fabric_accelerator_vpod_state_t",
+      "decl_hash": "379519df2eea7084"
+    },
+    {
+      "name": "amdsmi_fabric_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_fabric_info_t amdsmi_fabric_info_t",
+      "decl_hash": "6a5a4a82f1b3ea83"
+    },
+    {
+      "name": "amdsmi_fabric_info_v1_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_fabric_info_v1_t amdsmi_fabric_info_v1_t",
+      "decl_hash": "6a791b5cffc79fdf"
+    },
+    {
+      "name": "amdsmi_fabric_label_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_fabric_label_t amdsmi_fabric_label_t",
+      "decl_hash": "155fe08a68f341e9"
+    },
+    {
+      "name": "amdsmi_fabric_npa_address_mode_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef enum amdsmi_fabric_npa_address_mode_t amdsmi_fabric_npa_address_mode_t",
+      "decl_hash": "8a044e03717242b6"
+    },
+    {
+      "name": "amdsmi_fabric_size_constants_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef enum amdsmi_fabric_size_constants_t amdsmi_fabric_size_constants_t",
+      "decl_hash": "32665d031598d003"
+    },
+    {
+      "name": "amdsmi_fabric_telemetry_category_mask_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef enum amdsmi_fabric_telemetry_category_mask_t amdsmi_fabric_telemetry_category_mask_t",
+      "decl_hash": "5a8bacd8deb87d2a"
+    },
+    {
+      "name": "amdsmi_fabric_telemetry_category_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef enum amdsmi_fabric_telemetry_category_t amdsmi_fabric_telemetry_category_t",
+      "decl_hash": "400a65ba3075f794"
+    },
+    {
+      "name": "amdsmi_fabric_telemetry_dataset_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_fabric_telemetry_dataset_t amdsmi_fabric_telemetry_dataset_t",
+      "decl_hash": "58820a4089536ee5"
+    },
+    {
+      "name": "amdsmi_fabric_telemetry_instance_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_fabric_telemetry_instance_t amdsmi_fabric_telemetry_instance_t",
+      "decl_hash": "63bf0a51edab6695"
+    },
+    {
+      "name": "amdsmi_fabric_telemetry_item_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_fabric_telemetry_item_t amdsmi_fabric_telemetry_item_t",
+      "decl_hash": "a8277b6861480aed"
+    },
+    {
+      "name": "amdsmi_fabric_telemetry_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_fabric_telemetry_t amdsmi_fabric_telemetry_t",
+      "decl_hash": "f4ef581216e32818"
+    },
+    {
+      "name": "amdsmi_fabric_type_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef enum amdsmi_fabric_type_t amdsmi_fabric_type_t",
+      "decl_hash": "72554e8be3be040f"
+    },
+    {
       "name": "amdsmi_freq_ind_t",
       "kind": "TypedefDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -5786,6 +6763,20 @@
       "decl_hash": "62ca9c2d8033437a"
     },
     {
+      "name": "amdsmi_gpu_ras_policy_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_gpu_ras_policy_info_t amdsmi_gpu_ras_policy_info_t",
+      "decl_hash": "50436cbc50656212"
+    },
+    {
+      "name": "amdsmi_gpu_ras_policy_v4_0_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_gpu_ras_policy_v4_0_t amdsmi_gpu_ras_policy_v4_0_t",
+      "decl_hash": "a2dc50ed200b8e90"
+    },
+    {
       "name": "amdsmi_gpu_xcp_metrics_t",
       "kind": "TypedefDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -5812,6 +6803,13 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "typedef struct amdsmi_link_metrics_t amdsmi_link_metrics_t",
       "decl_hash": "d9a3beb52850e80e"
+    },
+    {
+      "name": "amdsmi_link_status_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef enum amdsmi_link_status_t amdsmi_link_status_t",
+      "decl_hash": "dc575de496717569"
     },
     {
       "name": "amdsmi_link_type_t",
@@ -5861,6 +6859,90 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "typedef struct amdsmi_name_value_t amdsmi_name_value_t",
       "decl_hash": "9c6c646de19e702b"
+    },
+    {
+      "name": "amdsmi_nic_asic_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_asic_info_t amdsmi_nic_asic_info_t",
+      "decl_hash": "96ca28c724e45b9a"
+    },
+    {
+      "name": "amdsmi_nic_bus_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_bus_info_t amdsmi_nic_bus_info_t",
+      "decl_hash": "35725e0903fc16da"
+    },
+    {
+      "name": "amdsmi_nic_driver_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_driver_info_t amdsmi_nic_driver_info_t",
+      "decl_hash": "d209a04cfd6cc1d2"
+    },
+    {
+      "name": "amdsmi_nic_fw_entry_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_fw_entry_t amdsmi_nic_fw_entry_t",
+      "decl_hash": "635642f53977fd5e"
+    },
+    {
+      "name": "amdsmi_nic_fw_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_fw_info_t amdsmi_nic_fw_info_t",
+      "decl_hash": "e036d9072ca0aaef"
+    },
+    {
+      "name": "amdsmi_nic_numa_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_numa_info_t amdsmi_nic_numa_info_t",
+      "decl_hash": "21e5be863421aeed"
+    },
+    {
+      "name": "amdsmi_nic_port_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_port_info_t amdsmi_nic_port_info_t",
+      "decl_hash": "9f22cba35561fe8f"
+    },
+    {
+      "name": "amdsmi_nic_port_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_port_t amdsmi_nic_port_t",
+      "decl_hash": "44c336ce6c13f670"
+    },
+    {
+      "name": "amdsmi_nic_rdma_dev_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_rdma_dev_info_t amdsmi_nic_rdma_dev_info_t",
+      "decl_hash": "202da8792b3f4b89"
+    },
+    {
+      "name": "amdsmi_nic_rdma_devices_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_rdma_devices_info_t amdsmi_nic_rdma_devices_info_t",
+      "decl_hash": "01dd0976072bb539"
+    },
+    {
+      "name": "amdsmi_nic_rdma_port_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_rdma_port_info_t amdsmi_nic_rdma_port_info_t",
+      "decl_hash": "0f69e838b3c1e503"
+    },
+    {
+      "name": "amdsmi_nic_stat_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_nic_stat_t amdsmi_nic_stat_t",
+      "decl_hash": "6768f52c4ee92282"
     },
     {
       "name": "amdsmi_node_handle",
@@ -5968,6 +7050,20 @@
       "decl_hash": "a5be81377f1dbf83"
     },
     {
+      "name": "amdsmi_proc_gpu_entry_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_proc_gpu_entry_t amdsmi_proc_gpu_entry_t",
+      "decl_hash": "52493464b41b91eb"
+    },
+    {
+      "name": "amdsmi_proc_info_by_pid_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_proc_info_by_pid_t amdsmi_proc_info_by_pid_t",
+      "decl_hash": "6cdef6ca69644bf8"
+    },
+    {
       "name": "amdsmi_proc_info_t",
       "kind": "TypedefDecl",
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
@@ -5994,6 +7090,13 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "typedef void * amdsmi_processor_handle",
       "decl_hash": "e0ef2f4ebdc5d128"
+    },
+    {
+      "name": "amdsmi_processor_type_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef enum amdsmi_processor_type_t amdsmi_processor_type_t",
+      "decl_hash": "958c93890f686747"
     },
     {
       "name": "amdsmi_ptl_data_format_t",
@@ -6078,6 +7181,27 @@
       "header": "/opt/rocm/include/amd_smi/amdsmi.h",
       "decl": "typedef struct amdsmi_topology_nearest_t amdsmi_topology_nearest_t",
       "decl_hash": "adf04a5ee15f1b2a"
+    },
+    {
+      "name": "amdsmi_ttm_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_ttm_info_t amdsmi_ttm_info_t",
+      "decl_hash": "b841a6e76ffc791d"
+    },
+    {
+      "name": "amdsmi_uma_carveout_info_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_uma_carveout_info_t amdsmi_uma_carveout_info_t",
+      "decl_hash": "1993a018bf3215be"
+    },
+    {
+      "name": "amdsmi_uma_carveout_option_t",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/amd_smi/amdsmi.h",
+      "decl": "typedef struct amdsmi_uma_carveout_option_t amdsmi_uma_carveout_option_t",
+      "decl_hash": "cef0be4fe4006f12"
     },
     {
       "name": "amdsmi_utilization_counter_t",

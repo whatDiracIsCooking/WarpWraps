@@ -41,6 +41,14 @@ module;
 #define WWR_AMDSMI_SINCE_26_2                                                                      \
   (AMDSMI_LIB_VERSION_MAJOR > 26 || (AMDSMI_LIB_VERSION_MAJOR == 26 && AMDSMI_LIB_VERSION_MINOR >= 2))
 
+// The one guard that reads the other way, for the two entry points amd-smi
+// REMOVED at 27.0 (the version ROCm 10.0.0 ships): amdsmi_set_gpu_clk_range was
+// superseded by amdsmi_set_gpu_clk_limit, which is wrapped below unguarded
+// because it exists at the floor too, and amdsmi_gpu_driver_reload is gone with
+// no replacement. Both are present at the 7.1 floor (26.1.0) and the 7.2.4 pin
+// (26.2.2), so they cannot simply be dropped either.
+#define WWR_AMDSMI_BEFORE_27 (AMDSMI_LIB_VERSION_MAJOR < 27)
+
 export module wwr.hip.amd_smi;
 
 export namespace wwr::hip {
@@ -816,7 +824,9 @@ using ::amdsmi_get_gpu_reg_table_info;
 using ::amdsmi_get_utilization_count;
 using ::amdsmi_reset_gpu;
 using ::amdsmi_set_gpu_clk_limit;
+#if WWR_AMDSMI_BEFORE_27
 using ::amdsmi_set_gpu_clk_range;
+#endif
 using ::amdsmi_set_gpu_od_clk_info;
 using ::amdsmi_set_gpu_od_volt_info;
 using ::amdsmi_set_gpu_perf_determinism_mode;
@@ -932,7 +942,9 @@ using ::amdsmi_is_gpu_power_management_enabled;
 using ::amdsmi_get_gpu_process_list;
 
 // Driver control mechanisms
+#if WWR_AMDSMI_BEFORE_27
 using ::amdsmi_gpu_driver_reload;
+#endif
 
 // Peak Tops Limiter
 #if WWR_AMDSMI_SINCE_26_2

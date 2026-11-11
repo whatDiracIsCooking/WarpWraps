@@ -2,10 +2,10 @@
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
     "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
-    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hipsolver/hipsolver.h",
+    "command": "/usr/bin/clang -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hipsolver/hipsolver.h",
     "config": {
       "backend": "HIP",
-      "sdk_version": "ROCm 7.2.4",
+      "sdk_version": "ROCm 10.0.0",
       "arch": "gfx942",
       "defines": [
         "__HIP_PLATFORM_AMD__"
@@ -15,16 +15,16 @@
         "/opt/rocm-ds/include"
       ]
     },
-    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "clang": "Ubuntu clang version 23.1.6 (++20261108033755+c47d7823685a-1~exp1~20261108153854.96)",
     "header": "/opt/rocm/include/hipsolver/hipsolver.h",
     "prefix": "hipsolver",
-    "symbol_count": 577
+    "symbol_count": 585
   },
   "linkable": {
     "lib": "libhipsolver.so.1",
     "soname": "libhipsolver.so.1",
     "available": true,
-    "linkable_count": 528,
+    "linkable_count": 536,
     "linkable": [
       "hipsolverCCgels",
       "hipsolverCCgels_bufferSize",
@@ -281,6 +281,8 @@
       "hipsolverDnSsytrd_bufferSize",
       "hipsolverDnSsytrf",
       "hipsolverDnSsytrf_bufferSize",
+      "hipsolverDnXgeev",
+      "hipsolverDnXgeev_bufferSize",
       "hipsolverDnXgeqrf",
       "hipsolverDnXgeqrf_bufferSize",
       "hipsolverDnXgesvdjGetResidual",
@@ -294,11 +296,17 @@
       "hipsolverDnXpotrf",
       "hipsolverDnXpotrf_bufferSize",
       "hipsolverDnXpotrs",
+      "hipsolverDnXsyevBatched",
+      "hipsolverDnXsyevBatched_bufferSize",
+      "hipsolverDnXsyevd",
+      "hipsolverDnXsyevd_bufferSize",
       "hipsolverDnXsyevjGetResidual",
       "hipsolverDnXsyevjGetSweeps",
       "hipsolverDnXsyevjSetMaxSweeps",
       "hipsolverDnXsyevjSetSortEig",
       "hipsolverDnXsyevjSetTolerance",
+      "hipsolverDnXsytrs",
+      "hipsolverDnXsytrs_bufferSize",
       "hipsolverDnZZgels",
       "hipsolverDnZZgels_bufferSize",
       "hipsolverDnZZgesv",
@@ -2833,6 +2841,22 @@
       "exported": true
     },
     {
+      "name": "hipsolverDnXgeev",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense64.h",
+      "decl": "hipsolverStatus_t hipsolverDnXgeev(hipsolverDnHandle_t handle, hipsolverDnParams_t params, hipsolverEigMode_t jobvl, hipsolverEigMode_t jobvr, int64_t n, hipDataType dataTypeA, void * A, int64_t lda, hipDataType dataTypeW, void * W, hipDataType dataTypeVL, void * VL, int64_t ldvl, hipDataType dataTypeVR, void * VR, int64_t ldvr, hipDataType computeType, void * workOnDevice, size_t lworkOnDevice, void * workOnHost, size_t lworkOnHost, int * devInfo)",
+      "decl_hash": "09eb4c5886d38aff",
+      "exported": true
+    },
+    {
+      "name": "hipsolverDnXgeev_bufferSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense64.h",
+      "decl": "hipsolverStatus_t hipsolverDnXgeev_bufferSize(hipsolverDnHandle_t handle, hipsolverDnParams_t params, hipsolverEigMode_t jobvl, hipsolverEigMode_t jobvr, int64_t n, hipDataType dataTypeA, const void * A, int64_t lda, hipDataType dataTypeW, const void * W, hipDataType dataTypeVL, const void * VL, int64_t ldvl, hipDataType dataTypeVR, const void * VR, int64_t ldvr, hipDataType computeType, size_t * lworkOnDevice, size_t * lworkOnHost)",
+      "decl_hash": "28ae32bf6156fb13",
+      "exported": true
+    },
+    {
       "name": "hipsolverDnXgeqrf",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense64.h",
@@ -2937,6 +2961,38 @@
       "exported": true
     },
     {
+      "name": "hipsolverDnXsyevBatched",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense64.h",
+      "decl": "hipsolverStatus_t hipsolverDnXsyevBatched(hipsolverDnHandle_t handle, hipsolverDnParams_t params, hipsolverEigMode_t jobz, hipsolverFillMode_t uplo, int64_t n, hipDataType dataTypeA, void * A, int64_t lda, hipDataType dataTypeW, void * W, hipDataType computeType, void * workOnDevice, size_t lworkOnDevice, void * workOnHost, size_t lworkOnHost, int * devInfo, int64_t batchSize)",
+      "decl_hash": "7e80d8274cf1ffb6",
+      "exported": true
+    },
+    {
+      "name": "hipsolverDnXsyevBatched_bufferSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense64.h",
+      "decl": "hipsolverStatus_t hipsolverDnXsyevBatched_bufferSize(hipsolverDnHandle_t handle, hipsolverDnParams_t params, hipsolverEigMode_t jobz, hipsolverFillMode_t uplo, int64_t n, hipDataType dataTypeA, const void * A, int64_t lda, hipDataType dataTypeW, const void * W, hipDataType computeType, size_t * lworkOnDevice, size_t * lworkOnHost, int64_t batchSize)",
+      "decl_hash": "cb6d83327b647be6",
+      "exported": true
+    },
+    {
+      "name": "hipsolverDnXsyevd",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense64.h",
+      "decl": "hipsolverStatus_t hipsolverDnXsyevd(hipsolverDnHandle_t handle, hipsolverDnParams_t params, hipsolverEigMode_t jobz, hipsolverFillMode_t uplo, int64_t n, hipDataType dataTypeA, void * A, int64_t lda, hipDataType dataTypeW, void * W, hipDataType computeType, void * workOnDevice, size_t lworkOnDevice, void * workOnHost, size_t lworkOnHost, int * devInfo)",
+      "decl_hash": "2908dc5fe8d83382",
+      "exported": true
+    },
+    {
+      "name": "hipsolverDnXsyevd_bufferSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense64.h",
+      "decl": "hipsolverStatus_t hipsolverDnXsyevd_bufferSize(hipsolverDnHandle_t handle, hipsolverDnParams_t params, hipsolverEigMode_t jobz, hipsolverFillMode_t uplo, int64_t n, hipDataType dataTypeA, const void * A, int64_t lda, hipDataType dataTypeW, const void * W, hipDataType computeType, size_t * lworkOnDevice, size_t * lworkOnHost)",
+      "decl_hash": "21d71b458bfa422d",
+      "exported": true
+    },
+    {
       "name": "hipsolverDnXsyevjGetResidual",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense.h",
@@ -2974,6 +3030,22 @@
       "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense.h",
       "decl": "hipsolverStatus_t hipsolverDnXsyevjSetTolerance(hipsolverSyevjInfo_t info, double tolerance)",
       "decl_hash": "5e84f2e69a23ceff",
+      "exported": true
+    },
+    {
+      "name": "hipsolverDnXsytrs",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense64.h",
+      "decl": "hipsolverStatus_t hipsolverDnXsytrs(hipsolverDnHandle_t handle, hipsolverFillMode_t uplo, int64_t n, int64_t nrhs, hipDataType dataTypeA, const void * A, int64_t lda, const int64_t * devIpiv, hipDataType dataTypeB, void * B, int64_t ldb, void * workOnDevice, size_t lworkOnDevice, void * workOnHost, size_t lworkOnHost, int * devInfo)",
+      "decl_hash": "5e734d5e425de953",
+      "exported": true
+    },
+    {
+      "name": "hipsolverDnXsytrs_bufferSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsolver/internal/hipsolver-dense64.h",
+      "decl": "hipsolverStatus_t hipsolverDnXsytrs_bufferSize(hipsolverDnHandle_t handle, hipsolverFillMode_t uplo, int64_t n, int64_t nrhs, hipDataType dataTypeA, const void * A, int64_t lda, const int64_t * devIpiv, hipDataType dataTypeB, void * B, int64_t ldb, size_t * lworkOnDevice, size_t * lworkOnHost)",
+      "decl_hash": "ac0feef2debfbb5f",
       "exported": true
     },
     {

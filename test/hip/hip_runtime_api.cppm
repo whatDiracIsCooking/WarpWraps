@@ -13,6 +13,16 @@ module;
 #include <hip/hip_version.h>
 #define WWR_HIP_SINCE_7_2 (HIP_VERSION >= 70200000)
 
+// The FOUR SENTINEL VALUES below move whenever AMD appends an enumerator, and
+// they moved between the floor and the pin: ROCm 10.0.0 ships HIP 7.15
+// (HIP_VERSION 71526333 -- HIP's own numbering does not track the ROCm release,
+// see docs/architecture.md section 23), which added error codes, five cluster
+// hipFuncAttributes and hipLaunchAttributeExtDynDataPrefetch = 1024. An
+// assertion on a `*Max` is an assertion about how many enumerators there are,
+// so it is version-specific by construction -- hence a guard rather than a
+// rewrite, so the floor leg keeps checking the floor's shape.
+#define WWR_HIP_SINCE_7_15 (HIP_VERSION >= 71500000)
+
 export module wwr.test.hip.hip_runtime_api;
 
 import std;
@@ -244,7 +254,11 @@ static_assert(static_cast<long long>(hipErrorInvalidTexture) == 912);
 static_assert(static_cast<long long>(hipErrorUnknown) == 999);
 static_assert(static_cast<long long>(hipErrorRuntimeMemory) == 1052);
 static_assert(static_cast<long long>(hipErrorRuntimeOther) == 1053);
+#if WWR_HIP_SINCE_7_15
+static_assert(static_cast<long long>(hipErrorTbd) == 1055);
+#else
 static_assert(static_cast<long long>(hipErrorTbd) == 1054);
+#endif
 
 // hipDeviceAttribute_t
 static_assert(static_cast<long long>(hipDeviceAttributeCudaCompatibleBegin) == 0);
@@ -475,7 +489,11 @@ static_assert(static_cast<long long>(hipMemHandleTypeWin32Kmt) == 4);
 // hipFuncAttribute
 static_assert(static_cast<long long>(hipFuncAttributeMaxDynamicSharedMemorySize) == 8);
 static_assert(static_cast<long long>(hipFuncAttributePreferredSharedMemoryCarveout) == 9);
+#if WWR_HIP_SINCE_7_15
+static_assert(static_cast<long long>(hipFuncAttributeMax) == 16);
+#else
 static_assert(static_cast<long long>(hipFuncAttributeMax) == 10);
+#endif
 
 // hipFuncCache_t
 static_assert(static_cast<long long>(hipFuncCachePreferNone) == 0);
@@ -557,7 +575,11 @@ static_assert(static_cast<long long>(hipLaunchAttributeSynchronizationPolicy) ==
 static_assert(static_cast<long long>(hipLaunchAttributePriority) == 8);
 static_assert(static_cast<long long>(hipLaunchAttributeMemSyncDomainMap) == 9);
 static_assert(static_cast<long long>(hipLaunchAttributeMemSyncDomain) == 10);
+#if WWR_HIP_SINCE_7_15
+static_assert(static_cast<long long>(hipLaunchAttributeMax) == 1025);
+#else
 static_assert(static_cast<long long>(hipLaunchAttributeMax) == 11);
+#endif
 
 // hipGraphExecUpdateResult
 static_assert(static_cast<long long>(hipGraphExecUpdateSuccess) == 0);
@@ -802,7 +824,11 @@ static_assert(static_cast<long long>(HIP_FUNC_ATTRIBUTE_BINARY_VERSION) == 6);
 static_assert(static_cast<long long>(HIP_FUNC_ATTRIBUTE_CACHE_MODE_CA) == 7);
 static_assert(static_cast<long long>(HIP_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES) == 8);
 static_assert(static_cast<long long>(HIP_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT) == 9);
+#if WWR_HIP_SINCE_7_15
+static_assert(static_cast<long long>(HIP_FUNC_ATTRIBUTE_MAX) == 16);
+#else
 static_assert(static_cast<long long>(HIP_FUNC_ATTRIBUTE_MAX) == 10);
+#endif
 
 // hipPointer_attribute
 static_assert(static_cast<long long>(HIP_POINTER_ATTRIBUTE_CONTEXT) == 1);
@@ -1305,11 +1331,19 @@ WWR_LINK_CHECK(hipMemPoolTrimTo)
 // Memory Management — External / IPC
 WWR_LINK_CHECK(hipImportExternalMemory)
 WWR_LINK_CHECK(hipExternalMemoryGetMappedBuffer)
-// Declared but not exported by libamdhip64.so.7.2.70204; calling it fails to
-// link. Recorded as the `runtime_api` omission in
-// devtools/coverage_decisions.json (and hip_runtime_api.json's
-// declared_not_linkable).
+// THE ONE SYMBOL WHOSE LINKABILITY DIFFERS BETWEEN THE FLOOR AND THE PIN.
+// libamdhip64 declares it and does not export it at ROCm 7.1.0 and 7.2.4
+// (calling it fails to link -- recorded as the `runtime_api` omission in
+// devtools/coverage_decisions.json and in hip_runtime_api.json's
+// declared_not_linkable), and DOES export it at 10.0.0. So the check is
+// version-guarded like the enum values above, and
+// test/shared/manifest_conformance.py counts guarded sites instead of judging
+// them, since the pin manifest can only describe one of these two branches.
+#if WWR_HIP_SINCE_7_15
+WWR_LINK_CHECK(hipExternalMemoryGetMappedMipmappedArray)
+#else
 WWR_DECLARED_CHECK(hipExternalMemoryGetMappedMipmappedArray)
+#endif
 WWR_LINK_CHECK(hipDestroyExternalMemory)
 WWR_LINK_CHECK(hipIpcCloseMemHandle)
 WWR_LINK_CHECK(hipIpcGetEventHandle)

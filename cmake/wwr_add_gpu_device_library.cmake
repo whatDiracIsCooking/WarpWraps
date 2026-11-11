@@ -54,21 +54,12 @@ macro(wwr_add_gpu_device_library)
     # hip::device".
     target_link_libraries(${_GDL_NAME} PRIVATE hip::device)
 
-    # The amdgcn-link step invokes its device linker as the bare name `lld`,
-    # which only ROCm's bundled LLVM ships; point the driver at it. See §17.
-    get_target_property(
-      _gdl_hip_include_dir hip::amdhip64 INTERFACE_INCLUDE_DIRECTORIES
-    )
-    get_filename_component(_gdl_hip_prefix "${_gdl_hip_include_dir}" DIRECTORY)
-    target_compile_options(${_GDL_NAME} PRIVATE "-B${_gdl_hip_prefix}/llvm/bin")
-
-    # Silence the benign amdgcn "different data layouts" warning (a
-    # clang-version skew, not a defect). See docs/architecture.md §17; drop once
-    # the LLVMs converge.
-    target_compile_options(${_GDL_NAME} PRIVATE -Wno-linker-warnings)
-
-    unset(_gdl_hip_include_dir)
-    unset(_gdl_hip_prefix)
+    # NO `-B<rocm>/llvm/bin` HERE ANY MORE, and that is the fix rather than an
+    # omission: the device link's `ld.lld` now comes from the image itself
+    # (docker/Dockerfile.base installs lld-${LLVM_VERSION}), and borrowing
+    # ROCm's also handed its older clang-linker-wrapper the bitcode THIS clang
+    # produced. No -Wno-linker-warnings either -- the data-layout warning it hid
+    # is gone. Both, with the measurements: docs/architecture.md §17.
   endif()
 
 endmacro()

@@ -2,10 +2,10 @@
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
     "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
-    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hipfft/hipfft.h",
+    "command": "/usr/bin/clang -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hipfft/hipfftXt.h",
     "config": {
       "backend": "HIP",
-      "sdk_version": "ROCm 7.2.4",
+      "sdk_version": "ROCm 10.0.0",
       "arch": "gfx942",
       "defines": [
         "__HIP_PLATFORM_AMD__"
@@ -15,10 +15,13 @@
         "/opt/rocm-ds/include"
       ]
     },
-    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
-    "header": "/opt/rocm/include/hipfft/hipfft.h",
+    "clang": "Ubuntu clang version 23.1.6 (++20261108033755+c47d7823685a-1~exp1~20261108153854.96)",
+    "header": "/opt/rocm/include/hipfft/hipfftXt.h",
     "prefix": "hipfft",
-    "symbol_count": 70
+    "extra_prefixes": [
+      "hiplib"
+    ],
+    "symbol_count": 124
   },
   "linkable": {
     "lib": "libhipfft.so.0",
@@ -115,6 +118,123 @@
       "decl_hash": "505a5acb416c7ee0"
     },
     {
+      "name": "HIPFFT_CB_LD_COMPLEX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_CB_LD_COMPLEX = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "e906b1dd68c549e5"
+    },
+    {
+      "name": "HIPFFT_CB_LD_COMPLEX_DOUBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_CB_LD_COMPLEX_DOUBLE = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "8655bc887f82d7d1"
+    },
+    {
+      "name": "HIPFFT_CB_LD_REAL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_CB_LD_REAL = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "3adb2f7094d1f7e2"
+    },
+    {
+      "name": "HIPFFT_CB_LD_REAL_DOUBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_CB_LD_REAL_DOUBLE = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "742c79ba9ea2d540"
+    },
+    {
+      "name": "HIPFFT_CB_ST_COMPLEX",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_CB_ST_COMPLEX = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "898cb5ba6c2a08f8"
+    },
+    {
+      "name": "HIPFFT_CB_ST_COMPLEX_DOUBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_CB_ST_COMPLEX_DOUBLE = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "d8fc5839b50a1f56"
+    },
+    {
+      "name": "HIPFFT_CB_ST_REAL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_CB_ST_REAL = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "2882224a95ed0014"
+    },
+    {
+      "name": "HIPFFT_CB_ST_REAL_DOUBLE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_CB_ST_REAL_DOUBLE = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "dc51c1ac1d4aeb72"
+    },
+    {
+      "name": "HIPFFT_CB_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_CB_UNDEFINED = 8",
+      "value": 8,
+      "value_explicit": true,
+      "decl_hash": "234a9c746f776c91"
+    },
+    {
+      "name": "HIPFFT_COPY_DEVICE_TO_DEVICE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "HIPFFT_COPY_DEVICE_TO_DEVICE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "ea1653b7487af22c"
+    },
+    {
+      "name": "HIPFFT_COPY_DEVICE_TO_HOST",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "HIPFFT_COPY_DEVICE_TO_HOST = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "b158658716d8ed8d"
+    },
+    {
+      "name": "HIPFFT_COPY_HOST_TO_DEVICE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "HIPFFT_COPY_HOST_TO_DEVICE = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "81554347745e2f0d"
+    },
+    {
+      "name": "HIPFFT_COPY_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "HIPFFT_COPY_UNDEFINED = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "2bdd1474b003b498"
+    },
+    {
       "name": "HIPFFT_D2Z",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hipfft/hipfft.h",
@@ -131,6 +251,15 @@
       "value": 6,
       "value_explicit": true,
       "decl_hash": "53083daa1f697dea"
+    },
+    {
+      "name": "HIPFFT_FORMAT_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_FORMAT_UNDEFINED = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "11c7bc8fb480d5ed"
     },
     {
       "name": "HIPFFT_INCOMPLETE_PARAMETER_LIST",
@@ -295,6 +424,51 @@
       "decl_hash": "a5970359712da003"
     },
     {
+      "name": "HIPFFT_XT_FORMAT_1D_INPUT_SHUFFLED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_XT_FORMAT_1D_INPUT_SHUFFLED = 4",
+      "value": 4,
+      "value_explicit": true,
+      "decl_hash": "ca1f12fc338012ce"
+    },
+    {
+      "name": "HIPFFT_XT_FORMAT_INPLACE",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_XT_FORMAT_INPLACE = 2",
+      "value": 2,
+      "value_explicit": true,
+      "decl_hash": "21f6239c3e4d6781"
+    },
+    {
+      "name": "HIPFFT_XT_FORMAT_INPLACE_SHUFFLED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_XT_FORMAT_INPLACE_SHUFFLED = 3",
+      "value": 3,
+      "value_explicit": true,
+      "decl_hash": "e04fe845f952d259"
+    },
+    {
+      "name": "HIPFFT_XT_FORMAT_INPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_XT_FORMAT_INPUT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "e3106369c2c764c8"
+    },
+    {
+      "name": "HIPFFT_XT_FORMAT_OUTPUT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "HIPFFT_XT_FORMAT_OUTPUT = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "d10ec8f6ad19759e"
+    },
+    {
       "name": "HIPFFT_Z2D",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hipfft/hipfft.h",
@@ -311,6 +485,24 @@
       "value": 105,
       "value_explicit": true,
       "decl_hash": "ec6f295cbfce20a9"
+    },
+    {
+      "name": "HIPLIB_FORMAT_HIPFFT",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "HIPLIB_FORMAT_HIPFFT = 0",
+      "value": 0,
+      "value_explicit": true,
+      "decl_hash": "34eebdf906a1d7d9"
+    },
+    {
+      "name": "HIPLIB_FORMAT_UNDEFINED",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "HIPLIB_FORMAT_UNDEFINED = 1",
+      "value": 1,
+      "value_explicit": true,
+      "decl_hash": "de45a954ab24f862"
     },
     {
       "name": "hipfftLibraryPropertyType_t",
@@ -332,6 +524,34 @@
       "header": "/opt/rocm/include/hipfft/hipfft.h",
       "decl": "enum hipfftType_t",
       "decl_hash": "b72444368781ce40"
+    },
+    {
+      "name": "hipfftXtCallbackType_t",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "enum hipfftXtCallbackType_t",
+      "decl_hash": "ea80e30edf179b01"
+    },
+    {
+      "name": "hipfftXtCopyType_t",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "enum hipfftXtCopyType_t",
+      "decl_hash": "656dd525fc68a3db"
+    },
+    {
+      "name": "hipfftXtSubFormat_t",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "enum hipfftXtSubFormat_t",
+      "decl_hash": "9db228c6bb321b78"
+    },
+    {
+      "name": "hiplibFormat_t",
+      "kind": "EnumDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "enum hiplibFormat_t",
+      "decl_hash": "10fdea1322b0fccf"
     },
     {
       "name": "hipfftCreate",
@@ -598,6 +818,198 @@
       "exported": true
     },
     {
+      "name": "hipfftXtClearCallback",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtClearCallback(hipfftHandle plan, hipfftXtCallbackType cbtype)",
+      "decl_hash": "dd65f1a3266fd6eb",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtExec",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtExec(hipfftHandle plan, void * input, void * output, int direction)",
+      "decl_hash": "d525eb01775e5015",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtExecDescriptor",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtExecDescriptor(hipfftHandle plan, hipLibXtDesc * input, hipLibXtDesc * output, int direction)",
+      "decl_hash": "af38936792408f34",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtExecDescriptorC2C",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtExecDescriptorC2C(hipfftHandle plan, hipLibXtDesc * input, hipLibXtDesc * output, int direction)",
+      "decl_hash": "2f847d8bc207725a",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtExecDescriptorC2R",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtExecDescriptorC2R(hipfftHandle plan, hipLibXtDesc * input, hipLibXtDesc * output)",
+      "decl_hash": "9bade1f306ac50ed",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtExecDescriptorD2Z",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtExecDescriptorD2Z(hipfftHandle plan, hipLibXtDesc * input, hipLibXtDesc * output)",
+      "decl_hash": "5b6b5f7c8beaf51c",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtExecDescriptorR2C",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtExecDescriptorR2C(hipfftHandle plan, hipLibXtDesc * input, hipLibXtDesc * output)",
+      "decl_hash": "a1a20557824d5600",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtExecDescriptorZ2D",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtExecDescriptorZ2D(hipfftHandle plan, hipLibXtDesc * input, hipLibXtDesc * output)",
+      "decl_hash": "a579026323773225",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtExecDescriptorZ2Z",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtExecDescriptorZ2Z(hipfftHandle plan, hipLibXtDesc * input, hipLibXtDesc * output, int direction)",
+      "decl_hash": "aabea9ed8c9d929d",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtFree",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtFree(hipLibXtDesc * desc)",
+      "decl_hash": "6bacf0d1cfbafc09",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtGetSizeMany",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtGetSizeMany(hipfftHandle plan, int rank, long long * n, long long * inembed, long long istride, long long idist, hipDataType inputType, long long * onembed, long long ostride, long long odist, hipDataType outputType, long long batch, size_t * workSize, hipDataType executionType)",
+      "decl_hash": "d4715e4263d36075",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtMakePlanMany",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtMakePlanMany(hipfftHandle plan, int rank, long long * n, long long * inembed, long long istride, long long idist, hipDataType inputType, long long * onembed, long long ostride, long long odist, hipDataType outputType, long long batch, size_t * workSize, hipDataType executionType)",
+      "decl_hash": "c797b038a2f37b37",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtMalloc",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtMalloc(hipfftHandle plan, hipLibXtDesc ** desc, hipfftXtSubFormat format)",
+      "decl_hash": "1ab210bc66c918f2",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtMemcpy",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtMemcpy(hipfftHandle plan, void * dest, void * src, hipfftXtCopyType type)",
+      "decl_hash": "1edee9c50123726c",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtSetCallback",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtSetCallback(hipfftHandle plan, void ** callbacks, hipfftXtCallbackType cbtype, void ** callbackData)",
+      "decl_hash": "d0e650b96e46af80",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtSetCallbackSharedSize",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtSetCallbackSharedSize(hipfftHandle plan, hipfftXtCallbackType cbtype, size_t sharedSize)",
+      "decl_hash": "c4aa76102f74a9b1",
+      "exported": true
+    },
+    {
+      "name": "hipfftXtSetGPUs",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "hipfftResult hipfftXtSetGPUs(hipfftHandle plan, int count, int * gpus)",
+      "decl_hash": "9f9570d4a5a69b55",
+      "exported": true
+    },
+    {
+      "name": "hipfftCallbackLoadC",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "typedef hipfftComplex (*)(void *, size_t, void *, void *) hipfftCallbackLoadC",
+      "decl_hash": "4bd702314b6e133b"
+    },
+    {
+      "name": "hipfftCallbackLoadD",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "typedef hipfftDoubleReal (*)(void *, size_t, void *, void *) hipfftCallbackLoadD",
+      "decl_hash": "ae96f196b3647e3e"
+    },
+    {
+      "name": "hipfftCallbackLoadR",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "typedef hipfftReal (*)(void *, size_t, void *, void *) hipfftCallbackLoadR",
+      "decl_hash": "2ceb0be8d841b68a"
+    },
+    {
+      "name": "hipfftCallbackLoadZ",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "typedef hipfftDoubleComplex (*)(void *, size_t, void *, void *) hipfftCallbackLoadZ",
+      "decl_hash": "00f5fae4cee5ea85"
+    },
+    {
+      "name": "hipfftCallbackStoreC",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "typedef void (*)(void *, size_t, hipfftComplex, void *, void *) hipfftCallbackStoreC",
+      "decl_hash": "45db1b3b0b640f4d"
+    },
+    {
+      "name": "hipfftCallbackStoreD",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "typedef void (*)(void *, size_t, hipfftDoubleReal, void *, void *) hipfftCallbackStoreD",
+      "decl_hash": "46429583d70e5ff7"
+    },
+    {
+      "name": "hipfftCallbackStoreR",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "typedef void (*)(void *, size_t, hipfftReal, void *, void *) hipfftCallbackStoreR",
+      "decl_hash": "c3da234533722f53"
+    },
+    {
+      "name": "hipfftCallbackStoreZ",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "typedef void (*)(void *, size_t, hipfftDoubleComplex, void *, void *) hipfftCallbackStoreZ",
+      "decl_hash": "8476c9bffe1a3c63"
+    },
+    {
       "name": "hipfftComplex",
       "kind": "TypedefDecl",
       "header": "/opt/rocm/include/hipfft/hipfft.h",
@@ -652,6 +1064,34 @@
       "header": "/opt/rocm/include/hipfft/hipfft.h",
       "decl": "typedef enum hipfftType_t hipfftType",
       "decl_hash": "b9cb4b29ade2cf19"
+    },
+    {
+      "name": "hipfftXtCallbackType",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "typedef enum hipfftXtCallbackType_t hipfftXtCallbackType",
+      "decl_hash": "5478a26d859c3aaa"
+    },
+    {
+      "name": "hipfftXtCopyType",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "typedef enum hipfftXtCopyType_t hipfftXtCopyType",
+      "decl_hash": "da29bc8093cf1506"
+    },
+    {
+      "name": "hipfftXtSubFormat",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hipfftXt.h",
+      "decl": "typedef enum hipfftXtSubFormat_t hipfftXtSubFormat",
+      "decl_hash": "bd8de375fdc56ba4"
+    },
+    {
+      "name": "hiplibFormat",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipfft/hiplibxt.h",
+      "decl": "typedef enum hiplibFormat_t hiplibFormat",
+      "decl_hash": "67b15d868d8e71d9"
     }
   ]
 }

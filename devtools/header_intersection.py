@@ -96,13 +96,13 @@ Usage:
     devtools/header_intersection.py \\
         --cuda vendor/cuda-13.0.x/curand.json \\
                vendor/cuda-13.0.x/curand_kernel.json \\
-        --hip  vendor/rocm-7.2.4/hiprand.json \\
-               vendor/rocm-7.2.4/hiprand_kernel.json
+        --hip  vendor/rocm-10.0.0/hiprand.json \\
+               vendor/rocm-10.0.0/hiprand_kernel.json
 
     # Confirm the wwr* rand layer wraps the whole shared surface:
     devtools/header_intersection.py \\
         --cuda vendor/cuda-13.0.x/curand.json vendor/cuda-13.0.x/curand_kernel.json \\
-        --hip  vendor/rocm-7.2.4/hiprand.json vendor/rocm-7.2.4/hiprand_kernel.json \\
+        --hip  vendor/rocm-10.0.0/hiprand.json vendor/rocm-10.0.0/hiprand_kernel.json \\
         --coverage src/rand.cppm src/rand.h src/detail/rand_names.h
 """
 

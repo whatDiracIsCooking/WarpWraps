@@ -50,27 +50,40 @@ One directory per SDK version, one file per wrapped library:
   This is a within-major **band**, not a point: CUDA 13.0 → 13.3 adds rather
   than removes, so one dir serves both the 13.0.0 floor and every 13.0.x pin —
   there is no separate CUDA floor manifest (nor a CI cuda-floor leg).
-- `rocm-7.2.4/` — the HIP **pin**, harvested against ROCm 7.2.4 (arch `gfx942`),
-  plus hipCOMP from `/opt/rocm-ds`.
+- `rocm-10.0.0/` — the HIP **pin**, harvested against ROCm 10.0.0 (arch
+  `gfx942`), plus hipCOMP from `/opt/rocm-ds`. It replaced `rocm-7.2.4/` when the
+  pin moved to TheRock (#307): the pin dir is whatever `:hip-ci` ships, and only
+  the pin and the floor are regenerated, so a third directory would be a file
+  nothing checks.
 - `rocm-7.1.0/` — the HIP **floor** (the oldest ROCm `wwr` builds on;
   `CMakeLists.txt` enforces it). ROCm churns across minors exactly in the
   surfaces this repo wraps, so pin and floor are distinct manifests. Diffing the
-  two is the changelog AMD does not publish (#116): at 7.1.0 → 7.2.4 nothing
-  leaves the surface (0 floor-only symbols), 36 names are *added* in 7.2 (28
-  amd_smi, 6 hip_runtime_api, 2 hipblaslt) — all behind `WWR_*_SINCE_*` /
-  `__has_include` guards in `src/hip`, so the floor is clean. (The 2 hipblaslt
-  SIGMOID constants became visible in this diff only once #167 widened the
-  harvest to capture a variant library's own uppercase constants; before that
-  they were in no manifest and the diff read 34.)
+  two is the changelog AMD does not publish (#116). At 7.1.0 → 10.0.0 that
+  changelog is no longer small:
+
+  - **376 names added**, led by amd_smi (164), hip_runtime_api (108), rccl (38)
+    and hipblaslt (30). The wrappers deliberately do not reach for them here;
+    they are what a future surface-widening issue has to work from.
+  - **4 names leave**, which is the direction that breaks a build: amd_smi's
+    `amdsmi_set_gpu_clk_range` and `amdsmi_gpu_driver_reload` (gone at amd-smi
+    27.0, now behind `WWR_AMDSMI_BEFORE_27` in `src/hip/amd_smi.cppm`), and
+    rccl's `ncclConfig_v22700` / `ncclWindow` — the two this tree never wrapped.
+    A fifth and sixth sit in neither manifest because they existed only between
+    the two: hipBLASLt's `HIPBLASLT_EPILOGUE_SIGMOID{,_BIAS}_EXT`, live from 1.2
+    to 1.3, hence the two-sided guard in `src/hip/hipblaslt.cppm`.
+
+  The floor is now a whole major below the pin, so "diff the two" has become a
+  genuinely large read rather than the 36-name delta it was at 7.2.4.
 
 ## Regenerating
 
 `devtools/vendor_manifests.sh` is the single source of the harvest invocations
 (prefix, defines, include roots per library). Run it **inside the matching
 `-ci` image** — the manifests are only reproducible against those exact headers.
-The HIP version dir is **read from the image** (`/opt/rocm/.info/version`), so
-one `hip` invocation writes `rocm-7.2.4/` in the pin image and `rocm-7.1.0/` in
-the floor image; CUDA stays the `13.0.x` band:
+The HIP version dir is **read from the image** (`<rocm>/.info/version`, found
+under `/opt/rocm` on the legacy channel and under the realpath of
+`/opt/rocm/lib` on TheRock), so one `hip` invocation writes `rocm-10.0.0/` in the
+pin image and `rocm-7.1.0/` in the floor image; CUDA stays the `13.0.x` band:
 
 ```bash
 devtools/vendor_manifests.sh cuda   # rewrites cuda-13.0.x/  (in :cuda-ci)
@@ -80,8 +93,10 @@ devtools/vendor_manifests.sh both   # both (needs the combined image)
 
 The `vendor-manifests` CI job regenerates into a throwaway tree and fails on any
 diff, printing it — the honesty mechanism that keeps these files from going
-stale-but-trusted. It runs three legs — `cuda-13.0.x` (`:cuda-ci`), `rocm-7.2.4`
-(`:hip-ci`) and `rocm-7.1.0` (`:hip-7.1.0-ci`). A red diff is either a manifest
+stale-but-trusted. It runs three legs — `cuda-13.0.x` (`:cuda-ci`),
+`rocm-10.0.0` (`:hip-ci`) and `rocm-7.1.0` (`:hip-7.1.0-ci`, the one image built
+at LLVM 20 — see .github/workflows/images.yml, which is why that leg's manifests
+record clang 20 where the other two record 23). A red diff is either a manifest
 nobody regenerated after an intended change, or a new SDK point release changing
 the surface under a fixed pin/floor.
 

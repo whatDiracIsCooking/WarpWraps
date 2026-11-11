@@ -21,6 +21,17 @@ module;
 
 #include "gpu_check_macros.h"
 
+// The data-type enumerators the half-precision checks name (HIP_R_16F /
+// CUDA_R_16F) live in the vendor's library_types.h, which no raw module
+// re-exports -- and clang 23 no longer lets an imported module's
+// global-module-fragment declarations be found here, which is how they used to
+// resolve (#307). Same include, same shape as test/gpu/solver.cppm.
+#if defined(WWR_GPU_BACKEND_CUDA)
+#include <library_types.h>
+#else
+#include <hip/library_types.h>
+#endif
+
 export module wwr.test.gpu.blas;
 
 import std;

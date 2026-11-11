@@ -11,7 +11,7 @@ token is not enough. So it parses with clang instead:
     clang -x c++ -Xclang -ast-dump=json <flags> HEADER
 
 The objection that stops ``header_intersection.py`` from parsing is about DEVICE
-code; the HOST API declarations parse fine, and clang-20 ships in every image.
+code; the HOST API declarations parse fine, and clang ships in every image.
 Errors in the device-side transitive includes are tolerated -- clang still emits
 a complete AST for the host declarations, which is all we read (see
 ``--strict``). What lands in the manifest, per symbol: its name, kind, a
@@ -114,7 +114,7 @@ _DECL_KINDS = {
     "FunctionTemplateDecl",
 }
 
-# clang-20's canonical DeprecatedAttr; also catch the C++14 spelling variants
+# clang's canonical DeprecatedAttr; also catch the C++14 spelling variants
 # that print with different node kinds on some builds.
 _DEPRECATED_ATTRS = {"DeprecatedAttr", "UnavailableAttr"}
 
@@ -569,7 +569,7 @@ def main(argv: list[str] | None = None) -> int:
                         "with REASON instead of running nm. Mutually exclusive "
                         "with --lib")
     parser.add_argument("--clang", default=None,
-                        help="clang binary (default: clang-20, then clang)")
+                        help="clang binary (default: clang on PATH)")
     parser.add_argument("--nm", default=None,
                         help="nm binary (default: llvm-nm, then nm)")
     parser.add_argument("-o", "--output", type=Path,
@@ -583,10 +583,18 @@ def main(argv: list[str] | None = None) -> int:
                         help="print a one-line summary to stderr")
     args = parser.parse_args(argv)
 
-    clang = args.clang or (shutil.which("clang-20") or shutil.which("clang"))
+    # The UNVERSIONED name, deliberately: every image makes /usr/bin/clang an
+    # update-alternatives link to the one clang it ships, so the bare name is
+    # correct everywhere and keeps the manifest's recorded `command` stable
+    # across a toolchain bump. The version is not thereby hidden -- the `clang`
+    # field beside it records the full version string, which is where a bump
+    # SHOULD show up. The default this replaced was `clang-20`, which on a
+    # clang-23 image resolved to nothing and fell through to this same binary
+    # under a different spelling (#307). Pass --clang for anything else.
+    clang = args.clang or shutil.which("clang")
     if not clang:
-        print("vendor_harvest: no clang found (need clang-20 or clang on PATH); "
-              "pass --clang", file=sys.stderr)
+        print("vendor_harvest: no clang found on PATH; pass --clang",
+              file=sys.stderr)
         return 2
     if not args.header.exists():
         print(f"vendor_harvest: header not found: {args.header}", file=sys.stderr)
