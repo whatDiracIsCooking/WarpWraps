@@ -54,6 +54,39 @@ int main(void) {
   ok &= near_d(m2, 5.0);
   ok &= near_d(q2.re, 2.2) && near_d(q2.im, -0.4);
 
+  /* The status surface (#329 increment 2). These exercise the stable wwr_status
+   * enum the thunk maps the backend status onto (architecture.md §6), so Rust
+   * sees one mapping whichever backend libwwr.capi links. Every assertion below
+   * is safe on a no-GPU CI runner and on both backends -- see each note. */
+
+  /* (1) Structural stability proof. These values come from the GENERATED header
+   * and are identical regardless of backend -- that fixed layout IS the §6
+   * stability guarantee, proven without running anything on a GPU. */
+  ok &= (WWR_STATUS_SUCCESS == 0);
+  ok &= (WWR_STATUS_INVALID_VALUE != WWR_STATUS_INVALID_DEVICE);
+  ok &= (WWR_STATUS_SUCCESS != WWR_STATUS_UNKNOWN);
+
+  /* (2) Success path -- deterministic with or without a GPU, both backends. The
+   * runtime/driver version query needs no device; a healthy toolkit returns a
+   * positive version and wwrSuccess, which maps to WWR_STATUS_SUCCESS (== 0). */
+  int ver = 0;
+  wwr_status vs = wwr_runtime_get_version(&ver);
+  printf("runtime version = %d  status = %d  (expect status 0, version > 0)\n",
+         ver, (int)vs);
+  ok &= (vs == WWR_STATUS_SUCCESS);
+  ok &= (ver > 0);
+
+  /* (3) Error path -- a NON-success status, asserted structurally, not by a
+   * specific code. wwr_set_device(-1) is argument validation: an out-of-range
+   * ordinal is rejected independently of GPU presence, so this is non-success on
+   * a no-GPU runner too. We deliberately DO NOT hard-assert a specific
+   * enumerator: the backend code for a bad ordinal vs no-device is not verified
+   * identical across backends and runners, and the stable-value proof above
+   * already covers §6. Non-success is the safe, backend- and GPU-agnostic claim. */
+  wwr_status bad = wwr_set_device(-1);
+  printf("set_device(-1) status = %d  (expect non-zero)\n", (int)bad);
+  ok &= (bad != WWR_STATUS_SUCCESS);
+
   if (!ok) {
     fprintf(stderr, "FAIL: a computed value was wrong\n");
     return 1;

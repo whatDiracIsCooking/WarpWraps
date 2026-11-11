@@ -1,25 +1,34 @@
 # wwr.capi — the experimental extern "C" ABI over wwr, for Rust FFI
 #
 # A shared library of the generated extern "C" thunks (gen/wwr_capi.cpp), which
-# `import wwr.complex;` and forward into the wwr::wwrC* functions -- so the
-# backend is chosen only by which wwr library this links, not by anything in the
-# source. driver.c is a pure-C consumer run as a ctest: it checks the symbols
-# link and the numbers are right (host-only, no GPU). See the directory README
-# and docs/architecture.md §25 for why the thunk calls into wwr rather than
-# re-deriving it.
+# `import wwr.complex;` / `import wwr.runtime_api;` and forward into the
+# wwr::wwrC* and wwr::wwr* runtime functions -- so the backend is chosen only by
+# which wwr library this links, not by anything in the source. The status
+# surface maps the neutral wwr status onto a stable wwr_status C enum below the
+# extern "C" line (architecture.md section 6). driver.c is a pure-C consumer run
+# as a ctest: it checks the symbols link, the complex numbers are right, and the
+# status surface returns the stable enum (host-only, no GPU). See the directory
+# README and docs/architecture.md sections 6/25 for why the thunk calls into wwr
+# and maps the status.
 #
 # The soname is versioned only to exercise the packaging shape -- the ABI is
 # experimental and NOT yet a stable contract (issue #329); it is not part of the
 # installed wwr package (wwr_install_package() sweeps src/ only).
 
 # The thunk is a plain shared library, not a module (it exports no module, it
-# imports one). CXX_MODULE_STD / CXX_SCAN_FOR_MODULES let a non-module TU
-# consume the wwr.complex module, which `import std;`s; the real dotted name on
-# the add_library, the :: alias by hand.
+# imports one). CXX_MODULE_STD / CXX_SCAN_FOR_MODULES let a non-module TU use
+# the wwr.complex / wwr.runtime_api modules, which `import std;`; the real
+# dotted name on the add_library, the :: alias by hand.
 add_library(wwr.capi SHARED gen/wwr_capi.cpp)
 add_library(wwr::capi ALIAS wwr.capi)
 
-target_link_libraries(wwr.capi PRIVATE wwr::complex)
+# wwr::complex for the POD-complex thunks; wwr::runtime_api for the status
+# surface (its module BMI for the import) AND wwr::runtime_api::host for the
+# runtime host library (CUDA::cudart / hip::host) that resolves the
+# wwrRuntimeGetVersion / wwrGetDeviceCount / wwrSetDevice symbols at link.
+target_link_libraries(
+  wwr.capi PRIVATE wwr::complex wwr::runtime_api wwr::runtime_api::host
+)
 target_include_directories(wwr.capi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/gen)
 set_target_properties(
   wwr.capi

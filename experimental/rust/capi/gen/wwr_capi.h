@@ -16,6 +16,17 @@ typedef struct wwr_complex128 {
   double im;
 } wwr_complex128;
 
+typedef enum wwr_status {
+  WWR_STATUS_SUCCESS = 0,
+  WWR_STATUS_INVALID_VALUE = 1,
+  WWR_STATUS_INVALID_DEVICE = 2,
+  WWR_STATUS_NO_DEVICE = 3,
+  WWR_STATUS_NOT_READY = 4,
+  WWR_STATUS_MEMORY_ALLOCATION = 5,
+  WWR_STATUS_NOT_SUPPORTED = 6,
+  WWR_STATUS_UNKNOWN = 7,
+} wwr_status;
+
 wwr_complex64 wwr_cadd64(wwr_complex64 a, wwr_complex64 b);
 wwr_complex64 wwr_cmul64(wwr_complex64 a, wwr_complex64 b);
 float wwr_cabs64(wwr_complex64 z);
@@ -24,6 +35,9 @@ wwr_complex128 wwr_cadd128(wwr_complex128 a, wwr_complex128 b);
 wwr_complex128 wwr_cmul128(wwr_complex128 a, wwr_complex128 b);
 double wwr_cabs128(wwr_complex128 z);
 wwr_complex128 wwr_cdiv128(wwr_complex128 a, wwr_complex128 b);
+wwr_status wwr_runtime_get_version(int* version);
+wwr_status wwr_get_device_count(int* count);
+wwr_status wwr_set_device(int device);
 
 #ifdef __cplusplus
 }

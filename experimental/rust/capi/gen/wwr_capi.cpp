@@ -2,6 +2,20 @@
 #include "wwr_capi.h"
 
 import wwr.complex;
+import wwr.runtime_api;
+
+namespace {
+wwr_status _map(wwr::wwrError_t e) {
+  if (e == wwr::wwrSuccess) return WWR_STATUS_SUCCESS;
+  if (e == wwr::wwrErrorInvalidValue) return WWR_STATUS_INVALID_VALUE;
+  if (e == wwr::wwrErrorInvalidDevice) return WWR_STATUS_INVALID_DEVICE;
+  if (e == wwr::wwrErrorNoDevice) return WWR_STATUS_NO_DEVICE;
+  if (e == wwr::wwrErrorNotReady) return WWR_STATUS_NOT_READY;
+  if (e == wwr::wwrErrorMemoryAllocation) return WWR_STATUS_MEMORY_ALLOCATION;
+  if (e == wwr::wwrErrorNotSupported) return WWR_STATUS_NOT_SUPPORTED;
+  return WWR_STATUS_UNKNOWN;
+}
+}  // namespace
 
 extern "C" {
 
@@ -55,6 +69,18 @@ wwr_complex128 wwr_cdiv128(wwr_complex128 a, wwr_complex128 b) {
   wwr::wwrDoubleComplex _w_b{b.re, b.im};
   const auto r = wwr::wwrCdiv(_w_a, _w_b);
   return wwr_complex128{r.x, r.y};
+}
+
+wwr_status wwr_runtime_get_version(int* version) {
+  return _map(wwr::wwrRuntimeGetVersion(version));
+}
+
+wwr_status wwr_get_device_count(int* count) {
+  return _map(wwr::wwrGetDeviceCount(count));
+}
+
+wwr_status wwr_set_device(int device) {
+  return _map(wwr::wwrSetDevice(device));
 }
 
 }  // extern "C"
