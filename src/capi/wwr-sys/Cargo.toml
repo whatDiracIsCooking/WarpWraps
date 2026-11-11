@@ -31,7 +31,7 @@ links = "wwr_capi"
 [features]
 default = ["complex", "runtime_api", "blas", "blaslt", "solver", "rand", "rtc",
            "sparse", "tensor", "fft", "comp", "fp16", "bf16", "vector_types",
-           "fp8", "tx", "ccl"]
+           "fp8", "tx", "ccl", "extension_random_normal"]
 complex = []
 runtime_api = []
 blas = []
@@ -49,5 +49,6 @@ vector_types = []
 fp8 = []
 tx = []
 ccl = []
+extension_random_normal = []
 
 [dependencies]

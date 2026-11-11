@@ -20,5 +20,6 @@
 #include "bf16/wwr_capi_bf16.h"
 #include "vector_types/wwr_capi_vector_types.h"
 #include "fp8/wwr_capi_fp8.h"
+#include "extension_random_normal/wwr_capi_extension_random_normal.h"
 
 #endif  // WWR_CAPI_H

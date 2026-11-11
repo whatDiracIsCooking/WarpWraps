@@ -24,6 +24,7 @@
 //! | `fp8`         | [`fp8`]               | `libwwr_capi_fp8.so` (no vendor math lib; fp8 type) |
 //! | `tx`          | [`tx`]                | `libwwr_capi_tx.so` -> NVTX (header-only) / rocTX |
 //! | `ccl`         | [`ccl`]               | `libwwr_capi_ccl.so` -> NCCL / RCCL |
+//! | `extension_random_normal` | [`extension_random_normal`] | `libwwr_capi_extension_random_normal.so` -> cuRAND / hipRAND + runtime (DEVICE kernels) |
 //!
 //! ALL are default features, so an existing user who wants the whole ABI
 //! is unchanged -- they just transparently link the per-unit `.so`s instead of
@@ -137,6 +138,11 @@ pub use tx::*;
 pub mod ccl;
 #[cfg(feature = "ccl")]
 pub use ccl::*;
+
+#[cfg(feature = "extension_random_normal")]
+pub mod extension_random_normal;
+#[cfg(feature = "extension_random_normal")]
+pub use extension_random_normal::*;
 
 #[cfg(test)]
 mod tests {
