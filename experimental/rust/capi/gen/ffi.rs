@@ -29,7 +29,7 @@ pub enum wwr_status {
     WWR_STATUS_UNKNOWN = 7,
 }
 
-#[link(name = "wwr.capi")]
+#[link(name = "wwr_capi")]
 extern "C" {
     pub fn wwr_cadd64(a: wwr_complex64, b: wwr_complex64) -> wwr_complex64;
     pub fn wwr_cmul64(a: wwr_complex64, b: wwr_complex64) -> wwr_complex64;

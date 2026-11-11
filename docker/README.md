@@ -58,6 +58,7 @@ Four files beside this one, in a diamond:
 
 ```
                 Dockerfile.base          the vendor-neutral C++23 toolchain
+                                         (+ a pinned rustc for the Rust FFI test)
                  /           \
   Dockerfile.cuda             Dockerfile.hip
             |                       :

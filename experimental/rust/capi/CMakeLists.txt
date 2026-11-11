@@ -22,6 +22,14 @@
 add_library(wwr.capi SHARED gen/wwr_capi.cpp)
 add_library(wwr::capi ALIAS wwr.capi)
 
+# The OUTPUT file name is wwr_capi (-> libwwr_capi.so), NOT the dotted target
+# name: the target keeps the convention's dotted wwr.capi + wwr::capi alias, but
+# rustc's `-l wwr_capi` / ffi.rs's `#[link(name = "wwr_capi")]` do a literal
+# libwwr_capi.so lookup (and underscore matches the C ABI's wwr_ symbol prefix).
+# driver.c links via the target so it never saw the file name; the Rust driver
+# does. generate.py emits the matching link name -- keep the two in step.
+set_target_properties(wwr.capi PROPERTIES OUTPUT_NAME wwr_capi)
+
 # wwr::complex for the POD-complex thunks; wwr::runtime_api for the status
 # surface (its module BMI for the import) AND wwr::runtime_api::host for the
 # runtime host library (CUDA::cudart / hip::host) that resolves the
@@ -56,4 +64,53 @@ if(WWR_BUILD_TESTS)
   )
   add_test(NAME wwr.capi.driver COMMAND wwr.capi.driver)
   set_tests_properties(wwr.capi.driver PROPERTIES TIMEOUT 60)
+
+  # The Rust FFI test (#329 increment 3). rustc-direct, no cargo -- it compiles
+  # the ONE driver.rs, which include!s the generated gen/ffi.rs, and links the
+  # wwr.capi shared library. This is the real thing driver.c stands in for.
+  #
+  # Gated on rustc being FOUND, not merely on WWR_BUILD_TESTS, and that gate is
+  # load-bearing for CI: ci.yml's cpp jobs run inside the image main already
+  # published (container: is resolved before any step, so a PR that edits
+  # docker/ is tested against the OLD, rust-less image -- see ci.yml /
+  # images.yml headers). With no rustc there, this registers nothing and prints
+  # a visible skip, like the repo's GPU-gated tests, so this PR's CI is green.
+  # Once images.yml republishes the rust-enabled base on main, every later cpp
+  # run finds rustc and RUNS it. Proven locally against a pinned rustc on both
+  # backends before shipping -- it is not a test that only ever skips.
+  find_program(RUSTC rustc)
+  if(RUSTC)
+    # The output FILE is driver_rs (not the target name), so it cannot collide
+    # with the add_custom_target below -- Ninja rejects a file and a target that
+    # share a name. The ctest name is set on add_test, independent of both.
+    set(_rs_bin ${CMAKE_CURRENT_BINARY_DIR}/driver_rs)
+    set(_rs_src ${CMAKE_CURRENT_SOURCE_DIR}/driver.rs)
+    set(_rs_gen ${CMAKE_CURRENT_SOURCE_DIR}/gen)
+    # Link against the built library: -L its output dir, -l wwr_capi (its
+    # OUTPUT_NAME), and an rpath to that dir so the binary finds libwwr_capi.so
+    # at run time without an LD_LIBRARY_PATH on the ctest. WWR_CAPI_FFI points
+    # driver.rs's include!(concat!(env!(...))) at the committed gen/ dir.
+    add_custom_command(
+      OUTPUT ${_rs_bin}
+      COMMAND ${CMAKE_COMMAND} -E env WWR_CAPI_FFI=${_rs_gen}
+              ${RUSTC} --edition 2021 -O
+              -L $<TARGET_FILE_DIR:wwr.capi>
+              -l wwr_capi
+              -C link-arg=-Wl,-rpath,$<TARGET_FILE_DIR:wwr.capi>
+              -o ${_rs_bin} ${_rs_src}
+      DEPENDS ${_rs_src} ${_rs_gen}/ffi.rs wwr.capi
+      COMMENT "Compiling wwr.capi.driver_rs (rustc)"
+      VERBATIM
+    )
+    add_custom_target(
+      wwr.capi.driver_rs ALL
+      DEPENDS ${_rs_bin}
+      COMMENT "Building the Rust FFI driver (wwr.capi.driver_rs)"
+    )
+    add_test(NAME wwr.capi.driver_rs COMMAND ${_rs_bin})
+    set_tests_properties(wwr.capi.driver_rs PROPERTIES TIMEOUT 60)
+  else()
+    message(STATUS "wwr.capi: rustc not found -- skipping the Rust ABI test "
+                   "(wwr.capi.driver_rs); the C driver stands in for it")
+  endif()
 endif()

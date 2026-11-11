@@ -165,7 +165,12 @@ def gen_rust() -> str:
         L.append(f"    {name} = {val},")
     L.append("}")
     L.append("")
-    L += ['#[link(name = "wwr.capi")]', 'extern "C" {']
+    # The link name is the OUTPUT file name of the shared library, NOT the CMake
+    # target name: rustc's -l does a literal libwwr_capi.so lookup, so this must
+    # match the `OUTPUT_NAME wwr_capi` set on the wwr.capi target in
+    # capi/CMakeLists.txt (which also matches the C ABI's wwr_ symbol prefix).
+    # Change one and you must change the other, or the Rust driver fails to link.
+    L += ['#[link(name = "wwr_capi")]', 'extern "C" {']
     for f in spec.FUNCTIONS:
         args = ", ".join(f"{a[1]}: {_rust_ty(a[0])}" for a in f["args"])
         ret = "" if f["ret"] == "void" else f" -> {_rust_ty(f['ret'])}"
