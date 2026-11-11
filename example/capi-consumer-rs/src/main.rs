@@ -14,7 +14,14 @@
 
 use std::process::ExitCode;
 
-use wwr_sys::{wwr_cabs64, wwr_cadd64, wwr_complex64, wwr_runtime_get_version, wwr_status};
+// The crate is split per surface (PR #366): the shared PODs live in `common`,
+// each surface in its own feature-gated module. Reaching them through the module
+// paths (complex::, runtime_api::, common::) documents which surface each call
+// belongs to -- this consumer enables both the `complex` and `runtime_api`
+// features (the whole default set works too; see Cargo.toml).
+use wwr_sys::common::wwr_complex64;
+use wwr_sys::complex::{wwr_cabs64, wwr_cadd64};
+use wwr_sys::runtime_api::{wwr_runtime_get_version, wwr_status};
 
 fn near_f(got: f32, want: f32) -> bool {
     (got - want).abs() < 1e-4

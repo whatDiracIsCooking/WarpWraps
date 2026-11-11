@@ -17,8 +17,10 @@
 # nothing extra; wwr.blas links cuBLAS). So each surface gets its OWN shared
 # object linking only its surface's vendor dep, and an UMBRELLA libwwr_capi.so
 # that contains all unit symbols keeps every existing -lwwr_capi consumer (the
-# drivers, the wwr-sys crate, example/capi-consumer) unchanged. Proof: `readelf
-# -d libwwr_capi_complex.so` shows NO cublas; `libwwr_capi_blas.so` DOES.
+# C/Rust drivers via the combined gen/ffi.rs, example/capi-consumer) unchanged.
+# The wwr-sys Rust crate goes further: it is split per surface into Cargo
+# features over the per-unit .so's (src/capi/README.md). Proof: `readelf -d
+# libwwr_capi_complex.so` shows NO cublas; `libwwr_capi_blas.so` DOES.
 #
 # Each unit's thunk compiles ONCE into an OBJECT library (wwr.capi.<unit>.obj)
 # linked into both its own per-unit .so AND the umbrella .so -- so the umbrella

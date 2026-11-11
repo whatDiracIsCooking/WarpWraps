@@ -12,12 +12,26 @@ version = "1.0.0"
 edition = "2021"
 description = "Raw -sys FFI bindings over the wwr C ABI (libwwr_capi.so)"
 license = "MIT"
-# links = the lib the -sys crate owns, so cargo enforces one -sys crate per
-# native lib (the sys-crate convention) and lets a downstream `cargo:` override
-# the lookup. The value is the lib's OUTPUT_NAME (wwr_capi -> libwwr_capi.so),
-# NOT the dotted CMake target wwr.capi -- the same name build.rs passes to
-# rustc-link-lib and ffi.rs's #[link(name = "wwr_capi")]. Keep all three in step
-# with OUTPUT_NAME in src/capi/CMakeLists.txt (the increment-3 naming lesson).
+# links = the native-lib FAMILY the -sys crate owns, so cargo enforces one -sys
+# crate per native lib (the sys-crate convention) and lets a downstream `cargo:`
+# override the lookup. The crate links the PER-UNIT libwwr_capi_<unit>.so's (one
+# per enabled feature, by build.rs) rather than a single lib, but `links` must be
+# ONE token: `wwr_capi` names the family (its OUTPUT_NAMEs all share that stem,
+# matching the C ABI's wwr_ symbol prefix). The per-unit link names build.rs
+# emits are wwr_capi_<unit>, kept in step with OUTPUT_NAME in
+# src/capi/CMakeLists.txt (the increment-3 naming lesson).
 links = "wwr_capi"
+
+# The ABI is split per surface: one Cargo feature per unit, each pulling in its
+# own module (lib.rs) AND its own libwwr_capi_<unit>.so (build.rs). DEFAULT is
+# ALL surfaces, so an existing user who wants everything is unchanged; a user who
+# needs one surface opts down with `default-features = false, features = [...]`,
+# and then links none of the others' vendor deps (a complex-only build -> no
+# cuBLAS). `common` (the shared PODs) is always compiled, so it is NOT a feature.
+[features]
+default = ["complex", "runtime_api", "blas"]
+complex = []
+runtime_api = []
+blas = []
 
 [dependencies]
