@@ -19,11 +19,15 @@ capi representations:
                                                      carried in a sidecar (§4/§12:
                                                      a name does not pin the bytes)
 
-The status slice this PR ships exercises SCALAR, POINTER and ENUM (the vendor
-return type `cudaError_t` / `hipError_t` is the ENUM, mapped to `wwr_status`).
-HANDLE and STRUCT are wired here -- with the sidecar hook -- so #349 (blas) is a
-thin addition: register the handle/enum/struct types a new surface needs and the
-same classifier emits them. Nothing is hard-coded to the runtime surface.
+The runtime status slice exercises SCALAR, POINTER and the status EnumMap (the
+vendor return type `cudaError_t` / `hipError_t`, mapped to `wwr_status`). blas
+(#349) exercises the rest: HANDLE (`cublasHandle_t`/`cudaStream_t` -> void*),
+a VALUE ENUM carried BOTH ways across the boundary (`cublasOperation_t` and the
+rest -- a stable capi enum the thunk maps capi<->neutral, see ValueEnum), and a
+POINTEE POD (`cuComplex *` -> `wwr_complex64 *`, `__half *` -> `wwr_half *`: a
+vendor pointee that keeps a typed, layout-matched capi POD instead of erasing to
+void*, see PointeePOD). Register the types a surface needs and the same
+classifier emits them; nothing is hard-coded to one surface.
 
 The classifier is DATA-DRIVEN: a surface declares its enum-maps, handle types and
 struct layouts; the vendor type names it resolves are supplied by the caller
@@ -128,6 +132,41 @@ class EnumMap:
 
 
 @dataclass(frozen=True)
+class ValueEnum:
+    """A stable capi enum over a vendor enum passed/returned BY VALUE (not an
+    error status -- cublasOperation_t and the FillMode / DiagType / SideMode /
+    PointerMode / compute / datatype / algo family blas forwards). Unlike the
+    status EnumMap (neutral -> stable, one direction, a return), this is a 1:1
+    map the thunk crosses BOTH ways: capi -> neutral for a parameter, neutral ->
+    capi for a return, with an explicit `fallback` enumerator for an unrecognised
+    value. `entries` are (capi_enumerator, neutral wwr constant) pairs and the
+    stable capi VALUES are assigned fixed ascending integers at emit time (the
+    §6 frozen contract); the raw backend value never crosses the boundary, so the
+    two maps compare only the neutral `wwr::<const>` constants and the one source
+    compiles on both backends."""
+
+    vendor_types: tuple[str, ...]
+    capi_type: str
+    wwr_type: str  # the neutral wwr type the maps convert to/from (wwrblasOperation_t)
+    entries: tuple[tuple[str, str], ...]  # (capi_enumerator, wwr_constant)
+    fallback: str  # the capi_enumerator returned for an unrecognised value
+
+
+@dataclass(frozen=True)
+class PointeePOD:
+    """A vendor type that, AS A POINTER, keeps a typed capi POD rather than the
+    `void*` the generic pointer arm erases a vendor pointee to. blas's complex
+    (`cuComplex *` -> `wwr_complex64 *`) and half (`__half *` -> `wwr_half *`)
+    pointer parameters: the POD is layout-identical to the neutral type the wwr
+    function names, so the thunk `reinterpret_cast`s at the boundary (§3/§12) and
+    Rust sees a typed `*mut`/`*const` POD, not an opaque pointer. `capi_pod` is a
+    POD the surface also declares (spec-side), so the header/ffi carry it."""
+
+    vendor_types: tuple[str, ...]
+    capi_pod: str  # the capi POD struct name (without the `*`)
+
+
+@dataclass(frozen=True)
 class Handle:
     """An opaque vendor handle -> `typedef void* capi_type;`. `vendor_types` are
     the backend spellings (e.g. cudaStream_t / hipStream_t) the classifier maps
@@ -165,6 +204,8 @@ class Registry:
     runtime status slice registers exactly one EnumMap (the error enum)."""
 
     enums: list[EnumMap] = field(default_factory=list)
+    value_enums: list[ValueEnum] = field(default_factory=list)
+    pointee_pods: list[PointeePOD] = field(default_factory=list)
     handles: list[Handle] = field(default_factory=list)
     structs: list[Struct] = field(default_factory=list)
 
@@ -181,7 +222,7 @@ _SCALARS = {
     "long long", "unsigned long long", "short", "unsigned short",
     "char", "signed char", "unsigned char", "float", "double",
     "size_t", "unsigned long long int", "int64_t", "uint64_t",
-    "int32_t", "uint32_t", "bool",
+    "int32_t", "uint32_t", "bool", "long long int",
 }
 
 
@@ -189,6 +230,19 @@ def _base(ty: str) -> str:
     """Strip cv-qualifiers and pointer stars to the underlying type name."""
     t = ty.replace("*", " ").replace("const", " ").replace("volatile", " ")
     return _normalise(t)
+
+
+def _reptr(ty: str, capi_base: str) -> str:
+    """Rebuild a pointer type with its vendor base swapped for `capi_base`,
+    preserving the trailing `*`/`const` run so a double pointer stays a double
+    pointer. `cuComplex *const *` with base `wwr_complex64` -> `wwr_complex64
+    *const *`; `const cuComplex *` with the leading const already in `capi_base`
+    -> `const wwr_complex64 *`. The pointer tail is everything from the first `*`
+    on, minus a leading `const` the caller folded into `capi_base`."""
+    tail = ty[ty.index("*"):]
+    tail = re.sub(r"^\s*const\b\s*", "", tail) if capi_base.startswith("const") \
+        else tail
+    return _normalise(f"{capi_base} {tail}")
 
 
 def classify(ty: str, reg: Registry) -> Classified:
@@ -199,19 +253,41 @@ def classify(ty: str, reg: Registry) -> Classified:
     ty = _normalise(ty)
     is_ptr = "*" in ty
     base = _base(ty)
+    # A CONST POINTEE is a `const` before the first `*` (`const T *`); a `const`
+    # AFTER a `*` is a const-qualified POINTER level (`T *const *`), not a const
+    # pointee, and must not be folded into the base spelling.
+    cv = "const " if "const" in ty.split("*", 1)[0] else ""
 
     if is_ptr:
-        # A pointer passes through. A pointer to a scalar keeps its element type;
-        # a pointer to a vendor type is erased to void* (the data is opaque to the
-        # ABI). Const-qualification is preserved in the C spelling.
+        # A pointer to a scalar keeps its element type; a registered POINTEE POD
+        # (complex / half) keeps a typed capi POD; a registered handle or value
+        # enum keeps a pointer to its capi form (an out-parameter: handle out of
+        # Create, stream out of GetStream, mode out of GetPointerMode); any other
+        # vendor pointee is erased to void* (opaque to the ABI). Const-qualification
+        # and pointer depth are preserved in the C spelling.
         if base in _SCALARS:
             return Classified("pointer", ty)
-        cv = "const " if "const" in ty else ""
+        pod = reg._find(reg.pointee_pods, base)
+        if pod is not None:
+            return Classified("pointer_pod",
+                              _reptr(ty, f"{cv}{pod.capi_pod}"), pod)
+        handle = reg._find(reg.handles, base)
+        if handle is not None:
+            return Classified("pointer_handle",
+                              _reptr(ty, f"{cv}{handle.capi_type}"), handle)
+        venum = reg._find(reg.value_enums, base)
+        if venum is not None:
+            return Classified("pointer_enum",
+                              _reptr(ty, f"{cv}{venum.capi_type}"), venum)
         return Classified("pointer", f"{cv}void *")
 
     enum = reg._find(reg.enums, base)
     if enum is not None:
         return Classified("enum", enum.capi_type, enum)
+
+    venum = reg._find(reg.value_enums, base)
+    if venum is not None:
+        return Classified("value_enum", venum.capi_type, venum)
 
     handle = reg._find(reg.handles, base)
     if handle is not None:
