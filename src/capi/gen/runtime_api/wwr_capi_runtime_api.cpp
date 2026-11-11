@@ -23,6 +23,85 @@ wwr_status _map(wwr::wwrError_t e) {
   if (e == wwr::wwrErrorNotSupported) return WWR_STATUS_NOT_SUPPORTED;
   return WWR_STATUS_UNKNOWN;
 }
+wwr::wwrMemcpyKind _to_memcpy_kind(wwr_memcpy_kind x) {
+  switch (x) {
+    case WWR_MEMCPY_HOST_TO_HOST: return wwr::wwrMemcpyHostToHost;
+    case WWR_MEMCPY_HOST_TO_DEVICE: return wwr::wwrMemcpyHostToDevice;
+    case WWR_MEMCPY_DEVICE_TO_HOST: return wwr::wwrMemcpyDeviceToHost;
+    case WWR_MEMCPY_DEVICE_TO_DEVICE: return wwr::wwrMemcpyDeviceToDevice;
+    case WWR_MEMCPY_DEFAULT: return wwr::wwrMemcpyDefault;
+    default: return wwr::wwrMemcpyDefault;
+  }
+}
+wwr::wwrLimit _to_limit(wwr_limit x) {
+  switch (x) {
+    case WWR_LIMIT_STACK_SIZE: return wwr::wwrLimitStackSize;
+    case WWR_LIMIT_PRINTF_FIFO_SIZE: return wwr::wwrLimitPrintfFifoSize;
+    case WWR_LIMIT_MALLOC_HEAP_SIZE: return wwr::wwrLimitMallocHeapSize;
+    default: return wwr::wwrLimitStackSize;
+  }
+}
+wwr::wwrFuncCache _to_func_cache(wwr_func_cache x) {
+  switch (x) {
+    case WWR_FUNC_CACHE_PREFER_NONE: return wwr::wwrFuncCachePreferNone;
+    case WWR_FUNC_CACHE_PREFER_SHARED: return wwr::wwrFuncCachePreferShared;
+    case WWR_FUNC_CACHE_PREFER_L1: return wwr::wwrFuncCachePreferL1;
+    case WWR_FUNC_CACHE_PREFER_EQUAL: return wwr::wwrFuncCachePreferEqual;
+    default: return wwr::wwrFuncCachePreferNone;
+  }
+}
+wwr::wwrFuncAttribute _to_func_attribute(wwr_func_attribute x) {
+  switch (x) {
+    case WWR_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_MEMORY_SIZE: return wwr::wwrFuncAttributeMaxDynamicSharedMemorySize;
+    case WWR_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT: return wwr::wwrFuncAttributePreferredSharedMemoryCarveout;
+    case WWR_FUNC_ATTRIBUTE_MAX: return wwr::wwrFuncAttributeMax;
+    default: return wwr::wwrFuncAttributeMax;
+  }
+}
+wwr::wwrMemPoolAttr _to_mem_pool_attr(wwr_mem_pool_attr x) {
+  switch (x) {
+    case WWR_MEM_POOL_ATTR_RELEASE_THRESHOLD: return wwr::wwrMemPoolAttrReleaseThreshold;
+    case WWR_MEM_POOL_ATTR_RESERVED_MEM_CURRENT: return wwr::wwrMemPoolAttrReservedMemCurrent;
+    case WWR_MEM_POOL_ATTR_RESERVED_MEM_HIGH: return wwr::wwrMemPoolAttrReservedMemHigh;
+    case WWR_MEM_POOL_ATTR_USED_MEM_CURRENT: return wwr::wwrMemPoolAttrUsedMemCurrent;
+    case WWR_MEM_POOL_ATTR_USED_MEM_HIGH: return wwr::wwrMemPoolAttrUsedMemHigh;
+    default: return wwr::wwrMemPoolAttrReleaseThreshold;
+  }
+}
+wwr::wwrMemRangeAttribute _to_mem_range_attribute(wwr_mem_range_attribute x) {
+  switch (x) {
+    case WWR_MEM_RANGE_ATTRIBUTE_READ_MOSTLY: return wwr::wwrMemRangeAttributeReadMostly;
+    case WWR_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION: return wwr::wwrMemRangeAttributePreferredLocation;
+    case WWR_MEM_RANGE_ATTRIBUTE_ACCESSED_BY: return wwr::wwrMemRangeAttributeAccessedBy;
+    case WWR_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION: return wwr::wwrMemRangeAttributeLastPrefetchLocation;
+    default: return wwr::wwrMemRangeAttributeReadMostly;
+  }
+}
+wwr::wwrMemAllocationHandleType _to_mem_allocation_handle_type(wwr_mem_allocation_handle_type x) {
+  switch (x) {
+    case WWR_MEM_HANDLE_TYPE_NONE: return wwr::wwrMemHandleTypeNone;
+    case WWR_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR: return wwr::wwrMemHandleTypePosixFileDescriptor;
+    case WWR_MEM_HANDLE_TYPE_WIN32: return wwr::wwrMemHandleTypeWin32;
+    case WWR_MEM_HANDLE_TYPE_WIN32_KMT: return wwr::wwrMemHandleTypeWin32Kmt;
+    default: return wwr::wwrMemHandleTypeNone;
+  }
+}
+wwr::wwrStreamCaptureMode _to_stream_capture_mode(wwr_stream_capture_mode x) {
+  switch (x) {
+    case WWR_STREAM_CAPTURE_MODE_GLOBAL: return wwr::wwrStreamCaptureModeGlobal;
+    case WWR_STREAM_CAPTURE_MODE_THREAD_LOCAL: return wwr::wwrStreamCaptureModeThreadLocal;
+    case WWR_STREAM_CAPTURE_MODE_RELAXED: return wwr::wwrStreamCaptureModeRelaxed;
+    default: return wwr::wwrStreamCaptureModeGlobal;
+  }
+}
+wwr::wwrDeviceP2PAttr _to_device_p2p_attr(wwr_device_p2p_attr x) {
+  switch (x) {
+    case WWR_DEV_P2P_ATTR_PERFORMANCE_RANK: return wwr::wwrDevP2PAttrPerformanceRank;
+    case WWR_DEV_P2P_ATTR_ACCESS_SUPPORTED: return wwr::wwrDevP2PAttrAccessSupported;
+    case WWR_DEV_P2P_ATTR_NATIVE_ATOMIC_SUPPORTED: return wwr::wwrDevP2PAttrNativeAtomicSupported;
+    default: return wwr::wwrDevP2PAttrPerformanceRank;
+  }
+}
 }  // namespace
 
 extern "C" {
@@ -55,7 +134,7 @@ wwr_status wwr_device_get_by_pci_bus_id(int *device, const char *pciBusId) {
   return _map(_fwd(wwr::wwrDeviceGetByPCIBusId, device, pciBusId));
 }
 
-wwr_status wwr_device_get_cache_config(void *pCacheConfig) {
+wwr_status wwr_device_get_cache_config(wwr_func_cache *pCacheConfig) {
   return _map(_fwd(wwr::wwrDeviceGetCacheConfig, pCacheConfig));
 }
 
@@ -63,8 +142,16 @@ wwr_status wwr_device_get_default_mem_pool(wwr_mem_pool *memPool, int device) {
   return _map(_fwd(wwr::wwrDeviceGetDefaultMemPool, memPool, device));
 }
 
+wwr_status wwr_device_get_limit(size_t *pValue, wwr_limit limit) {
+  return _map(_fwd(wwr::wwrDeviceGetLimit, pValue, _to_limit(limit)));
+}
+
 wwr_status wwr_device_get_mem_pool(wwr_mem_pool *memPool, int device) {
   return _map(_fwd(wwr::wwrDeviceGetMemPool, memPool, device));
+}
+
+wwr_status wwr_device_get_p2_p_attribute(int *value, wwr_device_p2p_attr attr, int srcDevice, int dstDevice) {
+  return _map(_fwd(wwr::wwrDeviceGetP2PAttribute, value, _to_device_p2p_attr(attr), srcDevice, dstDevice));
 }
 
 wwr_status wwr_device_get_pci_bus_id(char *pciBusId, int len, int device) {
@@ -81,6 +168,14 @@ wwr_status wwr_device_get_texture1_d_linear_max_width(size_t *maxWidthInElements
 
 wwr_status wwr_device_reset(void) {
   return _map(wwr::wwrDeviceReset());
+}
+
+wwr_status wwr_device_set_cache_config(wwr_func_cache cacheConfig) {
+  return _map(_fwd(wwr::wwrDeviceSetCacheConfig, _to_func_cache(cacheConfig)));
+}
+
+wwr_status wwr_device_set_limit(wwr_limit limit, size_t value) {
+  return _map(_fwd(wwr::wwrDeviceSetLimit, _to_limit(limit), value));
 }
 
 wwr_status wwr_device_set_mem_pool(int device, wwr_mem_pool memPool) {
@@ -149,6 +244,14 @@ wwr_status wwr_free_mipmapped_array(wwr_mipmapped_array mipmappedArray) {
 
 wwr_status wwr_func_get_attributes(void *attr, const void *func) {
   return _map(_fwd(wwr::wwrFuncGetAttributes, attr, func));
+}
+
+wwr_status wwr_func_set_attribute(const void *func, wwr_func_attribute attr, int value) {
+  return _map(_fwd(wwr::wwrFuncSetAttribute, func, _to_func_attribute(attr), value));
+}
+
+wwr_status wwr_func_set_cache_config(const void *func, wwr_func_cache cacheConfig) {
+  return _map(_fwd(wwr::wwrFuncSetCacheConfig, func, _to_func_cache(cacheConfig)));
 }
 
 wwr_status wwr_get_device(int *device) {
@@ -303,8 +406,20 @@ wwr_status wwr_mem_pool_export_pointer(void *exportData, void *ptr) {
   return _map(_fwd(wwr::wwrMemPoolExportPointer, exportData, ptr));
 }
 
+wwr_status wwr_mem_pool_export_to_shareable_handle(void *shareableHandle, wwr_mem_pool memPool, wwr_mem_allocation_handle_type handleType, unsigned int flags) {
+  return _map(_fwd(wwr::wwrMemPoolExportToShareableHandle, shareableHandle, memPool, _to_mem_allocation_handle_type(handleType), flags));
+}
+
 wwr_status wwr_mem_pool_get_access(void *flags, wwr_mem_pool memPool, void *location) {
   return _map(_fwd(wwr::wwrMemPoolGetAccess, flags, memPool, location));
+}
+
+wwr_status wwr_mem_pool_get_attribute(wwr_mem_pool memPool, wwr_mem_pool_attr attr, void *value) {
+  return _map(_fwd(wwr::wwrMemPoolGetAttribute, memPool, _to_mem_pool_attr(attr), value));
+}
+
+wwr_status wwr_mem_pool_import_from_shareable_handle(wwr_mem_pool *memPool, void *shareableHandle, wwr_mem_allocation_handle_type handleType, unsigned int flags) {
+  return _map(_fwd(wwr::wwrMemPoolImportFromShareableHandle, memPool, shareableHandle, _to_mem_allocation_handle_type(handleType), flags));
 }
 
 wwr_status wwr_mem_pool_import_pointer(void **ptr, wwr_mem_pool memPool, void *exportData) {
@@ -315,12 +430,40 @@ wwr_status wwr_mem_pool_set_access(wwr_mem_pool memPool, const void *descList, s
   return _map(_fwd(wwr::wwrMemPoolSetAccess, memPool, descList, count));
 }
 
+wwr_status wwr_mem_pool_set_attribute(wwr_mem_pool memPool, wwr_mem_pool_attr attr, void *value) {
+  return _map(_fwd(wwr::wwrMemPoolSetAttribute, memPool, _to_mem_pool_attr(attr), value));
+}
+
 wwr_status wwr_mem_pool_trim_to(wwr_mem_pool memPool, size_t minBytesToKeep) {
   return _map(_fwd(wwr::wwrMemPoolTrimTo, memPool, minBytesToKeep));
 }
 
-wwr_status wwr_mem_range_get_attributes(void **data, size_t *dataSizes, void *attributes, size_t numAttributes, const void *devPtr, size_t count) {
+wwr_status wwr_mem_range_get_attribute(void *data, size_t dataSize, wwr_mem_range_attribute attribute, const void *devPtr, size_t count) {
+  return _map(_fwd(wwr::wwrMemRangeGetAttribute, data, dataSize, _to_mem_range_attribute(attribute), devPtr, count));
+}
+
+wwr_status wwr_mem_range_get_attributes(void **data, size_t *dataSizes, wwr_mem_range_attribute *attributes, size_t numAttributes, const void *devPtr, size_t count) {
   return _map(_fwd(wwr::wwrMemRangeGetAttributes, data, dataSizes, attributes, numAttributes, devPtr, count));
+}
+
+wwr_status wwr_memcpy(void *dst, const void *src, size_t count, wwr_memcpy_kind kind) {
+  return _map(_fwd(wwr::wwrMemcpy, dst, src, count, _to_memcpy_kind(kind)));
+}
+
+wwr_status wwr_memcpy2_d(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, wwr_memcpy_kind kind) {
+  return _map(_fwd(wwr::wwrMemcpy2D, dst, dpitch, src, spitch, width, height, _to_memcpy_kind(kind)));
+}
+
+wwr_status wwr_memcpy2_d_async(void *dst, size_t dpitch, const void *src, size_t spitch, size_t width, size_t height, wwr_memcpy_kind kind, wwr_stream stream) {
+  return _map(_fwd(wwr::wwrMemcpy2DAsync, dst, dpitch, src, spitch, width, height, _to_memcpy_kind(kind), stream));
+}
+
+wwr_status wwr_memcpy2_d_to_array(wwr_array dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, wwr_memcpy_kind kind) {
+  return _map(_fwd(wwr::wwrMemcpy2DToArray, dst, wOffset, hOffset, src, spitch, width, height, _to_memcpy_kind(kind)));
+}
+
+wwr_status wwr_memcpy2_d_to_array_async(wwr_array dst, size_t wOffset, size_t hOffset, const void *src, size_t spitch, size_t width, size_t height, wwr_memcpy_kind kind, wwr_stream stream) {
+  return _map(_fwd(wwr::wwrMemcpy2DToArrayAsync, dst, wOffset, hOffset, src, spitch, width, height, _to_memcpy_kind(kind), stream));
 }
 
 wwr_status wwr_memcpy3_d(const void *p) {
@@ -339,12 +482,32 @@ wwr_status wwr_memcpy3_d_peer_async(const void *p, wwr_stream stream) {
   return _map(_fwd(wwr::wwrMemcpy3DPeerAsync, p, stream));
 }
 
+wwr_status wwr_memcpy_async(void *dst, const void *src, size_t count, wwr_memcpy_kind kind, wwr_stream stream) {
+  return _map(_fwd(wwr::wwrMemcpyAsync, dst, src, count, _to_memcpy_kind(kind), stream));
+}
+
+wwr_status wwr_memcpy_from_symbol(void *dst, const void *symbol, size_t count, size_t offset, wwr_memcpy_kind kind) {
+  return _map(_fwd(wwr::wwrMemcpyFromSymbol, dst, symbol, count, offset, _to_memcpy_kind(kind)));
+}
+
+wwr_status wwr_memcpy_from_symbol_async(void *dst, const void *symbol, size_t count, size_t offset, wwr_memcpy_kind kind, wwr_stream stream) {
+  return _map(_fwd(wwr::wwrMemcpyFromSymbolAsync, dst, symbol, count, offset, _to_memcpy_kind(kind), stream));
+}
+
 wwr_status wwr_memcpy_peer(void *dst, int dstDevice, const void *src, int srcDevice, size_t count) {
   return _map(_fwd(wwr::wwrMemcpyPeer, dst, dstDevice, src, srcDevice, count));
 }
 
 wwr_status wwr_memcpy_peer_async(void *dst, int dstDevice, const void *src, int srcDevice, size_t count, wwr_stream stream) {
   return _map(_fwd(wwr::wwrMemcpyPeerAsync, dst, dstDevice, src, srcDevice, count, stream));
+}
+
+wwr_status wwr_memcpy_to_symbol(const void *symbol, const void *src, size_t count, size_t offset, wwr_memcpy_kind kind) {
+  return _map(_fwd(wwr::wwrMemcpyToSymbol, symbol, src, count, offset, _to_memcpy_kind(kind)));
+}
+
+wwr_status wwr_memcpy_to_symbol_async(const void *symbol, const void *src, size_t count, size_t offset, wwr_memcpy_kind kind, wwr_stream stream) {
+  return _map(_fwd(wwr::wwrMemcpyToSymbolAsync, symbol, src, count, offset, _to_memcpy_kind(kind), stream));
 }
 
 wwr_status wwr_memset(void *devPtr, int value, size_t count) {
@@ -399,6 +562,10 @@ wwr_status wwr_stream_attach_mem_async(wwr_stream stream, void *devPtr, size_t l
   return _map(_fwd(wwr::wwrStreamAttachMemAsync, stream, devPtr, length, flags));
 }
 
+wwr_status wwr_stream_begin_capture(wwr_stream stream, wwr_stream_capture_mode mode) {
+  return _map(_fwd(wwr::wwrStreamBeginCapture, stream, _to_stream_capture_mode(mode)));
+}
+
 wwr_status wwr_stream_create(wwr_stream *pStream) {
   return _map(_fwd(wwr::wwrStreamCreate, pStream));
 }
@@ -451,7 +618,7 @@ wwr_status wwr_stream_wait_event(wwr_stream stream, wwr_event event, unsigned in
   return _map(_fwd(wwr::wwrStreamWaitEvent, stream, event, flags));
 }
 
-wwr_status wwr_thread_exchange_stream_capture_mode(void *mode) {
+wwr_status wwr_thread_exchange_stream_capture_mode(wwr_stream_capture_mode *mode) {
   return _map(_fwd(wwr::wwrThreadExchangeStreamCaptureMode, mode));
 }
 

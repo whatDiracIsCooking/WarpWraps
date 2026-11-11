@@ -35,7 +35,7 @@ vendor manifest. It stays a documented hand-written special case in
 
 from __future__ import annotations
 
-from captypes import EnumMap, Handle
+from captypes import EnumMap, Handle, ValueEnum
 
 # The fragment this surface sources its names from (relative to src/).
 FRAGMENT = "detail/runtime_api_names.h"
@@ -107,3 +107,154 @@ STATUS = EnumMap(
         ("WWR_STATUS_NOT_SUPPORTED", "wwrErrorNotSupported"),
     ),
 )
+
+# The by-value VALUE ENUMS the runtime surface forwards (#373, "bucket C"). Each
+# is the §6 shape blas's Operation / FillMode already use: a stable capi enum
+# with fixed ascending values the thunk maps capi<->neutral at the boundary,
+# comparing ONLY the neutral wwr:: constants, so the one source compiles on both
+# backends and the raw backend value (which can DIFFER -- DeviceP2PAttr is 1/2/3
+# on CUDA, 0/1/2 on HIP) never crosses the boundary. Unlike the status EnumMap
+# above (returned one way, neutral -> stable), these cross as a parameter
+# (capi -> neutral), so they are a ValueEnum, not an EnumMap.
+#
+# Each entries pair is (capi_enumerator, neutral wwr constant); every neutral
+# constant is a WWR_RT_VALUE entry the fragment already carries (so the generator
+# cross-checks its value against both manifests), and the neutral wwr_type is a
+# WWR_RT_TYPE the fragment declares. A vendor enum whose neutral TYPE or whose
+# enumerator set the fragment does NOT carry (cudaDeviceAttr -- no fragment
+# constants; cudaLaunchAttributeID -- its functions also take the
+# cudaLaunchAttributeValue union, inexpressible) stays a logged skip (bucket D).
+
+MEMCPY_KIND = ValueEnum(
+    vendor_types=("cudaMemcpyKind", "hipMemcpyKind", "wwrMemcpyKind"),
+    capi_type="wwr_memcpy_kind",
+    wwr_type="wwrMemcpyKind",
+    fallback="WWR_MEMCPY_DEFAULT",
+    entries=(
+        ("WWR_MEMCPY_HOST_TO_HOST", "wwrMemcpyHostToHost"),
+        ("WWR_MEMCPY_HOST_TO_DEVICE", "wwrMemcpyHostToDevice"),
+        ("WWR_MEMCPY_DEVICE_TO_HOST", "wwrMemcpyDeviceToHost"),
+        ("WWR_MEMCPY_DEVICE_TO_DEVICE", "wwrMemcpyDeviceToDevice"),
+        ("WWR_MEMCPY_DEFAULT", "wwrMemcpyDefault"),
+    ),
+)
+
+LIMIT = ValueEnum(
+    vendor_types=("cudaLimit", "hipLimit_t", "wwrLimit"),
+    capi_type="wwr_limit",
+    wwr_type="wwrLimit",
+    fallback="WWR_LIMIT_STACK_SIZE",
+    entries=(
+        ("WWR_LIMIT_STACK_SIZE", "wwrLimitStackSize"),
+        ("WWR_LIMIT_PRINTF_FIFO_SIZE", "wwrLimitPrintfFifoSize"),
+        ("WWR_LIMIT_MALLOC_HEAP_SIZE", "wwrLimitMallocHeapSize"),
+    ),
+)
+
+FUNC_CACHE = ValueEnum(
+    vendor_types=("cudaFuncCache", "hipFuncCache_t", "wwrFuncCache"),
+    capi_type="wwr_func_cache",
+    wwr_type="wwrFuncCache",
+    fallback="WWR_FUNC_CACHE_PREFER_NONE",
+    entries=(
+        ("WWR_FUNC_CACHE_PREFER_NONE", "wwrFuncCachePreferNone"),
+        ("WWR_FUNC_CACHE_PREFER_SHARED", "wwrFuncCachePreferShared"),
+        ("WWR_FUNC_CACHE_PREFER_L1", "wwrFuncCachePreferL1"),
+        ("WWR_FUNC_CACHE_PREFER_EQUAL", "wwrFuncCachePreferEqual"),
+    ),
+)
+
+FUNC_ATTRIBUTE = ValueEnum(
+    vendor_types=("cudaFuncAttribute", "hipFuncAttribute", "wwrFuncAttribute"),
+    capi_type="wwr_func_attribute",
+    wwr_type="wwrFuncAttribute",
+    fallback="WWR_FUNC_ATTRIBUTE_MAX",
+    entries=(
+        ("WWR_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_MEMORY_SIZE",
+         "wwrFuncAttributeMaxDynamicSharedMemorySize"),
+        ("WWR_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT",
+         "wwrFuncAttributePreferredSharedMemoryCarveout"),
+        ("WWR_FUNC_ATTRIBUTE_MAX", "wwrFuncAttributeMax"),
+    ),
+)
+
+MEM_POOL_ATTR = ValueEnum(
+    vendor_types=("cudaMemPoolAttr", "hipMemPoolAttr", "wwrMemPoolAttr"),
+    capi_type="wwr_mem_pool_attr",
+    wwr_type="wwrMemPoolAttr",
+    fallback="WWR_MEM_POOL_ATTR_RELEASE_THRESHOLD",
+    entries=(
+        ("WWR_MEM_POOL_ATTR_RELEASE_THRESHOLD",
+         "wwrMemPoolAttrReleaseThreshold"),
+        ("WWR_MEM_POOL_ATTR_RESERVED_MEM_CURRENT",
+         "wwrMemPoolAttrReservedMemCurrent"),
+        ("WWR_MEM_POOL_ATTR_RESERVED_MEM_HIGH",
+         "wwrMemPoolAttrReservedMemHigh"),
+        ("WWR_MEM_POOL_ATTR_USED_MEM_CURRENT", "wwrMemPoolAttrUsedMemCurrent"),
+        ("WWR_MEM_POOL_ATTR_USED_MEM_HIGH", "wwrMemPoolAttrUsedMemHigh"),
+    ),
+)
+
+MEM_RANGE_ATTRIBUTE = ValueEnum(
+    vendor_types=("cudaMemRangeAttribute", "hipMemRangeAttribute",
+                  "wwrMemRangeAttribute"),
+    capi_type="wwr_mem_range_attribute",
+    wwr_type="wwrMemRangeAttribute",
+    fallback="WWR_MEM_RANGE_ATTRIBUTE_READ_MOSTLY",
+    entries=(
+        ("WWR_MEM_RANGE_ATTRIBUTE_READ_MOSTLY",
+         "wwrMemRangeAttributeReadMostly"),
+        ("WWR_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION",
+         "wwrMemRangeAttributePreferredLocation"),
+        ("WWR_MEM_RANGE_ATTRIBUTE_ACCESSED_BY",
+         "wwrMemRangeAttributeAccessedBy"),
+        ("WWR_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION",
+         "wwrMemRangeAttributeLastPrefetchLocation"),
+    ),
+)
+
+MEM_ALLOCATION_HANDLE_TYPE = ValueEnum(
+    vendor_types=("cudaMemAllocationHandleType", "hipMemAllocationHandleType",
+                  "wwrMemAllocationHandleType"),
+    capi_type="wwr_mem_allocation_handle_type",
+    wwr_type="wwrMemAllocationHandleType",
+    fallback="WWR_MEM_HANDLE_TYPE_NONE",
+    entries=(
+        ("WWR_MEM_HANDLE_TYPE_NONE", "wwrMemHandleTypeNone"),
+        ("WWR_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR",
+         "wwrMemHandleTypePosixFileDescriptor"),
+        ("WWR_MEM_HANDLE_TYPE_WIN32", "wwrMemHandleTypeWin32"),
+        ("WWR_MEM_HANDLE_TYPE_WIN32_KMT", "wwrMemHandleTypeWin32Kmt"),
+    ),
+)
+
+STREAM_CAPTURE_MODE = ValueEnum(
+    vendor_types=("cudaStreamCaptureMode", "hipStreamCaptureMode",
+                  "wwrStreamCaptureMode"),
+    capi_type="wwr_stream_capture_mode",
+    wwr_type="wwrStreamCaptureMode",
+    fallback="WWR_STREAM_CAPTURE_MODE_GLOBAL",
+    entries=(
+        ("WWR_STREAM_CAPTURE_MODE_GLOBAL", "wwrStreamCaptureModeGlobal"),
+        ("WWR_STREAM_CAPTURE_MODE_THREAD_LOCAL",
+         "wwrStreamCaptureModeThreadLocal"),
+        ("WWR_STREAM_CAPTURE_MODE_RELAXED", "wwrStreamCaptureModeRelaxed"),
+    ),
+)
+
+DEVICE_P2P_ATTR = ValueEnum(
+    vendor_types=("cudaDeviceP2PAttr", "hipDeviceP2PAttr", "wwrDeviceP2PAttr"),
+    capi_type="wwr_device_p2p_attr",
+    wwr_type="wwrDeviceP2PAttr",
+    fallback="WWR_DEV_P2P_ATTR_PERFORMANCE_RANK",
+    entries=(
+        ("WWR_DEV_P2P_ATTR_PERFORMANCE_RANK", "wwrDevP2PAttrPerformanceRank"),
+        ("WWR_DEV_P2P_ATTR_ACCESS_SUPPORTED", "wwrDevP2PAttrAccessSupported"),
+        ("WWR_DEV_P2P_ATTR_NATIVE_ATOMIC_SUPPORTED",
+         "wwrDevP2PAttrNativeAtomicSupported"),
+    ),
+)
+
+VALUE_ENUMS = [MEMCPY_KIND, LIMIT, FUNC_CACHE, FUNC_ATTRIBUTE, MEM_POOL_ATTR,
+               MEM_RANGE_ATTRIBUTE, MEM_ALLOCATION_HANDLE_TYPE,
+               STREAM_CAPTURE_MODE, DEVICE_P2P_ATTR]

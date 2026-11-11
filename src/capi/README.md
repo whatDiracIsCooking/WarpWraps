@@ -95,13 +95,15 @@ reuses as-is:
 | by-value struct | a capi POD whose **layout** is carried in a sidecar (`captypes.Struct`), the one datum a name/`decl` must not pin for ABI (§4/§12) |
 
 A surface declares what it needs in a tiny spec: `spec/runtime_status.py` names
-the fragment, the opaque runtime handles (stream / event / graph / … → `void*`)
-and registers the one `EnumMap` (`wwrError_t` → `wwr_status`). It no longer lists
-its functions — the generator SWEEPS the whole `runtime_api_names.h` fragment and
-classifies each, wrapping ~98 and skipping the rest with a logged reason (a
-by-value enum whose neutral constants the fragment does not carry, a descriptor
-struct, a function-pointer / kernel-launch parameter, or a backend arity
-divergence — see "What this does not cover"). **`spec/blas.py` exercises the
+the fragment, the opaque runtime handles (stream / event / graph / … → `void*`),
+registers the one `EnumMap` (`wwrError_t` → `wwr_status`) AND the by-value
+`ValueEnum`s (`wwr_memcpy_kind` + the device / func / pool / range attribute
+selectors, #373). It no longer lists its functions — the generator SWEEPS the
+whole `runtime_api_names.h` fragment and classifies each, wrapping ~131 and
+skipping the rest with a logged reason (a by-value descriptor struct, a
+function-pointer / kernel-launch parameter, a backend arity divergence, or an
+enum the fragment cannot back — see "What this does not cover").
+**`spec/blas.py` exercises the
 rest** (#349): it
 takes the *whole* curated `blas_names.h` fragment and registers the vendor-free
 types blas forces — the two `Handle`s (`wwrblasHandle_t` / stream → `void*`),
@@ -500,16 +502,21 @@ never for an additive change. See architecture.md §21.
   Every other surface is fragment-sourced; see "How the surface is sourced"
   (architecture.md §25, #346).
 - **Parts of `runtime_api` are skipped, loudly.** The sweep wraps the
-  host-callable runtime that classifies cleanly (109 functions) and SKIPS, with a
-  logged reason the generator prints, any function that takes a by-value enum
-  whose neutral enumerator constants the fragment does not yet carry (the
-  `cudaMemcpyKind` / attribute families — a later increment can add those
-  constants to `runtime_api_names.h`), a by-value descriptor struct
-  (`cudaMemcpy3DParms`, `cudaExtent`), a function-pointer or kernel-`void**`
-  launch parameter (`cudaStreamAddCallback`, `cudaLaunchKernel`), a type whose
-  ABI diverges between backends (`cudaTextureObject_t` is a 64-bit integer on
-  CUDA but a pointer on HIP), or a call the two backends give different arity.
-  None is silently dropped.
+  host-callable runtime that classifies cleanly (131 functions) and SKIPS, with a
+  logged reason the generator prints, any function that takes a by-value
+  **descriptor struct** (`cudaMemcpy3DParms`, `cudaExtent`, `cudaPitchedPtr`), a
+  **function-pointer** or kernel-`void**` launch parameter
+  (`cudaStreamAddCallback`, `cudaLaunchKernel`), a type whose **ABI diverges
+  between backends** (`cudaTextureObject_t` is a 64-bit integer on CUDA but a
+  pointer on HIP), or a call the two backends give different **arity**. The
+  by-value **enum** families (`cudaMemcpyKind` and the device / func / pool /
+  range attribute selectors) are now registered as stable §6 `ValueEnum`s (#373),
+  so the memcpy family and the attribute getters/setters wrap; what remains in
+  that bucket is only the two enums the fragment cannot back —
+  `cudaDeviceAttr` (no fragment constants) — and functions whose enum is
+  registrable but a *sibling* parameter is not (`cudaMemAdvise` also takes
+  `cudaMemLocation` by value; `cudaStream{Get,Set}Attribute` also take the
+  `cudaLaunchAttributeValue` union). None is silently dropped.
 - **Two `ccl` communicator inits are skipped** (`ncclCommInitRank` /
   `ncclCommInitRankConfig`): they take `ncclUniqueId` BY VALUE, a 128-byte opaque
   blob with no vendor-free POD the generic path builds. The pointer-form inits
@@ -546,15 +553,24 @@ The gaps bucket as:
 |---|---|---|
 | **A** parser blind spot | a hand-written forwarder the parser never saw | **FIXED** — parser sees both forms; 17 runtime_api + 1 tensor recovered or now-logged |
 | **B** classifier hole, mechanical | `void**`/`T**` out-param dropping depth | **FIXED** — depth preserved; recovers the malloc family, corrects 4 wrong sigs |
-| **C** registration incomplete | a by-value enum / neutral type a surface has not registered | PARTLY — neutral handle/status spellings registered (unblocks the forwarders); the `cudaMemcpyKind` / attribute enum families are deferred |
-| **D** genuinely unwrappable | function pointer, kernel `void**` launch, by-value descriptor struct, backend ABI/arity divergence, a backend-divergent status-string switch | ACCEPTED — each is a LOGGED skip with its reason |
+| **C** registration incomplete | a by-value enum / neutral type a surface has not registered | **FIXED** (#373) — `wwr_memcpy_kind` + 8 device/func/pool/range attribute `ValueEnum`s registered in `runtime_status.py`; recovers the memcpy family (incl. the symbol copies) and the attribute getters/setters, +22 runtime_api functions (109 → 131). What's left re-buckets to D (below) |
+| **D** genuinely unwrappable | function pointer, kernel `void**` launch, by-value descriptor struct, backend ABI/arity divergence, a backend-divergent status-string switch, OR an enum the fragment cannot back / a registrable enum blocked by a sibling struct-or-union param | ACCEPTED — each is a LOGGED skip with its reason |
 
 **Deferred / accepted, with the reason (all LOGGED, none silent):**
 
-- `wwrMemcpyToSymbol` / `FromSymbol` / their Async pair — take `wwrMemcpyKind` by
-  value, a neutral enum no surface has registered as a `ValueEnum` (bucket C; a
-  later increment registers the `cudaMemcpyKind` family, which also unblocks
-  `cudaMemcpy` / `cudaMemcpyAsync`).
+- `wwrMemcpy` / `MemcpyAsync` / the 2D variants and `wwrMemcpyToSymbol` /
+  `FromSymbol` / their Async pair — **now WRAPPED** (#373): `cudaMemcpyKind` /
+  `wwrMemcpyKind` is registered as the stable `wwr_memcpy_kind` `ValueEnum`, so
+  `kind` crosses the boundary as a fixed-value capi enum the thunk maps to the
+  neutral `wwr::wwrMemcpy*` constants (§6), not a raw int.
+- `wwrMemAdvise` — enum `cudaMemoryAdvise` IS registrable, but the function also
+  takes `cudaMemLocation` BY VALUE (bucket D: by-value descriptor struct).
+- `wwrStreamGetAttribute` / `SetAttribute` — enum `cudaLaunchAttributeID` is
+  registrable, but both also take the `cudaLaunchAttributeValue` UNION by value /
+  pointer (bucket D: no vendor-free POD layout).
+- `wwrDeviceGetAttribute` — `cudaDeviceAttr` has hundreds of enumerators and NONE
+  is a fragment `WWR_RT_VALUE` entry, so there is no neutral constant set to map
+  (bucket D: enum the fragment cannot back).
 - `wwrLaunchCooperativeKernel` — takes `dim3` (bucket D: a by-value launch-geometry
   struct, the kernel-launch family).
 - `wwrCreateChannelDesc` — RETURNS `wwrChannelFormatDesc` by value and takes
@@ -562,6 +578,6 @@ The gaps bucket as:
 - `wwrfftGetStatusName` / `String`, `wwrsolverGetStatusName` / `String` — backend-
   divergent enumerator-set switches with no sound 1:1 neutral map (bucket D,
   explicit_skips; §6). Reached through the raw module.
-- The pre-existing `runtime_api` by-value-enum / descriptor-struct / function-
-  pointer / arity-divergence skips, and the two `ccl` `ncclUniqueId`-by-value
-  inits — unchanged (bucket C/D, already logged above).
+- The remaining `runtime_api` descriptor-struct / function-pointer /
+  arity-divergence skips, and the two `ccl` `ncclUniqueId`-by-value inits —
+  unchanged (bucket D, already logged above).
