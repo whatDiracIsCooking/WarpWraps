@@ -1,18 +1,31 @@
-"""The `runtime_api` status slice as a FRAGMENT-SOURCED surface.
+"""The `runtime_api` surface as a FRAGMENT-SOURCED surface.
 
-This is the thin per-surface definition the fragment-sourcing path needs, and the
-shape #349 (blas) copies. It carries NO signatures and NO vendor names: it names
+This is the thin per-surface definition the fragment-sourcing path needs. It
+carries NO signatures and NO vendor names: it names
 
   * the fragment to source from (`detail/runtime_api_names.h`),
-  * which fragment entries to expose and the capi name each gets, and
+  * the opaque handles the runtime surface forces (stream / event / mem-pool /
+    graph / array / library / user-object -> `void*`), and
   * the one thing a name cannot carry -- the stable `wwr_status` enum map (§6).
 
-Everything else -- each function's signature, the enum's backend values -- is
-cross-referenced at generate time from the fragment (names) and the vendor
-manifests (signatures / values). Delete `RuntimeGetVersion` from the fragment
-and it drops from the generated header/thunk/`ffi.rs`; that is the drift the
-hand-written `spec/complex.py` restatement could not prevent (architecture.md
-§25, #328).
+Unlike the vendor-library surfaces (spec/blas.py and the milestone-#6 four), this
+one does NOT enumerate its functions: #348 wraps the WHOLE host-callable runtime,
+so the generator sweeps EVERY `WWR_RT_FUNCTION` / `WWR_FUNCTION_RAW` entry in the
+fragment and classifies each against the manifests. A function the classifier
+cannot represent -- an enum passed BY VALUE whose neutral enumerator constants the
+fragment does not carry, a by-value descriptor struct (`cudaMemcpy3DParms`,
+`cudaExtent`), a function-pointer parameter (`cudaStreamCallback_t` /
+`cudaHostFn_t`), a kernel `void**` launch, or a type whose ABI diverges between
+backends (`cudaTextureObject_t` is a 64-bit integer on CUDA but a pointer on HIP)
+-- is SKIPPED with a logged reason, never silently dropped (the milestone's NO
+SILENT DROPS rule). The status slice that first shipped here (#336: version /
+device-count / set-device) is a strict subset of this sweep, and its three capi
+names are unchanged (the snake transform is stable), so the ABI does not break.
+
+Everything runtime_api executes that touches a device runs on the DEVICE at call
+time, but the surface itself is host-callable (cudart / amdhip do not probe a GPU
+on load), so the thunks are link-checked on no-GPU CI and the host-safe slice
+(version / device count) runs there too.
 
 `complex` is NOT sourced this way: its thunks forward into wwr-AUTHORED inline
 wrappers (`wwr::wwrCaddf`), which are not vendor functions and so appear in no
@@ -22,19 +35,46 @@ vendor manifest. It stays a documented hand-written special case in
 
 from __future__ import annotations
 
-from captypes import EnumMap
+from captypes import EnumMap, Handle
 
 # The fragment this surface sources its names from (relative to src/).
 FRAGMENT = "detail/runtime_api_names.h"
 
-# The functions to expose, as (capi_name, fragment_wwr_name). The signature of
-# each is read from the vendor manifest via the fragment's per-backend spelling;
-# none is written here. These three are the status slice (#329 increment 2) --
-# each returns the vendor error enum, mapped to wwr_status below.
-FUNCTIONS = [
-    ("wwr_runtime_get_version", "wwrRuntimeGetVersion"),
-    ("wwr_get_device_count", "wwrGetDeviceCount"),
-    ("wwr_set_device", "wwrSetDevice"),
+# The wwr-name prefix stripped before the snake_case capi transform, and the capi
+# prefix re-glued on. `wwrRuntimeGetVersion` -> `wwr_runtime_get_version`,
+# `wwrStreamCreateWithFlags` -> `wwr_stream_create_with_flags`. The three status
+# slice names (#336) transform to exactly what shipped, so the ABI is unchanged.
+PREFIX = "wwr"
+CAPI_PREFIX = "wwr_"
+
+# The opaque runtime handles -> `void*`. Each is a vendor POINTER typedef on BOTH
+# backends (verified against the manifests), so erasing it to a vendor-free
+# `void*` is sound -- the thunk C-style-casts at the boundary. The texture /
+# surface object types are DELIBERATELY ABSENT: `cudaTextureObject_t` /
+# `cudaSurfaceObject_t` are a 64-bit integer on CUDA but a pointer on HIP (the
+# BaseHandle two-liveness-paths divergence, see detail/runtime_api_names.h), so
+# they are not one vendor-free handle, and the few functions that take them are
+# skipped by the generator.
+HANDLES = [
+    Handle(vendor_types=("cudaStream_t", "hipStream_t"), capi_type="wwr_stream"),
+    Handle(vendor_types=("cudaEvent_t", "hipEvent_t"), capi_type="wwr_event"),
+    Handle(vendor_types=("cudaMemPool_t", "hipMemPool_t"),
+           capi_type="wwr_mem_pool"),
+    Handle(vendor_types=("cudaGraph_t", "hipGraph_t"), capi_type="wwr_graph"),
+    Handle(vendor_types=("cudaGraphExec_t", "hipGraphExec_t"),
+           capi_type="wwr_graph_exec"),
+    Handle(vendor_types=("cudaArray_t", "hipArray_t"), capi_type="wwr_array"),
+    Handle(vendor_types=("cudaArray_const_t", "hipArray_const_t"),
+           capi_type="wwr_array_const"),
+    Handle(vendor_types=("cudaMipmappedArray_t", "hipMipmappedArray_t"),
+           capi_type="wwr_mipmapped_array"),
+    Handle(vendor_types=("cudaMipmappedArray_const_t",
+                         "hipMipmappedArray_const_t"),
+           capi_type="wwr_mipmapped_array_const"),
+    Handle(vendor_types=("cudaLibrary_t", "hipLibrary_t"),
+           capi_type="wwr_library"),
+    Handle(vendor_types=("cudaUserObject_t", "hipUserObject_t"),
+           capi_type="wwr_user_object"),
 ]
 
 # The stable status enum (§6). The vendor return type cudaError_t / hipError_t is

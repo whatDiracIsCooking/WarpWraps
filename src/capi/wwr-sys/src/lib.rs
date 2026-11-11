@@ -22,6 +22,8 @@
 //! | `bf16`        | [`bf16`]              | `libwwr_capi_bf16.so` (no vendor math lib; bfloat16 type) |
 //! | `vector_types`| [`vector_types`]      | `libwwr_capi_vector_types.so` (no vendor math lib; vector types) |
 //! | `fp8`         | [`fp8`]               | `libwwr_capi_fp8.so` (no vendor math lib; fp8 type) |
+//! | `tx`          | [`tx`]                | `libwwr_capi_tx.so` -> NVTX (header-only) / rocTX |
+//! | `ccl`         | [`ccl`]               | `libwwr_capi_ccl.so` -> NCCL / RCCL |
 //!
 //! ALL are default features, so an existing user who wants the whole ABI
 //! is unchanged -- they just transparently link the per-unit `.so`s instead of
@@ -125,6 +127,16 @@ pub use vector_types::*;
 pub mod fp8;
 #[cfg(feature = "fp8")]
 pub use fp8::*;
+
+#[cfg(feature = "tx")]
+pub mod tx;
+#[cfg(feature = "tx")]
+pub use tx::*;
+
+#[cfg(feature = "ccl")]
+pub mod ccl;
+#[cfg(feature = "ccl")]
+pub use ccl::*;
 
 #[cfg(test)]
 mod tests {

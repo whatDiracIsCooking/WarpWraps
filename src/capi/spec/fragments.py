@@ -56,6 +56,19 @@ _RAW = re.compile(
     r"\bWWR_(TYPE|VALUE|FUNCTION)_RAW\s*\(\s*"
     r"([A-Za-z0-9_]+)\s*,\s*([A-Za-z0-9_]+)\s*,\s*([A-Za-z0-9_]+)\s*\)"
 )
+# The PLAIN three-argument form WWR_TYPE / WWR_VALUE / WWR_FUNCTION(wwrX, cudaX,
+# hipX), used by a surface that defines its names IN its module .cppm against an
+# IMPORTED raw vendor module (wwr.ccl over wwr.cuda.nccl) rather than in a
+# separate detail/*_names.h against the vendor header's `::` names (the blas
+# shape). It carries all three spellings literally, exactly like `_RAW`; the ABI
+# generator only needs the vendor column to key the manifest and the wwr column
+# to forward into, so sourcing a surface straight from its .cppm keeps that file
+# the single source (no duplicate detail/ fragment to drift). The `(?!_RAW)`
+# guard stops this from also matching the `_RAW` spellings above.
+_PLAIN = re.compile(
+    r"\bWWR_(TYPE|VALUE|FUNCTION)(?!_RAW)\s*\(\s*"
+    r"([A-Za-z0-9_]+)\s*,\s*([A-Za-z0-9_]+)\s*,\s*([A-Za-z0-9_]+)\s*\)"
+)
 
 
 def _strip_comments(text: str) -> str:
@@ -69,7 +82,7 @@ def _strip_comments(text: str) -> str:
 def parse(fragment: Path) -> dict[str, Entry]:
     """Every `WWR_*` entry in `fragment`, keyed by its neutral `wwr` name. The
     convenience form expands exactly as the macro does (stem + per-backend
-    prefix); the `_RAW` form is taken literally."""
+    prefix); the `_RAW` and PLAIN three-argument forms are taken literally."""
     body = _strip_comments(fragment.read_text())
     out: dict[str, Entry] = {}
 
@@ -78,6 +91,9 @@ def parse(fragment: Path) -> dict[str, Entry]:
         out[f"wwr{stem}"] = Entry(k, f"wwr{stem}", f"cuda{stem}", f"hip{stem}")
 
     for kind, wwr, cuda, hip in _RAW.findall(body):
+        out[wwr] = Entry(_KINDS[kind], wwr, cuda, hip)
+
+    for kind, wwr, cuda, hip in _PLAIN.findall(body):
         out[wwr] = Entry(_KINDS[kind], wwr, cuda, hip)
 
     return out

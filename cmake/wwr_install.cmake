@@ -249,16 +249,22 @@ function(_wwr_install_capi)
   # WWR_WITH_* gates (the wwr.tensor / wwr.comp modules they import exist only
   # then), so install them only when built -- the same gating src/CMakeLists.txt
   # carries on the module targets.
+  # tx builds unconditionally like sparse / fft (wwr.tx has no WWR_WITH_* gate);
+  # ccl only under WWR_WITH_CCL (the wwr.ccl module it imports exists only
+  # then), the same gating as tensor / comp.
   set(_capi_targets
       wwr.capi wwr.capi.complex wwr.capi.runtime_api wwr.capi.blas
       wwr.capi.blaslt wwr.capi.solver wwr.capi.rand wwr.capi.rtc
-      wwr.capi.sparse wwr.capi.fft
+      wwr.capi.sparse wwr.capi.fft wwr.capi.tx
   )
   if(WWR_WITH_TENSOR)
     list(APPEND _capi_targets wwr.capi.tensor)
   endif()
   if(WWR_WITH_COMP)
     list(APPEND _capi_targets wwr.capi.comp)
+  endif()
+  if(WWR_WITH_CCL)
+    list(APPEND _capi_targets wwr.capi.ccl)
   endif()
   foreach(_capi_target IN LISTS _capi_targets)
     _wwr_export_name(${_capi_target} _capi_export_name)
