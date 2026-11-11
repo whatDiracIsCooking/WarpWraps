@@ -1,14 +1,17 @@
-"""The neutral `complex` surface, as data — the single source of truth the
-generator turns into a C ABI.
+"""The neutral `complex` surface, as data — a DELIBERATE hand-written special
+case, the one surface the fragment-sourcing path cannot cover.
 
-Each function carries only what the generator needs now that the thunk calls
-*into* `wwr`: its `capi` name, the `wwr` function to call (exported from
-`wwr.complex`), the return type and the argument list. There is no per-backend
-name and no body: every function is a plain forward into `wwr::<wwr>`, because
-the cuComplex-vs-hipComplex divergence (scaled cdiv / hypotf cabs, architecture.md
-§3) is already resolved *inside* the `wwr::wwrC*` function, below the thunk — so
-the generated thunk is one shape over both backends and the backend is chosen only
-by which `wwr` library the capi links.
+Every other capi surface sources its names from `src/detail/*_names.h` and its
+signatures from the vendor manifests (spec/runtime_status.py is the model, and
+architecture.md §25 is the verdict). `complex` cannot: its thunks forward into
+wwr-AUTHORED inline wrappers — `wwr::wwrCaddf` / `wwrCmulf` / `wwrCabsf` /
+`wwrCdivf` and the `double` set, exported from `wwr.complex` — which are NOT
+vendor functions. They appear in no `vendor/*/*.json` manifest (the manifests
+harvest the vendors' own declared symbols), so there is no `decl` to read a
+signature from. The cuComplex-vs-hipComplex divergence they resolve (scaled cdiv
+/ hypotf cabs, architecture.md §3) lives inside the `wwr::wwrC*` function, below
+the thunk, so each thunk is still a plain one-shape-over-both-backends forward —
+but the surface is authored, not harvested, so it is spelled out here.
 
 The one thing a C ABI needs that the `wwr` names do not carry is a stable,
 vendor-free POD for every by-value type, so Rust never sees `cuFloatComplex` vs
@@ -16,22 +19,13 @@ vendor-free POD for every by-value type, so Rust never sees `cuFloatComplex` vs
 `HIP_vector_type` *class*, a different by-value calling convention). The thunk
 converts each POD to/from the neutral `wwr::wwrFloatComplex` / `wwr::wwrDoubleComplex`
 at the boundary; `fields` is the `#[repr(C)]` / C-struct layout Rust and the
-neutral type share.
+neutral type share — the §4/§12 "a name does not pin the bytes" residue, carried
+here as the layout sidecar (the fragment-sourced surfaces carry theirs in
+ctypes.Struct for the same reason).
 
-A real `wwr.capi` target would generate this spec FROM the canonical name surface
-(`src/detail/*_names.h`) rather than restate it (architecture.md §25, #328); it is
-written out here so the demo is self-contained.
-
-Status surface (#329 increment 2). A status-returning surface forces the one
-design problem `complex` never does: the backend error-enum VALUES differ even
-where the names agree (architecture.md §6), so the C ABI must NOT pass the raw
-backend status int through to Rust. It maps the neutral `wwr::wwrError_t` onto a
-stable `wwr_status` C enum with FIXED integer values -- resolved below the
-`extern "C"` line, exactly as the neutral POD resolves the by-value divergence for
-`complex`. Rust then sees one set of values whichever backend the capi links, and
-turns `wwr_status` into a `Result`. `STATUS` below is the single source for both
-the generated enum and the thunk's `_map` helper, so they cannot drift; `_map`
-compares against the NEUTRAL `wwr::wwr<Name>` constants, never a vendor name.
+This is the ONLY hand-written surface, and it is kept small on purpose; the
+status slice that used to live here moved to spec/runtime_status.py once the
+fragment path was realized (architecture.md §25, #328).
 """
 
 from __future__ import annotations
@@ -51,28 +45,9 @@ TYPES = [
     },
 ]
 
-# The stable C status enum, as data. Each pair is (C enumerator, neutral wwr
-# constant). The generator emits `wwr_status` with FIXED ascending integer values
-# in THIS order -- WWR_STATUS_SUCCESS first (== 0), then the curated error set,
-# then WWR_STATUS_UNKNOWN as the catch-all -- and emits the thunk's `_map` from the
-# same list, matching each `wwr::wwr<constant>` and returning the paired
-# enumerator. The values are stable and backend-independent (that is the whole
-# point, architecture.md §6); a `wwr::wwrError_t` the map does not recognise falls
-# through to WWR_STATUS_UNKNOWN. SUCCESS and UNKNOWN are generated as the first and
-# last enumerators automatically; list only the error constants to map here.
-STATUS = [
-    ("WWR_STATUS_INVALID_VALUE", "wwrErrorInvalidValue"),
-    ("WWR_STATUS_INVALID_DEVICE", "wwrErrorInvalidDevice"),
-    ("WWR_STATUS_NO_DEVICE", "wwrErrorNoDevice"),
-    ("WWR_STATUS_NOT_READY", "wwrErrorNotReady"),
-    ("WWR_STATUS_MEMORY_ALLOCATION", "wwrErrorMemoryAllocation"),
-    ("WWR_STATUS_NOT_SUPPORTED", "wwrErrorNotSupported"),
-]
-
-# Functions. `wwr` is the function in `wwr.complex` / `wwr.runtime_api` the thunk
-# forwards into; `ret`/`args` use capi type names (a POD above, a plain scalar, a
-# pointer like `int*` that passes straight through, or `wwr_status` -- which makes
-# the generator call the wwr fn and `return _map(...)` the result).
+# Functions. `wwr` is the function in `wwr.complex` the thunk forwards into;
+# `ret`/`args` use capi type names (a POD above, or a plain scalar). The status
+# slice that used to sit here is now fragment-sourced (spec/runtime_status.py).
 FUNCTIONS = [
     {"capi": "wwr_cadd64", "wwr": "wwr::wwrCaddf",
      "ret": "wwr_complex64", "args": [("wwr_complex64", "a"), ("wwr_complex64", "b")]},
@@ -90,13 +65,4 @@ FUNCTIONS = [
      "args": [("wwr_complex128", "z")]},
     {"capi": "wwr_cdiv128", "wwr": "wwr::wwrCdiv", "ret": "wwr_complex128",
      "args": [("wwr_complex128", "a"), ("wwr_complex128", "b")]},
-    # Status surface -- a thin slice of runtime_api (#329 increment 2). Each
-    # returns the stable wwr_status; the generator calls the wwr fn and maps its
-    # wwr::wwrError_t through _map. `int*` out-params pass straight through, no POD.
-    {"capi": "wwr_runtime_get_version", "wwr": "wwr::wwrRuntimeGetVersion",
-     "ret": "wwr_status", "args": [("int*", "version")]},
-    {"capi": "wwr_get_device_count", "wwr": "wwr::wwrGetDeviceCount",
-     "ret": "wwr_status", "args": [("int*", "count")]},
-    {"capi": "wwr_set_device", "wwr": "wwr::wwrSetDevice",
-     "ret": "wwr_status", "args": [("int", "device")]},
 ]

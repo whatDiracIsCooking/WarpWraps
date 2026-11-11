@@ -15,6 +15,53 @@ It covers two surfaces (`complex` and a thin status-returning slice of
 `runtime_api`), **host** side only. See "What this does not cover" before
 extending it.
 
+## How the surface is sourced (and the one surface that is not)
+
+The C ABI is a **consumption path** over the repo's one canonical name surface,
+not a restatement of it (architecture.md §25). The generator takes two inputs and
+cross-references them, so nothing hand-maintained can drift:
+
+1. **Names come from `src/detail/*_names.h`.** These macro fragments are the
+   authoritative `(wwr, cuda, hip)` surface every consumer binds to. `generate.py`
+   parses one as text (`spec/fragments.py`, the way `devtools/header_intersection.py`
+   reads the manifests — stdlib `re`, no clang), reproducing the preprocessor
+   exactly: `WWR_RT_<KIND>(Stem)` expands to the stem with each backend's prefix,
+   and `WWR_<KIND>_RAW(wwrX, cudaX, hipX)` carries all three literally. Delete a
+   name from the fragment and it leaves the generated header, thunk and `ffi.rs`
+   (a surface that still *requests* it then fails the build loudly, rather than
+   inventing it).
+2. **Signatures + enum values come from the committed `vendor/<pin>/*.json`
+   manifests** (`vendor_harvest.py`'s output, SDK-free, already in CI).
+   `spec/manifest.py` looks up the fragment's selected-backend vendor name and
+   reads the `decl` clang recorded (e.g.
+   `cudaError_t cudaRuntimeGetVersion(int * runtimeVersion)`) or an enum
+   constant's folded `value`. No signature is hand-written.
+
+`spec/captypes.py` is the extensible core that turns a vendor `decl` into the
+ABI's vendor-free representation — the machinery a later surface (#349 blas)
+reuses as-is:
+
+| vendor type | capi representation |
+|---|---|
+| scalar (`int`, `float`, `size_t`, …) | passed through unchanged |
+| pointer (`T*` / `const T*`) | passed through; a vendor pointee is erased to `void*` |
+| vendor enum (`cudaError_t`/`hipError_t`) | a **stable** capi enum with fixed values + a `_map` at the boundary (§6) |
+| opaque handle (`cublasHandle_t`, `cudaStream_t`) | `typedef void* wwr_<x>_handle;` |
+| by-value struct | a capi POD whose **layout** is carried in a sidecar (`captypes.Struct`), the one datum a name/`decl` must not pin for ABI (§4/§12) |
+
+A surface declares what it needs in a tiny spec: `spec/runtime_status.py` names
+the fragment, which entries to expose and the capi name each gets, and registers
+the one `EnumMap` (`wwrError_t` → `wwr_status`). The status slice exercises the
+scalar / pointer / enum arms; handle and struct are wired with the sidecar hook
+so #349 is a thin addition — register the handle/enum/struct types a new surface
+needs and the same classifier emits them.
+
+**`complex` is the deliberate exception** (`spec/complex.py`, still hand-written).
+Its thunks forward into wwr-*authored* inline wrappers (`wwr::wwrCaddf`), which
+are **not** vendor functions and so appear in no `vendor/*.json` manifest — there
+is no `decl` to source a signature from. So `complex` stays a small, documented
+hand-written surface; every other surface is fragment-sourced.
+
 ## The status surface, and the one problem `complex` never forces
 
 `complex` returns values; it never returns a status. The runtime slice
@@ -27,10 +74,12 @@ with fixed integer values** (`WWR_STATUS_SUCCESS == 0`, a curated error set, a
 `WWR_STATUS_UNKNOWN` catch-all) — resolved **below** the `extern "C"` line,
 exactly as the neutral POD resolves the by-value divergence for `complex`. Rust
 sees one `#[repr(i32)]` enum whichever backend `wwr.capi` links, and builds a
-`Result` from it. The enum and the mapper are generated from one list
-(`spec.STATUS`), so they cannot drift, and `_map` compares only the neutral
-`wwr::wwr<Name>` constants — never a vendor name — so the thunk stays one shape
-over both backends.
+`Result` from it. The enum and the mapper are generated from one `EnumMap`
+(`spec/runtime_status.py`), so they cannot drift, and `_map` compares only the
+neutral `wwr::wwr<Name>` constants — never a vendor name — so the thunk stays one
+shape over both backends. (`set_device(-1)` returns the identical stable code on
+both backends even though the raw vendor codes differ — that *is* the §6
+guarantee, exercised by the drivers.)
 
 The `wwr_status` enumerator values are a **frozen ABI contract** (see "Stability
 policy", below, and architecture.md §21).
@@ -76,12 +125,20 @@ It can, for the easy names. The shim earns its place on three things a Rust
 ## Layout
 
 ```
-spec/complex.py    the neutral surface as data: PODs (capi_name, wwr_name, layout),
-                   the stable wwr_status enum map (C enumerator, wwr constant), and
-                   the functions (complex + the runtime status slice). Provisional
-                   scaffolding until it is sourced from the canonical name surface
-                   (src/detail/*_names.h); architecture.md §25, #328.
-generate.py        spec -> three artefacts. One source, so nothing drifts.
+spec/fragments.py  parse a src/detail/*_names.h fragment into its (wwr, cuda, hip)
+                   tuples (text/regex, SDK-free) -- the authoritative name set.
+spec/manifest.py   read a vendor/<pin>/*.json manifest; resolve a vendor name to
+                   its decl / enum value -- the signatures the names lack.
+spec/captypes.py   classify a vendor decl into the vendor-free capi representation
+                   (scalar/pointer/enum/handle/struct) + the enum-map / layout
+                   sidecar. The extensible core #349 reuses.
+spec/runtime_status.py  the fragment-SOURCED runtime status slice: the fragment,
+                   which entries to expose, and the wwrError_t -> wwr_status map.
+spec/complex.py    the ONE hand-written surface: PODs (capi_name, wwr_name, layout)
+                   + the complex functions. Hand-written because its thunks forward
+                   into wwr-authored inline wrappers, absent from any vendor manifest
+                   (see above and architecture.md §25).
+generate.py        fragment + manifest -> three artefacts. Sourced, so nothing drifts.
 gen/wwr_capi.h     vendor-free C header for bindgen / a C consumer (PODs, the
                    wwr_status enum, prototypes). Installed under WWR_INSTALL_CAPI.
 gen/wwr_capi.cpp   the backend-neutral extern "C" thunks (import wwr.complex +
@@ -102,7 +159,8 @@ wwr-sys/           the idiomatic Rust -sys crate (Cargo.toml + build.rs + src/):
 
 `gen/` is a committed snapshot so the PR is reviewable without running anything;
 regenerate it with `python3 src/capi/generate.py` (no backend argument — the
-`.cpp` is backend-neutral).
+`.cpp` is backend-neutral, and the generator reads both backend manifests to
+cross-check that the surface resolves identically on each).
 
 ## Build & run
 
@@ -237,5 +295,6 @@ never for an additive change. See architecture.md §21.
   kernels, `parallel_for`, the sdcz dispatch in `src/wrappers` — is device C++
   *templates*. Each needs a monomorphised C entry per instantiation; a later
   milestone (architecture.md §25).
-- **The spec is hand-written here**, provisional until sourced from the canonical
-  name surface (architecture.md §25, #328).
+- **Only `complex` is hand-written**, and deliberately so (it forwards into
+  wwr-authored wrappers absent from any vendor manifest). Every other surface is
+  fragment-sourced; see "How the surface is sourced" (architecture.md §25, #346).

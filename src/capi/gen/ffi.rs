@@ -39,7 +39,7 @@ extern "C" {
     pub fn wwr_cmul128(a: wwr_complex128, b: wwr_complex128) -> wwr_complex128;
     pub fn wwr_cabs128(z: wwr_complex128) -> f64;
     pub fn wwr_cdiv128(a: wwr_complex128, b: wwr_complex128) -> wwr_complex128;
-    pub fn wwr_runtime_get_version(version: *mut i32) -> wwr_status;
+    pub fn wwr_runtime_get_version(runtimeVersion: *mut i32) -> wwr_status;
     pub fn wwr_get_device_count(count: *mut i32) -> wwr_status;
     pub fn wwr_set_device(device: i32) -> wwr_status;
 }

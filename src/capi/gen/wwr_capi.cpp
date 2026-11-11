@@ -71,11 +71,11 @@ wwr_complex128 wwr_cdiv128(wwr_complex128 a, wwr_complex128 b) {
   return wwr_complex128{r.x, r.y};
 }
 
-wwr_status wwr_runtime_get_version(int* version) {
-  return _map(wwr::wwrRuntimeGetVersion(version));
+wwr_status wwr_runtime_get_version(int *runtimeVersion) {
+  return _map(wwr::wwrRuntimeGetVersion(runtimeVersion));
 }
 
-wwr_status wwr_get_device_count(int* count) {
+wwr_status wwr_get_device_count(int *count) {
   return _map(wwr::wwrGetDeviceCount(count));
 }
 
