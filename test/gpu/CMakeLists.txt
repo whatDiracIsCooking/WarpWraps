@@ -516,15 +516,44 @@ add_dependencies(compile_time_tests wwr.test.gpu.fp8.device)
 # and this tier configures with no device). Its include path is wwr.device,
 # which carries wmma.h along with the fp16.h/bf16.h it names element
 # types from.
-wwr_add_gpu_device_library(
-  NAME
-  wwr.test.gpu.wmma.device
-  SOURCES
-  wmma.cu
-  LINK_PRIVATE
-  wwr::device
-)
-add_dependencies(compile_time_tests wwr.test.gpu.wmma.device)
+#
+# NOT ON HIP FROM ROCm 10 ON, and the reason is rocWMMA's, not ours (#330).
+# rocWMMA 10.x's gfx1250 specialisations call __builtin_amdgcn_wmma_* with
+# argument types that do not depend on the template parameter, so clang
+# type-checks those calls whatever arch is targeted -- and upstream clang
+# declares that builtin with different parameter types than AMD's fork does
+# (<16 x _Float16> against AMD's <8 x float>). Result: 13 hard errors out of
+# <rocwmma/rocwmma.hpp> alone, on gfx1200, with nothing instantiated.
+# /opt/rocm/llvm/bin/clang++ (AMD clang 23.0.0git) compiles the identical TU
+# clean, and ROCm 10.1's rocWMMA fails identically, so this is rocWMMA against
+# any compiler but AMD's own -- not a ROCm patch level and not an arch we chose.
+# Measured 2026-11-10 at ROCm 10.0.0 / clang 23.1.6. hip_VERSION is the
+# available discriminator (7.2.x on the apt-channel pin, 7.15.x on TheRock --
+# docs/architecture.md section 23 on why it does not track the ROCm release).
+# The CUDA leg still builds it, so the nvcuda::wmma half of the claim keeps its
+# assertion; drop this gate when rocWMMA and upstream clang agree again.
+set(_wwr_wmma_buildable TRUE)
+if(WWR_GPU_BACKEND STREQUAL "HIP" AND hip_VERSION VERSION_GREATER_EQUAL 7.15)
+  set(_wwr_wmma_buildable FALSE)
+  message(
+    STATUS
+      "test/gpu: skipping wwr.test.gpu.wmma.device -- rocWMMA at hip "
+      "${hip_VERSION} needs AMD's clang (#330)"
+  )
+endif()
+
+if(_wwr_wmma_buildable)
+  wwr_add_gpu_device_library(
+    NAME
+    wwr.test.gpu.wmma.device
+    SOURCES
+    wmma.cu
+    LINK_PRIVATE
+    wwr::device
+  )
+  add_dependencies(compile_time_tests wwr.test.gpu.wmma.device)
+endif()
+unset(_wwr_wmma_buildable)
 
 # atomics.cu tests the portable common atomics, which wwr does NOT wrap:
 # atomicAdd/CAS/... are spelled identically on both backends and ride the vendor

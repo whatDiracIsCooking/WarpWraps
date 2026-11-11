@@ -27,7 +27,7 @@ whole C++ toolchain lives in the CUDA image.
 | Language | C++23, googletest | Python, pytest |
 | Runner | `ctest` via `devtools/cpp-tier.sh` | `pytest` |
 | Tests | the library's own units, including CUDA kernels | two checkers: `test/shared/dispatch.py` and `.claude/hooks/protect-main.py` — no built binary |
-| Needs | the CUDA image (clang-20, CMake 4.2, nvcc) | a venv |
+| Needs | the CUDA image (clang-23, CMake 4.2, nvcc) | a venv |
 | Gated by | nothing automatic — see below | the pre-push hook, only on a `.py` |
 
 There is **no top-level `tests/` directory** — each test lives next to the

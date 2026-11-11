@@ -16,6 +16,11 @@ date and a toolchain, so its staleness is visible.
 (nvcc), clang 20.1.8 with libc++, ROCm 7.2.4, AMD target `gfx1200`, NVIDIA
 target `sm_86`. Dated 2026-09-23.
 
+**The images have since moved to clang 23.1.6 and ROCm 10.0.0** (#307, dated
+2026-11-10), and that is NOT a re-measurement of what is below: a section still
+carries whatever it was checked on. Sections 17 and 21 were re-measured where the
+move changed their answer and say so; everything else is as of the line above.
+
 A section is not re-verified when the toolchain moves. If you upgrade and a
 claim here matters to you, re-check it and update the date.
 
@@ -356,6 +361,15 @@ Measured 2026-09-25 against rocWMMA 2.2.0 (ROCm 7.2.4) and CUDA 13.0.88 at
 `sm_80` rather than the file-wide `sm_86`; the CUDA counts below are the same
 for every `sm_70`+ target.
 
+**The HIP half of this section is no longer compiled at the pin** (#330): from
+ROCm 10 on, rocWMMA's gfx1250 specialisations call `__builtin_amdgcn_wmma_*`
+with non-dependent argument types whose signature only AMD's own clang agrees
+with, so `<rocwmma/rocwmma.hpp>` does not parse under upstream clang at all and
+`test/gpu/wmma.cu` is gated off on HIP. Everything below still holds where it
+was measured, and the `cpp-floor (hip-floor)` leg still compiles it at 7.1.0 —
+but the claim "the two stay interchangeable" has no HIP-side assertion at the
+pin until rocWMMA and upstream clang agree again.
+
 AMD wrote rocWMMA to be source-compatible with NVIDIA's WMMA, so `fragment`,
 the `matrix_a`/`matrix_b`/`accumulator` and `row_major`/`col_major` tags,
 `layout_t`, `fill_fragment`, `load_matrix_sync`, `store_matrix_sync` and
@@ -411,23 +425,32 @@ to reach them. The compile line ends up `-x c++ ... -x hip
 `-x c++` the `LANGUAGE` property adds is inert. Seen in `build-hip`'s
 `compile_commands.json`.
 
-**The device link step needs ROCm's `lld`.** A real `-x hip` compile ends in an
-`amdgcn-link` step that invokes its device linker as the bare name `lld`, which
-the system clang does not ship — only ROCm's bundled LLVM does. The macro points
-the driver's tool search at it with `-B<prefix>/llvm/bin`, deriving `<prefix>`
-from `hip::amdhip64`'s include directory rather than hardcoding a ROCm version.
+**The device link step uses the image's own `lld`, and must.** *Re-measured
+2026-11-10 against clang 23.1.6 and ROCm 10.0.0; the two paragraphs here
+replace what clang 20.1.8 + ROCm 7.2.4 showed, which is recorded in #307.* A
+real `-x hip` compile ends in an `amdgcn-link` step that spawns its device
+linker as the bare name `ld.lld`. The system clang did not ship one, so the
+macro used to point the driver's tool search at ROCm's with
+`-B<prefix>/llvm/bin` — and that is a trap, not just a loan: `-B` also hands
+ROCm's `clang-linker-wrapper` and `lld` the bitcode **this** clang produced,
+which only works while the two LLVMs agree. At ROCm 10.0.0 they do not, and the
+link dies on `Invalid summary version 14. Version should be in the range
+[1-13]` — AMD clang 23.0.0git reading clang 23.1.6's module summary. So
+`docker/Dockerfile.base` installs `lld-${LLVM_VERSION}` and the macro passes no
+`-B` at all: every step of the device link is one LLVM. Reading ROCm's device
+*bitcode* is the separate half and still works untouched, because bitcode is
+forward-readable — a newer host LLVM ingests the vendor's `ocml.bc`, while the
+reverse (what `-B` arranged) is what cannot be done.
 
-**The data-layout linker warning is benign.** `amdgcn-link` emits *"Linking two
-modules of different data layouts"* once per ROCm device-bitcode module (`hip.bc`,
-`ocml.bc`, `ockl.bc`, the `oclc_*.bc`) — ~10 lines per `.cu`. It is a
-compiler-version skew, not a defect: the system clang-20 writes address space 8
-as `p8:128:128`, while ROCm's `/opt/rocm/amdgcn/bitcode` is built by its own
-newer LLVM (clang-22), which writes `p8:128:128:128:48` — the buffer-resource
-index width LLVM 21+ added. The layouts are otherwise identical and the linked
-code is correct. There is no finer diagnostic than the `-Wlinker-warnings` group,
-so the macro sets `-Wno-linker-warnings`, scoped to the HIP branch and to device
-`.cu` libraries alone. It lapses once the two LLVMs converge — drop the flag then
-and confirm the warning is gone.
+**The data-layout linker warning is gone, and the flag with it.** `amdgcn-link`
+used to emit *"Linking two modules of different data layouts"* once per ROCm
+device-bitcode module (~10 lines per `.cu`) — a compiler-version skew, not a
+defect: clang-20 wrote address space 8 as `p8:128:128` while ROCm 7.2.4's
+`/opt/rocm/amdgcn/bitcode`, built by its own newer LLVM, wrote
+`p8:128:128:128:48` (the buffer-resource index width LLVM 21+ added). The macro
+carried `-Wno-linker-warnings` for it, to lapse "once the two LLVMs converge".
+They have: at clang 23.1.6 against ROCm 10.0.0's bitcode the warning count is
+**zero**, so the flag is dropped rather than left to hide a future real one.
 
 **Separable compilation is OFF** on these libraries, as everywhere in the tree:
 `parallel_for.cuh`'s kernel is self-contained, so no device symbol crosses a TU
@@ -627,8 +650,9 @@ oldest, and `CMakeLists.txt` enforces each at configure so a too-old SDK fails
 naming the floor rather than deep in a module compile against a header that
 assumes the newer one.
 
-**What pins them.** The floors are the toolkits the images ship and every claim
-in this file was measured on — CUDA 13.0 and ROCm 7.2.4 — rounded down to the
+**What pins them.** The floors started as the toolkits the images ship and most
+claims in this file were measured on — CUDA 13.0 and, until #307 moved the HIP
+pin to 10.0.0, ROCm 7.2.4 — rounded down to the
 release wwr is actually exercised against and depends on the shape of: the
 `<cuda/atomic>` relocation to `include/cccl` that §20 relies on landed in CUDA
 13.0, and the ROCm 7 headers are what §9–§20 were verified against. They are a
@@ -677,8 +701,58 @@ than the pin:
   no `lib/cmake/hip`. `docker/install-rocm.sh` names it explicitly; see its
   comment.
 
-That leaves the floor a full minor below the 7.2.4 pin, so a symbol added in 7.2
-is caught by the `cpp-floor (hip-floor)` leg — which a 7.2 floor would not do.
+That left the floor a full minor below the then-current 7.2.4 pin, so a symbol
+added in 7.2 is caught by the `cpp-floor (hip-floor)` leg — which a 7.2 floor
+would not do.
+
+**The pin moved to ROCm 10.0.0 and the floor deliberately did not** (#307,
+measured 2026-11-10 at clang 23.1.6 / ROCm 10.0.0 / `gfx1200`). The toolchain
+forced the pin: ROCm ≥ 7.9 (TheRock) needs clang 23, and clang 23 **cannot
+compile HIP device code against ROCm ≤ 7.2.4 at all** — it trimmed 89
+`__ocml_*`/`__ockl_*` declarations out of
+`__clang_hip_libdevice_declares.h` that 7.2.4's `hip/amd_detail/amd_hip_fp16.h`
+still calls from unconditional inline `__device__` functions (`__hfma`, `hexp`,
+`hcos`, …). So the two cannot move separately: clang ≤ 22 goes with ROCm ≤ 7.2.4,
+clang 23 with ROCm ≥ 7.9.
+
+Keeping the declared floor at 7.1.0 across that split costs exactly one thing,
+and it is visible in `.github/workflows/images.yml`: the `hip-floor` leg builds
+its image with `LLVM_VERSION=20`. The floor still answers its question — does
+the oldest supported ROCm compile — it just no longer answers it about the
+pinned compiler. The alternative was raising the floor to 10.0.0, which would
+narrow the supported window from 7.1 to 10.0 in one step.
+
+What the pin move itself cost, all of it in guards of the shape §21 already
+describes, only pointing the other way — an **upper** bound, for a name the
+vendor took away:
+
+- **Two amd-smi entry points gone at 27.0** (the version ROCm 10.0.0 ships):
+  `amdsmi_set_gpu_clk_range`, superseded by `amdsmi_set_gpu_clk_limit`, and
+  `amdsmi_gpu_driver_reload`, with no replacement. Both are live at the floor,
+  so `src/hip/amd_smi.cppm` guards them with `WWR_AMDSMI_BEFORE_27`.
+- **Two hipBLASLt epilogues live only between the two:**
+  `HIPBLASLT_EPILOGUE_SIGMOID_EXT` (renamed to `HIPBLASLT_EPILOGUE_SIGMOID` and
+  renumbered 262144 → 1024 at hipBLASLt 1.4.1) and
+  `HIPBLASLT_EPILOGUE_SIGMOID_BIAS_EXT` (dropped). Hence the two-sided
+  `WWR_HIPBLASLT_SINCE_1_2 && WWR_HIPBLASLT_BEFORE_1_4`.
+- **Four sentinel VALUES move**, for the §21 reason one already did:
+  `hipErrorTbd` 1054 → 1055, `hipFuncAttributeMax` 10 → 16,
+  `hipLaunchAttributeMax` 11 → 1025 and `HIP_FUNC_ATTRIBUTE_MAX` 10 → 16, each
+  asserted on both sides of `WWR_HIP_SINCE_7_15` in
+  `test/hip/hip_runtime_api.cppm`.
+- **One symbol whose LINKABILITY flips.**
+  `hipExternalMemoryGetMappedMipmappedArray` is declared-but-not-exported at
+  7.1.0 and 7.2.4 and exported at 10.0.0, so its check is
+  `WWR_DECLARED_CHECK`/`WWR_LINK_CHECK` behind the same guard — and
+  `manifest_conformance.py` now COUNTS version-guarded check sites instead of
+  judging them, since the pin manifest can describe only one branch.
+- **376 names appear** that nothing wraps (amd_smi 164, hip_runtime_api 108,
+  rccl 38, hipblaslt 30, …) — `vendor/README.md` has the per-library split.
+  Widening the surface onto them is separate work.
+
+And one thing it costs that is not a guard: `test/gpu/wmma.cu` is not built on
+HIP from ROCm 10 on, because rocWMMA type-checks against AMD's clang only
+(#330). The floor leg still builds it.
 
 **A second, SDK-free check runs in the fast Python tier.**
 `test/shared/manifest_conformance.py` (#117) asserts these same guards against the
@@ -860,6 +934,18 @@ The conclusion carries to `wwr.hip.amd_smi` with `wwr.ccl` only so far as those
 modules are re-exports over these same libraries and add no symbols of their own
 — which is what they are, but it is an inference here rather than a measurement,
 and the module pairing is unverified until an image exists to verify it on.
+
+**The image exists now (#307), and the half of that it settles:** at the 10.0.0
+pin `devtools/cpp-tier.sh --rocm` is green on a live gfx1200, 89/89 ctest with
+the device suites in, and `CclCommTests` creates and tears down a real RCCL
+communicator in a process where `libamd_smi.so.27` is loaded — RCCL's hard
+`DT_NEEDED` puts it there — with no double-free and no SIGSEGV. `wwr.hip.amd_smi`
+compiles and link-checks against amd-smi 27.0 in the same build (two removed
+entry points guarded, §21). What is still not measured is one RUNNING binary that
+imports both modules and calls into both: `hip_compile_tests` links
+`wwr.test.hip.amd_smi` and runs, but RCCL sits in the NO_RUN
+`hip_compile_tests_gpu` (test/hip/CMakeLists.txt says why), so no ctest entry
+exercises the pair. That last step is #311's.
 
 **The two libraries still cannot usefully coexist, for a quieter reason.** Both
 export `rsmi_init`, so ELF interposition gives the process exactly one of them,

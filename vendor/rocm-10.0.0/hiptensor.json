@@ -2,10 +2,10 @@
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
     "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
-    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include devtools/harvest_aggregates/hiptensor.h",
+    "command": "/usr/bin/clang -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include devtools/harvest_aggregates/hiptensor.h",
     "config": {
       "backend": "HIP",
-      "sdk_version": "ROCm 7.2.4",
+      "sdk_version": "ROCm 10.0.0",
       "arch": "gfx942",
       "defines": [
         "__HIP_PLATFORM_AMD__"
@@ -15,20 +15,22 @@
         "/opt/rocm-ds/include"
       ]
     },
-    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "clang": "Ubuntu clang version 23.1.6 (++20261108033755+c47d7823685a-1~exp1~20261108153854.96)",
     "header": "devtools/harvest_aggregates/hiptensor.h",
     "prefix": "hiptensor",
-    "symbol_count": 176
+    "symbol_count": 178
   },
   "linkable": {
     "lib": "libhiptensor.so.0",
     "soname": "libhiptensor.so.0",
     "available": true,
-    "linkable_count": 38,
+    "linkable_count": 40,
     "linkable": [
       "hiptensorContract",
+      "hiptensorContractTrinary",
       "hiptensorCreate",
       "hiptensorCreateContraction",
+      "hiptensorCreateContractionTrinary",
       "hiptensorCreateElementwiseBinary",
       "hiptensorCreateElementwiseTrinary",
       "hiptensorCreatePermutation",
@@ -1132,266 +1134,320 @@
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorContract(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, const void * B, const void * beta, const void * C, void * D, void * workspace, uint64_t workspaceSize, hipStream_t stream)",
-      "decl_hash": "50289e422c951107"
+      "decl_hash": "50289e422c951107",
+      "exported": true
+    },
+    {
+      "name": "hiptensorContractTrinary",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorContractTrinary(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, const void * B, const void * C, const void * beta, const void * D, void * E, void * workspace, uint64_t workspaceSize, hipStream_t stream)",
+      "decl_hash": "306e3e5513cd8350",
+      "exported": true
     },
     {
       "name": "hiptensorCreate",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorCreate(hiptensorHandle_t * handle)",
-      "decl_hash": "6e8d2dd1a2b57787"
+      "decl_hash": "6e8d2dd1a2b57787",
+      "exported": true
     },
     {
       "name": "hiptensorCreateContraction",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorCreateContraction(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descB, const int32_t * modeB, hiptensorOperator_t opB, const hiptensorTensorDescriptor_t descC, const int32_t * modeC, hiptensorOperator_t opC, const hiptensorTensorDescriptor_t descD, const int32_t * modeD, const hiptensorComputeDescriptor_t descCompute)",
-      "decl_hash": "289e17c987b0b5b6"
+      "decl_hash": "289e17c987b0b5b6",
+      "exported": true
+    },
+    {
+      "name": "hiptensorCreateContractionTrinary",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hiptensor/hiptensor.h",
+      "decl": "hiptensorStatus_t hiptensorCreateContractionTrinary(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descB, const int32_t * modeB, hiptensorOperator_t opB, const hiptensorTensorDescriptor_t descC, const int32_t * modeC, hiptensorOperator_t opC, const hiptensorTensorDescriptor_t descD, const int32_t * modeD, hiptensorOperator_t opD, const hiptensorTensorDescriptor_t descE, const int32_t * modeE, const hiptensorComputeDescriptor_t descCompute)",
+      "decl_hash": "8afe7fe8f278975e",
+      "exported": true
     },
     {
       "name": "hiptensorCreateElementwiseBinary",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorCreateElementwiseBinary(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descC, const int32_t * modeC, hiptensorOperator_t opC, const hiptensorTensorDescriptor_t descD, const int32_t * modeD, hiptensorOperator_t opAC, const hiptensorComputeDescriptor_t descCompute)",
-      "decl_hash": "a18f59003787da71"
+      "decl_hash": "a18f59003787da71",
+      "exported": true
     },
     {
       "name": "hiptensorCreateElementwiseTrinary",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorCreateElementwiseTrinary(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descB, const int32_t * modeB, hiptensorOperator_t opB, const hiptensorTensorDescriptor_t descC, const int32_t * modeC, hiptensorOperator_t opC, const hiptensorTensorDescriptor_t descD, const int32_t * modeD, hiptensorOperator_t opAB, hiptensorOperator_t opABC, const hiptensorComputeDescriptor_t descCompute)",
-      "decl_hash": "41b9f3318479101a"
+      "decl_hash": "41b9f3318479101a",
+      "exported": true
     },
     {
       "name": "hiptensorCreatePermutation",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorCreatePermutation(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descB, const int32_t * modeB, const hiptensorComputeDescriptor_t descCompute)",
-      "decl_hash": "64c18217f8636575"
+      "decl_hash": "64c18217f8636575",
+      "exported": true
     },
     {
       "name": "hiptensorCreatePlan",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorCreatePlan(const hiptensorHandle_t handle, hiptensorPlan_t * plan, const hiptensorOperationDescriptor_t desc, const hiptensorPlanPreference_t pref, uint64_t workspaceSizeLimit)",
-      "decl_hash": "153b5c95cba4072c"
+      "decl_hash": "153b5c95cba4072c",
+      "exported": true
     },
     {
       "name": "hiptensorCreatePlanPreference",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorCreatePlanPreference(const hiptensorHandle_t handle, hiptensorPlanPreference_t * pref, hiptensorAlgo_t algo, hiptensorJitMode_t jitMode)",
-      "decl_hash": "7fb07626221485ae"
+      "decl_hash": "7fb07626221485ae",
+      "exported": true
     },
     {
       "name": "hiptensorCreateReduction",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorCreateReduction(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t * desc, const hiptensorTensorDescriptor_t descA, const int32_t * modeA, hiptensorOperator_t opA, const hiptensorTensorDescriptor_t descC, const int32_t * modeC, hiptensorOperator_t opC, const hiptensorTensorDescriptor_t descD, const int32_t * modeD, hiptensorOperator_t opReduce, const hiptensorComputeDescriptor_t descCompute)",
-      "decl_hash": "60557c66fe1ed497"
+      "decl_hash": "60557c66fe1ed497",
+      "exported": true
     },
     {
       "name": "hiptensorCreateTensorDescriptor",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorCreateTensorDescriptor(const hiptensorHandle_t handle, hiptensorTensorDescriptor_t * desc, const uint32_t numModes, const int64_t * lens, const int64_t * strides, hiptensorDataType_t dataType, uint32_t alignmentRequirement)",
-      "decl_hash": "d17d7c41c3c1f726"
+      "decl_hash": "d17d7c41c3c1f726",
+      "exported": true
     },
     {
       "name": "hiptensorDestroy",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorDestroy(hiptensorHandle_t handle)",
-      "decl_hash": "14a6a054a7df678b"
+      "decl_hash": "14a6a054a7df678b",
+      "exported": true
     },
     {
       "name": "hiptensorDestroyOperationDescriptor",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorDestroyOperationDescriptor(hiptensorOperationDescriptor_t desc)",
-      "decl_hash": "a319bf82e7dc8306"
+      "decl_hash": "a319bf82e7dc8306",
+      "exported": true
     },
     {
       "name": "hiptensorDestroyPlan",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorDestroyPlan(hiptensorPlan_t plan)",
-      "decl_hash": "9640f496e1eca03d"
+      "decl_hash": "9640f496e1eca03d",
+      "exported": true
     },
     {
       "name": "hiptensorDestroyPlanPreference",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorDestroyPlanPreference(hiptensorPlanPreference_t pref)",
-      "decl_hash": "1f6ae0561369f6f9"
+      "decl_hash": "1f6ae0561369f6f9",
+      "exported": true
     },
     {
       "name": "hiptensorDestroyTensorDescriptor",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorDestroyTensorDescriptor(hiptensorTensorDescriptor_t desc)",
-      "decl_hash": "456cb2ed8d4afc03"
+      "decl_hash": "456cb2ed8d4afc03",
+      "exported": true
     },
     {
       "name": "hiptensorElementwiseBinaryExecute",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorElementwiseBinaryExecute(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, const void * gamma, const void * C, void * D, hipStream_t stream)",
-      "decl_hash": "b8fbe23cdc254fdd"
+      "decl_hash": "b8fbe23cdc254fdd",
+      "exported": true
     },
     {
       "name": "hiptensorElementwiseTrinaryExecute",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorElementwiseTrinaryExecute(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, const void * beta, const void * B, const void * gamma, const void * C, void * D, hipStream_t stream)",
-      "decl_hash": "fe3b6c8efe8ecca8"
+      "decl_hash": "fe3b6c8efe8ecca8",
+      "exported": true
     },
     {
       "name": "hiptensorEstimateWorkspaceSize",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorEstimateWorkspaceSize(const hiptensorHandle_t handle, const hiptensorOperationDescriptor_t desc, const hiptensorPlanPreference_t planPref, const hiptensorWorksizePreference_t workspacePref, uint64_t * workspaceSizeEstimate)",
-      "decl_hash": "256b6f64a07a65ba"
+      "decl_hash": "256b6f64a07a65ba",
+      "exported": true
     },
     {
       "name": "hiptensorGetErrorString",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "const char * hiptensorGetErrorString(const hiptensorStatus_t error)",
-      "decl_hash": "e6fd49b1305e3509"
+      "decl_hash": "e6fd49b1305e3509",
+      "exported": true
     },
     {
       "name": "hiptensorGetHiprtVersion",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "int hiptensorGetHiprtVersion()",
-      "decl_hash": "e931b40430d3c2d3"
+      "decl_hash": "e931b40430d3c2d3",
+      "exported": true
     },
     {
       "name": "hiptensorGetVersion",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "size_t hiptensorGetVersion()",
-      "decl_hash": "6f048cac1b5fcca2"
+      "decl_hash": "6f048cac1b5fcca2",
+      "exported": true
     },
     {
       "name": "hiptensorHandleReadPlanCacheFromFile",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorHandleReadPlanCacheFromFile(hiptensorHandle_t handle, const char * fileName, uint32_t * numCachelinesRead)",
-      "decl_hash": "0ca359b84e18e4e5"
+      "decl_hash": "0ca359b84e18e4e5",
+      "exported": true
     },
     {
       "name": "hiptensorHandleResizePlanCache",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorHandleResizePlanCache(hiptensorHandle_t handle, const uint32_t numEntries)",
-      "decl_hash": "76b0db87c46a63f6"
+      "decl_hash": "76b0db87c46a63f6",
+      "exported": true
     },
     {
       "name": "hiptensorHandleWritePlanCacheToFile",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorHandleWritePlanCacheToFile(const hiptensorHandle_t handle, const char * fileName)",
-      "decl_hash": "84f3d3b025bc5b4e"
+      "decl_hash": "84f3d3b025bc5b4e",
+      "exported": true
     },
     {
       "name": "hiptensorLoggerForceDisable",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorLoggerForceDisable()",
-      "decl_hash": "bb32377e409bc0c4"
+      "decl_hash": "bb32377e409bc0c4",
+      "exported": true
     },
     {
       "name": "hiptensorLoggerOpenFile",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorLoggerOpenFile(const char * logFile)",
-      "decl_hash": "56bf7833aa32223c"
+      "decl_hash": "56bf7833aa32223c",
+      "exported": true
     },
     {
       "name": "hiptensorLoggerSetCallback",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorLoggerSetCallback(hiptensorLoggerCallback_t callback)",
-      "decl_hash": "a6afdde939771d86"
+      "decl_hash": "a6afdde939771d86",
+      "exported": true
     },
     {
       "name": "hiptensorLoggerSetFile",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorLoggerSetFile(FILE * file)",
-      "decl_hash": "bacd147a358070e6"
+      "decl_hash": "bacd147a358070e6",
+      "exported": true
     },
     {
       "name": "hiptensorLoggerSetLevel",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorLoggerSetLevel(hiptensorLogLevel_t level)",
-      "decl_hash": "eb9237f2b71f2b8a"
+      "decl_hash": "eb9237f2b71f2b8a",
+      "exported": true
     },
     {
       "name": "hiptensorLoggerSetMask",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorLoggerSetMask(int32_t mask)",
-      "decl_hash": "c342689e39f383ae"
+      "decl_hash": "c342689e39f383ae",
+      "exported": true
     },
     {
       "name": "hiptensorOperationDescriptorGetAttribute",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorOperationDescriptorGetAttribute(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t desc, hiptensorOperationDescriptorAttribute_t attr, void * buf, size_t sizeInBytes)",
-      "decl_hash": "5a9c5c318907a5d4"
+      "decl_hash": "5a9c5c318907a5d4",
+      "exported": true
     },
     {
       "name": "hiptensorOperationDescriptorSetAttribute",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorOperationDescriptorSetAttribute(const hiptensorHandle_t handle, hiptensorOperationDescriptor_t desc, hiptensorOperationDescriptorAttribute_t attr, const void * buf, size_t sizeInBytes)",
-      "decl_hash": "20fbb3168fd20536"
+      "decl_hash": "20fbb3168fd20536",
+      "exported": true
     },
     {
       "name": "hiptensorPermute",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorPermute(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, void * B, const hipStream_t stream)",
-      "decl_hash": "cdfa4ac6ed012312"
+      "decl_hash": "cdfa4ac6ed012312",
+      "exported": true
     },
     {
       "name": "hiptensorPlanGetAttribute",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorPlanGetAttribute(const hiptensorHandle_t handle, const hiptensorPlan_t plan, hiptensorPlanAttribute_t attr, void * buf, size_t sizeInBytes)",
-      "decl_hash": "281db4751be85bd1"
+      "decl_hash": "281db4751be85bd1",
+      "exported": true
     },
     {
       "name": "hiptensorPlanPreferenceSetAttribute",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorPlanPreferenceSetAttribute(const hiptensorHandle_t handle, hiptensorPlanPreference_t pref, hiptensorPlanPreferenceAttribute_t attr, const void * buf, size_t sizeInBytes)",
-      "decl_hash": "b015b6ea4f92743c"
+      "decl_hash": "b015b6ea4f92743c",
+      "exported": true
     },
     {
       "name": "hiptensorReadKernelCacheFromFile",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorReadKernelCacheFromFile(hiptensorHandle_t handle, const char * fileName)",
-      "decl_hash": "a630c1cd330ed798"
+      "decl_hash": "a630c1cd330ed798",
+      "exported": true
     },
     {
       "name": "hiptensorReduce",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorReduce(const hiptensorHandle_t handle, const hiptensorPlan_t plan, const void * alpha, const void * A, const void * beta, const void * C, void * D, void * workspace, uint64_t workspaceSize, hipStream_t stream)",
-      "decl_hash": "bad10f9fccbd9e02"
+      "decl_hash": "bad10f9fccbd9e02",
+      "exported": true
     },
     {
       "name": "hiptensorWriteKernelCacheToFile",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor.h",
       "decl": "hiptensorStatus_t hiptensorWriteKernelCacheToFile(const hiptensorHandle_t handle, const char * fileName)",
-      "decl_hash": "9af54c6bf92e1b6b"
+      "decl_hash": "9af54c6bf92e1b6b",
+      "exported": true
     },
     {
       "name": "hiptensorAlgo_t",
@@ -1453,8 +1509,8 @@
       "name": "hiptensorLoggerCallback_t",
       "kind": "TypedefDecl",
       "header": "/opt/rocm/include/hiptensor/hiptensor_types.h",
-      "decl": "typedef void (*)(int, const char *, const char *) hiptensorLoggerCallback_t",
-      "decl_hash": "99ed45a149e68ae0"
+      "decl": "typedef void (*)(int32_t, const char *, const char *) hiptensorLoggerCallback_t",
+      "decl_hash": "dd52d20c4ab58155"
     },
     {
       "name": "hiptensorOperationDescriptorAttribute_t",

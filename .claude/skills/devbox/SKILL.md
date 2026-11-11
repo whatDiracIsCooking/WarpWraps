@@ -53,7 +53,7 @@ works from any cwd and any worktree. Each drives its own Dockerfile under
 
 | Config | Dockerfile | Toolchain |
 |---|---|---|
-| `.devcontainer/cuda/` | `Dockerfile.cuda` | clang-20 + libc++, CMake 4.2, Ninja, CUDA 13, ccache. Needs an NVIDIA GPU + the container toolkit. **The default.** |
+| `.devcontainer/cuda/` | `Dockerfile.cuda` | clang-23 + libc++, CMake 4.2, Ninja, CUDA 13, ccache. Needs an NVIDIA GPU + the container toolkit. **The default.** |
 | `.devcontainer/hip/` | `Dockerfile.hip` | the same toolchain with ROCm and no CUDA. Needs an AMD card. |
 | `.devcontainer/combined/` | `Dockerfile.combined` | both SDKs, ~40GB. |
 

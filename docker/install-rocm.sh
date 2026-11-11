@@ -248,23 +248,33 @@ else
   #                       src/hip/CMakeLists.txt find_library's directly.
   #                       amdrocm-profiler is rocprofiler-compute/-systems and
   #                       is NOT wanted.
+  #
+  # EVERY NAME CARRIES ${ROCM_MM}, INCLUDING THE -dev ONES. The unversioned
+  # spellings (amdrocm-hiptensor-dev, ...) are metas that depend on the NEWEST
+  # series the channel carries, which is only the pinned one until the day it is
+  # not: with 10.0.0-4 and 10.1.0-3 both published, ROCM_VERSION=10.0.0 installed
+  # the 10.0 versioned names beside 10.1 metas, leaving the image with
+  # /opt/rocm/{core-10.0,core-10.1} and hipTENSOR's headers under the prefix
+  # /opt/rocm/include does NOT point at -- a configure failure reading
+  # `Could not find HIP_hiptensor_INCLUDE_DIR`. Every package here has a
+  # <name><MM> / <name>-dev<MM> form, so the pin can simply be honoured.
   apt-get update
   apt-get install -y --no-install-recommends \
-    amdrocm-base \
-    amdrocm-runtime-dev \
-    amdrocm-llvm \
-    amdrocm-blas-dev \
-    amdrocm-hipblas-common-dev \
-    amdrocm-solver-dev \
-    amdrocm-sparse-dev \
-    amdrocm-fft-dev \
-    amdrocm-rand-dev \
-    amdrocm-ccl-dev \
-    amdrocm-rccl-dev \
-    amdrocm-hiptensor-dev \
-    amdrocm-amdsmi \
-    amdrocm-profiler-base \
-    amdrocm-debugger \
+    "amdrocm-base${ROCM_MM}" \
+    "amdrocm-runtime-dev${ROCM_MM}" \
+    "amdrocm-llvm${ROCM_MM}" \
+    "amdrocm-blas-dev${ROCM_MM}" \
+    "amdrocm-hipblas-common-dev${ROCM_MM}" \
+    "amdrocm-solver-dev${ROCM_MM}" \
+    "amdrocm-sparse-dev${ROCM_MM}" \
+    "amdrocm-fft-dev${ROCM_MM}" \
+    "amdrocm-rand-dev${ROCM_MM}" \
+    "amdrocm-ccl-dev${ROCM_MM}" \
+    "amdrocm-rccl-dev${ROCM_MM}" \
+    "amdrocm-hiptensor-dev${ROCM_MM}" \
+    "amdrocm-amdsmi${ROCM_MM}" \
+    "amdrocm-profiler-base${ROCM_MM}" \
+    "amdrocm-debugger${ROCM_MM}" \
     "amdrocm-blas-host${ROCM_MM}" \
     "amdrocm-fft-host${ROCM_MM}" \
     "amdrocm-rand-host${ROCM_MM}" \

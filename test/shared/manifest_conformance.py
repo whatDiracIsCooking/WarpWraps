@@ -85,7 +85,7 @@ ROOT = Path(__file__).resolve().parents[2]
 # serves both (see vendor/README.md), so the two coordinates coincide.
 BACKENDS = [
     ("cuda", ROOT / "vendor" / "cuda-13.0.x", ROOT / "vendor" / "cuda-13.0.x"),
-    ("hip", ROOT / "vendor" / "rocm-7.2.4", ROOT / "vendor" / "rocm-7.1.0"),
+    ("hip", ROOT / "vendor" / "rocm-10.0.0", ROOT / "vendor" / "rocm-7.1.0"),
 ]
 
 # A version guard: a WWR_*_SINCE_* macro (its name encodes the version), or a
@@ -150,6 +150,29 @@ def iter_using_sites(text: str):
             since = any(f["vg"] and f["in_true"] for f in stack)
             els = any(f["vg"] and not f["in_true"] for f in stack) and not since
             yield UsingSite(m.group(1), since, els)
+
+
+def iter_macro_sites(text: str):
+    """Yield every ``WWR_{LINK,DECLARED}_CHECK(name)`` with its guard context.
+
+    ``iter_using_sites``' stack walk, over the check macros instead of the
+    ``using ::`` lines, and it yields one flag rather than two: whether ANY
+    enclosing ``#if`` is a version guard. Which branch does not matter here --
+    a guarded site's correct macro is a function of the SDK version, so the pin
+    manifest alone cannot judge either branch (assertion 3 says why it skips
+    them).
+    """
+    stack: list[dict] = []  # {"vg": bool}
+    for line in text.splitlines():
+        if _IF.match(line):
+            stack.append({"vg": bool(_VERSION_GUARD.search(line))})
+        elif _ENDIF.match(line):
+            if stack:
+                stack.pop()
+        else:
+            guarded = any(f["vg"] for f in stack)
+            for kind, sym in _MACRO_CHECK.findall(line):
+                yield kind, sym, guarded
 
 
 def load_manifest(path: Path) -> tuple[set[str], set[str]]:
@@ -393,7 +416,10 @@ def format_link_report(report: LinkReport) -> str:
 # cross-library symbol, or one the harvest never saw -- and only counted. A
 # manifest whose .so was absent at harvest (`linkable.available` false --
 # nvToolsExt, whose libnvToolsExt.so CUDA dropped at 12) carries no linkability
-# truth, so its module is reported UNJUDGED rather than guessed.
+# truth, so its module is reported UNJUDGED rather than guessed. And a site
+# inside a VERSION GUARD is counted, not judged: linkability can differ between
+# the floor and the pin (it does for one hip_runtime_api symbol), so such a site
+# carries both macros and the pin manifest describes only one of the branches.
 
 
 def macro_violation(
@@ -428,6 +454,7 @@ class MacroReport:
     checked: list[str]   # "backend/lib" modules judged against linkable data
     unjudged: list[str]  # "backend/lib" modules whose .so was absent at harvest
     out_of_scope: int    # checks whose name is outside the manifest's surface
+    guarded: int         # checks inside a version guard: not the pin's to judge
 
 
 def check_macro_correctness() -> MacroReport:
@@ -435,14 +462,15 @@ def check_macro_correctness() -> MacroReport:
     checked: list[str] = []
     unjudged: list[str] = []
     out_of_scope = 0
+    guarded_count = 0
     for backend, pin_dir, _ in BACKENDS:
         manifests = {p.stem for p in pin_dir.glob("*.json")}
         for test_cppm in sorted((ROOT / "test" / backend).glob("*.cppm")):
             stem = test_cppm.stem
             if stem not in manifests:
                 continue  # no manifest => no linkable surface to judge against
-            pairs = _MACRO_CHECK.findall(test_cppm.read_text())
-            if not pairs:
+            sites = list(iter_macro_sites(test_cppm.read_text()))
+            if not sites:
                 continue
             lib = f"{backend}/{stem}"
             link = json.loads((pin_dir / f"{stem}.json").read_text())["linkable"]
@@ -452,20 +480,32 @@ def check_macro_correctness() -> MacroReport:
             linkable = set(link["linkable"])
             declared_only = set(link.get("declared_not_linkable", []))
             checked.append(lib)
-            for kind, sym in pairs:
+            for kind, sym, is_guarded in sites:
+                # A VERSION-GUARDED SITE IS NOT THE PIN'S TO JUDGE. Linkability
+                # is a fact about one .so: hipExternalMemoryGetMappedMipmappedArray
+                # is declared-only at the 7.1.0 floor and exported at the 10.0.0
+                # pin, so the source carries both macros behind
+                # WWR_HIP_SINCE_7_15 and whichever branch the pin manifest does
+                # not describe would read as mislabeled. Counted, not judged --
+                # which does cost the "vendor started exporting it" alarm on
+                # exactly these sites, the price of spanning two SDK generations.
+                if is_guarded:
+                    guarded_count += 1
+                    continue
                 should = macro_violation(kind, sym, linkable, declared_only)
                 if should is not None:
                     mislabels.append(Mislabel(lib, sym, f"WWR_{kind}_CHECK", should))
                 elif sym not in linkable and sym not in declared_only:
                     out_of_scope += 1
-    return MacroReport(mislabels, checked, unjudged, out_of_scope)
+    return MacroReport(mislabels, checked, unjudged, out_of_scope, guarded_count)
 
 
 def format_macro_report(report: MacroReport) -> str:
     if not report.mislabels:
         return (f"macro correctness OK: {len(report.checked)} modules judged, "
                 f"0 mislabeled ({len(report.unjudged)} unjudged -- .so absent at "
-                f"harvest, {report.out_of_scope} checks out of scope).")
+                f"harvest, {report.out_of_scope} checks out of scope, "
+                f"{report.guarded} version-guarded).")
     by_lib: dict[str, list[Mislabel]] = defaultdict(list)
     for m in report.mislabels:
         by_lib[m.library].append(m)

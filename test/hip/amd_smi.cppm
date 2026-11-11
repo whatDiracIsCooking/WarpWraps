@@ -13,6 +13,7 @@ module;
 #include <amd_smi/amdsmi.h>
 #define WWR_AMDSMI_SINCE_26_2                                                                      \
   (AMDSMI_LIB_VERSION_MAJOR > 26 || (AMDSMI_LIB_VERSION_MAJOR == 26 && AMDSMI_LIB_VERSION_MINOR >= 2))
+#define WWR_AMDSMI_BEFORE_27 (AMDSMI_LIB_VERSION_MAJOR < 27)
 
 export module wwr.test.hip.amd_smi;
 
@@ -841,7 +842,9 @@ WWR_LINK_CHECK(amdsmi_get_gpu_partition_metrics_info)
 #endif
 WWR_LINK_CHECK(amdsmi_get_gpu_pm_metrics_info)
 WWR_LINK_CHECK(amdsmi_get_gpu_reg_table_info)
+#if WWR_AMDSMI_BEFORE_27
 WWR_LINK_CHECK(amdsmi_set_gpu_clk_range)
+#endif
 WWR_LINK_CHECK(amdsmi_set_gpu_clk_limit)
 WWR_LINK_CHECK(amdsmi_set_gpu_od_clk_info)
 WWR_LINK_CHECK(amdsmi_set_gpu_od_volt_info)
@@ -959,7 +962,9 @@ WWR_LINK_CHECK(amdsmi_get_violation_status)
 WWR_LINK_CHECK(amdsmi_get_gpu_process_list)
 
 // Driver control mechanisms
+#if WWR_AMDSMI_BEFORE_27
 WWR_LINK_CHECK(amdsmi_gpu_driver_reload)
+#endif
 
 // Peak Tops Limiter
 #if WWR_AMDSMI_SINCE_26_2

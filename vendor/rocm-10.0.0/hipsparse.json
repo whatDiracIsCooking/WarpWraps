@@ -2,10 +2,10 @@
   "harvest": {
     "tool": "devtools/vendor_harvest.py",
     "note": "declared + linkable surface for ONE (backend, sdk, arch, defines) configuration; not a code generator -- see the file header",
-    "command": "/usr/bin/clang-20 -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hipsparse/hipsparse.h",
+    "command": "/usr/bin/clang -x c++ -std=c++17 -fsyntax-only -ferror-limit=0 -Xclang -ast-dump=json -D__HIP_PLATFORM_AMD__ -I/opt/rocm/include -I/opt/rocm-ds/include /opt/rocm/include/hipsparse/hipsparse.h",
     "config": {
       "backend": "HIP",
-      "sdk_version": "ROCm 7.2.4",
+      "sdk_version": "ROCm 10.0.0",
       "arch": "gfx942",
       "defines": [
         "__HIP_PLATFORM_AMD__"
@@ -15,19 +15,20 @@
         "/opt/rocm-ds/include"
       ]
     },
-    "clang": "Ubuntu clang version 20.1.8 (++20250804090239+87f0227cb601-1~exp1~20250804210352.139)",
+    "clang": "Ubuntu clang version 23.1.6 (++20261108033755+c47d7823685a-1~exp1~20261108153854.96)",
     "header": "/opt/rocm/include/hipsparse/hipsparse.h",
     "prefix": "hipsparse",
-    "symbol_count": 680
+    "symbol_count": 694
   },
   "linkable": {
     "lib": "libhipsparse.so.4",
     "soname": "libhipsparse.so.4",
     "available": true,
-    "linkable_count": 546,
+    "linkable_count": 552,
     "linkable": [
       "hipsparseAxpby",
       "hipsparseBlockedEllGet",
+      "hipsparseBlockedEllSetPointers",
       "hipsparseCaxpyi",
       "hipsparseCbsr2csr",
       "hipsparseCbsric02",
@@ -130,17 +131,20 @@
       "hipsparseCopyMatDescr",
       "hipsparseCreate",
       "hipsparseCreateBlockedEll",
+      "hipsparseCreateBsr",
       "hipsparseCreateBsric02Info",
       "hipsparseCreateBsrilu02Info",
       "hipsparseCreateBsrsm2Info",
       "hipsparseCreateBsrsv2Info",
       "hipsparseCreateColorInfo",
       "hipsparseCreateConstBlockedEll",
+      "hipsparseCreateConstBsr",
       "hipsparseCreateConstCoo",
       "hipsparseCreateConstCsc",
       "hipsparseCreateConstCsr",
       "hipsparseCreateConstDnMat",
       "hipsparseCreateConstDnVec",
+      "hipsparseCreateConstSlicedEll",
       "hipsparseCreateConstSpVec",
       "hipsparseCreateCoo",
       "hipsparseCreateCooAoS",
@@ -158,6 +162,7 @@
       "hipsparseCreateIdentityPermutation",
       "hipsparseCreateMatDescr",
       "hipsparseCreatePruneInfo",
+      "hipsparseCreateSlicedEll",
       "hipsparseCreateSpVec",
       "hipsparseCscGet",
       "hipsparseCscSetPointers",
@@ -432,6 +437,7 @@
       "hipsparseSpSM_createDescr",
       "hipsparseSpSM_destroyDescr",
       "hipsparseSpSM_solve",
+      "hipsparseSpSM_solve_ex",
       "hipsparseSpSV_analysis",
       "hipsparseSpSV_bufferSize",
       "hipsparseSpSV_createDescr",
@@ -582,6 +588,13 @@
       "header": "/opt/rocm/include/hipsparse/hipsparse-bfloat16.h",
       "decl": "struct hipsparseBfloat16",
       "decl_hash": "f633a24be5aa5526"
+    },
+    {
+      "name": "hipsparseFloat16",
+      "kind": "CXXRecordDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-float16.h",
+      "decl": "struct hipsparseFloat16",
+      "decl_hash": "103447bc0d6ffd65"
     },
     {
       "name": "hipsparseSpGEMMDescr",
@@ -792,6 +805,15 @@
       "decl_hash": "3ed020f83005f81e"
     },
     {
+      "name": "HIPSPARSE_FORMAT_BSR",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-types.h",
+      "decl": "HIPSPARSE_FORMAT_BSR = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "be797dd6a9400ae5"
+    },
+    {
       "name": "HIPSPARSE_FORMAT_COO",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hipsparse/hipsparse-generic-types.h",
@@ -826,6 +848,15 @@
       "value": 1,
       "value_explicit": true,
       "decl_hash": "1a3454e58f637568"
+    },
+    {
+      "name": "HIPSPARSE_FORMAT_SLICED_ELL",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-types.h",
+      "decl": "HIPSPARSE_FORMAT_SLICED_ELL = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "3ae96bc7c0c67112"
     },
     {
       "name": "HIPSPARSE_HYB_PARTITION_AUTO",
@@ -1171,6 +1202,15 @@
       "decl_hash": "35680e4d6dec9b32"
     },
     {
+      "name": "HIPSPARSE_SPMM_BSR_ALG1",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-types.h",
+      "decl": "HIPSPARSE_SPMM_BSR_ALG1 = 14",
+      "value": 14,
+      "value_explicit": true,
+      "decl_hash": "b96b371333472a2a"
+    },
+    {
       "name": "HIPSPARSE_SPMM_COO_ALG1",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hipsparse/hipsparse-generic-types.h",
@@ -1243,6 +1283,15 @@
       "decl_hash": "7cc344638ae20501"
     },
     {
+      "name": "HIPSPARSE_SPMV_BSR_ALG1",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-types.h",
+      "decl": "HIPSPARSE_SPMV_BSR_ALG1 = 6",
+      "value": 6,
+      "value_explicit": true,
+      "decl_hash": "dec93e30d1d299c0"
+    },
+    {
       "name": "HIPSPARSE_SPMV_COO_ALG1",
       "kind": "EnumConstantDecl",
       "header": "/opt/rocm/include/hipsparse/hipsparse-generic-types.h",
@@ -1277,6 +1326,24 @@
       "value": 3,
       "value_explicit": true,
       "decl_hash": "0db9dca2eb82a270"
+    },
+    {
+      "name": "HIPSPARSE_SPMV_CSR_ALG3",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-types.h",
+      "decl": "HIPSPARSE_SPMV_CSR_ALG3 = 7",
+      "value": 7,
+      "value_explicit": true,
+      "decl_hash": "6604724af4f1b86d"
+    },
+    {
+      "name": "HIPSPARSE_SPMV_SELL_ALG1",
+      "kind": "EnumConstantDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-types.h",
+      "decl": "HIPSPARSE_SPMV_SELL_ALG1 = 5",
+      "value": 5,
+      "value_explicit": true,
+      "decl_hash": "7273958bc7c94bfa"
     },
     {
       "name": "HIPSPARSE_SPSM_ALG_DEFAULT",
@@ -1418,6 +1485,14 @@
       "header": "/opt/rocm/include/hipsparse/hipsparse-generic-auxiliary.h",
       "decl": "hipsparseStatus_t hipsparseBlockedEllGet(const hipsparseSpMatDescr_t spMatDescr, int64_t * rows, int64_t * cols, int64_t * ellBlockSize, int64_t * ellCols, void ** ellColInd, void ** ellValue, hipsparseIndexType_t * ellIdxType, hipsparseIndexBase_t * idxBase, hipDataType * valueType)",
       "decl_hash": "3335a92df92d06cb",
+      "exported": true
+    },
+    {
+      "name": "hipsparseBlockedEllSetPointers",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-auxiliary.h",
+      "decl": "hipsparseStatus_t hipsparseBlockedEllSetPointers(hipsparseSpMatDescr_t spMatDescr, void * ellColInd, void * ellValue)",
+      "decl_hash": "a8dcd13b9567b291",
       "exported": true
     },
     {
@@ -1658,6 +1733,7 @@
       "header": "/opt/rocm/include/hipsparse/internal/extra/hipsparse_csrgeam.h",
       "decl": "hipsparseStatus_t hipsparseCcsrgeam(hipsparseHandle_t handle, int m, int n, const hipComplex * alpha, const hipsparseMatDescr_t descrA, int nnzA, const hipComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, const hipComplex * beta, const hipsparseMatDescr_t descrB, int nnzB, const hipComplex * csrValB, const int * csrRowPtrB, const int * csrColIndB, const hipsparseMatDescr_t descrC, hipComplex * csrValC, int * csrRowPtrC, int * csrColIndC)",
       "decl_hash": "a934173803275fd7",
+      "deprecated": true,
       "exported": true
     },
     {
@@ -2237,6 +2313,14 @@
       "exported": true
     },
     {
+      "name": "hipsparseCreateBsr",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-auxiliary.h",
+      "decl": "hipsparseStatus_t hipsparseCreateBsr(hipsparseSpMatDescr_t * spMatDescr, int64_t mb, int64_t nb, int64_t nnzb, int64_t rowBlockDim, int64_t colBlockDim, void * bsrRowPtr, void * bsrColInd, void * bsrValues, hipsparseIndexType_t bsrRowPtrType, hipsparseIndexType_t bsrColIndType, hipsparseIndexBase_t idxBase, hipDataType valueType, hipsparseOrder_t order)",
+      "decl_hash": "6e22f43eaa6e0009",
+      "exported": true
+    },
+    {
       "name": "hipsparseCreateBsric02Info",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hipsparse/hipsparse-auxiliary.h",
@@ -2285,6 +2369,14 @@
       "exported": true
     },
     {
+      "name": "hipsparseCreateConstBsr",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-auxiliary.h",
+      "decl": "hipsparseStatus_t hipsparseCreateConstBsr(hipsparseConstSpMatDescr_t * spMatDescr, int64_t mb, int64_t nb, int64_t nnzb, int64_t rowBlockDim, int64_t colBlockDim, const void * bsrRowPtr, const void * bsrColInd, const void * bsrValues, hipsparseIndexType_t bsrRowPtrType, hipsparseIndexType_t bsrColIndType, hipsparseIndexBase_t idxBase, hipDataType valueType, hipsparseOrder_t order)",
+      "decl_hash": "6bc9aaeeff73a70c",
+      "exported": true
+    },
+    {
       "name": "hipsparseCreateConstCoo",
       "kind": "FunctionDecl",
       "header": "/opt/rocm/include/hipsparse/hipsparse-generic-auxiliary.h",
@@ -2322,6 +2414,14 @@
       "header": "/opt/rocm/include/hipsparse/hipsparse-generic-auxiliary.h",
       "decl": "hipsparseStatus_t hipsparseCreateConstDnVec(hipsparseConstDnVecDescr_t * dnVecDescr, int64_t size, const void * values, hipDataType valueType)",
       "decl_hash": "4a8c8fce88bdef0d",
+      "exported": true
+    },
+    {
+      "name": "hipsparseCreateConstSlicedEll",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-auxiliary.h",
+      "decl": "hipsparseStatus_t hipsparseCreateConstSlicedEll(hipsparseConstSpMatDescr_t * spMatDescr, int64_t rows, int64_t cols, int64_t nnz, int64_t sellValuesSize, int64_t sliceSize, const void * sellSliceOffsets, const void * sellColInd, const void * sellValues, hipsparseIndexType_t sellSliceOffsetsType, hipsparseIndexType_t sellColIndType, hipsparseIndexBase_t idxBase, hipDataType valueType)",
+      "decl_hash": "b7390c00e18caeb7",
       "exported": true
     },
     {
@@ -2458,6 +2558,14 @@
       "header": "/opt/rocm/include/hipsparse/hipsparse-auxiliary.h",
       "decl": "hipsparseStatus_t hipsparseCreatePruneInfo(pruneInfo_t * info)",
       "decl_hash": "99c5c98d0e17ca0d",
+      "exported": true
+    },
+    {
+      "name": "hipsparseCreateSlicedEll",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-generic-auxiliary.h",
+      "decl": "hipsparseStatus_t hipsparseCreateSlicedEll(hipsparseSpMatDescr_t * spMatDescr, int64_t rows, int64_t cols, int64_t nnz, int64_t sellValuesSize, int64_t sliceSize, void * sellSliceOffsets, void * sellColInd, void * sellValues, hipsparseIndexType_t sellSliceOffsetsType, hipsparseIndexType_t sellColIndType, hipsparseIndexBase_t idxBase, hipDataType valueType)",
+      "decl_hash": "ab3e0a0cd206abc1",
       "exported": true
     },
     {
@@ -2770,6 +2878,7 @@
       "header": "/opt/rocm/include/hipsparse/internal/extra/hipsparse_csrgeam.h",
       "decl": "hipsparseStatus_t hipsparseDcsrgeam(hipsparseHandle_t handle, int m, int n, const double * alpha, const hipsparseMatDescr_t descrA, int nnzA, const double * csrValA, const int * csrRowPtrA, const int * csrColIndA, const double * beta, const hipsparseMatDescr_t descrB, int nnzB, const double * csrValB, const int * csrRowPtrB, const int * csrColIndB, const hipsparseMatDescr_t descrC, double * csrValC, int * csrRowPtrC, int * csrColIndC)",
       "decl_hash": "2074b099d8f60049",
+      "deprecated": true,
       "exported": true
     },
     {
@@ -3946,6 +4055,7 @@
       "header": "/opt/rocm/include/hipsparse/internal/extra/hipsparse_csrgeam.h",
       "decl": "hipsparseStatus_t hipsparseScsrgeam(hipsparseHandle_t handle, int m, int n, const float * alpha, const hipsparseMatDescr_t descrA, int nnzA, const float * csrValA, const int * csrRowPtrA, const int * csrColIndA, const float * beta, const hipsparseMatDescr_t descrB, int nnzB, const float * csrValB, const int * csrRowPtrB, const int * csrColIndB, const hipsparseMatDescr_t descrC, float * csrValC, int * csrRowPtrC, int * csrColIndC)",
       "decl_hash": "8f9d9cd0dba43ed0",
+      "deprecated": true,
       "exported": true
     },
     {
@@ -4650,6 +4760,15 @@
       "header": "/opt/rocm/include/hipsparse/internal/generic/hipsparse_spsm.h",
       "decl": "hipsparseStatus_t hipsparseSpSM_solve(hipsparseHandle_t handle, hipsparseOperation_t opA, hipsparseOperation_t opB, const void * alpha, hipsparseConstSpMatDescr_t matA, hipsparseConstDnMatDescr_t matB, const hipsparseDnMatDescr_t matC, hipDataType computeType, hipsparseSpSMAlg_t alg, hipsparseSpSMDescr_t spsmDescr, void * externalBuffer)",
       "decl_hash": "38d8484341547b76",
+      "deprecated": true,
+      "exported": true
+    },
+    {
+      "name": "hipsparseSpSM_solve_ex",
+      "kind": "FunctionDecl",
+      "header": "/opt/rocm/include/hipsparse/internal/generic/hipsparse_spsm.h",
+      "decl": "hipsparseStatus_t hipsparseSpSM_solve_ex(hipsparseHandle_t handle, hipsparseOperation_t opA, hipsparseOperation_t opB, const void * alpha, hipsparseConstSpMatDescr_t matA, hipsparseConstDnMatDescr_t matB, const hipsparseDnMatDescr_t matC, hipDataType computeType, hipsparseSpSMAlg_t alg, hipsparseSpSMDescr_t spsmDescr)",
+      "decl_hash": "b0cf172640f039b5",
       "exported": true
     },
     {
@@ -5018,6 +5137,7 @@
       "header": "/opt/rocm/include/hipsparse/internal/extra/hipsparse_csrgeam.h",
       "decl": "hipsparseStatus_t hipsparseXcsrgeamNnz(hipsparseHandle_t handle, int m, int n, const hipsparseMatDescr_t descrA, int nnzA, const int * csrRowPtrA, const int * csrColIndA, const hipsparseMatDescr_t descrB, int nnzB, const int * csrRowPtrB, const int * csrColIndB, const hipsparseMatDescr_t descrC, int * csrRowPtrC, int * nnzTotalDevHostPtr)",
       "decl_hash": "db9cebddf75be784",
+      "deprecated": true,
       "exported": true
     },
     {
@@ -5330,6 +5450,7 @@
       "header": "/opt/rocm/include/hipsparse/internal/extra/hipsparse_csrgeam.h",
       "decl": "hipsparseStatus_t hipsparseZcsrgeam(hipsparseHandle_t handle, int m, int n, const hipDoubleComplex * alpha, const hipsparseMatDescr_t descrA, int nnzA, const hipDoubleComplex * csrValA, const int * csrRowPtrA, const int * csrColIndA, const hipDoubleComplex * beta, const hipsparseMatDescr_t descrB, int nnzB, const hipDoubleComplex * csrValB, const int * csrRowPtrB, const int * csrColIndB, const hipsparseMatDescr_t descrC, hipDoubleComplex * csrValC, int * csrRowPtrC, int * csrColIndC)",
       "decl_hash": "5d823aa0f5e41f79",
+      "deprecated": true,
       "exported": true
     },
     {
@@ -5869,6 +5990,13 @@
       "header": "/opt/rocm/include/hipsparse/hipsparse-types.h",
       "decl": "typedef enum hipsparseFillMode_t hipsparseFillMode_t",
       "decl_hash": "43337ac2880990b9"
+    },
+    {
+      "name": "hipsparseFloat16_public",
+      "kind": "TypedefDecl",
+      "header": "/opt/rocm/include/hipsparse/hipsparse-float16.h",
+      "decl": "typedef struct hipsparseFloat16_public hipsparseFloat16_public",
+      "decl_hash": "9c2d4d42b73f6d7d"
     },
     {
       "name": "hipsparseFormat_t",

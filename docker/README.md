@@ -88,7 +88,7 @@ repo root, because the files read `pyproject.toml`, `uv.lock` and
 ### Version-carrying tags, and why the aliases still hold
 
 `cuda` and `hip` each get a **version-carrying** tag alongside their alias —
-`wwr:cuda-13-0`, `wwr:hip-7.2.4` — derived from the SDK pins `CUDA_VERSION`
+`wwr:cuda-13-0`, `wwr:hip-10.0.0` — derived from the SDK pins `CUDA_VERSION`
 and `ROCM_VERSION` in `devtools/config.sh`. `build.sh` sources that file, so
 the version it *tags* with is the version it forwards to `docker build` as the
 build arg: the tag and the toolkit it names cannot disagree. (`combined` gets
@@ -103,8 +103,10 @@ neither image is lost, and `docker/compose.yaml`, `.devcontainer/` and this
 README keep resolving the alias with no edits.
 
 `CUDA_VERSION` is apt's `MAJOR-MINOR` spelling (`13-0`, not `13.0.0`);
-`ROCM_VERSION` is the full `MAJOR.MINOR.PATCH` (`7.2.4`) that also forms the
-`repo.radeon.com/rocm/apt/` source path — almost verbatim: AMD publishes an
+`ROCM_VERSION` is the full `MAJOR.MINOR.PATCH` (`10.0.0`), and both channels read
+it: on TheRock its `MAJOR.MINOR` is what every package name carries
+(`amdrocm-blas-dev10.0`), while on the legacy channel it forms the
+`repo.radeon.com/rocm/apt/` source path almost verbatim — AMD publishes an
 `X.Y.0` release under `X.Y`, so `install-rocm.sh` strips a trailing `.0` for
 that URL alone and the pin keeps its semver. `devtools/doctor.sh`
 reports the installed SDK against these pins and warns when they have drifted.
@@ -124,8 +126,16 @@ rather than one URL with a version in it.
 **Both channels have to keep working**, and not for symmetry: the ROCm floor is
 7.1.0 (`CMakeLists.txt`, `docs/architecture.md` §21) and is installable *only*
 on the legacy channel, so the `cpp-floor (hip-floor)` CI leg rides the legacy
-branch. Raising the floor onto TheRock would mean giving up the full-minor gap
-below the pin that makes that leg catch anything.
+branch. Raising the floor onto TheRock would narrow the supported window from
+7.1 straight to 10.0.
+
+**And the floor image is the one image built at a different LLVM.** Its leg in
+`.github/workflows/images.yml` passes `LLVM_VERSION=20` beside
+`ROCM_VERSION=7.1.0`, because clang 23 — what `Dockerfile.base` ships since #307
+— cannot compile HIP device code against ROCm ≤ 7.2.4 at all (it dropped 89
+`__ocml_*` declarations that those headers still call). `build.sh` forwards
+`LLVM_VERSION` to the base build, so the whole mechanism is that one variable;
+the practical rule is clang ≤ 22 with ROCm ≤ 7.2.4, clang 23 with ROCm ≥ 7.9.
 
 On TheRock, **`GPU_TARGETS` is required and controls image size**: GPU kernels
 ship as per-arch packages, so the package set cannot be written without it, and
@@ -279,7 +289,7 @@ IMAGE_TAG_SUFFIX=-ci IMAGE_REGISTRY=ghcr.io/<owner> BUILD_PUSH=1 \
 
 | knob | effect |
 |---|---|
-| `IMAGE_TAG_SUFFIX` | appended to every tag in the chain, alias and version alike (`wwr:hip-ci`, `wwr:hip-7.2.4-ci`) |
+| `IMAGE_TAG_SUFFIX` | appended to every tag in the chain, alias and version alike (`wwr:hip-ci`, `wwr:hip-10.0.0-ci`) |
 | `IMAGE_REGISTRY` | adds `<registry>/wwr:<tag>` as a second tag |
 | `BUILD_PUSH=1` | pushes the **final target's** registry tags, not its parents' |
 

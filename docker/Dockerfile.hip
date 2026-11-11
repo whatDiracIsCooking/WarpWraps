@@ -25,7 +25,7 @@ ARG PROJECT_NAME=wwr
 ARG PARENT_IMAGE=${PROJECT_NAME}:base
 FROM ${PARENT_IMAGE}
 
-ARG ROCM_VERSION=7.2.4
+ARG ROCM_VERSION=10.0.0
 
 # Drop the ~12.3GB of ROCm that only a RUNNING kernel needs -- the Tensile and
 # rocFFT kernel objects, composable-kernel's static archives, rocalution,

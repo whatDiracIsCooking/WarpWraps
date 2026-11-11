@@ -56,7 +56,7 @@
 #   devtools/vendor_manifests.sh both   # both (needs the combined image)
 #
 # The HIP version dir is READ from the image (/opt/rocm/.info/version): the 7.2.4
-# pin image writes vendor/rocm-7.2.4/, the 7.1.0 floor image writes
+# pin image writes vendor/rocm-10.0.0/, the 7.1.0 floor image writes
 # vendor/rocm-7.1.0/ (#116). CUDA is a within-major band -- one cuda-13.0.x/ dir
 # serves both the 13.0.0 floor and every 13.0.x pin, so there is no cuda floor.
 #
@@ -189,17 +189,28 @@ harvest_cuda() {
 
 harvest_hip() {
   # The ROCm version coordinate, read from the image (not hardcoded): the same
-  # invocation harvests the 7.2.4 pin or the 7.1.0 floor (#116) into its own
+  # invocation harvests the 10.0.0 pin or the 7.1.0 floor (#116) into its own
   # version dir, and the dir name cannot disagree with the headers it came from.
-  # /opt/rocm/.info/version is the honest source -- CMakeLists.txt reads the same
+  # `<rocm>/.info/version` is the honest source -- CMakeLists.txt reads the same
   # file for the floor check, since the hip package's patch field is the SDK
-  # build, unrelated to ROCm's. Override ROCM_SDK_VERSION to harvest a tree whose
-  # .info file is absent.
-  local ver
-  ver="${ROCM_SDK_VERSION:-$(cut -d- -f1 /opt/rocm/.info/version 2>/dev/null || true)}"
+  # build, unrelated to ROCm's.
+  #
+  # TWO PREFIXES TO TRY, and the second is what TheRock needs: on the legacy
+  # channel (<= 7.2.4) /opt/rocm is a symlink to /opt/rocm-<version> and carries
+  # .info/ directly, while from 7.9 on it is a real directory of alternatives
+  # links whose version file lives one level down, at
+  # /opt/rocm/core-<major.minor>/.info/version. Resolving $ROCM_PATH/lib through
+  # realpath lands on that versioned prefix on both -- the same REALPATH trick
+  # CMakeLists.txt's floor check uses and doctor.sh's hipconfig --rocmpath read
+  # covers. Override ROCM_SDK_VERSION to harvest a tree with neither.
+  local ver rocm_versioned
+  rocm_versioned=$(dirname "$(realpath "${ROCM_PATH:-/opt/rocm}/lib" 2>/dev/null)" 2>/dev/null || true)
+  ver="${ROCM_SDK_VERSION:-$(cut -d- -f1 "${ROCM_PATH:-/opt/rocm}/.info/version" 2>/dev/null ||
+                             cut -d- -f1 "$rocm_versioned/.info/version" 2>/dev/null || true)}"
   [ -n "$ver" ] || {
-    echo "vendor_manifests.sh: no ROCm version: /opt/rocm/.info/version is" \
-         "absent; set ROCM_SDK_VERSION" >&2; exit 2; }
+    echo "vendor_manifests.sh: no ROCm version: neither" \
+         "${ROCM_PATH:-/opt/rocm}/.info/version nor $rocm_versioned/.info/version" \
+         "is readable; set ROCM_SDK_VERSION" >&2; exit 2; }
   local ROCM_SDK="ROCm $ver" ROCM_DIR="rocm-$ver"
   OUTDIR="${VENDOR_ROOT:-$HERE/vendor}/$ROCM_DIR"
   mkdir -p "$OUTDIR"

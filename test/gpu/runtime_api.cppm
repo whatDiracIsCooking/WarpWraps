@@ -1,10 +1,29 @@
 // runtime_api.cppm - Compile-time tests for wwr.runtime_api
 //
 // Every exported wwr* name is the backend's own entity. See gpu_check_macros.h.
+//
+// THE src/runtime_api.h INCLUDE BELOW IS LOAD-BEARING. This file names the
+// backend's whole shared error enum (cudaErrorAlreadyAcquired, ...), which no
+// raw vendor module re-exports -- wwr.cuda.cuda_runtime_api carries the handful
+// of status codes its own surface needs and no more. Those names used to
+// resolve anyway, because clang <= 22 let an imported module's
+// global-module-fragment declarations be found in the importer; clang 23 closed
+// that leak and every one of them became "use of undeclared identifier" (#307).
+//
+// It is the vendor-include POINT rather than the vendor header for the reason
+// that header documents: the allocation flags are object-like macros, so a bare
+// <cuda_runtime_api.h> would make `cudaStreamDefault` below expand to `0x00`
+// (an int) and the WWR_SAME_VALUE type check against the module's
+// `unsigned int` would fail. runtime_api.h validates each flag, #undef's it and
+// leaves an equally-named global constexpr -- exactly the surface the module
+// binds to, which is what this file means to compare against. One include, both
+// backends, nothing restated here.
 
 module;
 
 #include "gpu_check_macros.h"
+
+#include "runtime_api.h"
 
 export module wwr.test.gpu.runtime_api;
 

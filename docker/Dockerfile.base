@@ -67,7 +67,15 @@
 # ROCM_VERSION in Dockerfile.hip / Dockerfile.combined, beside the install
 # script each one drives.
 ARG UBUNTU_TAG=24.04
-ARG LLVM_VERSION=20
+# LLVM 23 IS A FLOOR, NOT A PREFERENCE (#307): ROCm >= 7.9 (TheRock) ships AMD
+# clang 23 and LLVM-23-produced device bitcode, and bitcode is not
+# backward-readable -- clang-20 dies on ROCm's own ocml.bc with "Unknown
+# attribute kind (106) (Producer: 'LLVM23.0.0git' Reader: 'LLVM 20.1.8')", so
+# not one `.cu` device TU compiles under it. The CUDA side does not object:
+# nvcc never sees clang here (nothing sets -ccbin, so it uses its own default
+# g++), which is what makes CUDA 13's "clang version must be less than 21" bound
+# in crt/host_config.h unreachable and lets both backends share this image.
+ARG LLVM_VERSION=23
 ARG CMAKE_VERSION=4.2.3
 ARG CMAKE_MAJOR_MINOR=4.2
 ARG NINJA_VERSION=1.13.1
@@ -135,6 +143,13 @@ ARG LLVM_VERSION
 
 # libc++-dev is the load-bearing one: it ships libc++.modules.json, which is
 # what CMakeLists.txt globs /usr/lib/llvm-*/lib for to resolve `import std`.
+#
+# lld IS ALSO LOAD-BEARING, and only for the HIP backend: a `-x hip` compile
+# ends in an amdgcn device link that spawns its linker as a bare name. The tree
+# used to borrow ROCm's, which also routed the link through ROCm's older
+# clang-linker-wrapper and so through an LLVM that cannot read this clang's
+# bitcode. Shipping our own keeps every step on one LLVM --
+# docs/architecture.md section 17 has the error and the measurement.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     wget -qO /etc/apt/trusted.gpg.d/llvm-snapshot.asc https://apt.llvm.org/llvm-snapshot.gpg.key && \
@@ -146,6 +161,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       clang-format-${LLVM_VERSION} \
       clangd-${LLVM_VERSION} \
       clang-tools-${LLVM_VERSION} \
+      lld-${LLVM_VERSION} \
       libclang-rt-${LLVM_VERSION}-dev \
       libc++-${LLVM_VERSION}-dev \
       libc++abi-${LLVM_VERSION}-dev \
@@ -155,14 +171,18 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # clang-scan-deps is included: CMake's module scanner, and a FATAL_ERROR in
 # CMakeLists.txt when it is missing. llvm-objdump and llvm-cxxfilt are here for
 # test/extension/build_time's blas dispatch check, which disassembles the
-# instantiations and demangles what they call.
+# instantiations and demangles what they call. `ld.lld` is the name the HIP
+# device link actually spawns (`lld` is the alias a human types), so both are
+# linked -- a missing ld.lld reads as `posix_spawn failed: No such file or
+# directory` from a step that never names the tool it wanted.
 RUN for tool in clang clang++ clang-tidy clang-format clangd clang-scan-deps \
-                llvm-objdump llvm-cxxfilt; do \
+                llvm-objdump llvm-cxxfilt lld ld.lld; do \
       update-alternatives --install /usr/bin/$tool $tool /usr/bin/${tool}-${LLVM_VERSION} 100; \
     done && \
     clang --version | grep -q "${LLVM_VERSION}\." && \
     clang-scan-deps --version && \
     llvm-objdump --version | head -1 && \
+    ld.lld --version | head -1 && \
     test -f /usr/lib/llvm-${LLVM_VERSION}/lib/libc++.modules.json
 
 # ============================================================================

@@ -32,7 +32,7 @@ sys.path.insert(0, str(ROOT / "devtools"))
 import header_intersection as hi  # noqa: E402
 
 CUDA = ROOT / "vendor" / "cuda-13.0.x"
-ROCM = ROOT / "vendor" / "rocm-7.2.4"
+ROCM = ROOT / "vendor" / "rocm-10.0.0"
 
 RAND_CUDA = [CUDA / "curand.json", CUDA / "curand_kernel.json"]
 RAND_HIP = [ROCM / "hiprand.json", ROCM / "hiprand_kernel.json"]

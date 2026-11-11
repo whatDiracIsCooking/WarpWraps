@@ -7,30 +7,57 @@
   "modules": {
     "rand": {
       "contract": "whole-surface",
-      "cuda": ["cuda-13.0.x/curand.json", "cuda-13.0.x/curand_kernel.json"],
-      "hip": ["rocm-7.2.4/hiprand.json", "rocm-7.2.4/hiprand_kernel.json"],
-      "src": ["src/rand.cppm", "src/rand.cuh"],
+      "cuda": [
+        "cuda-13.0.x/curand.json",
+        "cuda-13.0.x/curand_kernel.json"
+      ],
+      "hip": [
+        "rocm-10.0.0/hiprand.json",
+        "rocm-10.0.0/hiprand_kernel.json"
+      ],
+      "src": [
+        "src/rand.cppm",
+        "src/rand.cuh"
+      ],
       "omissions": []
     },
     "fft": {
       "contract": "whole-surface",
-      "cuda": ["cuda-13.0.x/cufft.json"],
-      "hip": ["rocm-7.2.4/hipfft.json"],
-      "src": ["src/cuda/cufft.cppm"],
+      "cuda": [
+        "cuda-13.0.x/cufft.json"
+      ],
+      "hip": [
+        "rocm-10.0.0/hipfft.json"
+      ],
+      "src": [
+        "src/cuda/cufft.cppm"
+      ],
       "omissions": []
     },
     "tx": {
       "contract": "whole-surface",
-      "cuda": ["cuda-13.0.x/nvToolsExt.json"],
-      "hip": ["rocm-7.2.4/roctx.json"],
-      "src": ["src/cuda/nvToolsExt.cppm"],
+      "cuda": [
+        "cuda-13.0.x/nvToolsExt.json"
+      ],
+      "hip": [
+        "rocm-10.0.0/roctx.json"
+      ],
+      "src": [
+        "src/cuda/nvToolsExt.cppm"
+      ],
       "omissions": []
     },
     "blas": {
       "contract": "curated-subset",
-      "cuda": ["cuda-13.0.x/cublas_v2.json"],
-      "hip": ["rocm-7.2.4/hipblas.json"],
-      "src": ["src/blas.cppm"],
+      "cuda": [
+        "cuda-13.0.x/cublas_v2.json"
+      ],
+      "hip": [
+        "rocm-10.0.0/hipblas.json"
+      ],
+      "src": [
+        "src/blas.cppm"
+      ],
       "omissions": [
         {
           "key": "bfloat16",
@@ -43,9 +70,15 @@
     },
     "solver": {
       "contract": "curated-subset",
-      "cuda": ["cuda-13.0.x/cusolverDn.json"],
-      "hip": ["rocm-7.2.4/hipsolver.json"],
-      "src": ["src/cuda/cusolverDn.cppm"],
+      "cuda": [
+        "cuda-13.0.x/cusolverDn.json"
+      ],
+      "hip": [
+        "rocm-10.0.0/hipsolver.json"
+      ],
+      "src": [
+        "src/cuda/cusolverDn.cppm"
+      ],
       "omissions": [
         {
           "key": "cusolverMg",
@@ -58,9 +91,15 @@
     },
     "sparse": {
       "contract": "curated-subset",
-      "cuda": ["cuda-13.0.x/cusparse.json"],
-      "hip": ["rocm-7.2.4/hipsparse.json"],
-      "src": ["src/cuda/cusparse.cppm"],
+      "cuda": [
+        "cuda-13.0.x/cusparse.json"
+      ],
+      "hip": [
+        "rocm-10.0.0/hipsparse.json"
+      ],
+      "src": [
+        "src/cuda/cusparse.cppm"
+      ],
       "omissions": [
         {
           "key": "spmmop_preview",
@@ -87,37 +126,45 @@
     },
     "runtime_api": {
       "contract": "whole-surface",
-      "cuda": ["cuda-13.0.x/cuda_runtime_api.json"],
-      "hip": ["rocm-7.2.4/hip_runtime_api.json"],
-      "src": ["src/runtime_api.cppm", "src/runtime_api.h", "src/detail/runtime_api_names.h"],
+      "cuda": [
+        "cuda-13.0.x/cuda_runtime_api.json"
+      ],
+      "hip": [
+        "rocm-10.0.0/hip_runtime_api.json"
+      ],
+      "src": [
+        "src/runtime_api.cppm",
+        "src/runtime_api.h",
+        "src/detail/runtime_api_names.h"
+      ],
       "omissions": [
         {
           "key": "externalmemorygetmappedmipmappedarray",
           "cuda": "cudaExternalMemoryGetMappedMipmappedArray",
           "hip": "hipExternalMemoryGetMappedMipmappedArray",
-          "why": "Declared in the HIP runtime header but not exported by libamdhip64.so.7.2.70204. Calling it fails to link, so hip_runtime_api.cppm carries only the declaration (WWR_DECLARED_CHECK). Recorded in hip_runtime_api.json's declared_not_linkable.",
-          "source": "test/hip/hip_runtime_api.cppm (WWR_DECLARED_CHECK), vendor/rocm-7.2.4/hip_runtime_api.json"
+          "why": "Omitted from the neutral layer as part of the DEFERRED external memory / semaphore family below. Until ROCm 10.0.0 it was also not exported by libamdhip64 at all (declared-only, WWR_DECLARED_CHECK); the 10.0.0 pin DOES export it, so that second reason has lapsed and test/hip/hip_runtime_api.cppm carries both checks behind WWR_HIP_SINCE_7_15. See docs/architecture.md section 21.",
+          "source": "test/hip/hip_runtime_api.cppm (version-guarded link check), vendor/rocm-10.0.0/hip_runtime_api.json, #307"
         },
         {
           "key": "graphics_interop",
           "cuda": "cudaGraphics*",
           "hip": "hipGraphics*",
           "why": "The graphics-interop family (cudaGraphics* / hipGraphics*: OpenGL / Direct3D / EGL / VDPAU resource registration and mapping) is DEFERRED for v1, not rejected. wwr targets compute and no neutral graphics-interop layer is scoped; both backends declare the family, so this is a deliberate, reversible omission rather than an absent counterpart. Listed before the broad graph entry below because the cudaGraph* wildcard there also prefix-matches these names.",
-          "source": "issue #265 (milestone #4: whole-surface runtime_api), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-7.2.4/hip_runtime_api.json"
+          "source": "issue #265 (milestone #4: whole-surface runtime_api), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-10.0.0/hip_runtime_api.json"
         },
         {
           "key": "graph",
           "cuda": "cudaGraph*|cudaChildGraphNodeParams|cudaDeviceGetGraphMemAttribute|cudaDeviceGraphMemTrim|cudaDeviceSetGraphMemAttribute|cudaStreamBeginCaptureToGraph",
           "hip": "hipGraph*|hipChildGraphNodeParams|hipDeviceGetGraphMemAttribute|hipDeviceGraphMemTrim|hipDeviceSetGraphMemAttribute|hipStreamBeginCaptureToGraph",
           "why": "The CUDA execution-graph API -- Graph / GraphExec / GraphNode construction and update, stream-capture-to-graph, and the device-side graph-memory and child-graph-node helpers -- is DEFERRED for v1, not rejected. The few entry points the existing wrappers already use (wwrGraphCreate / GraphDestroy / GraphExecDestroy / GraphLaunch / GraphUpload / GraphInstantiate and the wwrGraph_t / wwrGraphExec_t handles) stay wrapped; the rest of the ~130-symbol surface is a deliberate, reversible omission until a neutral graph layer is scoped. The cudaGraph* wildcard also prefix-matches the graphics-interop names documented separately above.",
-          "source": "issue #265 (milestone #4: whole-surface runtime_api), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-7.2.4/hip_runtime_api.json"
+          "source": "issue #265 (milestone #4: whole-surface runtime_api), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-10.0.0/hip_runtime_api.json"
         },
         {
           "key": "external",
           "cuda": "cudaExternal*|cudaDestroyExternal*|cudaImportExternal*|cudaSignalExternalSemaphoresAsync|cudaWaitExternalSemaphoresAsync",
           "hip": "hipExternal*|hipDestroyExternal*|hipImportExternal*|hipSignalExternalSemaphoresAsync|hipWaitExternalSemaphoresAsync",
           "why": "The external memory / semaphore interop family (import, map, signal, wait and destroy of Vulkan / D3D / NvSci external resources and timeline semaphores) is DEFERRED for v1, not rejected: it has no neutral consumer and pulls in platform handle types wwr does not model. Deliberate, reversible omission. The single declared-not-linkable HIP member is documented separately above (externalmemorygetmappedmipmappedarray).",
-          "source": "issue #265 (milestone #4: whole-surface runtime_api), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-7.2.4/hip_runtime_api.json"
+          "source": "issue #265 (milestone #4: whole-surface runtime_api), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-10.0.0/hip_runtime_api.json"
         },
         {
           "key": "floor_absent_rocm_7_1_0",
@@ -131,7 +178,49 @@
           "cuda": "cudaJitCacheMode",
           "hip": "hipJitCacheMode",
           "why": "A spurious name-collision, not a shared entity: cudaJitCacheMode is an ENUM CONSTANT of cudaJitOption on CUDA, while hipJitCacheMode is an ENUM TYPE on HIP. They normalise to the same key but are different kinds, so neither WWR_RT_VALUE nor WWR_RT_TYPE can bind both -- there is nothing to wrap. The genuinely shared jit names (JitCacheOption*, JitOption, etc.) are wrapped normally.",
-          "source": "vendor/cuda-13.0.x/cuda_runtime_api.json (EnumConstantDecl) vs vendor/rocm-7.2.4/hip_runtime_api.json (enum type)"
+          "source": "vendor/cuda-13.0.x/cuda_runtime_api.json (EnumConstantDecl) vs vendor/rocm-10.0.0/hip_runtime_api.json (enum type)"
+        },
+        {
+          "key": "cluster",
+          "cuda": "cudaCluster*|cudaFuncAttributeCluster*|cudaFuncAttributeRequiredCluster*|cudaFuncAttributeNonPortableClusterSizeAllowed|cudaLaunchAttributeCluster*|cudaOccupancyMaxActiveClusters|cudaOccupancyMaxPotentialClusterSize|cudaErrorInvalidClusterSize",
+          "hip": "hipCluster*|hipFuncAttributeCluster*|hipFuncAttributeRequiredCluster*|hipFuncAttributeNonPortableClusterSizeAllowed|hipLaunchAttributeCluster*|hipOccupancyMaxActiveClusters|hipOccupancyMaxPotentialClusterSize|hipErrorInvalidClusterSize",
+          "why": "The thread-block CLUSTER family (scheduling policy, the cluster func/launch attributes, the two occupancy queries and the invalid-size error) became shared only when the pin moved to ROCm 10.0.0 -- CUDA 13.0 had it, the ROCm 7.1.0 FLOOR does not. Wrapping it is DEFERRED, not rejected, and the blocker is structural rather than per-name: src/detail/runtime_api_names.h carries 487 aliases and no version guard at all, because the neutral layer assumes every name it aliases exists on both backends at every supported version. A floor-gap guard convention has to be decided before any of these can be aliased. #334 has the design options.",
+          "source": "issue #334 (the ROCm 7.1.0 -> 10.0.0 pin move, #307), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-10.0.0/hip_runtime_api.json"
+        },
+        {
+          "key": "mempool_get_set_fabric",
+          "cuda": "cudaMemGetDefaultMemPool|cudaMemGetMemPool|cudaMemSetMemPool|cudaMemAllocationTypeManaged|cudaMemHandleTypeFabric|cudaMemFabricHandle_st|cudaMemFabricHandle_t",
+          "hip": "hipMemGetDefaultMemPool|hipMemGetMemPool|hipMemSetMemPool|hipMemAllocationTypeManaged|hipMemHandleTypeFabric|hipMemFabricHandle_st|hipMemFabricHandle_t",
+          "why": "The per-pointer mem-pool get/set calls plus the managed allocation type and the fabric IPC handle type: shared only from the ROCm 10.0.0 pin, absent at the 7.1.0 floor, so DEFERRED on the same floor-gap guard decision as the cluster family above (#334). The mem-pool surface wwr already wraps (wwrMemPoolCreate/Destroy/SetAttribute/TrimTo and wwrMemPoolProps) is unaffected.",
+          "source": "issue #334 (the ROCm 7.1.0 -> 10.0.0 pin move, #307), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-10.0.0/hip_runtime_api.json"
+        },
+        {
+          "key": "batch_mem_ops",
+          "cuda": "cudaMemPrefetchBatchAsync|cudaMemDiscardBatchAsync|cudaMemDiscardAndPrefetchBatchAsync",
+          "hip": "hipMemPrefetchBatchAsync|hipMemDiscardBatchAsync|hipMemDiscardAndPrefetchBatchAsync",
+          "why": "The batched prefetch/discard managed-memory operations, shared only from the ROCm 10.0.0 pin and absent at the 7.1.0 floor. DEFERRED on the floor-gap guard decision (#334); no consumer in this tree asks for them.",
+          "source": "issue #334 (the ROCm 7.1.0 -> 10.0.0 pin move, #307), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-10.0.0/hip_runtime_api.json"
+        },
+        {
+          "key": "memory_requirements",
+          "cuda": "cudaArrayMemoryRequirements|cudaMipmappedArrayGetMemoryRequirements",
+          "hip": "hipArrayMemoryRequirements|hipMipmappedArrayGetMemoryRequirements",
+          "why": "The array memory-requirements struct and the mipmapped-array query that fills it, shared only from the ROCm 10.0.0 pin. DEFERRED on the floor-gap guard decision (#334). The array/mipmapped-array surface wwr wraps today does not include them.",
+          "source": "issue #334 (the ROCm 7.1.0 -> 10.0.0 pin move, #307), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-10.0.0/hip_runtime_api.json"
+        },
+        {
+          "key": "library_get",
+          "cuda": "cudaLibraryGetGlobal|cudaLibraryGetManaged",
+          "hip": "hipLibraryGetGlobal|hipLibraryGetManaged",
+          "why": "Two library-management lookups (global and managed symbol by name), shared only from the ROCm 10.0.0 pin and absent at the 7.1.0 floor. DEFERRED on the floor-gap guard decision (#334).",
+          "source": "issue #334 (the ROCm 7.1.0 -> 10.0.0 pin move, #307), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-10.0.0/hip_runtime_api.json"
+        },
+        {
+          "key": "rocm10_leftovers",
+          "cuda": "cudaLaunchAttributeIgnore|cudaErrorInvalidResourceConfiguration|cudaErrorInvalidResourceType",
+          "hip": "hipLaunchAttributeIgnore|hipErrorInvalidResourceConfiguration|hipErrorInvalidResourceType",
+          "why": "The three singletons the 7.1.0 -> 10.0.0 step adds to the shared surface outside any family above: the no-op launch attribute and two resource error codes. DEFERRED with the rest on the floor-gap guard decision (#334) -- an enumerator is one alias line, but it is one alias line that does not compile at the floor.",
+          "source": "issue #334 (the ROCm 7.1.0 -> 10.0.0 pin move, #307), vendor/cuda-13.0.x/cuda_runtime_api.json + vendor/rocm-10.0.0/hip_runtime_api.json"
         }
       ]
     }

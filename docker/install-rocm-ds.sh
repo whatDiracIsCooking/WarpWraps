@@ -54,13 +54,14 @@
 # still correct. wwr.hip.hipcomp compiles against it too. v2.2.0 remains
 # upstream's only tag, so there is nothing to bump even if there were a reason.
 #
-# hipCOMP is therefore NOT what blocks ROCm 10. That is the host toolchain, and
-# it is tracked as issue #307: ROCm 10 ships AMD clang 23 and its device bitcode
-# is LLVM-23-produced, which clang-20 cannot read ("Unknown attribute kind (106)
-# ... Reader: LLVM 20.1.8"), so every `.cu` device TU fails. #307 has the
-# measurement, including why stubbing clang-20's four missing oclc_* files does
-# not get around it and why ROCm's own clang cannot be used for just the `.cu`
-# files (module PCMs are not portable across compiler versions).
+# hipCOMP is therefore NOT what blocked ROCm 10. That was the host toolchain,
+# and #307 moved it: Dockerfile.base is clang 23 and ships its own lld, which is
+# what lets a `.cu` device TU compile against a TheRock ROCm at all. The same
+# measurement runs the other way, and is why the toolchain and the ROCm pin
+# cannot move separately -- clang 23 dropped 89 `__ocml_*` declarations from
+# __clang_hip_libdevice_declares.h that ROCm <= 7.2.4's amd_hip_fp16.h still
+# calls from unconditional inline __device__ functions. So clang <= 22 goes with
+# ROCm <= 7.2.4 and clang 23 with ROCm >= 7.9; #307 has both halves.
 set -euo pipefail
 
 HIPCOMP_VERSION="${HIPCOMP_VERSION:?HIPCOMP_VERSION must be set, e.g. v2.2.0}"

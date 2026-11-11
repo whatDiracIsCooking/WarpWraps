@@ -5,13 +5,16 @@ module;
 #include "test/shared/link_check.h"
 
 // The two SIGMOID epilogues are guarded in src/hip/hipblaslt.cppm -- hipBLASLt
-// 1.2 (ROCm 7.2) added them and the 7.1 floor's 1.1 has neither -- so the
-// assertions below are guarded identically. This TU imports the module and
-// includes no hipBLASLt header, so it takes the version from the one that is
-// only macros. Keep the spelling in step with the wrapper's.
+// 1.2 (ROCm 7.2) added them, the 7.1 floor's 1.1 has neither, and 1.4.1 (ROCm
+// 10.0.0) renamed one and dropped the other -- so the assertions below carry
+// both bounds, identically. This TU imports the module and includes no hipBLASLt
+// header, so it takes the version from the one that is only macros. Keep the
+// spelling in step with the wrapper's.
 #include <hipblaslt/hipblaslt-version.h>
 #define WWR_HIPBLASLT_SINCE_1_2                                                                    \
   (HIPBLASLT_VERSION_MAJOR > 1 || (HIPBLASLT_VERSION_MAJOR == 1 && HIPBLASLT_VERSION_MINOR >= 2))
+#define WWR_HIPBLASLT_BEFORE_1_4                                                                   \
+  (HIPBLASLT_VERSION_MAJOR < 1 || (HIPBLASLT_VERSION_MAJOR == 1 && HIPBLASLT_VERSION_MINOR < 4))
 
 export module wwr.test.hip.hipblaslt;
 
@@ -68,7 +71,7 @@ static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_CLAMP_EXT) == 131072);
 static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_CLAMP_BIAS_EXT) == 131076);
 static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_CLAMP_AUX_EXT) == 131200);
 static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_CLAMP_AUX_BIAS_EXT) == 131204);
-#if WWR_HIPBLASLT_SINCE_1_2
+#if WWR_HIPBLASLT_SINCE_1_2 && WWR_HIPBLASLT_BEFORE_1_4
 static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_SIGMOID_EXT) == 262144);
 static_assert(static_cast<int>(HIPBLASLT_EPILOGUE_SIGMOID_BIAS_EXT) == 262148);
 #endif
@@ -103,7 +106,11 @@ static_assert(static_cast<int>(HIPBLASLT_MATMUL_MATRIX_SCALE_VEC32_UE8M0) == 2);
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_MATRIX_SCALE_OUTER_VEC_32F) == 3);
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_MATRIX_SCALE_VEC128_32F) == 4);
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_MATRIX_SCALE_BLK128x128_32F) == 5);
+#if WWR_HIPBLASLT_BEFORE_1_4
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_MATRIX_SCALE_END) == 6);
+#else
+static_assert(static_cast<int>(HIPBLASLT_MATMUL_MATRIX_SCALE_END) == 1006);
+#endif
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum values: hipblasLtMatmulDescAttributes_t
@@ -131,7 +138,11 @@ static_assert(static_cast<int>(HIPBLASLT_MATMUL_DESC_COMPUTE_INPUT_TYPE_A_EXT) =
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_DESC_COMPUTE_INPUT_TYPE_B_EXT) == 101);
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_DESC_EPILOGUE_ACT_ARG0_EXT) == 102);
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_DESC_EPILOGUE_ACT_ARG1_EXT) == 103);
+#if WWR_HIPBLASLT_BEFORE_1_4
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_DESC_MAX) == 104);
+#else
+static_assert(static_cast<int>(HIPBLASLT_MATMUL_DESC_MAX) == 105);
+#endif
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum values: hipblasLtMatmulPreferenceAttributes_t
@@ -139,7 +150,11 @@ static_assert(static_cast<int>(HIPBLASLT_MATMUL_DESC_MAX) == 104);
 
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_PREF_SEARCH_MODE) == 0);
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES) == 1);
+#if WWR_HIPBLASLT_BEFORE_1_4
 static_assert(static_cast<int>(HIPBLASLT_MATMUL_PREF_MAX) == 2);
+#else
+static_assert(static_cast<int>(HIPBLASLT_MATMUL_PREF_MAX) == 3);
+#endif
 
 // ────────────────────────────────────────────────────────────────────────
 // Enum values: hipblasLtOrder_t
