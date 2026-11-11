@@ -85,6 +85,9 @@ gen/ffi.rs         the Rust side: one extern "C" block, #[repr(C)] PODs, the
 capi/CMakeLists.txt  the wwr.capi shared-library target + the driver ctest.
 driver.c           a pure-C consumer (stands in for Rust's FFI) that links the
                    symbols and checks the numbers; run as the wwr.capi.driver ctest.
+driver.rs          the real Rust consumer: include!s gen/ffi.rs and links
+                   libwwr_capi.so, compiled rustc-direct (no cargo) and run as the
+                   wwr.capi.driver_rs ctest — rustc-gated (see "rustc in the loop").
 ```
 
 `gen/` is a committed snapshot so the PR is reviewable without running anything;
@@ -99,12 +102,36 @@ against the module graph, so it builds as a CMake target like any other.
 ```bash
 cmake --preset default            # CUDA (or --preset hip, inside the wwr:hip image)
 cmake --build build --target wwr.capi wwr.capi.driver
-ctest --test-dir build -R wwr.capi   # runs driver.c; complex arithmetic + status
+ctest --test-dir build -R wwr.capi   # runs driver.c (+ driver_rs if rustc is found)
 ```
 
 `wwr.capi` (real dotted name, aliased `wwr::capi`) is a shared library gated ON
-for a top-level build by `WWR_BUILD_EXPERIMENTAL`; the `wwr.capi.driver` ctest is
-gated by `WWR_BUILD_TESTS` and is host-only, so it runs on no-GPU CI.
+for a top-level build by `WWR_BUILD_EXPERIMENTAL`. Its output file is
+`libwwr_capi.so` (an `OUTPUT_NAME` override, matching `ffi.rs`'s `wwr_capi` link
+name and the C ABI's `wwr_` symbol prefix) while the target keeps the dotted
+name. The `wwr.capi.driver` ctest is gated by `WWR_BUILD_TESTS` and is host-only,
+so it runs on no-GPU CI.
+
+## rustc in the loop
+
+`driver.rs` is the real Rust consumer the C driver has stood in for: it
+`include!`s the generated `gen/ffi.rs` and links `libwwr_capi.so`, compiled
+rustc-direct (no cargo) and run as the `wwr.capi.driver_rs` ctest. It mirrors
+`driver.c`'s assertions — the complex arithmetic and the stable `wwr_status`
+surface — so the two stand in for each other.
+
+It is gated on `find_program(RUSTC rustc)`, **not** merely on `WWR_BUILD_TESTS`,
+and that gate follows the repo's image/CI contract. `ci.yml`'s `cpp` jobs run
+inside the container image `main` already published; `container:` is resolved
+before any step, so a PR that adds rust to `docker/` is still tested against the
+**old, rust-less** image (the `images.yml` PR check only *builds* the new
+Dockerfile, it does not publish it — see both workflow headers). With no `rustc`
+there, the Rust test cleanly does not register and CMake prints a visible skip,
+exactly like the repo's GPU-gated tests, so the PR adding it is green. Once
+`images.yml` republishes the rust-enabled base on `main`, every later `cpp` run
+finds `rustc` and runs it. The toolchain is pinned in `docker/Dockerfile.base`
+(`ARG RUST_VERSION`), installed via `rustup --profile minimal` to a shared
+`/opt/cargo` + `/opt/rustup` so cuda/hip/combined all inherit it.
 
 ## What this does NOT cover (yet)
 
@@ -117,5 +144,9 @@ gated by `WWR_BUILD_TESTS` and is host-only, so it runs on no-GPU CI.
   it once the Rust/status story settles (#329).
 - **The spec is hand-written here**, provisional until sourced from the canonical
   name surface (architecture.md §25, #328).
-- **No `rustc` in the loop.** `ffi.rs` is generated but not compiled; `driver.c`
-  stands in for the Rust ABI exactly. That is #329 increment 3 (optional).
+- **`rustc` in the loop, but gated.** `ffi.rs` is now compiled and run as the
+  `wwr.capi.driver_rs` ctest (#329 increment 3) — *when* `rustc` is present. It is
+  present in the rust-enabled image published by `images.yml`; it is absent in the
+  image a PR's `cpp` jobs run against until that republish lands, so the test
+  skips there (see "rustc in the loop"). `driver.c` remains and stands in
+  whenever the Rust leg is skipped.
