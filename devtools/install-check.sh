@@ -59,12 +59,18 @@
 #                   them, which is what proves the wrapper install rules.
 #   --capi          configure wwr with -DWWR_INSTALL_CAPI=ON so the package also
 #                   ships the C ABI (src/capi, the prebuilt libwwr_capi.so + the
-#                   plain-C wwr_capi.h), then build+run example/capi-consumer --
-#                   a PURE-C project that find_package()s wwr, links wwr::capi and
-#                   calls the C functions against the INSTALLED .so + header. This
-#                   is the only gate that proves the capi install rules (the .so
-#                   landed, the header travelled, wwr::capi exports, no C++ leak),
-#                   the same way the C++ consumer above proves the module layers.
+#                   plain-C wwr_capi.h + the wwr-sys Rust crate), then build+run
+#                   example/capi-consumer -- a PURE-C project that find_package()s
+#                   wwr, links wwr::capi and calls the C functions against the
+#                   INSTALLED .so + header. This is the only gate that proves the
+#                   capi install rules (the .so landed, the header travelled,
+#                   wwr::capi exports, no C++ leak), the same way the C++ consumer
+#                   above proves the module layers. When rustc is on PATH it ALSO
+#                   builds+runs example/capi-consumer-rs, which depends on the
+#                   INSTALLED wwr-sys crate (path dep on share/wwr/rust/wwr-sys)
+#                   and links the same installed .so -- the end-to-end Rust path
+#                   (#341); a visible skip when rustc is absent, like the
+#                   wwr.capi.driver_rs ctest, so the pre-rust-image CI stays green.
 #
 # Exit status is the first failing step's.
 #: -- help stops here --
@@ -80,6 +86,7 @@ run=1
 extension=0
 wrappers=1
 capi=0
+capi_rs_built=0
 
 while [ $# -gt 0 ]; do
   case $1 in
@@ -106,6 +113,7 @@ done
 build_dir=$REPO_ROOT/build-install-check
 consumer_build=$REPO_ROOT/build-install-check-consumer
 capi_consumer_build=$REPO_ROOT/build-install-check-capi-consumer
+capi_consumer_rs_build=$REPO_ROOT/build-install-check-capi-consumer-rs
 
 if [ -z "$prefix" ]; then
   prefix=$(mktemp -d -t wwr-install-XXXXXX)
@@ -121,11 +129,15 @@ cleanup() {
     echo
     echo "kept: install prefix   $prefix"
     echo "kept: consumer build   $consumer_build"
-    [ "$capi" -eq 1 ] && echo "kept: capi consumer    $capi_consumer_build"
+    if [ "$capi" -eq 1 ]; then
+      echo "kept: capi consumer    $capi_consumer_build"
+      [ -d "$capi_consumer_rs_build" ] &&
+        echo "kept: capi consumer rs $capi_consumer_rs_build"
+    fi
     return
   fi
   [ "$created_prefix" -eq 1 ] && rm -rf "$prefix"
-  rm -rf "$consumer_build" "$capi_consumer_build"
+  rm -rf "$consumer_build" "$capi_consumer_build" "$capi_consumer_rs_build"
 }
 trap cleanup EXIT
 
@@ -324,6 +336,69 @@ if [ "$capi" -eq 1 ]; then
     exit 1
   fi
   echo "  capi consumer links the installed lib: $capi_so"
+
+  # 3c. The Rust end-to-end half (#341). example/capi-consumer-rs is a standalone
+  # cargo project that depends on the INSTALLED wwr-sys crate the way a real Rust
+  # user does -- a path dependency on <prefix>/share/wwr/rust/wwr-sys (installed
+  # by -DWWR_INSTALL_CAPI=ON above) -- and that crate links the INSTALLED
+  # libwwr_capi.so via WWR_CAPI_LIB_DIR=<prefix>/lib. So this proves "add wwr-sys
+  # as a dependency and link the installed lib", not just the crate's own tests.
+  #
+  # GATED on rustc, exactly like the wwr.capi.driver_rs ctest's find_program(rustc)
+  # gate: no rustc -> a visible skip, not a failure, so the pre-rust-image CI path
+  # (container: resolved to the OLD rust-less image) stays green. Once the
+  # rust-enabled image is on main, every run finds rustc and runs this.
+  if command -v cargo >/dev/null 2>&1; then
+    step "3c/4  build example/capi-consumer-rs against the installed wwr-sys crate"
+    wwr_sys_installed="$prefix/share/wwr/rust/wwr-sys"
+    if [ ! -f "$wwr_sys_installed/Cargo.toml" ]; then
+      echo "install-check.sh: FAIL -- installed wwr-sys crate not found at" >&2
+      echo "  $wwr_sys_installed (the -DWWR_INSTALL_CAPI crate skeleton)." >&2
+      exit 1
+    fi
+    # Build out of tree, same as the C consumer: copy the crate, fill its
+    # placeholder path dependency with the installed crate's location, and build
+    # there. Nothing is written back into the source tree.
+    rm -rf "$capi_consumer_rs_build"
+    mkdir -p "$capi_consumer_rs_build"
+    cp -r "$REPO_ROOT/example/capi-consumer-rs/." "$capi_consumer_rs_build/"
+    # sed delimiter is '|' because the path contains '/'. The placeholder is the
+    # literal committed in Cargo.toml.
+    sed -i "s|__WWR_SYS_PATH__|$wwr_sys_installed|" "$capi_consumer_rs_build/Cargo.toml"
+    # WWR_CAPI_LIB_DIR points wwr-sys's build.rs at the installed .so (it emits
+    # the link search + lib + an rpath, so the binary runs with no LD_LIBRARY_PATH).
+    # A dedicated CARGO_TARGET_DIR keeps artifacts inside this throwaway build dir.
+    WWR_CAPI_LIB_DIR="$prefix/lib" \
+    CARGO_TARGET_DIR="$capi_consumer_rs_build/target" \
+      cargo build --manifest-path "$capi_consumer_rs_build/Cargo.toml" --release
+    capi_rs_bin="$capi_consumer_rs_build/target/release/wwr-capi-consumer-rs"
+    if [ ! -x "$capi_rs_bin" ]; then
+      echo
+      echo "install-check.sh: FAIL -- Rust consumer build succeeded but produced" >&2
+      echo "  no '$capi_rs_bin' binary." >&2
+      exit 1
+    fi
+    # Same INSTALLED-lib proof as the C consumer: the Rust binary's libwwr_capi.so
+    # must resolve inside the throwaway prefix, not an in-tree build dir.
+    capi_rs_so=$(ldd "$capi_rs_bin" 2>/dev/null |
+      awk '/libwwr_capi\.so/ { print $3 }')
+    case "${capi_rs_so:-}" in
+      "$prefix"/*) rs_linked_install=1 ;;
+      *) rs_linked_install=0 ;;
+    esac
+    if [ "$rs_linked_install" -eq 0 ]; then
+      echo
+      echo "install-check.sh: FAIL -- Rust consumer does not link the INSTALLED" >&2
+      echo "  libwwr_capi.so (resolved to '${capi_rs_so:-<none>}', not under $prefix)." >&2
+      exit 1
+    fi
+    echo "  Rust consumer links the installed lib: $capi_rs_so"
+    capi_rs_built=1
+  else
+    step "3c/4  skipped -- rustc/cargo not found (Rust consumer)"
+    echo "  no cargo on PATH; the C consumer above stands in for the Rust one"
+    echo "  (same gate as the wwr.capi.driver_rs ctest). Pre-rust-image CI path."
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -359,6 +434,10 @@ run_consumer() {
 
 run_consumer "$consumer_build/consumer" "consumer"
 [ "$capi" -eq 1 ] && run_consumer "$capi_consumer_build/capi_consumer" "capi consumer"
+# The Rust consumer runs only when it was built (rustc present); its build.rs
+# baked an rpath to $prefix/lib, so it finds the .so with no LD_LIBRARY_PATH.
+[ "$capi_rs_built" -eq 1 ] &&
+  run_consumer "$capi_consumer_rs_build/target/release/wwr-capi-consumer-rs" "Rust consumer"
 
 echo
 echo "install-check.sh: PASS"

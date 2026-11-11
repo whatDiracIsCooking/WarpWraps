@@ -1,6 +1,6 @@
 # `example/`
 
-Five things, and only the first three are part of this build.
+Six things, and only the first three are part of this build.
 
 | Directory | What it is | Who builds it |
 |---|---|---|
@@ -9,15 +9,28 @@ Five things, and only the first three are part of this build.
 | `device_handle/` | The ready-made pool-tier handle — `kit::DeviceHandle` | the main build, on either backend |
 | `consumer/` | A standalone C++ project consuming an **installed** wwr | `devtools/install-check.sh` |
 | `capi-consumer/` | A standalone **pure-C** project consuming the installed C ABI (`wwr::capi`) | `devtools/install-check.sh --capi` |
+| `capi-consumer-rs/` | A standalone **Rust** project consuming the installed `wwr-sys` crate | `devtools/install-check.sh --capi`, when rustc is present |
 
-`consumer/` and `capi-consumer/` have their own `project()` call and are not
-added by `example/CMakeLists.txt`: the whole point is that each knows nothing
-about this source tree and reaches wwr only through `find_package(wwr)`.
+`consumer/`, `capi-consumer/` and `capi-consumer-rs/` are not added by
+`example/CMakeLists.txt`: the whole point is that each knows nothing about this
+source tree and reaches wwr only through its installed artifacts.
 `capi-consumer/` is the C-only half — it links the prebuilt `libwwr_capi.so` and
 `#include`s the installed `wwr_capi.h` with no C++23-module toolchain at all,
 which is the one thing that proves the capi installs as a usable non-C++ FFI
 target. It builds and runs only when the capi was installed
 (`--capi` → `-DWWR_INSTALL_CAPI=ON`).
+
+`capi-consumer-rs/` is the Rust end-to-end half (#341): a cargo project that
+depends on the **installed** `wwr-sys` crate (a path dependency on
+`<prefix>/share/wwr/rust/wwr-sys`, which `--capi` installs) and links the same
+installed `libwwr_capi.so` through it — the way a real Rust user consumes the
+ABI, not just the crate's own `cargo test`. Its committed `Cargo.toml` carries a
+`__WWR_SYS_PATH__` placeholder that `install-check.sh` fills with the throwaway
+install prefix before building out of tree; `WWR_CAPI_LIB_DIR=<prefix>/lib`
+points `wwr-sys`'s `build.rs` at the installed `.so`. It builds and runs only
+when rustc is on `PATH` (a visible skip otherwise, like the `wwr.capi.driver_rs`
+ctest), and asserts `wwr_cadd64` / `wwr_runtime_get_version` give the right
+answers — non-zero exit on wrong, 77 when no device runtime is reachable.
 
 ## `warp_reduce/` — an exemplar, not a library
 
