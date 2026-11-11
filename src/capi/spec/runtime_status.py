@@ -55,13 +55,21 @@ CAPI_PREFIX = "wwr_"
 # BaseHandle two-liveness-paths divergence, see detail/runtime_api_names.h), so
 # they are not one vendor-free handle, and the few functions that take them are
 # skipped by the generator.
+# The NEUTRAL `wwr*_t` spelling is listed beside each vendor pair because the
+# hand-written forwarders (wwrMallocAsync, wwrGraphInstantiate, ...) are written
+# in neutral types -- the classifier resolves their parsed signature against this
+# same registry, not a vendor manifest decl. A vendor-keyed macro function and a
+# neutral-keyed hand-written function both land on the one vendor-free capi_type.
 HANDLES = [
-    Handle(vendor_types=("cudaStream_t", "hipStream_t"), capi_type="wwr_stream"),
-    Handle(vendor_types=("cudaEvent_t", "hipEvent_t"), capi_type="wwr_event"),
-    Handle(vendor_types=("cudaMemPool_t", "hipMemPool_t"),
+    Handle(vendor_types=("cudaStream_t", "hipStream_t", "wwrStream_t"),
+           capi_type="wwr_stream"),
+    Handle(vendor_types=("cudaEvent_t", "hipEvent_t", "wwrEvent_t"),
+           capi_type="wwr_event"),
+    Handle(vendor_types=("cudaMemPool_t", "hipMemPool_t", "wwrMemPool_t"),
            capi_type="wwr_mem_pool"),
-    Handle(vendor_types=("cudaGraph_t", "hipGraph_t"), capi_type="wwr_graph"),
-    Handle(vendor_types=("cudaGraphExec_t", "hipGraphExec_t"),
+    Handle(vendor_types=("cudaGraph_t", "hipGraph_t", "wwrGraph_t"),
+           capi_type="wwr_graph"),
+    Handle(vendor_types=("cudaGraphExec_t", "hipGraphExec_t", "wwrGraphExec_t"),
            capi_type="wwr_graph_exec"),
     Handle(vendor_types=("cudaArray_t", "hipArray_t"), capi_type="wwr_array"),
     Handle(vendor_types=("cudaArray_const_t", "hipArray_const_t"),
@@ -86,7 +94,7 @@ HANDLES = [
 # entries (WWR_RT_VALUE(Success), WWR_RT_VALUE(ErrorInvalidValue), ...), so this
 # lists the MAPPING, not a second copy of the names.
 STATUS = EnumMap(
-    vendor_types=("cudaError_t", "hipError_t"),
+    vendor_types=("cudaError_t", "hipError_t", "wwrError_t"),
     capi_type="wwr_status",
     success="WWR_STATUS_SUCCESS",
     unknown="WWR_STATUS_UNKNOWN",

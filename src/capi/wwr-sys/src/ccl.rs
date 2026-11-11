@@ -70,7 +70,7 @@ extern "C" {
     pub fn wwr_ccl_comm_get_async_error(comm: wwr_ccl_comm, asyncError: *mut wwr_ccl_result) -> wwr_ccl_result;
     pub fn wwr_ccl_comm_init_all(comm: *mut wwr_ccl_comm, ndev: i32, devlist: *const i32) -> wwr_ccl_result;
     pub fn wwr_ccl_comm_init_rank_scalable(newcomm: *mut wwr_ccl_comm, nranks: i32, myrank: i32, nId: i32, commIds: *mut core::ffi::c_void, config: *mut core::ffi::c_void) -> wwr_ccl_result;
-    pub fn wwr_ccl_comm_register(comm: wwr_ccl_comm, buff: *mut core::ffi::c_void, size: usize, handle: *mut core::ffi::c_void) -> wwr_ccl_result;
+    pub fn wwr_ccl_comm_register(comm: wwr_ccl_comm, buff: *mut core::ffi::c_void, size: usize, handle: *mut *mut core::ffi::c_void) -> wwr_ccl_result;
     pub fn wwr_ccl_comm_shrink(comm: wwr_ccl_comm, excludeRanksList: *mut i32, excludeRanksCount: i32, newcomm: *mut wwr_ccl_comm, config: *mut core::ffi::c_void, shrinkFlags: i32) -> wwr_ccl_result;
     pub fn wwr_ccl_comm_split(comm: wwr_ccl_comm, color: i32, key: i32, newcomm: *mut wwr_ccl_comm, config: *mut core::ffi::c_void) -> wwr_ccl_result;
     pub fn wwr_ccl_comm_user_rank(comm: wwr_ccl_comm, rank: *mut i32) -> wwr_ccl_result;
@@ -83,7 +83,7 @@ extern "C" {
     pub fn wwr_ccl_group_end() -> wwr_ccl_result;
     pub fn wwr_ccl_group_simulate_end(simInfo: *mut core::ffi::c_void) -> wwr_ccl_result;
     pub fn wwr_ccl_group_start() -> wwr_ccl_result;
-    pub fn wwr_ccl_mem_alloc(ptr: *mut core::ffi::c_void, size: usize) -> wwr_ccl_result;
+    pub fn wwr_ccl_mem_alloc(ptr: *mut *mut core::ffi::c_void, size: usize) -> wwr_ccl_result;
     pub fn wwr_ccl_mem_free(ptr: *mut core::ffi::c_void) -> wwr_ccl_result;
     pub fn wwr_ccl_recv(recvbuff: *mut core::ffi::c_void, count: usize, datatype: wwr_ccl_data_type, peer: i32, comm: wwr_ccl_comm, stream: wwr_stream) -> wwr_ccl_result;
     pub fn wwr_ccl_red_op_create_pre_mul_sum(op: *mut wwr_ccl_red_op, scalar: *mut core::ffi::c_void, datatype: wwr_ccl_data_type, residence: wwr_ccl_scalar_residence, comm: wwr_ccl_comm) -> wwr_ccl_result;

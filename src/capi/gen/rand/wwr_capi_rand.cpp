@@ -179,11 +179,11 @@ wwr_rand_status wwr_rand_generate_uniform_double(wwr_rand_generator generator, d
   return _from_status(_fwd(wwr::wwrrandGenerateUniformDouble, generator, outputPtr, num));
 }
 
-wwr_rand_status wwr_rand_get_direction_vectors32(void *vectors, wwr_rand_direction_vector_set set) {
+wwr_rand_status wwr_rand_get_direction_vectors32(void **vectors, wwr_rand_direction_vector_set set) {
   return _from_status(_fwd(wwr::wwrrandGetDirectionVectors32, vectors, _to_direction_vector_set(set)));
 }
 
-wwr_rand_status wwr_rand_get_direction_vectors64(void *vectors, wwr_rand_direction_vector_set set) {
+wwr_rand_status wwr_rand_get_direction_vectors64(void **vectors, wwr_rand_direction_vector_set set) {
   return _from_status(_fwd(wwr::wwrrandGetDirectionVectors64, vectors, _to_direction_vector_set(set)));
 }
 

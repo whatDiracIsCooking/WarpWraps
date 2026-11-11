@@ -375,6 +375,10 @@ wwr_tensor_status wwr_tensor_logger_set_file(void *file) {
   return _from_status(_fwd(wwr::wwrtensorLoggerSetFile, file));
 }
 
+wwr_tensor_status wwr_tensor_logger_set_level(int32_t level) {
+  return _from_status(_fwd(wwr::wwrtensorLoggerSetLevel, level));
+}
+
 wwr_tensor_status wwr_tensor_logger_set_mask(int32_t mask) {
   return _from_status(_fwd(wwr::wwrtensorLoggerSetMask, mask));
 }

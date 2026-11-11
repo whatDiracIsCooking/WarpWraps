@@ -15,10 +15,12 @@ vendor-free types fft forces:
   * VALUE ENUMS  Result (the status) and Type (the transform-kind argument)
   * HANDLE  cudaStream_t -> wwr_stream (shared, the only opaque one)
 
-GetStatusName / GetStatusString are hand-written inline forwarders (not
-WWR_FUNCTION_RAW) and so are not fragment-parsed -- they are reached through the
-raw module, like the surface header notes. Everything fft executes runs on the
-device, so the thunks are link-checked on no-GPU CI.
+GetStatusName / GetStatusString are hand-written inline switches (not
+WWR_FUNCTION_RAW): the parser now SEES them, but they wrap backend-divergent
+enumerator sets with no sound 1:1 neutral map, so they are listed in
+explicit_skips (as the solver pair is) and reached through the raw module, not
+the generic path. Everything fft executes runs on the device, so the thunks are
+link-checked on no-GPU CI.
 """
 
 from __future__ import annotations
@@ -93,6 +95,19 @@ TYPE = ValueEnum(
 
 VALUE_ENUMS = [RESULT, TYPE]
 
+# The two hand-written status-string switches: visible to the parser, but a
+# backend-divergent enumerator mapping the generic path cannot re-wrap soundly
+# (the solver pair's reason, §6). Skipped explicitly so they are LOGGED, never
+# silently wrapped or dropped.
+EXPLICIT_SKIPS = [
+    ("wwrfftGetStatusName",
+     "hand-written inline switch over backend-divergent enumerator sets, "
+     "not a WWR_FUNCTION_RAW fragment entry"),
+    ("wwrfftGetStatusString",
+     "hand-written inline switch over backend-divergent enumerator sets, "
+     "not a WWR_FUNCTION_RAW fragment entry"),
+]
+
 
 def capi_name(wwr_name: str) -> str:
     return snake_capi_name(wwr_name, PREFIX, CAPI_PREFIX)
@@ -109,5 +124,6 @@ SPEC = LibrarySpec(
     pointee_pods=POINTEE_PODS,
     value_enums=VALUE_ENUMS,
     scalar_aliases=SCALAR_ALIASES,
+    explicit_skips=EXPLICIT_SKIPS,
     capi_name=capi_name,
 )

@@ -156,6 +156,19 @@ RUST_SCALAR = {
 # classified return + parameter types -- everything the three emitters need, with
 # no vendor name surviving past this step.
 # ---------------------------------------------------------------------------
+def _classify_params(fc: captypes.Function, reg: captypes.Registry) \
+        -> list[tuple[captypes.Classified, str]]:
+    """Classify a parsed function's parameters, giving any UNNAMED one a synthetic
+    `arg<i>` name. A hand-written forwarder often writes bare types (`wwrMalloc(void
+    **, std::size_t)`); the header tolerates an unnamed C parameter, but the thunk
+    forwards arguments BY NAME and Rust requires a name on every `extern "C"`
+    parameter, so a stable positional name is filled in for both."""
+    out: list[tuple[captypes.Classified, str]] = []
+    for i, c in enumerate(fc.params):
+        out.append((captypes.classify(c.type, reg), c.name or f"arg{i}"))
+    return out
+
+
 class ResolvedFunction:
     def __init__(self, capi: str, wwr: str, ret: captypes.Classified,
                  params: list[tuple[captypes.Classified, str]]) -> None:
@@ -191,22 +204,31 @@ def _resolve_runtime_status() -> tuple[list[ResolvedFunction], captypes.EnumMap]
     for entry in sorted(frag.values(), key=lambda e: e.wwr):
         if entry.kind != "function":
             continue
-        sc = cuda.get(entry.cuda)
-        sh = hip.get(entry.hip)  # raises if the HIP backend lacks the symbol
-        if not sc.decl:
-            skips.append((entry.wwr, f"no decl for {entry.cuda} in the manifest"))
-            continue
-        fc = captypes.parse_function(sc.decl)
-        fh = captypes.parse_function(sh.decl) if sh.decl else fc
-        if len(fc.params) != len(fh.params):
-            skips.append((entry.wwr,
-                          f"CUDA {entry.cuda}/{len(fc.params)} and HIP "
-                          f"{entry.hip}/{len(fh.params)} disagree on arity "
-                          f"(needs a hand-written forwarder)"))
-            continue
+        # A HAND-WRITTEN forwarder (wwrMalloc, wwrMallocAsync, ...) carries its own
+        # signature -- it is not a vendor symbol, so there is no manifest decl to
+        # look up and no two-backend arity to cross-check (the one neutral
+        # signature IS both backends). The vendor-keyed macro functions take the
+        # manifest path below.
+        if entry.decl is not None:
+            fc = captypes.parse_function(entry.decl)
+        else:
+            sc = cuda.get(entry.cuda)
+            sh = hip.get(entry.hip)  # raises if the HIP backend lacks the symbol
+            if not sc.decl:
+                skips.append((entry.wwr,
+                              f"no decl for {entry.cuda} in the manifest"))
+                continue
+            fc = captypes.parse_function(sc.decl)
+            fh = captypes.parse_function(sh.decl) if sh.decl else fc
+            if len(fc.params) != len(fh.params):
+                skips.append((entry.wwr,
+                              f"CUDA {entry.cuda}/{len(fc.params)} and HIP "
+                              f"{entry.hip}/{len(fh.params)} disagree on arity "
+                              f"(needs a hand-written forwarder)"))
+                continue
         try:
             ret = captypes.classify(fc.ret, reg)
-            params = [(captypes.classify(c.type, reg), c.name) for c in fc.params]
+            params = _classify_params(fc, reg)
         except ValueError as ex:
             skips.append((entry.wwr, str(ex).split(":")[0]))
             continue
@@ -296,25 +318,36 @@ def _resolve_library(spec) -> ResolvedLibrary:
     )
 
     skips = list(spec.explicit_skips)
+    # A name a spec lists in explicit_skips is skipped even if the parser now SEES
+    # it (a hand-written GetStatusName/String is a backend-divergent switch the
+    # generic path must not re-wrap, §6) -- the explicit reason wins over the
+    # classifier, and the name is never both skipped and wrapped.
+    explicit = {name for name, _ in spec.explicit_skips}
     resolved: list[ResolvedFunction] = []
     for entry in sorted(frag.values(), key=lambda e: e.wwr):
-        if entry.kind != "function":
+        if entry.kind != "function" or entry.wwr in explicit:
             continue
-        sc = cuda.get(entry.cuda)
-        sh = hip.get(entry.hip)  # raises if the HIP backend lacks the symbol
-        if not sc.decl:
-            skips.append((entry.wwr, f"no decl for {entry.cuda} in the manifest"))
-            continue
-        fc = captypes.parse_function(sc.decl)
-        fh = captypes.parse_function(sh.decl) if sh.decl else fc
-        if len(fc.params) != len(fh.params):
-            skips.append((entry.wwr,
-                          f"CUDA {entry.cuda}/{len(fc.params)} and HIP "
-                          f"{entry.hip}/{len(fh.params)} disagree on arity"))
-            continue
+        # A HAND-WRITTEN forwarder carries its own neutral signature; a macro
+        # function is looked up (and arity-cross-checked) in the manifest pair.
+        if entry.decl is not None:
+            fc = captypes.parse_function(entry.decl)
+        else:
+            sc = cuda.get(entry.cuda)
+            sh = hip.get(entry.hip)  # raises if the HIP backend lacks the symbol
+            if not sc.decl:
+                skips.append((entry.wwr,
+                              f"no decl for {entry.cuda} in the manifest"))
+                continue
+            fc = captypes.parse_function(sc.decl)
+            fh = captypes.parse_function(sh.decl) if sh.decl else fc
+            if len(fc.params) != len(fh.params):
+                skips.append((entry.wwr,
+                              f"CUDA {entry.cuda}/{len(fc.params)} and HIP "
+                              f"{entry.hip}/{len(fh.params)} disagree on arity"))
+                continue
         try:
             ret = captypes.classify(fc.ret, reg)
-            params = [(captypes.classify(c.type, reg), c.name) for c in fc.params]
+            params = _classify_params(fc, reg)
         except ValueError as ex:
             skips.append((entry.wwr, str(ex).split(":")[0]))
             continue

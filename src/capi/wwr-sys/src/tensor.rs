@@ -176,6 +176,7 @@ extern "C" {
     pub fn wwr_tensor_logger_open_file(logFile: *const core::ffi::c_char) -> wwr_tensor_status;
     pub fn wwr_tensor_logger_set_callback(callback: wwr_tensor_logger_callback) -> wwr_tensor_status;
     pub fn wwr_tensor_logger_set_file(file: *mut core::ffi::c_void) -> wwr_tensor_status;
+    pub fn wwr_tensor_logger_set_level(level: i32) -> wwr_tensor_status;
     pub fn wwr_tensor_logger_set_mask(mask: i32) -> wwr_tensor_status;
     pub fn wwr_tensor_operation_descriptor_get_attribute(handle: wwr_tensor_handle, desc: wwr_tensor_operation_descriptor, attr: wwr_tensor_operation_descriptor_attribute, buf: *mut core::ffi::c_void, sizeInBytes: usize) -> wwr_tensor_status;
     pub fn wwr_tensor_operation_descriptor_set_attribute(handle: wwr_tensor_handle, desc: wwr_tensor_operation_descriptor, attr: wwr_tensor_operation_descriptor_attribute, buf: *const core::ffi::c_void, sizeInBytes: usize) -> wwr_tensor_status;

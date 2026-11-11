@@ -76,8 +76,8 @@ wwr_rand_status wwr_rand_generate_poisson(wwr_rand_generator generator, unsigned
 wwr_rand_status wwr_rand_generate_seeds(wwr_rand_generator generator);
 wwr_rand_status wwr_rand_generate_uniform(wwr_rand_generator generator, float *outputPtr, size_t num);
 wwr_rand_status wwr_rand_generate_uniform_double(wwr_rand_generator generator, double *outputPtr, size_t num);
-wwr_rand_status wwr_rand_get_direction_vectors32(void *vectors, wwr_rand_direction_vector_set set);
-wwr_rand_status wwr_rand_get_direction_vectors64(void *vectors, wwr_rand_direction_vector_set set);
+wwr_rand_status wwr_rand_get_direction_vectors32(void **vectors, wwr_rand_direction_vector_set set);
+wwr_rand_status wwr_rand_get_direction_vectors64(void **vectors, wwr_rand_direction_vector_set set);
 wwr_rand_status wwr_rand_get_scramble_constants32(unsigned int **constants);
 wwr_rand_status wwr_rand_get_scramble_constants64(unsigned long long **constants);
 wwr_rand_status wwr_rand_get_version(int *version);
