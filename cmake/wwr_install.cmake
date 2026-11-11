@@ -252,6 +252,13 @@ function(_wwr_install_capi)
   # tx builds unconditionally like sparse / fft (wwr.tx has no WWR_WITH_* gate);
   # ccl only under WWR_WITH_CCL (the wwr.ccl module it imports exists only
   # then), the same gating as tensor / comp.
+  # The DEVICE surfaces (extension_random_normal #371, the wrappers.<family>
+  # sdcz surfaces #347) are NOT installed as their own exported units -- they
+  # ride the umbrella wwr.capi only (their symbols are aggregated into
+  # libwwr_capi.so, but no per-unit libwwr_capi_wrappers_<family>.so export /
+  # wwr::capi::wrappers_<family> alias is published). A GPU-gated device
+  # consumer is future #347 work; the installed per-unit surface stays host
+  # library ones, matching the extension_random_normal precedent.
   set(_capi_targets
       wwr.capi wwr.capi.complex wwr.capi.runtime_api wwr.capi.blas
       wwr.capi.blaslt wwr.capi.solver wwr.capi.rand wwr.capi.rtc

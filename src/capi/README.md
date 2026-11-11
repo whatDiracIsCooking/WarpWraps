@@ -17,7 +17,7 @@ cuBLAS / hipBLAS), mirroring the project's own per-`.cppm` dependency isolation 
 plus an **umbrella `libwwr_capi.so`** that contains every unit's symbols, so an
 existing `-lwwr_capi` consumer is unchanged (see "The per-unit split", below).
 
-It covers eighteen surfaces: `complex`, the whole host-callable `runtime_api`
+It covers twenty-three surfaces: `complex`, the whole host-callable `runtime_api`
 (memory / stream / event / graph / device management — the status slice it
 started as is now a subset), `tx` (NVTX / rocTX profiler annotations), the full
 curated vendor libraries — `blas` (cuBLAS / hipBLAS), `blaslt` (cuBLASLt /
@@ -31,10 +31,18 @@ POD, its saturation / interpretation enums + host narrowing conversions). The
 eighteenth is the first **DEVICE** surface: `extension_random_normal` (the #347
 proof-of-concept) — six monomorphised `wwr::extension::random_normal<T>` entries
 (one per explicitly-instantiated element type) plus the single `init_state` that
-seeds them.
+seeds them. The last five are the **sdcz-dispatch DEVICE** surfaces (the rest of
+#347): `wrappers_blas` / `wrappers_fft` / `wrappers_sparse` / `wrappers_solver` /
+`wrappers_rand` — the type-safe `src/wrappers` layer, each
+`wwr::<fn><T>` monomorphised per explicit instantiation in its family's
+`instantiations.cpp` (one `extern "C"` entry per `<T>` / `<T,IntT>`, the element
+named by an `f32` / `f64` / `c64` / `c128` suffix, blas's index by `_i32` /
+`_i64`). `src/wrappers/math` is the one family NOT wrapped — a `__device__`
+intrinsic header with no host launcher, a logged skip.
 `complex`, `tx`, `rtc` and all four numeric surfaces are **host**-side (and so is
-the host-safe slice of `runtime_api`); the vendor-library rest, and
-`extension_random_normal`, execute on the **device** or across the fabric at call
+the host-safe slice of `runtime_api`); the vendor-library rest, and the DEVICE
+surfaces (`extension_random_normal` + the five `wrappers_*`), execute on the
+**device** or across the fabric at call
 time (a handle binds a device, a kernel launches, a collective spans ranks), so
 their thunks are link-checked on no-GPU CI and run-checked on a GPU box. The fragment-sourced library surfaces (`blas` /
 `blaslt` / `solver` / `rand` / `rtc` / `sparse` / `tensor` / `fft` / `ccl`) share
@@ -205,6 +213,15 @@ spec/{fp16,bf16,vector_types,fp8}.py  the hand-written numeric TYPE surfaces: th
                    forward into. Hand-written for the same reason as complex (the
                    functions name no vendor symbol a manifest carries). fp8.py also
                    records the fp4/fp6/device-only out-of-scope SKIPS it reports.
+spec/wrappers_sdcz.py  the sdcz-dispatch DEVICE surfaces (#347): the five
+                   wrappers_<family> units, each a WrapperSpec naming its
+                   wwr.wrappers.<family> module + the handle / value-enum / POD
+                   registrations the family's templates name (the value-enum
+                   entry LISTS are reused from the library specs, re-skinned into a
+                   self-contained wwr_wrappers_<family>_* namespace). generate.py
+                   parses each src/wrappers/<family>/instantiations.cpp (stdlib re,
+                   no clang) and emits one monomorphised thunk per explicit
+                   instantiation; math is a logged SKIP (no host launcher).
 generate.py        fragment + manifest -> the per-unit artefacts. Sourced, so
                    nothing drifts.
 gen/common.h       the PODs MORE THAN ONE unit uses: wwr_complex64 / wwr_complex128

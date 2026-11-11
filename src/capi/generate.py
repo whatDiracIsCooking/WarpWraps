@@ -85,6 +85,7 @@ import sparse as sparse_spec  # noqa: E402
 import tensor as tensor_spec  # noqa: E402
 import tx as tx_spec  # noqa: E402
 import vector_types as vector_types_spec  # noqa: E402
+import wrappers_sdcz as wrappers_spec  # noqa: E402
 
 # Every fragment-sourced vendor-library surface, in emit order. blas was the
 # first (spec/blas.py); blaslt / solver / rand / rtc and sparse / tensor / fft
@@ -415,7 +416,9 @@ _RUST_BASE = {
     "short": "i16", "unsigned short": "u16",
     "long": "core::ffi::c_long", "unsigned long": "core::ffi::c_ulong",
     "long long": "core::ffi::c_longlong",
+    "long long int": "core::ffi::c_longlong",
     "unsigned long long": "core::ffi::c_ulonglong",
+    "unsigned long long int": "core::ffi::c_ulonglong",
     "int8_t": "i8", "uint8_t": "u8", "int16_t": "i16", "uint16_t": "u16",
     "int32_t": "i32", "uint32_t": "u32", "int64_t": "i64", "uint64_t": "u64",
     "size_t": "usize", "ptrdiff_t": "isize", "bool": "bool",
@@ -672,10 +675,13 @@ def gen_umbrella_h() -> str:
     for spec in LIBRARY_SPECS:
         L.append(f'#include "{spec.name}/wwr_capi_{spec.name}.h"')
     # The hand-written surfaces (not LibrarySpecs): comp, tx, the numeric types,
-    # and the device surface (extension_random_normal).
+    # and the device surfaces (extension_random_normal + the wrappers.<family>
+    # sdcz surfaces, #347).
     for unit in ("comp", "tx", "fp16", "bf16", "vector_types", "fp8",
                  "extension_random_normal"):
         L.append(f'#include "{unit}/wwr_capi_{unit}.h"')
+    for spec in wrappers_spec.SPECS:
+        L.append(f'#include "{spec.name}/wwr_capi_{spec.name}.h"')
     L += ["", f"#endif  // {guard}", ""]
     return "\n".join(L)
 
@@ -825,6 +831,373 @@ def gen_extension_random_normal_cpp() -> str:
              "sequence_offset, offset);")
     L += ["}", ""]
     L += ["}  // extern \"C\"", ""]
+    return "\n".join(L)
+
+
+# ---------------------------------------------------------------------------
+# The wrappers.<family> DEVICE surfaces (issue #347): the src/wrappers sdcz-
+# dispatch wrappers, monomorphised from each family's instantiations.cpp. Each
+# `template RET fn<Targs>(PARAMS);` becomes one extern "C" thunk forwarding into
+# the explicit instantiation wwr::fn<Targs>. The spec (spec/wrappers_sdcz.py)
+# declares the family's module, handle/enum registry and element-type suffixes;
+# the list in src/wrappers/<family>/instantiations.cpp is authoritative.
+# ---------------------------------------------------------------------------
+
+# A `template ... ;` statement in an instantiations.cpp, split into the three
+# parts the emitter needs: the parse is stdlib re, no clang (the same text-over-
+# -data choice fragments.py makes). A statement may wrap several physical lines,
+# so the whole file is comment-stripped and split on `;` first.
+_INST_RE = re.compile(
+    r"^\s*(?P<ret>.+?)\s+(?P<fn>\w+)\s*<(?P<targs>.*?)>\s*\((?P<params>.*)\)\s*$",
+    re.S)
+
+
+class ResolvedInstantiation:
+    """One monomorphised thunk: the capi symbol, the templated wwr target it
+    forwards into (`wwr::gemm<float, int>`), and the classified return + params.
+    `fn` / `targs` are the template name and arguments; `param_wwr` are the NEUTRAL
+    (wwr-spelling) parameter types parsed from the instantiation -- the thunk
+    coerces each capi argument to its neutral type and calls wwr::fn<targs>
+    DIRECTLY (not through a function-reference `_fwd`), so an OVERLOADED template
+    (blas scal / rot: overloads sharing scal<T,IntT> / rot<T,IntT>) resolves by
+    the argument types rather than being an ambiguous reference. `n_real` is the
+    number of ComplexToRealType<T> PARAMETERS -- the marker that disambiguates
+    otherwise same-suffix complex overloads (the BLAS cs/zd mixed-precision
+    family: cscal has 0, csscal 1; crot 1, csrot 2), appended as `_r` * n_real
+    only on a collision."""
+
+    def __init__(self, capi: str, fn: str, targs: list[str],
+                 ret: captypes.Classified,
+                 params: list[tuple[captypes.Classified, str]],
+                 param_wwr: list[str], n_real: int) -> None:
+        self.capi = capi
+        self.fn = fn
+        self.targs = targs
+        # The template arguments, each qualified into namespace wwr when it names
+        # a wwr type (wwrFloatComplex / wwrDoubleComplex) -- the thunk lives in the
+        # global namespace, so an unqualified wwr type in the template-id would not
+        # resolve. A plain scalar (float / double / int / int64_t) is left as is.
+        qt = [f"wwr::{t}" if t.startswith("wwr") else t for t in targs]
+        self.wwr = f"wwr::{fn}<{', '.join(qt)}>"
+        self.ret = ret
+        self.params = params
+        self.param_wwr = param_wwr
+        self.n_real = n_real
+
+
+class ResolvedWrapper:
+    """One resolved WrapperSpec: its monomorphised thunks and the value enums the
+    emitters need. Mirrors ResolvedLibrary for the fragment-sourced surfaces."""
+
+    def __init__(self, spec, insts: list[ResolvedInstantiation]) -> None:
+        self.spec = spec
+        self.insts = insts
+        self.enums = list(spec.value_enums)
+
+
+def _wrappers_capi_name(fn: str, prefix: str) -> str:
+    """The capi stem for a template function name: snake_case it and re-prefix.
+    gemm -> wwr_wrappers_blas_gemm; gemmBatched -> wwr_wrappers_blas_gemm_batched;
+    gesvdj_bufferSize -> wwr_wrappers_solver_gesvdj_buffer_size. The suffix is
+    appended by the caller."""
+    out = []
+    for i, ch in enumerate(fn):
+        prev = fn[i - 1] if i else ""
+        nxt = fn[i + 1] if i + 1 < len(fn) else ""
+        if ch.isupper() and i > 0 and prev != "_" and (
+                not prev.isupper() or nxt.islower()):
+            out.append("_")
+        out.append(ch.lower())
+    return prefix + "".join(out)
+
+
+def _wrappers_suffix(spec, targs: list[str]) -> str:
+    """The sdcz (+ index) suffix for one instantiation's template arguments. The
+    first argument is the element type (float/double/wwr*Complex -> f32/f64/c64/
+    c128); a blas function that ALSO takes an index type (not all do -- rotg /
+    the 5-each single-arg entries have only the element) appends the index suffix
+    (int/int64_t -> i32/i64). Keyed on the actual argument count, not the family
+    flag, so a mixed-arity family (blas) names each instantiation unambiguously."""
+    elem = wrappers_spec.ELEMENT[targs[0]]["suffix"]
+    if spec.indexed and len(targs) > 1:
+        return f"{elem}_{wrappers_spec.INDEX[targs[1]]}"
+    return elem
+
+
+def _wrappers_subst_real(ty: str, elem_type: str) -> str:
+    """Resolve a `ComplexToRealType<T>` spelling to the concrete real type for
+    THIS instantiation's element type (float/c64 -> float, double/c128 ->
+    double). Any other type spelling is returned unchanged. T inside the alias is
+    the instantiation's element type, so the mapping is the element's `real`."""
+    real = wrappers_spec.ELEMENT[elem_type]["real"]
+    return re.sub(r"ComplexToRealType\s*<[^>]*>", real, ty)
+
+
+def _resolve_wrapper(spec) -> ResolvedWrapper:
+    """Resolve a WrapperSpec by parsing src/wrappers/<family>/instantiations.cpp:
+    one ResolvedInstantiation per `template` statement, its types classified
+    against the spec's registry (handles -> void*, complex pointers -> shared
+    PODs, value enums / status mapped §6, ComplexToRealType<T> -> float/double).
+    Every instantiation is wrapped -- the families carry no C-inexpressible
+    parameter (no functor / callback / reference), verified at parse time: an
+    unclassifiable type raises, never silently drops (NO SILENT DROPS)."""
+    reg = captypes.Registry(value_enums=list(spec.value_enums),
+                            pointee_pods=list(spec.pointee_pods),
+                            handles=list(spec.handles),
+                            scalar_aliases=dict(spec.scalar_aliases))
+    path = _SRC / "wrappers" / spec.family / "instantiations.cpp"
+    body = re.sub(r"/\*.*?\*/", "", path.read_text(), flags=re.S)
+    body = re.sub(r"//[^\n]*", "", body)
+    # Each `template ... ;` statement (drop the `template` keyword, split on the
+    # top-level `;`). A statement's own body carries no `;`, so a plain split is
+    # sound once comments are stripped.
+    insts: list[ResolvedInstantiation] = []
+    for raw in body.split(";"):
+        # A statement is the text from its `template` keyword to the `;` (the
+        # split point). The FIRST chunk also carries the preceding `namespace wwr
+        # {` (no `;` ends it), and a `}` can trail the last -- so key on the
+        # `template` keyword's position rather than the chunk start, and skip a
+        # chunk that has none (the module / import / namespace preamble).
+        at = raw.rfind("template")
+        if at < 0:
+            continue
+        stmt = " ".join(raw[at + len("template"):].split())
+        m = _INST_RE.match(stmt)
+        if not m:
+            raise ValueError(f"{spec.family}: cannot parse instantiation {stmt!r}")
+        fn = m.group("fn")
+        targs = [t.strip() for t in captypes._split_args(m.group("targs"))]
+        elem_type = targs[0]
+        suffix = _wrappers_suffix(spec, targs)
+        capi = f"{_wrappers_capi_name(fn, spec.capi_prefix)}_{suffix}"
+        ret = captypes.classify(_wrappers_subst_real(m.group("ret"), elem_type),
+                                reg)
+        params: list[tuple[captypes.Classified, str]] = []
+        param_wwr: list[str] = []
+        n_real = 0
+        arglist = m.group("params").strip()
+        if arglist and arglist != "void":
+            for i, p in enumerate(captypes._split_args(arglist)):
+                raw_p = p.strip()
+                if "ComplexToRealType" in raw_p:
+                    n_real += 1
+                # An array parameter decays to a pointer (the batched BLAS calls
+                # take `const T *const[]` -- an array of pointers, i.e. a double
+                # pointer `const T *const *`). Rewrite the trailing `[]` to a `*`
+                # so the classifier sees the pointer depth and preserves it (a
+                # scalar `float **` passes through; a complex `wwrFloatComplex **`
+                # keeps the POD double pointer), rather than mis-parsing `[]`.
+                raw_p = re.sub(r"\[\s*\]", "*", raw_p)
+                pty = _wrappers_subst_real(raw_p, elem_type)
+                params.append((captypes.classify(pty, reg), f"arg{i}"))
+                # The NEUTRAL (wwr-spelling) parameter type, used by the thunk to
+                # coerce each capi argument before the direct wwr::fn<targs> call.
+                param_wwr.append(_neutral_param_type(pty))
+        insts.append(ResolvedInstantiation(capi, fn, targs, ret, params,
+                                           param_wwr, n_real))
+    # Disambiguate any instantiations that share a capi name (a collision can
+    # only arise from an OVERLOADED template whose overloads take the same
+    # template arguments -- blas scal / rot, the cs/zd mixed-precision family of
+    # scal<wwrFloatComplex,int> / rot<...>). Each colliding member gets `_r` *
+    # (its ComplexToRealType parameter count) appended, which the BLAS cs/zd
+    # convention makes unique within a group (cscal 0 / csscal 1; crot 1 /
+    # csrot 2). Scoped to a genuine collision so no non-colliding name is
+    # perturbed.
+    _disambiguate(insts)
+    return ResolvedWrapper(spec, insts)
+
+
+def _neutral_param_type(pty: str) -> str:
+    """The neutral (wwr) C++ spelling of a parsed parameter type, for the direct
+    wwr::fn<targs> call's coercion cast. `std::size_t` is folded to the fully
+    qualified form the wwr function names; everything else is the parsed spelling
+    with whitespace normalised (the complex / handle / enum neutral names are
+    exactly what the template's parameter is)."""
+    return " ".join(pty.split())
+
+
+def _disambiguate(insts: list[ResolvedInstantiation]) -> None:
+    """Append `_r` * n_real to each member of a capi-name collision group, in
+    place. Raises if the real-param count does not make the group unique (a
+    genuinely ambiguous surface the suffix scheme does not cover, which must be
+    handled explicitly, never silently)."""
+    from collections import Counter
+    counts = Counter(i.capi for i in insts)
+    for name, n in counts.items():
+        if n == 1:
+            continue
+        group = [i for i in insts if i.capi == name]
+        if len({i.n_real for i in group}) != len(group):
+            raise ValueError(
+                f"capi name collision on {name!r} the sdcz suffix + "
+                f"ComplexToRealType-count tag does not resolve "
+                f"(counts {sorted(i.n_real for i in group)}); add an explicit "
+                "disambiguator")
+        for i in group:
+            i.capi = i.capi + "_r" * i.n_real
+
+
+def gen_wrapper_h(w: ResolvedWrapper) -> str:
+    """wrappers_<family>/wwr_capi_wrappers_<family>.h — the family's own handle
+    typedefs, its stable value enums and one monomorphised prototype per
+    instantiation. #includes common.h for the shared complex PODs its complex
+    pointers carry, plus <stddef.h>/<stdint.h> for size_t / int64_t."""
+    spec = w.spec
+    guard = f"WWR_CAPI_{spec.name.upper()}_H"
+    L = [f"{_GEN_NOTE} Sources: src/capi/spec/wrappers_sdcz.py + "
+         f"src/wrappers/{spec.family}/instantiations.cpp (device surface).",
+         f"#ifndef {guard}", f"#define {guard}", "",
+         "#include <stddef.h>", "#include <stdint.h>", "",
+         '#include "common.h"', ""]
+    L += _c_extern_open()
+    for h in spec.handles:
+        L.append(f"typedef void *{h.capi_type};")
+    if spec.handles:
+        L.append("")
+    for ve in w.enums:
+        L.append(f"typedef enum {ve.capi_type} {{")
+        for name, val in library_enumerators(ve):
+            L.append(f"  {name} = {val},")
+        L.append(f"}} {ve.capi_type};")
+        L.append("")
+    for inst in w.insts:
+        args = ", ".join(_c_param(c, n) for c, n in inst.params) or "void"
+        L.append(f"{inst.ret.capi_c} {inst.capi}({args});")
+    L += _c_extern_close(guard)
+    return "\n".join(L)
+
+
+def gen_wrapper_cpp(w: ResolvedWrapper) -> str:
+    """wrappers_<family>/wwr_capi_wrappers_<family>.cpp — the family's device
+    thunks. Imports the family's wwr.wrappers.<family> module (which it forwards
+    into) plus the modules that only NAME the neutral handle / complex types. The
+    forwarding core and the per-enum §6 maps are the library surface's (_coerce /
+    _fwd / _to_ / _from_), lifted here; each thunk forwards into the explicit
+    instantiation wwr::fn<Targs>."""
+    spec = w.spec
+    prefix = spec.capi_prefix
+    L = [_GEN_NOTE,
+         f'#include "{spec.name}/wwr_capi_{spec.name}.h"', "",
+         # <cstdint> for the std::uintptr_t a by-value opaque handle casts
+         # through (the backend-divergent fft plan handle -- a pointer on HIP, an
+         # int on CUDA -- needs the integer bridge, not a direct void*->int cast).
+         "#include <cstdint>", ""]
+    L += [f"import {spec.module};"]
+    L += [f"import {m};" for m in spec.extra_modules]
+    L += ["", "namespace {"]
+    # Each value enum's capi<->neutral §6 maps. `_to_<slug>` (capi -> neutral, a
+    # parameter) and `_from_<slug>` (neutral -> capi, the status return) compare
+    # only the neutral wwr:: constants, so the one source compiles on both
+    # backends though the raw backend values differ.
+    for ve in w.enums:
+        slug = ve.capi_type[len(prefix):]
+        default_const = _fallback_wwr_const(ve)
+        L.append(f"wwr::{ve.wwr_type} _to_{slug}({ve.capi_type} x) {{")
+        L.append("  switch (x) {")
+        for enumerator, wwr_const in ve.entries:
+            L.append(f"    case {enumerator}: return wwr::{wwr_const};")
+        L.append(f"    default: return wwr::{default_const};")
+        L.append("  }")
+        L.append("}")
+        L.append(f"{ve.capi_type} _from_{slug}(wwr::{ve.wwr_type} v) {{")
+        for enumerator, wwr_const in ve.entries:
+            L.append(f"  if (v == wwr::{wwr_const}) return {enumerator};")
+        L.append(f"  return {ve.fallback};")
+        L.append("}")
+    L += ["}  // namespace", "", 'extern "C" {', ""]
+    # Each thunk coerces every capi argument to the NEUTRAL (wwr) type the
+    # template's parameter is -- a value enum through the _to_ map, a POD / handle
+    # pointer through a C-style cast to the neutral spelling (layout-matched,
+    # §3/§12), a scalar straight through -- then calls wwr::fn<targs> DIRECTLY.
+    # A direct typed call (not a function-reference _fwd) lets an OVERLOADED
+    # template (blas scal / rot) resolve by the argument types; the status return
+    # is mapped back to the stable capi enum (§6).
+    for inst in w.insts:
+        args = ", ".join(_c_param(c, n) for c, n in inst.params) or "void"
+        L.append(f"{inst.ret.capi_c} {inst.capi}({args}) {{")
+        call_terms: list[str] = []
+        for (c, n), neutral in zip(inst.params, inst.param_wwr, strict=True):
+            if c.repr == "value_enum":
+                slug = c.capi_c[len(prefix):]
+                call_terms.append(f"_to_{slug}({n})")
+            elif c.repr == "handle":
+                # An opaque handle passed BY VALUE (capi void*). Its neutral type
+                # DIVERGES: a pointer on most backends, but an integer plan id on
+                # one (CUDA's wwrfftHandle = int). Route the cast through
+                # std::uintptr_t so it is valid for EITHER target -- void* ->
+                # uintptr_t -> int (a defined narrowing) or -> pointer -- rather
+                # than a direct void*->int C-style cast, which clang rejects as
+                # lossy. The consumer round-trips the same bits it got from the
+                # handle-create call.
+                call_terms.append(
+                    f"({_to_wwr_cast(neutral)})(std::uintptr_t){n}")
+            elif c.repr in ("pointer_pod", "pointer_handle", "pointer_enum"):
+                # A neutral POD / handle-pointer spelling the capi erased or
+                # layout-matched: C-style cast so it covers the reinterpret.
+                call_terms.append(f"({_to_wwr_cast(neutral)}){n}")
+            else:  # scalar / plain pointer: the neutral type IS the capi type.
+                call_terms.append(n)
+        callexpr = f"{inst.wwr}({', '.join(call_terms)})"
+        if inst.ret.repr == "value_enum":  # the status return
+            slug = inst.ret.capi_c[len(prefix):]
+            L.append(f"  return _from_{slug}({callexpr});")
+        else:
+            L.append(f"  return {callexpr};")
+        L += ["}", ""]
+    L += ["}  // extern \"C\"", ""]
+    return "\n".join(L)
+
+
+def _to_wwr_cast(neutral: str) -> str:
+    """The `wwr::`-qualified neutral C++ type a thunk casts a capi argument to.
+    The parsed neutral spelling names the type unqualified (`wwrblasHandle_t`,
+    `const wwrFloatComplex *`); qualify the base identifier with `wwr::` so it
+    resolves inside the thunk (the module exports the names into namespace wwr).
+    A leading `const` and the pointer stars are preserved around the base."""
+    m = re.match(r"^(const\s+)?(\w+)(.*)$", neutral)
+    if not m:
+        return neutral
+    cv, base, tail = m.group(1) or "", m.group(2), m.group(3)
+    return f"{cv}wwr::{base}{tail}"
+
+
+def _rust_wrapper_types_lines(w: ResolvedWrapper) -> list[str]:
+    """The family's own handles (-> *mut c_void) and value enums (#[repr(i32)]),
+    for both the per-unit module and the combined ffi.rs."""
+    L: list[str] = []
+    for h in w.spec.handles:
+        L.append(f"pub type {h.capi_type} = *mut core::ffi::c_void;")
+    if w.spec.handles:
+        L.append("")
+    for ve in w.enums:
+        L += ["#[repr(i32)]", "#[derive(Copy, Clone, Debug, PartialEq, Eq)]",
+              f"pub enum {ve.capi_type} {{"]
+        for name, val in library_enumerators(ve):
+            L.append(f"    {name} = {val},")
+        L += ["}", ""]
+    return L
+
+
+def _rust_wrapper_fns(w: ResolvedWrapper) -> list[str]:
+    L = []
+    for inst in w.insts:
+        args = ", ".join(f"{_rust_ident(n)}: {_rust_c_type(c.capi_c)}"
+                         for c, n in inst.params)
+        L.append(f"    pub fn {inst.capi}({args}) -> "
+                 f"{_rust_c_type(inst.ret.capi_c)};")
+    return L
+
+
+def gen_rust_wrapper(w: ResolvedWrapper) -> str:
+    """wrappers_<family>/wrappers_<family>.rs — the family's own types + extern
+    "C" block. `use`s common for the shared complex PODs its pointers name. No
+    #[link]: build.rs links libwwr_capi_wrappers_<family>.so when the feature is on."""
+    L = [_RUST_NOTE, _RUST_BACKEND_NOTE, "",
+         "#[allow(unused_imports)]", "use crate::common::*;", ""]
+    L += _rust_wrapper_types_lines(w)
+    L += [_RUST_FMT_SKIP, 'extern "C" {']
+    L += _rust_wrapper_fns(w)
+    L += ["}", ""]
     return "\n".join(L)
 
 
@@ -1781,7 +2154,8 @@ def gen_rust_fp8() -> str:
 
 
 def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap,
-                      libs: list[ResolvedLibrary]) -> str:
+                      libs: list[ResolvedLibrary],
+                      wraps: list[ResolvedWrapper]) -> str:
     """gen/ffi.rs — the COMBINED binding the in-tree driver.rs include!s: every
     POD / enum / handle and ONE extern "C" block over the umbrella libwwr_capi.so.
     It is NOT the crate (the crate is the per-unit modules); it is the standalone
@@ -1809,6 +2183,9 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
     # wwr_half / wwr_bf16 are emitted once above). fp16 / bf16 declare no own type.
     L += _rust_vector_types_types_lines()
     L += _rust_fp8_types_lines()
+    # The wrappers.<family> device surfaces' own handles + value enums (#347).
+    for w in wraps:
+        L += _rust_wrapper_types_lines(w)
     L += _rust_status_enum_lines(enum)
     L += _rust_runtime_handle_lines()  # the runtime surface's own handles
     # NO `#[link(name = ...)]` on the extern block: the in-tree driver.rs (the one
@@ -1831,6 +2208,8 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
     L += _rust_vector_types_fns()
     L += _rust_fp8_fns()
     L += _rust_extension_random_normal_fns()  # the device surface (#347)
+    for w in wraps:  # the wrappers.<family> device surfaces (#347)
+        L += _rust_wrapper_fns(w)
     L += ["}", ""]
     return "\n".join(L)
 
@@ -1846,6 +2225,7 @@ def _rust_ty(name: str, enum: captypes.EnumMap) -> str:
 def main() -> None:
     status_fns, enum = _resolve_runtime_status()
     libs = [_resolve_library(spec) for spec in LIBRARY_SPECS]
+    wraps = [_resolve_wrapper(spec) for spec in wrappers_spec.SPECS]
 
     out = Path(__file__).parent / "gen"
     out.mkdir(exist_ok=True)
@@ -1887,6 +2267,11 @@ def main() -> None:
     for lib in libs:
         units[lib.spec.name] = (gen_library_h(lib), gen_library_cpp(lib))
         rust_units[lib.spec.name] = gen_rust_library(lib)
+    # The wrappers.<family> DEVICE surfaces (#347), monomorphised from each
+    # family's instantiations.cpp -- one unit per family, like the library ones.
+    for w in wraps:
+        units[w.spec.name] = (gen_wrapper_h(w), gen_wrapper_cpp(w))
+        rust_units[w.spec.name] = gen_rust_wrapper(w)
     for unit, (header, cpp) in units.items():
         unit_dir = out / unit
         unit_dir.mkdir(exist_ok=True)
@@ -1897,7 +2282,7 @@ def main() -> None:
     # driver.rs include!s (over the umbrella .so).
     rust_common = gen_rust_common()
     (out / "common.rs").write_text(rust_common)
-    combined = gen_rust_combined(status_fns, enum, libs)
+    combined = gen_rust_combined(status_fns, enum, libs, wraps)
     (out / "ffi.rs").write_text(combined)
     rt_skips = SKIPPED.get("runtime_api", [])
     print(f"runtime_api: wrapped {len(status_fns)} functions, "
@@ -1929,6 +2314,15 @@ def main() -> None:
           f"{len(ext_random_normal_spec.INSTANTIATIONS)} monomorphised "
           "random_normal entries + 1 init_state, 0 skipped "
           "(DEVICE surface, hand-written; #347)")
+    # The wrappers.<family> sdcz device surfaces (#347): one monomorphised entry
+    # per explicit instantiation in each family's instantiations.cpp. Report the
+    # per-family wrapped counts and the explicit math skip (NO SILENT DROPS).
+    for w in wraps:
+        print(f"{w.spec.name}: wrapped {len(w.insts)} monomorphised entries "
+              f"from src/wrappers/{w.spec.family}/instantiations.cpp, 0 skipped "
+              "(DEVICE surface; #347)")
+    for what, reason in wrappers_spec.SKIPS:
+        print(f"  SKIP {what}: {reason}")
     # The wwr-sys crate ships the binding self-contained (it is installed and
     # path/git-depended on away from this tree, so a sibling `../gen/*.rs`
     # include! would dangle). Keep each generated module the SINGLE SOURCE by

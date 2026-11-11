@@ -171,6 +171,31 @@ _wwr_add_capi_unit(
   wwr::bf16
 )
 
+# The wrappers.<family> DEVICE surfaces (issue #347): the src/wrappers sdcz-
+# dispatch wrappers, monomorphised per explicit instantiation. One unit per
+# family, each UNCONDITIONAL like blas -- every wwr.wrappers.<family> module
+# builds in every configuration (no WWR_WITH_* gate). Each thunk imports its
+# family's wwr.wrappers.<family> module (which it forwards into) PLUS the
+# modules that only NAME the neutral handle / complex types it maps (the family
+# module imports but does not re-export them), so each is a link dep so the
+# thunk's BMI resolves. wwr.wrappers.<family> carries its vendor library
+# transitively (cuBLAS / cuFFT / cuSPARSE / cuSOLVER / cuRAND and the HIP
+# equivalents) -- so each unit's .so NEEDs only that one vendor lib (verify:
+# `readelf -d libwwr_capi_wrappers_blas.so` shows cublas, not cufft / ...).
+# These EXECUTE on the device (a handle binds a device; a GEMM launches), but a
+# plain dispatch launcher does NOT probe for a GPU on load, so loading the unit
+# .so is safe on a no-GPU box; the host-only driver / driver_rs are unaffected.
+# CI compile+link-checks them, a GPU box exercises them (future #347 work).
+_wwr_add_capi_unit(wrappers_blas wwr::wrappers::blas wwr::blas wwr::complex)
+_wwr_add_capi_unit(wrappers_fft wwr::wrappers::fft wwr::fft wwr::complex)
+_wwr_add_capi_unit(
+  wrappers_sparse wwr::wrappers::sparse wwr::sparse wwr::complex
+)
+_wwr_add_capi_unit(
+  wrappers_solver wwr::wrappers::solver wwr::solver wwr::blas wwr::complex
+)
+_wwr_add_capi_unit(wrappers_rand wwr::wrappers::rand wwr::rand)
+
 # The umbrella libwwr_capi.so CONTAINS every unit's object symbols, so an
 # existing -lwwr_capi consumer resolves the whole ABI from one .so. The OUTPUT
 # file name is wwr_capi (-> libwwr_capi.so), NOT the dotted target name: rustc's
@@ -217,6 +242,11 @@ add_library(
   $<TARGET_OBJECTS:wwr.capi.vector_types.obj>
   $<TARGET_OBJECTS:wwr.capi.fp8.obj>
   $<TARGET_OBJECTS:wwr.capi.extension_random_normal.obj>
+  $<TARGET_OBJECTS:wwr.capi.wrappers_blas.obj>
+  $<TARGET_OBJECTS:wwr.capi.wrappers_fft.obj>
+  $<TARGET_OBJECTS:wwr.capi.wrappers_sparse.obj>
+  $<TARGET_OBJECTS:wwr.capi.wrappers_solver.obj>
+  $<TARGET_OBJECTS:wwr.capi.wrappers_rand.obj>
   ${_capi_gated_objs}
 )
 add_library(wwr::capi ALIAS wwr.capi)
@@ -229,6 +259,9 @@ target_link_libraries(
           wwr.capi.fp16.obj wwr.capi.bf16.obj wwr.capi.vector_types.obj
           wwr.capi.fp8.obj
           wwr.capi.extension_random_normal.obj
+          wwr.capi.wrappers_blas.obj wwr.capi.wrappers_fft.obj
+          wwr.capi.wrappers_sparse.obj wwr.capi.wrappers_solver.obj
+          wwr.capi.wrappers_rand.obj
           ${_capi_gated_obj_targets}
 )
 set_target_properties(
