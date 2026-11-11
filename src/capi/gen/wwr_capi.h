@@ -21,5 +21,10 @@
 #include "vector_types/wwr_capi_vector_types.h"
 #include "fp8/wwr_capi_fp8.h"
 #include "extension_random_normal/wwr_capi_extension_random_normal.h"
+#include "wrappers_blas/wwr_capi_wrappers_blas.h"
+#include "wrappers_fft/wwr_capi_wrappers_fft.h"
+#include "wrappers_sparse/wwr_capi_wrappers_sparse.h"
+#include "wrappers_solver/wwr_capi_wrappers_solver.h"
+#include "wrappers_rand/wwr_capi_wrappers_rand.h"
 
 #endif  // WWR_CAPI_H

@@ -31,7 +31,9 @@ links = "wwr_capi"
 [features]
 default = ["complex", "runtime_api", "blas", "blaslt", "solver", "rand", "rtc",
            "sparse", "tensor", "fft", "comp", "fp16", "bf16", "vector_types",
-           "fp8", "tx", "ccl", "extension_random_normal"]
+           "fp8", "tx", "ccl", "extension_random_normal",
+           "wrappers_blas", "wrappers_fft", "wrappers_sparse",
+           "wrappers_solver", "wrappers_rand"]
 complex = []
 runtime_api = []
 blas = []
@@ -50,5 +52,10 @@ fp8 = []
 tx = []
 ccl = []
 extension_random_normal = []
+wrappers_blas = []
+wrappers_fft = []
+wrappers_sparse = []
+wrappers_solver = []
+wrappers_rand = []
 
 [dependencies]

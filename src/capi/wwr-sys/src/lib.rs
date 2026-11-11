@@ -25,6 +25,11 @@
 //! | `tx`          | [`tx`]                | `libwwr_capi_tx.so` -> NVTX (header-only) / rocTX |
 //! | `ccl`         | [`ccl`]               | `libwwr_capi_ccl.so` -> NCCL / RCCL |
 //! | `extension_random_normal` | [`extension_random_normal`] | `libwwr_capi_extension_random_normal.so` -> cuRAND / hipRAND + runtime (DEVICE kernels) |
+//! | `wrappers_blas`   | [`wrappers_blas`]   | `libwwr_capi_wrappers_blas.so` -> cuBLAS / hipBLAS (sdcz-dispatch DEVICE wrappers) |
+//! | `wrappers_fft`    | [`wrappers_fft`]    | `libwwr_capi_wrappers_fft.so` -> cuFFT / hipFFT (sdcz-dispatch DEVICE wrappers) |
+//! | `wrappers_sparse` | [`wrappers_sparse`] | `libwwr_capi_wrappers_sparse.so` -> cuSPARSE / hipSPARSE (sdcz-dispatch DEVICE wrappers) |
+//! | `wrappers_solver` | [`wrappers_solver`] | `libwwr_capi_wrappers_solver.so` -> cuSOLVER / hipSOLVER (sdcz-dispatch DEVICE wrappers) |
+//! | `wrappers_rand`   | [`wrappers_rand`]   | `libwwr_capi_wrappers_rand.so` -> cuRAND / hipRAND (sdcz-dispatch DEVICE wrappers) |
 //!
 //! ALL are default features, so an existing user who wants the whole ABI
 //! is unchanged -- they just transparently link the per-unit `.so`s instead of
@@ -143,6 +148,31 @@ pub use ccl::*;
 pub mod extension_random_normal;
 #[cfg(feature = "extension_random_normal")]
 pub use extension_random_normal::*;
+
+#[cfg(feature = "wrappers_blas")]
+pub mod wrappers_blas;
+#[cfg(feature = "wrappers_blas")]
+pub use wrappers_blas::*;
+
+#[cfg(feature = "wrappers_fft")]
+pub mod wrappers_fft;
+#[cfg(feature = "wrappers_fft")]
+pub use wrappers_fft::*;
+
+#[cfg(feature = "wrappers_sparse")]
+pub mod wrappers_sparse;
+#[cfg(feature = "wrappers_sparse")]
+pub use wrappers_sparse::*;
+
+#[cfg(feature = "wrappers_solver")]
+pub mod wrappers_solver;
+#[cfg(feature = "wrappers_solver")]
+pub use wrappers_solver::*;
+
+#[cfg(feature = "wrappers_rand")]
+pub mod wrappers_rand;
+#[cfg(feature = "wrappers_rand")]
+pub use wrappers_rand::*;
 
 #[cfg(test)]
 mod tests {

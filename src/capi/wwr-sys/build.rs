@@ -45,6 +45,11 @@ const UNITS: &[(&str, &str)] = &[
         "extension_random_normal",
         "wwr_capi_extension_random_normal",
     ),
+    ("wrappers_blas", "wwr_capi_wrappers_blas"),
+    ("wrappers_fft", "wwr_capi_wrappers_fft"),
+    ("wrappers_sparse", "wwr_capi_wrappers_sparse"),
+    ("wrappers_solver", "wwr_capi_wrappers_solver"),
+    ("wrappers_rand", "wwr_capi_wrappers_rand"),
 ];
 
 fn main() {
