@@ -977,3 +977,40 @@ The acceptance is the compile-time device TU `test/gpu/cub.cu` (beside
 against the selected backend — building it on both is the whole test, no ctest
 entry and no launch. That test is how the two divergences above that a header
 grep missed (`BlockShuffle`, the absent `Less`) were caught.
+
+## 25. The C ABI, and the one canonical name surface
+
+The `src/detail/*_names.h` fragments are the single canonical encoding of the
+neutral *name* surface. Thirteen of them (`runtime_api`, `blas`, `rand`, …) each
+carry the `(wwr, cuda, hip)` triple for every type, constant and function as
+`WWR_*_TYPE` / `WWR_*_VALUE` / `WWR_*_FUNCTION` entries, and every consumer binds
+to that one list. `runtime_api_names.h`'s header names three consumers — the
+`wwr.runtime_api` module, a device `.cu`/`.cuh` section that cannot `import` (§8),
+and the non-module `wwr/runtime_api.h` include — and the invariant is that each is
+a *consumption path* over the one list: add a name once and every path gains it.
+A new consumer, the C ABI for Rust FFI (#329) included, is another such path. It
+is **never** a re-authored copy of the tuples; a second hand-maintained list of the
+same names is exactly the drift this layout exists to foreclose.
+
+The fragments deliberately carry names only — not signatures, not layouts (§4,
+§12). A `WWR_*_FUNCTION` reference restates no signature, and no entry describes a
+by-value type's bytes. So a consumer that needs something a name cannot express
+carries that *extra* datum in a sidecar keyed to the fragment; it does not restate
+the names to hang the datum off them. For the `extern "C"` layer of #329 the only
+such residue is the vendor-free POD layout per by-value type — because under #329's
+"the thunk calls into `wwr`" decision the per-backend *bodies* disappear: the
+cuComplex-vs-hipComplex divergence (§3) is resolved inside the `wwr::wwrC*`
+function the thunk calls, not above it, so the thunk is one shape over both
+backends and the fragment's names suffice for everything but the layout.
+
+This points to a mechanism — for #329 to realize concretely, not mandated in
+detail here. The thunks become a macro-expansion consumption path: a `.cpp`/`.h`
+that `#include`s the fragment with capi-emitting `WWR_*` macros, exactly as the
+module, the device section and the `#include` path already do, with the Rust side
+produced by `bindgen` over the generated C header and the POD layouts carried in a
+small sidecar. Consequently the hand-written Python spec in
+`experimental/rust/capi/spec/` is **provisional scaffolding**: it restates the
+tuples only until a fragment-sourced path replaces it, and is **not** a sanctioned
+second encoding of the surface. The spike's own header already flags this (its
+"a real `wwr.capi` target would generate this spec FROM the headers rather than
+restate it"); #328 records the verdict so the next reader finds the decision made.
