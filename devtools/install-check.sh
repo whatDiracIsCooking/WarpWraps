@@ -68,9 +68,12 @@
 #                   above proves the module layers. When rustc is on PATH it ALSO
 #                   builds+runs example/capi-consumer-rs, which depends on the
 #                   INSTALLED wwr-sys crate (path dep on share/wwr/rust/wwr-sys)
-#                   and links the same installed .so -- the end-to-end Rust path
-#                   (#341); a visible skip when rustc is absent, like the
-#                   wwr.capi.driver_rs ctest, so the pre-rust-image CI stays green.
+#                   and links the same installed per-unit .so's -- the end-to-end
+#                   Rust path (#341) -- AND a complex-ONLY build of that crate
+#                   whose readelf NEEDED set is asserted to carry no cuBLAS (the
+#                   per-surface isolation PR #366 buys). Both are a visible skip
+#                   when rustc is absent, like the wwr.capi.driver_rs ctest, so
+#                   the pre-rust-image CI stays green.
 #
 # Exit status is the first failing step's.
 #: -- help stops here --
@@ -114,6 +117,7 @@ build_dir=$REPO_ROOT/build-install-check
 consumer_build=$REPO_ROOT/build-install-check-consumer
 capi_consumer_build=$REPO_ROOT/build-install-check-capi-consumer
 capi_consumer_rs_build=$REPO_ROOT/build-install-check-capi-consumer-rs
+capi_isolation_build=$REPO_ROOT/build-install-check-capi-isolation
 
 if [ -z "$prefix" ]; then
   prefix=$(mktemp -d -t wwr-install-XXXXXX)
@@ -133,11 +137,14 @@ cleanup() {
       echo "kept: capi consumer    $capi_consumer_build"
       [ -d "$capi_consumer_rs_build" ] &&
         echo "kept: capi consumer rs $capi_consumer_rs_build"
+      [ -d "$capi_isolation_build" ] &&
+        echo "kept: capi isolation   $capi_isolation_build"
     fi
     return
   fi
   [ "$created_prefix" -eq 1 ] && rm -rf "$prefix"
-  rm -rf "$consumer_build" "$capi_consumer_build" "$capi_consumer_rs_build"
+  rm -rf "$consumer_build" "$capi_consumer_build" "$capi_consumer_rs_build" \
+    "$capi_isolation_build"
 }
 trap cleanup EXIT
 
@@ -378,22 +385,102 @@ if [ "$capi" -eq 1 ]; then
       echo "  no '$capi_rs_bin' binary." >&2
       exit 1
     fi
-    # Same INSTALLED-lib proof as the C consumer: the Rust binary's libwwr_capi.so
-    # must resolve inside the throwaway prefix, not an in-tree build dir.
+    # Same INSTALLED-lib proof as the C consumer, adapted to the per-surface
+    # split (PR #366): this consumer enables the complex + runtime_api features,
+    # so it links the per-unit libwwr_capi_complex.so / libwwr_capi_runtime_api.so
+    # (NOT the umbrella). Each resolved unit .so must sit inside the throwaway
+    # prefix, not an in-tree build dir -- take the first match for the message.
     capi_rs_so=$(ldd "$capi_rs_bin" 2>/dev/null |
-      awk '/libwwr_capi\.so/ { print $3 }')
+      awk '/libwwr_capi_[a-z_]*\.so/ { print $3; exit }')
     case "${capi_rs_so:-}" in
       "$prefix"/*) rs_linked_install=1 ;;
       *) rs_linked_install=0 ;;
     esac
     if [ "$rs_linked_install" -eq 0 ]; then
       echo
-      echo "install-check.sh: FAIL -- Rust consumer does not link the INSTALLED" >&2
-      echo "  libwwr_capi.so (resolved to '${capi_rs_so:-<none>}', not under $prefix)." >&2
+      echo "install-check.sh: FAIL -- Rust consumer does not link an INSTALLED" >&2
+      echo "  libwwr_capi_<unit>.so (resolved to '${capi_rs_so:-<none>}', not under $prefix)." >&2
       exit 1
     fi
     echo "  Rust consumer links the installed lib: $capi_rs_so"
     capi_rs_built=1
+
+    # The PER-SURFACE ISOLATION proof (PR #366), the Rust mirror of the C side's
+    # "libwwr_capi_complex.so NEEDs no cublas". wwr-sys is split into per-surface
+    # Cargo features; a consumer that opts DOWN to only `complex`
+    # (default-features = false) must link libwwr_capi_complex.so and NOTHING of
+    # the blas surface -- so its binary's NEEDED set carries no cuBLAS. We build a
+    # throwaway complex-only consumer against the INSTALLED crate and assert it.
+    step "3d/4  isolation: a complex-only Rust consumer links no cuBLAS"
+    iso_build="$capi_isolation_build"
+    rm -rf "$iso_build"
+    mkdir -p "$iso_build/src"
+    cat > "$iso_build/Cargo.toml" <<EOF
+[package]
+name = "wwr-capi-isolation-rs"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+wwr-sys = { path = "$wwr_sys_installed", default-features = false, features = ["complex"] }
+EOF
+    # Put an rpath to the installed lib dir on the binary (wwr-sys's build.rs
+    # rpath does not propagate to a downstream link), same as the C consumer's
+    # build.rs -- so readelf resolves a real, installed .so.
+    cat > "$iso_build/build.rs" <<'EOF'
+fn main() {
+    println!("cargo:rerun-if-env-changed=WWR_CAPI_LIB_DIR");
+    if let Ok(dir) = std::env::var("WWR_CAPI_LIB_DIR") {
+        if !dir.is_empty() {
+            println!("cargo:rustc-link-arg=-Wl,-rpath,{dir}");
+        }
+    }
+}
+EOF
+    # Calls the complex surface only -- no runtime_api, no blas. A wrong answer
+    # panics (non-zero exit); but the proof we assert is structural: the NEEDED set.
+    cat > "$iso_build/src/main.rs" <<'EOF'
+use wwr_sys::common::wwr_complex64;
+use wwr_sys::complex::{wwr_cabs64, wwr_cadd64};
+fn main() {
+    let (s, m) = unsafe {
+        let a = wwr_complex64 { re: 3.0, im: 4.0 };
+        let b = wwr_complex64 { re: 1.0, im: 2.0 };
+        (wwr_cadd64(a, b), wwr_cabs64(a))
+    };
+    assert!((s.re - 4.0).abs() < 1e-4 && (s.im - 6.0).abs() < 1e-4);
+    assert!((m - 5.0).abs() < 1e-4);
+    println!("complex-only consumer OK");
+}
+EOF
+    WWR_CAPI_LIB_DIR="$prefix/lib" \
+    CARGO_TARGET_DIR="$iso_build/target" \
+      cargo build --manifest-path "$iso_build/Cargo.toml" --release
+    iso_bin="$iso_build/target/release/wwr-capi-isolation-rs"
+    if [ ! -x "$iso_bin" ]; then
+      echo
+      echo "install-check.sh: FAIL -- complex-only consumer built no binary" >&2
+      exit 1
+    fi
+    # The complex-only binary must NEED the complex unit .so and must NOT NEED any
+    # blas / cuBLAS library -- that is the per-surface isolation the split buys.
+    iso_needed=$(readelf -d "$iso_bin" 2>/dev/null | awk '/NEEDED/ { print $NF }')
+    echo "  complex-only NEEDED:"
+    echo "$iso_needed" | sed 's/^/    /'
+    if ! echo "$iso_needed" | grep -q 'libwwr_capi_complex\.so'; then
+      echo
+      echo "install-check.sh: FAIL -- complex-only consumer does not link" >&2
+      echo "  libwwr_capi_complex.so (NEEDED: $iso_needed)." >&2
+      exit 1
+    fi
+    if echo "$iso_needed" | grep -Eqi 'cublas|hipblas|libwwr_capi_blas\.so'; then
+      echo
+      echo "install-check.sh: FAIL -- complex-only consumer leaks the blas/BLAS" >&2
+      echo "  dependency (NEEDED: $iso_needed); the per-surface split is broken." >&2
+      exit 1
+    fi
+    echo "  isolation holds: complex-only build links no cuBLAS / no blas unit"
   else
     step "3c/4  skipped -- rustc/cargo not found (Rust consumer)"
     echo "  no cargo on PATH; the C consumer above stands in for the Rust one"

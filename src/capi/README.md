@@ -175,26 +175,34 @@ gen/<unit>/wwr_capi_<unit>.cpp the backend-neutral extern "C" thunk TU per unit,
 gen/wwr_capi.h     the UMBRELLA header: #include "common.h" + every unit header, so
                    <wwr/wwr_capi.h> still declares the whole ABI. Installed under
                    WWR_INSTALL_CAPI.
-gen/ffi.rs         the Rust side: one extern "C" block, #[repr(C)] PODs, the
-                   #[repr(i32)] wwr_status enum, NO cfg. Still COMBINED (links the
-                   umbrella; a later PR splits the Rust crate per surface).
+gen/common.rs      the Rust shared PODs (wwr_complex64 / wwr_complex128), the dual
+                   of common.h -- always compiled, mirrored into wwr-sys/src.
+gen/<unit>/<unit>.rs  one Rust module per surface: its #[repr(C)] types + a
+                   #[rustfmt::skip] extern "C" block (NO #[link] -- build.rs links
+                   the unit's .so per feature). Mirrored into wwr-sys/src.
+gen/ffi.rs         the COMBINED Rust binding the in-tree driver.rs include!s: every
+                   POD/enum + ONE extern "C" block with #[link(name="wwr_capi")]
+                   over the umbrella .so. Standalone (NOT the crate); mirrors the C
+                   driver linking the umbrella.
 CMakeLists.txt     the per-unit object libraries, the per-unit + umbrella shared
                    libraries, the install rules, and the driver ctests.
 driver.c           a pure-C consumer (stands in for Rust's FFI) that links the
                    symbols and checks the numbers; run as the wwr.capi.driver ctest.
-driver.rs          the real Rust consumer: include!s gen/ffi.rs and links
+driver.rs          the real Rust consumer: include!s gen/ffi.rs (combined) and links
                    libwwr_capi.so, compiled rustc-direct (no cargo) and run as the
                    wwr.capi.driver_rs ctest — rustc-gated (see "rustc in the loop").
 wwr-sys/           the idiomatic Rust -sys crate (Cargo.toml + build.rs + src/):
-                   the user-consumable binding over the installed libwwr_capi.so.
-                   See "The wwr-sys crate", below.
+                   the user-consumable binding, SPLIT PER SURFACE into Cargo
+                   features over the per-unit .so's. See "The wwr-sys crate", below.
 ```
 
 `gen/` is a committed snapshot so the PR is reviewable without running anything;
 regenerate it with `python3 src/capi/generate.py` (no backend argument — the
 `.cpp`s are backend-neutral, and the generator reads both backend manifests to
 cross-check that the surface resolves identically on each). It writes `common.h`,
-the umbrella `wwr_capi.h`, `ffi.rs`, and the per-unit `<unit>/wwr_capi_<unit>.{h,cpp}`.
+the umbrella `wwr_capi.h`, the combined `ffi.rs`, `common.rs`, and the per-unit
+`<unit>/wwr_capi_<unit>.{h,cpp}` + `<unit>/<unit>.rs` — and mirrors `common.rs`
+and the per-unit `.rs` into `wwr-sys/src/` (the crate's single source).
 
 ## The per-unit split
 
@@ -218,8 +226,10 @@ Each unit's thunk is compiled **once** into an object library
 (`wwr.capi.<unit>.obj`), linked into both its own per-unit `.so` and the umbrella
 (so the umbrella carries all symbols without recompiling). Target names keep the
 dotted convention: `wwr.capi` / `wwr::capi` (umbrella) and `wwr.capi.<unit>` /
-`wwr::capi::<unit>` (each unit). The `ffi.rs` / `wwr-sys` Rust side stays combined
-and links the umbrella — a later PR splits the Rust crate per surface.
+`wwr::capi::<unit>` (each unit). The **`wwr-sys` Rust crate mirrors this split**
+into Cargo features, so a Rust consumer opts down to one surface's `.so` the same
+way a C++ consumer links one `wwr::capi::<unit>` (see "The wwr-sys crate"); the
+in-tree `driver.rs` keeps linking the umbrella through the combined `gen/ffi.rs`.
 
 ## Build & run
 
@@ -287,42 +297,81 @@ cuda/hip/combined all inherit it.
 
 ## The wwr-sys crate
 
-`wwr-sys/` is the idiomatic Rust `-sys` crate over the prebuilt `libwwr_capi.so`
-(#340). A Rust user adds one dependency, links the `.so`, and carries **zero**
-`#[cfg]` / vendor knowledge — the backend was chosen when the linked `.so` was
-built, exactly the ABI's thesis.
+`wwr-sys/` is the idiomatic Rust `-sys` crate over the prebuilt `libwwr_capi_*.so`
+family (#340). A Rust user adds one dependency, links the `.so`(s), and carries
+**zero** `#[cfg]` / vendor knowledge — the backend was chosen when the linked
+`.so` was built, exactly the ABI's thesis.
+
+**The crate is split per surface, mirroring the C-side per-unit split.** One
+always-compiled `common` module holds the PODs more than one surface uses
+(`wwr_complex64` / `wwr_complex128`), and each surface is its own module behind a
+Cargo **feature**:
+
+| feature       | module          | links (`build.rs`)                        |
+|---------------|-----------------|-------------------------------------------|
+| `complex`     | `complex`       | `libwwr_capi_complex.so` (no vendor math lib) |
+| `runtime_api` | `runtime_api`   | `libwwr_capi_runtime_api.so`              |
+| `blas`        | `blas`          | `libwwr_capi_blas.so` → cuBLAS / hipBLAS  |
+
+**Default = all three surfaces**, so an existing user who wants the whole ABI is
+unchanged — they just transparently link the per-unit `.so`s instead of the old
+umbrella. A user who needs one surface opts **down**:
+
+```toml
+[dependencies]
+wwr-sys = { path = "...", default-features = false, features = ["complex"] }
+```
+
+and then **nothing** of another surface's vendor dependency is linked — a
+`complex`-only build NEEDs no cuBLAS. That is the Rust mirror of the C side's
+`libwwr_capi_complex.so` NEEDing no math library:
+
+```
+$ readelf -d <complex-only-binary> | grep NEEDED
+  libwwr_capi_complex.so.1       # the complex unit .so, and
+  …                              # NO libcublas / NO libwwr_capi_blas.so
+```
 
 - **`Cargo.toml`** — crate `wwr-sys`, version `1.0.0` tracking the frozen ABI
   contract (not bumped independently), `links = "wwr_capi"` (the `-sys`
-  convention — cargo enforces one crate per native lib).
-- **`src/lib.rs`** — the binding surface. It `include!`s `src/ffi.rs`, the
-  **single source**: `generate.py` writes that `ffi.rs` from the same
-  `spec/complex.py` it writes `gen/ffi.rs` / the C header / the thunk from, so
-  the crate cannot drift from the ABI. (The crate ships its own copy because,
-  once installed away from this tree, a sibling `../gen/ffi.rs` `include!` would
-  dangle.) Do not hand-edit `ffi.rs`; regenerate with `python3 src/capi/generate.py`.
-- **`build.rs`** — reads `WWR_CAPI_LIB_DIR` and emits `rustc-link-search` +
-  `rustc-link-lib=dylib=wwr_capi` (and an rpath, so the test binary finds the
-  `.so` without `LD_LIBRARY_PATH`). The link name is the lib's `OUTPUT_NAME`
-  `wwr_capi` — kept in step with `src/capi/CMakeLists.txt`, `Cargo.toml`'s
-  `links`, and `ffi.rs`'s `#[link]` by a comment on each (the increment-3 lesson).
+  convention — cargo enforces one crate per native-lib family), and a `[features]`
+  table: `default = ["complex", "runtime_api", "blas"]`, each surface an empty
+  feature list (it gates a module + its `build.rs` link, nothing more).
+- **`src/lib.rs`** — the binding surface. It declares `pub mod common;` (always)
+  plus a `#[cfg(feature = "…")] pub mod …;` per surface, each the **single source**
+  `generate.py` writes (`src/common.rs`, `src/<unit>.rs`) from the same specs it
+  writes the C headers / thunks from, so the crate cannot drift. (The crate ships
+  its own copies because, once installed away from this tree, a sibling
+  `../gen/*.rs` `include!` would dangle.) Do not hand-edit them; regenerate with
+  `python3 src/capi/generate.py`.
+- **`build.rs`** — reads `WWR_CAPI_LIB_DIR`, emits `rustc-link-search` + an rpath,
+  and then **one `rustc-link-lib=dylib=wwr_capi_<unit>` per ENABLED feature**
+  (detected via `CARGO_FEATURE_<UNIT>`). So a `--features complex` build links
+  only `libwwr_capi_complex.so` — the per-feature isolation. The link names are
+  the units' `OUTPUT_NAME`s, kept in step with `src/capi/CMakeLists.txt` by a
+  comment (the increment-3 lesson).
 
 It is the raw `-sys` surface (every function `unsafe extern "C"`); a safe
-`Result`-returning wrapper is deliberately out of scope. A crate-level smoke test
-(`cargo test`) links the `.so` and calls through it on a no-GPU host.
+`Result`-returning wrapper is deliberately out of scope. Crate-level smoke tests
+(`cargo test`) link the enabled surfaces' `.so`s and call through them on a
+no-GPU host (each `#[cfg]`-gated on its feature).
 
-**Build it against the built or installed lib:**
+**Build it against the built or installed libs:**
 
 ```bash
 cmake --preset default                       # or --preset hip (inside wwr:hip)
-cmake --build build --target wwr.capi        # produces libwwr_capi.so
+cmake --build build --target wwr.capi.complex wwr.capi.runtime_api wwr.capi.blas
 WWR_CAPI_LIB_DIR=$PWD/build/src/capi \
-  cargo test --manifest-path src/capi/wwr-sys/Cargo.toml
+  cargo test --manifest-path src/capi/wwr-sys/Cargo.toml   # default = all surfaces
+# or one surface in isolation:
+WWR_CAPI_LIB_DIR=$PWD/build/src/capi cargo build \
+  --manifest-path src/capi/wwr-sys/Cargo.toml --no-default-features --features complex
 ```
 
 **Depend on the installed crate.** Under `-DWWR_INSTALL_CAPI=ON` the crate
 skeleton installs to `<prefix>/share/wwr/rust/wwr-sys/` (`Cargo.toml`, `build.rs`,
-`src/`) alongside `libwwr_capi.so` in `<prefix>/lib`. A downstream `Cargo.toml`:
+`src/` — including the generated per-unit `.rs`) alongside the `libwwr_capi_*.so`s
+in `<prefix>/lib`. A downstream `Cargo.toml`:
 
 ```toml
 [dependencies]
@@ -336,11 +385,13 @@ WWR_CAPI_LIB_DIR=<prefix>/lib cargo build
 ```
 
 That exact path is exercised end to end by `example/capi-consumer-rs` (#341): a
-standalone crate that path-depends on the installed `wwr-sys`, links the
-installed `libwwr_capi.so` and asserts `wwr_cadd64` / `wwr_runtime_get_version`.
-`devtools/install-check.sh --capi` builds and runs it against a throwaway install
-prefix (with an `ldd` check that it links the *installed* `.so`), gated on rustc
-so the pre-rust-image CI path stays green.
+standalone crate that path-depends on the installed `wwr-sys` with the `complex`
++ `runtime_api` features, links the installed per-unit `.so`s and asserts
+`wwr_cadd64` / `wwr_runtime_get_version`. `devtools/install-check.sh --capi`
+builds and runs it against a throwaway install prefix (with an `ldd` check that
+it links the *installed* `.so`), **and** builds a `complex`-only consumer and
+asserts its `readelf` NEEDED set carries no cuBLAS — both gated on rustc so the
+pre-rust-image CI path stays green.
 
 ## Stability policy
 

@@ -19,5 +19,12 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 
+# This consumer calls the complex and runtime_api surfaces only, so it opts DOWN
+# from the default (all surfaces) to just those two features -- demonstrating the
+# per-surface split (PR #366) and linking neither blas nor its cuBLAS dependency.
+# A user who wants the whole ABI simply omits default-features/features.
 [dependencies]
-wwr-sys = { path = "__WWR_SYS_PATH__" }
+wwr-sys = { path = "__WWR_SYS_PATH__", default-features = false, features = [
+  "complex",
+  "runtime_api",
+] }
