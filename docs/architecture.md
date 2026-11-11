@@ -805,6 +805,19 @@ here, and re-measure the sections that named the old toolchain (the header of
 this file, and any dated section). A floor is a promise that everything below it
 was checked — do not raise it past a release nobody built against.
 
+**The C ABI stability policy (#338).** The installed `libwwr_capi.so` (§25,
+`src/capi`) is the one `wwr` artifact that makes an ABI promise to a non-C++
+consumer, so it carries a ratchet of its own, in the opposite direction: its
+surface only ever *grows*, and never silently. The `wwr_status` enumerator
+**values are frozen** — once shipped, an enumerator keeps its integer value
+forever, so a consumer linking any future `libwwr_capi.so` reads the same
+`#[repr(i32)]` mapping; a new error code appends with the next value, and an
+enumerator is never reordered or reused. `SOVERSION` (first contract version `1`,
+from `VERSION 1.0.0`) bumps **only on an ABI break** — a changed struct layout, a
+changed signature, a removed symbol — never for an additive change, which bumps
+only the minor `VERSION`. This is why the generated enum and its `_map` helper
+come from one `spec.STATUS` list: the frozen values cannot drift from the thunk.
+
 **How each is checked, and why they differ.** CUDA is a one-liner —
 `find_package(CUDAToolkit 13.0.0 REQUIRED)` — because `FindCUDAToolkit` reports
 `CUDAToolkit_VERSION` as the true toolkit release and CMake's own
@@ -1094,9 +1107,20 @@ detail here. The thunks become a macro-expansion consumption path: a `.cpp`/`.h`
 that `#include`s the fragment with capi-emitting `WWR_*` macros, exactly as the
 module, the device section and the `#include` path already do, with the Rust side
 produced by `bindgen` over the generated C header and the POD layouts carried in a
-small sidecar. Consequently the hand-written Python spec in
-`experimental/rust/capi/spec/` is **provisional scaffolding**: it restates the
-tuples only until a fragment-sourced path replaces it, and is **not** a sanctioned
-second encoding of the surface. The spike's own header already flags this (its
-"a real `wwr.capi` target would generate this spec FROM the headers rather than
-restate it"); #328 records the verdict so the next reader finds the decision made.
+small sidecar. Consequently the hand-written Python spec in `src/capi/spec/` is
+**provisional scaffolding**: it restates the tuples only until a fragment-sourced
+path replaces it, and is **not** a sanctioned second encoding of the surface. The
+generator's own header already flags this (its "a real `wwr.capi` target would
+generate this spec FROM the headers rather than restate it"); #328 records the
+verdict so the next reader finds the decision made.
+
+The capi is now a first-class installed artifact (#338, milestone #5). Unlike
+every other `wwr` library — which ships as module *source* a consumer compiles,
+since a BMI is not portable — the capi ships as a prebuilt `libwwr_capi.so` a
+non-C++ consumer links. So `wwr_install_package()` installs it *explicitly* under
+`WWR_INSTALL_CAPI`, outside the `src/`-sweep that packages the module libraries
+(`cmake/wwr_install.cmake`); the sweep's non-recursive `src/` collection never
+reaches `src/capi`, like `src/thrust`. The export set carries `wwr::capi`, so a
+consumer's `find_package(wwr)` + `target_link_libraries(... wwr::capi)` resolves
+against the binary, and `wwr_capi.h` installs into the `wwr` include root for the
+`#include` / `bindgen` path. Its ABI-stability contract is stated in §21.

@@ -1,11 +1,15 @@
-# `experimental/rust` — a C ABI over the `wwr` layer, for Rust FFI
+# `src/capi` — a C ABI over the `wwr` layer, for Rust FFI
 
-**Status: experimental, wired into the build as `wwr.capi`.** This is a
-backend-neutral C ABI (`extern "C"`) over the `wwr` layer so Rust (or any FFI
+A backend-neutral C ABI (`extern "C"`) over the `wwr` layer so Rust (or any FFI
 consumer) links one surface and carries *zero* CUDA-vs-HIP knowledge — no
 `#[cfg]`, no vendor type, no per-backend pairing table. The divergences
 `docs/architecture.md` catalogues are all resolved *below* the `extern "C"` line,
-inside the `wwr` functions the thunk calls. The ABI is not yet a stable contract.
+inside the `wwr` functions the thunk calls.
+
+Unlike the rest of `wwr` (which ships as module *source* a consumer compiles —
+BMIs are not portable), the capi is a **prebuilt `libwwr_capi.so`** a non-C++
+consumer links. It is installed as part of the `find_package(wwr)` package under
+`-DWWR_INSTALL_CAPI=ON` (see "Install", below).
 
 It covers two surfaces (`complex` and a thin status-returning slice of
 `runtime_api`), **host** side only. See "What this does not cover" before
@@ -28,6 +32,9 @@ sees one `#[repr(i32)]` enum whichever backend `wwr.capi` links, and builds a
 `wwr::wwr<Name>` constants — never a vendor name — so the thunk stays one shape
 over both backends.
 
+The `wwr_status` enumerator values are a **frozen ABI contract** (see "Stability
+policy", below, and architecture.md §21).
+
 ## The one decision that shapes everything: the thunk calls *into* `wwr`
 
 The thunk does not re-derive the backend divergence; it calls the host-callable
@@ -44,8 +51,7 @@ module (architecture.md §3, §12, §25). So the generated `wwr_capi.cpp`:
   split lives entirely on the link line, nowhere in the source.
 
 Because the divergence is gone from *above* the `wwr::` call, every function is a
-plain forward: the spike's `body: forward | custom` + `CUSTOM` mechanism and the
-per-backend `.cpp` generation are gone, and the spec shrinks to
+plain forward: there is no per-backend `.cpp` generation, and the spec is just
 `(capi_name, wwr_name, POD_layout)`.
 
 ## Why a shim at all — Rust can already `#[cfg]` two `extern "C"` blocks
@@ -77,12 +83,13 @@ spec/complex.py    the neutral surface as data: PODs (capi_name, wwr_name, layou
                    (src/detail/*_names.h); architecture.md §25, #328.
 generate.py        spec -> three artefacts. One source, so nothing drifts.
 gen/wwr_capi.h     vendor-free C header for bindgen / a C consumer (PODs, the
-                   wwr_status enum, prototypes).
+                   wwr_status enum, prototypes). Installed under WWR_INSTALL_CAPI.
 gen/wwr_capi.cpp   the backend-neutral extern "C" thunks (import wwr.complex +
                    wwr.runtime_api; the _map status helper).
 gen/ffi.rs         the Rust side: one extern "C" block, #[repr(C)] PODs, the
                    #[repr(i32)] wwr_status enum, NO cfg.
-capi/CMakeLists.txt  the wwr.capi shared-library target + the driver ctest.
+CMakeLists.txt     the wwr.capi shared-library target, the install rules, and the
+                   driver ctests.
 driver.c           a pure-C consumer (stands in for Rust's FFI) that links the
                    symbols and checks the numbers; run as the wwr.capi.driver ctest.
 driver.rs          the real Rust consumer: include!s gen/ffi.rs and links
@@ -91,13 +98,15 @@ driver.rs          the real Rust consumer: include!s gen/ffi.rs and links
 ```
 
 `gen/` is a committed snapshot so the PR is reviewable without running anything;
-regenerate it with `python3 capi/generate.py` (no backend argument — the `.cpp`
-is backend-neutral).
+regenerate it with `python3 src/capi/generate.py` (no backend argument — the
+`.cpp` is backend-neutral).
 
 ## Build & run
 
-The standalone host-`g++` path is gone: "call into `wwr`" means the capi builds
-against the module graph, so it builds as a CMake target like any other.
+"Call into `wwr`" means the capi builds against the module graph, so it builds as
+a CMake target like any other. It builds **unconditionally** with the rest of
+`src/` (it depends only on `wwr::complex` / `wwr::runtime_api`, which always
+build); the install is the only thing gated (see below).
 
 ```bash
 cmake --preset default            # CUDA (or --preset hip, inside the wwr:hip image)
@@ -105,20 +114,39 @@ cmake --build build --target wwr.capi wwr.capi.driver
 ctest --test-dir build -R wwr.capi   # runs driver.c (+ driver_rs if rustc is found)
 ```
 
-`wwr.capi` (real dotted name, aliased `wwr::capi`) is a shared library gated ON
-for a top-level build by `WWR_BUILD_EXPERIMENTAL`. Its output file is
-`libwwr_capi.so` (an `OUTPUT_NAME` override, matching `ffi.rs`'s `wwr_capi` link
-name and the C ABI's `wwr_` symbol prefix) while the target keeps the dotted
-name. The `wwr.capi.driver` ctest is gated by `WWR_BUILD_TESTS` and is host-only,
-so it runs on no-GPU CI.
+`wwr.capi` (real dotted name, aliased `wwr::capi`) is a shared library. Its
+output file is `libwwr_capi.so` (an `OUTPUT_NAME` override, matching `ffi.rs`'s
+`wwr_capi` link name and the C ABI's `wwr_` symbol prefix) while the target keeps
+the dotted name. The `wwr.capi.driver` ctest is gated by `WWR_BUILD_TESTS` and is
+host-only, so it runs on no-GPU CI.
+
+## Install
+
+The capi is a prebuilt binary, not module source, so it does not ride the
+`src/`-sweep that packages every other `wwr` library. `wwr_install_package()`
+excludes `wwr.capi` from the sweep (the sweep's non-recursive `src/` collection
+never reaches a target defined in this subdirectory, like `src/thrust`) and
+installs it **explicitly**, gated on `-DWWR_INSTALL_CAPI=ON` (mirroring
+`WWR_INSTALL_EXTENSION`; effect only when `WWR_INSTALL` is ON). Under the gate:
+
+- `install(TARGETS wwr.capi EXPORT wwr-targets ...)` puts `libwwr_capi.so` (+ its
+  soname) in the lib dir and adds `wwr::capi` to the exported target set, so a
+  consumer's `find_package(wwr)` + `target_link_libraries(... wwr::capi)`
+  resolves;
+- `install(FILES gen/wwr_capi.h ...)` puts the vendor-free C header in the `wwr`
+  include dir.
+
+A consumer that links `wwr::capi` compiles no module unit — it links the prebuilt
+`.so` and `#include`s `wwr_capi.h` (or generates bindings from it). The dedicated
+Rust-crate consumer check lands in #339.
 
 ## rustc in the loop
 
-`driver.rs` is the real Rust consumer the C driver has stood in for: it
-`include!`s the generated `gen/ffi.rs` and links `libwwr_capi.so`, compiled
-rustc-direct (no cargo) and run as the `wwr.capi.driver_rs` ctest. It mirrors
-`driver.c`'s assertions — the complex arithmetic and the stable `wwr_status`
-surface — so the two stand in for each other.
+`driver.rs` is the real Rust consumer the C driver stands in for: it `include!`s
+the generated `gen/ffi.rs` and links `libwwr_capi.so`, compiled rustc-direct (no
+cargo) and run as the `wwr.capi.driver_rs` ctest. It mirrors `driver.c`'s
+assertions — the complex arithmetic and the stable `wwr_status` surface — so the
+two stand in for each other.
 
 It is gated on `find_program(RUSTC rustc)`, **not** merely on `WWR_BUILD_TESTS`,
 and that gate follows the repo's image/CI contract. `ci.yml`'s `cpp` jobs run
@@ -127,26 +155,29 @@ before any step, so a PR that adds rust to `docker/` is still tested against the
 **old, rust-less** image (the `images.yml` PR check only *builds* the new
 Dockerfile, it does not publish it — see both workflow headers). With no `rustc`
 there, the Rust test cleanly does not register and CMake prints a visible skip,
-exactly like the repo's GPU-gated tests, so the PR adding it is green. Once
-`images.yml` republishes the rust-enabled base on `main`, every later `cpp` run
-finds `rustc` and runs it. The toolchain is pinned in `docker/Dockerfile.base`
-(`ARG RUST_VERSION`), installed via `rustup --profile minimal` to a shared
-`/opt/cargo` + `/opt/rustup` so cuda/hip/combined all inherit it.
+exactly like the repo's GPU-gated tests. Once `images.yml` republishes the
+rust-enabled base on `main`, every later `cpp` run finds `rustc` and runs it. The
+toolchain is pinned in `docker/Dockerfile.base` (`ARG RUST_VERSION`), installed
+via `rustup --profile minimal` to a shared `/opt/cargo` + `/opt/rustup` so
+cuda/hip/combined all inherit it.
+
+## Stability policy
+
+The `wwr_status` enumerator *values* are a frozen contract: once shipped, an
+enumerator keeps its integer value forever, so a consumer linking any future
+`libwwr_capi.so` reads the same `#[repr(i32)]` mapping. New error codes append
+with the next value (never reorder, never reuse). `SOVERSION` bumps only on an
+ABI break — a changed struct layout, a changed signature, a removed symbol —
+never for an additive change. See architecture.md §21.
 
 ## What this does NOT cover (yet)
 
 - **Host surface only.** The high-value `wwr` code — `src/extension`'s device
   kernels, `parallel_for`, the sdcz dispatch in `src/wrappers` — is device C++
   *templates*. Each needs a monomorphised C entry per instantiation; a later
-  milestone (architecture.md §25, #329 out-of-scope).
-- **Not installed.** `wwr.capi` is built but not part of the `find_package(wwr)`
-  package — `wwr_install_package()` sweeps `src/` only. A later increment promotes
-  it once the Rust/status story settles (#329).
+  milestone (architecture.md §25).
 - **The spec is hand-written here**, provisional until sourced from the canonical
   name surface (architecture.md §25, #328).
-- **`rustc` in the loop, but gated.** `ffi.rs` is now compiled and run as the
-  `wwr.capi.driver_rs` ctest (#329 increment 3) — *when* `rustc` is present. It is
-  present in the rust-enabled image published by `images.yml`; it is absent in the
-  image a PR's `cpp` jobs run against until that republish lands, so the test
-  skips there (see "rustc in the loop"). `driver.c` remains and stands in
-  whenever the Rust leg is skipped.
+- **The dedicated Rust-crate consumer** that proves the installed `wwr::capi`
+  against a `cargo`/`build.rs` build lands in #339; the install itself is
+  verified here against `example/consumer`.

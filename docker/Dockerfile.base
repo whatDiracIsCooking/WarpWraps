@@ -79,8 +79,8 @@ ARG LLVM_VERSION=23
 ARG CMAKE_VERSION=4.2.3
 ARG CMAKE_MAJOR_MINOR=4.2
 ARG NINJA_VERSION=1.13.1
-# Rust, for the experimental C ABI's Rust FFI test (experimental/rust/capi):
-# rustc + cargo compile the generated ffi.rs and run it as a ctest. Pinned for
+# Rust, for the C ABI's Rust FFI test (src/capi): rustc + cargo compile the
+# generated ffi.rs and run it as a ctest. Pinned for
 # the same reason the toolchain above is -- a floating stable turns a working
 # build into a surprise. Installed via rustup --profile minimal (no docs) in the
 # base stage below, so cuda/hip/combined inherit it. NOT a vendor SDK; it is part
@@ -259,7 +259,7 @@ RUN cd /tmp/uvroot && uv sync --frozen --no-install-project && rm -rf /tmp/uvroo
     chown -R 1000:1000 /opt/venv /opt/uv
 
 # --- Rust --------------------------------------------------------------------
-# A pinned rustc + cargo for experimental/rust/capi's Rust FFI ctest. Installed
+# A pinned rustc + cargo for src/capi's Rust FFI ctest. Installed
 # to a SHARED prefix (RUSTUP_HOME/CARGO_HOME under /opt) rather than the build
 # user's home, so the non-root `ubuntu` the container runs as can reach it --
 # the same lesson /opt/uv learned for Python above. --profile minimal is rustc +

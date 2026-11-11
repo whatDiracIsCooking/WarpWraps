@@ -1,4 +1,4 @@
-# wwr.capi — the experimental extern "C" ABI over wwr, for Rust FFI
+# wwr.capi — the extern "C" ABI over wwr, for Rust FFI
 #
 # A shared library of the generated extern "C" thunks (gen/wwr_capi.cpp), which
 # `import wwr.complex;` / `import wwr.runtime_api;` and forward into the
@@ -11,9 +11,17 @@
 # README and docs/architecture.md sections 6/25 for why the thunk calls into wwr
 # and maps the status.
 #
-# The soname is versioned only to exercise the packaging shape -- the ABI is
-# experimental and NOT yet a stable contract (issue #329); it is not part of the
-# installed wwr package (wwr_install_package() sweeps src/ only).
+# Unlike the rest of wwr (which ships as module SOURCE a consumer compiles -- a
+# BMI is not portable), the capi is a prebuilt libwwr_capi.so a non-C++ consumer
+# links. It therefore does NOT ride the src/-sweep in wwr_install.cmake; it is
+# installed explicitly there under WWR_INSTALL_CAPI (the sweep's non-recursive
+# src/ collection never reaches this subdirectory). The target builds
+# UNCONDITIONALLY with the rest of src/ -- only the install is gated.
+#
+# VERSION / SOVERSION below are the first declared contract version (1.0.0 /
+# SOVERSION 1): the wwr_status enumerator values are frozen and SOVERSION bumps
+# only on an ABI break. See the directory README's "Stability policy" and
+# architecture.md section 21.
 
 # The thunk is a plain shared library, not a module (it exports no module, it
 # imports one). CXX_MODULE_STD / CXX_SCAN_FOR_MODULES let a non-module TU use
@@ -44,8 +52,8 @@ set_target_properties(
              CXX_SCAN_FOR_MODULES ON
              CUDA_SEPARABLE_COMPILATION OFF
              CUDA_RESOLVE_DEVICE_SYMBOLS OFF
-             VERSION 0.1.0
-             SOVERSION 0
+             VERSION 1.0.0
+             SOVERSION 1
 )
 
 if(WWR_BUILD_TESTS)
