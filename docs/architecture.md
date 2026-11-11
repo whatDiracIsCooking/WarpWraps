@@ -1158,3 +1158,14 @@ reaches `src/capi`, like `src/thrust`. The export set carries `wwr::capi`, so a
 consumer's `find_package(wwr)` + `target_link_libraries(... wwr::capi)` resolves
 against the binary, and `wwr_capi.h` installs into the `wwr` include root for the
 `#include` / `bindgen` path. Its ABI-stability contract is stated in §21.
+
+The capi is **split per surface** so it does not collapse the per-target
+dependency isolation the rest of `wwr` keeps (a single `.so` linking every
+surface's `wwr` target also `NEEDed` every surface's vendor library — pulling
+`libcublas` into a pure-host `complex` consumer). Each surface compiles once into
+an object library reused by both its own `libwwr_capi_<unit>.so` (linking only
+that surface's vendor dep — proven by `readelf -d`: `complex` has no cuBLAS,
+`blas` does) and an **umbrella** `libwwr_capi.so` that contains every unit's
+symbols, so an existing `-lwwr_capi` consumer is unchanged. Targets keep the
+dotted/`::` convention (`wwr::capi` + `wwr::capi::<unit>`); the Rust `ffi.rs` /
+`wwr-sys` crate stays combined over the umbrella, to be split in a later PR.
