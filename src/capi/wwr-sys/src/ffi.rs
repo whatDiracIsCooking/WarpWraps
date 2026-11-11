@@ -19,7 +19,7 @@ pub struct wwr_complex128 {
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct wwr_half {
-    pub bits: uint16_t,
+    pub bits: u16,
 }
 
 pub type wwr_blas_handle = *mut core::ffi::c_void;

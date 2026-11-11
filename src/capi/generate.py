@@ -39,6 +39,7 @@ Run: python3 src/capi/generate.py
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -257,25 +258,60 @@ def _fallback_wwr_const(enum: captypes.ValueEnum) -> str:
 # ---------------------------------------------------------------------------
 # C type spelling -> Rust type spelling (generalised, so no hand map to drift)
 # ---------------------------------------------------------------------------
+# Every C scalar / stdint spelling the surfaces can emit, in a POD struct FIELD
+# or a function signature, mapped to its Rust type. Fixed-width stdint types map
+# to Rust's fixed-width ints; the width-defined C types (char / long long / size_t)
+# map to core::ffi aliases so the width tracks the platform exactly. A base NOT in
+# here and not a capi struct/enum would leak a C spelling into ffi.rs -- the clang
+# that caught uint16_t -- so an unrecognised C-looking base is a hard error below,
+# never a silent passthrough.
 _RUST_BASE = {
-    "int": "i32", "int64_t": "i64", "long long": "core::ffi::c_longlong",
-    "unsigned int": "u32", "float": "f32", "double": "f64",
-    "char": "core::ffi::c_char", "void": "core::ffi::c_void",
+    "int": "i32", "unsigned int": "u32", "unsigned": "u32",
+    "short": "i16", "unsigned short": "u16",
+    "long": "core::ffi::c_long", "unsigned long": "core::ffi::c_ulong",
+    "long long": "core::ffi::c_longlong",
+    "unsigned long long": "core::ffi::c_ulonglong",
+    "int8_t": "i8", "uint8_t": "u8", "int16_t": "i16", "uint16_t": "u16",
+    "int32_t": "i32", "uint32_t": "u32", "int64_t": "i64", "uint64_t": "u64",
+    "size_t": "usize", "ptrdiff_t": "isize", "bool": "bool",
+    "float": "f32", "double": "f64",
+    "char": "core::ffi::c_char", "signed char": "i8", "unsigned char": "u8",
+    "void": "core::ffi::c_void",
 }
+
+# A capi-declared type (a POD / handle / value enum) keeps its own name in Rust;
+# anything else that is not a known C scalar is the leak _RUST_BASE exists to stop.
+_CAPI_BASE = re.compile(r"^(wwr_|wwr::)")
+
+
+def _rust_base(base_c: str) -> str:
+    """The Rust spelling of a BARE (pointer-stripped) capi C base type. A C scalar
+    maps through _RUST_BASE; a capi struct/enum/handle (wwr_*) keeps its name;
+    anything else is an unmapped C spelling and a hard error (it would otherwise
+    leak into ffi.rs -- the uint16_t class of bug, #364 CI)."""
+    if base_c in _RUST_BASE:
+        return _RUST_BASE[base_c]
+    if _CAPI_BASE.match(base_c):
+        return base_c
+    raise ValueError(
+        f"no Rust spelling for C type base {base_c!r}: not a known scalar in "
+        f"_RUST_BASE and not a capi wwr_* type. Add it to _RUST_BASE so it does "
+        f"not leak a C spelling into ffi.rs."
+    )
 
 
 def _rust_c_type(capi_c: str) -> str:
     """Translate a capi C spelling to Rust. A pointer becomes `*const`/`*mut`
     per level (outer `const` -> `*const`), wrapping the Rust base; a bare scalar
-    maps through _RUST_BASE; a capi struct/enum keeps its name (Rust declares it).
+    maps through _rust_base; a capi struct/enum keeps its name (Rust declares it).
     `const wwr_complex64 *const *` -> `*const *const wwr_complex64`."""
     s = captypes._normalise(capi_c)
     if "*" not in s:
-        return _RUST_BASE.get(s, s)
+        return _rust_base(s)
     head, _, stars = s.partition("*")
     stars = "*" + stars
     base_c = captypes._normalise(head.replace("const", ""))
-    base = _RUST_BASE.get(base_c, base_c)
+    base = _rust_base(base_c)
     # Walk pointer levels right-to-left; a `const` immediately left of a `*` (or
     # the leading `const` for the innermost) makes that level `*const`.
     levels = stars.count("*")
