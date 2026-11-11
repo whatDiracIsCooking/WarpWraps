@@ -709,6 +709,17 @@ unset(_wwr_targets)
 unset(_target)
 unset(_type)
 
+# The C ABI over wwr (wwr.capi), for Rust FFI -- the generated extern "C" thunks
+# that import wwr.complex / wwr.runtime_api. Added after those modules exist (it
+# links wwr::complex / wwr::runtime_api / wwr::runtime_api::host). It builds
+# unconditionally with the rest of src/; unlike every other wwr library it ships
+# as a prebuilt libwwr_capi.so rather than module source, so wwr_install.cmake
+# installs it explicitly under WWR_INSTALL_CAPI rather than through the
+# src/-sweep (the sweep's non-recursive src/ collection never reaches this
+# subdirectory, like src/thrust below). See src/capi/README.md and
+# docs/architecture.md section 25.
+add_subdirectory(capi)
+
 # The wwr* Thrust layer: device-includable headers that wrap Thrust/rocThrust
 # under backend-neutral wwr* symbols (the wwr::thrust INTERFACE target carries
 # the backend's Thrust include dirs). Header-only and consumed by device TUs, so

@@ -189,6 +189,46 @@ function(_wwr_install_target target)
   endif()
 endfunction()
 
+# Install the C ABI (src/capi -> wwr.capi) as a prebuilt binary.
+#
+# The capi is the one wwr library that ships as a PREBUILT shared object
+# (libwwr_capi.so) rather than as module source -- a non-C++ consumer links it,
+# it imports the wwr modules but exports none. So it is NOT part of the
+# src/-sweep (whose non-recursive src/ collection never reaches a target defined
+# in src/capi, like src/thrust); it is installed here explicitly, gated on
+# WWR_INSTALL_CAPI (effect only when WWR_INSTALL is ON, mirroring
+# WWR_INSTALL_EXTENSION). The target itself builds unconditionally with the rest
+# of src/; only this install is gated.
+#
+# install(TARGETS ... EXPORT wwr-targets) puts libwwr_capi.so (+ soname) in the
+# lib dir and adds wwr::capi to the export set, so a consumer's
+# find_package(wwr) + target_link_libraries(... wwr::capi) resolves. The
+# vendor-free C header (gen/wwr_capi.h) installs into the wwr include root for
+# the #include / bindgen consumer. EXPORT_NAME is set the same way the sweep
+# sets it, so wwr.capi exports as wwr::capi (the in-tree alias), one spelling
+# everywhere. The capi's wwr deps are PRIVATE on a shared lib, so none leak into
+# its INTERFACE_LINK_LIBRARIES -- the consumer just links the .so. The real
+# Rust-crate consumer check is #339.
+#
+# Called from wwr_install_package() BEFORE its install(EXPORT), which this
+# install(TARGETS ... EXPORT) must precede.
+function(_wwr_install_capi)
+  if(NOT WWR_INSTALL_CAPI)
+    return()
+  endif()
+  _wwr_export_name(wwr.capi _capi_export_name)
+  set_target_properties(wwr.capi PROPERTIES EXPORT_NAME "${_capi_export_name}")
+  install(
+    TARGETS wwr.capi
+    EXPORT wwr-targets
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  )
+  install(FILES "${PROJECT_SOURCE_DIR}/src/capi/gen/wwr_capi.h"
+          DESTINATION "${WWR_INSTALL_INCLUDEDIR}"
+  )
+endfunction()
+
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
@@ -374,6 +414,21 @@ function(wwr_install_package)
     )
   endif()
 
+  # The C ABI (src/capi -> wwr.capi), installed as a prebuilt binary outside the
+  # src/-sweep. Gated on WWR_INSTALL_CAPI (effect only when WWR_INSTALL is ON);
+  # must precede the install(EXPORT) below, which it does. See the helper.
+  _wwr_install_capi()
+
+  # Install the export set and generate + install the CMake package config.
+  _wwr_install_package_config()
+endfunction()
+
+# Install the wwr-targets export set and the generated package config/version
+# files. Split out of wwr_install_package() so that function stays within the
+# cmake-lint statement budget; it is the final phase and runs after every
+# install(TARGETS ... EXPORT wwr-targets) above (including the capi's), which
+# install(EXPORT) requires.
+function(_wwr_install_package_config)
   # CXX_MODULES_DIRECTORY is what makes this an installable module package
   # rather than a broken one: without it the export names targets whose module
   # file sets no consumer can see, and `import wwr.wrappers.blas;` fails to
@@ -411,10 +466,9 @@ function(wwr_install_package)
   # set with no special-casing (the "read the buildsystem back" design). This
   # only tells wwrConfig.cmake.in to skip the NCCL/RCCL find_dependency and to
   # refuse the `ccl` component. No install(DIRECTORY) EXCLUDE is needed: the ccl
-  # dirs ship no .h/.cuh, so the extension header glob below finds nothing in
-  # them.
+  # dirs ship no .h/.cuh, so the extension header glob finds nothing in them.
   # comp/tensor are identical -- their extension dirs are header-free too, so
-  # the extension header glob below needs no EXCLUDE for them either.
+  # the extension header glob needs no EXCLUDE for them either.
   set(WWR_PACKAGE_HAS_CCL "${WWR_WITH_CCL}")
   set(WWR_PACKAGE_HAS_COMP "${WWR_WITH_COMP}")
   set(WWR_PACKAGE_HAS_TENSOR "${WWR_WITH_TENSOR}")
