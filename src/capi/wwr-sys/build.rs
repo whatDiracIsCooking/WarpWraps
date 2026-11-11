@@ -39,6 +39,8 @@ const UNITS: &[(&str, &str)] = &[
     ("bf16", "wwr_capi_bf16"),
     ("vector_types", "wwr_capi_vector_types"),
     ("fp8", "wwr_capi_fp8"),
+    ("tx", "wwr_capi_tx"),
+    ("ccl", "wwr_capi_ccl"),
 ];
 
 fn main() {

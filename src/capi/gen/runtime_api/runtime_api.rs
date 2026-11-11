@@ -2,6 +2,9 @@
 // Note: NO #[cfg(cuda/hip)] anywhere. The backend is chosen when
 // the linked libwwr_capi*.so is built; this Rust is identical for either.
 
+#[allow(unused_imports)]
+use crate::common::*;
+
 #[repr(i32)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum wwr_status {
@@ -15,9 +18,115 @@ pub enum wwr_status {
     WWR_STATUS_UNKNOWN = 7,
 }
 
+pub type wwr_event = *mut core::ffi::c_void;
+pub type wwr_mem_pool = *mut core::ffi::c_void;
+pub type wwr_graph = *mut core::ffi::c_void;
+pub type wwr_graph_exec = *mut core::ffi::c_void;
+pub type wwr_array = *mut core::ffi::c_void;
+pub type wwr_array_const = *mut core::ffi::c_void;
+pub type wwr_mipmapped_array = *mut core::ffi::c_void;
+pub type wwr_mipmapped_array_const = *mut core::ffi::c_void;
+pub type wwr_library = *mut core::ffi::c_void;
+pub type wwr_user_object = *mut core::ffi::c_void;
+
 #[rustfmt::skip]
 extern "C" {
-    pub fn wwr_runtime_get_version(runtimeVersion: *mut i32) -> wwr_status;
+    pub fn wwr_array_get_info(desc: *mut core::ffi::c_void, extent: *mut core::ffi::c_void, flags: *mut u32, array: wwr_array) -> wwr_status;
+    pub fn wwr_create_surface_object(pSurfObject: *mut core::ffi::c_void, pResDesc: *const core::ffi::c_void) -> wwr_status;
+    pub fn wwr_create_texture_object(pTexObject: *mut core::ffi::c_void, pResDesc: *const core::ffi::c_void, pTexDesc: *const core::ffi::c_void, pResViewDesc: *const core::ffi::c_void) -> wwr_status;
+    pub fn wwr_device_can_access_peer(canAccessPeer: *mut i32, device: i32, peerDevice: i32) -> wwr_status;
+    pub fn wwr_device_disable_peer_access(peerDevice: i32) -> wwr_status;
+    pub fn wwr_device_enable_peer_access(peerDevice: i32, flags: u32) -> wwr_status;
+    pub fn wwr_device_get_by_pci_bus_id(device: *mut i32, pciBusId: *const core::ffi::c_char) -> wwr_status;
+    pub fn wwr_device_get_cache_config(pCacheConfig: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_device_get_default_mem_pool(memPool: *mut wwr_mem_pool, device: i32) -> wwr_status;
+    pub fn wwr_device_get_mem_pool(memPool: *mut wwr_mem_pool, device: i32) -> wwr_status;
+    pub fn wwr_device_get_pci_bus_id(pciBusId: *mut core::ffi::c_char, len: i32, device: i32) -> wwr_status;
+    pub fn wwr_device_get_stream_priority_range(leastPriority: *mut i32, greatestPriority: *mut i32) -> wwr_status;
+    pub fn wwr_device_get_texture1_d_linear_max_width(maxWidthInElements: *mut usize, fmtDesc: *const core::ffi::c_void, device: i32) -> wwr_status;
+    pub fn wwr_device_reset() -> wwr_status;
+    pub fn wwr_device_set_mem_pool(device: i32, memPool: wwr_mem_pool) -> wwr_status;
+    pub fn wwr_device_synchronize() -> wwr_status;
+    pub fn wwr_driver_get_version(driverVersion: *mut i32) -> wwr_status;
+    pub fn wwr_event_create(event: *mut wwr_event) -> wwr_status;
+    pub fn wwr_event_create_with_flags(event: *mut wwr_event, flags: u32) -> wwr_status;
+    pub fn wwr_event_destroy(event: wwr_event) -> wwr_status;
+    pub fn wwr_event_elapsed_time(ms: *mut f32, start: wwr_event, end: wwr_event) -> wwr_status;
+    pub fn wwr_event_query(event: wwr_event) -> wwr_status;
+    pub fn wwr_event_record(event: wwr_event, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_event_record_with_flags(event: wwr_event, stream: wwr_stream, flags: u32) -> wwr_status;
+    pub fn wwr_event_synchronize(event: wwr_event) -> wwr_status;
+    pub fn wwr_free(devPtr: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_free_array(array: wwr_array) -> wwr_status;
+    pub fn wwr_free_async(devPtr: *mut core::ffi::c_void, hStream: wwr_stream) -> wwr_status;
+    pub fn wwr_free_host(ptr: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_free_mipmapped_array(mipmappedArray: wwr_mipmapped_array) -> wwr_status;
+    pub fn wwr_func_get_attributes(attr: *mut core::ffi::c_void, func: *const core::ffi::c_void) -> wwr_status;
+    pub fn wwr_get_device(device: *mut i32) -> wwr_status;
     pub fn wwr_get_device_count(count: *mut i32) -> wwr_status;
+    pub fn wwr_get_device_flags(flags: *mut u32) -> wwr_status;
+    pub fn wwr_get_device_properties(prop: *mut core::ffi::c_void, device: i32) -> wwr_status;
+    pub fn wwr_get_func_by_symbol(functionPtr: *mut core::ffi::c_void, symbolPtr: *const core::ffi::c_void) -> wwr_status;
+    pub fn wwr_get_last_error() -> wwr_status;
+    pub fn wwr_graph_create(pGraph: *mut wwr_graph, flags: u32) -> wwr_status;
+    pub fn wwr_graph_destroy(graph: wwr_graph) -> wwr_status;
+    pub fn wwr_graph_exec_destroy(graphExec: wwr_graph_exec) -> wwr_status;
+    pub fn wwr_graph_launch(graphExec: wwr_graph_exec, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_graph_upload(graphExec: wwr_graph_exec, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_host_get_device_pointer(pDevice: *mut core::ffi::c_void, pHost: *mut core::ffi::c_void, flags: u32) -> wwr_status;
+    pub fn wwr_host_get_flags(pFlags: *mut u32, pHost: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_host_register(ptr: *mut core::ffi::c_void, size: usize, flags: u32) -> wwr_status;
+    pub fn wwr_host_unregister(ptr: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_ipc_close_mem_handle(devPtr: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_ipc_get_event_handle(handle: *mut core::ffi::c_void, event: wwr_event) -> wwr_status;
+    pub fn wwr_ipc_get_mem_handle(handle: *mut core::ffi::c_void, devPtr: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_launch_kernel_ex_c(config: *const core::ffi::c_void, func: *const core::ffi::c_void, args: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_library_get_kernel(pKernel: *mut core::ffi::c_void, library: wwr_library, name: *const core::ffi::c_char) -> wwr_status;
+    pub fn wwr_library_get_kernel_count(count: *mut u32, lib: wwr_library) -> wwr_status;
+    pub fn wwr_library_load_data(library: *mut wwr_library, code: *const core::ffi::c_void, jitOptions: *mut core::ffi::c_void, jitOptionsValues: *mut core::ffi::c_void, numJitOptions: u32, libraryOptions: *mut core::ffi::c_void, libraryOptionValues: *mut core::ffi::c_void, numLibraryOptions: u32) -> wwr_status;
+    pub fn wwr_library_load_from_file(library: *mut wwr_library, fileName: *const core::ffi::c_char, jitOptions: *mut core::ffi::c_void, jitOptionsValues: *mut core::ffi::c_void, numJitOptions: u32, libraryOptions: *mut core::ffi::c_void, libraryOptionValues: *mut core::ffi::c_void, numLibraryOptions: u32) -> wwr_status;
+    pub fn wwr_library_unload(library: wwr_library) -> wwr_status;
+    pub fn wwr_malloc_array(array: *mut wwr_array, desc: *const core::ffi::c_void, width: usize, height: usize, flags: u32) -> wwr_status;
+    pub fn wwr_mem_get_info(free: *mut usize, total: *mut usize) -> wwr_status;
+    pub fn wwr_mem_pool_create(memPool: *mut wwr_mem_pool, poolProps: *const core::ffi::c_void) -> wwr_status;
+    pub fn wwr_mem_pool_destroy(memPool: wwr_mem_pool) -> wwr_status;
+    pub fn wwr_mem_pool_export_pointer(exportData: *mut core::ffi::c_void, ptr: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_mem_pool_get_access(flags: *mut core::ffi::c_void, memPool: wwr_mem_pool, location: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_mem_pool_import_pointer(ptr: *mut core::ffi::c_void, memPool: wwr_mem_pool, exportData: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_mem_pool_set_access(memPool: wwr_mem_pool, descList: *const core::ffi::c_void, count: usize) -> wwr_status;
+    pub fn wwr_mem_pool_trim_to(memPool: wwr_mem_pool, minBytesToKeep: usize) -> wwr_status;
+    pub fn wwr_mem_range_get_attributes(data: *mut core::ffi::c_void, dataSizes: *mut usize, attributes: *mut core::ffi::c_void, numAttributes: usize, devPtr: *const core::ffi::c_void, count: usize) -> wwr_status;
+    pub fn wwr_memcpy3_d(p: *const core::ffi::c_void) -> wwr_status;
+    pub fn wwr_memcpy3_d_async(p: *const core::ffi::c_void, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_memcpy3_d_peer(p: *const core::ffi::c_void) -> wwr_status;
+    pub fn wwr_memcpy3_d_peer_async(p: *const core::ffi::c_void, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_memcpy_peer(dst: *mut core::ffi::c_void, dstDevice: i32, src: *const core::ffi::c_void, srcDevice: i32, count: usize) -> wwr_status;
+    pub fn wwr_memcpy_peer_async(dst: *mut core::ffi::c_void, dstDevice: i32, src: *const core::ffi::c_void, srcDevice: i32, count: usize, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_memset(devPtr: *mut core::ffi::c_void, value: i32, count: usize) -> wwr_status;
+    pub fn wwr_memset2_d(devPtr: *mut core::ffi::c_void, pitch: usize, value: i32, width: usize, height: usize) -> wwr_status;
+    pub fn wwr_memset2_d_async(devPtr: *mut core::ffi::c_void, pitch: usize, value: i32, width: usize, height: usize, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_memset_async(devPtr: *mut core::ffi::c_void, value: i32, count: usize, stream: wwr_stream) -> wwr_status;
+    pub fn wwr_peek_at_last_error() -> wwr_status;
+    pub fn wwr_pointer_get_attributes(attributes: *mut core::ffi::c_void, ptr: *const core::ffi::c_void) -> wwr_status;
+    pub fn wwr_runtime_get_version(runtimeVersion: *mut i32) -> wwr_status;
     pub fn wwr_set_device(device: i32) -> wwr_status;
+    pub fn wwr_set_device_flags(flags: u32) -> wwr_status;
+    pub fn wwr_set_valid_devices(device_arr: *mut i32, len: i32) -> wwr_status;
+    pub fn wwr_stream_attach_mem_async(stream: wwr_stream, devPtr: *mut core::ffi::c_void, length: usize, flags: u32) -> wwr_status;
+    pub fn wwr_stream_create(pStream: *mut wwr_stream) -> wwr_status;
+    pub fn wwr_stream_create_with_flags(pStream: *mut wwr_stream, flags: u32) -> wwr_status;
+    pub fn wwr_stream_create_with_priority(pStream: *mut wwr_stream, flags: u32, priority: i32) -> wwr_status;
+    pub fn wwr_stream_destroy(stream: wwr_stream) -> wwr_status;
+    pub fn wwr_stream_end_capture(stream: wwr_stream, pGraph: *mut wwr_graph) -> wwr_status;
+    pub fn wwr_stream_get_device(hStream: wwr_stream, device: *mut i32) -> wwr_status;
+    pub fn wwr_stream_get_flags(hStream: wwr_stream, flags: *mut u32) -> wwr_status;
+    pub fn wwr_stream_get_id(hStream: wwr_stream, streamId: *mut core::ffi::c_ulonglong) -> wwr_status;
+    pub fn wwr_stream_get_priority(hStream: wwr_stream, priority: *mut i32) -> wwr_status;
+    pub fn wwr_stream_is_capturing(stream: wwr_stream, pCaptureStatus: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_stream_query(stream: wwr_stream) -> wwr_status;
+    pub fn wwr_stream_synchronize(stream: wwr_stream) -> wwr_status;
+    pub fn wwr_stream_wait_event(stream: wwr_stream, event: wwr_event, flags: u32) -> wwr_status;
+    pub fn wwr_thread_exchange_stream_capture_mode(mode: *mut core::ffi::c_void) -> wwr_status;
+    pub fn wwr_user_object_release(object: wwr_user_object, count: u32) -> wwr_status;
+    pub fn wwr_user_object_retain(object: wwr_user_object, count: u32) -> wwr_status;
 }

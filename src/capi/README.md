@@ -17,24 +17,31 @@ cuBLAS / hipBLAS), mirroring the project's own per-`.cppm` dependency isolation 
 plus an **umbrella `libwwr_capi.so`** that contains every unit's symbols, so an
 existing `-lwwr_capi` consumer is unchanged (see "The per-unit split", below).
 
-It covers fifteen surfaces: `complex`, a thin status-returning slice of
-`runtime_api`, the full curated vendor libraries — `blas` (cuBLAS / hipBLAS),
-`blaslt` (cuBLASLt / hipBLASLt), `solver` (cuSOLVER Dn / hipSOLVER), `rand`
-(cuRAND / hipRAND), `rtc` (nvRTC / hipRTC), `sparse` (cuSPARSE / hipSPARSE),
-`tensor` (cuTENSOR / hipTENSOR), `fft` (cuFFT / hipFFT) and `comp` (nvCOMP /
-hipCOMP) — and the **numeric TYPE** surfaces: `fp16` and `bf16` (the half /
-bfloat16 PODs + host float conversions), `vector_types` (the float2 / int4 / …
-PODs + host `make_*` constructors) and `fp8` (the 8-bit float storage POD, its
-saturation / interpretation enums + host narrowing conversions). `complex`,
-`runtime_api`, `rtc` and all four numeric surfaces are **host**-side; the
-vendor-library rest execute on the **device** at call time (a handle binds a
-device, a kernel launches), so their thunks are link-checked on no-GPU CI and
-run-checked on a GPU box. The fragment-sourced library surfaces (`blas` /
-`blaslt` / `solver` / `rand` / `rtc` / `sparse` / `tensor` / `fft`) share ONE
-path (`spec/library.py`'s `LibrarySpec` + the generic emitters in
-`generate.py`); each `spec/<x>.py` is a declaration. `comp` and the four numeric
+It covers seventeen surfaces: `complex`, the whole host-callable `runtime_api`
+(memory / stream / event / graph / device management — the status slice it
+started as is now a subset), `tx` (NVTX / rocTX profiler annotations), the full
+curated vendor libraries — `blas` (cuBLAS / hipBLAS), `blaslt` (cuBLASLt /
+hipBLASLt), `solver` (cuSOLVER Dn / hipSOLVER), `rand` (cuRAND / hipRAND), `rtc`
+(nvRTC / hipRTC), `sparse` (cuSPARSE / hipSPARSE), `tensor` (cuTENSOR /
+hipTENSOR), `fft` (cuFFT / hipFFT), `comp` (nvCOMP / hipCOMP) and `ccl` (NCCL /
+RCCL collectives) — and the **numeric TYPE** surfaces: `fp16` and `bf16` (the
+half / bfloat16 PODs + host float conversions), `vector_types` (the float2 /
+int4 / … PODs + host `make_*` constructors) and `fp8` (the 8-bit float storage
+POD, its saturation / interpretation enums + host narrowing conversions).
+`complex`, `tx`, `rtc` and all four numeric surfaces are **host**-side (and so is
+the host-safe slice of `runtime_api`); the vendor-library rest execute on the
+**device** or across the fabric at call time (a handle binds a device, a kernel
+launches, a collective spans ranks), so their thunks are link-checked on no-GPU
+CI and run-checked on a GPU box. The fragment-sourced library surfaces (`blas` /
+`blaslt` / `solver` / `rand` / `rtc` / `sparse` / `tensor` / `fft` / `ccl`) share
+ONE path (`spec/library.py`'s `LibrarySpec` + the generic emitters in
+`generate.py`); each `spec/<x>.py` is a declaration. `runtime_api` is
+fragment-sourced through a bespoke sweep (it reuses the generic forwarding core
+but keeps its frozen `wwr_status` map). `comp`, `tx` and the four numeric
 surfaces are hand-written like `complex` (their functions are wwr-authored type
-conversions / constructors with no vendor `decl` to source). `fp4` / `fp6` are
+conversions / constructors / external forwarders over static-inline NVTX, with no
+vendor `decl` to source). `ccl` sources its names straight from `src/ccl.cppm`
+(its module IS its fragment, via the plain-macro parse path). `fp4` / `fp6` are
 intentionally ABSENT: their `wwr.fp4` / `wwr.fp6` modules are blocked on HIP and
 unregistered, so a unit importing them would fail the HIP compile gate
 (`generate.py` reports them as explicit skips). See "What this does not cover"
@@ -76,9 +83,14 @@ reuses as-is:
 | by-value struct | a capi POD whose **layout** is carried in a sidecar (`captypes.Struct`), the one datum a name/`decl` must not pin for ABI (§4/§12) |
 
 A surface declares what it needs in a tiny spec: `spec/runtime_status.py` names
-the fragment, which entries to expose and the capi name each gets, and registers
-the one `EnumMap` (`wwrError_t` → `wwr_status`). The status slice exercises the
-scalar / pointer / enum arms. **`spec/blas.py` exercises the rest** (#349): it
+the fragment, the opaque runtime handles (stream / event / graph / … → `void*`)
+and registers the one `EnumMap` (`wwrError_t` → `wwr_status`). It no longer lists
+its functions — the generator SWEEPS the whole `runtime_api_names.h` fragment and
+classifies each, wrapping ~98 and skipping the rest with a logged reason (a
+by-value enum whose neutral constants the fragment does not carry, a descriptor
+struct, a function-pointer / kernel-launch parameter, or a backend arity
+divergence — see "What this does not cover"). **`spec/blas.py` exercises the
+rest** (#349): it
 takes the *whole* curated `blas_names.h` fragment and registers the vendor-free
 types blas forces — the two `Handle`s (`wwrblasHandle_t` / stream → `void*`),
 nine `ValueEnum`s (`Operation` / `FillMode` / `DiagType` / `SideMode` /
@@ -100,9 +112,10 @@ hand-written surface; every other surface is fragment-sourced.
 
 ## The status surface, and the one problem `complex` never forces
 
-`complex` returns values; it never returns a status. The runtime slice
-(`wwr_runtime_get_version`, `wwr_get_device_count`, `wwr_set_device`) does, and
-that forces the design `complex` could dodge: the backend error-enum **values**
+`complex` returns values; it never returns a status. The runtime surface
+(`wwr_runtime_get_version`, `wwr_get_device_count`, `wwr_set_device` and every
+other `cudaError_t`-returning entry it wraps) does, and that forces the design
+`complex` could dodge: the backend error-enum **values**
 differ even where the names agree (architecture.md §6), so the ABI must **not**
 pass the backend's raw status int through to Rust. The thunk's internal `_map`
 helper turns the neutral `wwr::wwrError_t` into a **stable `wwr_status` C enum
@@ -168,15 +181,21 @@ spec/manifest.py   read a vendor/<pin>/*.json manifest; resolve a vendor name to
 spec/captypes.py   classify a vendor decl into the vendor-free capi representation
                    (scalar/pointer/enum/handle/struct) + the enum-map / layout
                    sidecar. The extensible core #349 reuses.
-spec/runtime_status.py  the fragment-SOURCED runtime status slice: the fragment,
-                   which entries to expose, and the wwrError_t -> wwr_status map.
+spec/runtime_status.py  the fragment-SOURCED runtime_api surface: the fragment,
+                   the opaque runtime handles, and the wwrError_t -> wwr_status map.
+                   The generator SWEEPS the whole fragment (not a fixed list).
 spec/blas.py       the fragment-SOURCED blas surface (#349): the whole curated
                    blas_names.h fragment, plus the handle / value-enum / pointee-POD
                    registrations the first LARGE library needs. 400 functions.
+spec/ccl.py        the fragment-SOURCED ccl surface (#358): sources its names from
+                   src/ccl.cppm itself (its module IS its fragment), registers the
+                   comm / window handles + result / datatype / redop / residence
+                   value enums. 34 functions.
 spec/complex.py    the FIRST hand-written surface: PODs (capi_name, wwr_name, layout)
                    + the complex functions. Hand-written because its thunks forward
                    into wwr-authored inline wrappers, absent from any vendor manifest
-                   (see above and architecture.md §25).
+                   (see above and architecture.md §25). comp, tx and the numeric
+                   types are hand-written for the same kind of reason.
 spec/{fp16,bf16,vector_types,fp8}.py  the hand-written numeric TYPE surfaces: their
                    PODs / value enums + the host conversions / constructors they
                    forward into. Hand-written for the same reason as complex (the
@@ -346,6 +365,8 @@ is its own module behind a Cargo **feature**:
 | `tensor`      | `tensor`        | `libwwr_capi_tensor.so` → cuTENSOR / hipTENSOR |
 | `fft`         | `fft`           | `libwwr_capi_fft.so` → cuFFT / hipFFT     |
 | `comp`        | `comp`          | `libwwr_capi_comp.so` → nvCOMP / hipCOMP  |
+| `tx`          | `tx`            | `libwwr_capi_tx.so` → NVTX (header-only) / rocTX |
+| `ccl`         | `ccl`           | `libwwr_capi_ccl.so` → NCCL / RCCL        |
 
 **Default = all surfaces**, so an existing user who wants the whole ABI is
 unchanged — they just transparently link the per-unit `.so`s instead of the old
@@ -442,6 +463,23 @@ never for an additive change. See architecture.md §21.
   kernels, `parallel_for`, the sdcz dispatch in `src/wrappers` — is device C++
   *templates*. Each needs a monomorphised C entry per instantiation; a later
   milestone (architecture.md §25).
-- **Only `complex` is hand-written**, and deliberately so (it forwards into
-  wwr-authored wrappers absent from any vendor manifest). Every other surface is
-  fragment-sourced; see "How the surface is sourced" (architecture.md §25, #346).
+- **`complex`, `comp`, `tx` and the numeric types are hand-written**, and
+  deliberately so (they forward into wwr-authored wrappers — or, for `tx`,
+  external forwarders over static-inline NVTX — absent from any vendor manifest).
+  Every other surface is fragment-sourced; see "How the surface is sourced"
+  (architecture.md §25, #346).
+- **Parts of `runtime_api` are skipped, loudly.** The sweep wraps the
+  host-callable runtime that classifies cleanly (~98 functions) and SKIPS, with a
+  logged reason the generator prints, any function that takes a by-value enum
+  whose neutral enumerator constants the fragment does not yet carry (the
+  `cudaMemcpyKind` / attribute families — a later increment can add those
+  constants to `runtime_api_names.h`), a by-value descriptor struct
+  (`cudaMemcpy3DParms`, `cudaExtent`), a function-pointer or kernel-`void**`
+  launch parameter (`cudaStreamAddCallback`, `cudaLaunchKernel`), a type whose
+  ABI diverges between backends (`cudaTextureObject_t` is a 64-bit integer on
+  CUDA but a pointer on HIP), or a call the two backends give different arity.
+  None is silently dropped.
+- **Two `ccl` communicator inits are skipped** (`ncclCommInitRank` /
+  `ncclCommInitRankConfig`): they take `ncclUniqueId` BY VALUE, a 128-byte opaque
+  blob with no vendor-free POD the generic path builds. The pointer-form inits
+  (`ncclCommInitRankScalable`) and `ncclGetUniqueId` still wrap.

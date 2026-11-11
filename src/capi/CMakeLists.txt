@@ -107,11 +107,26 @@ _wwr_add_capi_unit(rtc wwr::rtc)
 # complex); the rest are fragment-sourced.
 _wwr_add_capi_unit(sparse wwr::sparse wwr::complex)
 _wwr_add_capi_unit(fft wwr::fft wwr::complex)
+# tx (NVTX / rocTX) is UNCONDITIONAL, like blas: wwr.tx builds in every
+# configuration (no WWR_WITH_* gate). Its thunk imports only wwr.tx, which
+# carries the tx backend PUBLIC -- nothing on CUDA (NVTX is header-only static
+# inline, its forwarders compiled INTO wwr.tx), libroctx64 on HIP. Host-only (a
+# profiler marker never touches the device), so it runs fully on no-GPU CI.
+_wwr_add_capi_unit(tx wwr::tx)
 if(WWR_WITH_TENSOR)
   _wwr_add_capi_unit(tensor wwr::tensor)
 endif()
 if(WWR_WITH_COMP)
   _wwr_add_capi_unit(comp wwr::comp)
+endif()
+# ccl (NCCL / RCCL) is GATED on WWR_WITH_CCL, matching its wwr.ccl module in
+# src/CMakeLists.txt (which exists only under that gate) -- so its unit .so and
+# its umbrella object below are conditional, exactly like tensor / comp. Its
+# thunk imports only wwr.ccl, which carries the vendor collectives library
+# PUBLIC (nccl / rccl). Every ccl call runs across the fabric, so CI link-checks
+# it and a multi-GPU box exercises it.
+if(WWR_WITH_CCL)
+  _wwr_add_capi_unit(ccl wwr::ccl)
 endif()
 
 # The milestone-#6 numeric TYPE surfaces (#360 fp16+bf16, #361 vector_types,
@@ -154,6 +169,10 @@ if(WWR_WITH_COMP)
   list(APPEND _capi_gated_objs $<TARGET_OBJECTS:wwr.capi.comp.obj>)
   list(APPEND _capi_gated_obj_targets wwr.capi.comp.obj)
 endif()
+if(WWR_WITH_CCL)
+  list(APPEND _capi_gated_objs $<TARGET_OBJECTS:wwr.capi.ccl.obj>)
+  list(APPEND _capi_gated_obj_targets wwr.capi.ccl.obj)
+endif()
 
 add_library(
   wwr.capi SHARED
@@ -166,6 +185,7 @@ add_library(
   $<TARGET_OBJECTS:wwr.capi.rtc.obj>
   $<TARGET_OBJECTS:wwr.capi.sparse.obj>
   $<TARGET_OBJECTS:wwr.capi.fft.obj>
+  $<TARGET_OBJECTS:wwr.capi.tx.obj>
   $<TARGET_OBJECTS:wwr.capi.fp16.obj>
   $<TARGET_OBJECTS:wwr.capi.bf16.obj>
   $<TARGET_OBJECTS:wwr.capi.vector_types.obj>
@@ -178,6 +198,7 @@ target_link_libraries(
   PRIVATE wwr.capi.complex.obj wwr.capi.runtime_api.obj wwr.capi.blas.obj
           wwr.capi.blaslt.obj wwr.capi.solver.obj wwr.capi.rand.obj
           wwr.capi.rtc.obj wwr.capi.sparse.obj wwr.capi.fft.obj
+          wwr.capi.tx.obj
           wwr.capi.fp16.obj wwr.capi.bf16.obj wwr.capi.vector_types.obj
           wwr.capi.fp8.obj
           ${_capi_gated_obj_targets}

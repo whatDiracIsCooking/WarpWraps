@@ -67,12 +67,14 @@ import bf16 as bf16_spec  # noqa: E402
 import blas as blas_spec  # noqa: E402
 import blaslt as blaslt_spec  # noqa: E402
 import captypes  # noqa: E402
+import ccl as ccl_spec  # noqa: E402
 import comp as comp_spec  # noqa: E402
 import complex as complex_spec  # noqa: E402
 import fft as fft_spec  # noqa: E402
 import fp8 as fp8_spec  # noqa: E402
 import fp16 as fp16_spec  # noqa: E402
 import fragments  # noqa: E402
+import library  # noqa: E402
 import manifest  # noqa: E402
 import rand as rand_spec  # noqa: E402
 import rtc as rtc_spec  # noqa: E402
@@ -80,6 +82,7 @@ import runtime_status  # noqa: E402
 import solver as solver_spec  # noqa: E402
 import sparse as sparse_spec  # noqa: E402
 import tensor as tensor_spec  # noqa: E402
+import tx as tx_spec  # noqa: E402
 import vector_types as vector_types_spec  # noqa: E402
 
 # Every fragment-sourced vendor-library surface, in emit order. blas was the
@@ -92,7 +95,7 @@ import vector_types as vector_types_spec  # noqa: E402
 # so it is NOT here; it has bespoke emitters wired into main() below.)
 LIBRARY_SPECS = [blas_spec.SPEC, blaslt_spec.SPEC, solver_spec.SPEC,
                  rand_spec.SPEC, rtc_spec.SPEC, sparse_spec.SPEC,
-                 tensor_spec.SPEC, fft_spec.SPEC]
+                 tensor_spec.SPEC, fft_spec.SPEC, ccl_spec.SPEC]
 
 # Opaque handle typedefs MORE THAN ONE surface names -> declared ONCE in the
 # shared common.h / common.rs (the way the complex PODs are), so the umbrella
@@ -162,46 +165,71 @@ class ResolvedFunction:
 
 
 def _resolve_runtime_status() -> tuple[list[ResolvedFunction], captypes.EnumMap]:
-    """The runtime status slice: names from the fragment, signatures from the
-    manifests, the error enum registered as the one EnumMap. Cross-checks that
-    every function and every mapped error constant resolves in BOTH backend
-    manifests (the ABI is one shape over both) -- a mismatch is a hard error,
-    not a silent skip."""
+    """The WHOLE host-callable runtime surface (#348): names from the fragment,
+    signatures from the manifests, the error enum registered as the one EnumMap
+    and the opaque runtime handles (stream / event / graph / ...) as void*. Unlike
+    the status slice this started as, it SWEEPS every function entry in the
+    fragment rather than an explicit list -- a function the classifier cannot
+    represent (an unregistered by-value enum / descriptor struct, a
+    function-pointer parameter, a kernel `void**` launch, a backend-divergent
+    texture handle) is appended to SKIPPED['runtime_api'] with its reason, never
+    silently dropped. Arity disagreement between the two backends is likewise a
+    logged skip (a divergence that deep needs a hand-written forwarder). The
+    status-slice three (#336) are a subset of the sweep and keep their capi
+    names. Cross-checks the error enum against both manifests up front (a mismatch
+    there IS a hard error -- the frozen §6 anchor cannot silently rot)."""
     frag = fragments.parse(_SRC / runtime_status.FRAGMENT)
     cuda = manifest.Manifest(_CUDA_MANIFEST)
     hip = manifest.Manifest(_HIP_MANIFEST)
 
-    reg = captypes.Registry(enums=[runtime_status.STATUS])
+    reg = captypes.Registry(enums=[runtime_status.STATUS],
+                            handles=list(runtime_status.HANDLES))
 
+    skips: list[tuple[str, str]] = []
     resolved: list[ResolvedFunction] = []
-    for capi_name, wwr_name in runtime_status.FUNCTIONS:
-        entry = frag.get(wwr_name)
-        if entry is None or entry.kind != "function":
-            raise KeyError(
-                f"{wwr_name!r} is not a function entry in "
-                f"{runtime_status.FRAGMENT}; the status slice names it but the "
-                f"fragment does not (check WWR_RT_FUNCTION / _RAW spelling)."
-            )
-        # The signature is the selected backend's decl; both must parse to the
-        # same shape. Resolve against CUDA, then confirm HIP agrees arity-wise.
-        fc = captypes.parse_function(cuda.get(entry.cuda).decl)
-        fh = captypes.parse_function(hip.get(entry.hip).decl)
+    for entry in sorted(frag.values(), key=lambda e: e.wwr):
+        if entry.kind != "function":
+            continue
+        sc = cuda.get(entry.cuda)
+        sh = hip.get(entry.hip)  # raises if the HIP backend lacks the symbol
+        if not sc.decl:
+            skips.append((entry.wwr, f"no decl for {entry.cuda} in the manifest"))
+            continue
+        fc = captypes.parse_function(sc.decl)
+        fh = captypes.parse_function(sh.decl) if sh.decl else fc
         if len(fc.params) != len(fh.params):
-            raise ValueError(
-                f"{wwr_name}: CUDA {entry.cuda} and HIP {entry.hip} disagree on "
-                f"arity ({len(fc.params)} vs {len(fh.params)}); a fragment entry "
-                f"this divergent needs a hand-written forwarder, not the "
-                f"fragment-sourced path."
-            )
-        ret = captypes.classify(fc.ret, reg)
-        params = [(captypes.classify(c.type, reg), c.name) for c in fc.params]
-        resolved.append(ResolvedFunction(capi_name, f"wwr::{wwr_name}", ret, params))
+            skips.append((entry.wwr,
+                          f"CUDA {entry.cuda}/{len(fc.params)} and HIP "
+                          f"{entry.hip}/{len(fh.params)} disagree on arity "
+                          f"(needs a hand-written forwarder)"))
+            continue
+        try:
+            ret = captypes.classify(fc.ret, reg)
+            params = [(captypes.classify(c.type, reg), c.name) for c in fc.params]
+        except ValueError as ex:
+            skips.append((entry.wwr, str(ex).split(":")[0]))
+            continue
+        # The status enum (an EnumMap) crosses the boundary ONE way only: neutral
+        # -> stable capi, as a RETURN (`_map`). As a by-value PARAMETER
+        # (GetErrorName / GetErrorString take cudaError_t) it would need the
+        # reverse map, and the stable enum has no sound reverse -- its UNKNOWN
+        # catch-all has no single backend value to send back (§6). So a function
+        # that takes the status enum by value is skipped, not mis-mapped.
+        if any(c.repr == "enum" for c, _ in params):
+            skips.append((entry.wwr, "takes the stable wwr_status enum by value "
+                          "(no sound capi->neutral reverse map, §6)"))
+            continue
+        resolved.append(ResolvedFunction(
+            library.snake_capi_name(entry.wwr, runtime_status.PREFIX,
+                                    runtime_status.CAPI_PREFIX),
+            f"wwr::{entry.wwr}", ret, params))
 
     # Cross-check the enum map: every mapped neutral constant's SUCCESS/error
     # vendor name must exist in both manifests, and the two backends must agree
     # on SUCCESS == 0 (the frozen anchor, §6). The _map stays constant-based
     # (backend-neutral); this only PROVES the manifest backs the mapping.
     _check_status_enum(runtime_status.STATUS, frag, cuda, hip)
+    SKIPPED["runtime_api"] = skips
     return resolved, runtime_status.STATUS
 
 
@@ -497,10 +525,14 @@ def gen_complex_h() -> str:
 def gen_runtime_api_h(status_fns: list[ResolvedFunction],
                       enum: captypes.EnumMap) -> str:
     """runtime_api/wwr_capi_runtime_api.h — the stable wwr_status enum (used by
-    this unit only) and the status prototypes. No shared POD, so no common.h."""
+    this unit only), the surface's own opaque handles (-> void*), and the runtime
+    prototypes. #includes common.h for the SHARED wwr_stream handle it names, and
+    <stddef.h>/<stdint.h> for size_t / fixed-width parameters."""
     guard = "WWR_CAPI_RUNTIME_API_H"
     L = [f"{_GEN_NOTE} Sources: src/detail/runtime_api_names.h + vendor/*/*.json.",
-         f"#ifndef {guard}", f"#define {guard}", ""]
+         f"#ifndef {guard}", f"#define {guard}", "",
+         "#include <stddef.h>", "#include <stdint.h>", "",
+         '#include "common.h"', ""]
     L += _c_extern_open()
     # The stable, backend-independent status enum (architecture.md §6). Fixed
     # integer values -- Rust and C agree on them whichever backend the capi links.
@@ -509,8 +541,14 @@ def gen_runtime_api_h(status_fns: list[ResolvedFunction],
         L.append(f"  {name} = {val},")
     L.append(f"}} {enum.capi_type};")
     L.append("")
+    # The surface's OWN opaque handles (-> void*); the SHARED wwr_stream handle
+    # lives in common.h (included above), not here.
+    for h in runtime_status.HANDLES:
+        if h.capi_type not in SHARED_HANDLES:
+            L.append(f"typedef void *{h.capi_type};")
+    L.append("")
     for f in status_fns:
-        args = ", ".join(_c_param(c, n) for c, n in f.params)
+        args = ", ".join(_c_param(c, n) for c, n in f.params) or "void"
         L.append(f"{f.ret.capi_c} {f.capi}({args});")
     L += _c_extern_close(guard)
     return "\n".join(L)
@@ -599,8 +637,8 @@ def gen_umbrella_h() -> str:
          '#include "runtime_api/wwr_capi_runtime_api.h"']
     for spec in LIBRARY_SPECS:
         L.append(f'#include "{spec.name}/wwr_capi_{spec.name}.h"')
-    # The hand-written surfaces (not LibrarySpecs): comp and the numeric types.
-    for unit in ("comp", "fp16", "bf16", "vector_types", "fp8"):
+    # The hand-written surfaces (not LibrarySpecs): comp, tx and the numeric types.
+    for unit in ("comp", "tx", "fp16", "bf16", "vector_types", "fp8"):
         L.append(f'#include "{unit}/wwr_capi_{unit}.h"')
     L += ["", f"#endif  // {guard}", ""]
     return "\n".join(L)
@@ -648,18 +686,38 @@ def gen_complex_cpp() -> str:
 
 def gen_runtime_api_cpp(status_fns: list[ResolvedFunction],
                         enum: captypes.EnumMap) -> str:
-    """runtime_api/wwr_capi_runtime_api.cpp — the status thunks. `import
-    wwr.runtime_api;` only (the runtime library, no vendor math/BLAS)."""
+    """runtime_api/wwr_capi_runtime_api.cpp — the runtime thunks. `import
+    wwr.runtime_api;` only (the runtime library, no vendor math/BLAS). Each thunk
+    forwards every argument through the `_coerce`/`_fwd` core (so a void* handle /
+    POD pointer is cast to the exact vendor type the wwr function expects, deduced
+    from the function reference -- no vendor type named), and maps a cudaError_t
+    return to the stable wwr_status (§6). A non-status return (const char * from
+    GetErrorName / GetErrorString, the int from a few queries) passes straight
+    through."""
     L = [_GEN_NOTE,
          '#include "runtime_api/wwr_capi_runtime_api.h"', "",
-         "import wwr.runtime_api;", ""]
+         "#include <type_traits>", "",
+         "import wwr.runtime_api;", "",
+         "namespace {"]
 
-    # The backend status -> stable wwr_status map (architecture.md §6). Internal
-    # (not extern "C"), driven by the EnumMap, comparing the NEUTRAL wwr::wwr<Name>
-    # constants only -- never a vendor name -- so the same thunk source compiles on
-    # either backend. Any unrecognised code falls through to the UNKNOWN catch-all.
-    L += ["namespace {",
-          f"{enum.capi_type} _map(wwr::wwrError_t e) {{",
+    # The forwarding core, identical to the library surfaces': `_coerce<P>` turns
+    # one capi argument into the exact type the wwr function expects at that
+    # position (a pointer / void* handle is a C-style cast covering reinterpret +
+    # any inner cv-qualifier; a value is static_cast). `_fwd` applies it per
+    # parameter and forwards.
+    L += ["template <class P, class A> P _coerce(A a) {",
+          "  if constexpr (std::is_pointer_v<P>) return (P)a;",
+          "  else return static_cast<P>(a);",
+          "}",
+          "template <class R, class... P, class... A>",
+          "R _fwd(R (&f)(P...), A... a) { return f(_coerce<P>(a)...); }",
+          ""]
+
+    # The backend status -> stable wwr_status map (architecture.md §6). Driven by
+    # the EnumMap, comparing the NEUTRAL wwr::wwr<Name> constants only -- never a
+    # vendor name -- so the same thunk source compiles on either backend. Any
+    # unrecognised code falls through to the UNKNOWN catch-all.
+    L += [f"{enum.capi_type} _map(wwr::wwrError_t e) {{",
           f"  if (e == wwr::wwrSuccess) return {enum.success};"]
     for enumerator, wwr_const in enum.entries:
         L.append(f"  if (e == wwr::{wwr_const}) return {enumerator};")
@@ -670,17 +728,19 @@ def gen_runtime_api_cpp(status_fns: list[ResolvedFunction],
           'extern "C" {',
           ""]
 
-    # The fragment-sourced status thunks. Each returns the mapped wwr_status;
-    # scalars and pointers pass straight through (the classifier confirmed each
-    # is scalar/pointer), so the call is a plain forward wrapped in _map.
+    # The fragment-sourced runtime thunks. Each forwards through _fwd (which casts
+    # the handle / pointer arguments to the wwr function's parameter types) and
+    # maps a cudaError_t return to the stable wwr_status. A non-status return
+    # passes straight through.
     for f in status_fns:
-        args = ", ".join(_c_param(c, n) for c, n in f.params)
+        args = ", ".join(_c_param(c, n) for c, n in f.params) or "void"
         call = ", ".join(n for _c, n in f.params)
+        callexpr = f"_fwd({f.wwr}, {call})" if f.params else f"{f.wwr}()"
         L.append(f"{f.ret.capi_c} {f.capi}({args}) {{")
         if f.ret.repr == "enum":
-            L.append(f"  return _map({f.wwr}({call}));")
+            L.append(f"  return _map({callexpr});")
         else:
-            L.append(f"  return {f.wwr}({call});")
+            L.append(f"  return {callexpr};")
         L += ["}", ""]
     L += ["}  // extern \"C\"", ""]
     return "\n".join(L)
@@ -903,6 +963,48 @@ def gen_comp_cpp() -> str:
 
 
 # ---------------------------------------------------------------------------
+# The tx surface: HAND-WRITTEN (spec/tx.py), like complex -- its functions are
+# wwr.tx's EXTERNAL-linkage forwarders over the static-inline NVTX / real rocTX
+# symbols, with no manifest `decl` to source and no status enum / handle / POD for
+# the library machinery. The thunks are a pure pass-through forward; bespoke
+# emitters (not the fragment-sourced library path).
+# ---------------------------------------------------------------------------
+def gen_tx_h() -> str:
+    """tx/wwr_capi_tx.h — the five tx prototypes. #includes <stdint.h> for the
+    uint64_t range id; no POD, enum or handle, so no common.h."""
+    guard = "WWR_CAPI_TX_H"
+    L = [f"{_GEN_NOTE} Sources: src/capi/spec/tx.py (hand-written) + src/tx.cppm.",
+         f"#ifndef {guard}", f"#define {guard}", "",
+         "#include <stdint.h>", ""]
+    L += _c_extern_open()
+    for f in tx_spec.FUNCTIONS:
+        args = ", ".join(_c_param_raw(ct, n) for ct, n in f["args"]) or "void"
+        L.append(f"{f['ret']} {f['capi']}({args});")
+    L += _c_extern_close(guard)
+    return "\n".join(L)
+
+
+def gen_tx_cpp() -> str:
+    """tx/wwr_capi_tx.cpp — the tx thunks. `import wwr.tx;` only -> this unit's
+    .so NEEDs only the tx backend (nothing on CUDA, where NVTX is header-only;
+    libroctx64 on HIP). Each thunk is a plain pass-through forward into the
+    wwr.tx external-linkage wrapper."""
+    L = [_GEN_NOTE,
+         '#include "tx/wwr_capi_tx.h"', "",
+         "import wwr.tx;", "",
+         'extern "C" {', ""]
+    for f in tx_spec.FUNCTIONS:
+        args = ", ".join(_c_param_raw(ct, n) for ct, n in f["args"]) or "void"
+        call = ", ".join(n for _ct, n in f["args"])
+        L.append(f"{f['ret']} {f['capi']}({args}) {{")
+        ret = "" if f["ret"] == "void" else "return "
+        L.append(f"  {ret}{f['wwr']}({call});")
+        L += ["}", ""]
+    L += ["}  // extern \"C\"", ""]
+    return "\n".join(L)
+
+
+# ---------------------------------------------------------------------------
 # The Rust side. PR #366 mirrors the C-side per-unit split (PR #365) into the
 # crate: the shared PODs live in an always-compiled `common` module, and each
 # surface is its own module behind a Cargo feature (src/capi/README.md). So the
@@ -987,11 +1089,29 @@ def _rust_complex_fns(enum: captypes.EnumMap) -> list[str]:
 
 def _rust_status_fns(status_fns: list[ResolvedFunction],
                      enum: captypes.EnumMap) -> list[str]:
+    # The runtime return is the status enum (-> the capi enum name) or a plain C
+    # type (const char * / int); each parameter is a scalar, a pointer, or a void*
+    # handle -- all spelled by _rust_c_type, EXCEPT the status enum return, which
+    # keeps its capi enum name.
     L = []
     for f in status_fns:
-        args = ", ".join(f"{_rust_ident(n)}: {_rust_classified(c, enum)}"
+        args = ", ".join(f"{_rust_ident(n)}: {_rust_c_type(c.capi_c)}"
                          for c, n in f.params)
-        L.append(f"    pub fn {f.capi}({args}) -> {_rust_classified(f.ret, enum)};")
+        ret = enum.capi_type if f.ret.repr == "enum" \
+            else _rust_c_type(f.ret.capi_c)
+        L.append(f"    pub fn {f.capi}({args}) -> {ret};")
+    return L
+
+
+def _rust_runtime_handle_lines() -> list[str]:
+    """The runtime surface's OWN opaque handles as Rust `*mut c_void` typedefs;
+    the SHARED wwr_stream handle lives in crate::common (named via the `use`)."""
+    L: list[str] = []
+    for h in runtime_status.HANDLES:
+        if h.capi_type not in SHARED_HANDLES:
+            L.append(f"pub type {h.capi_type} = *mut core::ffi::c_void;")
+    if L:
+        L.append("")
     return L
 
 
@@ -1059,10 +1179,14 @@ def gen_rust_complex(enum: captypes.EnumMap) -> str:
 
 def gen_rust_runtime_api(status_fns: list[ResolvedFunction],
                          enum: captypes.EnumMap) -> str:
-    """runtime_api/runtime_api.rs — the stable wwr_status enum (this surface only)
-    and the status extern "C" block. No shared POD, so no `use common`."""
-    L = [_RUST_NOTE, _RUST_BACKEND_NOTE, ""]
+    """runtime_api/runtime_api.rs — the stable wwr_status enum (this surface
+    only), the surface's own opaque handles (-> *mut c_void), and the runtime
+    extern "C" block. `use`s common for the SHARED wwr_stream handle its stream
+    parameters name."""
+    L = [_RUST_NOTE, _RUST_BACKEND_NOTE, "",
+         "#[allow(unused_imports)]", "use crate::common::*;", ""]
     L += _rust_status_enum_lines(enum)
+    L += _rust_runtime_handle_lines()
     L += [_RUST_FMT_SKIP, 'extern "C" {']
     L += _rust_status_fns(status_fns, enum)
     L += ["}", ""]
@@ -1127,6 +1251,27 @@ def gen_rust_comp() -> str:
     L += _rust_comp_types_lines()
     L += [_RUST_FMT_SKIP, 'extern "C" {']
     L += _rust_comp_fns()
+    L += ["}", ""]
+    return "\n".join(L)
+
+
+def _rust_tx_fns() -> list[str]:
+    L = []
+    for f in tx_spec.FUNCTIONS:
+        args = ", ".join(f"{_rust_ident(n)}: {_rust_c_type(ct)}"
+                         for ct, n in f["args"])
+        ret = "" if f["ret"] == "void" else f" -> {_rust_c_type(f['ret'])}"
+        L.append(f"    pub fn {f['capi']}({args}){ret};")
+    return L
+
+
+def gen_rust_tx() -> str:
+    """tx/tx.rs — the tx extern "C" block. No POD / enum / handle (the range id is
+    a plain uint64_t), so no types and no `use common`. No #[link]: build.rs links
+    libwwr_capi_tx.so under the `tx` feature."""
+    L = [_RUST_NOTE, _RUST_BACKEND_NOTE, "",
+         _RUST_FMT_SKIP, 'extern "C" {']
+    L += _rust_tx_fns()
     L += ["}", ""]
     return "\n".join(L)
 
@@ -1488,6 +1633,7 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
     L += _rust_vector_types_types_lines()
     L += _rust_fp8_types_lines()
     L += _rust_status_enum_lines(enum)
+    L += _rust_runtime_handle_lines()  # the runtime surface's own handles
     # NO `#[link(name = ...)]` on the extern block: the in-tree driver.rs (the one
     # consumer that include!s this file) gets its `-l` flags from capi's
     # CMakeLists, which links ONLY the units driver.rs actually CALLS (complex +
@@ -1502,6 +1648,7 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
     for lib in libs:
         L += _rust_library_fns(lib.functions)
     L += _rust_comp_fns()
+    L += _rust_tx_fns()  # the hand-written tx surface's functions
     L += _rust_fp16_fns()
     L += _rust_bf16_fns()
     L += _rust_vector_types_fns()
@@ -1516,12 +1663,6 @@ def _rust_ty(name: str, enum: captypes.EnumMap) -> str:
     if name == enum.capi_type:
         return enum.capi_type
     return RUST_SCALAR[name]
-
-
-def _rust_classified(c: captypes.Classified, enum: captypes.EnumMap) -> str:
-    if c.repr == "enum":
-        return enum.capi_type
-    return RUST_SCALAR[c.capi_c]
 
 
 def main() -> None:
@@ -1543,6 +1684,7 @@ def main() -> None:
         "runtime_api": (gen_runtime_api_h(status_fns, enum),
                         gen_runtime_api_cpp(status_fns, enum)),
         "comp": (gen_comp_h(), gen_comp_cpp()),
+        "tx": (gen_tx_h(), gen_tx_cpp()),
         # The milestone-#6 numeric TYPE surfaces (hand-written, like comp).
         "fp16": (gen_fp16_h(), gen_fp16_cpp()),
         "bf16": (gen_bf16_h(), gen_bf16_cpp()),
@@ -1553,6 +1695,7 @@ def main() -> None:
         "complex": gen_rust_complex(enum),
         "runtime_api": gen_rust_runtime_api(status_fns, enum),
         "comp": gen_rust_comp(),
+        "tx": gen_rust_tx(),
         "fp16": gen_rust_fp16(),
         "bf16": gen_rust_bf16(),
         "vector_types": gen_rust_vector_types(),
@@ -1573,6 +1716,11 @@ def main() -> None:
     (out / "common.rs").write_text(rust_common)
     combined = gen_rust_combined(status_fns, enum, libs)
     (out / "ffi.rs").write_text(combined)
+    rt_skips = SKIPPED.get("runtime_api", [])
+    print(f"runtime_api: wrapped {len(status_fns)} functions, "
+          f"skipped {len(rt_skips)}")
+    for name, reason in rt_skips:
+        print(f"  SKIP {name}: {reason}")
     for lib in libs:
         skips = SKIPPED.get(lib.spec.name, [])
         print(f"{lib.spec.name}: wrapped {len(lib.functions)} functions, "
@@ -1580,6 +1728,7 @@ def main() -> None:
         for name, reason in skips:
             print(f"  SKIP {name}: {reason}")
     print(f"comp: wrapped {len(comp_spec.functions())} functions (hand-written)")
+    print(f"tx: wrapped {len(tx_spec.FUNCTIONS)} functions (hand-written)")
     # The numeric TYPE surfaces (hand-written). Report wrapped counts and, for fp8,
     # the explicit out-of-scope skips (fp4 / fp6 BLOCKED on HIP, device-only widening)
     # so a partial surface is loud, never silent (NO SILENT DROPS).

@@ -2,6 +2,11 @@
 #ifndef WWR_CAPI_RUNTIME_API_H
 #define WWR_CAPI_RUNTIME_API_H
 
+#include <stddef.h>
+#include <stdint.h>
+
+#include "common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -17,9 +22,115 @@ typedef enum wwr_status {
   WWR_STATUS_UNKNOWN = 7,
 } wwr_status;
 
-wwr_status wwr_runtime_get_version(int *runtimeVersion);
+typedef void *wwr_event;
+typedef void *wwr_mem_pool;
+typedef void *wwr_graph;
+typedef void *wwr_graph_exec;
+typedef void *wwr_array;
+typedef void *wwr_array_const;
+typedef void *wwr_mipmapped_array;
+typedef void *wwr_mipmapped_array_const;
+typedef void *wwr_library;
+typedef void *wwr_user_object;
+
+wwr_status wwr_array_get_info(void *desc, void *extent, unsigned int *flags, wwr_array array);
+wwr_status wwr_create_surface_object(void *pSurfObject, const void *pResDesc);
+wwr_status wwr_create_texture_object(void *pTexObject, const void *pResDesc, const void *pTexDesc, const void *pResViewDesc);
+wwr_status wwr_device_can_access_peer(int *canAccessPeer, int device, int peerDevice);
+wwr_status wwr_device_disable_peer_access(int peerDevice);
+wwr_status wwr_device_enable_peer_access(int peerDevice, unsigned int flags);
+wwr_status wwr_device_get_by_pci_bus_id(int *device, const char *pciBusId);
+wwr_status wwr_device_get_cache_config(void *pCacheConfig);
+wwr_status wwr_device_get_default_mem_pool(wwr_mem_pool *memPool, int device);
+wwr_status wwr_device_get_mem_pool(wwr_mem_pool *memPool, int device);
+wwr_status wwr_device_get_pci_bus_id(char *pciBusId, int len, int device);
+wwr_status wwr_device_get_stream_priority_range(int *leastPriority, int *greatestPriority);
+wwr_status wwr_device_get_texture1_d_linear_max_width(size_t *maxWidthInElements, const void *fmtDesc, int device);
+wwr_status wwr_device_reset(void);
+wwr_status wwr_device_set_mem_pool(int device, wwr_mem_pool memPool);
+wwr_status wwr_device_synchronize(void);
+wwr_status wwr_driver_get_version(int *driverVersion);
+wwr_status wwr_event_create(wwr_event *event);
+wwr_status wwr_event_create_with_flags(wwr_event *event, unsigned int flags);
+wwr_status wwr_event_destroy(wwr_event event);
+wwr_status wwr_event_elapsed_time(float *ms, wwr_event start, wwr_event end);
+wwr_status wwr_event_query(wwr_event event);
+wwr_status wwr_event_record(wwr_event event, wwr_stream stream);
+wwr_status wwr_event_record_with_flags(wwr_event event, wwr_stream stream, unsigned int flags);
+wwr_status wwr_event_synchronize(wwr_event event);
+wwr_status wwr_free(void *devPtr);
+wwr_status wwr_free_array(wwr_array array);
+wwr_status wwr_free_async(void *devPtr, wwr_stream hStream);
+wwr_status wwr_free_host(void *ptr);
+wwr_status wwr_free_mipmapped_array(wwr_mipmapped_array mipmappedArray);
+wwr_status wwr_func_get_attributes(void *attr, const void *func);
+wwr_status wwr_get_device(int *device);
 wwr_status wwr_get_device_count(int *count);
+wwr_status wwr_get_device_flags(unsigned int *flags);
+wwr_status wwr_get_device_properties(void *prop, int device);
+wwr_status wwr_get_func_by_symbol(void *functionPtr, const void *symbolPtr);
+wwr_status wwr_get_last_error(void);
+wwr_status wwr_graph_create(wwr_graph *pGraph, unsigned int flags);
+wwr_status wwr_graph_destroy(wwr_graph graph);
+wwr_status wwr_graph_exec_destroy(wwr_graph_exec graphExec);
+wwr_status wwr_graph_launch(wwr_graph_exec graphExec, wwr_stream stream);
+wwr_status wwr_graph_upload(wwr_graph_exec graphExec, wwr_stream stream);
+wwr_status wwr_host_get_device_pointer(void *pDevice, void *pHost, unsigned int flags);
+wwr_status wwr_host_get_flags(unsigned int *pFlags, void *pHost);
+wwr_status wwr_host_register(void *ptr, size_t size, unsigned int flags);
+wwr_status wwr_host_unregister(void *ptr);
+wwr_status wwr_ipc_close_mem_handle(void *devPtr);
+wwr_status wwr_ipc_get_event_handle(void *handle, wwr_event event);
+wwr_status wwr_ipc_get_mem_handle(void *handle, void *devPtr);
+wwr_status wwr_launch_kernel_ex_c(const void *config, const void *func, void *args);
+wwr_status wwr_library_get_kernel(void *pKernel, wwr_library library, const char *name);
+wwr_status wwr_library_get_kernel_count(unsigned int *count, wwr_library lib);
+wwr_status wwr_library_load_data(wwr_library *library, const void *code, void *jitOptions, void *jitOptionsValues, unsigned int numJitOptions, void *libraryOptions, void *libraryOptionValues, unsigned int numLibraryOptions);
+wwr_status wwr_library_load_from_file(wwr_library *library, const char *fileName, void *jitOptions, void *jitOptionsValues, unsigned int numJitOptions, void *libraryOptions, void *libraryOptionValues, unsigned int numLibraryOptions);
+wwr_status wwr_library_unload(wwr_library library);
+wwr_status wwr_malloc_array(wwr_array *array, const void *desc, size_t width, size_t height, unsigned int flags);
+wwr_status wwr_mem_get_info(size_t *free, size_t *total);
+wwr_status wwr_mem_pool_create(wwr_mem_pool *memPool, const void *poolProps);
+wwr_status wwr_mem_pool_destroy(wwr_mem_pool memPool);
+wwr_status wwr_mem_pool_export_pointer(void *exportData, void *ptr);
+wwr_status wwr_mem_pool_get_access(void *flags, wwr_mem_pool memPool, void *location);
+wwr_status wwr_mem_pool_import_pointer(void *ptr, wwr_mem_pool memPool, void *exportData);
+wwr_status wwr_mem_pool_set_access(wwr_mem_pool memPool, const void *descList, size_t count);
+wwr_status wwr_mem_pool_trim_to(wwr_mem_pool memPool, size_t minBytesToKeep);
+wwr_status wwr_mem_range_get_attributes(void *data, size_t *dataSizes, void *attributes, size_t numAttributes, const void *devPtr, size_t count);
+wwr_status wwr_memcpy3_d(const void *p);
+wwr_status wwr_memcpy3_d_async(const void *p, wwr_stream stream);
+wwr_status wwr_memcpy3_d_peer(const void *p);
+wwr_status wwr_memcpy3_d_peer_async(const void *p, wwr_stream stream);
+wwr_status wwr_memcpy_peer(void *dst, int dstDevice, const void *src, int srcDevice, size_t count);
+wwr_status wwr_memcpy_peer_async(void *dst, int dstDevice, const void *src, int srcDevice, size_t count, wwr_stream stream);
+wwr_status wwr_memset(void *devPtr, int value, size_t count);
+wwr_status wwr_memset2_d(void *devPtr, size_t pitch, int value, size_t width, size_t height);
+wwr_status wwr_memset2_d_async(void *devPtr, size_t pitch, int value, size_t width, size_t height, wwr_stream stream);
+wwr_status wwr_memset_async(void *devPtr, int value, size_t count, wwr_stream stream);
+wwr_status wwr_peek_at_last_error(void);
+wwr_status wwr_pointer_get_attributes(void *attributes, const void *ptr);
+wwr_status wwr_runtime_get_version(int *runtimeVersion);
 wwr_status wwr_set_device(int device);
+wwr_status wwr_set_device_flags(unsigned int flags);
+wwr_status wwr_set_valid_devices(int *device_arr, int len);
+wwr_status wwr_stream_attach_mem_async(wwr_stream stream, void *devPtr, size_t length, unsigned int flags);
+wwr_status wwr_stream_create(wwr_stream *pStream);
+wwr_status wwr_stream_create_with_flags(wwr_stream *pStream, unsigned int flags);
+wwr_status wwr_stream_create_with_priority(wwr_stream *pStream, unsigned int flags, int priority);
+wwr_status wwr_stream_destroy(wwr_stream stream);
+wwr_status wwr_stream_end_capture(wwr_stream stream, wwr_graph *pGraph);
+wwr_status wwr_stream_get_device(wwr_stream hStream, int *device);
+wwr_status wwr_stream_get_flags(wwr_stream hStream, unsigned int *flags);
+wwr_status wwr_stream_get_id(wwr_stream hStream, unsigned long long *streamId);
+wwr_status wwr_stream_get_priority(wwr_stream hStream, int *priority);
+wwr_status wwr_stream_is_capturing(wwr_stream stream, void *pCaptureStatus);
+wwr_status wwr_stream_query(wwr_stream stream);
+wwr_status wwr_stream_synchronize(wwr_stream stream);
+wwr_status wwr_stream_wait_event(wwr_stream stream, wwr_event event, unsigned int flags);
+wwr_status wwr_thread_exchange_stream_capture_mode(void *mode);
+wwr_status wwr_user_object_release(wwr_user_object object, unsigned int count);
+wwr_status wwr_user_object_retain(wwr_user_object object, unsigned int count);
 
 #ifdef __cplusplus
 }
