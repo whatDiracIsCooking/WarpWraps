@@ -218,11 +218,19 @@ function(_wwr_install_capi)
   endif()
   _wwr_export_name(wwr.capi _capi_export_name)
   set_target_properties(wwr.capi PROPERTIES EXPORT_NAME "${_capi_export_name}")
+  # INCLUDES DESTINATION puts ${CMAKE_INSTALL_INCLUDEDIR} (the include root,
+  # e.g. include/) on wwr::capi's exported INTERFACE_INCLUDE_DIRECTORIES, so a
+  # find_package consumer that links the target resolves <wwr/wwr_capi.h> -- the
+  # header installs one level down at include/wwr/wwr_capi.h (under
+  # WWR_INSTALL_INCLUDEDIR), and the <wwr/...> spelling resolves from the root
+  # above it. Without this the .so links but the header is off the consumer's
+  # path (example/capi-consumer catches exactly that).
   install(
     TARGETS wwr.capi
     EXPORT wwr-targets
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
   )
   install(FILES "${PROJECT_SOURCE_DIR}/src/capi/gen/wwr_capi.h"
           DESTINATION "${WWR_INSTALL_INCLUDEDIR}"
@@ -472,6 +480,11 @@ function(_wwr_install_package_config)
   set(WWR_PACKAGE_HAS_CCL "${WWR_WITH_CCL}")
   set(WWR_PACKAGE_HAS_COMP "${WWR_WITH_COMP}")
   set(WWR_PACKAGE_HAS_TENSOR "${WWR_WITH_TENSOR}")
+  # The C ABI ships only under WWR_INSTALL_CAPI (same shape as HAS_EXTENSION
+  # above): _wwr_install_capi() is the install gate, and this tells
+  # wwrConfig.cmake.in whether wwr::capi is in the export set so the `capi`
+  # component and example/capi-consumer can gate on it.
+  set(WWR_PACKAGE_HAS_CAPI "${WWR_INSTALL_CAPI}")
   set(WWR_PACKAGE_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}")
   set(WWR_PACKAGE_CXX_COMPILER_VERSION "${CMAKE_CXX_COMPILER_VERSION}")
   set(WWR_PACKAGE_CXX_STANDARD_LIBRARY "${CMAKE_CXX_STANDARD_LIBRARY}")

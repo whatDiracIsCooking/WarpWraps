@@ -1,17 +1,23 @@
 # `example/`
 
-Four things, and only the first three are part of this build.
+Five things, and only the first three are part of this build.
 
 | Directory | What it is | Who builds it |
 |---|---|---|
 | `warp_reduce/` | A warp-level reduction kernel written against the `wwr*` layer | the main build, on either backend |
 | `buffer_suite/` | A tour of the memory-buffer suite — the policy **map** and views | the main build, on either backend |
 | `device_handle/` | The ready-made pool-tier handle — `kit::DeviceHandle` | the main build, on either backend |
-| `consumer/` | A standalone project consuming an **installed** wwr | `devtools/install-check.sh` |
+| `consumer/` | A standalone C++ project consuming an **installed** wwr | `devtools/install-check.sh` |
+| `capi-consumer/` | A standalone **pure-C** project consuming the installed C ABI (`wwr::capi`) | `devtools/install-check.sh --capi` |
 
-`consumer/` has its own `project()` call and is not added by
-`example/CMakeLists.txt`: the whole point is that it knows nothing about this
-source tree and reaches wwr only through `find_package(wwr)`.
+`consumer/` and `capi-consumer/` have their own `project()` call and are not
+added by `example/CMakeLists.txt`: the whole point is that each knows nothing
+about this source tree and reaches wwr only through `find_package(wwr)`.
+`capi-consumer/` is the C-only half — it links the prebuilt `libwwr_capi.so` and
+`#include`s the installed `wwr_capi.h` with no C++23-module toolchain at all,
+which is the one thing that proves the capi installs as a usable non-C++ FFI
+target. It builds and runs only when the capi was installed
+(`--capi` → `-DWWR_INSTALL_CAPI=ON`).
 
 ## `warp_reduce/` — an exemplar, not a library
 
