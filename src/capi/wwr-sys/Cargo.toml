@@ -1,0 +1,23 @@
+# The wwr-sys crate: the idiomatic Rust -sys binding over the prebuilt
+# libwwr_capi.so (the C ABI generated under src/capi). A Rust user adds this one
+# dependency, links the prebuilt .so, and carries ZERO vendor / #[cfg] knowledge
+# -- the backend (CUDA or HIP) was chosen when the linked .so was built.
+#
+# version tracks the C ABI contract (libwwr_capi.so VERSION 1.0.0 / SOVERSION 1
+# in src/capi/CMakeLists.txt): it bumps with the frozen wwr_status contract, not
+# independently. See src/capi/README.md "Stability policy" + architecture.md §21.
+[package]
+name = "wwr-sys"
+version = "1.0.0"
+edition = "2021"
+description = "Raw -sys FFI bindings over the wwr C ABI (libwwr_capi.so)"
+license = "MIT"
+# links = the lib the -sys crate owns, so cargo enforces one -sys crate per
+# native lib (the sys-crate convention) and lets a downstream `cargo:` override
+# the lookup. The value is the lib's OUTPUT_NAME (wwr_capi -> libwwr_capi.so),
+# NOT the dotted CMake target wwr.capi -- the same name build.rs passes to
+# rustc-link-lib and ffi.rs's #[link(name = "wwr_capi")]. Keep all three in step
+# with OUTPUT_NAME in src/capi/CMakeLists.txt (the increment-3 naming lesson).
+links = "wwr_capi"
+
+[dependencies]

@@ -24,6 +24,10 @@ include(CMakePackageConfigHelpers)
 set(WWR_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/wwr")
 set(WWR_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/wwr")
 set(WWR_INSTALL_MODULEDIR "${WWR_INSTALL_INCLUDEDIR}/modules")
+# share/wwr -- arch-independent sidecar data, not headers or libs. Only the
+# wwr-sys Rust crate skeleton lives here today (under rust/wwr-sys, gated on
+# WWR_INSTALL_CAPI); it is crate SOURCE a Rust consumer path/git-depends on.
+set(WWR_INSTALL_DATADIR "${CMAKE_INSTALL_DATADIR}/wwr")
 
 # ---------------------------------------------------------------------------
 # Internal helpers (underscore-prefixed -- not part of the public API)
@@ -226,6 +230,20 @@ function(_wwr_install_capi)
   )
   install(FILES "${PROJECT_SOURCE_DIR}/src/capi/gen/wwr_capi.h"
           DESTINATION "${WWR_INSTALL_INCLUDEDIR}"
+  )
+  # The wwr-sys Rust crate skeleton, so a Rust user can path/git-depend on the
+  # installed tree (#340). It is SOURCE, not a built artifact -- cargo cannot
+  # build a C++23-module target, so the crate only links the prebuilt
+  # libwwr_capi.so installed above; its build.rs reads WWR_CAPI_LIB_DIR to find
+  # it (the lib dir of this very prefix). Cargo.toml, build.rs and src/ (lib.rs
+  # + the generated ffi.rs) are everything the crate needs; the end-to-end
+  # consume-from-the-installed-prefix check is #341.
+  install(FILES "${PROJECT_SOURCE_DIR}/src/capi/wwr-sys/Cargo.toml"
+                "${PROJECT_SOURCE_DIR}/src/capi/wwr-sys/build.rs"
+          DESTINATION "${WWR_INSTALL_DATADIR}/rust/wwr-sys"
+  )
+  install(DIRECTORY "${PROJECT_SOURCE_DIR}/src/capi/wwr-sys/src"
+          DESTINATION "${WWR_INSTALL_DATADIR}/rust/wwr-sys"
   )
 endfunction()
 
