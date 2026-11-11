@@ -162,6 +162,7 @@ wwr_tensor_status wwr_tensor_logger_force_disable(void);
 wwr_tensor_status wwr_tensor_logger_open_file(const char *logFile);
 wwr_tensor_status wwr_tensor_logger_set_callback(wwr_tensor_logger_callback callback);
 wwr_tensor_status wwr_tensor_logger_set_file(void *file);
+wwr_tensor_status wwr_tensor_logger_set_level(int32_t level);
 wwr_tensor_status wwr_tensor_logger_set_mask(int32_t mask);
 wwr_tensor_status wwr_tensor_operation_descriptor_get_attribute(wwr_tensor_handle handle, wwr_tensor_operation_descriptor desc, wwr_tensor_operation_descriptor_attribute attr, void *buf, size_t sizeInBytes);
 wwr_tensor_status wwr_tensor_operation_descriptor_set_attribute(wwr_tensor_handle handle, wwr_tensor_operation_descriptor desc, wwr_tensor_operation_descriptor_attribute attr, const void *buf, size_t sizeInBytes);

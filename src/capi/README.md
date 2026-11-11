@@ -483,7 +483,7 @@ never for an additive change. See architecture.md §21.
   Every other surface is fragment-sourced; see "How the surface is sourced"
   (architecture.md §25, #346).
 - **Parts of `runtime_api` are skipped, loudly.** The sweep wraps the
-  host-callable runtime that classifies cleanly (~98 functions) and SKIPS, with a
+  host-callable runtime that classifies cleanly (109 functions) and SKIPS, with a
   logged reason the generator prints, any function that takes a by-value enum
   whose neutral enumerator constants the fragment does not yet carry (the
   `cudaMemcpyKind` / attribute families — a later increment can add those
@@ -497,3 +497,54 @@ never for an additive change. See architecture.md §21.
   `ncclCommInitRankConfig`): they take `ncclUniqueId` BY VALUE, a 128-byte opaque
   blob with no vendor-free POD the generic path builds. The pointer-form inits
   (`ncclCommInitRankScalable`) and `ncclGetUniqueId` still wrap.
+
+## Surface completeness
+
+A neutral `wwr*` name must end up either WRAPPED or in the generator's LOGGED
+skip list — never invisible. Two provenance gaps once let a name fall through
+silently, and both are now closed (#372):
+
+1. **Parser blind spot (was silent).** The parser (`spec/fragments.py`) sourced
+   names only from the `WWR_*_FUNCTION` / `_RAW` **macro** forms. A fragment also
+   defines names by two HAND-WRITTEN forms — the reference-to-function forwarder
+   `inline constexpr RET (&wwrX)(ARGS) = …;` and the inline wrapper `inline RET
+   wwrX(ARGS) { … }` — used where a backend diverges beyond the cuda/hip prefix.
+   Those were invisible: not wrapped, not even logged. The parser now recognises
+   both forms and carries each one's EXPLICIT written signature as a synthetic
+   `decl`, feeding it through the SAME classifier as a macro function (a forwarder
+   is no vendor symbol, so there is no manifest `decl`). A hand-written form that
+   also has a macro twin in the other backend's `#if` branch (the blas Hgemm
+   family, the sparse / rand `#if`-guarded pairs) keeps the macro entry.
+2. **Classifier holes (logged, but some mechanical).** A `void**` / `T**`
+   OUT-parameter erased to `void *` — silently dropping an indirection level. The
+   classifier now preserves pointer DEPTH when erasing a vendor pointee (`void **`
+   → `void **`, `*mut *mut c_void` in Rust), which both recovers the allocation
+   forwarders (`wwr_malloc` / `wwr_malloc_managed` / `wwr_host_alloc` take a
+   `void**` out-pointer) AND corrects four pre-existing wrong signatures
+   (`wwr_ccl_mem_alloc`, `wwr_ccl_comm_register`, `wwr_rand_get_direction_vectors{32,64}`).
+
+The gaps bucket as:
+
+| bucket | what it is | status |
+|---|---|---|
+| **A** parser blind spot | a hand-written forwarder the parser never saw | **FIXED** — parser sees both forms; 17 runtime_api + 1 tensor recovered or now-logged |
+| **B** classifier hole, mechanical | `void**`/`T**` out-param dropping depth | **FIXED** — depth preserved; recovers the malloc family, corrects 4 wrong sigs |
+| **C** registration incomplete | a by-value enum / neutral type a surface has not registered | PARTLY — neutral handle/status spellings registered (unblocks the forwarders); the `cudaMemcpyKind` / attribute enum families are deferred |
+| **D** genuinely unwrappable | function pointer, kernel `void**` launch, by-value descriptor struct, backend ABI/arity divergence, a backend-divergent status-string switch | ACCEPTED — each is a LOGGED skip with its reason |
+
+**Deferred / accepted, with the reason (all LOGGED, none silent):**
+
+- `wwrMemcpyToSymbol` / `FromSymbol` / their Async pair — take `wwrMemcpyKind` by
+  value, a neutral enum no surface has registered as a `ValueEnum` (bucket C; a
+  later increment registers the `cudaMemcpyKind` family, which also unblocks
+  `cudaMemcpy` / `cudaMemcpyAsync`).
+- `wwrLaunchCooperativeKernel` — takes `dim3` (bucket D: a by-value launch-geometry
+  struct, the kernel-launch family).
+- `wwrCreateChannelDesc` — RETURNS `wwrChannelFormatDesc` by value and takes
+  `wwrChannelFormatKind` (bucket D: by-value descriptor struct, no POD layout).
+- `wwrfftGetStatusName` / `String`, `wwrsolverGetStatusName` / `String` — backend-
+  divergent enumerator-set switches with no sound 1:1 neutral map (bucket D,
+  explicit_skips; §6). Reached through the raw module.
+- The pre-existing `runtime_api` by-value-enum / descriptor-struct / function-
+  pointer / arity-divergence skips, and the two `ccl` `ncclUniqueId`-by-value
+  inits — unchanged (bucket C/D, already logged above).

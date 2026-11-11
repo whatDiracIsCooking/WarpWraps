@@ -80,8 +80,8 @@ extern "C" {
     pub fn wwr_rand_generate_seeds(generator: wwr_rand_generator) -> wwr_rand_status;
     pub fn wwr_rand_generate_uniform(generator: wwr_rand_generator, outputPtr: *mut f32, num: usize) -> wwr_rand_status;
     pub fn wwr_rand_generate_uniform_double(generator: wwr_rand_generator, outputPtr: *mut f64, num: usize) -> wwr_rand_status;
-    pub fn wwr_rand_get_direction_vectors32(vectors: *mut core::ffi::c_void, set: wwr_rand_direction_vector_set) -> wwr_rand_status;
-    pub fn wwr_rand_get_direction_vectors64(vectors: *mut core::ffi::c_void, set: wwr_rand_direction_vector_set) -> wwr_rand_status;
+    pub fn wwr_rand_get_direction_vectors32(vectors: *mut *mut core::ffi::c_void, set: wwr_rand_direction_vector_set) -> wwr_rand_status;
+    pub fn wwr_rand_get_direction_vectors64(vectors: *mut *mut core::ffi::c_void, set: wwr_rand_direction_vector_set) -> wwr_rand_status;
     pub fn wwr_rand_get_scramble_constants32(constants: *mut *mut u32) -> wwr_rand_status;
     pub fn wwr_rand_get_scramble_constants64(constants: *mut *mut core::ffi::c_ulonglong) -> wwr_rand_status;
     pub fn wwr_rand_get_version(version: *mut i32) -> wwr_rand_status;

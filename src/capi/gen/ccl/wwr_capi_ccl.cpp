@@ -158,7 +158,7 @@ wwr_ccl_result wwr_ccl_comm_init_rank_scalable(wwr_ccl_comm *newcomm, int nranks
   return _from_result(_fwd(wwr::wwrcclCommInitRankScalable, newcomm, nranks, myrank, nId, commIds, config));
 }
 
-wwr_ccl_result wwr_ccl_comm_register(wwr_ccl_comm comm, void *buff, size_t size, void *handle) {
+wwr_ccl_result wwr_ccl_comm_register(wwr_ccl_comm comm, void *buff, size_t size, void **handle) {
   return _from_result(_fwd(wwr::wwrcclCommRegister, comm, buff, size, handle));
 }
 
@@ -210,7 +210,7 @@ wwr_ccl_result wwr_ccl_group_start(void) {
   return _from_result(wwr::wwrcclGroupStart());
 }
 
-wwr_ccl_result wwr_ccl_mem_alloc(void *ptr, size_t size) {
+wwr_ccl_result wwr_ccl_mem_alloc(void **ptr, size_t size) {
   return _from_result(_fwd(wwr::wwrcclMemAlloc, ptr, size));
 }
 

@@ -175,6 +175,14 @@ wwr_status wwr_get_last_error(void) {
   return _map(wwr::wwrGetLastError());
 }
 
+wwr_status wwr_get_symbol_address(void **devPtr, const void *symbol) {
+  return _map(_fwd(wwr::wwrGetSymbolAddress, devPtr, symbol));
+}
+
+wwr_status wwr_get_symbol_size(size_t *size, const void *symbol) {
+  return _map(_fwd(wwr::wwrGetSymbolSize, size, symbol));
+}
+
 wwr_status wwr_graph_create(wwr_graph *pGraph, unsigned int flags) {
   return _map(_fwd(wwr::wwrGraphCreate, pGraph, flags));
 }
@@ -187,6 +195,10 @@ wwr_status wwr_graph_exec_destroy(wwr_graph_exec graphExec) {
   return _map(_fwd(wwr::wwrGraphExecDestroy, graphExec));
 }
 
+wwr_status wwr_graph_instantiate(wwr_graph_exec *exec, wwr_graph graph, unsigned long long flags) {
+  return _map(_fwd(wwr::wwrGraphInstantiate, exec, graph, flags));
+}
+
 wwr_status wwr_graph_launch(wwr_graph_exec graphExec, wwr_stream stream) {
   return _map(_fwd(wwr::wwrGraphLaunch, graphExec, stream));
 }
@@ -195,7 +207,11 @@ wwr_status wwr_graph_upload(wwr_graph_exec graphExec, wwr_stream stream) {
   return _map(_fwd(wwr::wwrGraphUpload, graphExec, stream));
 }
 
-wwr_status wwr_host_get_device_pointer(void *pDevice, void *pHost, unsigned int flags) {
+wwr_status wwr_host_alloc(void **arg0, size_t arg1, unsigned int arg2) {
+  return _map(_fwd(wwr::wwrHostAlloc, arg0, arg1, arg2));
+}
+
+wwr_status wwr_host_get_device_pointer(void **pDevice, void *pHost, unsigned int flags) {
   return _map(_fwd(wwr::wwrHostGetDevicePointer, pDevice, pHost, flags));
 }
 
@@ -223,7 +239,7 @@ wwr_status wwr_ipc_get_mem_handle(void *handle, void *devPtr) {
   return _map(_fwd(wwr::wwrIpcGetMemHandle, handle, devPtr));
 }
 
-wwr_status wwr_launch_kernel_ex_c(const void *config, const void *func, void *args) {
+wwr_status wwr_launch_kernel_ex_c(const void *config, const void *func, void **args) {
   return _map(_fwd(wwr::wwrLaunchKernelExC, config, func, args));
 }
 
@@ -235,11 +251,11 @@ wwr_status wwr_library_get_kernel_count(unsigned int *count, wwr_library lib) {
   return _map(_fwd(wwr::wwrLibraryGetKernelCount, count, lib));
 }
 
-wwr_status wwr_library_load_data(wwr_library *library, const void *code, void *jitOptions, void *jitOptionsValues, unsigned int numJitOptions, void *libraryOptions, void *libraryOptionValues, unsigned int numLibraryOptions) {
+wwr_status wwr_library_load_data(wwr_library *library, const void *code, void *jitOptions, void **jitOptionsValues, unsigned int numJitOptions, void *libraryOptions, void **libraryOptionValues, unsigned int numLibraryOptions) {
   return _map(_fwd(wwr::wwrLibraryLoadData, library, code, jitOptions, jitOptionsValues, numJitOptions, libraryOptions, libraryOptionValues, numLibraryOptions));
 }
 
-wwr_status wwr_library_load_from_file(wwr_library *library, const char *fileName, void *jitOptions, void *jitOptionsValues, unsigned int numJitOptions, void *libraryOptions, void *libraryOptionValues, unsigned int numLibraryOptions) {
+wwr_status wwr_library_load_from_file(wwr_library *library, const char *fileName, void *jitOptions, void **jitOptionsValues, unsigned int numJitOptions, void *libraryOptions, void **libraryOptionValues, unsigned int numLibraryOptions) {
   return _map(_fwd(wwr::wwrLibraryLoadFromFile, library, fileName, jitOptions, jitOptionsValues, numJitOptions, libraryOptions, libraryOptionValues, numLibraryOptions));
 }
 
@@ -247,8 +263,28 @@ wwr_status wwr_library_unload(wwr_library library) {
   return _map(_fwd(wwr::wwrLibraryUnload, library));
 }
 
+wwr_status wwr_malloc(void **arg0, size_t arg1) {
+  return _map(_fwd(wwr::wwrMalloc, arg0, arg1));
+}
+
 wwr_status wwr_malloc_array(wwr_array *array, const void *desc, size_t width, size_t height, unsigned int flags) {
   return _map(_fwd(wwr::wwrMallocArray, array, desc, width, height, flags));
+}
+
+wwr_status wwr_malloc_async(void **ptr, size_t size, wwr_stream stream) {
+  return _map(_fwd(wwr::wwrMallocAsync, ptr, size, stream));
+}
+
+wwr_status wwr_malloc_from_pool_async(void **ptr, size_t size, wwr_mem_pool pool, wwr_stream stream) {
+  return _map(_fwd(wwr::wwrMallocFromPoolAsync, ptr, size, pool, stream));
+}
+
+wwr_status wwr_malloc_managed(void **arg0, size_t arg1, unsigned int arg2) {
+  return _map(_fwd(wwr::wwrMallocManaged, arg0, arg1, arg2));
+}
+
+wwr_status wwr_malloc_pitch(void **devPtr, size_t *pitch, size_t width, size_t height) {
+  return _map(_fwd(wwr::wwrMallocPitch, devPtr, pitch, width, height));
 }
 
 wwr_status wwr_mem_get_info(size_t *free, size_t *total) {
@@ -271,7 +307,7 @@ wwr_status wwr_mem_pool_get_access(void *flags, wwr_mem_pool memPool, void *loca
   return _map(_fwd(wwr::wwrMemPoolGetAccess, flags, memPool, location));
 }
 
-wwr_status wwr_mem_pool_import_pointer(void *ptr, wwr_mem_pool memPool, void *exportData) {
+wwr_status wwr_mem_pool_import_pointer(void **ptr, wwr_mem_pool memPool, void *exportData) {
   return _map(_fwd(wwr::wwrMemPoolImportPointer, ptr, memPool, exportData));
 }
 
@@ -283,7 +319,7 @@ wwr_status wwr_mem_pool_trim_to(wwr_mem_pool memPool, size_t minBytesToKeep) {
   return _map(_fwd(wwr::wwrMemPoolTrimTo, memPool, minBytesToKeep));
 }
 
-wwr_status wwr_mem_range_get_attributes(void *data, size_t *dataSizes, void *attributes, size_t numAttributes, const void *devPtr, size_t count) {
+wwr_status wwr_mem_range_get_attributes(void **data, size_t *dataSizes, void *attributes, size_t numAttributes, const void *devPtr, size_t count) {
   return _map(_fwd(wwr::wwrMemRangeGetAttributes, data, dataSizes, attributes, numAttributes, devPtr, count));
 }
 
@@ -325,6 +361,14 @@ wwr_status wwr_memset2_d_async(void *devPtr, size_t pitch, int value, size_t wid
 
 wwr_status wwr_memset_async(void *devPtr, int value, size_t count, wwr_stream stream) {
   return _map(_fwd(wwr::wwrMemsetAsync, devPtr, value, count, stream));
+}
+
+wwr_status wwr_occupancy_max_active_blocks_per_multiprocessor(int *numBlocks, const void *func, int blockSize, size_t dynamicSMemSize) {
+  return _map(_fwd(wwr::wwrOccupancyMaxActiveBlocksPerMultiprocessor, numBlocks, func, blockSize, dynamicSMemSize));
+}
+
+wwr_status wwr_occupancy_max_active_blocks_per_multiprocessor_with_flags(int *numBlocks, const void *func, int blockSize, size_t dynamicSMemSize, unsigned int flags) {
+  return _map(_fwd(wwr::wwrOccupancyMaxActiveBlocksPerMultiprocessorWithFlags, numBlocks, func, blockSize, dynamicSMemSize, flags));
 }
 
 wwr_status wwr_peek_at_last_error(void) {

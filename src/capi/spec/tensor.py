@@ -69,7 +69,10 @@ SCALAR_ALIASES = {
 }
 
 STATUS = ValueEnum(
-    vendor_types=("cutensorStatus_t", "hiptensorStatus_t"),
+    # The neutral wwrtensorStatus_t is listed too: the hand-written
+    # wwrtensorLoggerSetLevel forwarder RETURNS the neutral status, and its parsed
+    # signature is classified against this registry (no vendor manifest decl).
+    vendor_types=("cutensorStatus_t", "hiptensorStatus_t", "wwrtensorStatus_t"),
     capi_type="wwr_tensor_status",
     wwr_type="wwrtensorStatus_t",
     fallback="WWR_TENSOR_STATUS_UNKNOWN",

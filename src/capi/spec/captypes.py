@@ -97,11 +97,20 @@ def _split_type_name(text: str) -> Param:
     """Split `int * runtimeVersion` into ("int *", "runtimeVersion"). The last
     bare identifier is the name; the rest (including any `*`) is the type. A
     parameter with no name (a bare type) keeps an empty name."""
+    # A bare multi-word SCALAR type with no parameter name (`unsigned int`,
+    # `long long`, `unsigned long long` -- a hand-written forwarder's unnamed
+    # argument) must be kept whole: its last word (`int`, `long`) is part of the
+    # type, not a parameter name. Only split off a name when what remains is NOT
+    # itself a complete scalar spelling.
+    if _normalise(text) in _SCALARS:
+        return Param(_normalise(text), "")
     m = re.match(r"^(.*?)([A-Za-z_][A-Za-z0-9_]*)\s*$", text, re.S)
-    if not m or not m.group(1).strip():
+    if not m or not m.group(1).strip() or m.group(1).rstrip().endswith("::"):
         # bare type, no parameter name (e.g. "int" alone) -- the whole thing is
         # the type, but a trailing identifier that IS the type (e.g. "int") must
-        # not be eaten as a name: only treat it as a name if a type precedes it.
+        # not be eaten as a name: only treat it as a name if a type precedes it. A
+        # trailing `::` means the identifier is the tail of a qualified TYPE name
+        # (`std::size_t` with no parameter name), not a parameter name.
         return Param(text.strip(), "")
     return Param(_normalise(m.group(1)), m.group(2))
 
@@ -258,6 +267,12 @@ def classify(ty: str, reg: Registry) -> Classified:
     vendor pointee erased to `void*`; a registered enum/handle/struct maps to its
     capi form; a bare scalar passes through unchanged."""
     ty = _normalise(ty)
+    # A hand-written forwarder writes the C++ std spellings (`std::size_t`,
+    # `std::int32_t`); the C ABI knows them only by their stdint/stddef names, and
+    # `std::size_t` IS `size_t` by definition. Drop the `std::` qualifier so the
+    # scalar table and the Rust map see the plain C name (a vendor manifest decl
+    # never carries `std::`, so this only ever fires for a hand-written decl).
+    ty = re.sub(r"\bstd::", "", ty)
     base = _base(ty)
     # Fold a registered vendor scalar typedef (`cusolver_int_t` -> `int`) in
     # place, preserving pointer depth / const, so the rest of the classifier
@@ -292,6 +307,16 @@ def classify(ty: str, reg: Registry) -> Classified:
         if venum is not None:
             return Classified("pointer_enum",
                               _reptr(ty, f"{cv}{venum.capi_type}"), venum)
+        # Any other vendor pointee erases to void*, but the POINTER DEPTH is
+        # preserved: a single pointer (`cudaStream_t *`) erases to `void *`, a
+        # double pointer (`void **` out-parameter of cudaMalloc / cudaHostAlloc,
+        # `T **` of an overload-set forwarder) erases to `void **` -- NOT `void *`,
+        # which would silently drop an indirection level and hand Rust a `*mut
+        # c_void` where it needs `*mut *mut c_void`. `_reptr` with base `void`
+        # rebuilds the exact star run.
+        stars = ty.count("*")
+        if stars > 1:
+            return Classified("pointer", _reptr(ty, f"{cv}void"))
         return Classified("pointer", f"{cv}void *")
 
     enum = reg._find(reg.enums, base)
