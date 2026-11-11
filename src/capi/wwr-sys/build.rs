@@ -35,6 +35,10 @@ const UNITS: &[(&str, &str)] = &[
     ("tensor", "wwr_capi_tensor"),
     ("fft", "wwr_capi_fft"),
     ("comp", "wwr_capi_comp"),
+    ("fp16", "wwr_capi_fp16"),
+    ("bf16", "wwr_capi_bf16"),
+    ("vector_types", "wwr_capi_vector_types"),
+    ("fp8", "wwr_capi_fp8"),
 ];
 
 fn main() {

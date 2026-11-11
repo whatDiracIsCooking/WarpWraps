@@ -14,5 +14,9 @@
 #include "tensor/wwr_capi_tensor.h"
 #include "fft/wwr_capi_fft.h"
 #include "comp/wwr_capi_comp.h"
+#include "fp16/wwr_capi_fp16.h"
+#include "bf16/wwr_capi_bf16.h"
+#include "vector_types/wwr_capi_vector_types.h"
+#include "fp8/wwr_capi_fp8.h"
 
 #endif  // WWR_CAPI_H

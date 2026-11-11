@@ -11,10 +11,6 @@
 extern "C" {
 #endif
 
-typedef struct wwr_half {
-  uint16_t bits;
-} wwr_half;
-
 typedef void *wwr_blas_handle;
 
 typedef enum wwr_blas_status {

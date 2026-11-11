@@ -17,20 +17,28 @@ cuBLAS / hipBLAS), mirroring the project's own per-`.cppm` dependency isolation 
 plus an **umbrella `libwwr_capi.so`** that contains every unit's symbols, so an
 existing `-lwwr_capi` consumer is unchanged (see "The per-unit split", below).
 
-It covers eleven surfaces: `complex`, a thin status-returning slice of
-`runtime_api`, and the full curated vendor libraries — `blas` (cuBLAS /
-hipBLAS), `blaslt` (cuBLASLt / hipBLASLt), `solver` (cuSOLVER Dn / hipSOLVER),
-`rand` (cuRAND / hipRAND), `rtc` (nvRTC / hipRTC), `sparse` (cuSPARSE /
-hipSPARSE), `tensor` (cuTENSOR / hipTENSOR), `fft` (cuFFT / hipFFT) and `comp`
-(nvCOMP / hipCOMP). `complex`, `runtime_api` and `rtc` are **host**-side; the
-rest execute on the **device** at call time (a handle binds a device, a kernel
-launches), so their thunks are link-checked on no-GPU CI and run-checked on a GPU
-box. The fragment-sourced library surfaces (`blas` / `blaslt` / `solver` /
-`rand` / `rtc` / `sparse` / `tensor` / `fft`) share ONE path (`spec/library.py`'s
-`LibrarySpec` + the generic emitters in `generate.py`); each `spec/<x>.py` is a
-declaration. `comp` is hand-written like `complex` (its functions are
-wwr-authored shims with no vendor `decl` to source). See "What this does not
-cover" before extending it.
+It covers fifteen surfaces: `complex`, a thin status-returning slice of
+`runtime_api`, the full curated vendor libraries — `blas` (cuBLAS / hipBLAS),
+`blaslt` (cuBLASLt / hipBLASLt), `solver` (cuSOLVER Dn / hipSOLVER), `rand`
+(cuRAND / hipRAND), `rtc` (nvRTC / hipRTC), `sparse` (cuSPARSE / hipSPARSE),
+`tensor` (cuTENSOR / hipTENSOR), `fft` (cuFFT / hipFFT) and `comp` (nvCOMP /
+hipCOMP) — and the **numeric TYPE** surfaces: `fp16` and `bf16` (the half /
+bfloat16 PODs + host float conversions), `vector_types` (the float2 / int4 / …
+PODs + host `make_*` constructors) and `fp8` (the 8-bit float storage POD, its
+saturation / interpretation enums + host narrowing conversions). `complex`,
+`runtime_api`, `rtc` and all four numeric surfaces are **host**-side; the
+vendor-library rest execute on the **device** at call time (a handle binds a
+device, a kernel launches), so their thunks are link-checked on no-GPU CI and
+run-checked on a GPU box. The fragment-sourced library surfaces (`blas` /
+`blaslt` / `solver` / `rand` / `rtc` / `sparse` / `tensor` / `fft`) share ONE
+path (`spec/library.py`'s `LibrarySpec` + the generic emitters in
+`generate.py`); each `spec/<x>.py` is a declaration. `comp` and the four numeric
+surfaces are hand-written like `complex` (their functions are wwr-authored type
+conversions / constructors with no vendor `decl` to source). `fp4` / `fp6` are
+intentionally ABSENT: their `wwr.fp4` / `wwr.fp6` modules are blocked on HIP and
+unregistered, so a unit importing them would fail the HIP compile gate
+(`generate.py` reports them as explicit skips). See "What this does not cover"
+before extending it.
 
 ## How the surface is sourced (and the one surface that is not)
 
@@ -77,8 +85,10 @@ nine `ValueEnum`s (`Operation` / `FillMode` / `DiagType` / `SideMode` /
 `PointerMode` / `DataType` / `ComputeType` / `GemmAlgo` and the `status`, each a
 stable fixed-value capi enum the thunk maps **both ways** at the boundary), and
 three `PointeePOD`s (`cuComplex *` → `wwr_complex64 *`, `cuDoubleComplex *` →
-`wwr_complex128 *`, `__half *` → a new `wwr_half` POD — a vendor pointee that
-keeps a typed, layout-matched POD instead of erasing to `void*`). All 400
+`wwr_complex128 *`, `__half *` → the shared `wwr_half` POD — a vendor pointee
+that keeps a typed, layout-matched POD instead of erasing to `void*`; `wwr_half`
+lives in `common.h` as shared numeric vocabulary, since the `fp16` surface
+declares it too). All 400
 functions classify and forward; a function the classifier could not represent
 would be skipped with a logged reason (none is).
 
@@ -163,16 +173,23 @@ spec/runtime_status.py  the fragment-SOURCED runtime status slice: the fragment,
 spec/blas.py       the fragment-SOURCED blas surface (#349): the whole curated
                    blas_names.h fragment, plus the handle / value-enum / pointee-POD
                    registrations the first LARGE library needs. 400 functions.
-spec/complex.py    the ONE hand-written surface: PODs (capi_name, wwr_name, layout)
+spec/complex.py    the FIRST hand-written surface: PODs (capi_name, wwr_name, layout)
                    + the complex functions. Hand-written because its thunks forward
                    into wwr-authored inline wrappers, absent from any vendor manifest
                    (see above and architecture.md §25).
+spec/{fp16,bf16,vector_types,fp8}.py  the hand-written numeric TYPE surfaces: their
+                   PODs / value enums + the host conversions / constructors they
+                   forward into. Hand-written for the same reason as complex (the
+                   functions name no vendor symbol a manifest carries). fp8.py also
+                   records the fp4/fp6/device-only out-of-scope SKIPS it reports.
 generate.py        fragment + manifest -> the per-unit artefacts. Sourced, so
                    nothing drifts.
-gen/common.h       the PODs MORE THAN ONE unit uses (wwr_complex64 / wwr_complex128:
-                   complex declares them, blas takes them by pointer). A one-unit
-                   POD stays in its unit header (wwr_half -> blas; wwr_status ->
-                   runtime_api).
+gen/common.h       the PODs MORE THAN ONE unit uses: wwr_complex64 / wwr_complex128
+                   (complex declares them, blas takes them by pointer) and the
+                   shared numeric PODs wwr_half / wwr_bf16 (SHARED_NUMERIC_PODS --
+                   fp16 / bf16 declare them, blas takes wwr_half by pointer). A
+                   one-unit POD stays in its unit header (wwr_status -> runtime_api;
+                   wwr_fp8_storage -> fp8; the vector_types PODs -> vector_types).
 gen/<unit>/wwr_capi_<unit>.h   one vendor-free C header per unit (complex /
                    runtime_api / blas) -- its own PODs/enums/handles + prototypes,
                    #include "common.h" for the shared PODs it names.

@@ -18,6 +18,10 @@
 //! | `tensor`      | [`tensor`]            | `libwwr_capi_tensor.so` -> cuTENSOR / hipTENSOR |
 //! | `fft`         | [`fft`]               | `libwwr_capi_fft.so` -> cuFFT / hipFFT |
 //! | `comp`        | [`comp`]              | `libwwr_capi_comp.so` -> nvCOMP / hipCOMP |
+//! | `fp16`        | [`fp16`]              | `libwwr_capi_fp16.so` (no vendor math lib; half type) |
+//! | `bf16`        | [`bf16`]              | `libwwr_capi_bf16.so` (no vendor math lib; bfloat16 type) |
+//! | `vector_types`| [`vector_types`]      | `libwwr_capi_vector_types.so` (no vendor math lib; vector types) |
+//! | `fp8`         | [`fp8`]               | `libwwr_capi_fp8.so` (no vendor math lib; fp8 type) |
 //!
 //! ALL are default features, so an existing user who wants the whole ABI
 //! is unchanged -- they just transparently link the per-unit `.so`s instead of
@@ -102,6 +106,26 @@ pub mod comp;
 #[cfg(feature = "comp")]
 pub use comp::*;
 
+#[cfg(feature = "fp16")]
+pub mod fp16;
+#[cfg(feature = "fp16")]
+pub use fp16::*;
+
+#[cfg(feature = "bf16")]
+pub mod bf16;
+#[cfg(feature = "bf16")]
+pub use bf16::*;
+
+#[cfg(feature = "vector_types")]
+pub mod vector_types;
+#[cfg(feature = "vector_types")]
+pub use vector_types::*;
+
+#[cfg(feature = "fp8")]
+pub mod fp8;
+#[cfg(feature = "fp8")]
+pub use fp8::*;
+
 #[cfg(test)]
 mod tests {
     // A smoke test that LINKS the per-unit .so(s) and CALLS through the FFI:
@@ -138,5 +162,53 @@ mod tests {
         let st = unsafe { wwr_runtime_get_version(&mut ver) };
         assert_eq!(st, wwr_status::WWR_STATUS_SUCCESS);
         assert!(ver > 0);
+    }
+
+    // The fp16 surface: a host float->half->float round trip. Needs no device
+    // and no vendor math lib -- the conversions are host-callable. Proves the
+    // per-unit .so links, the shared wwr_half POD layout matches, and 1.5 (exact
+    // in half) survives the trip.
+    #[cfg(feature = "fp16")]
+    #[test]
+    fn fp16_round_trip() {
+        use crate::{wwr_float2half, wwr_half2float};
+        // SAFETY: by-value calls into the generated extern "C" thunks; wwr_half
+        // is #[repr(C)]. Host-only.
+        unsafe {
+            let h = wwr_float2half(1.5);
+            let back = wwr_half2float(h);
+            assert!((back - 1.5).abs() < 1e-6);
+        }
+    }
+
+    // The vector_types surface: a host make_float4 construction. Proves the
+    // per-unit .so links and the #[repr(C)] POD layout matches the vendor
+    // aggregate the thunk builds. Host-only.
+    #[cfg(feature = "vector_types")]
+    #[test]
+    fn vector_types_make_float4() {
+        use crate::wwr_make_float4;
+        // SAFETY: a by-value call into the generated extern "C" thunk; the POD is
+        // #[repr(C)]. Host-only.
+        let v = unsafe { wwr_make_float4(1.0, 2.0, 3.0, 4.0) };
+        assert_eq!((v.x, v.y, v.z, v.w), (1.0, 2.0, 3.0, 4.0));
+    }
+
+    // The fp8 surface: a host narrowing conversion returning the storage byte.
+    // Proves the per-unit .so links, the value-enum map crosses the boundary, and
+    // the storage POD comes back. 1.0 in E4M3 is a known bit pattern (0x38), but
+    // we only assert the call links and returns (the exact byte is a vendor
+    // detail); host-only, no device.
+    #[cfg(feature = "fp8")]
+    #[test]
+    fn fp8_narrow_links() {
+        use crate::{
+            wwr_float2fp8, wwr_fp8_interpretation::WWR_FP8_E4M3,
+            wwr_fp8_saturation::WWR_FP8_SATFINITE,
+        };
+        // SAFETY: a by-value call into the generated extern "C" thunk; the enums
+        // are #[repr(i32)] and the POD #[repr(C)]. Host-only.
+        let s = unsafe { wwr_float2fp8(1.0, WWR_FP8_SATFINITE, WWR_FP8_E4M3) };
+        assert_eq!(s.bits, 0x38);
     }
 }
