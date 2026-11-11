@@ -191,8 +191,22 @@ def main() -> None:
     out.mkdir(exist_ok=True)
     (out / "wwr_capi.h").write_text(gen_header())
     (out / "wwr_capi.cpp").write_text(gen_cpp())
-    (out / "ffi.rs").write_text(gen_rust())
-    print(f"wrote wwr_capi.h, wwr_capi.cpp, ffi.rs -> {out}")
+    rust = gen_rust()
+    (out / "ffi.rs").write_text(rust)
+    # The wwr-sys crate ships the binding self-contained (it is installed and
+    # path/git-depended on away from this tree, so a sibling `../gen/ffi.rs`
+    # include! would dangle). Keep ffi.rs the SINGLE SOURCE by writing the same
+    # bytes into the crate here -- `src/lib.rs` only include!s this file, never
+    # hand-edited. Regenerating always rewrites both, so the crate cannot go
+    # stale. driver.rs still include!s gen/ffi.rs via WWR_CAPI_FFI (rustc-direct,
+    # in-tree); the crate is the installed/cargo consumer. Identical content.
+    crate_ffi = Path(__file__).parent / "wwr-sys" / "src" / "ffi.rs"
+    if crate_ffi.parent.is_dir():
+        crate_ffi.write_text(rust)
+        print(f"wrote wwr_capi.h, wwr_capi.cpp, ffi.rs -> {out}; "
+              f"ffi.rs -> {crate_ffi.parent}")
+    else:
+        print(f"wrote wwr_capi.h, wwr_capi.cpp, ffi.rs -> {out}")
 
 
 if __name__ == "__main__":

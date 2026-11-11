@@ -95,6 +95,9 @@ driver.c           a pure-C consumer (stands in for Rust's FFI) that links the
 driver.rs          the real Rust consumer: include!s gen/ffi.rs and links
                    libwwr_capi.so, compiled rustc-direct (no cargo) and run as the
                    wwr.capi.driver_rs ctest — rustc-gated (see "rustc in the loop").
+wwr-sys/           the idiomatic Rust -sys crate (Cargo.toml + build.rs + src/):
+                   the user-consumable binding over the installed libwwr_capi.so.
+                   See "The wwr-sys crate", below.
 ```
 
 `gen/` is a committed snapshot so the PR is reviewable without running anything;
@@ -137,8 +140,9 @@ installs it **explicitly**, gated on `-DWWR_INSTALL_CAPI=ON` (mirroring
   include dir.
 
 A consumer that links `wwr::capi` compiles no module unit — it links the prebuilt
-`.so` and `#include`s `wwr_capi.h` (or generates bindings from it). The dedicated
-Rust-crate consumer check lands in #339.
+`.so` and `#include`s `wwr_capi.h` (or generates bindings from it). The `wwr-sys`
+Rust crate skeleton installs here too (`share/wwr/rust/wwr-sys/`); see "The
+wwr-sys crate", above.
 
 ## rustc in the loop
 
@@ -161,6 +165,59 @@ toolchain is pinned in `docker/Dockerfile.base` (`ARG RUST_VERSION`), installed
 via `rustup --profile minimal` to a shared `/opt/cargo` + `/opt/rustup` so
 cuda/hip/combined all inherit it.
 
+## The wwr-sys crate
+
+`wwr-sys/` is the idiomatic Rust `-sys` crate over the prebuilt `libwwr_capi.so`
+(#340). A Rust user adds one dependency, links the `.so`, and carries **zero**
+`#[cfg]` / vendor knowledge — the backend was chosen when the linked `.so` was
+built, exactly the ABI's thesis.
+
+- **`Cargo.toml`** — crate `wwr-sys`, version `1.0.0` tracking the frozen ABI
+  contract (not bumped independently), `links = "wwr_capi"` (the `-sys`
+  convention — cargo enforces one crate per native lib).
+- **`src/lib.rs`** — the binding surface. It `include!`s `src/ffi.rs`, the
+  **single source**: `generate.py` writes that `ffi.rs` from the same
+  `spec/complex.py` it writes `gen/ffi.rs` / the C header / the thunk from, so
+  the crate cannot drift from the ABI. (The crate ships its own copy because,
+  once installed away from this tree, a sibling `../gen/ffi.rs` `include!` would
+  dangle.) Do not hand-edit `ffi.rs`; regenerate with `python3 src/capi/generate.py`.
+- **`build.rs`** — reads `WWR_CAPI_LIB_DIR` and emits `rustc-link-search` +
+  `rustc-link-lib=dylib=wwr_capi` (and an rpath, so the test binary finds the
+  `.so` without `LD_LIBRARY_PATH`). The link name is the lib's `OUTPUT_NAME`
+  `wwr_capi` — kept in step with `src/capi/CMakeLists.txt`, `Cargo.toml`'s
+  `links`, and `ffi.rs`'s `#[link]` by a comment on each (the increment-3 lesson).
+
+It is the raw `-sys` surface (every function `unsafe extern "C"`); a safe
+`Result`-returning wrapper is deliberately out of scope. A crate-level smoke test
+(`cargo test`) links the `.so` and calls through it on a no-GPU host.
+
+**Build it against the built or installed lib:**
+
+```bash
+cmake --preset default                       # or --preset hip (inside wwr:hip)
+cmake --build build --target wwr.capi        # produces libwwr_capi.so
+WWR_CAPI_LIB_DIR=$PWD/build/src/capi \
+  cargo test --manifest-path src/capi/wwr-sys/Cargo.toml
+```
+
+**Depend on the installed crate.** Under `-DWWR_INSTALL_CAPI=ON` the crate
+skeleton installs to `<prefix>/share/wwr/rust/wwr-sys/` (`Cargo.toml`, `build.rs`,
+`src/`) alongside `libwwr_capi.so` in `<prefix>/lib`. A downstream `Cargo.toml`:
+
+```toml
+[dependencies]
+wwr-sys = { path = "<prefix>/share/wwr/rust/wwr-sys" }   # or a git dependency
+```
+
+then build with the lib dir pointed at the install:
+
+```bash
+WWR_CAPI_LIB_DIR=<prefix>/lib cargo build
+```
+
+The end-to-end consume-from-the-installed-prefix check is #341; here the crate is
+proven against the freshly built `.so`.
+
 ## Stability policy
 
 The `wwr_status` enumerator *values* are a frozen contract: once shipped, an
@@ -178,6 +235,7 @@ never for an additive change. See architecture.md §21.
   milestone (architecture.md §25).
 - **The spec is hand-written here**, provisional until sourced from the canonical
   name surface (architecture.md §25, #328).
-- **The dedicated Rust-crate consumer** that proves the installed `wwr::capi`
-  against a `cargo`/`build.rs` build lands in #339; the install itself is
-  verified here against `example/consumer`.
+- **The end-to-end installed-prefix consumer check.** The `wwr-sys` crate (above)
+  is proven here against the freshly built `.so`; the full consume-from-the-
+  installed-prefix run (`cargo build` from `<prefix>/share/wwr/rust/wwr-sys`
+  against `<prefix>/lib`) lands in #341.

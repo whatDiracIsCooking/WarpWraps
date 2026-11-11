@@ -1,0 +1,4 @@
+# cargo build artifacts. Cargo.lock is not committed -- this is a library crate
+# (a -sys binding), whose lockfile is the downstream binary's to own.
+/target
+Cargo.lock
