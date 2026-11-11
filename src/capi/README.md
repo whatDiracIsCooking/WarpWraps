@@ -17,12 +17,16 @@ cuBLAS / hipBLAS), mirroring the project's own per-`.cppm` dependency isolation 
 plus an **umbrella `libwwr_capi.so`** that contains every unit's symbols, so an
 existing `-lwwr_capi` consumer is unchanged (see "The per-unit split", below).
 
-It covers three surfaces: `complex`, a thin status-returning slice of
-`runtime_api`, and the full curated `blas` library (cuBLAS / hipBLAS). `complex`
-and `runtime_api` are **host**-side; `blas` executes on the **device** at call
-time (a handle binds a device, a GEMM launches), so its thunks are link-checked
-on no-GPU CI and run-checked on a GPU box. See "What this does not cover" before
-extending it.
+It covers seven surfaces: `complex`, a thin status-returning slice of
+`runtime_api`, and five full curated vendor libraries — `blas` (cuBLAS /
+hipBLAS), `blaslt` (cuBLASLt / hipBLASLt), `solver` (cuSOLVER Dn / hipSOLVER),
+`rand` (cuRAND / hipRAND) and `rtc` (nvRTC / hipRTC). `complex`, `runtime_api`
+and `rtc` are **host**-side; `blas` / `blaslt` / `solver` / `rand` execute on the
+**device** at call time (a handle binds a device, a GEMM launches), so their
+thunks are link-checked on no-GPU CI and run-checked on a GPU box. The five
+library surfaces share ONE fragment-sourced path (`spec/library.py`'s
+`LibrarySpec` + the generic emitters in `generate.py`); each `spec/<x>.py` is a
+declaration. See "What this does not cover" before extending it.
 
 ## How the surface is sourced (and the one surface that is not)
 

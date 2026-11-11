@@ -64,11 +64,32 @@ _SPEC = Path(__file__).parent / "spec"
 sys.path.insert(0, str(_SPEC))
 
 import blas as blas_spec  # noqa: E402
+import blaslt as blaslt_spec  # noqa: E402
 import captypes  # noqa: E402
 import complex as complex_spec  # noqa: E402
 import fragments  # noqa: E402
 import manifest  # noqa: E402
+import rand as rand_spec  # noqa: E402
+import rtc as rtc_spec  # noqa: E402
 import runtime_status  # noqa: E402
+import solver as solver_spec  # noqa: E402
+
+# Every fragment-sourced vendor-library surface, in emit order. blas was the
+# first (spec/blas.py); blaslt / solver / rand / rtc (milestone #6) are four more
+# of the SAME shape, each a LibrarySpec (spec/library.py) the one generic library
+# path below resolves and emits. Append a surface here and it joins the gen/ tree,
+# the umbrella, the combined ffi.rs and the crate automatically.
+LIBRARY_SPECS = [blas_spec.SPEC, blaslt_spec.SPEC, solver_spec.SPEC,
+                 rand_spec.SPEC, rtc_spec.SPEC]
+
+# Opaque handle typedefs MORE THAN ONE surface names -> declared ONCE in the
+# shared common.h / common.rs (the way the complex PODs are), so the umbrella
+# header and the combined ffi.rs do not redefine them. wwr_stream is the stream
+# handle blas / blaslt / solver / rand all pass to a Set/GetStream; a per-unit
+# header that names it #includes common.h and does NOT redeclare it. (The C side
+# tolerates an identical typedef repeat; Rust does not -- a duplicate `pub type`
+# in one scope is an error -- so consolidating is required, not merely tidy.)
+SHARED_HANDLES = {"wwr_stream": "typedef void *wwr_stream;"}
 
 _SRC = Path(__file__).resolve().parents[1]  # src/
 _VENDOR = _SRC.parent / "vendor"
@@ -80,9 +101,9 @@ _VENDOR = _SRC.parent / "vendor"
 _CUDA_MANIFEST = _VENDOR / "cuda-13.0.x" / "cuda_runtime_api.json"
 _HIP_MANIFEST = _VENDOR / "rocm-10.0.0" / "hip_runtime_api.json"
 
-# The blas surface's manifests (the same pins, the cublas/hipblas libraries).
-_CUDA_BLAS_MANIFEST = _VENDOR / "cuda-13.0.x" / "cublas_v2.json"
-_HIP_BLAS_MANIFEST = _VENDOR / "rocm-10.0.0" / "hipblas.json"
+# The fragment-sourced library surfaces (blas + the milestone-#6 four) name their
+# own manifest pair in each LibrarySpec (paths under vendor/), resolved via
+# _VENDOR in _resolve_library -- so no per-surface manifest constant lives here.
 
 C_FLOAT = {"float": "float", "double": "double"}
 RUST_FIELD = {"float": "f32", "double": "f64"}
@@ -181,28 +202,43 @@ def _check_status_enum(enum: captypes.EnumMap, frag: dict, cuda: manifest.Manife
 # The blas surface: the whole curated fragment, classified from the manifests.
 # ---------------------------------------------------------------------------
 
-# A surface's skips, collected while resolving and reported by main() so a
+# Each surface's skips, collected while resolving and reported by main() so a
 # partial surface is loud, never silent (the issue's NO SILENT DROPS rule).
-SKIPPED: list[tuple[str, str]] = []
+# Keyed by surface name -> list of (wwr_name, reason).
+SKIPPED: dict[str, list[tuple[str, str]]] = {}
 
 
-def _resolve_blas() -> tuple[list[ResolvedFunction], list]:
-    """Resolve every blas fragment function against the cublas/hipblas manifest
-    pair and classify each with blas's Registry. Cross-checks arity agreement
-    between the two backends (a divergence needs a hand-written forwarder, as the
-    #else branch in the fragment already provides -- and those keep the fragment's
-    cuBLAS signature, which is what we classify). A function the classifier cannot
-    represent is appended to SKIPPED with its reason, never silently dropped."""
-    frag = fragments.parse(_SRC / blas_spec.FRAGMENT)
-    cuda = manifest.Manifest(_CUDA_BLAS_MANIFEST)
-    hip = manifest.Manifest(_HIP_BLAS_MANIFEST)
+class ResolvedLibrary:
+    """One resolved LibrarySpec: its wrapped functions and the value enums the
+    emitters need. The enums come straight from the spec (the registry's copy)."""
+
+    def __init__(self, spec, functions: list[ResolvedFunction], enums: list):
+        self.spec = spec
+        self.functions = functions
+        self.enums = enums
+
+
+def _resolve_library(spec) -> ResolvedLibrary:
+    """Resolve every fragment function of a LibrarySpec against its vendor
+    manifest pair and classify each with the spec's Registry (handles / pointee
+    PODs / value enums / scalar aliases). Cross-checks arity agreement between the
+    two backends (a divergence needs a hand-written forwarder; we classify the
+    CUDA signature). A function the classifier cannot represent is appended to
+    SKIPPED[spec.name] with its reason, as are the spec's explicit skips (a
+    fragment entry that is a hand-written inline forwarder, not a WWR_FUNCTION_RAW
+    macro, so the fragment parser never sees it) -- never a silent drop."""
+    frag = fragments.parse(_SRC / spec.fragment)
+    cuda = manifest.Manifest(_VENDOR / spec.cuda_manifest)
+    hip = manifest.Manifest(_VENDOR / spec.hip_manifest)
 
     reg = captypes.Registry(
-        value_enums=list(blas_spec.VALUE_ENUMS),
-        pointee_pods=list(blas_spec.POINTEE_PODS),
-        handles=list(blas_spec.HANDLES),
+        value_enums=list(spec.value_enums),
+        pointee_pods=list(spec.pointee_pods),
+        handles=list(spec.handles),
+        scalar_aliases=dict(spec.scalar_aliases),
     )
 
+    skips = list(spec.explicit_skips)
     resolved: list[ResolvedFunction] = []
     for entry in sorted(frag.values(), key=lambda e: e.wwr):
         if entry.kind != "function":
@@ -210,49 +246,51 @@ def _resolve_blas() -> tuple[list[ResolvedFunction], list]:
         sc = cuda.get(entry.cuda)
         sh = hip.get(entry.hip)  # raises if the HIP backend lacks the symbol
         if not sc.decl:
-            SKIPPED.append((entry.wwr, f"no decl for {entry.cuda} in the manifest"))
+            skips.append((entry.wwr, f"no decl for {entry.cuda} in the manifest"))
             continue
         fc = captypes.parse_function(sc.decl)
         fh = captypes.parse_function(sh.decl) if sh.decl else fc
         if len(fc.params) != len(fh.params):
-            SKIPPED.append((entry.wwr,
-                            f"CUDA {entry.cuda}/{len(fc.params)} and HIP "
-                            f"{entry.hip}/{len(fh.params)} disagree on arity"))
+            skips.append((entry.wwr,
+                          f"CUDA {entry.cuda}/{len(fc.params)} and HIP "
+                          f"{entry.hip}/{len(fh.params)} disagree on arity"))
             continue
         try:
             ret = captypes.classify(fc.ret, reg)
             params = [(captypes.classify(c.type, reg), c.name) for c in fc.params]
         except ValueError as ex:
-            SKIPPED.append((entry.wwr, str(ex).split(":")[0]))
+            skips.append((entry.wwr, str(ex).split(":")[0]))
             continue
         resolved.append(ResolvedFunction(
-            blas_spec.capi_name(entry.wwr), f"wwr::{entry.wwr}", ret, params))
+            spec.capi_name(entry.wwr), f"wwr::{entry.wwr}", ret, params))
 
-    _check_blas_enums(reg.value_enums, frag, cuda, hip)
-    return resolved, reg.value_enums
+    _check_library_enums(spec, reg.value_enums, frag, cuda, hip)
+    SKIPPED[spec.name] = skips
+    return ResolvedLibrary(spec, resolved, reg.value_enums)
 
 
-def _check_blas_enums(enums: list, frag: dict, cuda: manifest.Manifest,
-                      hip: manifest.Manifest) -> None:
+def _check_library_enums(spec, enums: list, frag: dict, cuda: manifest.Manifest,
+                         hip: manifest.Manifest) -> None:
     """Prove each value enum's neutral constants are backed by the manifests, the
     way _check_status_enum does for the runtime error enum. A constant that lives
-    in another vendor library (the cudaDataType / hipDataType family -- NOT in the
-    blas manifest) is exempt: the thunk compares the NEUTRAL wwr:: constant, which
-    the fragment carries, and never needs the raw blas-manifest value."""
-    exempt = blas_spec.ENUM_CONSTANTS_NOT_IN_MANIFEST
+    in another vendor library (blas's cudaDataType / hipDataType family -- NOT in
+    the surface manifest) is exempt via the spec's enum_constants_not_in_manifest:
+    the thunk compares the NEUTRAL wwr:: constant, which the fragment carries, and
+    never needs the raw manifest value."""
+    exempt = spec.enum_constants_not_in_manifest
     for enum in enums:
         for _enumerator, wwr_const in enum.entries:
             e = frag.get(wwr_const)
             if e is None:
                 raise KeyError(f"{wwr_const!r} (mapped by {enum.capi_type}) is "
-                               f"not a blas fragment entry.")
+                               f"not a {spec.name} fragment entry.")
             if e.cuda not in exempt:
                 cuda.get(e.cuda)
             if e.hip not in exempt:
                 hip.get(e.hip)
 
 
-def blas_enumerators(enum: captypes.ValueEnum) -> list[tuple[str, int]]:
+def library_enumerators(enum: captypes.ValueEnum) -> list[tuple[str, int]]:
     """A value enum's (enumerator, fixed stable value) list. Values are ascending
     from 0 in `entries` order, with the fallback folded in at its position if it
     is not already an entry -- a frozen §6 contract, independent of backend."""
@@ -381,13 +419,19 @@ def gen_common_h() -> str:
     pointer); a one-unit POD (wwr_half, wwr_status) stays in that unit's header.
     No extern "C" block: it declares types only, no prototypes."""
     guard = "WWR_CAPI_COMMON_H"
-    L = [f"{_GEN_NOTE} Shared PODs (src/capi/spec/complex.py).",
+    L = [f"{_GEN_NOTE} Shared PODs (src/capi/spec/complex.py) + shared handles.",
          f"#ifndef {guard}", f"#define {guard}", ""]
     for t in complex_spec.TYPES:
         L.append(f"typedef struct {t['capi']} {{")
         for cty, fn in t["fields"]:
             L.append(f"  {C_FLOAT[cty]} {fn};")
         L.append(f"}} {t['capi']};")
+        L.append("")
+    # The opaque handle typedefs more than one unit names (wwr_stream), declared
+    # here once so the umbrella does not see a duplicate.
+    for decl in SHARED_HANDLES.values():
+        L.append(decl)
+    if SHARED_HANDLES:
         L.append("")
     L += [f"#endif  // {guard}", ""]
     return "\n".join(L)
@@ -431,35 +475,62 @@ def gen_runtime_api_h(status_fns: list[ResolvedFunction],
     return "\n".join(L)
 
 
-def gen_blas_h(blas_fns: list[ResolvedFunction], blas_enums: list) -> str:
-    """blas/wwr_capi_blas.h — the blas handles, its own wwr_half POD and value
-    enums (all blas-only), and the curated prototypes. #includes common.h for the
-    shared wwr_complex64 / wwr_complex128 the pointer parameters name."""
-    guard = "WWR_CAPI_BLAS_H"
-    L = [f"{_GEN_NOTE} Sources: src/detail/blas_names.h + vendor/*/*.json.",
-         f"#ifndef {guard}", f"#define {guard}", "",
-         "#include <stdint.h>", "",
-         '#include "common.h"', ""]
+def _spec_shared_handles(spec) -> list:
+    """The spec's handles whose capi_type is a SHARED handle (declared in
+    common.h), in spec order -- these are filtered from the unit's own header."""
+    return [h for h in spec.handles if h.capi_type in SHARED_HANDLES]
+
+
+def _needs_common(spec) -> bool:
+    """Whether a surface names anything that lives in the shared common.h -- a
+    complex POD by pointer, or a shared handle (wwr_stream) -- so its header must
+    #include "common.h"."""
+    shared_pods = {t["capi"] for t in complex_spec.TYPES}
+    return (any(p.capi_pod in shared_pods for p in spec.pointee_pods)
+            or bool(_spec_shared_handles(spec)))
+
+
+def gen_library_h(lib: ResolvedLibrary) -> str:
+    """<unit>/wwr_capi_<unit>.h — a fragment-sourced library surface's own
+    handles, any by-value POD it declares (blas's wwr_half -- a POD no other unit
+    uses), its stable value enums, and the curated prototypes. #includes common.h
+    only when a pointer parameter names a SHARED complex POD (blas / solver);
+    #includes <stdint.h> only when a declared POD has a stdint field type."""
+    spec = lib.spec
+    guard = f"WWR_CAPI_{spec.name.upper()}_H"
+    L = [f"{_GEN_NOTE} Sources: src/{spec.fragment} + vendor/*/*.json.",
+         f"#ifndef {guard}", f"#define {guard}", ""]
+    # <stddef.h> for size_t (buffer-size / length parameters), <stdint.h> for the
+    # fixed-width spellings (int64_t dimensions, uint64_t, a uint16_t POD field).
+    # Both are standard and guard-safe, so emit them on every library header
+    # rather than scan every prototype for which it happens to use.
+    L += ["#include <stddef.h>", "#include <stdint.h>", ""]
+    if _needs_common(spec):
+        L += ['#include "common.h"', ""]
     L += _c_extern_open()
-    # The blas half POD: 16 opaque bits, layout-matched to the vendor __half /
-    # hipblasHalf the thunk reinterpret_casts to (§3/§12). It is blas-only, so it
-    # lives here, not in common.h.
-    L.append(f"typedef struct {blas_spec.HALF_POD['capi']} {{")
-    for cty, fn in blas_spec.HALF_POD["fields"]:
-        L.append(f"  {cty} {fn};")
-    L.append(f"}} {blas_spec.HALF_POD['capi']};")
-    L.append("")
-    # The blas opaque handles (-> void*) and stable value enums (§6).
-    for h in blas_spec.HANDLES:
+    # The surface's own by-value PODs (blas's wwr_half: 16 opaque bits,
+    # layout-matched to the vendor __half the thunk reinterpret_casts to, §3/§12).
+    # A POD used by ONE unit lives in that unit's header, not common.h.
+    for t in spec.pods:
+        L.append(f"typedef struct {t['capi']} {{")
+        for cty, fn in t["fields"]:
+            L.append(f"  {cty} {fn};")
+        L.append(f"}} {t['capi']};")
+        L.append("")
+    # The surface's OWN opaque handles (-> void*); a SHARED handle (wwr_stream)
+    # lives in common.h (included above), not here. Then the stable value enums.
+    own_handles = [h for h in spec.handles if h.capi_type not in SHARED_HANDLES]
+    for h in own_handles:
         L.append(f"typedef void *{h.capi_type};")
-    L.append("")
-    for ve in blas_enums:
+    if own_handles:
+        L.append("")
+    for ve in lib.enums:
         L.append(f"typedef enum {ve.capi_type} {{")
-        for name, val in blas_enumerators(ve):
+        for name, val in library_enumerators(ve):
             L.append(f"  {name} = {val},")
         L.append(f"}} {ve.capi_type};")
         L.append("")
-    for f in blas_fns:
+    for f in lib.functions:
         args = ", ".join(_c_param(c, n) for c, n in f.params) or "void"
         L.append(f"{f.ret.capi_c} {f.capi}({args});")
     L += _c_extern_close(guard)
@@ -475,9 +546,10 @@ def gen_umbrella_h() -> str:
          f"#ifndef {guard}", f"#define {guard}", "",
          '#include "common.h"',
          '#include "complex/wwr_capi_complex.h"',
-         '#include "runtime_api/wwr_capi_runtime_api.h"',
-         '#include "blas/wwr_capi_blas.h"', "",
-         f"#endif  // {guard}", ""]
+         '#include "runtime_api/wwr_capi_runtime_api.h"']
+    for spec in LIBRARY_SPECS:
+        L.append(f'#include "{spec.name}/wwr_capi_{spec.name}.h"')
+    L += ["", f"#endif  // {guard}", ""]
     return "\n".join(L)
 
 
@@ -561,25 +633,35 @@ def gen_runtime_api_cpp(status_fns: list[ResolvedFunction],
     return "\n".join(L)
 
 
-def gen_blas_cpp(blas_fns: list[ResolvedFunction], blas_enums: list) -> str:
-    """blas/wwr_capi_blas.cpp — the blas thunks. `import wwr.blas; import
-    wwr.fp16;`, which transitively carry cuBLAS / hipBLAS, so THIS unit's .so is
-    the one that NEEDs the vendor BLAS library."""
+def gen_library_cpp(lib: ResolvedLibrary) -> str:
+    """<unit>/wwr_capi_<unit>.cpp — a fragment-sourced library surface's thunks.
+    `import`s only the wwr module(s) the spec names (which transitively carry the
+    surface's vendor library), so THIS unit's .so is the one that NEEDs that
+    vendor dep -- the per-unit isolation. The forwarding core (_coerce / _fwd) and
+    the per-enum capi<->neutral maps (_to_<e> / _from_<e>) are identical for every
+    library surface; the slug strips the spec's capi_prefix."""
+    spec = lib.spec
+    blas_fns = lib.functions
+    blas_enums = lib.enums
+    prefix = spec.capi_prefix
     L = [_GEN_NOTE,
-         '#include "blas/wwr_capi_blas.h"', "",
-         "#include <type_traits>", "",
-         "import wwr.blas;", "import wwr.fp16;", "",
-         "namespace {"]
+         f'#include "{spec.name}/wwr_capi_{spec.name}.h"', "",
+         "#include <type_traits>", ""]
+    L += [f"import {m};" for m in spec.modules]
+    L += ["", "namespace {"]
 
-    # The blas forwarding core. `_coerce<P>` turns one capi argument into the
-    # exact type the wwr function expects at that position (deduced from the
-    # function reference, so NO vendor type is named): a pointer is
-    # reinterpret_cast (the capi POD / handle pointer is layout-matched, §3/§12),
-    # a value is static_cast (an enum already mapped to its neutral type below,
-    # an int widened). `_fwd` applies it per parameter and forwards.
+    # The forwarding core. `_coerce<P>` turns one capi argument into the exact
+    # type the wwr function expects at that position (deduced from the function
+    # reference, so NO vendor type is named): a pointer is a C-style cast (the
+    # capi POD / handle pointer is layout-matched, §3/§12 -- a plain cast so it
+    # covers both the reinterpret AND an added inner cv-qualifier, e.g. the
+    # scramble-constant out-pointer whose wwr form is const `const unsigned int **`
+    # while the capi exposes the manifest's non-const `unsigned int **`, which a
+    # reinterpret_cast alone rejects); a value is static_cast (an enum already
+    # mapped to its neutral type below, an int widened). `_fwd` applies it per
+    # parameter and forwards.
     L += ["template <class P, class A> P _coerce(A a) {",
-          "  if constexpr (std::is_pointer_v<P>) "
-          "return reinterpret_cast<P>(a);",
+          "  if constexpr (std::is_pointer_v<P>) return (P)a;",
           "  else return static_cast<P>(a);",
           "}",
           "template <class R, class... P, class... A>",
@@ -591,7 +673,7 @@ def gen_blas_cpp(blas_fns: list[ResolvedFunction], blas_enums: list) -> str:
     # compare and produce only the NEUTRAL wwr::WWRBLAS_* constants, so the one
     # source compiles on both backends though the raw values differ.
     for ve in blas_enums:
-        slug = ve.capi_type[len("wwr_blas_"):]
+        slug = ve.capi_type[len(prefix):]
         default_const = _fallback_wwr_const(ve)
         L.append(f"wwr::{ve.wwr_type} _to_{slug}({ve.capi_type} x) {{")
         L.append("  switch (x) {")
@@ -623,11 +705,11 @@ def gen_blas_cpp(blas_fns: list[ResolvedFunction], blas_enums: list) -> str:
         post: list[str] = []
         for c, n in f.params:
             if c.repr == "value_enum":
-                slug = c.capi_c[len("wwr_blas_"):]
+                slug = c.capi_c[len(prefix):]
                 call_terms.append(f"_to_{slug}({n})")
             elif c.repr == "pointer_enum":
                 ve = c.detail
-                slug = ve.capi_type[len("wwr_blas_"):]
+                slug = ve.capi_type[len(prefix):]
                 L.append(f"  wwr::{ve.wwr_type} _o_{n};")
                 call_terms.append(f"&_o_{n}")
                 post.append(f"  if ({n}) *{n} = _from_{slug}(_o_{n});")
@@ -636,7 +718,7 @@ def gen_blas_cpp(blas_fns: list[ResolvedFunction], blas_enums: list) -> str:
         callexpr = f"_fwd({f.wwr}, {', '.join(call_terms)})" if call_terms \
             else f"{f.wwr}()"
         if f.ret.repr == "value_enum":  # the status return
-            slug = f.ret.capi_c[len("wwr_blas_"):]
+            slug = f.ret.capi_c[len(prefix):]
             if post:
                 L.append(f"  const auto _r = {callexpr};")
                 L += post
@@ -699,21 +781,27 @@ def _rust_status_enum_lines(enum: captypes.EnumMap) -> list[str]:
     return L
 
 
-def _rust_blas_types_lines(blas_enums: list) -> list[str]:
-    # The blas half POD (transparent 16 bits), opaque handles (-> void*) and the
-    # stable value enums (#[repr(i32)], fixed §6 values) -- all blas-only.
-    L = ["#[repr(C)]", "#[derive(Copy, Clone, Debug)]",
-         f"pub struct {blas_spec.HALF_POD['capi']} {{"]
-    for cty, fn in blas_spec.HALF_POD["fields"]:
-        L.append(f"    pub {fn}: {_rust_c_type(cty)},")
-    L += ["}", ""]
-    for h in blas_spec.HANDLES:
+def _rust_library_types_lines(lib: ResolvedLibrary) -> list[str]:
+    # A library surface's own by-value PODs (blas's wwr_half: transparent 16
+    # bits), opaque handles (-> void*) and stable value enums (#[repr(i32)], fixed
+    # §6 values) -- all surface-only. A surface with no POD / handle emits none.
+    L: list[str] = []
+    for t in lib.spec.pods:
+        L += ["#[repr(C)]", "#[derive(Copy, Clone, Debug)]",
+              f"pub struct {t['capi']} {{"]
+        for cty, fn in t["fields"]:
+            L.append(f"    pub {fn}: {_rust_c_type(cty)},")
+        L += ["}", ""]
+    own_handles = [h for h in lib.spec.handles
+                   if h.capi_type not in SHARED_HANDLES]
+    for h in own_handles:
         L.append(f"pub type {h.capi_type} = *mut core::ffi::c_void;")
-    L.append("")
-    for ve in blas_enums:
+    if own_handles:
+        L.append("")
+    for ve in lib.enums:
         L += ["#[repr(i32)]", "#[derive(Copy, Clone, Debug, PartialEq, Eq)]",
               f"pub enum {ve.capi_type} {{"]
-        for name, val in blas_enumerators(ve):
+        for name, val in library_enumerators(ve):
             L.append(f"    {name} = {val},")
         L += ["}", ""]
     return L
@@ -732,15 +820,37 @@ def _rust_status_fns(status_fns: list[ResolvedFunction],
                      enum: captypes.EnumMap) -> list[str]:
     L = []
     for f in status_fns:
-        args = ", ".join(f"{n}: {_rust_classified(c, enum)}" for c, n in f.params)
+        args = ", ".join(f"{_rust_ident(n)}: {_rust_classified(c, enum)}"
+                         for c, n in f.params)
         L.append(f"    pub fn {f.capi}({args}) -> {_rust_classified(f.ret, enum)};")
     return L
 
 
-def _rust_blas_fns(blas_fns: list[ResolvedFunction]) -> list[str]:
+# Rust's reserved words -- a C parameter name that is one (cuBLASLt's
+# cublasLtMatrixLayoutCreate takes a param literally named `type`) must become a
+# RAW identifier `r#<name>` in the extern "C" signature, or rustc rejects it.
+# (`self` / `super` / `crate` / `Self` cannot even be raw, but no vendor
+# parameter is named those; `type` is the one that occurs.)
+_RUST_KEYWORDS = {
+    "as", "break", "const", "continue", "crate", "dyn", "else", "enum",
+    "extern", "false", "fn", "for", "if", "impl", "in", "let", "loop", "match",
+    "mod", "move", "mut", "pub", "ref", "return", "static", "struct", "super",
+    "trait", "true", "type", "unsafe", "use", "where", "while", "async", "await",
+    "box", "do", "final", "macro", "override", "priv", "typeof",
+    "unsized", "virtual", "yield", "try", "gen",
+}
+
+
+def _rust_ident(name: str) -> str:
+    """A C identifier as a Rust identifier, raw-escaping a reserved word."""
+    return f"r#{name}" if name in _RUST_KEYWORDS else name
+
+
+def _rust_library_fns(fns: list[ResolvedFunction]) -> list[str]:
     L = []
-    for f in blas_fns:
-        args = ", ".join(f"{n}: {_rust_c_type(c.capi_c)}" for c, n in f.params)
+    for f in fns:
+        args = ", ".join(f"{_rust_ident(n)}: {_rust_c_type(c.capi_c)}"
+                         for c, n in f.params)
         L.append(f"    pub fn {f.capi}({args}) -> {_rust_c_type(f.ret.capi_c)};")
     return L
 
@@ -751,9 +861,14 @@ def gen_rust_common() -> str:
     gen/common.h. Always compiled (not feature-gated), so any enabled surface can
     name them via `use crate::common::*;`."""
     L = [_RUST_NOTE,
-         "// Shared PODs (src/capi/spec/complex.py), used by > 1 surface.", ""]
+         "// Shared PODs (src/capi/spec/complex.py) + shared handles, used by > 1 "
+         "surface.", ""]
     for t in complex_spec.TYPES:
         L += _rust_pod_lines(t)
+    for capi_type in SHARED_HANDLES:
+        L.append(f"pub type {capi_type} = *mut core::ffi::c_void;")
+    if SHARED_HANDLES:
+        L.append("")
     return "\n".join(L)
 
 
@@ -781,29 +896,38 @@ def gen_rust_runtime_api(status_fns: list[ResolvedFunction],
     return "\n".join(L)
 
 
-def gen_rust_blas(blas_fns: list[ResolvedFunction], blas_enums: list) -> str:
-    """blas/blas.rs — the blas-only types (wwr_half, the handles, the value enums)
-    and the blas extern "C" block. `use`s common for the shared complex PODs its
-    pointer parameters name."""
+def gen_rust_library(lib: ResolvedLibrary) -> str:
+    """<unit>/<unit>.rs — a library surface's own types (its PODs, handles, value
+    enums) and its extern "C" block. `use`s common for the shared complex PODs its
+    pointer parameters name (harmless #[allow(unused_imports)] when it names none).
+    No #[link]: build.rs links libwwr_capi_<unit>.so when the feature is on."""
     L = [_RUST_NOTE, _RUST_BACKEND_NOTE, "",
          "#[allow(unused_imports)]", "use crate::common::*;", ""]
-    L += _rust_blas_types_lines(blas_enums)
+    L += _rust_library_types_lines(lib)
     L += [_RUST_FMT_SKIP, 'extern "C" {']
-    L += _rust_blas_fns(blas_fns)
+    L += _rust_library_fns(lib.functions)
     L += ["}", ""]
     return "\n".join(L)
 
 
 def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap,
-                      blas_fns: list[ResolvedFunction], blas_enums: list) -> str:
+                      libs: list[ResolvedLibrary]) -> str:
     """gen/ffi.rs — the COMBINED binding the in-tree driver.rs include!s: every
     POD / enum / handle and ONE extern "C" block over the umbrella libwwr_capi.so.
     It is NOT the crate (the crate is the per-unit modules); it is the standalone
-    driver's self-contained file, mirroring the C driver linking the umbrella .so."""
+    driver's self-contained file, mirroring the C driver linking the umbrella .so.
+    Every library surface's types + functions are declared, in LIBRARY_SPECS
+    order; no name collides (each surface prefixes its own)."""
     L = [_RUST_NOTE, _RUST_BACKEND_NOTE, ""]
     for t in complex_spec.TYPES:
         L += _rust_pod_lines(t)
-    L += _rust_blas_types_lines(blas_enums)
+    # The shared handles ONCE (each lib's types skip them -- they live in common).
+    for capi_type in SHARED_HANDLES:
+        L.append(f"pub type {capi_type} = *mut core::ffi::c_void;")
+    if SHARED_HANDLES:
+        L.append("")
+    for lib in libs:
+        L += _rust_library_types_lines(lib)
     L += _rust_status_enum_lines(enum)
     # The link name is the OUTPUT file name of the UMBRELLA shared library, NOT
     # the CMake target name: rustc's -l does a literal libwwr_capi.so lookup, so
@@ -813,7 +937,8 @@ def gen_rust_combined(status_fns: list[ResolvedFunction], enum: captypes.EnumMap
     L += [_RUST_FMT_SKIP, '#[link(name = "wwr_capi")]', 'extern "C" {']
     L += _rust_complex_fns(enum)
     L += _rust_status_fns(status_fns, enum)
-    L += _rust_blas_fns(blas_fns)
+    for lib in libs:
+        L += _rust_library_fns(lib.functions)
     L += ["}", ""]
     return "\n".join(L)
 
@@ -834,7 +959,7 @@ def _rust_classified(c: captypes.Classified, enum: captypes.EnumMap) -> str:
 
 def main() -> None:
     status_fns, enum = _resolve_runtime_status()
-    blas_fns, blas_enums = _resolve_blas()
+    libs = [_resolve_library(spec) for spec in LIBRARY_SPECS]
 
     out = Path(__file__).parent / "gen"
     out.mkdir(exist_ok=True)
@@ -842,22 +967,22 @@ def main() -> None:
     (out / "common.h").write_text(gen_common_h())
     (out / "wwr_capi.h").write_text(gen_umbrella_h())
     # Each unit's header + thunk TU in its own subdirectory, so CMake can give
-    # each its own .so that links only its surface's vendor dep.
+    # each its own .so that links only its surface's vendor dep. The hand-written
+    # complex surface and the runtime_api slice stay bespoke; every
+    # fragment-sourced library surface (blas + the milestone-#6 four) goes through
+    # the one generic library path.
     units = {
         "complex": (gen_complex_h(), gen_complex_cpp()),
         "runtime_api": (gen_runtime_api_h(status_fns, enum),
                         gen_runtime_api_cpp(status_fns, enum)),
-        "blas": (gen_blas_h(blas_fns, blas_enums),
-                 gen_blas_cpp(blas_fns, blas_enums)),
     }
-    # Each unit's C header + thunk TU and its Rust module, all in the unit's own
-    # subdirectory. CMake gives each unit its own .so (links only its surface's
-    # vendor dep); the crate mirrors that into a per-feature Rust module.
     rust_units = {
         "complex": gen_rust_complex(enum),
         "runtime_api": gen_rust_runtime_api(status_fns, enum),
-        "blas": gen_rust_blas(blas_fns, blas_enums),
     }
+    for lib in libs:
+        units[lib.spec.name] = (gen_library_h(lib), gen_library_cpp(lib))
+        rust_units[lib.spec.name] = gen_rust_library(lib)
     for unit, (header, cpp) in units.items():
         unit_dir = out / unit
         unit_dir.mkdir(exist_ok=True)
@@ -868,11 +993,14 @@ def main() -> None:
     # driver.rs include!s (over the umbrella .so).
     rust_common = gen_rust_common()
     (out / "common.rs").write_text(rust_common)
-    combined = gen_rust_combined(status_fns, enum, blas_fns, blas_enums)
+    combined = gen_rust_combined(status_fns, enum, libs)
     (out / "ffi.rs").write_text(combined)
-    print(f"blas: wrapped {len(blas_fns)} functions, skipped {len(SKIPPED)}")
-    for name, reason in SKIPPED:
-        print(f"  SKIP {name}: {reason}")
+    for lib in libs:
+        skips = SKIPPED.get(lib.spec.name, [])
+        print(f"{lib.spec.name}: wrapped {len(lib.functions)} functions, "
+              f"skipped {len(skips)}")
+        for name, reason in skips:
+            print(f"  SKIP {name}: {reason}")
     # The wwr-sys crate ships the binding self-contained (it is installed and
     # path/git-depended on away from this tree, so a sibling `../gen/*.rs`
     # include! would dangle). Keep each generated module the SINGLE SOURCE by

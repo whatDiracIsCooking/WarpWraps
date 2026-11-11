@@ -10,8 +10,12 @@
 //! | `complex`     | [`complex`]           | `libwwr_capi_complex.so` (no vendor math lib) |
 //! | `runtime_api` | [`runtime_api`]       | `libwwr_capi_runtime_api.so`   |
 //! | `blas`        | [`blas`]              | `libwwr_capi_blas.so` -> cuBLAS / hipBLAS |
+//! | `blaslt`      | [`blaslt`]            | `libwwr_capi_blaslt.so` -> cuBLASLt / hipBLASLt |
+//! | `solver`      | [`solver`]            | `libwwr_capi_solver.so` -> cuSOLVER / hipSOLVER |
+//! | `rand`        | [`rand`]              | `libwwr_capi_rand.so` -> cuRAND / hipRAND |
+//! | `rtc`         | [`rtc`]               | `libwwr_capi_rtc.so` -> nvRTC / hipRTC |
 //!
-//! ALL THREE are default features, so an existing user who wants the whole ABI
+//! ALL are default features, so an existing user who wants the whole ABI
 //! is unchanged -- they just transparently link the per-unit `.so`s instead of
 //! one umbrella. A user who needs one surface opts DOWN:
 //! `wwr-sys = { ..., default-features = false, features = ["complex"] }`
@@ -53,6 +57,26 @@ pub use runtime_api::*;
 pub mod blas;
 #[cfg(feature = "blas")]
 pub use blas::*;
+
+#[cfg(feature = "blaslt")]
+pub mod blaslt;
+#[cfg(feature = "blaslt")]
+pub use blaslt::*;
+
+#[cfg(feature = "solver")]
+pub mod solver;
+#[cfg(feature = "solver")]
+pub use solver::*;
+
+#[cfg(feature = "rand")]
+pub mod rand;
+#[cfg(feature = "rand")]
+pub use rand::*;
+
+#[cfg(feature = "rtc")]
+pub mod rtc;
+#[cfg(feature = "rtc")]
+pub use rtc::*;
 
 #[cfg(test)]
 mod tests {

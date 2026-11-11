@@ -28,6 +28,7 @@ architecture.md §25.
 from __future__ import annotations
 
 from captypes import Handle, PointeePOD, ValueEnum
+from library import LibrarySpec
 
 # The fragment this surface sources its names from (relative to src/).
 FRAGMENT = "detail/blas_names.h"
@@ -205,3 +206,24 @@ ENUM_CONSTANTS_NOT_IN_MANIFEST = {
     "CUDA_R_16F", "CUDA_R_32F", "CUDA_R_64F",
     "HIP_R_16F", "HIP_R_32F", "HIP_R_64F",
 }
+
+# blas as a LibrarySpec: the same bundle the four milestone-#6 surfaces declare,
+# so generate.py's one generic library path emits blas exactly as before. Its
+# modules are wwr.blas + wwr.fp16 (the half forwarders), which transitively carry
+# cuBLAS / hipBLAS -- so the blas unit's .so NEEDs the vendor BLAS library.
+SPEC = LibrarySpec(
+    name="blas",
+    fragment=FRAGMENT,
+    capi_prefix="wwr_blas_",
+    cuda_manifest="cuda-13.0.x/cublas_v2.json",
+    hip_manifest="rocm-10.0.0/hipblas.json",
+    modules=["wwr.blas", "wwr.fp16"],
+    handles=HANDLES,
+    pointee_pods=POINTEE_PODS,
+    pods=[HALF_POD],
+    value_enums=VALUE_ENUMS,
+    enum_constants_not_in_manifest=ENUM_CONSTANTS_NOT_IN_MANIFEST,
+    scalar_aliases={},
+    explicit_skips=[],
+    capi_name=capi_name,
+)

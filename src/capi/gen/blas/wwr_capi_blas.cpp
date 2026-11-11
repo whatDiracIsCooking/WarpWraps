@@ -8,7 +8,7 @@ import wwr.fp16;
 
 namespace {
 template <class P, class A> P _coerce(A a) {
-  if constexpr (std::is_pointer_v<P>) return reinterpret_cast<P>(a);
+  if constexpr (std::is_pointer_v<P>) return (P)a;
   else return static_cast<P>(a);
 }
 template <class R, class... P, class... A>

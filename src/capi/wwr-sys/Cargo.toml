@@ -29,9 +29,13 @@ links = "wwr_capi"
 # and then links none of the others' vendor deps (a complex-only build -> no
 # cuBLAS). `common` (the shared PODs) is always compiled, so it is NOT a feature.
 [features]
-default = ["complex", "runtime_api", "blas"]
+default = ["complex", "runtime_api", "blas", "blaslt", "solver", "rand", "rtc"]
 complex = []
 runtime_api = []
 blas = []
+blaslt = []
+solver = []
+rand = []
+rtc = []
 
 [dependencies]
