@@ -11,8 +11,11 @@ BMIs are not portable), the capi is a **prebuilt `libwwr_capi.so`** a non-C++
 consumer links. It is installed as part of the `find_package(wwr)` package under
 `-DWWR_INSTALL_CAPI=ON` (see "Install", below).
 
-It covers two surfaces (`complex` and a thin status-returning slice of
-`runtime_api`), **host** side only. See "What this does not cover" before
+It covers three surfaces: `complex`, a thin status-returning slice of
+`runtime_api`, and the full curated `blas` library (cuBLAS / hipBLAS). `complex`
+and `runtime_api` are **host**-side; `blas` executes on the **device** at call
+time (a handle binds a device, a GEMM launches), so its thunks are link-checked
+on no-GPU CI and run-checked on a GPU box. See "What this does not cover" before
 extending it.
 
 ## How the surface is sourced (and the one surface that is not)
@@ -52,9 +55,17 @@ reuses as-is:
 A surface declares what it needs in a tiny spec: `spec/runtime_status.py` names
 the fragment, which entries to expose and the capi name each gets, and registers
 the one `EnumMap` (`wwrError_t` → `wwr_status`). The status slice exercises the
-scalar / pointer / enum arms; handle and struct are wired with the sidecar hook
-so #349 is a thin addition — register the handle/enum/struct types a new surface
-needs and the same classifier emits them.
+scalar / pointer / enum arms. **`spec/blas.py` exercises the rest** (#349): it
+takes the *whole* curated `blas_names.h` fragment and registers the vendor-free
+types blas forces — the two `Handle`s (`wwrblasHandle_t` / stream → `void*`),
+nine `ValueEnum`s (`Operation` / `FillMode` / `DiagType` / `SideMode` /
+`PointerMode` / `DataType` / `ComputeType` / `GemmAlgo` and the `status`, each a
+stable fixed-value capi enum the thunk maps **both ways** at the boundary), and
+three `PointeePOD`s (`cuComplex *` → `wwr_complex64 *`, `cuDoubleComplex *` →
+`wwr_complex128 *`, `__half *` → a new `wwr_half` POD — a vendor pointee that
+keeps a typed, layout-matched POD instead of erasing to `void*`). All 400
+functions classify and forward; a function the classifier could not represent
+would be skipped with a logged reason (none is).
 
 **`complex` is the deliberate exception** (`spec/complex.py`, still hand-written).
 Its thunks forward into wwr-*authored* inline wrappers (`wwr::wwrCaddf`), which
@@ -134,6 +145,9 @@ spec/captypes.py   classify a vendor decl into the vendor-free capi representati
                    sidecar. The extensible core #349 reuses.
 spec/runtime_status.py  the fragment-SOURCED runtime status slice: the fragment,
                    which entries to expose, and the wwrError_t -> wwr_status map.
+spec/blas.py       the fragment-SOURCED blas surface (#349): the whole curated
+                   blas_names.h fragment, plus the handle / value-enum / pointee-POD
+                   registrations the first LARGE library needs. 400 functions.
 spec/complex.py    the ONE hand-written surface: PODs (capi_name, wwr_name, layout)
                    + the complex functions. Hand-written because its thunks forward
                    into wwr-authored inline wrappers, absent from any vendor manifest
@@ -141,8 +155,9 @@ spec/complex.py    the ONE hand-written surface: PODs (capi_name, wwr_name, layo
 generate.py        fragment + manifest -> three artefacts. Sourced, so nothing drifts.
 gen/wwr_capi.h     vendor-free C header for bindgen / a C consumer (PODs, the
                    wwr_status enum, prototypes). Installed under WWR_INSTALL_CAPI.
-gen/wwr_capi.cpp   the backend-neutral extern "C" thunks (import wwr.complex +
-                   wwr.runtime_api; the _map status helper).
+gen/wwr_capi.cpp   the backend-neutral extern "C" thunks (import wwr.complex /
+                   wwr.runtime_api / wwr.blas / wwr.fp16; the _map status helper,
+                   the _fwd forwarder, the per-enum capi<->neutral maps).
 gen/ffi.rs         the Rust side: one extern "C" block, #[repr(C)] PODs, the
                    #[repr(i32)] wwr_status enum, NO cfg.
 CMakeLists.txt     the wwr.capi shared-library target, the install rules, and the

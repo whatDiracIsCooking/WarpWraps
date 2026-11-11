@@ -1125,6 +1125,29 @@ drift this layout forecloses is now foreclosed in code: delete a name from the
 fragment and it leaves the generated header, thunk and `ffi.rs` (and a surface that
 still requests it fails the build, rather than inventing it).
 
+#349 is that widening surface, and the first LARGE one: the whole curated `blas`
+fragment (400 functions over cuBLAS / hipBLAS). It confirmed the thin-registration
+claim and extended the classifier with the two cases a library forces that the
+runtime status slice did not. First, a **value enum carried both ways** across the
+boundary (`captypes.ValueEnum`): `cublasOperation_t` and the FillMode / DiagType /
+SideMode / PointerMode / compute / datatype / algo family are stable fixed-value
+capi enums (the §6 contract) that the thunk maps capi→neutral for a parameter and
+neutral→capi for a return or out-parameter — the raw backend value never crosses
+(OP_N is 0 on cuBLAS, 111 on hipBLAS), and an out-enum pointer is filled through a
+neutral local and mapped, never `reinterpret_cast`. Second, a **typed pointee POD**
+(`captypes.PointeePOD`): a `cuComplex *` / `__half *` parameter keeps a
+layout-matched `wwr_complex64 *` / `wwr_half *` rather than erasing to `void*`, so
+Rust sees a typed pointer; the thunk `reinterpret_cast`s each at the boundary via a
+one deduced-parameter-type forwarder (`_fwd`), naming no vendor type. The datatype
+enum's constants (`CUDA_R_16F` / `HIP_R_16F`) live in the runtime library, not the
+blas manifest, so the generator's enum cross-check exempts them — the thunk needs
+only the neutral `wwr::WWRBLAS_R_*` constant, which the fragment carries. All 400
+functions classify and forward; none is skipped. blas executes on the device (a
+handle binds a device, a GEMM launches), so the thunks are link-checked on no-GPU
+CI (both backends and the ROCm 7.1.0 floor) and the one-shape-over-both-backends
+forward was run-checked on a GPU box (a 2×2 SGEMM through the C ABI returns the
+identical result on CUDA and gfx1200). Dated 2026-11-11.
+
 The capi is now a first-class installed artifact (#338, milestone #5). Unlike
 every other `wwr` library — which ships as module *source* a consumer compiles,
 since a BMI is not portable — the capi ships as a prebuilt `libwwr_capi.so` a

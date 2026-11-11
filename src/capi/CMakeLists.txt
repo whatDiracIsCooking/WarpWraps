@@ -42,8 +42,18 @@ set_target_properties(wwr.capi PROPERTIES OUTPUT_NAME wwr_capi)
 # surface (its module BMI for the import) AND wwr::runtime_api::host for the
 # runtime host library (CUDA::cudart / hip::host) that resolves the
 # wwrRuntimeGetVersion / wwrGetDeviceCount / wwrSetDevice symbols at link.
+# wwr::blas / wwr::fp16 for the blas surface: each is the module BMI for its
+# import AND carries the vendor library (CUDA::cublas / roc::hipblas)
+# transitively (LINK_PUBLIC on wwr.blas), which resolves the cublas* / hipblas*
+# symbols at link. The blas thunks run on the DEVICE at call time; CI
+# link-checks them (no GPU), a GPU box exercises them (README, architecture.md).
 target_link_libraries(
-  wwr.capi PRIVATE wwr::complex wwr::runtime_api wwr::runtime_api::host
+  wwr.capi
+  PRIVATE wwr::complex
+          wwr::runtime_api
+          wwr::runtime_api::host
+          wwr::blas
+          wwr::fp16
 )
 target_include_directories(wwr.capi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/gen)
 set_target_properties(
