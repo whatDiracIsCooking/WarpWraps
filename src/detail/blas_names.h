@@ -127,6 +127,11 @@ WWR_FUNCTION_RAW(wwrblasGetStream, cublasGetStream_v2, hipblasGetStream)
 WWR_FUNCTION_RAW(wwrblasSetPointerMode, cublasSetPointerMode_v2, hipblasSetPointerMode)
 WWR_FUNCTION_RAW(wwrblasGetPointerMode, cublasGetPointerMode_v2, hipblasGetPointerMode)
 
+// A caller-owned workspace for the handle, in place of the one the library
+// allocates itself. cuBLAS wants it 256-byte aligned and re-binds its default
+// workspace on a later SetStream, so set the stream first, then the workspace.
+WWR_FUNCTION_RAW(wwrblasSetWorkspace, cublasSetWorkspace_v2, hipblasSetWorkspace)
+
 // hipBLAS has a single status-to-string function; both names map to it.
 WWR_FUNCTION_RAW(wwrblasGetStatusName, cublasGetStatusName, hipblasStatusToString)
 WWR_FUNCTION_RAW(wwrblasGetStatusString, cublasGetStatusString, hipblasStatusToString)

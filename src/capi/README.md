@@ -114,7 +114,7 @@ three `PointeePOD`s (`cuComplex *` → `wwr_complex64 *`, `cuDoubleComplex *` �
 `wwr_complex128 *`, `__half *` → the shared `wwr_half` POD — a vendor pointee
 that keeps a typed, layout-matched POD instead of erasing to `void*`; `wwr_half`
 lives in `common.h` as shared numeric vocabulary, since the `fp16` surface
-declares it too). All 400
+declares it too). All 401
 functions classify and forward; a function the classifier could not represent
 would be skipped with a logged reason (none is).
 
@@ -200,7 +200,7 @@ spec/runtime_status.py  the fragment-SOURCED runtime_api surface: the fragment,
                    The generator SWEEPS the whole fragment (not a fixed list).
 spec/blas.py       the fragment-SOURCED blas surface (#349): the whole curated
                    blas_names.h fragment, plus the handle / value-enum / pointee-POD
-                   registrations the first LARGE library needs. 400 functions.
+                   registrations the first LARGE library needs. 401 functions.
 spec/ccl.py        the fragment-SOURCED ccl surface (#358): sources its names from
                    src/ccl.cppm itself (its module IS its fragment), registers the
                    comm / window handles + result / datatype / redop / residence
