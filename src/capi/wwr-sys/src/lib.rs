@@ -259,4 +259,121 @@ mod tests {
         let s = unsafe { wwr_float2fp8(1.0, WWR_FP8_SATFINITE, WWR_FP8_E4M3) };
         assert_eq!(s.bits, 0x38);
     }
+
+    // The blas workspace entry (#376): hand a created handle a caller-owned
+    // workspace from a device allocation, then run a DGEMM on that handle and
+    // check C = A * B against a host product. The one DEVICE case here: it
+    // returns early, saying so, when the runtime sees no device, so a no-GPU
+    // runner still links it. cuBLAS wants the workspace 256-byte aligned
+    // (wwr_malloc's alignment exceeds that) and re-binds its default workspace
+    // on a later SetStream, so the handle keeps the default stream throughout.
+    #[cfg(all(feature = "blas", feature = "runtime_api"))]
+    #[test]
+    fn blas_set_workspace_then_dgemm() {
+        use crate::{
+            wwr_blas_create, wwr_blas_destroy, wwr_blas_dgemm, wwr_blas_handle,
+            wwr_blas_operation::WWR_BLAS_OP_N, wwr_blas_set_workspace,
+            wwr_blas_status::WWR_BLAS_STATUS_SUCCESS, wwr_free, wwr_get_device_count, wwr_malloc,
+            wwr_memcpy, wwr_memcpy_kind, wwr_status::WWR_STATUS_SUCCESS,
+        };
+        use core::ffi::c_void;
+
+        let mut count: i32 = 0;
+        // SAFETY: &mut count is a valid out-param address.
+        let st = unsafe { wwr_get_device_count(&mut count) };
+        if st != WWR_STATUS_SUCCESS || count == 0 {
+            eprintln!("SKIPPED blas_set_workspace_then_dgemm: no GPU device ({st:?})");
+            return;
+        }
+
+        const N: usize = 64;
+        const WORKSPACE_BYTES: usize = 4 << 20;
+        let a: Vec<f64> = (0..N * N).map(|i| ((i % 7) as f64) - 3.0).collect();
+        let b: Vec<f64> = (0..N * N).map(|i| ((i % 5) as f64) * 0.5).collect();
+        // Column-major reference C = A * B.
+        let mut want = vec![0.0f64; N * N];
+        for j in 0..N {
+            for k in 0..N {
+                let bkj = b[k + j * N];
+                for i in 0..N {
+                    want[i + j * N] += a[i + k * N] * bkj;
+                }
+            }
+        }
+
+        let bytes = N * N * core::mem::size_of::<f64>();
+        let mut got = vec![0.0f64; N * N];
+        // SAFETY: every pointer handed to the extern "C" calls is either a
+        // device allocation of the stated size made just above it, or a host
+        // Vec of exactly `bytes`; each is freed once, after the synchronous
+        // device-to-host copy has drained the GEMM on the default stream.
+        unsafe {
+            let mut workspace: *mut c_void = core::ptr::null_mut();
+            let mut d_a: *mut c_void = core::ptr::null_mut();
+            let mut d_b: *mut c_void = core::ptr::null_mut();
+            let mut d_c: *mut c_void = core::ptr::null_mut();
+            assert_eq!(
+                wwr_malloc(&mut workspace, WORKSPACE_BYTES),
+                WWR_STATUS_SUCCESS
+            );
+            assert_eq!(
+                workspace as usize % 256,
+                0,
+                "cuBLAS needs a 256-byte aligned workspace"
+            );
+            assert_eq!(wwr_malloc(&mut d_a, bytes), WWR_STATUS_SUCCESS);
+            assert_eq!(wwr_malloc(&mut d_b, bytes), WWR_STATUS_SUCCESS);
+            assert_eq!(wwr_malloc(&mut d_c, bytes), WWR_STATUS_SUCCESS);
+            let h2d = wwr_memcpy_kind::WWR_MEMCPY_HOST_TO_DEVICE;
+            assert_eq!(
+                wwr_memcpy(d_a, a.as_ptr().cast(), bytes, h2d),
+                WWR_STATUS_SUCCESS
+            );
+            assert_eq!(
+                wwr_memcpy(d_b, b.as_ptr().cast(), bytes, h2d),
+                WWR_STATUS_SUCCESS
+            );
+
+            let mut handle: wwr_blas_handle = core::ptr::null_mut();
+            assert_eq!(wwr_blas_create(&mut handle), WWR_BLAS_STATUS_SUCCESS);
+            assert_eq!(
+                wwr_blas_set_workspace(handle, workspace, WORKSPACE_BYTES),
+                WWR_BLAS_STATUS_SUCCESS
+            );
+            let (alpha, beta) = (1.0f64, 0.0f64);
+            let n = N as i32;
+            assert_eq!(
+                wwr_blas_dgemm(
+                    handle,
+                    WWR_BLAS_OP_N,
+                    WWR_BLAS_OP_N,
+                    n,
+                    n,
+                    n,
+                    &alpha,
+                    d_a.cast(),
+                    n,
+                    d_b.cast(),
+                    n,
+                    &beta,
+                    d_c.cast(),
+                    n,
+                ),
+                WWR_BLAS_STATUS_SUCCESS
+            );
+            let d2h = wwr_memcpy_kind::WWR_MEMCPY_DEVICE_TO_HOST;
+            assert_eq!(
+                wwr_memcpy(got.as_mut_ptr().cast(), d_c, bytes, d2h),
+                WWR_STATUS_SUCCESS
+            );
+
+            assert_eq!(wwr_blas_destroy(handle), WWR_BLAS_STATUS_SUCCESS);
+            for p in [d_c, d_b, d_a, workspace] {
+                assert_eq!(wwr_free(p), WWR_STATUS_SUCCESS);
+            }
+        }
+        // Every entry is a sum of 64 products of small integers and halves, so
+        // the product is exact in f64 whatever the summation order.
+        assert_eq!(got, want);
+    }
 }

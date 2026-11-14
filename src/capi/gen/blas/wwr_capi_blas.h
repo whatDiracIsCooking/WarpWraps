@@ -299,6 +299,7 @@ wwr_blas_status wwr_blas_sdot(wwr_blas_handle handle, int n, const float *x, int
 wwr_blas_status wwr_blas_sdot_64(wwr_blas_handle handle, int64_t n, const float *x, int64_t incx, const float *y, int64_t incy, float *result);
 wwr_blas_status wwr_blas_set_pointer_mode(wwr_blas_handle handle, wwr_blas_pointer_mode mode);
 wwr_blas_status wwr_blas_set_stream(wwr_blas_handle handle, wwr_stream streamId);
+wwr_blas_status wwr_blas_set_workspace(wwr_blas_handle handle, void *workspace, size_t workspaceSizeInBytes);
 wwr_blas_status wwr_blas_sgbmv(wwr_blas_handle handle, wwr_blas_operation trans, int m, int n, int kl, int ku, const float *alpha, const float *A, int lda, const float *x, int incx, const float *beta, float *y, int incy);
 wwr_blas_status wwr_blas_sgbmv_64(wwr_blas_handle handle, wwr_blas_operation trans, int64_t m, int64_t n, int64_t kl, int64_t ku, const float *alpha, const float *A, int64_t lda, const float *x, int64_t incx, const float *beta, float *y, int64_t incy);
 wwr_blas_status wwr_blas_sgeam(wwr_blas_handle handle, wwr_blas_operation transa, wwr_blas_operation transb, int m, int n, const float *alpha, const float *A, int lda, const float *beta, const float *B, int ldb, float *C, int ldc);

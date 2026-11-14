@@ -1071,6 +1071,10 @@ wwr_blas_status wwr_blas_set_stream(wwr_blas_handle handle, wwr_stream streamId)
   return _from_status(_fwd(wwr::wwrblasSetStream, handle, streamId));
 }
 
+wwr_blas_status wwr_blas_set_workspace(wwr_blas_handle handle, void *workspace, size_t workspaceSizeInBytes) {
+  return _from_status(_fwd(wwr::wwrblasSetWorkspace, handle, workspace, workspaceSizeInBytes));
+}
+
 wwr_blas_status wwr_blas_sgbmv(wwr_blas_handle handle, wwr_blas_operation trans, int m, int n, int kl, int ku, const float *alpha, const float *A, int lda, const float *x, int incx, const float *beta, float *y, int incy) {
   return _from_status(_fwd(wwr::wwrblasSgbmv, handle, _to_operation(trans), m, n, kl, ku, alpha, A, lda, x, incx, beta, y, incy));
 }

@@ -1698,6 +1698,7 @@ extern "C" {
     pub fn wwr_blas_sdot_64(handle: wwr_blas_handle, n: i64, x: *const f32, incx: i64, y: *const f32, incy: i64, result: *mut f32) -> wwr_blas_status;
     pub fn wwr_blas_set_pointer_mode(handle: wwr_blas_handle, mode: wwr_blas_pointer_mode) -> wwr_blas_status;
     pub fn wwr_blas_set_stream(handle: wwr_blas_handle, streamId: wwr_stream) -> wwr_blas_status;
+    pub fn wwr_blas_set_workspace(handle: wwr_blas_handle, workspace: *mut core::ffi::c_void, workspaceSizeInBytes: usize) -> wwr_blas_status;
     pub fn wwr_blas_sgbmv(handle: wwr_blas_handle, trans: wwr_blas_operation, m: i32, n: i32, kl: i32, ku: i32, alpha: *const f32, A: *const f32, lda: i32, x: *const f32, incx: i32, beta: *const f32, y: *mut f32, incy: i32) -> wwr_blas_status;
     pub fn wwr_blas_sgbmv_64(handle: wwr_blas_handle, trans: wwr_blas_operation, m: i64, n: i64, kl: i64, ku: i64, alpha: *const f32, A: *const f32, lda: i64, x: *const f32, incx: i64, beta: *const f32, y: *mut f32, incy: i64) -> wwr_blas_status;
     pub fn wwr_blas_sgeam(handle: wwr_blas_handle, transa: wwr_blas_operation, transb: wwr_blas_operation, m: i32, n: i32, alpha: *const f32, A: *const f32, lda: i32, beta: *const f32, B: *const f32, ldb: i32, C: *mut f32, ldc: i32) -> wwr_blas_status;
